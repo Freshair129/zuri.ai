@@ -80,12 +80,13 @@ proceeding.
 ```powershell
 node scripts/migrate-line-oa-provider.mjs
 node scripts/migrate-line-oa-provider.mjs --apply
+node scripts/migrate-line-oa-provider.mjs --tenant <tenantId> --tenant <tenantId> --dry-run
 ```
 
 The first (default) command prints a `DRY_RUN` summary — `wouldRepoint`,
 `wouldDisable`, `unresolvedCollisions` — and exits non-zero if any collision is
 unresolved (its metadata does not parse as a JSON object). Fix the offending
-row before applying. `--apply` performs the merge in one transaction and
+row before applying. `--tenant <tenantId>` (repeatable) limits both the plan and the apply to those tenants — the whole installation is in scope without it, which is what a production run wants and what the integration test deliberately does not (its per-run database is shared with the LINE registry suites). `--apply` performs the merge in one transaction and
 prints the outcome, including whether the legacy provider row was deleted.
 
 ## 4. Apply — production (Supabase/Postgres)

@@ -57,7 +57,18 @@ function collisionKey(tenantId, externalAccountId) {
  * externalAccountId never collides: the unique index treats NULL as distinct
  * from NULL, so two such rows can share a provider without conflict.
  */
-export async function planLineOaProviderMerge(db) {
+/**
+ * Optional tenant scope. Production runs want the whole installation; a test
+ * (or a cautious operator) wants one or two tenants. Without it, every
+ * legacy row in the database is in scope — which is also why the integration
+ * test scopes itself: the shared per-run SQLite database holds legacy rows
+ * seeded by other suites, and a whole-database plan would count theirs.
+ */
+function tenantScope(tenantIds) {
+  return Array.isArray(tenantIds) && tenantIds.length > 0 ? { tenantId: { in: tenantIds } } : {}
+}
+
+export async function planLineOaProviderMerge(db, { tenantIds } = {}) {
   const legacyProvider = await db.integrationProvider.findUnique({ where: { code: LEGACY_LINE_OA_PROVIDER_CODE } })
   const canonicalProvider = await db.integrationProvider.findUnique({ where: { code: LINE_OA_PROVIDER_CODE } })
 
@@ -74,9 +85,9 @@ export async function planLineOaProviderMerge(db) {
   }
 
   const [legacyConnections, canonicalConnections] = await Promise.all([
-    db.integrationConnection.findMany({ where: { providerId: legacyProvider.id } }),
+    db.integrationConnection.findMany({ where: { providerId: legacyProvider.id, ...tenantScope(tenantIds) } }),
     canonicalProvider
-      ? db.integrationConnection.findMany({ where: { providerId: canonicalProvider.id } })
+      ? db.integrationConnection.findMany({ where: { providerId: canonicalProvider.id, ...tenantScope(tenantIds) } })
       : Promise.resolve([]),
   ])
 
@@ -132,8 +143,8 @@ export async function planLineOaProviderMerge(db) {
  * collision it cannot resolve" contract; a resolvable collision (disable +
  * tag) is not a refusal, it is the expected outcome.
  */
-export async function applyLineOaProviderMerge(db, { now = new Date() } = {}) {
-  const plan = await planLineOaProviderMerge(db)
+export async function applyLineOaProviderMerge(db, { now = new Date(), tenantIds } = {}) {
+  const plan = await planLineOaProviderMerge(db, { tenantIds })
   if (plan.unresolved.length > 0) {
     const error = new Error('LINE_OA_PROVIDER_MERGE_UNRESOLVED_COLLISION')
     error.unresolved = plan.unresolved
@@ -194,21 +205,34 @@ export function parseArgs(argv) {
   const apply = argv.includes('--apply')
   const dryRun = argv.includes('--dry-run')
   if (apply && dryRun) throw new Error('LINE_OA_PROVIDER_MERGE_CLI_CONFLICTING_FLAGS — pass --apply or --dry-run, not both')
+  const tenantIds = []
+  const rest = []
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] === '--tenant') {
+      const value = argv[i + 1]
+      if (!value || value.startsWith('--')) throw new Error('LINE_OA_PROVIDER_MERGE_CLI_TENANT_REQUIRES_VALUE — --tenant <tenantId>')
+      tenantIds.push(value)
+      i += 1
+      continue
+    }
+    rest.push(argv[i])
+  }
   const known = new Set(['--apply', '--dry-run'])
-  const unknown = argv.find((token) => !known.has(token))
+  const unknown = rest.find((token) => !known.has(token))
   if (unknown) throw new Error(`LINE_OA_PROVIDER_MERGE_CLI_UNKNOWN_OPTION — ${unknown}`)
-  return { apply }
+  return { apply, tenantIds }
 }
 
 export async function main(argv = process.argv.slice(2), dependencies = {}) {
   const db = dependencies.db ?? prisma
   const log = dependencies.log ?? console.log
-  const { apply } = parseArgs(argv)
+  const { apply, tenantIds } = parseArgs(argv)
 
   if (!apply) {
-    const plan = await planLineOaProviderMerge(db)
+    const plan = await planLineOaProviderMerge(db, { tenantIds })
     const summary = {
       mode: 'DRY_RUN',
+      tenantScope: tenantIds.length > 0 ? tenantIds : 'ALL',
       legacyProviderExists: plan.legacyProviderExists,
       canonicalProviderExists: plan.canonicalProviderExists,
       wouldRepoint: plan.repoint.length,
@@ -220,8 +244,8 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
     return summary
   }
 
-  const result = await applyLineOaProviderMerge(db)
-  log(JSON.stringify({ mode: 'APPLY', ...result }, null, 2))
+  const result = await applyLineOaProviderMerge(db, { tenantIds })
+  log(JSON.stringify({ mode: 'APPLY', tenantScope: tenantIds.length > 0 ? tenantIds : 'ALL', ...result }, null, 2))
   return result
 }
 

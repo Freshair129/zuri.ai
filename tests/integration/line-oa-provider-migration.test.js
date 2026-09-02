@@ -142,7 +142,9 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
   })
 
   it('dry run reports the plan without writing anything', async () => {
-    const plan = await planLineOaProviderMerge(prisma)
+    // Scoped to this file's tenants: the per-run database is shared with the
+    // LINE registry suites, which seed legacy rows of their own.
+    const plan = await planLineOaProviderMerge(prisma, { tenantIds: [tenantA.id, tenantB.id] })
     expect(plan.legacyProviderExists).toBe(true)
     expect(plan.repoint.map((c) => c.externalAccountId).sort()).toEqual([COLLIDE_ID, NO_COLLIDE_ID].sort())
     expect(plan.disable).toHaveLength(1)
@@ -151,14 +153,20 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     expect(plan.unresolved).toHaveLength(0)
 
     // Untouched by a dry run.
-    const stillLegacy = await prisma.integrationConnection.count({ where: { providerId: legacyProvider.id } })
+    const stillLegacy = await prisma.integrationConnection.count({
+      where: { providerId: legacyProvider.id, tenantId: { in: [tenantA.id, tenantB.id] } },
+    })
     expect(stillLegacy).toBe(3)
   })
 
   it('the CLI dry run prints the summary and exits zero', async () => {
     const log = []
-    const summary = await migrateLineOaProviderMain([], { db: prisma, log: (line) => log.push(line) })
+    const summary = await migrateLineOaProviderMain(
+      ['--tenant', tenantA.id, '--tenant', tenantB.id],
+      { db: prisma, log: (line) => log.push(line) },
+    )
     expect(summary.mode).toBe('DRY_RUN')
+    expect(summary.tenantScope).toEqual([tenantA.id, tenantB.id])
     expect(summary.wouldDisable).toBe(1)
     expect(summary.wouldRepoint).toBe(2)
     expect(summary.unresolvedCollisions).toBe(0)
@@ -166,7 +174,7 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
   })
 
   it('applies the merge: re-points the free-standing rows, disables and tags the collision, keeps tenant scoping, and leaves the legacy provider because a duplicate still references it', async () => {
-    const result = await applyLineOaProviderMerge(prisma)
+    const result = await applyLineOaProviderMerge(prisma, { tenantIds: [tenantA.id, tenantB.id] })
     expect(result.applied).toBe(true)
     expect(result.repointedCount).toBe(2)
     expect(result.disabledCount).toBe(1)
@@ -209,7 +217,7 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
   })
 
   it('is idempotent: applying again changes nothing further', async () => {
-    const plan = await planLineOaProviderMerge(prisma)
+    const plan = await planLineOaProviderMerge(prisma, { tenantIds: [tenantA.id, tenantB.id] })
     expect(plan.repoint).toHaveLength(0)
     expect(plan.disable).toHaveLength(0)
     expect(plan.unresolved).toHaveLength(0)
