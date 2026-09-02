@@ -6,6 +6,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { recordCustomerConsent } from '@/modules/crm/customer-consent-service'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 
 // @req FR-103 — SEC-005 consent attestation, proved against a Customer the real
 // FR-023 ingest seam wrote, not a hand-inserted fixture.
@@ -26,6 +27,11 @@ async function ownerOf(...businessIds) {
   })
   return makeViewer({
     role: 'OWNER', visibleBusinessIds: businessIds, ownedBusinessIds: businessIds,
+    // @req FR-061 — an OWNER Membership derives every domain from its role, per
+    // Membership (SDD-034), which is what resolveViewer emits for this shape. Stated
+    // because consent now asks for the `customer` grant before it asks about ownership,
+    // and the factory's default domain list predates that domain existing.
+    visibleDomains: [...VIEWER_DOMAINS],
     principal: { id: person.id, code: person.code, displayName: person.displayName },
   })
 }
@@ -97,7 +103,11 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
   })
 
   it('a Member of the Business is refused — recording consent needs OWNER authority', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: [busA1.id], ownedBusinessIds: [] })
+    // Granted the CRM domain and nothing more: without that grant this viewer would be
+    // refused one gate earlier (FR-061), and the case would stop testing OWNER authority.
+    const viewer = makeViewer({
+      visibleBusinessIds: [busA1.id], ownedBusinessIds: [], visibleDomains: [...VIEWER_DOMAINS],
+    })
     await expect(
       recordCustomerConsent(customerA1, { businessId: busA1.id, status: 'DECLINED' }, { viewer }),
     ).rejects.toMatchObject({ status: 403 })
@@ -126,7 +136,7 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
     // The attacker shape from the authorization RCAs: OWNER of Business B1, merely
     // visible into A1 — proves ownership is checked against the *named* businessId,
     // not against "owns something, somewhere".
-    const viewer = ownsElsewhere({ owns: busB1.id, sees: busA1.id })
+    const viewer = ownsElsewhere({ owns: busB1.id, sees: busA1.id, visibleDomains: [...VIEWER_DOMAINS] })
     await expect(
       recordCustomerConsent(customerA1, { businessId: busA1.id, status: 'GRANTED' }, { viewer }),
     ).rejects.toMatchObject({ status: 403 })

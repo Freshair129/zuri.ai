@@ -20,6 +20,13 @@ import {
 
 const BUSINESS = { id: 'b-1', tenantId: 't-1', name: 'ร้านทดสอบ' }
 
+// @req FR-061 — the feed is gated on the per-Business `market` grant as well as on
+// visibility, so each fixture below states the grant it relies on rather than
+// inheriting the factory's default list (which predates this domain existing). The
+// suite that proves the gate itself is tests/unit/domain-visibility-server-enforcement.test.js;
+// here the grant is simply present, so these cases keep testing what they are named for.
+const MARKET_DOMAINS = ['market', 'projects', 'people', 'platform']
+
 const observationRow = (over = {}) => ({
   id: 'obs-1',
   provider: 'FACEBOOK_MARKETPLACE',
@@ -65,7 +72,7 @@ describe('parseMarketObservationFeedQuery (FR-092)', () => {
 describe('getMarketObservationFeed (FR-092)', () => {
   it('refuses a Business the viewer cannot see, before any query runs', async () => {
     const { db, createRepository, findUnique } = harness()
-    const viewer = makeViewer({ visibleBusinessIds: ['b-other'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-other'], visibleDomains: MARKET_DOMAINS })
 
     await expect(getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository }))
       .rejects.toMatchObject({ status: 403 })
@@ -79,7 +86,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
     // hid three authorization holes. Reading market evidence is not a write, so this
     // viewer is allowed through — and the test says so explicitly rather than leaving
     // it to whichever predicate was reached for.
-    const viewer = ownsElsewhere({ owns: 'b-owned', sees: 'b-1' })
+    const viewer = ownsElsewhere({ owns: 'b-owned', sees: 'b-1', visibleDomains: MARKET_DOMAINS })
 
     const result = await getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository })
 
@@ -89,7 +96,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
 
   it('answers 404 for a Business the viewer may see but which does not exist', async () => {
     const { db, createRepository } = harness({ business: null })
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     await expect(getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository }))
       .rejects.toMatchObject({ status: 404 })
@@ -98,7 +105,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
 
   it('builds the repository with the tenant read from the Business row, never from the caller', async () => {
     const { db, createRepository, listRecent } = harness()
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     await getMarketObservationFeed({ viewer, businessId: 'b-1', limit: 7 }, { db, createRepository })
 
@@ -113,7 +120,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
         observationRow({ id: 'b', provider: 'RETAIL_LOTUS', candidateJson: JSON.stringify({ name: 'น้ำส้ม 250ml', unitPrice: 26, currency: 'THB', sellerName: "Lotus's" }) }),
       ],
     })
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     const result = await getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository })
 
@@ -134,7 +141,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
     const { db, createRepository } = harness({
       rows: [observationRow({ candidateJson: JSON.stringify({ title: 42, price: 'ถูกมาก' }) })],
     })
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     const [row] = (await getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository })).observations
 
@@ -145,7 +152,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
 
   it('degrades one unreadable candidate to null instead of failing the whole page', async () => {
     const { db, createRepository } = harness({ rows: [observationRow({ candidateJson: 'not json' })] })
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     const result = await getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db, createRepository })
 
@@ -158,7 +165,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
     const { db, createRepository } = harness({
       rows: [observationRow({ id: 'a' }), observationRow({ id: 'b' })],
     })
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
 
     const result = await getMarketObservationFeed({ viewer, businessId: 'b-1', limit: 2 }, { db, createRepository })
 
@@ -166,7 +173,7 @@ describe('getMarketObservationFeed (FR-092)', () => {
   })
 
   it('refuses to run without an injected database and repository factory', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], visibleDomains: MARKET_DOMAINS })
     await expect(getMarketObservationFeed({ viewer, businessId: 'b-1' }, {})).rejects.toThrow(/Prisma client/)
     await expect(getMarketObservationFeed({ viewer, businessId: 'b-1' }, { db: harness().db }))
       .rejects.toThrow(/repository factory/)
