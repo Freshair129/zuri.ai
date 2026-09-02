@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { Search, Plus, Sparkles, UploadCloud } from 'lucide-react'
 import { DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { WORK_STATUSES, ITEM_SUBTYPES, MODE_LABELS } from '@/lib/validation/enums'
+import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
 import StandaloneTaskModal from '../../components/StandaloneTaskModal'
@@ -112,7 +113,9 @@ export default function AllWorkView({ projectId }) {
   const [subtype, setSubtype] = useState('')
   const [mode, setMode] = useState('')
 
-  const { data: businesses } = useFetch('/api/businesses')
+  // @req FR-046 — reuse the Business inventory ScopeContext already loaded
+  // (/api/scope) instead of a second broad list fetch on this entry surface.
+  const { businesses } = useScope()
 
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [planModalOpen, setPlanModalOpen] = useState(false)

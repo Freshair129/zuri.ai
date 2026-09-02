@@ -2,13 +2,18 @@
 
 // @req FR-009, FR-012, FR-017 — Plan Mode Customizer: Design execution plans across
 // 7 canonical modes with explicit Requester (AI/Human) and Human Approver bindings.
-// @spec BR-003, BR-004, SDD-006
+// The generated PlanEnvelope converges on the same dry-run → preview → confirm
+// pipeline as every other intake surface (BR-009, SDD-009) — it is never sent
+// straight to a write.
+// @spec BR-003, BR-004, SDD-006, BR-009, SDD-009
 
 import { useEffect, useState } from 'react'
 import { Plus, Trash2, Sparkles, CheckCircle2 } from 'lucide-react'
 import { Modal, Field } from '@/components/ui'
 import { EXECUTION_MODES, MODE_LABELS } from '@/lib/validation/enums'
+import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from './useApi'
+import { buildPlanImportRequest } from './planImportRequest'
 
 const PRESET_EXAMPLES = {
   DATA_MIGRATION: {
@@ -51,8 +56,12 @@ const PRESET_EXAMPLES = {
 }
 
 export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) {
-  const { data: businesses } = useFetch('/api/businesses')
-  const { data: workspaces } = useFetch('/api/workspaces')
+  // @req FR-046 — no entry surface prefetches the compatibility inventory from
+  // a broad list endpoint; the Business/Workspace inventory already loaded
+  // into ScopeContext (via /api/scope) is reused instead of a second fetch.
+  const scope = useScope()
+  const businesses = scope.businesses
+  const workspaces = scope.workspaces
   const { data: viewer } = useFetch('/api/viewer')
 
   const [objective, setObjective] = useState('')
@@ -70,6 +79,11 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
   ])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  // Dry-run result awaiting confirmation, plus the exact request that produced
+  // it — the commit leg re-sends the same { plan, workspaceId } so it can
+  // never authorize or write to a scope the preview did not check.
+  const [preview, setPreview] = useState(null)
+  const [pendingRequest, setPendingRequest] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -85,7 +99,17 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
     }
   }, [open, businesses, viewer])
 
+  // A dry-run preview describes one exact envelope. Any further edit makes it
+  // stale, so every change below clears it rather than leaving a "Confirm"
+  // button that would commit a plan the user no longer sees.
+  const invalidatePreview = () => {
+    setPreview(null)
+    setPendingRequest(null)
+    setError(null)
+  }
+
   const applyPreset = (modeKey) => {
+    invalidatePreview()
     const preset = PRESET_EXAMPLES[modeKey] || {
       objective: `Custom Execution Plan (${MODE_LABELS[modeKey]})`,
       description: 'แผนการดำเนินงานแบบกำหนดเอง',
@@ -110,10 +134,12 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
   }
 
   const patchStream = (idx, patch) => {
+    invalidatePreview()
     setStreams((prev) => prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)))
   }
 
   const addStream = () => {
+    invalidatePreview()
     setStreams((prev) => [
       ...prev,
       { name: `Stream ${prev.length + 1}`, mode: 'OPERATIONS', itemsText: 'งานย่อยที่ 1' },
@@ -121,9 +147,68 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
   }
 
   const removeStream = (idx) => {
+    invalidatePreview()
     setStreams((prev) => (prev.length === 1 ? prev : prev.filter((_, i) => i !== idx)))
   }
 
+  const buildEnvelope = () => {
+    // Build PlanEnvelope contract
+    const selectedBiz = businesses?.find((b) => b.id === businessId) || businesses?.[0]
+    const targetWorkspace =
+      workspaces?.find((w) => w.businessId === selectedBiz?.id) || workspaces?.[0]
+
+    const codeSuffix = Date.now().toString().slice(-4)
+    const projectCode = `PRJ-PLAN-${codeSuffix}`
+
+    const envelope = {
+      schemaVersion: '1.0',
+      generatedBy: delegator || 'Zuri AI Planning Agent',
+      generatedAt: new Date().toISOString(),
+      metadata: {
+        delegator: delegator.trim(),
+        approver: approver.trim(),
+        requiresHumanApproval: true,
+        planMode: mode,
+      },
+      scope: {
+        businessCode: selectedBiz?.code || 'SMARTGIFT',
+        workspaceCode: targetWorkspace?.code || 'WS-DEFAULT',
+      },
+      project: {
+        code: projectCode,
+        name: objective.trim(),
+        description: description.trim() || undefined,
+        status: 'ACTIVE',
+      },
+      workstreams: streams.map((s, sIdx) => ({
+        code: `STR-${codeSuffix}-${sIdx + 1}`,
+        name: s.name.trim() || `Stream ${sIdx + 1}`,
+        executionMode: s.mode,
+        progressStrategy: s.mode === 'DATA_MIGRATION' ? 'METRIC_ROLLUP' : 'TASK_COUNT',
+        progressWeight: 1,
+        items: s.itemsText
+          .split('\n')
+          .map((t) => t.trim())
+          .filter(Boolean)
+          .map((title, iIdx) => ({
+            code: `TSK-${codeSuffix}-${sIdx + 1}-${iIdx + 1}`,
+            title,
+            subtype: 'TASK',
+            status: 'PLANNED',
+            weight: 1,
+            metadata: {
+              delegator: delegator.trim(),
+              approver: approver.trim(),
+            },
+          })),
+      })),
+    }
+
+    return { envelope, workspaceId: targetWorkspace?.id }
+  }
+
+  // Step 1 — validate + dry run. Never writes: this is the read-only preview
+  // required before any commit (@req FR-012, @spec BR-009/SDD-009).
   const submit = async (e) => {
     e.preventDefault()
     if (!objective.trim()) {
@@ -132,77 +217,43 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
     }
     setBusy(true)
     setError(null)
+    setPreview(null)
+    setPendingRequest(null)
     try {
-      // Build PlanEnvelope contract
-      const selectedBiz = businesses?.find((b) => b.id === businessId) || businesses?.[0]
-      const targetWorkspace =
-        workspaces?.find((w) => w.businessId === selectedBiz?.id) || workspaces?.[0]
-
-      const codeSuffix = Date.now().toString().slice(-4)
-      const projectCode = `PRJ-PLAN-${codeSuffix}`
-
-      const envelope = {
-        schemaVersion: '1.0',
-        generatedBy: delegator || 'Zuri AI Planning Agent',
-        generatedAt: new Date().toISOString(),
-        metadata: {
-          delegator: delegator.trim(),
-          approver: approver.trim(),
-          requiresHumanApproval: true,
-          planMode: mode,
-        },
-        scope: {
-          businessCode: selectedBiz?.code || 'SMARTGIFT',
-          workspaceCode: targetWorkspace?.code || 'WS-DEFAULT',
-        },
-        project: {
-          code: projectCode,
-          name: objective.trim(),
-          description: description.trim() || undefined,
-          status: 'ACTIVE',
-        },
-        workstreams: streams.map((s, sIdx) => ({
-          code: `STR-${codeSuffix}-${sIdx + 1}`,
-          name: s.name.trim() || `Stream ${sIdx + 1}`,
-          executionMode: s.mode,
-          progressStrategy: s.mode === 'DATA_MIGRATION' ? 'METRIC_ROLLUP' : 'TASK_COUNT',
-          progressWeight: 1,
-          items: s.itemsText
-            .split('\n')
-            .map((t) => t.trim())
-            .filter(Boolean)
-            .map((title, iIdx) => ({
-              code: `TSK-${codeSuffix}-${sIdx + 1}-${iIdx + 1}`,
-              title,
-              subtype: 'TASK',
-              status: 'PLANNED',
-              weight: 1,
-              metadata: {
-                delegator: delegator.trim(),
-                approver: approver.trim(),
-              },
-            })),
-        })),
+      const { envelope, workspaceId: targetWorkspaceId } = buildEnvelope()
+      const request = buildPlanImportRequest(envelope, { workspaceId: targetWorkspaceId })
+      const dry = await api('/api/import/dry-run', { method: 'POST', body: request })
+      if (!dry.valid) {
+        setError((dry.errors || []).join(', ') || 'Plan validation failed')
+        if (dry.preview) setPreview(dry.preview)
+        return
       }
+      setPreview(dry.preview)
+      setPendingRequest(request)
+    } catch (err) {
+      setError(err.message || 'Failed to validate plan')
+    } finally {
+      setBusy(false)
+    }
+  }
 
-      // Execute transactional plan import
-      const res = await api('/api/import/plan', {
-        method: 'POST',
-        body: {
-          envelope,
-          workspaceId: targetWorkspace?.id,
-          dryRun: false,
-        },
-      })
-
-      if (!res.ok && res.errors) {
-        throw new Error(res.errors.join(', '))
+  // Step 2 — transactional commit of the exact request the preview validated.
+  const confirmCommit = async () => {
+    if (!pendingRequest) return
+    setBusy(true)
+    setError(null)
+    try {
+      const res = await api('/api/import/commit', { method: 'POST', body: pendingRequest })
+      if (!res.committed) {
+        setError((res.errors || []).join(', ') || 'Failed to create plan')
+        return
       }
-
+      setPreview(null)
+      setPendingRequest(null)
       onGenerated?.(res)
       onClose()
     } catch (err) {
-      setError(err.message || 'Failed to generate plan')
+      setError(err.message || 'Failed to create plan')
     } finally {
       setBusy(false)
     }
@@ -240,7 +291,7 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
           <input
             className="input"
             value={objective}
-            onChange={(e) => setObjective(e.target.value)}
+            onChange={(e) => { invalidatePreview(); setObjective(e.target.value) }}
             placeholder="ระบุเป้าหมายหรือโจทย์ที่ต้องการวางแผน..."
             required
           />
@@ -251,14 +302,18 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
             className="input"
             rows={2}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => { invalidatePreview(); setDescription(e.target.value) }}
             placeholder="ระบุเงื่อนไข ขอบเขตเวลา หรือรายละเอียดเพิ่มเติม..."
           />
         </Field>
 
         <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
           <Field label="หน่วยธุรกิจ (Business)">
-            <select className="input" value={businessId} onChange={(e) => setBusinessId(e.target.value)}>
+            <select
+              className="input"
+              value={businessId}
+              onChange={(e) => { invalidatePreview(); setBusinessId(e.target.value) }}
+            >
               {(businesses || []).map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
@@ -270,7 +325,7 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
             <input
               className="input"
               value={delegator}
-              onChange={(e) => setDelegator(e.target.value)}
+              onChange={(e) => { invalidatePreview(); setDelegator(e.target.value) }}
               placeholder="เช่น AI Planning Agent, คุณสมชาย"
               required
             />
@@ -279,7 +334,7 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
             <input
               className="input"
               value={approver}
-              onChange={(e) => setApprover(e.target.value)}
+              onChange={(e) => { invalidatePreview(); setApprover(e.target.value) }}
               placeholder="เช่น ผู้จัดการแผนก, Owner"
               required
             />
@@ -347,14 +402,45 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
           </p>
         )}
 
+        {/* Dry-run preview — nothing has been written yet. Confirming below
+            re-sends this exact request to the transactional commit leg. */}
+        {preview && pendingRequest && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px]">
+            <p className="mb-1 flex items-center gap-1.5 font-bold text-emerald-800">
+              <CheckCircle2 size={13} /> ตรวจสอบแล้ว ยังไม่มีการเขียนข้อมูล — กด "ยืนยันสร้างแผน" เพื่อบันทึกจริง
+            </p>
+            <p className="text-emerald-900">
+              เพิ่มใหม่ {preview.inserts.length} รายการ · อัปเดต {preview.updates.length} รายการ
+              {preview.conflicts.length > 0 ? ` · ขัดแย้ง ${preview.conflicts.length} รายการ` : ''}
+            </p>
+          </div>
+        )}
+
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" className="btn" onClick={onClose}>
             ยกเลิก
           </button>
-          <button type="submit" className="btn btn-primary flex items-center gap-1.5" disabled={busy}>
-            <Sparkles size={14} />
-            {busy ? 'กำลังสร้างและอนุมัติแผน…' : 'สร้าง Execution Plan ทันที'}
-          </button>
+          {pendingRequest ? (
+            <>
+              <button type="button" className="btn" onClick={invalidatePreview} disabled={busy}>
+                แก้ไขแผน
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary flex items-center gap-1.5"
+                onClick={confirmCommit}
+                disabled={busy}
+              >
+                <Sparkles size={14} />
+                {busy ? 'กำลังบันทึก…' : 'ยืนยันสร้างแผน'}
+              </button>
+            </>
+          ) : (
+            <button type="submit" className="btn btn-primary flex items-center gap-1.5" disabled={busy}>
+              <Sparkles size={14} />
+              {busy ? 'กำลังตรวจสอบแผน…' : 'ตรวจสอบแผน (Preview)'}
+            </button>
+          )}
         </div>
       </form>
     </Modal>

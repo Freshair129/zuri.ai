@@ -7,10 +7,13 @@
 import { useEffect, useState } from 'react'
 import { Modal, Field } from '@/components/ui'
 import { ITEM_SUBTYPES, WORK_STATUSES } from '@/lib/validation/enums'
+import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from './useApi'
 
 export default function StandaloneTaskModal({ open, onClose, onSaved }) {
-  const { data: businesses } = useFetch('/api/businesses')
+  // @req FR-046 — reuse the Business inventory ScopeContext already loaded
+  // (/api/scope) instead of a second broad list fetch on this entry surface.
+  const { businesses } = useScope()
   const { data: projects } = useFetch('/api/projects')
   const { data: viewer } = useFetch('/api/viewer')
 
