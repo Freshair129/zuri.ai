@@ -2,9 +2,9 @@
 doc_type: change-request
 id: CR-014
 status: foundation-implemented
-version: "1.3.0"
+version: "1.4.0b"
 created_at: "2026-09-01T00:00:00+07:00"
-updated_at: "2026-09-02T08:00:00+07:00"
+updated_at: "2026-09-02T10:30:00+07:00"
 owner: "Boss"
 impacted_domains:
   - asset-management
@@ -213,6 +213,12 @@ Actual LINE binary fetch, OCR/Vision invocation, live Sheet synchronization,
 Procurement lookup and Finance posting require adapters/authorities not currently
 present in the repository and cannot be reported as live.
 
+CR-015/ADR-056 is the approved next execution slice. It implements private managed
+evidence, candidate extraction plus human review, Excel and bounded Google Sheets
+snapshot import-export, and a trusted zuri-cli FileAsset handoff. It deliberately ends
+at `READY_FOR_REGISTRATION`; it does not enable the full lifecycle or the external
+authority writes excluded above.
+
 ### 3.10 Proposed information architecture
 
 ```text
@@ -311,6 +317,7 @@ Those actions remain gated by Phase 3 requirements and tests.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.0b | 2026-09-02 | beta | Linked the owner-approved CR-015/ADR-056 evidence execution slice while preserving the registration, Procurement and Finance boundaries | working-tree | RWANG |
 | 1.2.0 | 2026-09-01 | accepted-as-architecture-boundary | Added multi-surface evidence, PR/PO/payment/lot, temporal ownership/location/Project allocation and depreciation-candidate requirements with explicit adapter gates | working-tree | Codex |
 | 1.1.0 | 2026-09-01 | accepted-as-architecture-boundary | Added the documentation-structure proposal and owner-acceptance gate before Phase 3 writing | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted-as-architecture-boundary | Proposed the Asset Management peer domain and handed the accepted boundary to ADR-055 and ZV2-CR-009 | working-tree | Codex |

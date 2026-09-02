@@ -8,6 +8,7 @@ import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
+import { createConfiguredAssetObjectStoragePort } from '@/platform/storage/supabase-object-storage'
 import {
   buildBusinessFileManagerReadModel,
   buildProjectFileManagerReadModel,
@@ -34,6 +35,7 @@ const fileInput = z.object({
   name: z.string().min(1),
   mime: z.string().min(1),
   size: z.number().int().nonnegative(),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/).nullish(),
   uploadedBy: z.string().min(1).nullish(),
 }).superRefine((value, context) => {
   if (value.storageKind === 'LOCAL_FILE' && (!value.mountId || !value.relativePath || !value.contentBase64)) {
@@ -97,7 +99,7 @@ export async function createManagedFileAsset(input, {
 
   const content = value.storageKind === 'LOCAL_FILE' ? Buffer.from(value.contentBase64, 'base64') : null
   if (content && content.length !== value.size) throw new Error('Declared size does not match decoded content')
-  const sha256 = content ? createHash('sha256').update(content).digest('hex') : null
+  const sha256 = content ? createHash('sha256').update(content).digest('hex') : (value.sha256 ?? null)
   const status = content ? 'QUARANTINED' : 'ACTIVE'
 
   const asset = await db.$transaction(async (tx) => {
@@ -200,14 +202,21 @@ export async function resolveFileAssetContent(fileId, {
   db = prisma,
   visibleBusinessIds,
   filesystemPort = createLocalFilesystemPort(),
+  objectStoragePort = null,
 } = {}) {
   const asset = await db.fileAsset.findUnique({ where: { id: fileId } })
   if (!asset || asset.deletedAt) throw new Error('File asset not found')
   assertVisible(asset.businessId, visibleBusinessIds)
-  if (asset.storageKind !== 'LOCAL_FILE' || !asset.relativePath) {
-    throw new Error('Only active local files expose managed content')
-  }
   if (asset.status !== 'ACTIVE') throw new Error(`File asset is ${asset.status}`)
+  if (asset.storageKind === 'MANAGED_BLOB') {
+    if (!asset.blobRef) throw new Error('Managed blob reference is missing')
+    const port = objectStoragePort || createConfiguredAssetObjectStoragePort()
+    const content = await port.get({ ref: asset.blobRef })
+    return { asset, content: Buffer.from(content) }
+  }
+  if (asset.storageKind !== 'LOCAL_FILE' || !asset.relativePath) {
+    throw new Error('Only active local files and managed blobs expose managed content')
+  }
   const mount = await db.localWorkspaceMount.findFirst({
     where: { businessId: asset.businessId, status: 'ACTIVE' },
     orderBy: { updatedAt: 'desc' },
@@ -215,6 +224,12 @@ export async function resolveFileAssetContent(fileId, {
   if (!mount) throw new Error('Active local workspace mount not found')
   const content = await filesystemPort.read({ mountRoot: mount.rootPath, relativePath: asset.relativePath })
   return { asset, content }
+}
+
+/** File management remains the sole writer of managed content metadata. Asset
+ * Management supplies an already stored opaque ref plus the server-calculated hash. */
+export async function createManagedBlobFileAsset(input, options = {}) {
+  return createManagedFileAsset({ ...input, storageKind: 'MANAGED_BLOB' }, options)
 }
 
 export async function relinkFileAsset(fileId, { mountId, relativePath }, {

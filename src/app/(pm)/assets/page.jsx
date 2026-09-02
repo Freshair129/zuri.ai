@@ -6,6 +6,7 @@
 // @spec ADR-055, SDD-078, SDD-079, SDD-080, SEC-023
 // @tested tests/unit/asset-management-navigation.test.js, tests/unit/asset-management-api-ui-contract.test.js
 import { AlertTriangle, CheckCircle2, FileCheck2, PackageCheck, ScanLine, WalletCards } from 'lucide-react'
+import Link from 'next/link'
 import { Card, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 
@@ -19,11 +20,11 @@ const FOUNDATION = [
 ]
 
 const ADAPTERS = [
-  ['LINE attachment bytes', 'รอ transport ส่ง trusted FileAsset reference'],
-  ['OCR / Vision provider', 'รอ provider + secret + retention policy'],
-  ['Google Sheet live sync', 'ใช้ template เดียวกันได้ แต่ยังไม่ใช่ live connector'],
+  ['LINE attachment bytes', 'zuri-cli ยังเป็นผู้ fetch bytes; zuri-ai รับ trusted FileAsset handoff'],
+  ['OCR / Vision provider', 'OpenAI adapter พร้อมใช้งานเมื่อ server ตั้ง secret/model'],
+  ['Google Sheet snapshot', 'นำเข้า snapshot/ส่งออก .xlsx ได้; ไม่ใช่ live two-way sync'],
   ['Procurement lookup', 'ยังไม่มี PR/PO/GRN authority ใน runtime'],
-  ['Finance posting', 'preview ได้ แต่ยังไม่สร้างสมุดบัญชีหรือ journal'],
+  ['Finance posting', 'preview ได้ แต่ยังไม่สร้างรายการบัญชี'],
 ]
 
 export default function AssetManagementPage() {
@@ -36,17 +37,17 @@ export default function AssetManagementPage() {
       title="ทะเบียนทรัพย์สินบริษัท"
       subtitle={`รับและตรวจหลักฐาน ผูก PR/PO ติดตามผู้รับผิดชอบ ที่ตั้ง Project และค่าเสื่อมแบบตรวจสอบย้อนกลับได้${business ? ` · ${business.name}` : ''}`}
       actions={<>
-        <button type="button" className="btn btn-primary" disabled title="เปิดเมื่อ mutation policy ได้รับอนุมัติ">
+        <Link className="btn btn-primary" href="/assets/receiving">
           <PackageCheck size={15} /> รับอุปกรณ์ใหม่
-        </button>
-        <button type="button" className="btn" disabled title="ใช้ template กลาง; live import อยู่ใน phase ถัดไป">
+        </Link>
+        <a className="btn" href={business ? `/api/assets/import/template?businessId=${encodeURIComponent(business.id)}` : '#'} aria-disabled={!business}>
           <FileCheck2 size={15} /> นำเข้า Excel / Sheet
-        </button>
+        </a>
       </>}
     />
 
     <div className="mb-4 grid gap-3 md:grid-cols-3">
-      <Card><p className="text-[10px] font-semibold text-muted">สถานะ Foundation</p><p className="mt-1 text-xl font-bold">Contract ready</p><p className="mt-1 text-[10px] text-muted">preview-only · ยังไม่ apply ทรัพย์สินจริง</p></Card>
+      <Card><p className="text-[10px] font-semibold text-muted">สถานะ Evidence intake</p><p className="mt-1 text-xl font-bold">Beta ready</p><p className="mt-1 text-[10px] text-muted">อัปโหลด · ตรวจ · review · ยังไม่ออก Asset ID</p></Card>
       <Card><p className="text-[10px] font-semibold text-muted">Pipeline definition</p><p className="mt-1 text-sm font-bold">DPL-ASSET-REGISTER-IMPORT-V1</p><p className="mt-1 text-[10px] text-muted">ใช้ ledger กลาง แต่ไม่ปนกับ knowledge pipeline</p></Card>
       <Card><p className="text-[10px] font-semibold text-muted">Finance boundary</p><p className="mt-1 text-xl font-bold">Preview only</p><p className="mt-1 text-[10px] text-muted">ไม่มี capitalization / journal / tax posting</p></Card>
     </div>
@@ -63,7 +64,7 @@ export default function AssetManagementPage() {
       </Card>
 
       <Card warm>
-        <SectionTitle caption="แสดงตรงตาม runtime จริง — ไม่รายงานว่า connected">Adapter ที่ยังไม่พร้อมใช้งาน</SectionTitle>
+        <SectionTitle caption="Cloud adapters ต้องมี server credentials ก่อนเรียกจริง">Adapter และขอบเขต runtime</SectionTitle>
         <div className="grid gap-2">
           {ADAPTERS.map(([title, detail], index) => <div key={title} className="rounded-xl border border-[var(--border)] bg-white/60 p-3">
             <div className="flex items-center gap-2">
@@ -71,7 +72,7 @@ export default function AssetManagementPage() {
               <p className="text-xs font-bold">{title}</p>
             </div>
             <p className="mt-1 text-[10px] text-muted">{detail}</p>
-            <div className="mt-2"><StatusPill status="UNAVAILABLE" /></div>
+            <div className="mt-2"><StatusPill status={index === 1 ? 'CONFIG_REQUIRED' : index === 2 ? 'SNAPSHOT_ONLY' : 'EXTERNAL_BOUNDARY'} /></div>
           </div>)}
         </div>
       </Card>

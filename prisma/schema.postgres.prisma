@@ -1094,24 +1094,28 @@ model RegisteredAsset {
 // @req FR-134 — source/channel and validation state for one converged envelope.
 // @spec SDD-079, BR-024, SEC-023, ADR-055
 model AssetIntake {
-  id                  String    @id @default(uuid())
-  tenantId            String
-  businessId          String
-  intakeCode          String
-  schemaVersion       String
-  sourceChannel       String
-  sourceCorrelationId String
-  origin              String
-  status              String    @default("DRAFT")
-  pipelineRunId       String?
-  submittedByPersonId String?
-  submittedAt         DateTime?
-  approvedByPersonId  String?
-  approvedAt          DateTime?
-  version             Int       @default(1)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  deletedAt           DateTime?
+  id                     String    @id @default(uuid())
+  tenantId               String
+  businessId             String
+  intakeCode             String
+  schemaVersion          String
+  sourceChannel          String
+  sourceCorrelationId    String
+  origin                 String
+  status                 String    @default("DRAFT")
+  payloadSha256          String?
+  normalizedEnvelopeJson String    @default("{}")
+  validationJson         String    @default("{}")
+  validatedAt            DateTime?
+  pipelineRunId          String?
+  submittedByPersonId    String?
+  submittedAt            DateTime?
+  approvedByPersonId     String?
+  approvedAt             DateTime?
+  version                Int       @default(1)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
 
   tenant                 Tenant                       @relation(fields: [tenantId], references: [id])
   business               Business                     @relation(fields: [businessId], references: [id])
@@ -1123,6 +1127,7 @@ model AssetIntake {
   @@unique([businessId, intakeCode])
   @@unique([businessId, sourceChannel, sourceCorrelationId])
   @@index([tenantId, businessId, status])
+  @@index([businessId, payloadSha256])
   @@index([pipelineRunId])
 }
 

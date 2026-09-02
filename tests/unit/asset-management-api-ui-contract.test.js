@@ -1,6 +1,6 @@
-// @req FR-133, FR-134, FR-135, FR-136 — foundation exposes a guarded dashboard
-// and preview-only validation route without false provider or accounting claims.
-// @spec SDD-078, SDD-079, SDD-080, SEC-023, ADR-055
+// @req FR-133..140 — the dashboard separates foundation, conditional adapters,
+// snapshot-only integration and Finance boundaries without false claims.
+// @spec SDD-078..084, SEC-023, SEC-024, ADR-055, ADR-056
 // @tested tests/unit/asset-management-api-ui-contract.test.js
 import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
@@ -32,9 +32,11 @@ describe('Asset Management API/UI foundation', () => {
     expect(route).not.toMatch(/\.(registeredAsset|assetIntake|assetEvidence)\.(create|update|upsert|delete)/)
   })
 
-  it('shows external adapters unavailable and Finance as preview only', () => {
+  it('shows conditional/snapshot adapter boundaries and Finance as preview only', () => {
     const page = read('src/app/(pm)/assets/page.jsx')
-    expect(page).toContain('Adapter ที่ยังไม่พร้อมใช้งาน')
+    expect(page).toContain('Adapter และขอบเขต runtime')
+    expect(page).toContain('CONFIG_REQUIRED')
+    expect(page).toContain('SNAPSHOT_ONLY')
     expect(page).toContain('Finance boundary')
     expect(page).toContain('Preview only')
     expect(page).not.toContain('CONNECTED')

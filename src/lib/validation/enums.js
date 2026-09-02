@@ -176,6 +176,7 @@ export const IDENTITY_PROVIDERS = ['LINE']
 // @spec SDD-078, SDD-079, SDD-080, ADR-055
 export const ASSET_INTAKE_CHANNELS = ['WEB', 'REST_API', 'EXCEL', 'GOOGLE_SHEET', 'AGENT_MCP', 'LINE_OA', 'LIFF']
 export const ASSET_EVIDENCE_ROLES = ['RECEIPT', 'INVOICE', 'PAYMENT_PROOF', 'DELIVERY', 'INSPECTION', 'WARRANTY', 'OTHER']
+export const ASSET_EVIDENCE_DOCUMENT_TYPES = ['RECEIPT', 'INVOICE', 'PAYMENT_SLIP', 'DELIVERY', 'OTHER']
 export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'GRN', 'INVOICE', 'SUPPLIER']
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
@@ -207,6 +208,7 @@ export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)
 export const zAssetEvidenceRole = z.enum(ASSET_EVIDENCE_ROLES)
+export const zAssetEvidenceDocumentType = z.enum(ASSET_EVIDENCE_DOCUMENT_TYPES)
 export const zAssetProcurementRefType = z.enum(ASSET_PROCUREMENT_REF_TYPES)
 export const zAssetResponsibilityRole = z.enum(ASSET_RESPONSIBILITY_ROLES)
 export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.14.0b |
+| **Version** | 1.16.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -35,8 +35,13 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-013 | Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run | FR-109, FR-110, FR-111 | building |
 | FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | building |
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
+| FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
+
+Version diff 1.14.0b → 1.15.0b (2026-09-02): FEAT-016 is owner-approved for implementation. It enables private evidence upload, candidate extraction/review, workbook/Sheet snapshot convergence and trusted LINE FileAsset handoff, while registration, Procurement and Finance writes remain excluded.
+
+Version diff 1.15.0b → 1.16.0b (2026-09-02): FEAT-016 is implemented and fully verified in the local delivery branch. The OpenAI and Supabase adapters are live code but require server credentials/private bucket configuration; no claim is made that a real provider call or production migration has run. Asset registration, Procurement writes and Finance posting remain excluded.
 
 ## Readiness Dashboard presentation metadata
 
@@ -73,6 +78,7 @@ writing one sentence here, or the governance chain stops.
   {"id":"FEAT-013","primaryDomain":"knowledge","useCase":"ผู้ดูแลความรู้ตรวจ catalog ของ 17 stage, ไล่ trace ของ job หนึ่งจนจบ และรู้ว่า snapshot ใดที่คำตอบหนึ่งอ่านมา ภายใต้นโยบายความอ่อนไหวที่กำหนดว่าอะไร index ได้และประมวลผลที่ไหนได้"},
   {"id":"FEAT-014","primaryDomain":"crm","useCase":"ทีมขายเปิดโปรไฟล์ลูกค้าที่ AI สรุปจากบทสนทนา LINE ดูผลวิเคราะห์รายบทสนทนา และรับ Daily Sales Brief ของ Business ในแต่ละวัน"},
   {"id":"FEAT-015","primaryDomain":"asset-management","useCase":"เจ้าหน้าที่รับอุปกรณ์แนบใบเสร็จและหลักฐานจ่ายเงิน ตรวจ OCR ผูก PR/PO ระบุผู้รับผิดชอบ สถานที่ Project และดูค่าเสื่อมตัวอย่างก่อนขึ้นทะเบียนทรัพย์สิน"},
+  {"id":"FEAT-016","primaryDomain":"asset-management","useCase":"เจ้าหน้าที่อัปโหลดรูปหรือ PDF หลักฐาน ให้ OCR/Vision เสนอข้อมูล ตรวจแก้โดยมนุษย์ และนำเข้าหรือส่งออก Excel/Google Sheets/LINE ผ่าน intake เดียวกันจนพร้อมขึ้นทะเบียน"},
   {"id":"FR-001","primaryDomain":"project-manager","useCase":"ผู้ดูแลสร้าง Portfolio, Tenant, Business, Branch และ Space ด้วย UUID และ human code ที่ตรวจย้อนกลับได้"},
   {"id":"FR-002","primaryDomain":"project-manager","useCase":"ผู้ใช้สลับ Portfolio, Business, Space และ Project แล้วกลับมาเจอ context ล่าสุด"},
   {"id":"FR-003","primaryDomain":"project-manager","useCase":"PM สร้าง แก้ไข เปิด และ archive Project โดยไม่ลบประวัติ"},

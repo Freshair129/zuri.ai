@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1563,
-    "total_edges": 5422,
+    "total_nodes": 1623,
+    "total_edges": 5624,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 138,
-      "adr": 55,
+      "document": 145,
+      "adr": 56,
       "domain": 9,
-      "roadmap": 34,
-      "feature": 15,
-      "route": 163,
+      "roadmap": 35,
+      "feature": 16,
+      "route": 173,
       "model": 80,
-      "requirement": 284,
-      "test": 372,
-      "code_file": 409
+      "requirement": 295,
+      "test": 378,
+      "code_file": 432
     },
     "coverage": {
-      "requirements": 284,
-      "fr_with_code": "100% (126/126)",
-      "fr_with_tests": "100% (126/126)",
-      "rules_anchored_in_code": "95% (119/125)",
-      "nfr_evidence_based": "21 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 409,
+      "requirements": 295,
+      "fr_with_code": "100% (130/130)",
+      "fr_with_tests": "100% (130/130)",
+      "rules_anchored_in_code": "95% (125/131)",
+      "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 432,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -57,7 +57,7 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:ZV2-CR-009-W4-IMPLEMENTATION-REPORT",
+      "doc:ZV2-CR-010-W4-IMPLEMENTATION-AND-VERIFICATION-REPORT",
       "doc:CONTEXT-MAP"
     ],
     "added": [],
@@ -234,7 +234,7 @@
       "id": "code:src/app/(pm)/assets/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/assets/page.jsx",
-      "hash": "10a82901",
+      "hash": "29be38ea",
       "status": "current",
       "annotations": {
         "@req": [
@@ -252,6 +252,29 @@
         "@tested": [
           "tests/unit/asset-management-navigation.test.js",
           "tests/unit/asset-management-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/assets/receiving/page.jsx",
+      "hash": "0ee8da6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138",
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-081",
+          "SDD-082",
+          "SDD-083",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
         ]
       }
     },
@@ -1131,6 +1154,26 @@
       }
     },
     {
+      "id": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "type": "code_file",
+      "path": "src/app/api/agent/line-asset-handoff/route.js",
+      "hash": "6c2ba993",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-140"
+        ],
+        "@spec": [
+          "SDD-084",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/agent/line-delivery/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-delivery/route.js",
@@ -1180,6 +1223,169 @@
         "@tested": [
           "tests/integration/agent-webhook-route.test.js",
           "tests/integration/line-oa-evidence-convergence.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/evidence/[id]/extract/route.js",
+      "hash": "090b5138",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-082",
+          "BR-025",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/evidence/[id]/review/route.js",
+      "hash": "fe6708f8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-082",
+          "BR-025",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/evidence/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/evidence/route.js",
+      "hash": "96679c97",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137"
+        ],
+        "@spec": [
+          "SDD-081",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/import/sheets/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/import/sheets/route.js",
+      "hash": "63c957f9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/import/template/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/import/template/route.js",
+      "hash": "b1f4e972",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/import/xlsx/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/import/xlsx/route.js",
+      "hash": "7cff4c6d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/intakes/export/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/intakes/export/route.js",
+      "hash": "96879bbc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/intakes/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/intakes/route.js",
+      "hash": "b2a28bfe",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-081",
+          "SDD-082",
+          "BR-025",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
         ]
       }
     },
@@ -4062,7 +4268,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "3d026dd7",
+      "hash": "b01abfc2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4612,10 +4818,119 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-authority.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-authority.js",
+      "hash": "defea15b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138"
+        ],
+        "@spec": [
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-intake-service-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-evidence-service.js",
+      "hash": "7c658bb9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-081",
+          "SDD-082",
+          "BR-025",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-storage-contract.test.js",
+          "tests/unit/asset-evidence-extractor-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-intake-service.js",
+      "hash": "3e7adb41",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-081",
+          "SDD-082",
+          "BR-025",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-intake-service-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-request-scope.js",
+      "hash": "09e729df",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138",
+          "FR-139"
+        ],
+        "@spec": [
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "hash": "ff853570",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137",
+          "FR-138",
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-081",
+          "SDD-082",
+          "SDD-083",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/domain/asset-intake.js",
       "type": "code_file",
       "path": "src/modules/asset-management/domain/asset-intake.js",
-      "hash": "6aa8e010",
+      "hash": "4e8c5a85",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4655,6 +4970,125 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/domain/evidence-policy.js",
+      "hash": "79377bc6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137"
+        ],
+        "@spec": [
+          "SDD-081",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-storage-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/import/asset-row-adapter.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/import/asset-row-adapter.js",
+      "hash": "ae302549",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022"
+        ],
+        "@tested": [
+          "tests/unit/asset-intake-adapters-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/import/line-asset-handoff.js",
+      "hash": "2c8a82fe",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-140"
+        ],
+        "@spec": [
+          "SDD-084",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-intake-adapters-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/import/sheet-snapshot.js",
+      "hash": "163428a7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-intake-adapters-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/import/xlsx-convert.js",
+      "hash": "d2b5f6c1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-intake-adapters-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/import/xlsx-template.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/import/xlsx-template.js",
+      "hash": "4b693b64",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-139"
+        ],
+        "@spec": [
+          "SDD-083",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-intake-adapters-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/index.js",
       "type": "code_file",
       "path": "src/modules/asset-management/index.js",
@@ -4675,6 +5109,27 @@
         "@tested": [
           "tests/unit/asset-management-contract.test.js",
           "tests/unit/asset-depreciation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "hash": "df2001c5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-138"
+        ],
+        "@spec": [
+          "SDD-082",
+          "BR-025",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-extractor-contract.test.js"
         ]
       }
     },
@@ -5321,7 +5776,7 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
-      "hash": "d3aca59b",
+      "hash": "645f9d82",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6580,7 +7035,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "add7fd38",
+      "hash": "00a181fa",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6727,7 +7182,7 @@
       "id": "code:src/modules/project-manager/application/file-asset-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-asset-service.js",
-      "hash": "1f7adc0a",
+      "hash": "d2055dc0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8388,13 +8843,33 @@
       }
     },
     {
+      "id": "code:src/platform/storage/supabase-object-storage.js",
+      "type": "code_file",
+      "path": "src/platform/storage/supabase-object-storage.js",
+      "hash": "a36613a4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-137"
+        ],
+        "@spec": [
+          "SDD-081",
+          "NFR-022",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-storage-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.29.0b",
+      "version": "1.30.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "9fe7a468",
+      "hash": "24eb1d5f",
       "status": "current"
     },
     {
@@ -8448,7 +8923,7 @@
       "type": "document",
       "path": "docs/domains/asset-management/CONTEXT-MAP.md",
       "title": "Asset Management context map",
-      "hash": "dd595030",
+      "hash": "aaffc3fe",
       "status": "changed"
     },
     {
@@ -8528,7 +9003,15 @@
       "type": "document",
       "path": "docs/change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md",
       "title": "CR-014 — Asset Management Domain Product Requirements (PRD)",
-      "hash": "73d3fb61",
+      "hash": "7c264326",
+      "status": "current"
+    },
+    {
+      "id": "doc:CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION",
+      "type": "document",
+      "path": "docs/change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md",
+      "title": "CR-015 — Asset Evidence Intake Execution",
+      "hash": "2f99da62",
       "status": "current"
     },
     {
@@ -8608,9 +9091,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.14.0b",
+      "version": "1.16.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "06db7f02",
+      "hash": "7fb27af9",
       "status": "current"
     },
     {
@@ -9355,6 +9838,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-137-asset-evidence-intake-execution",
+      "type": "document",
+      "path": "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
+      "title": "FR-137..140 — Asset Evidence Intake Execution",
+      "hash": "f553ceab",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -9397,9 +9888,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.3.0b",
+      "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0d17635d",
+      "hash": "78db7015",
       "status": "current"
     },
     {
@@ -9484,6 +9975,14 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
       "title": "Phase 7: OmiChat Unified Inbox",
       "hash": "a320a862",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES.md",
+      "title": "Asset Evidence Intake — Four-phase plan",
+      "hash": "e15866d2",
       "status": "current"
     },
     {
@@ -9681,9 +10180,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.132.0b",
+      "version": "1.135.0b",
       "doc_status": "Draft",
-      "hash": "d85ea3a8",
+      "hash": "80a10bb2",
       "status": "current"
     },
     {
@@ -9727,7 +10226,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "5971404b",
+      "hash": "ab2bee77",
       "status": "current"
     },
     {
@@ -9763,7 +10262,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.6.0",
       "doc_status": "Accepted",
-      "hash": "df41bd10",
+      "hash": "16c4fc59",
       "status": "current"
     },
     {
@@ -9914,6 +10413,46 @@
       "path": "docs/changes/artifacts/ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md",
       "title": "ZV2-CR-009 — Phase 4 implementation and verification",
       "hash": "6543ef01",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-010-ASSET-EVIDENCE-INTAKE-EXECUTION",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-010-ASSET-EVIDENCE-INTAKE-EXECUTION.md",
+      "title": "ZV2-CR-010 — Asset Evidence Intake Execution",
+      "hash": "36194b14",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-010-W1-REPOSITORY-STRUCTURE-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-010-W1-REPOSITORY-STRUCTURE-REPORT.md",
+      "title": "ZV2-CR-010 — W1 Repository Structure Report",
+      "hash": "777d1b60",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-010-W2-ASSET-EVIDENCE-IMPACT-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-010-W2-ASSET-EVIDENCE-IMPACT-REPORT.md",
+      "title": "ZV2-CR-010 — W2 Asset Evidence Impact Report",
+      "hash": "d3b0838d",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-010-W3-DOCS-AND-RED-TEST-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-010-W3-DOCS-AND-RED-TEST-REPORT.md",
+      "title": "ZV2-CR-010 — W3 Documentation and RED Test Report",
+      "hash": "38fa53c6",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-010-W4-IMPLEMENTATION-AND-VERIFICATION-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-010-W4-IMPLEMENTATION-AND-VERIFICATION-REPORT.md",
+      "title": "ZV2-CR-010 — W4 Implementation and Verification Report",
+      "hash": "ce915988",
       "status": "changed"
     },
     {
@@ -9953,7 +10492,7 @@
       "modules": [
         "asset-management"
       ],
-      "hash": "77509be6",
+      "hash": "a71af47a",
       "status": "current"
     },
     {
@@ -10270,6 +10809,13 @@
       "type": "feature",
       "label": "Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-016",
+      "type": "feature",
+      "label": "Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`",
+      "declared": "live (configuration-gated)",
       "status": "current"
     },
     {
@@ -10911,6 +11457,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A procurement-origin Asset cannot be approved without both active payment evidence and typed PR plus PO references; expiry-controlled categories additionally require lot and expiry. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves. FR-134; FR-135; SEC-023 "
+    },
+    {
+      "id": "req:BR-025",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Asset evidence has three independently attributable layers: original FileAsset, provider candidate and human review/correction. No layer overwrites the preceding layer; only deterministic validation plus required reviewed evidence may set `READY_FOR_REGISTRATION`, and that status neither creates RegisteredAsset nor asserts Procurement/Finance acceptance.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset evidence has three independently attributable layers: original FileAsset, provider candidate and human review/correction. No layer overwrites the preceding layer; only deterministic validation plus required reviewed evidence may set `READY_FOR_REGISTRATION`, and that status neither creates RegisteredAsset nor asserts Procurement/Finance acceptance. FR-137; FR-138; ADR-056 "
     },
     {
       "id": "req:FR-001",
@@ -12273,6 +12829,46 @@
       "row_text": "Asset depreciation candidate: authorized users can produce a deterministic straight-line preview from acquisition amount, residual value, start date and useful life, with calculation version, period rows, bounded accumulated depreciation and review state. The result is advisory evidence for Finance; it never creates capitalization, tax books, accounting journals or postings, and no status may imply Finance approval without an explicit Finance contract. 🟠 local deterministic calculator/schema contract authorized; Finance approval/posting gated "
     },
     {
+      "id": "req:FR-137",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+    },
+    {
+      "id": "req:FR-138",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Asset evidence extraction and review: authorized extraction may submit active same-Business evidence to a provider adapter and persist strict field-level candidates with provider/model/response identity, confidence and provenance. Candidate output never reviews or approves itself; an Asset reviewer records a separate ACCEPT/CORRECT/REJECT decision and immutable correction evidence before intake can become ready.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset evidence extraction and review: authorized extraction may submit active same-Business evidence to a provider adapter and persist strict field-level candidates with provider/model/response identity, confidence and provenance. Candidate output never reviews or approves itself; an Asset reviewer records a separate ACCEPT/CORRECT/REJECT decision and immutable correction evidence before intake can become ready. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+    },
+    {
+      "id": "req:FR-139",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Asset Excel and Google Sheets snapshot intake/export: a generated Asset workbook and a bounded Sheet row snapshot convert through the same canonical row adapter and deterministic envelope validator, return sheet/row/column issues and perform no hidden apply. Export is a bounded Google Sheets-ready `.xlsx`; files/sheets are convenience snapshots, never the Asset register or an authority source.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset Excel and Google Sheets snapshot intake/export: a generated Asset workbook and a bounded Sheet row snapshot convert through the same canonical row adapter and deterministic envelope validator, return sheet/row/column issues and perform no hidden apply. Export is a bounded Google Sheets-ready `.xlsx`; files/sheets are convenience snapshots, never the Asset register or an authority source. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+    },
+    {
+      "id": "req:FR-140",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -12481,6 +13077,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Asset intake and calculations are deterministic, replay-safe and explainable: the same versioned normalized envelope yields the same validation codes and depreciation schedule; original evidence and candidates remain addressable; previews expose conflicts/truncation instead of implying completeness; adapters use bounded timeouts and cannot turn provider failure into approval or partial Asset truth. FR-133..136 / FEAT-015 test and pipeline evidence "
+    },
+    {
+      "id": "req:NFR-022",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Evidence execution is bounded, recoverable and provider-failure safe: uploads are at most 20 MiB and allow-listed by verified content, Sheet/workbook rows are capped, provider calls have bounded timeout and strict output validation, source correlation is payload-hash idempotent, and failure never becomes `REVIEWED`/`READY_FOR_REGISTRATION` or an untracked public object.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Evidence execution is bounded, recoverable and provider-failure safe: uploads are at most 20 MiB and allow-listed by verified content, Sheet/workbook rows are capped, provider calls have bounded timeout and strict output validation, source correlation is payload-hash idempotent, and failure never becomes `REVIEWED`/`READY_FOR_REGISTRATION` or an untracked public object. FR-137..140 / FEAT-016 verification "
     },
     {
       "id": "req:SDD-001",
@@ -13283,6 +13889,46 @@
       "row_text": "Responsibility, location and Project use are temporal owned records, not mutable columns copied from Person/Branch/Project. Effective intervals preserve history; Asset owns allocations while Project Inventory receives only a stable read projection. Depreciation is likewise a versioned candidate owned by Asset until a Finance contract accepts it; it is never a hidden accounting write. FR-135; FR-136; BR-023; ADR-034; ADR-055 "
     },
     {
+      "id": "req:SDD-081",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Private object storage is an adapter behind a provider-neutral put/get/remove port. File management creates the content identity and Asset Management references it for evidence meaning. The first Supabase adapter uses server-only credentials, an existing private bucket, content-addressed no-upsert object paths and opaque refs; it never emits a public URL.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Private object storage is an adapter behind a provider-neutral put/get/remove port. File management creates the content identity and Asset Management references it for evidence meaning. The first Supabase adapter uses server-only credentials, an existing private bucket, content-addressed no-upsert object paths and opaque refs; it never emits a public URL. FR-137; SEC-024; ADR-056 "
+    },
+    {
+      "id": "req:SDD-082",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "OCR/Vision extraction is a strict candidate port: image/file input and structured output are bounded and locally revalidated; provider/model/response/schema identity plus field confidence/provenance are retained; human review is a separate versioned write. Provider output has no authorization or approval capability.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "OCR/Vision extraction is a strict candidate port: image/file input and structured output are bounded and locally revalidated; provider/model/response/schema identity plus field confidence/provenance are retained; human review is a separate versioned write. Provider output has no authorization or approval capability. FR-138; BR-025; SEC-024; ADR-056 "
+    },
+    {
+      "id": "req:SDD-083",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Excel and Google Sheets share one Asset row adapter and canonical envelope validator. The workbook derives enums from validation authority and embeds only opaque evidence IDs; a Sheet carries a hashed spreadsheet/revision/range/rows snapshot. Both preview before persistence and neither implements two-way synchronization.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Excel and Google Sheets share one Asset row adapter and canonical envelope validator. The workbook derives enums from validation authority and embeds only opaque evidence IDs; a Sheet carries a hashed spreadsheet/revision/range/rows snapshot. Both preview before persistence and neither implements two-way synchronization. FR-139; NFR-022; ADR-056 "
+    },
+    {
+      "id": "req:SDD-084",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "LINE attachment execution is a one-way trusted handoff: zuri-cli verifies transport and retrieves/uploads bytes; zuri-ai derives scope from its server-owned binding, accepts opaque FileAsset IDs and binds source correlation to a normalized payload hash. Replays return the same intake and cannot overwrite a different payload.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "LINE attachment execution is a one-way trusted handoff: zuri-cli verifies transport and retrieves/uploads bytes; zuri-ai derives scope from its server-owned binding, accepts opaque FileAsset IDs and binds source correlation to a normalized payload hash. Replays return the same intake and cannot overwrite a different payload. FR-140; SEC-024; ADR-056 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -13513,11 +14159,29 @@
       "row_text": "Asset intake fails closed before evidence parsing or entity lookup when viewer, Tenant, Business, file, Person, Project or transport binding is not trusted and in scope. Files are type/size/content-policy checked and may be quarantined; attachment URLs, OCR/model output, workbook cells, QR codes, LINE payload fields and client-supplied scope never authorize access or approval. Responses/logs exclude file credentials, raw payment data and unnecessary PII. FR-133..136 / ADR-055 security gate "
     },
     {
+      "id": "req:SEC-024",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Asset evidence secrets and sensitive content remain server-confined: authorize scope before bytes/model/entity disclosure; verify content not extension; keep object/provider/LINE credentials out of client bundles, responses, logs, audits and workbooks; use private storage and `store: false`; reject client authority, arbitrary attachment URLs and malformed provider output without changing review/readiness state.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset evidence secrets and sensitive content remain server-confined: authorize scope before bytes/model/entity disclosure; verify content not extension; keep object/provider/LINE credentials out of client bundles, responses, logs, audits and workbooks; use private storage and `store: false`; reject client authority, arbitrary attachment URLs and malformed provider output without changing review/readiness state. FR-137..140 / ADR-056 security gate "
+    },
+    {
       "id": "route:api:/api/agent/heartbeat",
       "type": "route",
       "kind": "api",
       "route": "/api/agent/heartbeat",
       "path": "src/app/api/agent/heartbeat/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/agent/line-asset-handoff",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/agent/line-asset-handoff",
+      "path": "src/app/api/agent/line-asset-handoff/route.js",
       "status": "current"
     },
     {
@@ -13534,6 +14198,70 @@
       "kind": "api",
       "route": "/api/agent/line-webhook",
       "path": "src/app/api/agent/line-webhook/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/evidence",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/evidence",
+      "path": "src/app/api/assets/evidence/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/evidence/[id]/extract",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/evidence/[id]/extract",
+      "path": "src/app/api/assets/evidence/[id]/extract/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/evidence/[id]/review",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/evidence/[id]/review",
+      "path": "src/app/api/assets/evidence/[id]/review/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/import/sheets",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/import/sheets",
+      "path": "src/app/api/assets/import/sheets/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/import/template",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/import/template",
+      "path": "src/app/api/assets/import/template/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/import/xlsx",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/import/xlsx",
+      "path": "src/app/api/assets/import/xlsx/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/intakes",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/intakes",
+      "path": "src/app/api/assets/intakes/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/intakes/export",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/intakes/export",
+      "path": "src/app/api/assets/intakes/export/route.js",
       "status": "current"
     },
     {
@@ -14390,6 +15118,14 @@
       "kind": "page",
       "route": "/assets",
       "path": "src/app/(pm)/assets/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/assets/receiving",
+      "type": "route",
+      "kind": "page",
+      "route": "/assets/receiving",
+      "path": "src/app/(pm)/assets/receiving/page.jsx",
       "status": "current"
     },
     {
@@ -15261,6 +15997,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md",
+      "title": "ADR-056 — Asset Evidence Cloud and Extraction Boundary",
+      "hash": "d8a0a0ea",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -15447,6 +16191,13 @@
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
       "hash": "aeb0607d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "type": "test",
+      "path": "tests/integration/asset-evidence-intake-execution.test.js",
+      "hash": "f664ca8a",
       "status": "current"
     },
     {
@@ -15845,7 +16596,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "b05d1569",
+      "hash": "227e89fc",
       "status": "current"
     },
     {
@@ -16045,10 +16796,45 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-evidence-extractor-contract.test.js",
+      "hash": "c67e05d4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-evidence-intake-service-contract.test.js",
+      "hash": "bc434217",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-evidence-route-schema-contract.test.js",
+      "hash": "52e70804",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-evidence-storage-contract.test.js",
+      "hash": "275b59b9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-intake-adapters-contract.test.js",
+      "hash": "f2296730",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-management-api-ui-contract.test.js",
-      "hash": "83043129",
+      "hash": "477d467a",
       "status": "current"
     },
     {
@@ -18168,6 +18954,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/audit/page.jsx",
       "to": "req:FR-014",
       "type": "implements",
@@ -19155,6 +19990,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "to": "req:FR-140",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "to": "req:SDD-084",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/agent/line-delivery/route.js",
       "to": "req:BR-011",
       "type": "follows",
@@ -19290,6 +20153,251 @@
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/route.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/route.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/sheets/route.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/sheets/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/sheets/route.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/sheets/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/template/route.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/template/route.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/template/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/xlsx/route.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/xlsx/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/xlsx/route.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/import/xlsx/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/export/route.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/export/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/export/route.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/export/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/route.js",
+      "to": "req:SEC-024",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24566,6 +25674,202 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-authority.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-authority.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-authority.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/domain/asset-intake.js",
       "to": "req:BR-023",
       "type": "follows",
@@ -24643,6 +25947,167 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/asset-row-adapter.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/asset-row-adapter.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/asset-row-adapter.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "to": "req:FR-140",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "to": "req:SDD-084",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-template.js",
+      "to": "req:FR-139",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-template.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-template.js",
+      "to": "req:SDD-083",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/import/xlsx-template.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/index.js",
       "to": "req:FR-133",
       "type": "implements",
@@ -24687,6 +26152,41 @@
     {
       "from": "code:src/modules/asset-management/index.js",
       "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:SEC-024",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30005,6 +31505,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/storage/supabase-object-storage.js",
+      "to": "req:FR-137",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/storage/supabase-object-storage.js",
+      "to": "req:NFR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/storage/supabase-object-storage.js",
+      "to": "req:SDD-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/storage/supabase-object-storage.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "feat:FEAT-001",
       "to": "req:FR-037",
       "type": "bundles",
@@ -30294,6 +31822,34 @@
     {
       "from": "feat:FEAT-015",
       "to": "req:FR-136",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-016",
+      "to": "req:FR-137",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-016",
+      "to": "req:FR-138",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-016",
+      "to": "req:FR-139",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-016",
+      "to": "req:FR-140",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -31021,6 +32577,13 @@
     },
     {
       "from": "req:BR-024",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-025",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -31993,6 +33556,34 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-137",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-138",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-139",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-140",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -32134,6 +33725,13 @@
     },
     {
       "from": "req:NFR-021",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-022",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -32700,6 +34298,34 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-081",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-082",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-083",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-084",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -32875,7 +34501,21 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SEC-024",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "route:api:/api/agent/heartbeat",
+      "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/agent/line-asset-handoff",
       "to": "domain:agent",
       "type": "owned_by",
       "status": "current",
@@ -32896,7 +34536,63 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/assets/evidence/[id]/extract",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/evidence/[id]/review",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/evidence",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/import/sheets",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/import/template",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/import/xlsx",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/intakes/export",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/assets/intakes/validate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/intakes",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -33625,6 +35321,13 @@
     },
     {
       "from": "route:api:/api/workstreams",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/assets/receiving",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -38027,6 +39730,55 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:SDD-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/backup.test.js",
       "to": "code:src/app/(pm)/backup/page.jsx",
       "type": "tests",
@@ -41843,6 +43595,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -43795,6 +45554,440 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:SDD-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "code:src/modules/asset-management/application/asset-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "code:src/modules/asset-management/application/asset-intake-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:SDD-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-intake-service-contract.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/(pm)/assets/receiving/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/agent/line-asset-handoff/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/evidence/[id]/review/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/evidence/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/import/sheets/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/import/template/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/import/xlsx/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/intakes/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/app/api/assets/intakes/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/modules/asset-management/application/asset-request-scope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:FR-139",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:FR-140",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SDD-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SDD-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SDD-084",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "code:src/modules/asset-management/application/asset-evidence-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "code:src/modules/asset-management/domain/evidence-policy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "code:src/platform/storage/supabase-object-storage.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:SDD-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "code:src/modules/asset-management/import/asset-row-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "code:src/modules/asset-management/import/line-asset-handoff.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "code:src/modules/asset-management/import/sheet-snapshot.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "code:src/modules/asset-management/import/xlsx-convert.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "code:src/modules/asset-management/import/xlsx-template.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:FR-139",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:FR-140",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:NFR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:SDD-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:SDD-084",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "code:src/app/(pm)/assets/page.jsx",
       "type": "tests",
@@ -43827,21 +46020,21 @@
       "to": "req:FR-134",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "req:FR-135",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "req:FR-136",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
@@ -43855,18 +46048,25 @@
       "to": "req:SDD-079",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "req:SDD-080",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:SEC-024",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

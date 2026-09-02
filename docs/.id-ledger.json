@@ -110,6 +110,7 @@
     "BR-022",
     "BR-023",
     "BR-024",
+    "BR-025",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -246,6 +247,10 @@
     "FR-134",
     "FR-135",
     "FR-136",
+    "FR-137",
+    "FR-138",
+    "FR-139",
+    "FR-140",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -267,6 +272,7 @@
     "NFR-019",
     "NFR-020",
     "NFR-021",
+    "NFR-022",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -347,6 +353,10 @@
     "SDD-078",
     "SDD-079",
     "SDD-080",
+    "SDD-081",
+    "SDD-082",
+    "SDD-083",
+    "SDD-084",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -370,6 +380,7 @@
     "SEC-021",
     "SEC-022",
     "SEC-023",
+    "SEC-024",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -385,6 +396,7 @@
     "FEAT-013",
     "FEAT-014",
     "FEAT-015",
+    "FEAT-016",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -528,6 +540,7 @@
     "ADR-053",
     "ADR-054",
     "ADR-055",
+    "ADR-056",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -536,7 +549,8 @@
     "ZV2-CR-006",
     "ZV2-CR-007",
     "ZV2-CR-008",
-    "ZV2-CR-009"
+    "ZV2-CR-009",
+    "ZV2-CR-010"
   ],
   "ids": {
     "BR-001": {
@@ -849,6 +863,19 @@
         {
           "anchor": "a procurement origin asset cannot be approved without both",
           "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-025": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b9db1df9fca1adfe82549a61f7fabb7019e7026cf7cf0e80c080177211e8dfd8",
+      "history": [
+        {
+          "anchor": "asset evidence has three independently attributable layers",
+          "since": "2026-09-02",
           "reason": "declared"
         }
       ]
@@ -2633,6 +2660,58 @@
         }
       ]
     },
+    "FR-137": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15ceee2560e38a090614f5d12aa3737578beb1f363a75361d9f1d194677de2b6",
+      "history": [
+        {
+          "anchor": "asset cloud evidence intake",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-138": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bd4b7c4eef60d8fab55fc3cce911d347bb53e86c980cf7ce746062fea4151532",
+      "history": [
+        {
+          "anchor": "asset evidence extraction and review",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-139": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3dcd9388f9093ec3bf115cffce20aecd127e87e2da78822265a207a03c668ca8",
+      "history": [
+        {
+          "anchor": "asset excel and google sheets snapshot intake export",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-140": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "80dbcad83b454b5f3ac01525a2235ea42bfd58a778eedba63832860e7848881a",
+      "history": [
+        {
+          "anchor": "trusted line asset handoff",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -2902,6 +2981,19 @@
         {
           "anchor": "asset intake and calculations are deterministic replay safe",
           "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-022": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ff27048f2a7fe3d9608d8a9859451baa31f26a548f8ed5e8ef55a54f369f93ad",
+      "history": [
+        {
+          "anchor": "evidence execution is bounded recoverable and provider",
+          "since": "2026-09-02",
           "reason": "declared"
         }
       ]
@@ -3962,6 +4054,58 @@
         }
       ]
     },
+    "SDD-081": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "611abed51750a5bf00320f1d89317fbfa80d24c00bab119c1d6716105fce84b7",
+      "history": [
+        {
+          "anchor": "private object storage is an adapter behind a provider",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-082": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dc8e5e0b2ace433c7c6ddd6f4c24f62e0401fb30087f59d49942a8fbe5626086",
+      "history": [
+        {
+          "anchor": "ocr vision extraction is a strict candidate port",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-083": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fb5a8b6def9bd1c0ee0933f3aef247e468884caf088295d281ee000a734973c6",
+      "history": [
+        {
+          "anchor": "excel and google sheets share one asset row adapter and",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-084": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b31e08242fc9ad9a58265c274eec29159445852abe236b66ee82461c40f8544f",
+      "history": [
+        {
+          "anchor": "line attachment execution is a one way trusted handoff",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4271,6 +4415,19 @@
         }
       ]
     },
+    "SEC-024": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "61eec8d8076e6f975d29d250f25017ffe7968ca2263691e959198937f33c5660",
+      "history": [
+        {
+          "anchor": "asset evidence secrets and sensitive content remain server",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -4462,6 +4619,19 @@
         {
           "anchor": "asset management foundation",
           "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-016": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "d99813b3fe0742ac5f04bacfecd682d093e526a9124400e68cd029d028380258",
+      "history": [
+        {
+          "anchor": "asset evidence intake execution",
+          "since": "2026-09-02",
           "reason": "declared"
         }
       ]
@@ -6335,6 +6505,19 @@
         }
       ]
     },
+    "ADR-056": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "12d55f967e42718b4a50333f2ec25be4c81cf56d130143fda1cbcb2f0de6f642",
+      "history": [
+        {
+          "anchor": "asset evidence cloud and extraction boundary",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
     "ZV2-CR-001": {
       "family": "ZV2-CR",
       "source": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
@@ -6448,6 +6631,19 @@
         {
           "anchor": "asset management domain delivery",
           "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-010": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-010-ASSET-EVIDENCE-INTAKE-EXECUTION.md",
+      "status": "current",
+      "statement_digest": "13fbb9959bc0bb4d7f4e2c24f63dac1b189af65c2310864fcc027b66c5ac45e7",
+      "history": [
+        {
+          "anchor": "asset evidence intake execution",
+          "since": "2026-09-02",
           "reason": "declared"
         }
       ]

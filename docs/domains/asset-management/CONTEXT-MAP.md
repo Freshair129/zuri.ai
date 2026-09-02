@@ -1,6 +1,6 @@
 ---
-version: "1.0.0"
-status: accepted
+version: "1.1.0b"
+status: beta
 domain: asset-management
 ---
 
@@ -40,6 +40,9 @@ Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered
 | Asset | Finance | depreciation/acquisition candidate | Asset proposes; Finance decides/posts |
 | Integration platform | Asset | pipeline ledger | shared ledger, Asset-specific definition IDs |
 | zuri-cli LINE transport | Asset | trusted uploaded artifact reference | transport fetches bytes; zuri-ai never receives LINE secret/token |
+| Private object port / Supabase adapter | File management | opaque managed-blob reference and authorized bytes | provider stores bytes; FileAsset owns metadata; no public URL |
+| OpenAI extraction adapter | Asset | strict candidate fields with provider provenance | provider proposes; Asset reviewer decides |
+| Excel / Google Sheet snapshot | Asset | canonical row adapter and envelope preview | intake convenience only; never source of truth |
 
 ## Anti-corruption rules
 
@@ -51,6 +54,8 @@ Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered
    persistence exists; it never queries private Asset tables ad hoc from a page.
 4. A payment slip or OCR field is evidence, not proof of authorization or truth.
 5. `FileAsset` remains content identity. `RegisteredAsset` remains physical identity.
+6. An object-storage key, signed URL, provider response ID, spreadsheet ID or LINE
+   message ID is transport/provenance only and never an Asset, evidence or Business key.
 
 ## Change protocol
 
@@ -62,4 +67,5 @@ that implements an existing one-way contract does not transfer ownership.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-09-02 | beta | Added private object, candidate extraction, Sheet snapshot and trusted LINE execution contracts without moving authority | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | accepted | Fixed providers, consumers, direction and anti-corruption rules for Asset integrations | working-tree | Codex |
