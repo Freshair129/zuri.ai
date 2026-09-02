@@ -44,15 +44,21 @@ SET "status" = 'DISABLED',
       || jsonb_build_object('mergedInto', canonical_conn."id", 'reason', 'LINE_OA_PROVIDER_MERGE')
     )::text,
     "updatedAt" = now()
-FROM "IntegrationProvider" legacy_provider
-JOIN "IntegrationProvider" canonical_provider ON canonical_provider."code" = 'LINE_OA'
-JOIN "IntegrationConnection" canonical_conn
-  ON canonical_conn."providerId" = canonical_provider."id"
- AND canonical_conn."tenantId" = legacy."tenantId"
- AND canonical_conn."externalAccountId" IS NOT NULL
- AND canonical_conn."externalAccountId" = legacy."externalAccountId"
+-- Postgres forbids referencing the UPDATE target ("legacy") inside a JOIN ... ON
+-- in the FROM list (42P01 "invalid reference to FROM-clause entry"), which is
+-- how the first production attempt on 2026-09-03 failed and rolled back. The
+-- three sources are therefore listed with commas and every correlation lives
+-- in WHERE, where the target alias is in scope.
+FROM "IntegrationProvider" legacy_provider,
+     "IntegrationProvider" canonical_provider,
+     "IntegrationConnection" canonical_conn
 WHERE legacy."providerId" = legacy_provider."id"
   AND legacy_provider."code" = 'line-oa'
+  AND canonical_provider."code" = 'LINE_OA'
+  AND canonical_conn."providerId" = canonical_provider."id"
+  AND canonical_conn."tenantId" = legacy."tenantId"
+  AND canonical_conn."externalAccountId" IS NOT NULL
+  AND canonical_conn."externalAccountId" = legacy."externalAccountId"
   AND (NULLIF(legacy."metadataJson", '')::jsonb ->> 'reason') IS DISTINCT FROM 'LINE_OA_PROVIDER_MERGE';
 
 -- Step 3 — every remaining legacy connection (none of these matched a

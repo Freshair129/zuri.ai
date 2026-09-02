@@ -58,8 +58,13 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
       "doc:line-oa-provider-merge",
-      "test:tests/integration/line-oa-provider-migration.test.js"
+      "test:tests/integration/line-oa-provider-migration.test.js",
+      "test:tests/integration/line-registry-scope.test.js",
+      "test:tests/unit/line-registry-service.test.js",
+      "code:src/modules/integration/application/line-registry-service.js"
     ],
     "added": [],
     "removed": []
@@ -6378,8 +6383,8 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "0d1d36b5",
-      "status": "current",
+      "hash": "bee81bd1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -10409,7 +10414,7 @@
       "type": "document",
       "path": "docs/runbooks/line-oa-provider-merge.md",
       "title": "LINE_OA provider merge runbook",
-      "hash": "6d18ce7b",
+      "hash": "c6c6557f",
       "status": "changed"
     },
     {
@@ -10691,8 +10696,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.135.0b",
       "doc_status": "Draft",
-      "hash": "dd2f128b",
-      "status": "current"
+      "hash": "d5213eb0",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10735,8 +10740,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "066a2d63",
-      "status": "current"
+      "hash": "ae364e8d",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -17165,15 +17170,15 @@
       "id": "test:tests/integration/line-oa-provider-migration.test.js",
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
-      "hash": "c3a365f7",
+      "hash": "f886dbca",
       "status": "changed"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "a6934b9a",
-      "status": "current"
+      "hash": "b3248fef",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18530,8 +18535,8 @@
       "id": "test:tests/unit/line-registry-service.test.js",
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
-      "hash": "1ff5ec87",
-      "status": "current"
+      "hash": "0342f04b",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",

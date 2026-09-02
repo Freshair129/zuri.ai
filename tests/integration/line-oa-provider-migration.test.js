@@ -4,7 +4,6 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import {
   LINE_REGISTRY_TYPES,
-  LEGACY_LINE_OA_PROVIDER_CODE,
   listLineRegistry,
 } from '@/modules/integration/application/line-registry-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
@@ -14,9 +13,16 @@ import {
   main as migrateLineOaProviderMain,
 } from '../../scripts/migrate-line-oa-provider.mjs'
 
+// The retired legacy provider code. line-registry-service.js no longer
+// exports this — its read tolerance for it is gone — so it is asserted here
+// only as the literal the migration script still carries its own copy of,
+// for developer SQLite databases that may still hold a row under it.
+const RETIRED_LINE_OA_PROVIDER_CODE = 'line-oa'
+
 // @req FR-080 — the data migration that retires the legacy lowercase `line-oa`
-// IntegrationProvider identity, closing the wave-1 open item
-// line-registry-service.js's read-tolerance comment names.
+// IntegrationProvider identity — the wave-1 open item line-registry-service.js
+// used to name in its read-tolerance comment, before that tolerance was
+// removed once the production apply was recorded (docs/runbooks/line-oa-provider-merge.md).
 // @spec BR-002, SEC-016
 //
 // Against the real database: a legacy connection with no canonical
@@ -26,7 +32,8 @@ import {
 // same-externalAccountId row in a DIFFERENT tenant must never be treated as a
 // collision, the legacy provider row must survive exactly as long as a
 // disabled duplicate still references it, and listLineRegistry must keep
-// listing every one of these rows before and after.
+// listing the re-pointed rows while no longer listing anything still under
+// the retired code.
 
 let tenantA, tenantB, businessA, businessB
 let viewerA, viewerB
@@ -55,8 +62,8 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     })
 
     legacyProvider = await prisma.integrationProvider.upsert({
-      where: { code: LEGACY_LINE_OA_PROVIDER_CODE },
-      create: { code: LEGACY_LINE_OA_PROVIDER_CODE, name: 'LINE Official Account (legacy)', status: 'ACTIVE' },
+      where: { code: RETIRED_LINE_OA_PROVIDER_CODE },
+      create: { code: RETIRED_LINE_OA_PROVIDER_CODE, name: 'LINE Official Account (legacy)', status: 'ACTIVE' },
       update: {},
     })
     const canonicalProvider = await prisma.integrationProvider.upsert({
@@ -130,14 +137,20 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     })
   })
 
-  it('the script\'s copied provider-code constants match the canonical ones (it cannot import them directly — see the script\'s own comment)', async () => {
+  it('the script\'s copied provider-code constants match the canonical code and the documented retired one (it cannot import them directly — see the script\'s own comment)', async () => {
+    // The service no longer exports a legacy-code constant to compare
+    // against — its read tolerance is gone. The script still carries its own
+    // copy of the retired code for developer SQLite databases, so this checks
+    // that copy against LINE_OA_PROVIDER_CODE (the canonical code, imported
+    // for real) and RETIRED_LINE_OA_PROVIDER_CODE (this file's own literal,
+    // documented above as the code line-registry-service.js no longer reads).
     const mod = await import('../../scripts/migrate-line-oa-provider.mjs')
     const source = await import('node:fs/promises').then((fs) => fs.readFile(
       new URL('../../scripts/migrate-line-oa-provider.mjs', import.meta.url),
       'utf8',
     ))
     expect(source).toContain(`const LINE_OA_PROVIDER_CODE = '${LINE_OA_PROVIDER_CODE}'`)
-    expect(source).toContain(`const LEGACY_LINE_OA_PROVIDER_CODE = '${LEGACY_LINE_OA_PROVIDER_CODE}'`)
+    expect(source).toContain(`const LEGACY_LINE_OA_PROVIDER_CODE = '${RETIRED_LINE_OA_PROVIDER_CODE}'`)
     expect(mod.MERGE_REASON).toBe('LINE_OA_PROVIDER_MERGE')
   })
 
@@ -210,7 +223,7 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
 
     // The legacy provider row is kept — the disabled duplicate above still
     // references it.
-    const stillLegacyProvider = await prisma.integrationProvider.findUnique({ where: { code: LEGACY_LINE_OA_PROVIDER_CODE } })
+    const stillLegacyProvider = await prisma.integrationProvider.findUnique({ where: { code: RETIRED_LINE_OA_PROVIDER_CODE } })
     expect(stillLegacyProvider).toBeTruthy()
     const remainingLegacyRefs = await prisma.integrationConnection.count({ where: { providerId: legacyProvider.id } })
     expect(remainingLegacyRefs).toBe(1)
@@ -231,13 +244,14 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     expect(remainingLegacyRefs).toBe(1)
   })
 
-  it('listLineRegistry still lists every row afterwards — the re-pointed, the disabled duplicate, and the untouched other-tenant row, each to its own owner', async () => {
+  it('listLineRegistry lists the re-pointed and untouched other-tenant rows, but no longer the disabled legacy duplicate', async () => {
     const rowsA = await listLineRegistry({ businessId: businessA.id, resolve: async () => viewerA })
     const externalIdsA = rowsA.map((row) => row.externalAccountId)
     expect(externalIdsA).toEqual(expect.arrayContaining([NO_COLLIDE_ID, COLLIDE_ID]))
-    // Both the canonical COLLIDE_ID row and the disabled legacy duplicate
-    // under the same id must still be visible.
-    expect(externalIdsA.filter((id) => id === COLLIDE_ID)).toHaveLength(2)
+    // The disabled legacy duplicate is still in the database (kept for
+    // rollback, per §6 of the runbook) but no longer under a code the read
+    // model recognises, so only the canonical COLLIDE_ID row is visible now.
+    expect(externalIdsA.filter((id) => id === COLLIDE_ID)).toHaveLength(1)
 
     const rowsB = await listLineRegistry({ businessId: businessB.id, resolve: async () => viewerB })
     expect(rowsB.map((row) => row.externalAccountId)).toContain(COLLIDE_ID)

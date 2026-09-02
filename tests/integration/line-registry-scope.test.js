@@ -4,7 +4,6 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import {
   LINE_REGISTRY_TYPES,
-  LEGACY_LINE_OA_PROVIDER_CODE,
   listLineRegistry,
   saveLineGroup,
   saveLineUser,
@@ -12,6 +11,12 @@ import {
 import { listPhase1Integrations } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { GET } from '@/app/api/platform/integrations/line-registry/route'
+
+// The retired legacy provider code. line-registry-service.js no longer
+// exports this — the read tolerance it named is gone — so rows written under
+// it are seeded here directly, against the database, as data the service must
+// now ignore rather than as a constant the service still recognises.
+const RETIRED_LINE_OA_PROVIDER_CODE = 'line-oa'
 
 // @req FR-080 — the Platform LINE Registry, against the real database.
 // @spec SEC-001, SEC-003, SEC-016, BR-002, ADR-032
@@ -80,8 +85,8 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
     // Another tenant's registration, written directly so the listing has
     // something it must refuse to return.
     const legacyProvider = await prisma.integrationProvider.upsert({
-      where: { code: LEGACY_LINE_OA_PROVIDER_CODE },
-      create: { code: LEGACY_LINE_OA_PROVIDER_CODE, name: 'LINE Official Account (legacy)', status: 'ACTIVE' },
+      where: { code: RETIRED_LINE_OA_PROVIDER_CODE },
+      create: { code: RETIRED_LINE_OA_PROVIDER_CODE, name: 'LINE Official Account (legacy)', status: 'ACTIVE' },
       update: {},
     })
     await prisma.integrationConnection.create({
@@ -210,9 +215,13 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
     }, { resolve: async () => siblingViewer })).rejects.toMatchObject({ status: 409 })
   })
 
-  it('still lists a registration written under the legacy provider code', async () => {
+  it('does not list a registration written under the retired legacy provider code', async () => {
+    // A row under the retired code is no longer part of the registry read
+    // model — the tolerance that used to surface it is gone. Such a row is no
+    // longer written by the application; scripts/migrate-line-oa-provider.mjs
+    // is the path for re-pointing one on a developer SQLite database.
     const legacyProvider = await prisma.integrationProvider.findUnique({
-      where: { code: LEGACY_LINE_OA_PROVIDER_CODE },
+      where: { code: RETIRED_LINE_OA_PROVIDER_CODE },
     })
     const legacyRow = await prisma.integrationConnection.create({
       data: {
@@ -229,10 +238,13 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
     })
 
     const rows = await listLineRegistry({ businessId: ownedBusiness.id, resolve: async () => viewer })
-    expect(rows.map((row) => row.id)).toContain(legacyRow.id)
+    expect(rows.map((row) => row.id)).not.toContain(legacyRow.id)
   })
 
-  it('de-dupes against a legacy row rather than creating a second registration', async () => {
+  it('does not de-dupe against a retired legacy row — it creates a new registration under the shared code', async () => {
+    // The legacy row from the previous test still exists under the retired
+    // code; the de-dupe lookup no longer matches it, so saving the same LINE
+    // id creates a second, independent registration rather than updating it.
     const before = await prisma.integrationConnection.count({
       where: { tenantId: tenantA.id, externalAccountId: 'Clegacy-code-group' },
     })
@@ -244,11 +256,17 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
       groupId: 'Clegacy-code-group',
     }, { resolve: async () => viewer })
 
-    expect(saved.created).toBe(false)
+    expect(saved.created).toBe(true)
     const after = await prisma.integrationConnection.count({
       where: { tenantId: tenantA.id, externalAccountId: 'Clegacy-code-group' },
     })
-    expect(after).toBe(1)
+    expect(after).toBe(2)
+
+    const newRow = await prisma.integrationConnection.findUnique({
+      where: { id: saved.connection.id },
+      include: { provider: true },
+    })
+    expect(newRow.provider.code).toBe(LINE_OA_PROVIDER_CODE)
   })
 
   it('keeps registry rows out of the FR-080 health read model', async () => {
