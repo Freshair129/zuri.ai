@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-02T00:00:00+07:00,CLAUDE"
-last_update: "2026-09-02T00:00:00+07:00,CLAUDE"
-status: "beta"
+last_update: "2026-09-03T04:10:00+07:00,CLAUDE"
+status: "applied"
 superseded_by: null
 attributes:
   domain: "integration"
@@ -91,6 +91,23 @@ prints the outcome, including whether the legacy provider row was deleted.
 
 ## 4. Apply — production (Supabase/Postgres)
 
+> **How it was actually applied on 2026-09-03.** `supabase db push --linked` was
+> not used: the linked history on production stopped at `20260829120000`, so a
+> push would also have applied four unrelated pending migrations (plugin_auth,
+> conversation_analysis, asset_management_foundation,
+> asset_evidence_intake_execution) whose own gates are still open. The migration
+> file was run as one statement batch over the repo's `DIRECT_URL` (the `pg`
+> client, same as `scripts/readonly-supabase-preflight.mjs`), after a dry run in
+> a rolled-back transaction, and its version was then inserted into
+> `supabase_migrations.schema_migrations` so a later `db push` will not re-run it
+> (it is idempotent either way). The affected provider/connection rows were
+> exported to `C:\Users\pc\zuri-ai-supabase-backups\<ref>\20260903-040137-line-oa-merge\`
+> (SHA-256 `74dc282c…dce2cc`) before apply. The first attempt failed and rolled
+> back with `42P01`: Step 2 referenced the UPDATE target inside a `JOIN … ON` in
+> the FROM list, which Postgres forbids; the shipped SQL now uses a comma-join
+> with the correlations in `WHERE` — the SQLite script never had the bug because
+> Prisma builds that step from two queries.
+
 Follow this repository's standard migration apply procedure (see
 `docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md` §§1–4 for the target
 identity, backup and environment gate steps that apply the same way here).
@@ -134,12 +151,13 @@ against production:
 
 | Date | Environment | Pre-apply `line-oa` rows | Collisions | Post-apply `line-oa` rows | Operator |
 |---|---|---|---|---|---|
-| _pending_ | production | | | | |
+| 2026-09-03 04:0x UTC+7 | production (`qcnm…orzc`, Postgres 17.6) | 1 (`LINE_GROUP`, ACTIVE, one tenant) | 0 | 0 — `LINE_OA` now holds the 1 connection; the `line-oa` provider row was deleted (no references left); `supabase_migrations.schema_migrations` records `20260902110000 merge_line_oa_provider_code` | Claude Code (session zuri-ai-1c), owner-instructed |
 
-Once this row is filled in for production, the read tolerance in
+The production row above is filled in, so the read tolerance in
 `line-registry-service.js` (`LEGACY_LINE_OA_PROVIDER_CODE`,
-`READABLE_LINE_OA_PROVIDER_CODES`) may be removed — no row can carry the
-legacy code again.
+`READABLE_LINE_OA_PROVIDER_CODES`) was removed in the same change — no row can
+carry the legacy code again. A developer SQLite database that still holds a
+`line-oa` row is migrated by §3's script, which stays.
 
 ## 6. Rollback
 
@@ -157,3 +175,4 @@ in application code.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Initial runbook for the line-oa → LINE_OA provider merge | working-tree | Claude |
+| 0.2.0b | 2026-09-03 | applied | Production apply recorded (1 legacy row re-pointed, 0 collisions, legacy provider deleted); Step 2 SQL corrected after the 42P01 rollback; read tolerance retired | working-tree | Claude Code |
