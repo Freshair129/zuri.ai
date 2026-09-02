@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.31.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-02 |
 
@@ -250,6 +250,7 @@ the top-level collaboration container, schema `Portfolio` (ADR-027 §D2).
 | POST | `/api/workspace-invites` | Workspace/Tenant-owner authority mints a single-use, expiring invite; the raw token appears exactly once in this response and is stored digest-only (SEC-014) | `404 Workspace not found` for absent and unauthorized alike; `400 INVITE_ROLE_NOT_ALLOWED` — OWNER is never mintable |
 | POST | `/api/workspace-invites/accept` | `{ token }` plus the session principal becomes an audited ACTIVE WorkspaceMembership with the server-decided role | `400 { error: "INVALID_OR_EXPIRED_INVITE" }` — one generic refusal across unknown/replayed/revoked/expired/wrong-target |
 | DELETE | `/api/workspace-invites/[id]` | revokes a PENDING invite (same authority as mint); the token then fails the next acceptance closed | `404 Invite not found`; `409 INVITE_NOT_PENDING` |
+| GET | `/api/workspace-memberships?portfolioId=…` | Workspace owner roster (FR-067): ACTIVE members (`personId`, `code`, `displayName`, `role`, `joinedAt`, `isSelf` marked by the server) and still-PENDING invites (`id`, `role`, `invitedEmail`, `targetPersonId`, `targetName`, `expiresAt`, `createdAt`); same Workspace-owner authority as mint/revoke/remove; read-only, returns no token material, records no audit event | `404 Workspace not found` — also for a non-owner (ADR-027 D9) |
 | DELETE | `/api/workspace-memberships?portfolioId=…&personId=…` | flips the membership to REMOVED, audited; the next protected read re-derives from the row (AC-067.7) | `404 Membership not found`; `404 Workspace not found` without owner authority |
 
 Contract constraints:
@@ -354,7 +355,7 @@ Files endpoints remain available through the compatibility boundary.
 | GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
 | POST | `/api/mcp` | MCP JSON-RPC transport for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`; resolves the trusted request viewer before any session or tool operation; requires `Mcp-Session-Id` after initialization; exposes `project_manager.plan_dry_run`, `project_manager.plan_commit`, scoped `project_manager.work_read`, and authorized `project_manager.work_status_update`, plus the separate `data_pipeline.*` run/document/event/monitor/replay namespace (FR-069/FR-071) |
 | POST | `/api/agent/line-webhook` | Local-disabled compatibility: `{tenantId, businessId?, events[]}`. Enabled production contract: `{bindingId, destination, displayName?, events[]}` with strict rejection of caller `tenantId/businessId`; bearer + active binding resolve immutable scope before `handleAgentTurn` (FR-028/050/051) |
-| GET/POST | `/api/agent/heartbeat` | FR-080: Edge Device pairing and live heartbeat liveness probe; registers local worker status, engine, and query availability (ADR-032 / SEC-016) |
+| GET/POST/DELETE | `/api/agent/heartbeat` | FR-141: Business-scoped Edge Device heartbeat registry (ADR-041 D3). Every method resolves the trusted viewer first (401 otherwise). `POST` records a validated heartbeat for a Business the viewer owns (400 on a failed parse, 403 unowned; `deviceToken` accepted but never stored or returned); `GET` lists the viewer's owned devices with `online` = healthy and heard from within 120 s (`?businessId=` narrows to one owned Business); `DELETE ?deviceId=` removes one device, `DELETE` alone clears the viewer's owned scope. Process-local per instance by decision; registration, status transitions and removals are audited (SEC-008, SEC-001) |
 | GET | `/api/projects/[id]/tree` | nested project → part-projects → part-tasks → workpackages for the Structure Plan (WBS) canvas |
 
 ## Asset Management intake validation (FR-133..136 — foundation preview)
@@ -448,6 +449,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.31.0b | 2026-09-02 | candidate | Gap-fix wave 1 integration: FR-067 gains `GET /api/workspace-memberships?portfolioId=` (owner roster — one more operation on an existing path); the FR-092 observation reader and the FR-141 heartbeat rows landed under their own revisions in the same wave; the handler-count marker is unchanged by this row | — | Claude Code |
 | 1.30.0b | 2026-09-02 | beta | Added nine FR-137..140 evidence/intake/import/export/LINE route contracts; handler count 108 → 117 | working-tree | RWANG |
 | 1.29.0b | 2026-09-02 | candidate | Added the preview-only `POST /api/assets/intakes/validate` boundary for FR-133..136; route handler count 107 → 108. It resolves viewer/Business/domain authority before validating and explicitly performs no persistence or provider actions | working-tree | Codex |
 | 1.27.0b | 2026-08-30 | candidate | FR-123 / ADR-052: added the four-route plugin authorization boundary — `GET /api/plugin/auth/authorize`, `POST /api/plugin/auth/token`, `GET /api/plugin/auth/capabilities`, `POST /api/plugin/auth/revoke`. `token` and `revoke` join login/logout/signup/reset-password in preflight's structural route-viewer exemption rather than its baseline, for the same reason: the only credential either one has is the one-time code or the opaque bearer it was handed, so requiring a browser viewer would be a second, wrong identity boundary rather than a check. `authorize` is deliberately not exempt — it is the one route in the family that must have a browser session, and it resolves one. Route handler count 103 → 107 | working-tree | Claude Opus 5 |

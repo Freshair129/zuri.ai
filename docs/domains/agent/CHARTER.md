@@ -35,6 +35,11 @@ a database superuser.
 - `POST /api/agent/line-webhook` — the one inbound seam (FR-028).
 - `handleAgentTurn` — one end-to-end turn; identity resolution and policy
   checks happen before any memory-port call (FR-057).
+- `GET`/`POST`/`DELETE /api/agent/heartbeat` — the Business-scoped Edge Device
+  liveness view (FR-141, ADR-041 D3): trusted viewer on every method, registry
+  keyed by the viewer's owned Business, process-local per instance by decision,
+  registration/transition/removal audited. It is a cache of a device's last
+  heartbeat, not a pairing record — durable pairing is undeclared.
 
 ## Design docs in this domain
 

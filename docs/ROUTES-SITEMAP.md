@@ -158,7 +158,9 @@ until their parity and BusinessModule gates are met.
 - `/overview` and Business domain routes require an authorized Business selection.
 - `/control/roadmap` requires a trusted installation operator but no Business
   selection. It is outside `DOMAINS`; `isPlatform`, role and Business ownership
-  are insufficient. See ADR-048.
+  are insufficient. See ADR-048. Since 2026-09-02 it is reachable from `/settings`
+  through an operator-only link (FR-105 / FR-075), and PlatformControlShell links
+  back to `/businesses`.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
 - Missing Profile → `/onboarding/profile` (ADR-027, FR-066 — implemented).
@@ -177,7 +179,9 @@ are `/api/auth/login` and `/api/auth/logout`; protected entry routes consume the
 signed session through the provider-neutral `SessionPort`. The entry routing
 contract still uses `/api/entry` and does not accept client-supplied identity.
 ADR-027's Profile/Workspace entry data and invitation mutations are implemented
-at `/api/workspace-invites` (FR-067).
+at `/api/workspace-invites` (FR-067); the owner roster behind Workspace Home reads
+`GET /api/workspace-memberships` (FR-067). The Market Intelligence dashboard reads
+translated observations from `GET /api/market/observations` (FR-092, GET only).
 
 ## Evidence and drift rule
 
