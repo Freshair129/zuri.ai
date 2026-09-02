@@ -35,7 +35,8 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 
 ```
 Tier 1  Context    Portfolio → Tenant → Business  (Workspace → Organization → Business in UI; shell stops here)
-Tier 2  Domain     Business Home · Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
+Tier 2  Domain     Business Home · Commerce · CRM · Market Intelligence · Marketing · Operations ·
+                   HR / People · Asset Management · Development · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
 ```
@@ -51,6 +52,7 @@ domain identities used by FR-070.
 | `DOM-BUSINESS-HOME` | `business-home` | Business Home | non-owning cross-domain shell projection |
 | `DOM-COMMERCE` | `commerce` | Commerce | commerce, products, orders and B2B/wholesale |
 | `DOM-CRM` | `customer` | CRM | customer/account/person context |
+| `DOM-MARKET-INTELLIGENCE` | `market` | Market Intelligence | translated external market state and derived market intelligence |
 | `DOM-MARKETING` | `growth` | Marketing | campaigns, channels and KPI outcomes |
 | `DOM-OPERATIONS` | `operations` | Operations | operating periods, processes and SLA outcomes |
 | `DOM-PEOPLE` | `people` | HR / People | workforce and accountable Human context |
@@ -87,7 +89,7 @@ as `technicalOwnerDomainId` (FR-070).
 ┌──────────────────────────────────────────────────────────────┐
 │ Zuri   Workspace › Organization › Business    ERP · PM   ⌘K   ◐   👤 │  Base Context Bar — exactly 3 levels
 ├──────────────────────────────────────────────────────────────┤     (no Space or Project selector)
-│ Business Home  Commerce  CRM  Marketing  Operations  HR / People  Development · Platform │  Domain bar (Tier 2, per-business)
+│ Business Home  Commerce  CRM  Market Intelligence  Marketing  Operations  HR / People  Asset Management  Development · Platform │  Domain bar (Tier 2, per-business)
 ├──────────────────────────────────────────────────────────────┤
 │ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
@@ -100,9 +102,11 @@ as `technicalOwnerDomainId` (FR-070).
 flowchart TD
   B[Business: The V School] --> D1[Commerce]
   B --> D2[CRM]
+  B --> D2b[Market Intelligence]
   B --> D3[Marketing]
   B --> D4[Operations]
   B --> D5[HR / People]
+  B --> D5b[Asset Management]
   B --> D6[Development]
   B --> D7[Platform]
   D1 --> C0["Dashboard (always #1)"]
@@ -186,6 +190,16 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 6. Consent · PDPA — the only consent writer *(lift; erase-revoke wired to FR-022)*
 7. Notifications *(lift)*
 
+### Market Intelligence — ข่าวกรองตลาด *(new — route key `market`, DOM-MARKET-INTELLIGENCE)*
+1. **Dashboard** — translated external market state and derived intelligence, with source
+   lineage and confidence, for another domain or a Human to act on
+
+Market Intelligence owns no raw provider ingestion (Integration's job) and no canonical
+Product/Brand/Category identity (Knowledge/GKS's job); it consumes eligible raw-record
+references through a translation contract and surfaces the result here. Only the Dashboard
+sub-domain is implemented today; further sub-domains remain declared information
+architecture until their own FR lands.
+
 ### Growth — การตลาด  *(V1: growth — existing AI surface)*
 1. **Dashboard** — spend · ROAS · KPI attainment
 2. Campaigns *(lift)*
@@ -262,12 +276,12 @@ does not appear as an Asset writer.
 
 ## 4. Business-binding rules (which domains appear)
 
-| Business kind | Commerce | CRM | Marketing | Operations | HR / People | Development | Platform |
-|---|---|---|---|---|---|---|---|
-| Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ |
-| Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ |
-| Services / B2B only | ✓ (B2B) | ✓ | ✓ | – | ✓ | ✓ |
-| Internal / holding | – | – | – | – | ✓ | ✓ |
+| Business kind | Commerce | CRM | Market Intelligence | Marketing | Operations | HR / People | Asset Management | Development | Platform |
+|---|---|---|---|---|---|---|---|---|---|
+| Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ | ✓ |
+| Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ | ✓ |
+| Services / B2B only | ✓ (B2B) | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ |
+| Internal / holding | – | – | – | – | – | ✓ | – | ✓ |
 
 - The enabled set is a per-Business module registry (Platform → Business config edits it).
 - A domain with zero enabled sub-domains is hidden from the bar entirely.
