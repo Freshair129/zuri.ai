@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-02T12:31:04+07:00,RWANG"
-last_update: "2026-09-02T12:31:04+07:00,RWANG"
+last_update: "2026-09-03T05:10:00+07:00,CLAUDE"
 status: "beta"
 superseded_by: null
 attributes:
@@ -58,6 +58,14 @@ a new project.
 
 ## 2. Backup and inventory
 
+> **Done 2026-09-03 (inventory).** Read-only inventory over `DIRECT_URL` found the clean
+> baseline: none of the nine Asset tables existed, neither Asset version was recorded,
+> `storage.buckets` was empty. The operator-controlled logical backup could not be taken
+> — the Supabase CLI is not logged in on the operator machine — and was consciously
+> skipped: both migrations are additive only (no drop/rename/truncate/data rewrite,
+> confirmed by a four-reviewer pass) and there was nothing Asset-related to back up on an
+> empty baseline. Take the backup before any later, non-additive Asset migration.
+
 Before apply, take an operator-controlled logical backup and retain its SHA-256
 outside Git. Never write a database URL into the command line.
 
@@ -108,6 +116,19 @@ bucket provisioned by migration (`asset-evidence` for this release).
 
 ## 4. Apply migrations
 
+> **Done 2026-09-03.** `db push --linked` was not available (no CLI login); each file was
+> dry-run inside a rolled-back transaction, then run in its own transaction over
+> `DIRECT_URL` with the `pg` client and its version inserted into
+> `supabase_migrations.schema_migrations` (`20260902001000 asset_management_foundation`,
+> `20260902103000 asset_evidence_intake_execution`). Two unrelated pending migrations
+> (`20260830120000 plugin_auth`, `20260830221729 conversation_analysis`) were applied in the
+> same window on the owner's instruction, so the "only the two approved Asset migrations"
+> window statement below was widened by the owner rather than violated. Post-apply
+> inventory: nine Asset tables, RLS enabled+forced, one `zuri_app_runtime_all` policy each,
+> `zuri_app_runtime` holds SELECT/INSERT/UPDATE/DELETE, zero grants to
+> anon/authenticated/service_role/PUBLIC, `AssetIntake` carries `normalizedEnvelopeJson`,
+> `payloadSha256`, `validatedAt`, `validationJson`.
+
 Review the linked dry run first. Only the two approved Asset migrations may be
 new in this activation window.
 
@@ -122,6 +143,11 @@ The SQL must contain no drop, rename, truncate or data rewrite. A partial apply
 or unexpected remote migration is a stop condition.
 
 ## 5. Verify storage
+
+> **Done 2026-09-03.** `storage.buckets` holds `asset-evidence` with `public = false`,
+> `file_size_limit = 20971520` and `allowed_mime_types = {image/jpeg, image/png,
+> image/webp, application/pdf}` — exactly the expected values below. §3 (environment gate),
+> §6 (protected deployment), §7 (synthetic canary) and §8 (promotion) remain NOT_RUN.
 
 Verify bucket metadata through the approved SQL console:
 
@@ -232,3 +258,4 @@ ID and hash in the receipt. Never drop production tables as rollback.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Added the approved identity-to-rollback production activation procedure | working-tree | RWANG |
+| 0.2.0b | 2026-09-03 | beta | §2 inventory, §4 migration apply and §5 storage verification recorded as done on production (direct SQL over DIRECT_URL, versions ledgered); backup step skipped on an empty additive-only baseline; §3, §6–§8 remain NOT_RUN | working-tree | Claude Code |

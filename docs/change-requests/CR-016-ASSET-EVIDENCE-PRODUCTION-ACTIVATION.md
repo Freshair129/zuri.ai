@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-09-02T12:19:45+07:00,RWANG"
-last_update: "2026-09-02T12:39:30+07:00,RWANG"
+last_update: "2026-09-03T05:10:00+07:00,CLAUDE"
 status: "beta"
 superseded_by: null
 attributes:
@@ -138,6 +138,16 @@ target identity, backup/inventory, migration apply, protected deployment, real-p
 canary and promotion remain `NOT_RUN`; no production system was mutated and this CR is
 not yet production-complete.
 
+**Update 2026-09-03.** On the owner's instruction the two Asset migrations were applied
+to production and recorded in `supabase_migrations.schema_migrations`, and the private
+`asset-evidence` bucket now exists with the approved size limit and MIME allowlist (see the
+runbook §2, §4 and §5 notes for the verified values and the apply path — direct SQL over
+`DIRECT_URL`, not `db push`, because the CLI is not logged in). Target identity and
+inventory are therefore DONE and migration apply and storage verification are DONE; the
+environment gate, protected deployment, real-provider canary and promotion remain
+`NOT_RUN`, so this CR is still not production-complete and `READY_FOR_REGISTRATION` has
+not been reached.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
@@ -145,3 +155,4 @@ not yet production-complete.
 | 0.1.0b | 2026-09-02 | draft | Proposed production activation gates for the verified local beta | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Owner approved the production activation gates for implementation | working-tree | RWANG |
 | 0.3.0b | 2026-09-02 | beta | Implemented and fully verified repository activation artifacts; remote production gates remain NOT_RUN | working-tree | RWANG |
+| 0.4.0b | 2026-09-03 | beta | Production migrations applied and bucket provisioned on owner instruction; deployment, canary and promotion gates remain NOT_RUN | working-tree | Claude Code |

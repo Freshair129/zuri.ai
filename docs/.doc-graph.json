@@ -56,9 +56,15 @@
   },
   "drift": {
     "changed": [
+      "doc:CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
       "doc:README",
+      "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
       "doc:CONTEXT-MAP",
-      "doc:line-oa-provider-merge"
+      "doc:FR-127-conversation-intelligence-analysis",
+      "doc:FR-123-plugin-authentication-and-capability-discovery",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "doc:ASSET-EVIDENCE-PRODUCTION-ACTIVATION"
     ],
     "added": [],
     "removed": []
@@ -9381,8 +9387,8 @@
       "type": "document",
       "path": "docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "Asset Evidence Production Activation Runbook",
-      "hash": "8ef5935d",
-      "status": "current"
+      "hash": "7755a25a",
+      "status": "changed"
     },
     {
       "id": "doc:B-db-schema",
@@ -9495,8 +9501,8 @@
       "type": "document",
       "path": "docs/change-requests/CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "CR-016 — Asset Evidence Production Activation",
-      "hash": "aad8e515",
-      "status": "current"
+      "hash": "e76fed85",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -10262,8 +10268,8 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
-      "hash": "23489be2",
-      "status": "current"
+      "hash": "36796fe0",
+      "status": "changed"
     },
     {
       "id": "doc:FR-124-product-readiness-dashboard",
@@ -10286,8 +10292,8 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
       "title": "FR-127 — Conversation intelligence analysis",
-      "hash": "61b236c8",
-      "status": "current"
+      "hash": "fc204a32",
+      "status": "changed"
     },
     {
       "id": "doc:FR-129-catalog-publication-approval-gate",
@@ -10409,7 +10415,7 @@
       "path": "docs/runbooks/line-oa-provider-merge.md",
       "title": "LINE_OA provider merge runbook",
       "hash": "584ae1a8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -10690,8 +10696,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.135.0b",
       "doc_status": "Draft",
-      "hash": "d5213eb0",
-      "status": "current"
+      "hash": "c43cde6e",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10734,8 +10740,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ae364e8d",
-      "status": "current"
+      "hash": "79803ab4",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -13207,7 +13213,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4). 🟠 implemented locally; consent gate and replay-safe expired-code/session maintenance tested; production Supabase migration, client registration, device-binding/security evidence and maintenance invocation remain gated "
+      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4). 🟠 implemented locally; consent gate and replay-safe expired-code/session maintenance tested; production Supabase migration, client registration, device-binding/security evidence and maintenance invocation remain gated; 2026-09-03: production Supabase migration `20260830120000_plugin_auth` applied and recorded in `supabase_migrations.schema_migrations` (RLS forced, `zuri_app_runtime_all` policy, no public/anon/service_role grants) — client registration, device-binding/security evidence and maintenance invocation still gated "
     },
     {
       "id": "req:FR-124",
@@ -13247,7 +13253,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🟠 partial local implementation 2026-08-31 — ConversationAnalysis schema and consent-gated authorized persistence/read, PDPA erasure and snapshot restore; no worker/LLM producer, UI/public API or applied production migration; ADR-054 D2/D3 "
+      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🟠 partial local implementation 2026-08-31 — ConversationAnalysis schema and consent-gated authorized persistence/read, PDPA erasure and snapshot restore; no worker/LLM producer, UI/public API or applied production migration; ADR-054 D2/D3; 2026-09-03: production migration `20260830221729_conversation_analysis` applied and recorded on the owner's explicit instruction (ADR-054 had withheld it) — still no worker/LLM producer, public route or UI "
     },
     {
       "id": "req:FR-128",
@@ -13347,7 +13353,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+      "row_text": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record. 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016) "
     },
     {
       "id": "req:FR-138",
@@ -13357,7 +13363,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Asset evidence extraction and review: authorized extraction may submit active same-Business evidence to a provider adapter and persist strict field-level candidates with provider/model/response identity, confidence and provenance. Candidate output never reviews or approves itself; an Asset reviewer records a separate ACCEPT/CORRECT/REJECT decision and immutable correction evidence before intake can become ready. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+      "row_text": "Asset evidence extraction and review: authorized extraction may submit active same-Business evidence to a provider adapter and persist strict field-level candidates with provider/model/response identity, confidence and provenance. Candidate output never reviews or approves itself; an Asset reviewer records a separate ACCEPT/CORRECT/REJECT decision and immutable correction evidence before intake can become ready. 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016) "
     },
     {
       "id": "req:FR-139",
@@ -13367,7 +13373,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Asset Excel and Google Sheets snapshot intake/export: a generated Asset workbook and a bounded Sheet row snapshot convert through the same canonical row adapter and deterministic envelope validator, return sheet/row/column issues and perform no hidden apply. Export is a bounded Google Sheets-ready `.xlsx`; files/sheets are convenience snapshots, never the Asset register or an authority source. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+      "row_text": "Asset Excel and Google Sheets snapshot intake/export: a generated Asset workbook and a bounded Sheet row snapshot convert through the same canonical row adapter and deterministic envelope validator, return sheet/row/column issues and perform no hidden apply. Export is a bounded Google Sheets-ready `.xlsx`; files/sheets are convenience snapshots, never the Asset register or an authority source. 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016) "
     },
     {
       "id": "req:FR-140",
@@ -13377,7 +13383,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+      "row_text": "Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service. 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016) "
     },
     {
       "id": "req:FR-141",
@@ -16538,8 +16544,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md",
       "title": "ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence",
-      "hash": "fe1159f4",
-      "status": "current"
+      "hash": "b004a110",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
