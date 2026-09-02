@@ -2,7 +2,7 @@
 // @spec SDD-023, BR-010, SEC-007, ADR-016
 // @tested tests/unit/fr045-file-asset-service.test.js
 import { describe, expect, it, vi } from 'vitest'
-import { makeViewer } from '../factories/viewer'
+import { makeViewer, makeOperatorViewer } from '../factories/viewer'
 import {
   createManagedFileAsset,
   deleteManagedFileAsset,
@@ -15,6 +15,11 @@ import {
 } from '@/modules/project-manager/application/file-asset-service'
 
 const owner = makeViewer({ visibleBusinessIds: ['business-a'], ownedBusinessIds: ['business-a'] })
+// @req FR-072, FR-075 — migrateProjectFiles is a global, cross-tenant
+// operation and requires installation-operator authority, not per-Business
+// ownership; the authorization-specific cases live in
+// tests/integration/fr072-files-migrate-authorization.test.js.
+const operator = makeOperatorViewer({ visibleBusinessIds: [], ownedBusinessIds: [] })
 
 function migrationDb() {
   const tx = {
@@ -44,11 +49,11 @@ function migrationDb() {
 describe('FR-045 FileAsset service', () => {
   it('dry-runs then commits a lossless ProjectFile migration with the same UUID', async () => {
     const db = migrationDb()
-    const preview = await migrateProjectFiles({ confirm: false }, { db })
+    const preview = await migrateProjectFiles({ confirm: false }, { db, viewer: operator })
     expect(preview).toMatchObject({ confirmed: false, accepted: 1, conflicts: 0 })
     expect(db.$transaction).not.toHaveBeenCalled()
 
-    const committed = await migrateProjectFiles({ confirm: true }, { db })
+    const committed = await migrateProjectFiles({ confirm: true }, { db, viewer: operator })
     expect(committed).toMatchObject({ confirmed: true, migrated: 1, conflicts: 0 })
     expect(db.tx.fileAsset.create).toHaveBeenCalledWith({ data: expect.objectContaining({
       id: 'legacy-id', code: 'FIL-OLD', projectId: 'project-a', tenantId: 'tenant-a',
@@ -65,7 +70,7 @@ describe('FR-045 FileAsset service', () => {
       id: 'shared', code: 'FIL-SHARED', projectId: 'shared-project', name: 'x', mime: 'text/plain', size: 1,
       version: 1, project: { id: 'shared-project', businessId: null, business: null },
     }])
-    await expect(migrateProjectFiles({ confirm: false }, { db })).resolves.toMatchObject({ accepted: 0, conflicts: 1 })
+    await expect(migrateProjectFiles({ confirm: false }, { db, viewer: operator })).resolves.toMatchObject({ accepted: 0, conflicts: 1 })
   })
 
   it('creates external metadata only inside a visible Business and preserves the legacy DTO', async () => {

@@ -89,6 +89,51 @@ export async function mintApiAccessKey({ label, tenantId, viewer, db = prisma } 
 }
 
 /**
+ * The Tenants this viewer may mint or revoke keys for, and the keys that
+ * already exist in them.
+ *
+ * Every field here is metadata about a credential — id, label, display prefix,
+ * status, timestamps. `keyHash` is never selected, and there is no field from
+ * which the secret could be reconstructed: `keyPrefix` is the first 8 characters
+ * of a 24-byte random secret, which is what makes a key identifiable in this
+ * listing without being useful toward guessing it (the same trade FR-102 made).
+ * The raw key exists exactly once, in the mint response, and is unrecoverable
+ * afterward — a list endpoint that could return it would silently undo that.
+ *
+ * Without this, `revokeApiAccessKey` was unreachable from anywhere but a saved
+ * id: minting returned an id that nothing displayed again, so a key could be
+ * created and never withdrawn (D2-domain-identity-22). Scoped by exactly the
+ * authority that mints and revokes, so a key visible here is one this viewer
+ * can act on — no row is listed that its revoke button would 404 on.
+ */
+export async function listApiAccessKeys({ viewer, db = prisma } = {}) {
+  const operator = isInstallationOperator(viewer)
+  const ownedTenantIds = Array.isArray(viewer?.ownedTenantIds) ? viewer.ownedTenantIds.filter(Boolean) : []
+  // Fails closed: a viewer with neither the operator capability nor a
+  // tenant-wide OWNER Membership sees an empty panel rather than falling
+  // through to an unscoped query.
+  if (!operator && ownedTenantIds.length === 0) return { tenants: [], keys: [] }
+
+  const tenants = await db.tenant.findMany({
+    where: operator ? {} : { id: { in: ownedTenantIds } },
+    orderBy: { code: 'asc' },
+    select: { id: true, code: true, name: true },
+  })
+  const tenantIds = tenants.map((tenant) => tenant.id)
+  if (tenantIds.length === 0) return { tenants: [], keys: [] }
+
+  const rows = await db.apiAccessKey.findMany({
+    where: { tenantId: { in: tenantIds } },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true, label: true, tenantId: true, keyPrefix: true,
+      status: true, createdAt: true, revokedAt: true, lastUsedAt: true,
+    },
+  })
+  return { tenants, keys: rows }
+}
+
+/**
  * Revoke a key. Takes effect on the next request — no grace period (the
  * ADR-047 D4 reasoning holds identically here: no user is attached to a
  * service credential to notice a compromise). Same authority as minting,

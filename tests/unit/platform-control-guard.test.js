@@ -16,6 +16,17 @@ describe('Platform Control guard', () => {
     expect(resolvePlatformControlDecision({ viewerError: 'unavailable' })).toEqual({ state: 'AUTH_REQUIRED', redirect: '/login' })
   })
 
+  it('keeps a 503 session-store outage apart from a real AUTH_REQUIRED failure', () => {
+    // The shape `resolveRequestViewer` actually throws: an Error carrying
+    // `.status`/`.message`, as surfaced by PlatformControlGuard.jsx's catch.
+    expect(resolvePlatformControlDecision({ viewerError: { status: 503, message: 'SESSION_UNAVAILABLE' } }))
+      .toEqual({ state: 'SESSION_UNAVAILABLE' })
+    expect(resolvePlatformControlDecision({ viewerError: 'SESSION_UNAVAILABLE' }))
+      .toEqual({ state: 'SESSION_UNAVAILABLE' })
+    expect(resolvePlatformControlDecision({ viewerError: { status: 401, message: 'AUTH_REQUIRED' } }))
+      .toEqual({ state: 'AUTH_REQUIRED', redirect: '/login' })
+  })
+
   it('admits an installation operator without a Business selection', () => {
     expect(resolvePlatformControlDecision({ viewer: makeOperatorViewer({ ownedBusinessIds: [] }) })).toEqual({ state: 'READY' })
   })

@@ -76,12 +76,17 @@ describe('OpenAPI document', () => {
       // renders the consent screen, POST is the consent form's own submission
       // and the only operation in the family that mints — ADR-052 D4), plus
       // FR-137..140's nine evidence/intake/import/export/LINE paths, plus
-      // FR-092's one (the Market Intelligence observation reader — GET only,
-      // because translation is the sole writer of those rows). FR-067's owner
-      // roster adds a GET to the existing /api/workspace-memberships path
-      // (one more operation, no new path).
-      pathCount: 118,
-      operationCount: 152,
+      // FR-092's two (the Market Intelligence observation reader, GET only, and
+      // the production translation trigger, POST only — the sole writer of
+      // MarketObservation rows, owner-gated). FR-067's owner roster adds a GET to
+      // the existing /api/workspace-memberships path (one more operation, no new
+      // path). FR-022's one (the PDPA erasure trigger — POST only; the erasure has
+      // no preview and leaves a redacted Customer behind). FR-038's Membership
+      // attach adds one path and one operation (POST /api/platform/users/memberships);
+      // FR-106's key listing adds a GET to the existing /api/platform/api-access-keys
+      // path — one more operation, no new path — bringing the totals to:
+      pathCount: 121,
+      operationCount: 156,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

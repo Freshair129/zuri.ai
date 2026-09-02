@@ -199,6 +199,23 @@ describe('FR-141 GET — the registry is scoped to owned Businesses', () => {
     expect((await get('?businessId=business-a')).status).toBe(403)
   })
 
+  it('treats a present-but-empty ?businessId= as a validation error, never as "no narrowing"', async () => {
+    as(ownerA)
+    await post(heartbeat())
+    // Before the fix `businessId || null` folded '' into no-narrowing, so this
+    // silently returned the full owned list instead of rejecting the query.
+    const res = await get('?businessId=')
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.error).toBe('Validation failed')
+    expect(body.issues.join(' ')).toMatch(/businessId/)
+  })
+
+  it('rejects a businessId beyond the allowed length as malformed, not silently accepted', async () => {
+    as(ownerA)
+    expect((await get(`?businessId=${'x'.repeat(201)}`)).status).toBe(400)
+  })
+
   it('marks a device offline once its last heartbeat is older than the window', async () => {
     vi.useFakeTimers({ now: new Date('2026-09-02T10:00:00Z') })
     as(ownerA)
@@ -246,6 +263,16 @@ describe('FR-141 DELETE — removal is scoped and audited', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toMatchObject({ removed: [{ businessId: 'business-b', deviceId: 'DEV-B-1' }], remaining: 0 })
     as(ownerA)
+    expect((await (await get()).json()).count).toBe(2)
+  })
+
+  it('treats a present-but-empty ?deviceId= / ?businessId= as a validation error, not "clear everything"', async () => {
+    as(ownerA)
+    // Before the fix `deviceId || null` / `businessId || null` folded '' into
+    // no-narrowing, so this would have cleared the whole owned scope instead
+    // of being rejected.
+    expect((await del('?deviceId=')).status).toBe(400)
+    expect((await del('?businessId=')).status).toBe(400)
     expect((await (await get()).json()).count).toBe(2)
   })
 })

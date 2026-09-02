@@ -13,7 +13,7 @@ import { uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { createConfiguredAssetObjectStoragePort } from '@/platform/storage/supabase-object-storage'
-import { assertBusinessWritable, assertFileAssetWritable } from './project-authorization'
+import { assertBusinessWritable, assertFileAssetWritable, assertInstallationOperatorWritable } from './project-authorization'
 import {
   buildBusinessFileManagerReadModel,
   buildProjectFileManagerReadModel,
@@ -282,7 +282,15 @@ export async function deleteManagedFileAsset(fileId, { db = prisma, viewer } = {
   return deleted
 }
 
-export async function migrateProjectFiles({ confirm = false } = {}, { db = prisma } = {}) {
+// @req FR-072, FR-075 — a global, cross-tenant legacy-migration operation
+// requires installation-operator authority (`isInstallationOperator`), not the
+// per-principal `role` label the route used to check
+// (`['OWNER', 'DEV'].includes(viewer.role)`), and not per-Business ownership
+// either — there is no single owning Business to authorize against.
+// @spec ADR-016 D10, SEC-001, SEC-008
+// @tested tests/integration/fr072-files-migrate-authorization.test.js
+export async function migrateProjectFiles({ confirm = false } = {}, { db = prisma, viewer } = {}) {
+  assertInstallationOperatorWritable(viewer)
   const rows = await db.projectFile.findMany({ include: { project: { include: { business: { select: { tenantId: true } } } } } })
   const existing = await db.fileAsset.findMany({ select: { id: true, code: true } })
   const ids = new Set(existing.map((item) => item.id))

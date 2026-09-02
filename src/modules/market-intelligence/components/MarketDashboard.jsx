@@ -1,9 +1,9 @@
 'use client'
 
-import React from 'react'
-import { TrendingUp, Bell, ShieldCheck, Tag, BarChart3, AlertCircle } from 'lucide-react'
+import React, { useState } from 'react'
+import { TrendingUp, Bell, ShieldCheck, Tag, BarChart3, AlertCircle, RefreshCw } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
-import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
+import { api, useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 
 // @req FR-092 — the console surface over translated `MarketObservation` state. Every
 //   number and row on this page comes from `GET /api/market/observations` for the
@@ -11,7 +11,17 @@ import { useFetch, LoadingCard } from '@/modules/project-manager/components/useA
 // @spec SDD-049, BR-001, SEC-001, ADR-038
 // @tested tests/unit/market-intelligence/market-observations-route.test.js,
 //   tests/unit/market-intelligence/market-observation-feed.test.js,
-//   tests/integration/market-intelligence-observation-feed.test.js
+//   tests/integration/market-intelligence-observation-feed.test.js,
+//   tests/unit/market-intelligence/market-translations-route.test.js
+//
+// The "แปลข้อมูลจากแหล่งภายนอก" (translate external data) button below calls the FR-092
+// production trigger, `POST /api/market/translations`. It renders only for a viewer who
+// OWNS the active Business — the same `viewer.ownedBusinessIds` check
+// overview/page.jsx and customer/conversations/page.jsx already use, never the global
+// `viewer.role` label (an OWNER-elsewhere/MEMBER-here viewer must not see a control the
+// server would refuse anyway; see FR-059's authorization RCA). The route would 404 the
+// write regardless, but a control that always renders a denial is worse than one that
+// only appears where it can succeed.
 //
 // This component previously held two `useState` fixture arrays and made no request at
 // all, while ADR-038's truthful-navigation rule had already opened the nav entry — so a
@@ -69,6 +79,61 @@ function Notice({ tone = 'muted', title, detail }) {
   )
 }
 
+/**
+ * The FR-092 production translation trigger, rendered only for the Business's owner
+ * (see the file-header note on why this gates on ownership, not the global role).
+ * `onTranslated` is the observations feed's own `reload`, so a successful run shows up
+ * on this page immediately rather than waiting for the next navigation.
+ */
+function TranslateButton({ businessId, onTranslated }) {
+  const [running, setRunning] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+
+  async function run() {
+    setRunning(true)
+    setError(null)
+    setResult(null)
+    try {
+      const body = await api('/api/market/translations', { method: 'POST', body: { businessId } })
+      setResult(body)
+      await onTranslated()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <button
+        type="button"
+        className="inline-flex items-center gap-2 rounded-lg bg-[#E8820C] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#d1750a] disabled:opacity-60"
+        disabled={running}
+        onClick={run}
+      >
+        <RefreshCw className={`w-3.5 h-3.5 ${running ? 'animate-spin' : ''}`} />
+        {running ? 'กำลังแปลข้อมูล…' : 'แปลข้อมูลจากแหล่งภายนอก'}
+      </button>
+      {result && (
+        <p className="text-[11px] text-gray-500">
+          แปลใหม่ {result.translated} รายการ · ไม่มีการเปลี่ยนแปลง {result.unchanged} รายการ
+          {result.failed?.length > 0 ? ` · ล้มเหลว ${result.failed.length} รายการ` : ''}
+        </p>
+      )}
+      {result?.failed?.length > 0 && (
+        <ul className="max-w-xs text-right text-[10px] text-[var(--danger,#b42318)]">
+          {result.failed.slice(0, 3).map((item) => (
+            <li key={item.rawRecordId}>{item.rawRecordId}: {item.reason}</li>
+          ))}
+        </ul>
+      )}
+      {error && <p className="text-[11px] text-[var(--danger,#b42318)]">แปลข้อมูลไม่สำเร็จ: {error}</p>}
+    </div>
+  )
+}
+
 export default function MarketDashboard() {
   const scope = useScope()
   const businessId = scope.shell.activeBusinessId
@@ -78,10 +143,17 @@ export default function MarketDashboard() {
 
   // `useFetch(null)` performs no request, so a shell with no Business selected asks the
   // server nothing rather than asking it a question with a missing scope.
-  const { data, loading, error } = useFetch(
+  const { data, loading, error, reload } = useFetch(
     businessId ? `/api/market/observations?businessId=${encodeURIComponent(businessId)}` : null,
     [businessId],
   )
+  // @req FR-092 — the translate button is gated on this viewer's per-Business OWNER
+  // grant, the same `/api/viewer` contract and `ownedBusinessIds` check
+  // overview/page.jsx and customer/conversations/page.jsx already use — never
+  // `viewer.data?.role`, which is a global per-principal label true for an OWNER of a
+  // different Business who is only a MEMBER here.
+  const viewer = useFetch('/api/viewer')
+  const isOwner = Boolean(businessId && viewer.data?.ownedBusinessIds?.includes(businessId))
 
   const observations = data?.observations ?? []
   const counts = data?.counts ?? null
@@ -104,6 +176,7 @@ export default function MarketDashboard() {
             {businessLabel ? ` — ธุรกิจ: ${businessLabel}` : ''}
           </p>
         </div>
+        {isOwner && <TranslateButton businessId={businessId} onTranslated={reload} />}
       </div>
 
       {!businessId && (

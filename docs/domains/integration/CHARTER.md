@@ -50,6 +50,22 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - Raw ingested payloads are replayable evidence, not truth. They are persisted
   verbatim and translated by a separate later path, so a failed translation can
   never destroy what the provider actually sent.
+- **PDPA erasure wins over replayability; the tombstone keeps the envelope.** The
+  rule above has exactly one exception, and it is not a weakening of it. A LINE
+  webhook payload carries the message text and the sender's provider subject, so an
+  erasure that left this table alone would leave the erased person's own words
+  readable one join from the redacted Customer — the finding that opened this
+  boundary (FR-022, D3-line-agent-crm-flow-08). Deleting the row is the other
+  failure: replay tooling reads this table to reconstruct what arrived, and a missing
+  row looks like an ingestion gap, a bug to chase, where a tombstone is a fact to
+  read. So `tombstoneRawRecordsForExternalIds` replaces **only** `payloadJson`, with
+  `{"redacted":true,"reason":"PDPA_ERASURE","erasedAt":"<iso>"}`, and every envelope
+  column — id, `idempotencyKey`, `payloadHash`, `receivedAt`, `connectionId`,
+  `provider`, `lane`, `entityType`, `externalId`, processing state — stays exactly as
+  it was. The hash deliberately still describes the payload that *was* there: it is
+  what proves this row is the redaction of a specific delivery rather than a
+  fabricated one. Called by identity's `erasePrincipal` inside its transaction, and
+  by nothing else; this lane still writes no business truth.
 - Ingestion identity is derived from tenant, connection, entity type, external id
   and a canonical payload hash. External identifiers are mapped through
   `ExternalEntityRef` and never become primary keys (BR-002).
@@ -109,6 +125,10 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   persistence; returns `UNCHANGED` for a re-delivered event.
 - `src/platform/integrations/core/raw-record-repository.js` — scope-bound raw
   record persistence.
+- `src/platform/integrations/core/raw-record-redaction.js` —
+  `tombstoneRawRecordsForExternalIds` (FR-022), the erasure boundary above. Tenant-
+  scoped and idempotent: an already-tombstoned row is left byte-for-byte alone, so a
+  second erasure never moves the record of when the first one happened.
 - `src/platform/integrations/providers/line/line-oa-webhook.js` — the LINE event
   normalizer and signature verifier; drops the transient `replyToken` before
   persistence. `normalizeLineWebhookEvent` is the one normalizer the live ingress

@@ -201,4 +201,38 @@ describe('MarketObservation scoped repository adapter (#76)', () => {
 
     await expect(repository.listRecent()).rejects.toThrow(/findMany/i)
   })
+
+  // --- findTranslatedRawRecordIds (FR-092 production translation trigger) ----
+
+  it('returns the scoped rawRecordIds that already have a MarketObservation', async () => {
+    const prisma = createPrisma()
+    prisma.marketObservation.findMany = vi.fn(async () => [
+      { rawRecordId: 'raw-1' },
+      { rawRecordId: 'raw-3' },
+    ])
+    const repository = createMarketObservationRepository(prisma, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    const ids = await repository.findTranslatedRawRecordIds(['raw-1', 'raw-2', 'raw-3'])
+
+    expect(prisma.marketObservation.findMany).toHaveBeenCalledWith({
+      where: { tenantId: 'tenant-a', businessId: 'business-a', rawRecordId: { in: ['raw-1', 'raw-2', 'raw-3'] } },
+      select: { rawRecordId: true },
+    })
+    expect(ids).toEqual(['raw-1', 'raw-3'])
+  })
+
+  it('answers an empty list without querying for an empty input', async () => {
+    const prisma = createPrisma()
+    prisma.marketObservation.findMany = vi.fn()
+    const repository = createMarketObservationRepository(prisma, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    await expect(repository.findTranslatedRawRecordIds([])).resolves.toEqual([])
+    expect(prisma.marketObservation.findMany).not.toHaveBeenCalled()
+  })
 })

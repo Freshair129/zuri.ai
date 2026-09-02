@@ -3,7 +3,7 @@ domain: market-intelligence
 feature: FR-092
 module: market-intelligence
 source: v2-native
-version: 0.1.1
+version: 0.1.2
 status: implemented
 issue: 76
 ---
@@ -88,3 +88,34 @@ canonical Product reference and deliberately leaves `canonicalCategoryRef = null
 This FR intentionally does **not** introduce PriceObservation, ExternalOffer,
 SupplierCandidate, WatchRule or source-specific Facebook/retail adapters. Those belong
 to #77/#82/#83 after the translation seam and Market persistence are proven.
+
+## Decision 2026-09-02 — a production trigger, but acquisition adapters stay unwired
+
+The translation seam shipped in PR #88 had no caller outside a test: nothing in the
+running system ever invoked `loadTranslateAndPersistRawMarketRecord` or
+`translateAndPersistRawMarketRecord`, so a raw record ingested through FR-081 into the
+`MARKET_INTELLIGENCE` lane stayed untranslated forever unless someone ran code by hand
+(gap-analysis findings D2-domain-market-intelligence-07 and
+D3-integration-knowledge-document-intake-05, `reports/gap-analysis-2026-09-02/`). This
+closes that gap on the **translation** side only: `POST /api/market/translations` is an
+explicit, owner-initiated run over one Business's already-ingested backlog —
+`ownsBusiness`-gated, 404-shaped for a viewer who does not own the Business, one audit
+event per run — wired with the same `market-observation-service.js` seam PR #88 built,
+plus a new provider-neutral default `extractCandidate` port
+(`application/generic-candidate-extractor.js`) and a Business-scoped
+`RawExternalRecord` candidate reader
+(`infrastructure/market-raw-record-repository.js#listMarketLaneRawRecordCandidates`).
+
+It deliberately does **not** wire the acquisition side. `marketplace-listing-adapter.js`
+and `retail-price-adapter.js` (Integration, #82/#83) remain pure, unused formatting
+functions with no caller outside their own tests (D2-domain-market-intelligence-10) —
+this slice does not connect them to a scraper, webhook or scheduled job, and it does
+not add one of its own. Automated or scheduled acquisition from an external
+marketplace or retail source raises a source-specific legal/Terms-of-Service question
+— what a given marketplace's ToS permits a bot to read, how often, and under what
+identity — that is not this domain's to answer by writing a cron job. Until that
+review happens per source, translation stays **owner-triggered on demand**: a human
+who already has raw evidence in the system (however it got there) decides when to
+spend a translation run on it. Standing up automated acquisition, and wiring either
+adapter to a real producer, is out of scope for this decision and waits on that
+review, not on further Market Intelligence code.

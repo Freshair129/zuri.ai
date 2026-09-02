@@ -11,6 +11,10 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 // LINE ingress has been writing since FR-023.
 // @req FR-103 — the SEC-005 PDPA consent attestation control sits on the same
 // thread header, gated on per-Business OWNER authority (never a Member/DEV grant).
+// @req FR-022 — and beside it, the other half of the same obligation: the PDPA
+// erasure action. Consent is what a Business may keep; erasure is what it must give
+// back. Same header, same owner gate, one difference — erasure cannot be undone, so
+// it is the only control on this page that makes the owner type a word first.
 // @spec SDD-050, SDD-053, BR-001, BR-011, SDD-007, SEC-005
 // @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js
 //
@@ -118,6 +122,103 @@ function ConsentControl({ businessId, customer, isOwner, onRecorded }) {
   )
 }
 
+// @req FR-022 — the PDPA erasure action. Owner-only for the same reason the consent
+//   control is: the API refuses anyone else, and a button that only ever renders a
+//   denial teaches the reader nothing. The typed confirmation is not ceremony — this
+//   is the one action in the console with no undo, so the click and the decision are
+//   deliberately separated by an act of typing.
+const ERASE_CONFIRMATION = 'ERASE'
+
+function ErasureControl({ businessId, customer, isOwner, onErased }) {
+  const [open, setOpen] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(null)
+  const [counts, setCounts] = useState(null)
+
+  if (!isOwner) return null
+
+  async function erase() {
+    setBusy(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/crm/customers/${encodeURIComponent(customer.id)}/erasure`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, confirmation: typed }),
+      })
+      const body = await res.json().catch(() => ({}))
+      // The server's refusal text is shown as written. A generic 'ลบไม่สำเร็จ' would
+      // hide the one thing the owner needs — whether the refusal was about authority,
+      // about the confirmation word, or about the customer no longer being there.
+      if (!res.ok) throw new Error(body?.error || 'ลบข้อมูลไม่สำเร็จ')
+      setCounts(body.counts || {})
+      setOpen(false)
+      setTyped('')
+      onErased()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (counts) {
+    return (
+      <div className="mt-2 rounded-lg border border-[var(--border)] p-2 text-right text-[10px] text-muted">
+        <p className="font-bold text-[var(--danger)]">ลบข้อมูลส่วนบุคคลแล้ว (PDPA)</p>
+        <p className="mt-0.5">
+          ลูกค้า {counts.erasedCustomers ?? 0} ราย · ข้อความ {counts.redactedMessages ?? 0} ข้อความ ·
+          ข้อมูลดิบ {counts.tombstonedRawRecords ?? 0} รายการ · ผลวิเคราะห์ {counts.erasedAnalyses ?? 0} รายการ ·
+          ตัวตนที่เพิกถอน {counts.revokedIdentities ?? 0} รายการ
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-2 flex flex-col items-end gap-1">
+      {!open ? (
+        <button type="button" className="btn btn-danger h-7 px-2.5 text-[11px]" onClick={() => setOpen(true)}>
+          ลบข้อมูลส่วนบุคคล (PDPA)
+        </button>
+      ) : (
+        <div className="w-full max-w-xs rounded-lg border border-[var(--danger)] p-2 text-right">
+          <p className="text-[10px] text-muted">
+            การลบนี้ย้อนกลับไม่ได้ — ข้อความและข้อมูลดิบทั้งหมดของลูกค้ารายนี้จะถูกปิดถาวร
+            พิมพ์ {ERASE_CONFIRMATION} เพื่อยืนยัน
+          </p>
+          <input
+            type="text"
+            aria-label={`พิมพ์ ${ERASE_CONFIRMATION} เพื่อยืนยันการลบข้อมูลส่วนบุคคล`}
+            className="mt-1.5 w-full rounded-md border border-[var(--border)] px-2 py-1 text-[11px]"
+            value={typed}
+            onChange={(event) => setTyped(event.target.value)}
+          />
+          <div className="mt-1.5 flex justify-end gap-1.5">
+            <button
+              type="button"
+              className="btn h-7 px-2.5 text-[11px]"
+              onClick={() => { setOpen(false); setTyped(''); setError(null) }}
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger h-7 px-2.5 text-[11px]"
+              disabled={busy || typed !== ERASE_CONFIRMATION}
+              onClick={erase}
+            >
+              {busy ? 'กำลังลบ…' : 'ยืนยันลบถาวร'}
+            </button>
+          </div>
+        </div>
+      )}
+      {error && <span className="text-[10px] text-[var(--danger)]">{error}</span>}
+    </div>
+  )
+}
+
 function Thread({ businessId, conversationId, isOwner }) {
   const path = conversationId
     ? `/api/crm/conversations/${encodeURIComponent(conversationId)}?businessId=${encodeURIComponent(businessId)}`
@@ -149,12 +250,20 @@ function Thread({ businessId, conversationId, isOwner }) {
             <StatusPill status={conversation.status} />
           </div>
         </div>
-        <ConsentControl
-          businessId={businessId}
-          customer={conversation.customer}
-          isOwner={isOwner}
-          onRecorded={thread.reload}
-        />
+        <div className="flex flex-col items-end">
+          <ConsentControl
+            businessId={businessId}
+            customer={conversation.customer}
+            isOwner={isOwner}
+            onRecorded={thread.reload}
+          />
+          <ErasureControl
+            businessId={businessId}
+            customer={conversation.customer}
+            isOwner={isOwner}
+            onErased={thread.reload}
+          />
+        </div>
       </div>
 
       <div className="mt-3 flex-1 space-y-3 overflow-y-auto">

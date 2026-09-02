@@ -5,7 +5,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 
-const { mintApiAccessKey, revokeApiAccessKey, resolveRequestViewer } = vi.hoisted(() => ({
+const { listApiAccessKeys, mintApiAccessKey, revokeApiAccessKey, resolveRequestViewer } = vi.hoisted(() => ({
+  listApiAccessKeys: vi.fn(),
   mintApiAccessKey: vi.fn(),
   revokeApiAccessKey: vi.fn(),
   resolveRequestViewer: vi.fn(),
@@ -13,12 +14,13 @@ const { mintApiAccessKey, revokeApiAccessKey, resolveRequestViewer } = vi.hoiste
 
 vi.mock('@/modules/identity/api-access-auth', async (importOriginal) => ({
   ...(await importOriginal()),
+  listApiAccessKeys,
   mintApiAccessKey,
   revokeApiAccessKey,
 }))
 vi.mock('@/modules/identity/request-viewer', () => ({ resolveRequestViewer }))
 
-const { POST: MINT } = await import('@/app/api/platform/api-access-keys/route')
+const { GET: LIST, POST: MINT } = await import('@/app/api/platform/api-access-keys/route')
 const { DELETE: REVOKE } = await import('@/app/api/platform/api-access-keys/[id]/route')
 
 const viewer = makeViewer({ role: 'OWNER', visibleBusinessIds: [], ownedBusinessIds: [], ownedTenantIds: ['tnt-1'] })
@@ -54,6 +56,28 @@ describe('POST /api/platform/api-access-keys', () => {
     mintApiAccessKey.mockRejectedValue(Object.assign(new Error('denied'), { status: 403 }))
     const res = await send(MINT, 'POST', 'http://local/api/platform/api-access-keys', { label: 'erp', tenantId: 'tnt-1' })
     expect(res.status).toBe(403)
+  })
+})
+
+// @req FR-106 — the listing route exists so `revokeApiAccessKey` is reachable
+// from the console rather than only from an id somebody wrote down at mint time
+// (D2-domain-identity-22). Like its siblings it resolves the trusted viewer
+// first and hands the service nothing else — the scope of the listing is the
+// service's decision, never the request's.
+describe('GET /api/platform/api-access-keys', () => {
+  it('resolves the viewer and delegates the scoping decision to the service', async () => {
+    listApiAccessKeys.mockResolvedValue({ tenants: [{ id: 'tnt-1', code: 'TNT-1', name: 'T' }], keys: [] })
+    const res = await send(LIST, 'GET', 'http://local/api/platform/api-access-keys', undefined)
+    expect(listApiAccessKeys).toHaveBeenCalledWith({ viewer })
+    expect(res.status).toBe(200)
+    await expect(res.json()).resolves.toMatchObject({ keys: [] })
+  })
+
+  it('never calls the service for an unauthenticated caller', async () => {
+    resolveRequestViewer.mockRejectedValue(Object.assign(new Error('AUTH_REQUIRED'), { status: 401 }))
+    const res = await send(LIST, 'GET', 'http://local/api/platform/api-access-keys', undefined)
+    expect(res.status).toBe(401)
+    expect(listApiAccessKeys).not.toHaveBeenCalled()
   })
 })
 

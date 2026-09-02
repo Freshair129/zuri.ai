@@ -6,6 +6,7 @@ import { recordLineReply, replyExternalId } from '@/modules/crm/reply-record-ser
 import { createLineDeliveryPost } from '@/app/api/agent/line-delivery/route'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { makeViewer } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 
 // @req FR-093 — the reply the customer received becomes a row, keyed to the message it
 // answered, and cannot be attached across a tenant boundary.
@@ -140,7 +141,12 @@ describe('LINE reply delivery receipt (FR-093)', () => {
   })
 
   it('shows both sides of the conversation in the FR-091 thread, in order', async () => {
-    const viewer = makeViewer({ role: 'OWNER', visibleBusinessIds: [busA.id], ownedBusinessIds: [busA.id] })
+    // @req FR-061 — an OWNER Membership carries every domain, `customer` included; the
+    // FR-091 thread now asks for that grant before it composes the read.
+    const viewer = makeViewer({
+      role: 'OWNER', visibleBusinessIds: [busA.id], ownedBusinessIds: [busA.id],
+      visibleDomains: [...VIEWER_DOMAINS],
+    })
     const thread = await getConversationThread({
       viewer, businessId: busA.id, conversationId: inboundA.conversationId,
     })

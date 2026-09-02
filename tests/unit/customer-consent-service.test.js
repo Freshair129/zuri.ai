@@ -45,7 +45,14 @@ vi.mock('@/lib/db', () => ({
 
 const { recordCustomerConsent, zRecordCustomerConsent } = await import('@/modules/crm/customer-consent-service')
 
-const owner = () => makeViewer({ ownedBusinessIds: ['b-1'], visibleBusinessIds: ['b-1'] })
+// @req FR-061 — consent is a CRM action, so the service now asks for the per-Business
+// `customer` grant before it asks about ownership. Every fixture here states that grant
+// explicitly: without it these cases would be refused by the domain gate and would stop
+// testing the ownership rule they are named for. `tests/integration/domain-visibility-server.test.js`
+// is where the gate itself is proved.
+const CRM_DOMAINS = ['customer', 'projects', 'people', 'platform']
+
+const owner = () => makeViewer({ ownedBusinessIds: ['b-1'], visibleBusinessIds: ['b-1'], visibleDomains: CRM_DOMAINS })
 
 beforeEach(() => {
   calls.businessFind = 0
@@ -81,7 +88,7 @@ describe('consent attestation contract', () => {
 
 describe('recordCustomerConsent authorization', () => {
   it('refuses a Member — recording consent requires owning the Business, not merely seeing it', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], ownedBusinessIds: [] })
+    const viewer = makeViewer({ visibleBusinessIds: ['b-1'], ownedBusinessIds: [], visibleDomains: CRM_DOMAINS })
     await expect(
       recordCustomerConsent('cust-1', { businessId: 'b-1', status: 'GRANTED' }, { viewer }),
     ).rejects.toMatchObject({ status: 403 })
@@ -90,7 +97,7 @@ describe('recordCustomerConsent authorization', () => {
   })
 
   it('refuses an owner of a different Business, even though the target Business is visible', async () => {
-    const viewer = ownsElsewhere({ owns: 'b-2', sees: 'b-1' })
+    const viewer = ownsElsewhere({ owns: 'b-2', sees: 'b-1', visibleDomains: CRM_DOMAINS })
     await expect(
       recordCustomerConsent('cust-1', { businessId: 'b-1', status: 'GRANTED' }, { viewer }),
     ).rejects.toMatchObject({ status: 403 })
@@ -131,7 +138,7 @@ describe('recordCustomerConsent scope', () => {
 
 describe('recordCustomerConsent write', () => {
   it('records the attesting Person, an audit event, and an optional note', async () => {
-    const viewer = makeViewer({ ownedBusinessIds: ['b-1'], visibleBusinessIds: ['b-1'], principal: { id: 'per-owner' } })
+    const viewer = makeViewer({ ownedBusinessIds: ['b-1'], visibleBusinessIds: ['b-1'], visibleDomains: CRM_DOMAINS, principal: { id: 'per-owner' } })
     const result = await recordCustomerConsent(
       'cust-1',
       { businessId: 'b-1', status: 'DECLINED', note: 'ลูกค้าขอไม่ให้เก็บข้อมูล' },

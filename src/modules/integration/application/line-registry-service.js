@@ -19,8 +19,14 @@ const LINE_REGISTRY_PURPOSES = Object.freeze([LINE_REGISTRY_TYPES.GROUP, LINE_RE
 // the lane addressed the same channel as `LINE_OA` — two identities for one
 // provider, which is exactly what BR-002 forbids. Writes now use the shared
 // constant; reads still accept the legacy code so rows written before this fix
-// stay visible. Merging those rows is a data migration, deliberately not done
-// here.
+// stay visible.
+//
+// The merge itself is now written: supabase/migrations/20260902110000_merge_line_oa_provider_code.sql
+// (production) and scripts/migrate-line-oa-provider.mjs (SQLite dev, via
+// Prisma). Once the production migration has been applied and that apply is
+// recorded in the runbook's ledger (docs/runbooks/line-oa-provider-merge.md),
+// no row can carry the legacy code again and this tolerance — and
+// `READABLE_LINE_OA_PROVIDER_CODES` below — may be removed.
 export const LEGACY_LINE_OA_PROVIDER_CODE = 'line-oa'
 const READABLE_LINE_OA_PROVIDER_CODES = Object.freeze([
   LINE_OA_PROVIDER_CODE,

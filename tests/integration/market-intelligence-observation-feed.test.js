@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { loadTranslateAndPersistRawMarketRecord } from '@/modules/market-intelligence/application/market-observation-service'
 import { createMarketObservationRepository } from '@/modules/market-intelligence/infrastructure/market-observation-repository'
 import { createMarketRawRecordRepository } from '@/modules/market-intelligence/infrastructure/market-raw-record-repository'
@@ -34,6 +35,13 @@ vi.mock('@/modules/identity/request-viewer', () => ({
 // checks, the authorization gate — is the real one.
 
 const suffix = () => randomUUID().slice(0, 8).toUpperCase()
+
+// @req FR-061 — the feed asks for the per-Business `market` grant as well as for
+// visibility, so every fixture states it. The factory's default domain list predates
+// this domain, and a viewer built without the grant would be refused by a gate these
+// cases are not about. Enforcement itself is proved in
+// tests/integration/domain-visibility-server.test.js.
+const MARKET_VIEWER_DOMAINS = [...VIEWER_DOMAINS]
 
 let tenant, business, otherBusiness, observedIds
 
@@ -139,7 +147,7 @@ describe('GET /api/market/observations over real MarketObservation rows (FR-092)
   })
 
   it('returns the Business\'s own observations, newest observation first', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: [business.id] })
+    const viewer = makeViewer({ visibleBusinessIds: [business.id], visibleDomains: MARKET_VIEWER_DOMAINS })
 
     const res = await request(viewer, `?businessId=${business.id}`)
     expect(res.status).toBe(200)
@@ -159,7 +167,7 @@ describe('GET /api/market/observations over real MarketObservation rows (FR-092)
   it('never leaks another Business\'s observations, even inside the same tenant', async () => {
     // A viewer who owns the other Business and merely sees this one still gets only
     // this one's rows: the repository's scope is the Business, not the Tenant.
-    const viewer = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
+    const viewer = ownsElsewhere({ owns: otherBusiness.id, sees: business.id, visibleDomains: MARKET_VIEWER_DOMAINS })
 
     const body = await (await request(viewer, `?businessId=${business.id}`)).json()
 
@@ -168,7 +176,7 @@ describe('GET /api/market/observations over real MarketObservation rows (FR-092)
   })
 
   it('refuses a viewer who cannot see the Business at all', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: [otherBusiness.id] })
+    const viewer = makeViewer({ visibleBusinessIds: [otherBusiness.id], visibleDomains: MARKET_VIEWER_DOMAINS })
 
     const res = await request(viewer, `?businessId=${business.id}`)
 
@@ -185,7 +193,7 @@ describe('GET /api/market/observations over real MarketObservation rows (FR-092)
   })
 
   it('honours the limit and reports truncation', async () => {
-    const viewer = makeViewer({ visibleBusinessIds: [business.id] })
+    const viewer = makeViewer({ visibleBusinessIds: [business.id], visibleDomains: MARKET_VIEWER_DOMAINS })
 
     const body = await (await request(viewer, `?businessId=${business.id}&limit=1`)).json()
 
@@ -199,7 +207,7 @@ describe('GET /api/market/observations over real MarketObservation rows (FR-092)
     // zero rows, no fixtures standing in for them.
     const token = suffix()
     const empty = await createBusiness({ tenantId: tenant.id, name: `ธุรกิจว่าง ${token}`, code: `BUS-MFEED-E-${token}` })
-    const seesEmpty = makeViewer({ visibleBusinessIds: [empty.id] })
+    const seesEmpty = makeViewer({ visibleBusinessIds: [empty.id], visibleDomains: MARKET_VIEWER_DOMAINS })
 
     const body = await (await request(seesEmpty, `?businessId=${empty.id}`)).json()
 

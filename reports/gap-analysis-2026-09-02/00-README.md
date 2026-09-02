@@ -97,4 +97,22 @@ CRITICAL ที่ยังไม่ได้ตรวจซ้ำด้วย�
 
 **ยังเปิดอยู่ (บันทึกใน ROADMAP revision 2.17.0):** PlatformControl guard ยังยุบ 503 เป็น 401; FR-092 ยังไม่มี translation trigger ใน production; heartbeat ยัง in-memory (ตัดสินใจไว้ใน FR-141 note); ไม่มี UI ให้ Membership แรกของ Person ใหม่ (D3-identity-onboarding-forms-12); ApiAccessKey ไม่มี list/revoke UI; data migration `line-oa` → `LINE_OA`; `GET /api/agent/heartbeat?businessId=` (ค่าว่าง) ถูกมองเป็นไม่ narrow แทน 400; `migrateProjectFiles` ยัง gate ด้วย role string; audit entityType ของ IntegrationConnection ใช้สองสะกด (`IntegrationConnection` / `INTEGRATION_CONNECTION`)
 
+## Gap-fix wave 2 (2026-09-02/03) — รายการที่ค้างจาก wave 1 ปิดโดยการตัดสินใจของ integrator
+
+เจ้าของมอบให้ตัดสินใจแทน; รันเป็น workflow 7 lane ขนาน (Opus 3 / Sonnet 4) — lane market-translation ถูกหยุดพร้อม session และทำต่อจนเสร็จด้วย subagent; รวมบน `integration/gap-fix-wave-2-20260902`
+
+| Lane | การตัดสินใจ | ปิด |
+|---|---|---|
+| domain-visibility-server (Opus) | บังคับ FR-061/062 ฝั่ง server เฉพาะ crm / market / people; refusal 404 ไม่เปิดเผย; ratchet test ต่อ route family | D2-domain-identity-23 |
+| pdpa-erasure (Opus) | route erasure ใน crm family เรียก identity contract; authority = owner ใน tenant หรือ operator; ต้องพิมพ์ ERASE; tombstone Message.body + RawExternalRecord (PDPA ชนะ replayability แต่เก็บ envelope) | D2-domain-identity-09, D3-line-agent-crm-flow-03/-08 |
+| platform-users-admin (Opus) | เพิ่มสมาชิกเฉพาะ Person ที่มีอยู่ (exact code/email) เป็น MEMBER; ApiAccessKey list เป็น metadata เท่านั้น, key แสดงครั้งเดียว | D3-identity-onboarding-forms-12, D2-domain-identity-22 |
+| market-translation-trigger (Sonnet) | owner กดแปลเอง; adapters ดึงข้อมูลไม่เปิดจนกว่าจะ review กฎหมาย/ToS | D2-domain-market-intelligence-07, D3-…-05 |
+| hygiene-authz (Sonnet) | PlatformControl 503≠401; heartbeat `?businessId=` ว่าง → 400; audit entityType เดียว; migrateProjectFiles = operator | 4 open items ของ wave 1 |
+| line-oa-provider-migration (Sonnet) | เขียน + ทดสอบ migration/script/runbook; **ไม่ apply production เอง** | data migration item |
+| docs-decisions (Sonnet) | heartbeat in-memory = accepted limitation; quick-add WorkItem = FR-005 CRUD; SITEMAP-DOMAIN-NAV; FR-024 status | D3-pm-plan-intake-02 + doc drift |
+
+ระหว่างรวม ratchet ของ domain-visibility จับ route ใหม่ของสอง lane ที่รันขนาน (erasure, translations) ที่ยังไม่ผ่าน gate — integrator ใส่ gate ให้ทั้งสองก่อน ownership gate และประกาศ domain ใน fixture
+
+**ยังเปิดอยู่หลัง wave 2:** apply migration `line-oa` → `LINE_OA` บน production (runbook `docs/runbooks/line-oa-provider-merge.md`), e2e สำหรับ panel ใหม่บน `/platform/users` และปุ่ม erasure บน inbox, reactivate Membership ที่ REVOKED, `tests/factories/viewer.js` DEFAULT_DOMAINS ล้าสมัย, session `task-modal-envelope` ของอีก session ขัดกับการตัดสินใจ FR-017 (quick-add ไม่ต้องเข้า envelope) — ควรยกเลิก
+
 **เรื่องแวดล้อมที่ต้องรู้:** node_modules junction ธรรมดาทำให้ vitest ล้มแบบสุ่ม (Prisma client ใช้ร่วมกัน) — ใช้ per-package junction + copy `.prisma`/`@prisma` ในเครื่อง; worktree ของ lane ทั้ง 10 ยังอยู่ใต้ `.claude/worktrees/wf_f86b3aeb-211-*` และ integration worktree ที่ `C:\Users\pc\workspace\zuri-ai-integration-20260902` — **อย่า** `git worktree remove` / `rm -r` ทันที เพราะข้างในมี junction ชี้กลับ node_modules ของ primary; ปลด junction ด้วย `[System.IO.Directory]::Delete()` ก่อน

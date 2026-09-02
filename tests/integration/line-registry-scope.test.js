@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
@@ -11,6 +11,7 @@ import {
 } from '@/modules/integration/application/line-registry-service'
 import { listPhase1Integrations } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
+import { GET } from '@/app/api/platform/integrations/line-registry/route'
 
 // @req FR-080 — the Platform LINE Registry, against the real database.
 // @spec SEC-001, SEC-003, SEC-016, BR-002, ADR-032
@@ -35,6 +36,20 @@ const auditFor = (entityId) => prisma.auditEvent.findMany({
   where: { entityType: 'IntegrationConnection', entityId },
   orderBy: { occurredAt: 'asc' },
 })
+
+// The route is the surface the leak was reported against, so the listing is
+// also asserted through its GET handler: only the session resolution is
+// replaced, everything below it — handle(), the service, the database — is real.
+const mocks = vi.hoisted(() => ({ resolveRequestViewer: vi.fn() }))
+vi.mock('@/modules/identity/request-viewer', () => ({ resolveRequestViewer: mocks.resolveRequestViewer }))
+
+const REGISTRY_URL = 'http://local/api/platform/integrations/line-registry'
+
+async function getRegistry(asViewer, query = '') {
+  mocks.resolveRequestViewer.mockResolvedValueOnce(asViewer)
+  const response = await GET(new Request(`${REGISTRY_URL}${query}`))
+  return { status: response.status, body: await response.json() }
+}
 
 describe('LINE Registry scope, audit and ownership (FR-080)', () => {
   beforeAll(async () => {
@@ -145,6 +160,21 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
 
   it('returns nothing to a viewer who sees Businesses but owns none', async () => {
     expect(await listLineRegistry({ resolve: async () => memberViewer })).toEqual([])
+  })
+
+  it('GET without a businessId is limited to the owned Businesses at the route itself', async () => {
+    const owned = await getRegistry(viewer)
+    expect(owned.status).toBe(200)
+    expect(owned.body.length).toBeGreaterThan(0)
+    expect(new Set(owned.body.map((row) => row.businessId))).toEqual(new Set([ownedBusiness.id]))
+    expect(owned.body.every((row) => row.tenantId === tenantA.id)).toBe(true)
+    expect(owned.body.some((row) => row.externalAccountId === 'Cother-tenant-secret-group')).toBe(false)
+
+    expect(await getRegistry(memberViewer)).toEqual({ status: 200, body: [] })
+
+    const foreign = await getRegistry(viewer, `?businessId=${encodeURIComponent(otherTenantBusiness.id)}`)
+    expect(foreign.status).toBe(404)
+    expect(foreign.body).toEqual({ error: 'LINE registry entry is outside your owned scope' })
   })
 
   it('refuses a businessId outside the viewer\'s ownership', async () => {

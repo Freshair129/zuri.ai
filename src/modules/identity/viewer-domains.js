@@ -1,10 +1,12 @@
-import { DOMAINS } from '@/config/domains'
+import { DOMAINS, isDomainVisible } from '@/config/domains'
 
 // @req FR-061 — domain visibility is resolved per Business, because the grant
 // it represents (`Membership.domainKeysJson`) is per Business.
 // @spec SDD-034, SDD-017, SEC-008 — every resolver branch fills the map; there
 // is no "sees everything" flag for a consumer to read instead.
-// @tested tests/unit/fr061-per-business-domain-visibility.test.js
+// @tested tests/unit/fr061-per-business-domain-visibility.test.js,
+//   tests/unit/domain-visibility-server-enforcement.test.js,
+//   tests/integration/domain-visibility-server.test.js
 //
 // This module holds no I/O on purpose. `resolve-viewer.js` imports `@/lib/db`,
 // and both consumers of the per-Business answer — `business-shell-guard.js` and
@@ -99,4 +101,62 @@ export function domainsForBusiness(viewer, businessId) {
   if (!businessId || typeof businessId !== 'string') return []
   const granted = map[businessId]
   return Array.isArray(granted) ? granted : []
+}
+
+/**
+ * The server-side half of FR-061: refuse a request for a domain this viewer was
+ * not granted in THIS Business.
+ *
+ * @req FR-061 — until now `domainsForBusiness` had exactly two consumers, and
+ * both of them ran in the browser: `business-shell-guard.js` (the route guard)
+ * and `DomainBar.jsx`. A grant that only a client reads is a rendering rule, not
+ * an authorization rule — a MEMBER whose `Membership.domainKeysJson` excludes
+ * `customer` was still answered by `GET /api/crm/conversations` if they typed
+ * the URL. This predicate is the same decision, taken where it cannot be
+ * skipped (D2-domain-identity-23).
+ *
+ * It **re-derives nothing**. `isDomainVisible` supplies the `alwaysVisible`
+ * exemption (Business Home) and the old-fixture tolerance; `domainsForBusiness`
+ * supplies the per-Business grant, including the OWNER/DEV branches that fill
+ * every key of the map rather than raising a "sees everything" flag (SDD-034).
+ * A second reading of those rules here is how the guard and the bar would drift
+ * apart, which is the shape of the incident FR-061 itself closed.
+ *
+ * **The refusal is 404-shaped and says `Business not found`** — byte-identical
+ * to what each of these readers already throws for a Business that does not
+ * exist. FR-072(a): a caller must not be able to tell "this Business is real and
+ * you lack the domain" from "no such Business", because the first answer is an
+ * enumeration oracle over other tenants' ids. The message is the one those
+ * services already use, not a new string, so `handle()` maps both to the same
+ * body via the same path.
+ *
+ * **Where this is applied, and why not everywhere.** Three API families call it
+ * today, one domain key each: `src/app/api/crm/**` → `customer`,
+ * `src/app/api/market/**` → `market`, `src/app/api/people/**` → `people`.
+ * `tests/unit/domain-visibility-server-enforcement.test.js` is a ratchet over
+ * exactly those trees, so a new route under them cannot land unguarded.
+ *
+ *   - **Project-manager routes are deliberately out.** `/api/projects`,
+ *     `/api/work`, `/api/milestones` and their neighbours answer the Development
+ *     domain (`projects`) *and* feed Business Home, which is `alwaysVisible`
+ *     precisely so a MEMBER granted only one domain still has a page to land on
+ *     (`config/domains.js`, FR-060). Gating those endpoints on `projects` would
+ *     blank the surface the `alwaysVisible` slot exists to guarantee, so the
+ *     mapping there is a product question rather than a mechanical one and is
+ *     left open rather than guessed at.
+ *   - **Platform routes are already gated** on owner/operator authority
+ *     (`ownsBusiness` / `isInstallationOperator`), which is strictly stronger
+ *     than domain visibility; adding this predicate there would change no
+ *     answer.
+ *
+ * @param {object} viewer
+ * @param {string} businessId
+ * @param {string} domainKey  a key from `config/domains.js`
+ * @throws {Error & {status: 404}} when the domain is not granted in this Business
+ */
+export function assertDomainVisible(viewer, businessId, domainKey) {
+  if (isDomainVisible(domainKey, domainsForBusiness(viewer, businessId))) return
+  const error = new Error('Business not found')
+  error.status = 404
+  throw error
 }

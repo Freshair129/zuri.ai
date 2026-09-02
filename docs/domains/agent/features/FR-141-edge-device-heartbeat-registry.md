@@ -80,12 +80,30 @@ does not, on purpose:
    happens to serve the page. Anyone reading the card must know it is a
    liveness pulse, not an inventory.
 
-**Open owner decision.** If the console must show a device that has *ever*
-paired (inventory semantics) rather than one that is *currently* heard
-(liveness semantics), that is a new declaration: a pairing record with a token
-*reference* (never the token — ADR-041 D3), a charter that names its owner,
-and a Prisma or Postgres model. It should be declared as its own FR, not
-retrofitted into this one.
+**Decided 2026-09-02** — see "Decision 2026-09-02: persistence" below for the
+disposition. The inventory-semantics alternative sketched in this paragraph
+remains available but is out of scope for FR-141: if the console must show a
+device that has *ever* paired (inventory semantics) rather than one that is
+*currently* heard (liveness semantics), that is a new declaration: a pairing
+record with a token *reference* (never the token — ADR-041 D3), a charter that
+names its owner, and a Prisma or Postgres model. It should be declared as its
+own FR, not retrofitted into this one.
+
+### Decision 2026-09-02: persistence
+
+Edge-device liveness stays **process-local** — the agent charter owns no
+Prisma models by design, and this slice does not change that. On Vercel each
+running instance holds its own in-memory registry, so the console can show a
+device as offline on one instance and online on another until each instance
+has independently heard from it; this is a known, accepted characteristic of
+the local-first product, not a bug to chase. It is accepted for the
+local-first shape zuri-ai ships today, where a single edge device talks to a
+single tenant's console and a missed tick self-heals on the next heartbeat.
+It is **revisited only together with** a device-scoped credential FR (the
+`Authorization: Bearer` data-plane extension called out in "Consequence for
+the edge device" above, or the inventory-semantics pairing record) — persisting
+the registry without first declaring who may write to it and how a device
+authenticates would reopen the anonymous-write hole this file exists to close.
 
 ## Consequence for the edge device (call-out)
 

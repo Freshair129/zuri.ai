@@ -182,6 +182,13 @@ ADR-027's Profile/Workspace entry data and invitation mutations are implemented
 at `/api/workspace-invites` (FR-067); the owner roster behind Workspace Home reads
 `GET /api/workspace-memberships` (FR-067). The Market Intelligence dashboard reads
 translated observations from `GET /api/market/observations` (FR-092, GET only).
+The CRM Inbox thread header reaches PDPA erasure through
+`POST /api/crm/customers/[customerId]/erasure` (FR-022, owner-only, typed confirmation).
+`/platform/users` owns `POST /api/platform/users/memberships` (FR-038, attach an
+existing Person) and the `GET`/`POST`/`DELETE` family of `/api/platform/api-access-keys`
+(FR-106). Since 2026-09-02 the crm, market and people API families also enforce the
+per-Business domain grant server-side (FR-061): a Membership without the domain
+receives `404 Business not found`, the same answer as an unknown Business.
 
 ## Evidence and drift rule
 

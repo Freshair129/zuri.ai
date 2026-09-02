@@ -58,6 +58,19 @@ turn flows through before any agent work happens.
   (never a Member grant), and resolves the Customer through the caller's owned
   Business's tenant — the same BR-001 scope `getConversationInbox` reads
   through — so a Customer id alone can never widen the write past it.
+- `redactConversationContentForCustomers` — the PDPA erasure writer (FR-022). A
+  fourth narrow writer, and the only one that is called by another domain: erasure
+  belongs to identity ("the only flow allowed to do so", identity's charter), but
+  `Message` is owned here, so identity asks through this export inside its own
+  transaction rather than writing the table directly. That is the target state both
+  charters already name for the `Person` redaction debt below — this surface starts
+  on the right side of it instead of adding a second exception. It replaces `body`
+  with a fixed tombstone and touches nothing else: ids, direction and timestamps
+  survive, because a thread that silently lost its messages would read as data loss
+  rather than as an honoured erasure. Tenant-scoped like every writer here, and
+  idempotent — a message already tombstoned is neither counted nor rewritten. If a
+  denormalised preview/snippet column is ever added to `Conversation`, it must be
+  redacted in this same call.
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business

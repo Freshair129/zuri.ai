@@ -6,11 +6,14 @@ import { makeViewer } from '../factories/viewer'
 // @spec ADR-013, BR-001
 // @tested tests/unit/people-service.test.js
 //
-// Repaid from docs/.viewer-fixture-baseline.json on 2026-08-17: listPeople only
-// takes the bare `visibleBusinessIds` array (not a full viewer), but that array
-// used to be hand-typed here instead of pulled off a real viewer shape. It now
-// comes from makeViewer(), same as the route handler pulls it off the resolved
-// viewer (src/app/api/people/route.js).
+// Repaid from docs/.viewer-fixture-baseline.json on 2026-08-17: the array passed here
+// used to be hand-typed instead of pulled off a real viewer shape. It now comes from
+// makeViewer(), same as the route handler does (src/app/api/people/route.js).
+//
+// @req FR-061 (2026-09-02) — listPeople takes the whole `viewer` now, not just its
+// `visibleBusinessIds`. The per-Business domain grant that decides HR / People access
+// lives on the viewer, and passing the array alone left the service with no data to
+// answer that question from.
 
 // Raw Membership DB rows — a fake prisma return value, not a viewer. They live
 // here, next to the tests that use them: the fixture ratchet was taught to tell
@@ -32,7 +35,7 @@ function dbFor() {
 describe('listPeople', () => {
   it('returns business and tenant-wide memberships without exposing another business', async () => {
     const viewer = makeViewer({ visibleBusinessIds: ['b1'] })
-    const data = await listPeople('b1', { db: dbFor(), visibleBusinessIds: viewer.visibleBusinessIds })
+    const data = await listPeople('b1', { db: dbFor(), viewer, visibleBusinessIds: viewer.visibleBusinessIds })
     expect(data.business.code).toBe('BUS-001')
     expect(data.people.map((entry) => entry.businessScope)).toEqual(['BUSINESS', 'TENANT'])
     expect(data.summary).toEqual({ peopleCount: 2, businessScopedCount: 1, tenantScopedCount: 1 })
@@ -40,6 +43,16 @@ describe('listPeople', () => {
 
   it('fails closed for an invisible Business', async () => {
     const viewer = makeViewer({ visibleBusinessIds: ['b2'] })
-    await expect(listPeople('b1', { db: dbFor(), visibleBusinessIds: viewer.visibleBusinessIds })).rejects.toThrow('Business access denied')
+    await expect(listPeople('b1', { db: dbFor(), viewer, visibleBusinessIds: viewer.visibleBusinessIds })).rejects.toThrow('Business access denied')
+  })
+
+  // @req FR-061 — visibility and the domain grant are two different questions, and the
+  // directory now asks both. A MEMBER whose Membership lists only `projects` sees the
+  // Business in the switcher and must still be refused HR / People, in the shape an
+  // unknown Business is refused with (FR-072(a)).
+  it('refuses a viewer who sees the Business but was not granted the people domain', async () => {
+    const viewer = makeViewer({ visibleBusinessIds: ['b1'], visibleDomains: ['projects'] })
+    await expect(listPeople('b1', { db: dbFor(), viewer, visibleBusinessIds: viewer.visibleBusinessIds }))
+      .rejects.toMatchObject({ status: 404, message: 'Business not found' })
   })
 })

@@ -78,6 +78,14 @@ describe('FR-080 Integration metadata management', () => {
     expect(tx.auditEvent.create).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ payloadJson: expect.not.stringContaining(ref) }),
     }))
+    // The audit trail for one model (IntegrationConnection) must use one
+    // entityType spelling everywhere it is written — line-registry-service.js
+    // already writes the PascalCase model name for the same model; this
+    // service used to write the SCREAMING_SNAKE_CASE 'INTEGRATION_CONNECTION'
+    // instead, splitting the trail in two.
+    expect(tx.auditEvent.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ entityType: 'IntegrationConnection' }),
+    }))
   })
 
   it('rejects raw provider credentials and local Ollama from the production management surface', async () => {

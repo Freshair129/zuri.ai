@@ -20,6 +20,9 @@
 // was constructed to own, nothing more. It re-checks every row it is about to return
 // rather than trusting the `where` clause alone — the same reason the write path
 // re-checks the row it loads after a unique collision.
+//
+// `findTranslatedRawRecordIds` is the third read, added for the FR-092 production
+// translation trigger's candidate filter (see its own comment below).
 
 function assertPrismaModel(prisma) {
   if (!prisma?.marketObservation) {
@@ -111,6 +114,39 @@ export function createMarketObservationRepository(prisma, scope) {
 
       for (const row of rows) assertObservationScope(row, scopeWhere)
       return rows
+    },
+
+    /**
+     * Which of these raw-record ids already have a MarketObservation in this
+     * repository's scope.
+     *
+     * Added for the FR-092 production translation trigger (`POST
+     * /api/market/translations`): before spending an extraction/GKS call on a raw
+     * record, the caller narrows its candidate batch to ones with no observation yet.
+     * A batched `rawRecordId` membership check is exactly equivalent to checking the
+     * translator's lineage key here, without running the extractor first to learn it:
+     * `lineageKey = sha256(rawRecordId, payloadHash, translationSchemaVersion,
+     * observationType)` (`buildMarketObservationLineageKey`,
+     * `translate-raw-record.js`), and `payloadHash` is immutable per raw record while
+     * `translationSchemaVersion` and the extractor's `payload -> observationType`
+     * mapping are both fixed for a given caller — so the same raw record always
+     * re-derives the same lineage key. `rawRecordId` therefore already partitions
+     * "translated under today's schema" from "not yet", which is the question this
+     * method answers; it is not a general substitute for the persistence layer's own
+     * lineage-keyed atomicity in `insertIfAbsent`, which remains the source of truth
+     * for CREATED vs UNCHANGED.
+     */
+    async findTranslatedRawRecordIds(rawRecordIds) {
+      if (!Array.isArray(rawRecordIds) || rawRecordIds.length === 0) return []
+      if (typeof prisma.marketObservation.findMany !== 'function') {
+        throw new Error('Prisma MarketObservation model must support findMany')
+      }
+
+      const rows = await prisma.marketObservation.findMany({
+        where: { ...scopeWhere, rawRecordId: { in: rawRecordIds } },
+        select: { rawRecordId: true },
+      })
+      return rows.map((row) => row.rawRecordId)
     },
 
     async insertIfAbsent(draft) {
