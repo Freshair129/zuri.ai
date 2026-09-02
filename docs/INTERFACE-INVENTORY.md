@@ -197,8 +197,8 @@ not new global domains or new persistence aggregates.
 ### 3.9 Platform Control surface
 
 Platform Control is an installation-operator-only operational surface. It is not
-one of the seven Business domains, is not configured in `DOMAINS`, and does not
-require an active Business selection.
+one of the nine operational Business domains (§4), is not configured in `DOMAINS`,
+and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|

@@ -1,6 +1,6 @@
 # ADR-027 — Profile-first and Workspace-first onboarding
 
-**Status:** Accepted — design approved; implementation pending
+**Status:** Accepted — implemented (FR-066/FR-067, ✅ per docs/PRD-SDD-v1.0.md)
 **Date:** 2026-08-17
 **Decided by:** Boss (owner approval, 2026-08-17)
 **Amends:** [ADR-011](ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) pre-shell terminology and [ADR-015](ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md) entry sequence

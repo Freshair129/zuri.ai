@@ -4,6 +4,21 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 
+// @req FR-060 / FR-133 — the domain count and reserved count the page renders
+// are derived from the same registry the page reads (src/config/domains.js),
+// not hardcoded here, so this spec never drifts when DOMAINS gains or loses
+// an entry. Filtering matches business-home-read-model.js: business-home is
+// excluded (it is the shell slot the coverage line is measured against, not
+// one of the domains it covers) and `soon` marks a reserved slot.
+async function loadDomainCounts() {
+  const { DOMAINS } = await import('../../src/config/domains.js')
+  const operational = DOMAINS.filter((domain) => domain.key !== 'business-home')
+  return {
+    total: operational.length,
+    reserved: operational.filter((domain) => domain.soon).length,
+  }
+}
+
 async function openBusinessHome(page) {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/i }).click()
@@ -26,8 +41,8 @@ test.describe('FR-060 Business Home', () => {
     // The composite must say what it covers rather than implying it covers all.
     // The coverage phrase appears in the caption, the score line and the briefing —
     // all three are deliberate, so assert presence rather than uniqueness.
-    // @req FR-133 — Asset Management is the ninth non-Home domain slot.
-    await expect(page.getByText(/of 9 domains/).first()).toBeVisible()
+    const { total } = await loadDomainCounts()
+    await expect(page.getByText(new RegExp(`of ${total} domains`)).first()).toBeVisible()
 
     await page.screenshot({ path: 'output/playwright/fr060-business-home.png', fullPage: true })
   })
@@ -41,10 +56,13 @@ test.describe('FR-060 Business Home', () => {
     // Every reserved slot says so in words. If any of them ever renders a score,
     // this count changes and the test fails — which is the point.
     //
-    // @req FR-091 — three, not four, since 2026-08-20: CRM shipped pages and left
-    // the reserved set. It is still listed above because the row must remain on
-    // Business Home; what changed is which sentence it carries.
-    await expect(page.getByText('Reserved — no module yet')).toHaveCount(3)
+    // @req FR-091 — CRM shipped pages and left the reserved set (2026-08-20); it
+    // is still listed above because the row must remain on Business Home, what
+    // changed is which sentence it carries. The expected count is derived from
+    // `soon` in src/config/domains.js so a future reserved slot (or one going
+    // live) does not need this test edited by hand.
+    const { reserved } = await loadDomainCounts()
+    await expect(page.getByText('Reserved — no module yet')).toHaveCount(reserved)
 
     // And CRM's new sentence is a stated absence, not a zero — the distinction
     // this whole test exists to hold. Business Home does not yet read the crm

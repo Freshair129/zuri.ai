@@ -127,14 +127,28 @@ not deleted for lack of a current trigger. `errorRef` stays a redacted
 reference on the FR-071 ledger; the raw failure message lives only in the
 envelope this executor returns to its own caller.
 
-### Declared, not implemented — FR-110 (🔜)
+### Partially implemented — FR-110 (🟠)
 
-Not a contract this domain exposes today. It is a documentary declaration
-under ADR-050; no route, model or code is authorized by it.
+`src/modules/knowledge/published-snapshot-contract.js` (154 lines) carries a
+real, tested contract, not only a documentary declaration: the strict
+`knowledge_snapshot_id` snapshot shape, the Stage 9–16 aggregate stage-report
+envelope, the Stage 17 quality-gate decision (`ledgerStatus` kept distinct
+from the quality `verdict`, per SDD-057) with its snapshot-scope assertion,
+and `evaluateKnowledgePublication`, which checks publication preconditions —
+policy allow-flag, an `APPROVED` FR-071 ledger status, a `PASS` /
+`PASS_WITH_WARNINGS` verdict, a non-null snapshot, no failed or critical
+dimension — without itself publishing or mutating anything.
 
-- The published knowledge snapshot contract (FR-110): `knowledge_snapshot_id`
-  with its ontology and pipeline versions, published atomically and only on a
-  `PASS` / `PASS_WITH_WARNINGS` gate result.
+Still open, and still not authorized by this charter:
+
+- No route or caller invokes `evaluateKnowledgePublication` in production; it
+  has unit-test callers only.
+- No external reporter writes the Stage 9–16 aggregate report this contract
+  validates — the nine stages ADR-050 assigns to GKS/GenesisBlockDB do not
+  report onto it yet.
+- Atomic publication (the write that makes a snapshot the one a retrieval
+  reads) is not built here or anywhere in this repository.
+- No route or model beyond this validation module is authorized by FR-110.
 
 ## Public contract
 
