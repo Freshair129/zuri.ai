@@ -58,12 +58,11 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "doc:FR-017-standalone-task-inbox"
+      "test:tests/integration/line-registry-scope.test.js",
+      "test:tests/unit/line-registry-service.test.js"
     ],
     "added": [],
-    "removed": [
-      "doc:FR-017-ui-wizard-plan-intake"
-    ]
+    "removed": []
   },
   "nodes": [
     {
@@ -9598,7 +9597,7 @@
       "path": "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
       "title": "FR-017 — Create Task on All Work: what a \"standalone\" task attaches to",
       "hash": "498c580b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -17173,8 +17172,8 @@
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "2f41d731",
-      "status": "current"
+      "hash": "a6934b9a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18531,8 +18530,8 @@
       "id": "test:tests/unit/line-registry-service.test.js",
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
-      "hash": "0dc93356",
-      "status": "current"
+      "hash": "1ff5ec87",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
