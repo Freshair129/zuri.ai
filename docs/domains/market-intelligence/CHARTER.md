@@ -1,11 +1,21 @@
 ---
 domain: market-intelligence
 module: src/modules/market-intelligence
+owns_routes:
+  - src/app/(pm)/market/**
+  - src/app/api/market/**
 owns_models:
   - MarketObservation
 owns_code:
   - src/modules/market-intelligence/**
 ---
+
+<!-- owns_routes are longest-prefix globs, so these two claim the `/market`
+     console page and the `/api/market/**` read endpoints away from
+     project-manager's catch-all `src/app/(pm)/**` + `src/app/api/**`. Both
+     surfaces read Market-owned state only. Annotations about the frontmatter
+     lists belong here, outside them: the generators read each list as an
+     unbroken run of `  - value` lines. -->
 
 # Domain charter — market-intelligence
 
