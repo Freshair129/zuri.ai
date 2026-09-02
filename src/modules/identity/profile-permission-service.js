@@ -16,6 +16,18 @@ const zPermissionUpdate = z.object({
   domainKeys: z.array(z.enum(DOMAIN_KEYS)).default([]),
 })
 
+// @req FR-038 — the same owner authority that edits a Membership's role and
+// domains also attaches an existing Person to a Business as MEMBER. One
+// identifier field, matched EXACTLY against `Person.code` or `Person.email`:
+// no prefix, no contains, no case folding, because a fuzzy people-search on an
+// administrative surface is a directory-enumeration tool wearing an invite
+// form's clothes.
+const zMembershipInvite = z.object({
+  businessId: z.string().min(1),
+  identifier: z.string().trim().min(1),
+  domainKeys: z.array(z.enum(DOMAIN_KEYS)).default([]),
+})
+
 function parseDomainKeys(json) {
   try {
     const keys = JSON.parse(json || '[]')
@@ -151,4 +163,106 @@ export async function updateUserPermissions(input, { db = prisma, resolve = reso
     payload: { role: data.role, domainKeys: data.domainKeys }, actorId: viewer.principal.id,
   })
   return { ...updated, domainKeys: data.domainKeys }
+}
+
+/**
+ * @req FR-038 — attach an EXISTING Person to a Business the caller owns, as an
+ * ACTIVE MEMBER with a chosen subset of domain keys.
+ *
+ * This closes the one hole in the Membership lifecycle: every other path
+ * produced a Membership only for the person performing it (FR-074(c) binds the
+ * creator as OWNER of a Business they just made), so a second person could
+ * never receive a first Business-level grant from any surface
+ * (D3-identity-onboarding-forms-12). It lives here, beside
+ * `updateUserPermissions`, because identity already administers Membership role
+ * and domain grants at this seam — a second write path in another module is how
+ * two rules for one row start to disagree.
+ *
+ * Deliberately NOT a Person creator. Signup (FR-120) and onboarding (FR-066)
+ * own identity creation; an owner-facing form that quietly minted Persons would
+ * be a second, unaudited account-creation surface. An identifier that matches
+ * nothing is refused, never filled in.
+ *
+ * Role is fixed at MEMBER. Promotion to OWNER is `updateUserPermissions` — a
+ * separate act with its own audit event, so "was given access" and "was made an
+ * owner" never arrive in the stream as one indistinguishable row.
+ */
+export async function addBusinessMembership(input, { db = prisma, resolve = resolveViewer } = {}) {
+  const data = zMembershipInvite.parse(input)
+  const viewer = await ownerViewer(() => resolve({ db }))
+  // Authority before existence, in that order and no other: an unowned Business
+  // id and one that was never created answer identically, so this form is not a
+  // Business-id oracle (SEC-001) and keeps the 404-shaped refusal the rest of
+  // this surface already promises.
+  assertMembershipBusinessOwned(data.businessId, viewer)
+  const business = await db.business.findUnique({
+    where: { id: data.businessId },
+    select: { id: true, tenantId: true, code: true, name: true },
+  })
+  if (!business) {
+    const error = new Error('Membership is outside your owned scope')
+    error.status = 404
+    throw error
+  }
+
+  const person = await db.person.findFirst({
+    where: { OR: [{ code: data.identifier }, { email: data.identifier }] },
+    select: { id: true, code: true, displayName: true },
+  })
+  // Distinct from the scope refusal above on purpose: by the time execution
+  // reaches here the caller has already proven ownership of this Business, so
+  // "no such person" discloses nothing they could not read off the roster in
+  // front of them — and an owner typing a colleague's code needs to know
+  // whether the miss was the code or their own authority.
+  if (!person) {
+    const error = new Error('PERSON_NOT_FOUND')
+    error.status = 404
+    throw error
+  }
+
+  // Any status, not only ACTIVE. A revoked row is still this Person's
+  // Membership of this Business; creating a second one beside it would leave
+  // two rows for one grant, and `resolveViewer` reads them all.
+  const existing = await db.membership.findFirst({
+    where: { personId: person.id, businessId: business.id },
+    select: { id: true },
+  })
+  if (existing) {
+    const error = new Error('MEMBERSHIP_ALREADY_EXISTS')
+    error.status = 409
+    throw error
+  }
+
+  const created = await db.membership.create({
+    data: {
+      personId: person.id,
+      tenantId: business.tenantId,
+      businessId: business.id,
+      role: 'MEMBER',
+      status: 'ACTIVE',
+      domainKeysJson: JSON.stringify(data.domainKeys),
+    },
+  })
+  await recordAudit(db, {
+    entityType: 'MEMBERSHIP',
+    entityId: created.id,
+    action: 'MEMBERSHIP_ADDED',
+    payload: {
+      businessId: business.id,
+      personId: person.id,
+      role: 'MEMBER',
+      domainKeys: data.domainKeys,
+    },
+    actorId: viewer.principal.id,
+  })
+  // Shaped exactly like a `listUserPermissions` row, so the page can render the
+  // result without a second row shape to keep in step. No `email`, for the same
+  // reason the list omits it.
+  return {
+    ...created,
+    domainKeys: data.domainKeys,
+    manageable: true,
+    person,
+    business: { id: business.id, code: business.code, name: business.name },
+  }
 }

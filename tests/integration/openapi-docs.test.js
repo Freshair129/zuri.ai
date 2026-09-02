@@ -82,9 +82,13 @@ describe('OpenAPI document', () => {
       // (one more operation, no new path).
       // FR-022's one (the PDPA erasure trigger — POST only; the erasure has no
       // preview and leaves a redacted Customer behind, so neither GET nor DELETE
-      // describes it) brings the totals to:
-      pathCount: 119,
-      operationCount: 153,
+      // describes it) and
+      // FR-038's Membership attach adds one path and one operation
+      // (POST /api/platform/users/memberships); FR-106's key listing adds a GET to
+      // the existing /api/platform/api-access-keys path — one more operation, no new
+      // path — bringing the totals to:
+      pathCount: 120,
+      operationCount: 155,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

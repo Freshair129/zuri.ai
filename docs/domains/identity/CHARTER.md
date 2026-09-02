@@ -59,14 +59,26 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
+- `listUserPermissions`, `updateUserPermissions` and `addBusinessMembership`
+  (FR-038) are the one seam that administers `Membership` role and per-domain
+  grants. `addBusinessMembership` attaches an **existing** Person to a Business
+  the caller owns, as an ACTIVE MEMBER: it is not an identity creator — signup
+  (FR-120) and onboarding (FR-066) own that — and it never grants OWNER, which
+  stays a separate, separately audited act through `updateUserPermissions`.
+  Listed here because it is a write to `Membership`, a model the project-manager
+  charter owns; it sits beside the role/domain writes that were already this
+  domain's, rather than opening a second write path for one row.
 - `resolveApiAccessViewer` (FR-106) generalizes the same pattern for the FR-019
   Enterprise API: an `ApiAccessKey` bearer token scoped to one Tenant, accepted
   only by the Enterprise API routes (dry-run/commit/resolve/docs), with
   `isApiAccessFor` as its authority predicate. Minted by the installation
-  operator or a Tenant owner (`mintApiAccessKey`), revoked with effect on the
-  next request (`revokeApiAccessKey`), stored digest-only, audited without
-  token material, never readable back. It, too, never produces an `isOperator`
-  or Person-shaped viewer.
+  operator or a Tenant owner (`mintApiAccessKey`), listed back as metadata only
+  by that same authority (`listApiAccessKeys` — id, label, display prefix,
+  status, timestamps; never key material, because the raw secret exists exactly
+  once and a listing that could return it would undo that), revoked with effect
+  on the next request (`revokeApiAccessKey`), stored digest-only, audited
+  without token material, never readable back. It, too, never produces an
+  `isOperator` or Person-shaped viewer.
 - `plugin-auth-service` (FR-123) is a **third** request identity, and the one
   that is easiest to confuse with the second: `createPluginAuthorizationCode`,
   `exchangePluginAuthorizationCode`, `getPluginCapabilities`,
