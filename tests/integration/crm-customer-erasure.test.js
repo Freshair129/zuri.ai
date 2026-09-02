@@ -8,6 +8,7 @@ import { resolveLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
 import { RAW_RECORD_ERASURE_REASON } from '@/platform/integrations/core/raw-record-redaction'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 
 // @req FR-022 — PDPA erasure end to end: from an owner-triggered request on the CRM
 //   surface down to the message bodies and the raw provider payloads.
@@ -29,8 +30,12 @@ async function ownerOf(...businessIds) {
   const person = await prisma.person.create({
     data: { id: randomUUID(), code: `PER-ERASE-${token()}`, displayName: 'Owner' },
   })
+  // FR-061 — the erasure path now runs the `customer` domain gate before the
+  // ownership gate, so the fixture states the grant explicitly (the factory's
+  // default list predates `customer` being a real domain).
   return makeViewer({
     role: 'OWNER', visibleBusinessIds: businessIds, ownedBusinessIds: businessIds,
+    visibleDomains: [...VIEWER_DOMAINS],
     principal: { id: person.id, code: person.code, displayName: person.displayName },
   })
 }
@@ -223,7 +228,8 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       tenant: tenantA, business: busA1, lineUserId: 'U-erase-3',
       threadId: 'TH-ERASE-3', externalMessageId: 'MSG-ERASE-3', text: 'ขอบคุณครับ',
     })
-    const member = makeViewer({ visibleBusinessIds: [busA1.id], ownedBusinessIds: [] })
+    // Holds the CRM domain, so the refusal below is the ownership gate, not FR-061's.
+    const member = makeViewer({ visibleBusinessIds: [busA1.id], ownedBusinessIds: [], visibleDomains: [...VIEWER_DOMAINS] })
     await expect(
       eraseCustomerPrincipal(r.customerId, { businessId: busA1.id, confirmation: 'ERASE' }, { viewer: member }),
     ).rejects.toMatchObject({ status: 404 })
@@ -240,7 +246,7 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       tenant: tenantA, business: busA1, lineUserId: 'U-erase-4',
       threadId: 'TH-ERASE-4', externalMessageId: 'MSG-ERASE-4', text: 'สวัสดีครับ',
     })
-    const viewer = ownsElsewhere({ owns: busB1.id, sees: busA1.id })
+    const viewer = ownsElsewhere({ owns: busB1.id, sees: busA1.id, visibleDomains: [...VIEWER_DOMAINS] })
     await expect(
       eraseCustomerPrincipal(r.customerId, { businessId: busA1.id, confirmation: 'ERASE' }, { viewer }),
     ).rejects.toMatchObject({ status: 404 })

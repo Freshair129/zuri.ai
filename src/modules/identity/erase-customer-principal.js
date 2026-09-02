@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { ownsBusiness, isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 
 // @req FR-022 — the production trigger for PDPA erasure. `erasePrincipal` has been
@@ -69,6 +70,11 @@ export async function eraseCustomerPrincipal(customerId, input, { viewer, db = p
   const operator = isInstallationOperator(viewer)
   if (!operator) {
     if (!data.businessId) throw failure(400, 'BUSINESS_ID_REQUIRED')
+    // FR-061/062 — the domain gate runs BEFORE the ownership gate (same order as
+    // the consent writer): a principal never granted the CRM in this Business must
+    // not learn from the ownership refusal that the Business is real. Both answer
+    // 404-shaped, so the order changes what is disclosed, not the status.
+    assertDomainVisible(viewer, data.businessId, 'customer')
     if (!ownsBusiness(viewer, data.businessId)) throw notFound()
   }
 
