@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T05:42:35.353Z",
+  "generatedAt": "2026-09-02T06:37:19.022Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 9,
-    "featureCount": 110,
-    "readyFeatureCount": 96,
-    "requirementCount": 140,
-    "verifiedRequirementCount": 130,
+    "featureCount": 111,
+    "readyFeatureCount": 97,
+    "requirementCount": 141,
+    "verifiedRequirementCount": 131,
     "progressPercent": 92.9,
     "gapCount": 18,
     "gaps": [
@@ -201,7 +201,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 5
         },
         {
           "id": "FR-027",
@@ -219,7 +219,7 @@
         },
         {
           "id": "FR-029",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
           "testCount": 4
@@ -310,8 +310,8 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 10
+          "codeCount": 1,
+          "testCount": 13
         },
         {
           "id": "FR-081",
@@ -339,7 +339,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-098",
@@ -361,6 +361,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 3
+        },
+        {
+          "id": "FR-141",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 1
         }
       ],
       "checks": {
@@ -379,7 +386,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 117,
+            "openApiPaths": 118,
             "missingFromOpenApi": 0
           }
         },
@@ -455,6 +462,7 @@
         "docs/domains/agent/features/FR-055-controlled-line-activation-receipt.md",
         "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
         "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
+        "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -499,7 +507,7 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 7
+        "featureNotes": 8
       },
       "featureIds": [
         "FR-025",
@@ -515,11 +523,12 @@
         "FR-054",
         "FR-055",
         "FR-057",
-        "FR-132"
+        "FR-132",
+        "FR-141"
       ],
-      "featureCount": 14,
-      "readyFeatureCount": 13,
-      "progressPercent": 92.9
+      "featureCount": 15,
+      "readyFeatureCount": 14,
+      "progressPercent": 93.3
     },
     "asset-management": {
       "status": "verified",
@@ -703,7 +712,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-103",
@@ -830,6 +839,13 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
+          "testCount": 7
+        },
+        {
+          "id": "FR-026",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
           "testCount": 5
         },
         {
@@ -851,35 +867,35 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-044",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 56
+          "codeCount": 13,
+          "testCount": 62
         },
         {
           "id": "FR-059",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-062",
@@ -893,14 +909,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-067",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 10
+          "codeCount": 9,
+          "testCount": 13
         },
         {
           "id": "FR-074",
@@ -914,7 +930,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 15
+          "testCount": 21
         },
         {
           "id": "FR-076",
@@ -956,7 +972,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-098",
@@ -991,7 +1007,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 13
         },
         {
           "id": "FR-120",
@@ -1019,7 +1035,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "checks": {
@@ -1045,7 +1061,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 117,
+            "openApiPaths": 118,
             "missingFromOpenApi": 0
           }
         },
@@ -1104,7 +1120,7 @@
           "details": {
             "mutations": 13,
             "guardedMutations": 9,
-            "reads": 3,
+            "reads": 4,
             "unguardedReads": 0
           }
         },
@@ -1255,7 +1271,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 10
+          "testCount": 13
         },
         {
           "id": "FR-081",
@@ -1269,28 +1285,28 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 24
         },
         {
           "id": "FR-099",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-100",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-101",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-102",
@@ -1379,7 +1395,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 117,
+            "openApiPaths": 118,
             "missingFromOpenApi": 0
           }
         },
@@ -1778,26 +1794,42 @@
       "progressPercent": 93.3
     },
     "market-intelligence": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 16,
-          "testCount": 19
+          "codeCount": 18,
+          "testCount": 24
         }
       ],
       "checks": {
         "ui": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "missing": 0
+          }
         },
         "httpApi": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 118,
+            "missingFromOpenApi": 0
+          }
         },
         "mcp": {
           "status": "verified",
@@ -1834,9 +1866,17 @@
           }
         },
         "authorization": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "unknown",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 0,
+            "guardedMutations": 0,
+            "reads": 1,
+            "unguardedReads": 0
+          }
         },
         "tests": {
           "status": "verified",
@@ -1847,11 +1887,14 @@
         }
       },
       "evidence": [
+        "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
         "docs/domains/market-intelligence/CHARTER.md",
         "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/pipeline-mcp-transport.test.js",
@@ -1859,9 +1902,9 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 0,
-        "apiRoutes": 0,
-        "pageRoutes": 0,
+        "routes": 2,
+        "apiRoutes": 1,
+        "pageRoutes": 1,
         "ownedModels": 1,
         "featureNotes": 1
       },
@@ -1876,11 +1919,18 @@
       "status": "verified",
       "requirements": [
         {
+          "id": "FR-075",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 21
+        },
+        {
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 2
+          "testCount": 5
         }
       ],
       "checks": {
@@ -2004,7 +2054,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-006",
@@ -2031,8 +2081,8 @@
           "id": "FR-009",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 7
+          "codeCount": 7,
+          "testCount": 10
         },
         {
           "id": "FR-010",
@@ -2052,8 +2102,8 @@
           "id": "FR-012",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 16
+          "codeCount": 10,
+          "testCount": 20
         },
         {
           "id": "FR-013",
@@ -2080,15 +2130,15 @@
           "id": "FR-017",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 5
+          "codeCount": 7,
+          "testCount": 8
         },
         {
           "id": "FR-018",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-019",
@@ -2102,7 +2152,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-031",
@@ -2158,7 +2208,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-039",
@@ -2200,21 +2250,21 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-045",
           "declared": "done",
           "status": "verified",
-          "codeCount": 26,
-          "testCount": 24
+          "codeCount": 27,
+          "testCount": 26
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 57,
-          "testCount": 56
+          "codeCount": 58,
+          "testCount": 62
         },
         {
           "id": "FR-056",
@@ -2235,7 +2285,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-060",
@@ -2249,7 +2299,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-062",
@@ -2284,7 +2334,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 13
         },
         {
           "id": "FR-068",
@@ -2318,15 +2368,15 @@
           "id": "FR-072",
           "declared": "done",
           "status": "verified",
-          "codeCount": 27,
-          "testCount": 26
+          "codeCount": 30,
+          "testCount": 31
         },
         {
           "id": "FR-073",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-074",
@@ -2339,8 +2389,8 @@
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 15
+          "codeCount": 6,
+          "testCount": 21
         },
         {
           "id": "FR-077",
@@ -2417,7 +2467,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 24
         },
         {
           "id": "FR-095",
@@ -2431,7 +2481,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-102",
@@ -2458,8 +2508,8 @@
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 2
+          "codeCount": 3,
+          "testCount": 5
         },
         {
           "id": "FR-106",
@@ -2473,7 +2523,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 13
         },
         {
           "id": "FR-108",
@@ -2494,7 +2544,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-124",
@@ -2577,8 +2627,8 @@
             }
           ],
           "details": {
-            "routes": 42,
-            "inventoried": 42,
+            "routes": 41,
+            "inventoried": 41,
             "missing": 0
           }
         },
@@ -2592,7 +2642,7 @@
           "details": {
             "routes": 91,
             "inventoried": 91,
-            "openApiPaths": 117,
+            "openApiPaths": 118,
             "missingFromOpenApi": 0
           }
         },
@@ -2740,9 +2790,9 @@
         }
       ],
       "details": {
-        "routes": 133,
+        "routes": 132,
         "apiRoutes": 91,
-        "pageRoutes": 42,
+        "pageRoutes": 41,
         "ownedModels": 30,
         "featureNotes": 30
       },
@@ -2831,8 +2881,8 @@
           "id": "FR-045",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 24
+          "codeCount": 28,
+          "testCount": 26
         },
         {
           "id": "FR-058",
@@ -2867,6 +2917,7 @@
         "src/modules/project-manager/application/file-manager-read-model.js",
         "src/modules/project-manager/application/file-reconcile-cache-service.js",
         "src/modules/project-manager/application/local-file-reveal-service.js",
+        "src/modules/project-manager/application/project-authorization.js",
         "src/modules/project-manager/application/project-file-service.js",
         "src/modules/project-manager/components/FileManagerViews.jsx",
         "src/modules/project-manager/components/ManagedFilesPanel.jsx",
@@ -2879,8 +2930,10 @@
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr045-managed-files.test.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/project-authorization.test.js",
         "tests/unit/asset-management-navigation.test.js",
         "tests/unit/authorization-seam-list-routes.test.js",
         "tests/unit/authorization-seam-routes.test.js",
@@ -3100,13 +3153,12 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 10
+          "codeCount": 9,
+          "testCount": 13
         }
       ],
       "evidence": [
         "src/app/(pm)/platform/integrations/page.jsx",
-        "src/app/api/agent/heartbeat/route.js",
         "src/app/api/platform/integrations/line-registry/route.js",
         "src/app/api/platform/integrations/route.js",
         "src/modules/agent/grounded-business-answer.js",
@@ -3124,7 +3176,9 @@
         "src/platform/integrations/llm/provider-catalog.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
+        "tests/integration/agent-heartbeat-route.test.js",
         "tests/integration/line-oa-connection-health.test.js",
+        "tests/integration/line-registry-scope.test.js",
         "tests/unit/activation-readiness-integration.test.js",
         "tests/unit/connection-health.test.js",
         "tests/unit/fr048-provider-catalog.test.js",
@@ -3136,6 +3190,7 @@
         "tests/unit/fr080-runtime-wiring.test.js",
         "tests/unit/fr080-supabase-vault.test.js",
         "tests/unit/fr080-ui-contract.test.js",
+        "tests/unit/fr141-edge-device-heartbeat.test.js",
         "tests/unit/grounded-business-answer.test.js",
         "tests/unit/line-registry-service.test.js",
         "tests/unit/model-provider-port.test.js",
@@ -3518,7 +3573,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-098",
@@ -3609,21 +3664,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-100",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-101",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
@@ -3650,6 +3705,7 @@
         "tests/unit/sot-decision-service.test.js",
         "tests/unit/sot-inbox-ui.test.js",
         "tests/unit/sot-pipeline-graph.test.js",
+        "tests/unit/sot-pipeline-scope-render.test.js",
         "tests/unit/sot-plan-board-ui.test.js",
         "tests/unit/sot-plan-service.test.js",
         "tests/unit/sot-plan-status.test.js"
@@ -4211,7 +4267,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -4240,7 +4296,8 @@
         "tests/unit/project-manager-mcp.test.js",
         "tests/unit/project-roadmap-ui.test.js",
         "tests/unit/project-work-route.test.js",
-        "tests/unit/route-reachability.test.js"
+        "tests/unit/route-reachability.test.js",
+        "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -4403,8 +4460,8 @@
           "id": "FR-009",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 7
+          "codeCount": 8,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -4413,15 +4470,19 @@
         "src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx",
         "src/app/(pm)/projects/[projectId]/layout.jsx",
         "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+        "src/modules/project-manager/import/plan-mode-envelope.js",
         "src/modules/project-manager/views/execution/ExecutionModeView.jsx",
         "src/modules/project-manager/views/execution/mode-bodies.jsx",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/plan-mode-modal-intake.test.js",
         "tests/unit/card-calculator-agreement.test.js",
         "tests/unit/document-intake-ui.test.js",
         "tests/unit/fr063-board-columns.test.js",
         "tests/unit/pipeline-monitor-ui.test.js",
+        "tests/unit/plan-intake-flow.test.js",
         "tests/unit/project-execution-backpath.test.js",
-        "tests/unit/project-work-route.test.js"
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -4514,8 +4575,8 @@
           "id": "FR-012",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 16
+          "codeCount": 12,
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -4525,8 +4586,10 @@
         "src/app/api/import/dry-run/route.js",
         "src/lib/validation/enums.js",
         "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+        "src/modules/project-manager/components/PlanPreview.jsx",
         "src/modules/project-manager/components/ProjectTabs.jsx",
         "src/modules/project-manager/components/UploadPlanModal.jsx",
+        "src/modules/project-manager/components/usePlanIntake.js",
         "src/modules/project-manager/import/plan-import-service.js",
         "src/modules/project-manager/import/plan-schema.js",
         "tests/e2e/navigation-reachability.spec.js",
@@ -4535,16 +4598,20 @@
         "tests/integration/import-target-authorization.test.js",
         "tests/integration/plan-import-scope.test.js",
         "tests/integration/plan-import.test.js",
+        "tests/integration/plan-mode-modal-intake.test.js",
         "tests/integration/project-business-binding.test.js",
         "tests/integration/xlsx-intake.test.js",
+        "tests/unit/api-path-reachability.test.js",
         "tests/unit/contract-plan-artifacts.test.js",
         "tests/unit/conversation-analysis-contract.test.js",
+        "tests/unit/plan-intake-flow.test.js",
         "tests/unit/plan-schema.test.js",
         "tests/unit/plan-status-vocabulary.test.js",
         "tests/unit/project-execution-backpath.test.js",
         "tests/unit/project-work-route.test.js",
         "tests/unit/route-reachability.test.js",
-        "tests/unit/self-plan-generator.test.js"
+        "tests/unit/self-plan-generator.test.js",
+        "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -4710,8 +4777,8 @@
           "id": "FR-017",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 5
+          "codeCount": 7,
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -4721,11 +4788,15 @@
         "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
         "src/modules/project-manager/components/StandaloneTaskModal.jsx",
         "src/modules/project-manager/import/human-plan-builder.js",
+        "src/modules/project-manager/import/plan-mode-envelope.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/plan-mode-modal-intake.test.js",
         "tests/integration/project-core.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/human-plan-builder.test.js",
-        "tests/unit/mode-default-subtype.test.js"
+        "tests/unit/mode-default-subtype.test.js",
+        "tests/unit/plan-intake-flow.test.js",
+        "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -4751,7 +4822,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -4763,10 +4834,12 @@
         "src/modules/project-manager/import/xlsx-template.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/xlsx-intake.test.js",
+        "tests/unit/plan-intake-flow.test.js",
         "tests/unit/plan-status-vocabulary.test.js",
         "tests/unit/project-work-route.test.js",
         "tests/unit/public-read-route-auth.test.js",
-        "tests/unit/route-reachability.test.js"
+        "tests/unit/route-reachability.test.js",
+        "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -4841,7 +4914,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -4863,6 +4936,7 @@
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/business-shell-guard.test.js",
         "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/platform-control-guard.test.js",
         "tests/unit/rollup.test.js",
         "tests/unit/scope-view-context.test.js",
         "tests/unit/shell-mode.test.js"
@@ -4924,7 +4998,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -4932,6 +5006,8 @@
         "src/modules/identity/erase-principal.js",
         "src/modules/identity/gate.js",
         "src/modules/identity/link-line-identity.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-turn.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/identity-classify.test.js",
         "tests/integration/identity-erase.test.js",
@@ -5073,7 +5149,8 @@
       ],
       "primaryDomain": "agent",
       "contributorDomains": [
-        "agent"
+        "agent",
+        "identity"
       ],
       "useCase": "Agent ขอทำ action ที่มีความเสี่ยงสูงและระบบบังคับ step-up token ก่อน execute และ audit",
       "progressPercent": 100,
@@ -5085,8 +5162,8 @@
           "id": "FR-026",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 3
+          "codeCount": 5,
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -5094,8 +5171,11 @@
         "src/modules/agent/index.js",
         "src/modules/agent/step-up.js",
         "src/modules/agent/write-tools.js",
+        "src/modules/identity/link-line-identity.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
+        "tests/integration/agent-turn.test.js",
+        "tests/integration/identity-link.test.js",
         "tests/unit/activation-readiness-integration.test.js"
       ]
     },
@@ -5475,7 +5555,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -5488,6 +5568,7 @@
         "src/modules/identity/resolve-viewer.js",
         "src/modules/identity/viewer-authority.js",
         "tests/e2e/fr041-business-first.spec.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr036-team-authorization.test.js",
@@ -5732,7 +5813,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 22
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -5771,7 +5852,8 @@
         "tests/unit/password-reset-page.test.js",
         "tests/unit/route-reachability.test.js",
         "tests/unit/scope-view-context.test.js",
-        "tests/unit/topbar-no-dropdown.test.js"
+        "tests/unit/topbar-no-dropdown.test.js",
+        "tests/unit/viewer-failure.test.js"
       ]
     },
     {
@@ -5797,12 +5879,15 @@
           "id": "FR-046",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 68,
-          "testCount": 56
+          "codeCount": 74,
+          "testCount": 62
         }
       ],
       "evidence": [
         "src/app/(entry)/businesses/page.jsx",
+        "src/app/(entry)/onboarding/profile/page.jsx",
+        "src/app/(entry)/waiting-room/page.jsx",
+        "src/app/(entry)/workspace-home/page.jsx",
         "src/app/(pm)/audit/page.jsx",
         "src/app/api/audit/route.js",
         "src/app/api/auth/login/route.js",
@@ -5863,7 +5948,10 @@
         "src/app/api/workstreams/route.js",
         "src/app/login/page.jsx",
         "src/components/forms/PasswordField.jsx",
+        "src/components/layouts/BusinessShellGuard.jsx",
         "src/context/ScopeContext.jsx",
+        "src/lib/business-shell-guard.js",
+        "src/lib/viewer-failure.js",
         "src/modules/identity/auth-service.js",
         "src/modules/identity/entry-read-model.js",
         "src/modules/identity/login-error-copy.js",
@@ -5890,13 +5978,16 @@
         "tests/integration/password-reset-flow.test.js",
         "tests/integration/project-core.test.js",
         "tests/integration/work-listing-scope.test.js",
+        "tests/unit/api-path-reachability.test.js",
         "tests/unit/audit-page.test.js",
         "tests/unit/auth-service.test.js",
         "tests/unit/authorization-seam-list-routes.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/business-routing-page.test.js",
         "tests/unit/business-routing.test.js",
+        "tests/unit/business-shell-guard.test.js",
         "tests/unit/business-strategy-route.test.js",
+        "tests/unit/entry-routing-boundary.test.js",
         "tests/unit/entry-surfaces.test.js",
         "tests/unit/fr036-team-authorization.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
@@ -5925,7 +6016,10 @@
         "tests/unit/project-manager-mcp.test.js",
         "tests/unit/project-team-service.test.js",
         "tests/unit/run-bat-database-bootstrap.test.js",
-        "tests/unit/scope-view-context.test.js"
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/viewer-failure.test.js",
+        "tests/unit/workspace-collaboration-view.test.js",
+        "tests/unit/workspace-onboarding-routes.test.js"
       ]
     },
     {
@@ -6349,7 +6443,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -6368,6 +6462,7 @@
         "tests/e2e/fr059-strategy-edit.spec.js",
         "tests/e2e/fr091-conversation-inbox.spec.js",
         "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
         "tests/unit/fr059-strategy-edit-ui.test.js",
         "tests/unit/fr059-strategy-validation.test.js",
@@ -6403,7 +6498,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -6414,6 +6509,7 @@
         "src/modules/identity/viewer-domains.js",
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/business-shell-guard.test.js",
         "tests/unit/command-palette-index.test.js",
@@ -6601,7 +6697,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -6626,6 +6722,7 @@
         "tests/unit/fr120-signup-service.test.js",
         "tests/unit/onboarding-service.test.js",
         "tests/unit/profile-identity-fields-migration.test.js",
+        "tests/unit/workspace-collaboration-view.test.js",
         "tests/unit/workspace-onboarding-routes.test.js"
       ]
     },
@@ -6652,27 +6749,32 @@
           "id": "FR-067",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 10
+          "codeCount": 10,
+          "testCount": 13
         }
       ],
       "evidence": [
         "src/app/(entry)/waiting-room/page.jsx",
+        "src/app/(entry)/workspace-home/page.jsx",
         "src/app/api/workspace-invites/[id]/route.js",
         "src/app/api/workspace-invites/accept/route.js",
         "src/app/api/workspace-invites/route.js",
         "src/app/api/workspace-memberships/route.js",
         "src/modules/identity/resolve-viewer.js",
+        "src/modules/identity/workspace-collaboration-view.js",
         "src/modules/identity/workspace-membership-service.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/integration/workspace-collaboration-roster.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/viewer-gate.test.js",
+        "tests/unit/workspace-collaboration-view.test.js",
         "tests/unit/workspace-invite-service.test.js",
         "tests/unit/workspace-onboarding-routes.test.js"
       ]
@@ -6762,8 +6864,8 @@
           "id": "FR-072",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 26
+          "codeCount": 30,
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -6787,6 +6889,9 @@
         "src/app/api/workstreams/[id]/route.js",
         "src/app/api/workstreams/route.js",
         "src/modules/project-manager/application/dependency-service.js",
+        "src/modules/project-manager/application/file-asset-service.js",
+        "src/modules/project-manager/application/file-reconcile-cache-service.js",
+        "src/modules/project-manager/application/local-file-reveal-service.js",
         "src/modules/project-manager/application/milestone-gate-service.js",
         "src/modules/project-manager/application/project-authorization.js",
         "src/modules/project-manager/application/project-file-service.js",
@@ -6797,8 +6902,10 @@
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/adaptive-shell.test.js",
+        "tests/integration/fr045-managed-files.test.js",
         "tests/integration/fr059-business-strategy-mutation.test.js",
         "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/integration/fr072-milestone-gate-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr072-project-service-authorization.test.js",
@@ -6815,6 +6922,9 @@
         "tests/integration/scope-and-isolation.test.js",
         "tests/integration/work-listing-scope.test.js",
         "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/fr045-file-asset-service.test.js",
+        "tests/unit/fr045-reconcile-cache.test.js",
+        "tests/unit/fr045-reveal.test.js",
         "tests/unit/fr089-br018-team-grants-nothing.test.js",
         "tests/unit/global-view-drilldown.test.js",
         "tests/unit/project-dependency-service.test.js",
@@ -6845,7 +6955,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -6859,6 +6969,7 @@
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
         "tests/integration/fr072-refusal-disclosure.test.js",
         "tests/integration/fr072-repository-link-authorization.test.js",
         "tests/integration/fr073-repository-scope.test.js",
@@ -6924,6 +7035,7 @@
       "primaryDomain": "identity",
       "contributorDomains": [
         "identity",
+        "platform-control",
         "project-manager"
       ],
       "useCase": "installation operator preview และ restore snapshot โดย ordinary Business Owner ทำไม่ได้",
@@ -6936,23 +7048,28 @@
           "id": "FR-075",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 15
+          "codeCount": 9,
+          "testCount": 21
         }
       ],
       "evidence": [
+        "src/app/(pm)/settings/page.jsx",
         "src/app/api/backup/export/route.js",
         "src/app/api/backup/import/route.js",
+        "src/components/layouts/PlatformControlShell.jsx",
         "src/modules/identity/operator-bootstrap.js",
         "src/modules/identity/resolve-viewer.js",
         "src/modules/identity/viewer-authority.js",
         "src/modules/project-manager/application/backup-service.js",
         "src/modules/project-manager/application/scope-service.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/adaptive-shell.test.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr072-workspace-mutation-authorization.test.js",
         "tests/integration/fr074-scope-creation-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/platform-grant-revoke.test.js",
         "tests/integration/scope-and-isolation.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/authorization-seam-routes.test.js",
@@ -6960,6 +7077,9 @@
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/operator-bootstrap.test.js",
+        "tests/unit/platform-control-entry-link.test.js",
+        "tests/unit/platform-control-guard.test.js",
+        "tests/unit/platform-control-route-contract.test.js",
         "tests/unit/platform-grant-migration.test.js",
         "tests/unit/viewer-authority.test.js",
         "tests/unit/viewer-gate.test.js"
@@ -7125,12 +7245,13 @@
           "id": "FR-092",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 19
+          "codeCount": 22,
+          "testCount": 24
         }
       ],
       "evidence": [
         "src/app/(pm)/market/page.jsx",
+        "src/app/api/market/observations/route.js",
         "src/modules/integration/adapters/marketplace-listing-adapter.js",
         "src/modules/integration/adapters/retail-price-adapter.js",
         "src/modules/market-intelligence/application/market-observation-service.js",
@@ -7149,18 +7270,24 @@
         "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
         "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
         "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/market-intelligence-observation-feed.test.js",
         "tests/integration/market-intelligence-persistence.test.js",
+        "tests/integration/openapi-docs.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/integration/marketplace-listing-adapter.test.js",
         "tests/unit/integration/retail-price-adapter.test.js",
         "tests/unit/market-intelligence-schema-migration.test.js",
         "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
         "tests/unit/market-intelligence/market-observation-domain.test.js",
+        "tests/unit/market-intelligence/market-observation-feed.test.js",
         "tests/unit/market-intelligence/market-observation-repository.test.js",
+        "tests/unit/market-intelligence/market-observation-service.test.js",
+        "tests/unit/market-intelligence/market-observations-route.test.js",
         "tests/unit/market-intelligence/market-raw-record-repository.test.js",
         "tests/unit/market-intelligence/market-research-domain.test.js",
         "tests/unit/market-intelligence/market-signals-domain.test.js",
@@ -7326,18 +7453,22 @@
           "id": "FR-105",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 2
+          "codeCount": 8,
+          "testCount": 5
         }
       ],
       "evidence": [
         "src/app/(control)/control/roadmap/page.jsx",
         "src/app/(control)/layout.jsx",
+        "src/app/(pm)/settings/page.jsx",
         "src/components/layouts/PlatformControlGuard.jsx",
         "src/components/layouts/PlatformControlShell.jsx",
         "src/lib/platform-control-guard.js",
         "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "src/modules/platform-control/program-roadmap-data.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/adaptive-shell.test.js",
+        "tests/unit/platform-control-entry-link.test.js",
         "tests/unit/platform-control-guard.test.js",
         "tests/unit/platform-control-route-contract.test.js"
       ]
@@ -7421,7 +7552,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -7431,13 +7562,16 @@
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/platform-grant-revoke.test.js",
         "tests/unit/bootstrap-operator-cli.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr046-session-port.test.js",
         "tests/unit/fr120-signup-page.test.js",
         "tests/unit/iam-session.test.js",
+        "tests/unit/list-operator-grants-cli.test.js",
         "tests/unit/operator-bootstrap.test.js",
-        "tests/unit/platform-grant-migration.test.js"
+        "tests/unit/platform-grant-migration.test.js",
+        "tests/unit/revoke-operator-grant-cli.test.js"
       ]
     },
     {
@@ -7845,8 +7979,8 @@
           "id": "FR-123",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 13
+          "codeCount": 12,
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -7855,6 +7989,7 @@
         "src/app/api/plugin/auth/capabilities/route.js",
         "src/app/api/plugin/auth/revoke/route.js",
         "src/app/api/plugin/auth/token/route.js",
+        "src/lib/viewer-failure.js",
         "src/modules/identity/plugin-auth-service.js",
         "src/modules/identity/plugin-consent-access.js",
         "src/modules/identity/plugin-consent-view.js",
@@ -7873,7 +8008,8 @@
         "tests/unit/fr123-plugin-auth-route.test.js",
         "tests/unit/fr123-plugin-auth-service.test.js",
         "tests/unit/fr123-plugin-consent-view.test.js",
-        "tests/unit/fr123-plugin-consent.test.js"
+        "tests/unit/fr123-plugin-consent.test.js",
+        "tests/unit/viewer-failure.test.js"
       ]
     },
     {
@@ -8082,6 +8218,38 @@
         }
       ],
       "evidence": []
+    },
+    {
+      "id": "FR-141",
+      "title": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-141"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-141",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "src/app/api/agent/heartbeat/route.js",
+        "src/modules/agent/edge-device-registry.js",
+        "tests/unit/fr141-edge-device-heartbeat.test.js"
+      ]
     }
   ]
 }
