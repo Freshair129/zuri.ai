@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db'
 import { WORKSPACE_SCOPE_TYPES } from '@/lib/validation/enums'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, ownsBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-072 — mutations behind the route-viewer baseline refuse the write
 // unless the viewer owns the governing Business, derived from the target's Space.
@@ -194,6 +194,31 @@ export async function assertBusinessWritable(
   if (!business) throw refusal(404, notFoundMessage)
   if (!authorize(viewer, businessId)) throw refusal(404, notFoundMessage)
   return business
+}
+
+/**
+ * May this viewer perform an installation-wide operation with no owning
+ * Business at all?
+ *
+ * @req FR-072 — `migrateProjectFiles` (the one-time legacy ProjectFile→FileAsset
+ * backfill) previously gated on `['OWNER', 'DEV'].includes(viewer.role)` at the
+ * route layer. `role` is a per-principal label, not per-Business authority
+ * (the same bug class already repaid for FR-059/FR-038/FR-061), and the
+ * operation is global and cross-tenant — every Business's ProjectFile rows,
+ * not one the caller owns — so no `businessId` exists to authorize against in
+ * the first place. `isInstallationOperator` (FR-075) is the capability
+ * actually being asked for, the same one `exportSnapshot`/`importSnapshot`
+ * require for the installation-wide backup/restore surface.
+ * @spec ADR-016 D10, SEC-001, SEC-008
+ * @tested tests/integration/fr072-files-migrate-authorization.test.js
+ *
+ * Same Tier A disclosure shape as every other assert* here: a non-operator is
+ * refused 404, indistinguishable from the route not existing, rather than a
+ * 403 that would confirm to an unauthorized caller that the surface exists.
+ */
+export function assertInstallationOperatorWritable(viewer, { notFoundMessage = 'Not found' } = {}) {
+  requireViewer(viewer, 'assertInstallationOperatorWritable')
+  if (!isInstallationOperator(viewer)) throw refusal(404, notFoundMessage)
 }
 
 /**
