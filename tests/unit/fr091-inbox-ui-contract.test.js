@@ -52,15 +52,37 @@ describe('FR-091 inbox page contract', () => {
     expect(source).toMatch(/BR-011/)
   })
 
-  it('the one POST this page makes is FR-103 consent attestation, never a reply', () => {
+  it('the POSTs this page makes are the two PDPA controls, never a reply', () => {
     const source = inboxPage()
-    // Exactly one POST in the whole file, and it names the consent endpoint — proves
-    // by elimination that no fetch to /api/crm/conversations (the reply-shaped
-    // endpoint) is ever a POST, without a regex fragile enough to trip on the parens
-    // inside `encodeURIComponent(...)`.
-    expect(source.match(/method:\s*['"]POST['"]/g)).toHaveLength(1)
+    // Exactly two POSTs in the whole file, and they name the consent and erasure
+    // endpoints — proves by elimination that no fetch to /api/crm/conversations (the
+    // reply-shaped endpoint) is ever a POST, without a regex fragile enough to trip
+    // on the parens inside `encodeURIComponent(...)`.
+    expect(source.match(/method:\s*['"]POST['"]/g)).toHaveLength(2)
     expect(source).toContain('/api/crm/customers/${encodeURIComponent(customer.id)}/consent')
+    expect(source).toContain('/api/crm/customers/${encodeURIComponent(customer.id)}/erasure')
     expect(source).toMatch(/SEC-005/)
+  })
+
+  // @req FR-022 — the erasure affordance. Asserted at the source level for the same
+  // reason the rest of this file is: what matters is which endpoint the page may
+  // call and under what gate, not how the panel is styled.
+  it('gates the FR-022 erasure action on the same per-Business OWNER grant', () => {
+    const source = inboxPage()
+    // The control renders nothing at all for a non-owner. A destructive button that
+    // exists only to be refused invites the click that the refusal then has to catch.
+    expect(source).toMatch(/function ErasureControl[\s\S]*?if \(!isOwner\) return null/)
+    expect(source).toMatch(/<ErasureControl/)
+  })
+
+  it('makes the owner type the confirmation word before the erasure can be sent', () => {
+    const source = inboxPage()
+    // The literal is sent verbatim from what was typed — the button is disabled until
+    // it matches, and the server checks it again. A client-side `confirmation: 'ERASE'`
+    // constant would make the dialog decorative.
+    expect(source).toContain("const ERASE_CONFIRMATION = 'ERASE'")
+    expect(source).toContain('confirmation: typed')
+    expect(source).toMatch(/disabled=\{busy \|\| typed !== ERASE_CONFIRMATION\}/)
   })
 
   it('names the owner of a conversation no Business owns instead of printing a blank', () => {

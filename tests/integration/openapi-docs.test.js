@@ -80,8 +80,11 @@ describe('OpenAPI document', () => {
       // because translation is the sole writer of those rows). FR-067's owner
       // roster adds a GET to the existing /api/workspace-memberships path
       // (one more operation, no new path).
-      pathCount: 118,
-      operationCount: 152,
+      // FR-022's one (the PDPA erasure trigger — POST only; the erasure has no
+      // preview and leaves a redacted Customer behind, so neither GET nor DELETE
+      // describes it) brings the totals to:
+      pathCount: 119,
+      operationCount: 153,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
