@@ -58,7 +58,8 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "test:tests/integration/agent-heartbeat-route.test.js"
+      "test:tests/integration/line-registry-scope.test.js",
+      "test:tests/unit/line-registry-service.test.js"
     ],
     "added": [],
     "removed": []
@@ -16422,7 +16423,7 @@
       "type": "test",
       "path": "tests/integration/agent-heartbeat-route.test.js",
       "hash": "22cdecfc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-msp-port.test.js",
@@ -16841,8 +16842,8 @@
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "2f41d731",
-      "status": "current"
+      "hash": "a6934b9a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18171,8 +18172,8 @@
       "id": "test:tests/unit/line-registry-service.test.js",
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
-      "hash": "0dc93356",
-      "status": "current"
+      "hash": "1ff5ec87",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",

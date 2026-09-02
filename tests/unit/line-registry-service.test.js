@@ -87,4 +87,61 @@ describe('LINE Registry Service (Groups and Users)', () => {
     // Reads tolerate the legacy lowercase provider code; writes no longer emit it.
     expect(where.provider.code.in).toEqual(expect.arrayContaining(['LINE_OA', 'line-oa']))
   })
+
+  it('no longer honours the isPlatformDev / isLocalDev flags no resolver emits', async () => {
+    // Adversarial input rather than a fixture: a factory viewer that owns
+    // nothing, carrying the two flags the removed escape hatch used to look for.
+    // If the hatch ever came back, this viewer would be the one to slip through.
+    const forged = () => ({
+      ...makeViewer({ role: 'MEMBER', visibleBusinessIds: ['b-1'], ownedBusinessIds: [] }),
+      isPlatformDev: true,
+      isLocalDev: true,
+    })
+    const db = spyDb()
+
+    await expect(listLineRegistry({ businessId: 'b-1', resolve: forged, db }))
+      .rejects.toMatchObject({ status: 404 })
+    await expect(listLineRegistry({ resolve: forged, db })).resolves.toEqual([])
+    await expect(saveLineGroup({
+      businessId: 'b-1',
+      name: 'Forged',
+      groupId: 'Cforged',
+    }, { resolve: forged, db })).rejects.toMatchObject({ status: 404 })
+    expect(db.integrationConnection.findMany).not.toHaveBeenCalled()
+    expect(db.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('surfaces an audit failure instead of swallowing it', async () => {
+    // The old call site wrapped recordAudit in `.catch(() => {})`. A save whose
+    // audit event cannot be written must reject, so the swallow cannot return.
+    const txFor = (auditError) => ({
+      business: { findUnique: vi.fn(async () => ({ tenantId: 'tenant-1' })) },
+      integrationProvider: { upsert: vi.fn(async () => ({ id: 'prov-1', code: 'LINE_OA' })) },
+      integrationConnection: {
+        findFirst: vi.fn(async () => null),
+        create: vi.fn(async ({ data }) => ({ id: 'conn-1', ...data })),
+        update: vi.fn(),
+      },
+      auditEvent: { create: vi.fn(async () => { throw auditError }) },
+    })
+    const groupTx = txFor(new Error('audit store unavailable'))
+    const userTx = txFor(new Error('audit store unavailable'))
+
+    await expect(saveLineGroup({
+      businessId: OWNED,
+      name: 'Sales Team',
+      groupId: 'Caudited',
+    }, { resolve: () => owner(), db: { $transaction: vi.fn(async (work) => work(groupTx)) } }))
+      .rejects.toThrow('audit store unavailable')
+    expect(groupTx.integrationConnection.create).toHaveBeenCalledTimes(1)
+    expect(groupTx.auditEvent.create).toHaveBeenCalledTimes(1)
+
+    await expect(saveLineUser({
+      businessId: OWNED,
+      displayName: 'Somchai',
+      userId: 'Uaudited',
+    }, { resolve: () => owner(), db: { $transaction: vi.fn(async (work) => work(userTx)) } }))
+      .rejects.toThrow('audit store unavailable')
+    expect(userTx.auditEvent.create).toHaveBeenCalledTimes(1)
+  })
 })
