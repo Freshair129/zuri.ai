@@ -9,8 +9,8 @@ import MarketDashboard from '@/modules/market-intelligence/components/MarketDash
 //   tests/integration/market-intelligence-observation-feed.test.js
 //
 // The previous annotation cited `price-observation-domain.test.js`, which proves a
-// pure domain calculator and never touches this page — an @req/@tested pair that
-// pointed a reader at regression coverage this route did not have.
+// pure domain calculator and never touches this page. It pointed a reader at
+// regression coverage this route did not have.
 
 export default function MarketPage() {
   return <MarketDashboard />

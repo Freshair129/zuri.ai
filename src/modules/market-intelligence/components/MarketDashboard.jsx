@@ -19,7 +19,7 @@ import { useFetch, LoadingCard } from '@/modules/project-manager/components/useA
 // nicer mock: the page now shows exactly what the domain has recorded, including
 // nothing.
 //
-// The `@tested` files above cover the data contract this component renders, not the
+// The test files named above cover the data contract this component renders, not the
 // component itself. There is no React rendering harness in this repository, so the
 // honest claim is the narrow one: what is proved is the route, the authorization and
 // the row shape — not the JSX.
