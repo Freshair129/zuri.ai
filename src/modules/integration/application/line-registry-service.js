@@ -15,23 +15,17 @@ export const LINE_REGISTRY_TYPES = Object.freeze({
 
 const LINE_REGISTRY_PURPOSES = Object.freeze([LINE_REGISTRY_TYPES.GROUP, LINE_REGISTRY_TYPES.USER])
 
-// The registry used to upsert its own lowercase provider row while the rest of
-// the lane addressed the same channel as `LINE_OA` — two identities for one
-// provider, which is exactly what BR-002 forbids. Writes now use the shared
-// constant; reads still accept the legacy code so rows written before this fix
-// stay visible.
+// The registry used to upsert its own lowercase `line-oa` provider row while
+// the rest of the lane addressed the same channel as `LINE_OA` — two
+// identities for one provider, which is exactly what BR-002 forbids. Writes
+// were fixed to use the shared constant; reads used to keep tolerating the
+// legacy code so rows written before that fix stayed visible.
 //
-// The merge itself is now written: supabase/migrations/20260902110000_merge_line_oa_provider_code.sql
-// (production) and scripts/migrate-line-oa-provider.mjs (SQLite dev, via
-// Prisma). Once the production migration has been applied and that apply is
-// recorded in the runbook's ledger (docs/runbooks/line-oa-provider-merge.md),
-// no row can carry the legacy code again and this tolerance — and
-// `READABLE_LINE_OA_PROVIDER_CODES` below — may be removed.
-export const LEGACY_LINE_OA_PROVIDER_CODE = 'line-oa'
-const READABLE_LINE_OA_PROVIDER_CODES = Object.freeze([
-  LINE_OA_PROVIDER_CODE,
-  LEGACY_LINE_OA_PROVIDER_CODE,
-])
+// That tolerance is gone. The merge was applied to production (the ledger in
+// docs/runbooks/line-oa-provider-merge.md records it) and
+// scripts/migrate-line-oa-provider.mjs re-points any developer SQLite database
+// still holding a legacy row, so no row can carry the legacy code from here
+// on — reads and the de-dupe lookup below use only `LINE_OA_PROVIDER_CODE`.
 
 const zAutomationJob = z.object({
   jobId: z.string().default(() => `job-${Date.now()}`),
@@ -119,7 +113,7 @@ export async function listLineRegistry({ businessId, type = 'ALL', resolve, db =
   const connections = await db.integrationConnection.findMany({
     where: {
       businessId: { in: scopedBusinessIds },
-      provider: { code: { in: [...READABLE_LINE_OA_PROVIDER_CODES] } },
+      provider: { code: LINE_OA_PROVIDER_CODE },
       // Registry rows only. Without this the switch to the shared provider code
       // would drag the LINE_OA *channel* connection (FR-081) into a listing that
       // is about groups and contacts.
@@ -170,17 +164,17 @@ async function ensureLineProvider(tx) {
 }
 
 /**
- * The de-dupe lookup. Keyed on the tenant and the LINE id, across both provider
- * codes, because a legacy row is the same registration under another name and
- * creating a second one beside it would be the duplicate identity this fix
- * exists to stop.
+ * The de-dupe lookup. Keyed on the tenant and the LINE id, under the shared
+ * provider code only — a row still carrying the retired legacy code is not
+ * treated as the same registration; scripts/migrate-line-oa-provider.mjs is
+ * the path for re-pointing such a row on a developer SQLite database.
  */
 async function findExistingRegistration(tx, { tenantId, externalAccountId }) {
   return tx.integrationConnection.findFirst({
     where: {
       tenantId,
       externalAccountId,
-      provider: { code: { in: [...READABLE_LINE_OA_PROVIDER_CODES] } },
+      provider: { code: LINE_OA_PROVIDER_CODE },
       purpose: { in: [...LINE_REGISTRY_PURPOSES] },
     },
   })

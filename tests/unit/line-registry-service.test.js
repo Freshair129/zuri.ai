@@ -6,6 +6,7 @@ import {
   saveLineGroup,
   saveLineUser,
 } from '@/modules/integration/application/line-registry-service'
+import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 
 // @req FR-080 — Platform Integration metadata management for LINE channels and contacts
 // @spec ADR-032, SEC-016, SDD-044, SEC-001
@@ -84,8 +85,8 @@ describe('LINE Registry Service (Groups and Users)', () => {
     const where = db.integrationConnection.findMany.mock.calls[0][0].where
     expect(where.businessId).toEqual({ in: [OWNED] })
     expect(where.purpose).toEqual({ in: [LINE_REGISTRY_TYPES.GROUP, LINE_REGISTRY_TYPES.USER] })
-    // Reads tolerate the legacy lowercase provider code; writes no longer emit it.
-    expect(where.provider.code.in).toEqual(expect.arrayContaining(['LINE_OA', 'line-oa']))
+    // The legacy lowercase provider code is no longer read-tolerated.
+    expect(where.provider.code).toBe(LINE_OA_PROVIDER_CODE)
   })
 
   it('no longer honours the isPlatformDev / isLocalDev flags no resolver emits', async () => {
