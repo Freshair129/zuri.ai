@@ -59,7 +59,12 @@ function layout(nodes) {
 }
 
 export default function SotPipelineGraphPage() {
-  const { businessId } = useScope()
+  // @req FR-020 — ScopeContext exposes the active Business as `shell.activeBusinessId`
+  // (falling back to `currentBusiness?.id`), never a top-level `businessId`; the
+  // page previously destructured a field the context never returns, so every
+  // fetch below ran with `businessId=undefined` regardless of selection.
+  const { shell, currentBusiness } = useScope()
+  const businessId = shell?.activeBusinessId || currentBusiness?.id || null
   const { data, error, loading } = useFetch(
     businessId ? `/api/platform/sot/plan?businessId=${businessId}` : null,
     [businessId]

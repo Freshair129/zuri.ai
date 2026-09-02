@@ -20,7 +20,12 @@ const TYPE_TH = {
 }
 
 function SotInboxPageInner() {
-  const { businessId } = useScope()
+  // @req FR-020 — ScopeContext exposes the active Business as `shell.activeBusinessId`
+  // (falling back to `currentBusiness?.id`), never a top-level `businessId`; the
+  // page previously destructured a field the context never returns, so every
+  // fetch below ran with `businessId=undefined` regardless of selection.
+  const { shell, currentBusiness } = useScope()
+  const businessId = shell?.activeBusinessId || currentBusiness?.id || null
   const params = useSearchParams()
   const phaseId = params.get('phaseId') || ''
   const [typeFilter, setTypeFilter] = useState('')
