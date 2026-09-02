@@ -15,10 +15,11 @@ source: v2-native
 | **Design** | ADR-015, SDD-022 |
 | **Token policy** | Reuse ADR-010 / `docs/UI-DESIGN-SYSTEM.md`; no token changes |
 
-> **Approved follow-up:** [ADR-027](../../../decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
-> and FR-066/067 add Profile-only, Waiting Room and Workspace-membership states
-> before Business Routing. The route proof below remains the verified FR-044
-> compatibility slice until that follow-up is implemented.
+> **Implemented follow-up:** [ADR-027](../../../decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+> and FR-066/067 (✅ implemented) add Profile-only, Waiting Room and
+> Workspace-membership states before Business Routing, shipped under
+> `src/app/(entry)/`. The route proof below remains the verified FR-044
+> compatibility slice underneath that follow-up.
 
 > **Authentication amendment:** the routing boundary in this feature remains
 > authoritative, but the historical demo Login behavior is superseded by

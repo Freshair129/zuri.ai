@@ -21,27 +21,30 @@
 Business selection happens before the final BusinessShell. No entry route renders the
 final DomainBar, Development sidebar, or Project tabs.
 
-## Approved next pre-shell target (ADR-027)
+## Profile-first pre-shell flow (ADR-027, FR-066/FR-067 — implemented)
 
-This is the approved documentation target for Profile-first onboarding. It is not
-implemented by the current route tree yet.
+FR-066 (Profile-first onboarding) and FR-067 (Workspace collaboration boundary)
+are both ✅ implemented (docs/PRD-SDD-v1.0.md) and shipped under
+`src/app/(entry)/`:
 
 ```text
 /                         EntryShell: Landing
 /login                    EntryShell: authenticated account login
 /onboarding/profile       Profile setup over the resolved Person
 /waiting-room             Profile-only member or pending invitation state
-/workspaces               top-level collaboration Workspace list/home (Portfolio)
-/workspaces/:id           Workspace Home and membership/invitation state
+/workspace-home           top-level collaboration Workspace home (Portfolio)
 /businesses               Business Routing, only when Business access exists
 /overview                 BusinessShell: selected Business Overview
 ```
 
-The current PM `/workspaces` compatibility page exposes schema `Workspace` and
-must be displayed as **Space** when this target is implemented. It must not be
-silently treated as the top-level collaboration Workspace. A future route move to
-`/spaces` or a Business/Project-nested route may be implemented separately without
-changing schema identities.
+The ADR-027 D8 target path was `/workspaces`, but that name was already taken
+by the PM Space compatibility page (`Project.workspaceId`, schema `Workspace`,
+displayed as **Space** — see "Current PM resource routes" below). The shipped
+top-level collaboration Workspace route is `/workspace-home` instead, so the
+two identities never collide at one path. `WorkspaceInvite`/`WorkspaceMembership`
+mutations are served at `/api/workspace-invites`; there is no separate
+`/workspaces/:id` route — Workspace Home and membership/invitation state both
+render at `/workspace-home`.
 
 ## Logical layout boundaries
 
@@ -56,17 +59,28 @@ Root Provider Layout
 │   └── /control/roadmap
 └── BusinessShell (requires activeBusinessId)
     ├── /overview
+    ├── /customer
+    ├── /customer/conversations
+    ├── /market
     ├── /people
     ├── /people/directory
     ├── /projects
+    ├── /workspaces *(PM Space compatibility page — schema `Workspace`, displayed as Space)*
+    ├── /workspaces/[workspaceId]
     ├── /work
     ├── /execution/[mode]
     ├── /timeline
     ├── /dependencies
     ├── /milestones
+    ├── /files
     ├── /repositories
+    ├── /assets
+    ├── /assets/receiving
     ├── /platform/users
     ├── /platform/integrations *(FR-080 metadata-only local implementation)*
+    ├── /platform/product-readiness
+    ├── /platform/customer-import-reviews
+    ├── /platform/sot-pipeline
     ├── /profile
     ├── /settings
     ├── /audit
@@ -101,10 +115,13 @@ scope.
 
 ## Domain and sub-domain map
 
-The BusinessShell domain bar has seven runtime domain keys:
+The BusinessShell domain bar has nine operational domain keys (`src/config/domains.js`;
+`business-home` is a separate always-visible shell slot, not counted here — see
+`docs/INTERFACE-INVENTORY.md` §4):
 
 ```text
-Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
+Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People ·
+Development · Asset Management · Platform
 ```
 
 `/platform/integrations` is the FR-080 Platform sub-domain. Its local
@@ -116,12 +133,13 @@ Business Overview is the shell root, not a Development sub-domain. Development's
 sidebar is:
 
 ```text
-Projects · All Work · Execution · Timeline · Dependencies · Milestones & Gates · Repositories
+Projects · All Work · Execution · Timeline · Dependencies · Milestones & Gates ·
+Files · Repositories
 ```
 
 The Development item in the DomainBar and its sidebar header use `/overview` as the
-BusinessShell root. The sidebar list itself contains only the seven Development
-capabilities above.
+BusinessShell root. The sidebar list itself contains only the eight Development
+capabilities above (`docs/INTERFACE-INVENTORY.md` §3.2).
 
 HR / People has:
 
@@ -143,10 +161,11 @@ until their parity and BusinessModule gates are met.
   are insufficient. See ADR-048.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
-- Missing Profile → `/onboarding/profile` in the ADR-027 target flow.
-- Profile-only or Workspace-only access → `/waiting-room` or `/workspaces`; it does
-  not imply Business access.
-- Unauthorized Business/domain → explicit forbidden state or Business Overview.
+- Missing Profile → `/onboarding/profile` (ADR-027, FR-066 — implemented).
+- Profile-only or Workspace-only access → `/waiting-room` or `/workspace-home`;
+  it does not imply Business access.
+- Unauthorized Business/domain → silent redirect to Business Overview
+  (`BusinessShellGuard.jsx`); no explicit forbidden message is shown today.
 - Project deep links require the selected Business unless the Project is an explicit
   shared Portfolio Space resource.
 
@@ -157,8 +176,8 @@ The current API route inventory is maintained in
 are `/api/auth/login` and `/api/auth/logout`; protected entry routes consume the
 signed session through the provider-neutral `SessionPort`. The entry routing
 contract still uses `/api/entry` and does not accept client-supplied identity.
-ADR-027's future contract will add viewer-scoped Profile/Workspace entry data and
-invitation mutations; those endpoints are not present yet.
+ADR-027's Profile/Workspace entry data and invitation mutations are implemented
+at `/api/workspace-invites` (FR-067).
 
 ## Evidence and drift rule
 
