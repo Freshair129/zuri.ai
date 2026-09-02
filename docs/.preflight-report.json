@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 233,
-    "routes": 107,
-    "test_files": 366
+    "docs": 244,
+    "routes": 108,
+    "test_files": 372
   },
   "summary": {
     "critical": 0,
@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "437 id(s) pinned across 10 families",
-      "details": "ADR 54 · BR 22 · FEAT 14 · FR 132 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 77 · SEC 22 · ZV2-CR 8 · roster 437",
+      "title": "451 id(s) pinned across 10 families",
+      "details": "ADR 55 · BR 24 · FEAT 15 · FR 136 · MI-RQ 72 · NFR 21 · RSK 16 · SDD 80 · SEC 23 · ZV2-CR 9 · roster 451",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -249,7 +249,7 @@
       "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 233 document(s)",
+      "title": "table integrity checked in 244 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"

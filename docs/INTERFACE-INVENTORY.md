@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.2.2b |
+| **Version** | 1.3.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-08-29 |
+| **Last Updated** | 2026-09-02 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=54; operational_domain_keys=8; operational_subdomain_entries=26; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=55; operational_domain_keys=9; operational_subdomain_entries=29; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -127,8 +127,8 @@ page can issue a write.
 
 ### 3.5 People and Platform domains
 
-The operational registry has seven domain keys. Platform currently exposes seven
-page routes because its Dashboard and Settings navigation entries share
+The operational registry has nine domain keys. Platform currently exposes eight
+page routes from nine navigation entries because its Dashboard and Settings entries share
 `/settings`; one route is one interface row here.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
@@ -148,7 +148,19 @@ page routes because its Dashboard and Settings navigation entries share
 | `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |
 | `/backup` | Backup | BusinessShell → Platform / Backup | snapshot export and preview-then-confirm restore | loading, validation, confirmation, error, forbidden | implemented; `src/app/(pm)/backup/page.jsx`, FR-013 |
 
-### 3.5 Workspace compatibility surfaces
+### 3.6 Asset Management domain
+
+The foundation exposes one guarded, Business-scoped dashboard. Receiving and
+register are declared navigation destinations but remain unavailable until their
+write/read slices close; the dashboard labels those adapters rather than implying
+that OCR, LINE retrieval, live Sheets sync, procurement lookup or Finance posting
+is operational.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/assets` | Asset Management Dashboard | BusinessShell → Asset Management / Dashboard | foundation readiness, canonical intake stages, evidence/procurement/lot gates and depreciation preview boundary; new/import actions remain disabled | Business and `assets` domain visibility required, ready, forbidden, unavailable adapters | implemented foundation; `src/app/(pm)/assets/page.jsx`, FR-133..136 / ADR-055 |
+
+### 3.7 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
 global collaboration Workspace authority; ADR-027's future onboarding surface is
@@ -159,7 +171,7 @@ separately documented.
 | `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
 | `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
 
-### 3.6 Project resource surfaces
+### 3.8 Project resource surfaces
 
 All rows below are nested in ProjectResourceShell. Project-local work views are
 not new global domains or new persistence aggregates.
@@ -181,7 +193,7 @@ not new global domains or new persistence aggregates.
 | `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Team | Project team membership view and actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
 | `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
 
-### 3.7 Platform Control surface
+### 3.9 Platform Control surface
 
 Platform Control is an installation-operator-only operational surface. It is not
 one of the seven Business domains, is not configured in `DOMAINS`, and does not
@@ -198,13 +210,14 @@ explicitly so “domain count” cannot silently mix the two concepts:
 
 | Count | Current value | Source interpretation |
 |---|---:|---|
-| Source `DOMAINS` entries | 8 | `business-home` plus seven operational domains |
-| Operational domain keys | 7 | `commerce`, `customer`, `growth`, `operations`, `people`, `projects`, `platform` |
+| Source `DOMAINS` entries | 10 | `business-home` plus nine operational domains |
+| Operational domain keys | 9 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 23 | includes Business Home Dashboard |
-| Operational sub-domain entries | 22 | excludes Business Home Dashboard |
+| Source sub-domain entries | 30 | includes Business Home Dashboard |
+| Operational sub-domain entries | 29 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
-| Platform navigation entries | 7 | Dashboard and Settings intentionally share `/settings` |
+| Asset Management navigation entries | 3 | Dashboard is current; Receiving and Register are declared unavailable destinations |
+| Platform navigation entries | 9 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
 preflight check derives it from `src/config/domains.js` and fails if it drifts.
@@ -247,8 +260,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 38 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 7 operational domains, 22 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 55 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 9 operational domains, 29 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -265,6 +278,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |
 | 1.2.2b | 2026-08-29 | candidate | Registered the FR-120 Self-Serve Signup screen — before it no unauthenticated visitor could create an account, which also meant no new person could be invited, since an invite needs a Person to attach to — restated `/login` as having two ways out rather than one, and reconciled the marker to 50 page routes | working-tree | ATHER |
 | 1.2.1b | 2026-08-29 | candidate | Registered the FR-104 Password Reset Redemption screen — the consume leg had a route and no screen, so a minted token had nowhere to be spent — restated `/login`'s reveal and opt-in persistent session (AC-046-15), and reconciled the marker to 49 page routes | working-tree | ATHER |
 | 1.2.0b | 2026-08-20 | candidate | Registered the FR-091 CRM Dashboard and Inbox, the first reader surface over the LINE ingress, and reconciled the counts to 41 page routes / 23 subdomain entries | working-tree | ATHER |

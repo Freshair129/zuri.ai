@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
+import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -14,7 +15,7 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
-  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
+  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/intakes/validate', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
@@ -85,7 +86,7 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -156,6 +157,33 @@ const zResolveResponse = z.object({
     .optional(),
 })
 
+const zAssetValidationIssue = z.object({
+  code: z.string(),
+  path: z.string(),
+  message: z.string(),
+})
+
+const zAssetValidationResponse = z.object({
+  mode: z.literal('PREVIEW_ONLY'),
+  applied: z.literal(false),
+  providerActions: z.array(z.string()),
+  validation: z.object({
+    ok: z.boolean(),
+    value: zAssetIntakeEnvelope.nullable(),
+    conflicts: z.array(z.unknown()),
+    requiresHumanReview: z.boolean(),
+    issues: z.array(zAssetValidationIssue),
+  }),
+  depreciationPreview: z.unknown().nullable(),
+  unavailableAdapters: z.array(z.enum([
+    'LINE_BINARY',
+    'OCR_VISION',
+    'GOOGLE_SHEET_SYNC',
+    'PROCUREMENT_LOOKUP',
+    'FINANCE_POSTING',
+  ])),
+})
+
 const zError = z.object({ error: z.string(), issues: z.array(z.string()).optional() })
 
 const json = (schema, description) => ({ description, content: { 'application/json': { schema } } })
@@ -168,7 +196,28 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('DryRunResponse', zDryRunResponse)
   registry.register('CommitResponse', zCommitResponse)
   registry.register('ResolveResponse', zResolveResponse)
+  registry.register('AssetIntakeEnvelope', zAssetIntakeEnvelope)
+  registry.register('AssetValidationResponse', zAssetValidationResponse)
   registry.register('Error', zError)
+
+  registry.registerPath({
+    method: 'post',
+    path: '/api/assets/intakes/validate',
+    summary: 'Validate one canonical Asset intake envelope without applying it',
+    description:
+      'Requires a trusted viewer with access to the selected Business and Asset Management domain. ' +
+      'This preview performs no upload, OCR/Vision call, LINE retrieval, Sheet synchronization, ' +
+      'Procurement lookup, Asset persistence, Finance approval or journal posting.',
+    tags: ['Asset Management'],
+    request: { body: { content: { 'application/json': { schema: zAssetIntakeEnvelope } } } },
+    responses: {
+      200: json(zAssetValidationResponse, 'Validation result and optional deterministic depreciation preview'),
+      400: json(zError, 'Malformed request'),
+      401: json(zError, 'Authentication required'),
+      403: json(zError, 'Asset Management is not enabled for this Business'),
+      404: json(zError, 'Business not found or not visible'),
+    },
+  })
 
   registry.registerPath({
     method: 'post',
@@ -255,6 +304,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     servers: [{ url: serverUrl }],
     tags: [
       { name: 'Intake', description: 'Plan envelope in, work graph out' },
+      { name: 'Asset Management', description: 'Evidence-backed physical Asset intake previews' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],

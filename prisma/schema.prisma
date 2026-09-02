@@ -60,6 +60,9 @@ model Tenant {
   sotDecisions              SotDecision[]
   sotDataPlaneKeys          SotDataPlaneKey[]
   apiAccessKeys             ApiAccessKey[]
+  registeredAssets          RegisteredAsset[]
+  assetIntakes              AssetIntake[]
+  assetLots                 AssetLot[]
 
   @@index([portfolioId])
 }
@@ -130,6 +133,9 @@ model Business {
   repositories              Repository[]
   pipelineRuns              PipelineRun[]
   sotDecisions              SotDecision[]
+  registeredAssets          RegisteredAsset[]
+  assetIntakes              AssetIntake[]
+  assetLots                 AssetLot[]
 
   @@index([tenantId])
 }
@@ -144,33 +150,34 @@ model Branch {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  business    Business     @relation(fields: [businessId], references: [id])
-  memberships Membership[]
+  business       Business               @relation(fields: [businessId], references: [id])
+  memberships    Membership[]
+  assetLocations AssetLocationHistory[]
 
   @@index([tenantId])
   @@index([businessId])
 }
 
 model Person {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  displayName String
-  email       String?
+  id                 String    @id @default(uuid())
+  code               String    @unique
+  displayName        String
+  email              String?
   // @req FR-122 — What the Profile step collects about the person themselves.
   // Nullable here and required at the profile boundary instead, because Person
   // rows exist that can never supply them: the seed, FR-107's operator
   // bootstrap, and every Person FR-023's LINE ingest creates from a lineUserId
   // on first contact, which has a channel subject and nothing else. A NOT NULL
   // on these columns would make that intake path unwritable.
-  firstName   String?
-  lastName    String?
-  phone       String?
+  firstName          String?
+  lastName           String?
+  phone              String?
   // @req FR-066 — Profile completion marker: an identity step over Person
   // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
   // not finished the profile-first onboarding step yet.
   profileCompletedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   memberships                   Membership[]
   credential                    PersonCredential?
@@ -197,6 +204,7 @@ model Person {
   // @req FR-067 — Workspace collaboration grants and the invites this person issued.
   workspaceMemberships          WorkspaceMembership[]
   workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
+  assetResponsibilities         AssetResponsibility[]
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -215,7 +223,7 @@ model PlatformGrant {
   revokedAt         DateTime?
   revokeReason      String?
 
-  person   Person  @relation("PlatformGrantPerson", fields: [personId], references: [id], onDelete: Cascade)
+  person    Person  @relation("PlatformGrantPerson", fields: [personId], references: [id], onDelete: Cascade)
   grantedBy Person? @relation("PlatformGrantIssuer", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
 
   @@unique([personId, capability])
@@ -543,9 +551,9 @@ model Project {
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
-  business           Business?           @relation(fields: [businessId], references: [id])
-  workspace          Workspace           @relation(fields: [workspaceId], references: [id])
-  pic                Person?             @relation("ProjectPic", fields: [picPersonId], references: [id])
+  business           Business?                @relation(fields: [businessId], references: [id])
+  workspace          Workspace                @relation(fields: [workspaceId], references: [id])
+  pic                Person?                  @relation("ProjectPic", fields: [picPersonId], references: [id])
   workstreams        Workstream[]
   repositories       ProjectRepository[]
   files              ProjectFile[]
@@ -555,6 +563,7 @@ model Project {
   goalLinks          ProjectGoal[]
   planImportReceipts PlanImportReceipt[]
   teams              ProjectTeam[]
+  assetAllocations   AssetProjectAllocation[]
 
   @@index([businessId])
   @@index([workspaceId])
@@ -731,11 +740,12 @@ model Workstream {
   updatedAt               DateTime  @updatedAt
   version                 Int       @default(1)
 
-  project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  containers WorkContainer[]
-  items      WorkItem[]
-  milestones Milestone[]
-  gates      Gate[]
+  project          Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  containers       WorkContainer[]
+  items            WorkItem[]
+  milestones       Milestone[]
+  gates            Gate[]
+  assetAllocations AssetProjectAllocation[]
 
   @@index([projectId])
   @@index([executionMode])
@@ -999,11 +1009,12 @@ model FileAsset {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  tenant   Tenant     @relation(fields: [tenantId], references: [id])
-  business Business   @relation(fields: [businessId], references: [id])
-  project  Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  workItem WorkItem?  @relation(fields: [workItemId], references: [id], onDelete: SetNull)
-  links    FileLink[]
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+  business      Business        @relation(fields: [businessId], references: [id])
+  project       Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  workItem      WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  links         FileLink[]
+  assetEvidence AssetEvidence[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -1026,6 +1037,282 @@ model FileLink {
 
   @@unique([fileId, entityType, entityId, relationType])
   @@index([entityType, entityId])
+}
+
+// @req FR-133 — physical identity and lifecycle root; never FileAsset content.
+// @req FR-135 — current pointers never replace the temporal child histories.
+// @spec SDD-078, SDD-080, BR-023, SEC-023, ADR-055
+// @tested tests/unit/asset-management-schema-contract.test.js
+model RegisteredAsset {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  intakeId          String?   @unique
+  lotId             String?
+  assetCode         String
+  name              String
+  categoryCode      String
+  description       String?
+  brand             String?
+  model             String?
+  serialNumber      String?
+  status            String    @default("ACTIVE")
+  condition         String    @default("GOOD")
+  acquisitionAmount String?
+  currency          String?
+  receivedOn        DateTime?
+  registeredAt      DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  tenant                 Tenant                       @relation(fields: [tenantId], references: [id])
+  business               Business                     @relation(fields: [businessId], references: [id])
+  intake                 AssetIntake?                 @relation(fields: [intakeId], references: [id], onDelete: SetNull)
+  lot                    AssetLot?                    @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  evidence               AssetEvidence[]
+  procurementRefs        AssetProcurementRef[]
+  responsibilities       AssetResponsibility[]
+  locations              AssetLocationHistory[]
+  projectAllocations     AssetProjectAllocation[]
+  depreciationCandidates AssetDepreciationCandidate[]
+
+  @@unique([businessId, assetCode])
+  @@index([tenantId, businessId, status])
+  @@index([businessId, serialNumber])
+  @@index([lotId])
+}
+
+// @req FR-134 — source/channel and validation state for one converged envelope.
+// @spec SDD-079, BR-024, SEC-023, ADR-055
+model AssetIntake {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  intakeCode          String
+  schemaVersion       String
+  sourceChannel       String
+  sourceCorrelationId String
+  origin              String
+  status              String    @default("DRAFT")
+  pipelineRunId       String?
+  submittedByPersonId String?
+  submittedAt         DateTime?
+  approvedByPersonId  String?
+  approvedAt          DateTime?
+  version             Int       @default(1)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  tenant                 Tenant                       @relation(fields: [tenantId], references: [id])
+  business               Business                     @relation(fields: [businessId], references: [id])
+  registeredAsset        RegisteredAsset?
+  evidence               AssetEvidence[]
+  procurementRefs        AssetProcurementRef[]
+  depreciationCandidates AssetDepreciationCandidate[]
+
+  @@unique([businessId, intakeCode])
+  @@unique([businessId, sourceChannel, sourceCorrelationId])
+  @@index([tenantId, businessId, status])
+  @@index([pipelineRunId])
+}
+
+// @req FR-134 — Asset owns evidence role/review while FileAsset owns content.
+// @spec SDD-078, SDD-079, SEC-023
+model AssetEvidence {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  intakeId           String
+  registeredAssetId  String?
+  fileAssetId        String
+  role               String
+  status             String    @default("ACTIVE")
+  sha256             String?
+  paymentReference   String?
+  extractionJson     String    @default("{}")
+  reviewJson         String    @default("{}")
+  reviewedByPersonId String?
+  reviewedAt         DateTime?
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  intake          AssetIntake      @relation(fields: [intakeId], references: [id], onDelete: Cascade)
+  registeredAsset RegisteredAsset? @relation(fields: [registeredAssetId], references: [id], onDelete: SetNull)
+  fileAsset       FileAsset        @relation(fields: [fileAssetId], references: [id])
+
+  @@unique([intakeId, fileAssetId, role])
+  @@index([tenantId, businessId, status])
+  @@index([registeredAssetId])
+  @@index([businessId, sha256])
+  @@index([businessId, paymentReference])
+}
+
+// @req FR-134 — typed Asset-side references; Procurement remains the writer.
+// @spec SDD-078, BR-023, BR-024
+model AssetProcurementRef {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  intakeId          String
+  registeredAssetId String?
+  type              String
+  system            String
+  value             String
+  lineValue         String?
+  status            String    @default("UNRESOLVED")
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  intake          AssetIntake      @relation(fields: [intakeId], references: [id], onDelete: Cascade)
+  registeredAsset RegisteredAsset? @relation(fields: [registeredAssetId], references: [id], onDelete: SetNull)
+
+  @@unique([intakeId, type, system, value, lineValue])
+  @@index([tenantId, businessId, type])
+  @@index([registeredAssetId])
+}
+
+// @req FR-135 — controlled lot identity and expiry within one Business.
+// @spec SDD-078, SDD-080, BR-024
+model AssetLot {
+  id             String    @id @default(uuid())
+  tenantId       String
+  businessId     String
+  lotCode        String
+  manufacturedOn DateTime?
+  expiresOn      DateTime
+  status         String    @default("ACTIVE")
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  tenant   Tenant            @relation(fields: [tenantId], references: [id])
+  business Business          @relation(fields: [businessId], references: [id])
+  assets   RegisteredAsset[]
+
+  @@unique([businessId, lotCode])
+  @@index([tenantId, businessId, expiresOn])
+}
+
+// @req FR-135 — accountable/custodian/user roles are effective intervals.
+// @spec SDD-080, BR-023, SEC-023
+model AssetResponsibility {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  registeredAssetId String
+  role              String
+  personId          String
+  orgUnitSystem     String?
+  orgUnitRef        String?
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  acknowledgedAt    DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  registeredAsset RegisteredAsset @relation(fields: [registeredAssetId], references: [id], onDelete: Cascade)
+  person          Person          @relation(fields: [personId], references: [id])
+
+  @@index([tenantId, businessId, role])
+  @@index([registeredAssetId, role, effectiveTo])
+  @@index([personId, effectiveTo])
+}
+
+// @req FR-135 — Branch is referenced; physical detail and movement history are Asset-owned.
+// @spec SDD-080, BR-023, SEC-023
+model AssetLocationHistory {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  registeredAssetId String
+  branchId          String?
+  locationCode      String
+  locationName      String
+  isPrimary         Boolean   @default(true)
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  registeredAsset RegisteredAsset @relation(fields: [registeredAssetId], references: [id], onDelete: Cascade)
+  branch          Branch?         @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, businessId, effectiveTo])
+  @@index([registeredAssetId, isPrimary, effectiveTo])
+  @@index([branchId])
+}
+
+// @req FR-135 — Asset owns the effective allocation; Project Inventory reads a projection.
+// @spec SDD-080, BR-023, SEC-023, ADR-034
+model AssetProjectAllocation {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  registeredAssetId String
+  projectId         String
+  workstreamId      String?
+  quantity          Float     @default(1)
+  exclusive         Boolean   @default(true)
+  status            String    @default("ACTIVE")
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  registeredAsset RegisteredAsset @relation(fields: [registeredAssetId], references: [id], onDelete: Cascade)
+  project         Project         @relation(fields: [projectId], references: [id])
+  workstream      Workstream?     @relation(fields: [workstreamId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, businessId, status])
+  @@index([registeredAssetId, exclusive, effectiveTo])
+  @@index([projectId, effectiveTo])
+  @@index([workstreamId])
+}
+
+// @req FR-136 — versioned deterministic preview; never an accounting posting.
+// @spec SDD-080, NFR-021, BR-023, ADR-055
+model AssetDepreciationCandidate {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  intakeId           String?
+  registeredAssetId  String?
+  method             String
+  acquisitionAmount  String
+  residualValue      String
+  currency           String
+  usefulLifeMonths   Int
+  startDate          DateTime
+  calculationVersion String
+  scheduleJson       String
+  status             String    @default("PREVIEW")
+  reviewedByPersonId String?
+  reviewedAt         DateTime?
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  intake          AssetIntake?     @relation(fields: [intakeId], references: [id], onDelete: SetNull)
+  registeredAsset RegisteredAsset? @relation(fields: [registeredAssetId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, businessId, status])
+  @@index([intakeId])
+  @@index([registeredAssetId])
 }
 
 // FR-019 — Enterprise integration: a customer's own core id mapped onto our
@@ -1249,7 +1536,7 @@ model Conversation {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]
   analyses ConversationAnalysis[]
 
@@ -1287,18 +1574,18 @@ model Message {
 // @spec ADR-054 D3-D6, BR-001, SEC-005
 // @tested tests/integration/crm-conversation-analysis.test.js
 model ConversationAnalysis {
-  id            String   @id @default(uuid())
+  id             String   @id @default(uuid())
   conversationId String
-  analyzedDate  DateTime
-  analyzedAt    DateTime @default(now())
-  contactType   String
-  state         String
-  cta           String?
-  tags          String
-  summary       String
-  rawOutputJson String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  analyzedDate   DateTime
+  analyzedAt     DateTime @default(now())
+  contactType    String
+  state          String
+  cta            String?
+  tags           String
+  summary        String
+  rawOutputJson  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 

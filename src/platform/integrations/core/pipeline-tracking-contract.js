@@ -35,6 +35,24 @@ export const PIPELINE_STAGE_CATALOG = Object.freeze([
 export const KNOWLEDGE_INGESTION_DEFINITION_ID = 'DPL-KNOWLEDGE-INGEST-V1'
 export const KNOWLEDGE_INGESTION_CONTRACT_ID = 'EXC-KNOWLEDGE-INGEST-V1'
 
+// @req FR-134 — Asset intake shares the definition-neutral execution ledger,
+// but its definition/contract/stages never alias either knowledge pipeline.
+// @spec SDD-079, ADR-030, ADR-055
+// @tested tests/unit/asset-management-pipeline-contract.test.js
+export const ASSET_REGISTER_IMPORT_DEFINITION_ID = 'DPL-ASSET-REGISTER-IMPORT-V1'
+export const ASSET_REGISTER_IMPORT_CONTRACT_ID = 'EXC-ASSET-REGISTER-IMPORT-V1'
+export const ASSET_REGISTER_IMPORT_STAGE_CATALOG = Object.freeze([
+  { sequence: 10, pipelineStageId: 'DPS-AM-INTAKE', label: 'Receive immutable Asset intake envelope' },
+  { sequence: 20, pipelineStageId: 'DPS-AM-EVIDENCE-GUARD', label: 'Inspect evidence type, size and availability' },
+  { sequence: 30, pipelineStageId: 'DPS-AM-EXTRACT-CANDIDATES', label: 'Extract OCR or Vision candidates' },
+  { sequence: 40, pipelineStageId: 'DPS-AM-NORMALIZE', label: 'Normalize candidate fields and references' },
+  { sequence: 50, pipelineStageId: 'DPS-AM-SCOPE-REFERENCE-VALIDATE', label: 'Validate trusted scope and typed references' },
+  { sequence: 60, pipelineStageId: 'DPS-AM-RECONCILE', label: 'Detect duplicate and conflicting evidence' },
+  { sequence: 70, pipelineStageId: 'DPS-AM-HUMAN-CONFIRM', label: 'Capture human confirmation and correction' },
+  { sequence: 80, pipelineStageId: 'DPS-AM-APPROVAL', label: 'Record approval decision and evidence' },
+  { sequence: 90, pipelineStageId: 'DPS-AM-APPLY', label: 'Apply Asset truth transactionally' },
+])
+
 /**
  * FR-109's seventeen stages, in the sequence its feature note fixes.
  *
@@ -117,6 +135,10 @@ export const PIPELINE_DEFINITIONS = Object.freeze({
   [KNOWLEDGE_INGESTION_DEFINITION_ID]: Object.freeze({
     executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
     catalog: KNOWLEDGE_INGESTION_STAGE_CATALOG,
+  }),
+  [ASSET_REGISTER_IMPORT_DEFINITION_ID]: Object.freeze({
+    executionContractId: ASSET_REGISTER_IMPORT_CONTRACT_ID,
+    catalog: ASSET_REGISTER_IMPORT_STAGE_CATALOG,
   }),
 })
 

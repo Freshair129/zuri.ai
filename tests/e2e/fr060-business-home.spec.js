@@ -26,7 +26,8 @@ test.describe('FR-060 Business Home', () => {
     // The composite must say what it covers rather than implying it covers all.
     // The coverage phrase appears in the caption, the score line and the briefing —
     // all three are deliberate, so assert presence rather than uniqueness.
-    await expect(page.getByText(/of 7 domains/).first()).toBeVisible()
+    // @req FR-133 — Asset Management is the ninth non-Home domain slot.
+    await expect(page.getByText(/of 9 domains/).first()).toBeVisible()
 
     await page.screenshot({ path: 'output/playwright/fr060-business-home.png', fullPage: true })
   })

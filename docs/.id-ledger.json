@@ -108,6 +108,8 @@
     "BR-020",
     "BR-021",
     "BR-022",
+    "BR-023",
+    "BR-024",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -240,6 +242,10 @@
     "FR-130",
     "FR-131",
     "FR-132",
+    "FR-133",
+    "FR-134",
+    "FR-135",
+    "FR-136",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -260,6 +266,7 @@
     "NFR-018",
     "NFR-019",
     "NFR-020",
+    "NFR-021",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -337,6 +344,9 @@
     "SDD-075",
     "SDD-076",
     "SDD-077",
+    "SDD-078",
+    "SDD-079",
+    "SDD-080",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -359,6 +369,7 @@
     "SEC-020",
     "SEC-021",
     "SEC-022",
+    "SEC-023",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -373,6 +384,7 @@
     "FEAT-012",
     "FEAT-013",
     "FEAT-014",
+    "FEAT-015",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -515,6 +527,7 @@
     "ADR-052",
     "ADR-053",
     "ADR-054",
+    "ADR-055",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -522,7 +535,8 @@
     "ZV2-CR-005",
     "ZV2-CR-006",
     "ZV2-CR-007",
-    "ZV2-CR-008"
+    "ZV2-CR-008",
+    "ZV2-CR-009"
   ],
   "ids": {
     "BR-001": {
@@ -809,6 +823,32 @@
         {
           "anchor": "a knowledge object that fails a stage is quarantined with",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-023": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b0fbebcadd042b957483efa352cdcecec3871b50f6aa96bf7e692eedbbd06d40",
+      "history": [
+        {
+          "anchor": "asset truth has one writer",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-024": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d82562975a3e5ace0113cf87316f0362bb8dc2b29d184d73af23c3b729204cf7",
+      "history": [
+        {
+          "anchor": "a procurement origin asset cannot be approved without both",
+          "since": "2026-09-01",
           "reason": "declared"
         }
       ]
@@ -2541,6 +2581,58 @@
         }
       ]
     },
+    "FR-133": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dd56a240ad5bb08f7789f36fd5560450783567de73c5d5d5511b8160b9f8eb42",
+      "history": [
+        {
+          "anchor": "asset management domain and physical register foundation",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-134": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bd8c147351b99c692ce8f4d4b5274a2f6ff879b364737a641ca085d9fd76df03",
+      "history": [
+        {
+          "anchor": "multi surface asset intake and evidence validation",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-135": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9749c5ba908b27b7187b8b36cfb558151311120f9e294f591b2182b3ec7d4d1a",
+      "history": [
+        {
+          "anchor": "temporal responsibility location lot and project allocation",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-136": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "845a282b6f08e4a93c83ee2bdb78582dc5b4df9e16e32a46582c913dbe5d7ba9",
+      "history": [
+        {
+          "anchor": "asset depreciation candidate",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -2797,6 +2889,19 @@
         {
           "anchor": "every knowledge ingestion stage emits per stage and",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-021": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "af769d812b288f239330bea93a290fb207e52c2fe01fc9e0d5602e868ccabaa4",
+      "history": [
+        {
+          "anchor": "asset intake and calculations are deterministic replay safe",
+          "since": "2026-09-01",
           "reason": "declared"
         }
       ]
@@ -3818,6 +3923,45 @@
         }
       ]
     },
+    "SDD-078": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e29e093ee000d8d98ca6d89abc4de6e76effacf08940e5dfc31ae5a9f915ee56",
+      "history": [
+        {
+          "anchor": "physical asset identity is separate from content identity",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-079": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "57fe9464e6aa7935effccb651230657ced25da09c5edf8acfddd1d5335e74cae",
+      "history": [
+        {
+          "anchor": "all asset intake surfaces converge on one strict envelope",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-080": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4c544dc98d3bc0ec7b02b91daa8b4615a0aaf9c5bf34015b1baaafc24e106e67",
+      "history": [
+        {
+          "anchor": "responsibility location and project use are temporal owned",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4114,6 +4258,19 @@
       "statement_digest_reviewed_at": "2026-08-30",
       "statement_digest_reason": "Reviewed the approved local reaper implementation and tests: only the obsolete maintenance-absence statement changes; the plugin security subject, replay guarantee and production activation gates remain unchanged."
     },
+    "SEC-023": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a4e332b6565399a00fc8c9eb82013f4e8b8f07cbb344599a50d7b663b6fc0851",
+      "history": [
+        {
+          "anchor": "asset intake fails closed before evidence parsing or entity",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -4292,6 +4449,19 @@
         {
           "anchor": "crm conversation intelligence",
           "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-015": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6283f1ffa2ff7b721ef4a2395c05b9b932c8d4fede581c67f32faae63c027c8f",
+      "history": [
+        {
+          "anchor": "asset management foundation",
+          "since": "2026-09-01",
           "reason": "declared"
         }
       ]
@@ -6152,6 +6322,19 @@
         }
       ]
     },
+    "ADR-055": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "5b86124649b95edebb0160533339399531e87315e0c1be1aca5385ea51d5f567",
+      "history": [
+        {
+          "anchor": "asset management is a first class zuri domain for the",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
     "ZV2-CR-001": {
       "family": "ZV2-CR",
       "source": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
@@ -6255,6 +6438,19 @@
         }
       ],
       "statement_digest": "56b038f6b5392a535afb3ce56f0c85a19d2007889b2c2b121807f78db1110cbb"
+    },
+    "ZV2-CR-009": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md",
+      "status": "current",
+      "statement_digest": "c727cf84dc736f65ff5f7f456bd1481eae89894fc40b32fef49887578ce1bfaf",
+      "history": [
+        {
+          "anchor": "asset management domain delivery",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
     }
   },
   "statement_digest_version": 1,
