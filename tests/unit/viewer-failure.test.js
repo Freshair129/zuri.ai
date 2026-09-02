@@ -79,20 +79,26 @@ describe('every viewer-reacting guard/page imports the shared classifier', () =>
     'src/app/(entry)/waiting-room/page.jsx',
     'src/app/(entry)/workspace-home/page.jsx',
     'src/app/(entry)/onboarding/profile/page.jsx',
+    'src/lib/platform-control-guard.js',
+    'src/components/layouts/PlatformControlGuard.jsx',
   ]
 
   it.each(CONSUMERS)('%s imports something from the shared viewer-failure module', (path) => {
     const source = readFileSync(fromRoot(path), 'utf8')
-    // business-shell-guard.js lives in src/lib itself and uses the relative
-    // form (`./viewer-failure`); every other consumer uses the `@/lib` alias.
+    // The lib files live in src/lib itself and use the relative form
+    // (`./viewer-failure`); every other consumer uses the `@/lib` alias.
     expect(source).toMatch(/from ['"](?:@\/lib\/viewer-failure|\.\/viewer-failure)['"]/)
   })
 
-  // business-shell-guard.js and the four entry pages call the classifier
-  // directly; BusinessShellGuard.jsx delegates classification to
-  // business-shell-guard.js and only needs the shared Thai copy — it still
-  // must import the module (checked above), just not this specific export.
-  const DIRECT_CLASSIFIERS = CONSUMERS.filter((path) => path !== 'src/components/layouts/BusinessShellGuard.jsx')
+  // business-shell-guard.js, platform-control-guard.js and the four entry
+  // pages call the classifier directly; BusinessShellGuard.jsx and
+  // PlatformControlGuard.jsx delegate classification to their respective lib
+  // (business-shell-guard.js / platform-control-guard.js) and only need the
+  // shared Thai copy — they still must import the module (checked above),
+  // just not this specific export.
+  const DIRECT_CLASSIFIERS = CONSUMERS.filter(
+    (path) => path !== 'src/components/layouts/BusinessShellGuard.jsx' && path !== 'src/components/layouts/PlatformControlGuard.jsx'
+  )
 
   it.each(DIRECT_CLASSIFIERS)('%s calls classifyViewerFailure directly', (path) => {
     const source = readFileSync(fromRoot(path), 'utf8')

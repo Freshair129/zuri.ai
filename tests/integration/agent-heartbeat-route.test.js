@@ -237,6 +237,14 @@ describe('Edge device heartbeat route (FR-141, real session + real Membership ro
       expect((await get(`?businessId=${businessB.id}`, sessionCookieFor(ownerA.id))).status).toBe(403)
     })
 
+    it('treats a present-but-empty ?businessId= as a validation error, never as "no narrowing"', async () => {
+      const res = await get('?businessId=', sessionCookieFor(ownerA.id))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toBe('Validation failed')
+      expect(body.issues.join(' ')).toMatch(/businessId/)
+    })
+
     it('never returns a viewerId — identity is implicit in the owned scope, not echoed back', async () => {
       await post(heartbeat(), sessionCookieFor(ownerA.id))
       const body = await (await get('', sessionCookieFor(ownerA.id))).json()
@@ -295,6 +303,17 @@ describe('Edge device heartbeat route (FR-141, real session + real Membership ro
 
       const bList = await (await get('', sessionCookieFor(ownerB.id))).json()
       expect(bList.devices.some((d) => d.deviceId === deviceInB)).toBe(true)
+    })
+
+    it('treats a present-but-empty ?deviceId= / ?businessId= as a validation error, not "clear everything"', async () => {
+      const deviceId = newId('DEV-KEEP')
+      await post(heartbeat({ deviceId }), sessionCookieFor(ownerA.id))
+
+      expect((await del('?deviceId=', sessionCookieFor(ownerA.id))).status).toBe(400)
+      expect((await del('?businessId=', sessionCookieFor(ownerA.id))).status).toBe(400)
+
+      const list = await (await get('', sessionCookieFor(ownerA.id))).json()
+      expect(list.devices.some((d) => d.deviceId === deviceId)).toBe(true)
     })
   })
 })

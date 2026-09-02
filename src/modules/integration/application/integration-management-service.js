@@ -217,7 +217,12 @@ export async function createPhase1Integration(input, { db = prisma, resolve } = 
       : null
 
     await recordAudit(tx, {
-      entityType: 'INTEGRATION_CONNECTION',
+      // PascalCase model name — matches line-registry-service.js's audits for
+      // the same IntegrationConnection model (and api-access-auth.js /
+      // plugin-auth's `entityType: 'ApiAccessKey'` convention). This value
+      // used to be the SCREAMING_SNAKE_CASE 'INTEGRATION_CONNECTION', which
+      // split one model's audit trail into two entityType spellings.
+      entityType: 'IntegrationConnection',
       entityId: connection.id,
       action: 'PHASE1_METADATA_CREATED',
       actorId: viewer.principal?.id ?? null,
