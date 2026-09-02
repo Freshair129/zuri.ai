@@ -541,6 +541,7 @@
     "ADR-054",
     "ADR-055",
     "ADR-056",
+    "ADR-057",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -6513,6 +6514,19 @@
       "history": [
         {
           "anchor": "asset evidence cloud and extraction boundary",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-057": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "f100d1a19a4e57e7716327ad8dd343cbc293d2bb6ac29ee63d531c75bf680cde",
+      "history": [
+        {
+          "anchor": "asset evidence production deployment and migration boundary",
           "since": "2026-09-02",
           "reason": "declared"
         }

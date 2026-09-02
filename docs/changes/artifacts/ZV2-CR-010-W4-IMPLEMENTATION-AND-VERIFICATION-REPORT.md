@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-02T11:05:00+07:00,RWANG"
-last_update: "2026-09-02T11:20:00+07:00,RWANG"
+last_update: "2026-09-02T12:31:04+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -30,7 +30,8 @@ posting was added.
 - trusted LINE handoff that accepts opaque staged `FileAsset` IDs and no client scope,
   token, secret or attachment URL;
 - nine additive API paths, OpenAPI inventory and `/assets/receiving` UI;
-- additive SQLite/Postgres schema parity and migration.
+- additive SQLite/Postgres Prisma model parity plus the local SQLite Prisma migration;
+  this W4 did not prove or apply a Supabase production migration.
 
 ## Verification evidence
 
@@ -66,6 +67,11 @@ The production build performs the final syntax, lint and type gate.
 
 These are deployment/provider gates, not hidden local completion claims.
 
+CR-016 and ADR-057 now govern the separate production activation. They add the
+Supabase migration/env/runbook/receipt artifacts and require explicit target identity,
+remote ledger inventory, a synthetic real-provider canary and promotion evidence.
+Until those remote gates pass, this W4 remains the historical local-beta report.
+
 ## Delivery commit
 
 The verified implementation, source documents and generated projections were committed
@@ -79,3 +85,4 @@ runtime behavior.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Recorded Phase 4 implementation, full verification and remaining operational gates | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Bound W4 evidence to the exact verified implementation commit | a010f5d4897cc874a8614e303c8a5c196b9e2efe | RWANG |
+| 0.2.1b | 2026-09-02 | beta | Clarified model/local-migration evidence and linked the separate CR-016 production gate | working-tree | RWANG |

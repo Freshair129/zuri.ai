@@ -3,20 +3,20 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1623,
-    "total_edges": 5624,
+    "total_nodes": 1627,
+    "total_edges": 5631,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 145,
-      "adr": 56,
+      "document": 147,
+      "adr": 57,
       "domain": 9,
       "roadmap": 35,
       "feature": 16,
       "route": 173,
       "model": 80,
       "requirement": 295,
-      "test": 378,
+      "test": 379,
       "code_file": 432
     },
     "coverage": {
@@ -56,9 +56,11 @@
   },
   "drift": {
     "changed": [
+      "doc:CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
       "doc:README",
-      "doc:ZV2-CR-010-W4-IMPLEMENTATION-AND-VERIFICATION-REPORT",
-      "doc:CONTEXT-MAP"
+      "spec:ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY",
+      "doc:CONTEXT-MAP",
+      "test:tests/unit/asset-production-activation-contract.test.js"
     ],
     "added": [],
     "removed": []
@@ -8909,6 +8911,14 @@
       "status": "current"
     },
     {
+      "id": "doc:ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
+      "type": "document",
+      "path": "docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
+      "title": "Asset Evidence Production Activation Runbook",
+      "hash": "8ef5935d",
+      "status": "current"
+    },
+    {
       "id": "doc:B-db-schema",
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
@@ -9011,8 +9021,16 @@
       "type": "document",
       "path": "docs/change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md",
       "title": "CR-015 — Asset Evidence Intake Execution",
-      "hash": "2f99da62",
+      "hash": "8c0db4d2",
       "status": "current"
+    },
+    {
+      "id": "doc:CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
+      "type": "document",
+      "path": "docs/change-requests/CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
+      "title": "CR-016 — Asset Evidence Production Activation",
+      "hash": "aad8e515",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -10452,8 +10470,8 @@
       "type": "document",
       "path": "docs/changes/artifacts/ZV2-CR-010-W4-IMPLEMENTATION-AND-VERIFICATION-REPORT.md",
       "title": "ZV2-CR-010 — W4 Implementation and Verification Report",
-      "hash": "ce915988",
-      "status": "changed"
+      "hash": "81c199fb",
+      "status": "current"
     },
     {
       "id": "domain:agent",
@@ -16005,6 +16023,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md",
+      "title": "ADR-057 — Asset Evidence Production Deployment and Migration Boundary",
+      "hash": "55535bfe",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -16864,6 +16890,13 @@
       "path": "tests/unit/asset-management-schema-contract.test.js",
       "hash": "9bd787d1",
       "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-production-activation-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-production-activation-contract.test.js",
+      "hash": "4bb78d36",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/audit-page.test.js",
@@ -46444,6 +46477,55 @@
     },
     {
       "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-139",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
+      "to": "req:FR-140",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-production-activation-contract.test.js",
       "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
