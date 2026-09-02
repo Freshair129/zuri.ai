@@ -11,7 +11,7 @@ import {
 
 export const HUMAN_PLAN_GENERATOR = 'zuri-v2 UI plan builder'
 
-function slug(value, maxLength = 18) {
+export function slug(value, maxLength = 18) {
   const normalized = String(value || '')
     .normalize('NFKD')
     .replace(/[^\w\s-]/g, '')
@@ -23,7 +23,7 @@ function slug(value, maxLength = 18) {
   return normalized || 'X'
 }
 
-function uniqueCode(prefix, value, usedCodes, suffix) {
+export function uniqueCode(prefix, value, usedCodes, suffix) {
   const base = `${prefix}-${slug(value)}`
   let code = `${base}-${suffix}`
   let counter = 2
