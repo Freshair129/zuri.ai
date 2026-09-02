@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
-import { seesBusiness } from '@/modules/identity/viewer-authority'
+import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
+import { recordAudit } from '@/modules/project-manager/application/audit'
 import { translateRawRecordToMarketObservation } from './translate-raw-record'
 
 // Phase #76 application seam. Persistence is injected so the domain/application
@@ -12,6 +13,9 @@ import { translateRawRecordToMarketObservation } from './translate-raw-record'
 // @tested tests/unit/market-intelligence/market-observation-service.test.js,
 //   tests/unit/market-intelligence/market-observation-feed.test.js,
 //   tests/integration/market-intelligence-observation-feed.test.js,
+//   tests/unit/market-intelligence/market-translation-run.test.js,
+//   tests/unit/market-intelligence/market-translations-route.test.js,
+//   tests/integration/market-intelligence-translation-run.test.js,
 //   tests/integration/domain-visibility-server.test.js
 //
 // The read side (`getMarketObservationFeed`) is what makes `/market` a surface over
@@ -268,4 +272,154 @@ export async function getMarketObservationFeed(
     truncated: observations.length === limit,
     observations,
   }
+}
+
+// --- Production translation trigger (`POST /api/market/translations`) -------
+
+// Nothing before this point in the module's history ever *ran*
+// `loadTranslateAndPersistRawMarketRecord`/`translateAndPersistRawMarketRecord` outside
+// a test: the translation seam existed, but no route, job or worker called it, so a raw
+// record ingested through FR-081 stayed untranslated forever unless a human ran code by
+// hand. This is that trigger — an explicit, owner-initiated run over one Business's
+// already-ingested `MARKET_INTELLIGENCE` backlog. It stays a *trigger*, not a scheduler
+// or a new acquisition path: it reads raw evidence Integration already stored, and it
+// still writes only through the same `translateAndPersistRawMarketRecord` this file has
+// had since #76.
+
+export const MARKET_TRANSLATION_RUN_DEFAULT_LIMIT = 20
+export const MARKET_TRANSLATION_RUN_MAX_LIMIT = 100
+// How much wider than the requested `limit` the candidate scan looks before filtering
+// out already-translated raw records. Some of the scanned candidates will already have
+// an observation (from an earlier run); the multiplier keeps this run's actual
+// translation count close to what the caller asked for instead of silently returning
+// fewer whenever the front of the backlog is already translated.
+const MARKET_TRANSLATION_SCAN_MULTIPLIER = 5
+
+export const zMarketTranslationRunInput = z.object({
+  businessId: trimmedId,
+  limit: optionalLimit,
+}).strict()
+
+export function parseMarketTranslationRunInput(body = {}) {
+  const parsed = zMarketTranslationRunInput.parse(body)
+  return {
+    businessId: parsed.businessId,
+    limit: Math.min(parsed.limit ?? MARKET_TRANSLATION_RUN_DEFAULT_LIMIT, MARKET_TRANSLATION_RUN_MAX_LIMIT),
+  }
+}
+
+/**
+ * Translate one Business's untranslated `MARKET_INTELLIGENCE` raw backlog.
+ *
+ * A translation run is a write — it persists `MarketObservation` rows — so this is
+ * gated on `ownsBusiness`, not `seesBusiness` (BR-001/SEC-001), and an existing-but-
+ * unowned Business is refused with the identical 404 a nonexistent one gets: a caller
+ * cannot use the response to learn the Business exists (FR-072 disclosure discipline —
+ * see tests/integration/fr072-refusal-disclosure.test.js).
+ *
+ * `extractCandidate` is required exactly as it is in `translateAndPersistRawMarketRecord`
+ * — this function does not invent a default. `knowledgeResolver` stays optional and, per
+ * the translator's own contract, an absent one is a truthful UNRESOLVED for every row
+ * this run creates, never a thrown error and never a fabricated canonical identity
+ * (fail-closed by construction; see `translate-raw-record.js` and its tests).
+ *
+ * @param {object} args    viewer + businessId + limit
+ * @param {object} deps    db, repository factories and translation ports, injected —
+ *   this module imports neither Prisma nor a concrete extractor/resolver, so the
+ *   composition root (the route handler) stays the only place that decides which
+ *   production ports are wired in.
+ * @returns {Promise<{translated: number, unchanged: number, failed: {rawRecordId: string, reason: string}[]}>}
+ */
+export async function runMarketTranslationForBusiness(
+  { viewer, businessId, limit = MARKET_TRANSLATION_RUN_DEFAULT_LIMIT } = {},
+  {
+    db,
+    createRepository,
+    listCandidates,
+    extractCandidate,
+    knowledgeResolver,
+    translationSchemaVersion,
+    now,
+  } = {},
+) {
+  if (!db?.business?.findUnique) throw new Error('a Prisma client with a Business model is required')
+  if (typeof createRepository !== 'function') {
+    throw new Error('a MarketObservation repository factory is required')
+  }
+  if (typeof listCandidates !== 'function') {
+    throw new Error('a raw-record candidate reader is required')
+  }
+  if (typeof extractCandidate !== 'function') {
+    throw new Error('market extractCandidate port is required')
+  }
+
+  // Loaded before the ownership check so an existing-but-unowned Business and a
+  // fabricated id answer with the exact same message — the same order
+  // `assertBusinessWritable` (project-manager/application/project-authorization.js)
+  // uses for the same reason.
+  const business = await db.business.findUnique({
+    where: { id: businessId },
+    select: { id: true, tenantId: true },
+  })
+  if (!business) throw denied(404, 'Business not found')
+  // FR-061/062 — the market domain gate runs before the ownership gate, so a
+  // Membership never granted Market Intelligence learns nothing from the
+  // ownership refusal; both are 404-shaped ('Business not found').
+  assertDomainVisible(viewer, businessId, 'market')
+  if (!ownsBusiness(viewer, businessId)) throw denied(404, 'Business not found')
+
+  const repository = createRepository(db, { tenantId: business.tenantId, businessId: business.id })
+  if (typeof repository?.findTranslatedRawRecordIds !== 'function') {
+    throw new Error('MarketObservation repository must support findTranslatedRawRecordIds')
+  }
+
+  const scanLimit = Math.min(limit * MARKET_TRANSLATION_SCAN_MULTIPLIER, MARKET_TRANSLATION_RUN_MAX_LIMIT * MARKET_TRANSLATION_SCAN_MULTIPLIER)
+  const candidates = await listCandidates(db, {
+    tenantId: business.tenantId,
+    businessId: business.id,
+    scanLimit,
+  })
+
+  const translatedIds = new Set(
+    candidates.length ? await repository.findTranslatedRawRecordIds(candidates.map((row) => row.id)) : [],
+  )
+  const eligible = candidates.filter((row) => !translatedIds.has(row.id)).slice(0, limit)
+
+  let translated = 0
+  let unchanged = 0
+  const failed = []
+
+  for (const rawRecord of eligible) {
+    try {
+      const result = await translateAndPersistRawMarketRecord(rawRecord, {
+        repository,
+        extractCandidate,
+        knowledgeResolver,
+        translationSchemaVersion,
+        now,
+      })
+      if (result.status === 'CREATED') translated += 1
+      else unchanged += 1
+    } catch (error) {
+      failed.push({ rawRecordId: rawRecord.id, reason: error?.message || 'Unknown error' })
+    }
+  }
+
+  // One audit event per run, never per row — the counts are the record; raw candidate
+  // payloads are never written to the audit log (SEC-003 minimal-disclosure spirit).
+  await recordAudit(db, {
+    entityType: 'MarketObservation',
+    entityId: business.id,
+    action: 'MARKET_TRANSLATION_RUN',
+    payload: {
+      businessId: business.id,
+      candidates: candidates.length,
+      eligible: eligible.length,
+      translated,
+      unchanged,
+      failed: failed.length,
+    },
+  })
+
+  return { translated, unchanged, failed }
 }
