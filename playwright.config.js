@@ -30,6 +30,21 @@ function resolveChromium() {
       }
     }
   } catch {}
+  // Last resort — 2026-09-02: a machine with NO ms-playwright directory at all
+  // (browsers never downloaded) still usually has a stable Chrome or Edge, and
+  // Playwright can drive either through CDP. Without this, every spec fails with
+  // "Executable doesn't exist" before a single page is opened, which reads as
+  // 87 product failures instead of one missing download. ZURI_E2E_BROWSER pins
+  // an explicit executable when the guess below is wrong.
+  const explicit = process.env.ZURI_E2E_BROWSER
+  if (explicit && fs.existsSync(explicit)) return explicit
+  const programFiles = [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA].filter(Boolean)
+  for (const base of programFiles) {
+    for (const rel of ["Google/Chrome/Application/chrome.exe", "Microsoft/Edge/Application/msedge.exe"]) {
+      const exe = path.join(base, rel)
+      if (fs.existsSync(exe)) return exe
+    }
+  }
   return undefined
 }
 
