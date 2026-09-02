@@ -128,8 +128,14 @@ export default function IntegrationsPage() {
   }, [businesses, targetBusinessId, currentBusiness])
 
   const businessId = selectedBusiness?.id || currentBusiness?.id || ''
-  const tenantId = selectedBusiness?.tenant?.id || '77cdbe70-3111-4a04-922a-8059be99a8b0'
-  const tenantCode = selectedBusiness?.tenant?.code || 'TNT-ETOHGROUP'
+  // Derived from the active Business only. These used to fall back to one real
+  // production Tenant's UUID and code, so an operator with no Business selected
+  // — or one whose Business belongs to another Tenant — was shown, and could
+  // copy, a scope that is not theirs (D3-integration-knowledge-document-intake-21).
+  // No Business selected is an empty state, not somebody else's tenant.
+  const tenantId = selectedBusiness?.tenant?.id || ''
+  const tenantCode = selectedBusiness?.tenant?.code || ''
+  const hasScope = Boolean(businessId && tenantId)
 
   // LINE Settings Sub-tabs: 'GROUPS' | 'USERS' | 'WEBHOOK'
   const [lineTab, setLineTab] = useState('GROUPS')
@@ -637,39 +643,45 @@ export default function IntegrationsPage() {
               </div>
             </div>
 
-            <div className="mt-2.5 grid grid-cols-2 gap-3 border-t border-[var(--border)]/60 pt-2.5 text-xs max-md:grid-cols-1">
-              <div className="flex items-center justify-between rounded bg-[var(--card)] px-2.5 py-1.5">
-                <span className="text-muted">Tenant ID (tntid):</span>
-                <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                  <span className="font-bold text-[var(--foreground)]">{tenantCode}</span>
-                  <span className="text-muted">({tenantId.slice(0, 8)}…)</span>
-                  <button
-                    type="button"
-                    className="text-muted hover:text-[var(--foreground)]"
-                    onClick={() => copyToClipboard('tenantId', tenantId)}
-                    title="Copy Full Tenant ID"
-                  >
-                    {copiedKey === 'tenantId' ? <Check size={12} className="text-[var(--success)]" /> : <Copy size={12} />}
-                  </button>
+            {hasScope ? (
+              <div className="mt-2.5 grid grid-cols-2 gap-3 border-t border-[var(--border)]/60 pt-2.5 text-xs max-md:grid-cols-1">
+                <div className="flex items-center justify-between rounded bg-[var(--card)] px-2.5 py-1.5">
+                  <span className="text-muted">Tenant ID (tntid):</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                    <span className="font-bold text-[var(--foreground)]">{tenantCode}</span>
+                    <span className="text-muted">({tenantId.slice(0, 8)}…)</span>
+                    <button
+                      type="button"
+                      className="text-muted hover:text-[var(--foreground)]"
+                      onClick={() => copyToClipboard('tenantId', tenantId)}
+                      title="Copy Full Tenant ID"
+                    >
+                      {copiedKey === 'tenantId' ? <Check size={12} className="text-[var(--success)]" /> : <Copy size={12} />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between rounded bg-[var(--card)] px-2.5 py-1.5">
-                <span className="text-muted">Business ID (busid):</span>
-                <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                  <span className="font-bold text-[var(--foreground)]">{selectedBusiness?.code || 'BUS-SMARTGIFT'}</span>
-                  <span className="text-muted">({businessId.slice(0, 8)}…)</span>
-                  <button
-                    type="button"
-                    className="text-muted hover:text-[var(--foreground)]"
-                    onClick={() => copyToClipboard('businessId', businessId)}
-                    title="Copy Full Business ID"
-                  >
-                    {copiedKey === 'businessId' ? <Check size={12} className="text-[var(--success)]" /> : <Copy size={12} />}
-                  </button>
+                <div className="flex items-center justify-between rounded bg-[var(--card)] px-2.5 py-1.5">
+                  <span className="text-muted">Business ID (busid):</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                    <span className="font-bold text-[var(--foreground)]">{selectedBusiness?.code || '—'}</span>
+                    <span className="text-muted">({businessId.slice(0, 8)}…)</span>
+                    <button
+                      type="button"
+                      className="text-muted hover:text-[var(--foreground)]"
+                      onClick={() => copyToClipboard('businessId', businessId)}
+                      title="Copy Full Business ID"
+                    >
+                      {copiedKey === 'businessId' ? <Check size={12} className="text-[var(--success)]" /> : <Copy size={12} />}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="mt-2.5 border-t border-[var(--border)]/60 pt-2.5 text-xs text-muted">
+                ยังไม่ได้เลือกธุรกิจ — เลือกธุรกิจก่อน จึงจะเห็นขอบเขต Tenant/Business และทะเบียน LINE
+              </div>
+            )}
           </div>
 
           {/* Sub-tabs */}
@@ -903,7 +915,7 @@ export default function IntegrationsPage() {
           {lineTab === 'GROUPS' && (
             <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
               <Card>
-                <SectionTitle caption={`ผูกกับธุรกิจ: ${selectedBusiness?.name || 'SmartGift'} (tnt: ${tenantCode})`}>
+                <SectionTitle caption={`ผูกกับธุรกิจ: ${selectedBusiness?.name || '—'} (tnt: ${tenantCode || '—'})`}>
                   ลงทะเบียน LINE Group ใหม่
                 </SectionTitle>
                 <form onSubmit={submitLineGroup} className="space-y-3">
@@ -1022,7 +1034,7 @@ export default function IntegrationsPage() {
                         <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] font-mono">
                           <div className="rounded bg-[var(--surface-muted)] px-2 py-1 flex items-center justify-between">
                             <span className="text-muted">tntid:</span>
-                            <span className="font-bold text-[var(--foreground)] truncate ml-1">{row.tenantCode || row.tenantId?.slice(0, 8) || 'TNT-ETOH'}</span>
+                            <span className="font-bold text-[var(--foreground)] truncate ml-1">{row.tenantCode || row.tenantId?.slice(0, 8) || '—'}</span>
                           </div>
                           <div className="rounded bg-[var(--surface-muted)] px-2 py-1 flex items-center justify-between">
                             <span className="text-muted">busid:</span>
@@ -1058,7 +1070,7 @@ export default function IntegrationsPage() {
           {lineTab === 'USERS' && (
             <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
               <Card>
-                <SectionTitle caption={`ผูกกับธุรกิจ: ${selectedBusiness?.name || 'SmartGift'} (tnt: ${tenantCode})`}>
+                <SectionTitle caption={`ผูกกับธุรกิจ: ${selectedBusiness?.name || '—'} (tnt: ${tenantCode || '—'})`}>
                   ลงทะเบียน LINE User / ทีมงานรายบุคคล
                 </SectionTitle>
                 <form onSubmit={submitLineUser} className="space-y-3">
@@ -1135,7 +1147,7 @@ export default function IntegrationsPage() {
                         <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] font-mono">
                           <div className="rounded bg-[var(--surface-muted)] px-2 py-1 flex items-center justify-between">
                             <span className="text-muted">tntid:</span>
-                            <span className="font-bold text-[var(--foreground)] truncate ml-1">{row.tenantCode || row.tenantId?.slice(0, 8) || 'TNT-ETOH'}</span>
+                            <span className="font-bold text-[var(--foreground)] truncate ml-1">{row.tenantCode || row.tenantId?.slice(0, 8) || '—'}</span>
                           </div>
                           <div className="rounded bg-[var(--surface-muted)] px-2 py-1 flex items-center justify-between">
                             <span className="text-muted">busid:</span>
