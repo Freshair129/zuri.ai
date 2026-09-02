@@ -19,9 +19,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
-  // @req FR-092 — Market Intelligence's first surface-reachable endpoint. GET only:
-  // the FR-092 translation seam is the sole writer of MarketObservation rows.
+  // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
+  // only; the only writer of MarketObservation rows is the owner-triggered
+  // production translation run below.
   ['/api/market/observations', ['GET']],
+  ['/api/market/translations', ['POST']],
   ['/api/dependencies', ['GET', 'POST']], ['/api/dependencies/{id}', ['DELETE']], ['/api/docs', ['GET']], ['/api/entry', ['GET']], ['/api/files', ['GET', 'POST']], ['/api/files/{id}', ['DELETE']],
   ['/api/files/{id}/content', ['GET']], ['/api/files/{id}/relink', ['POST']], ['/api/files/{id}/reveal', ['POST']], ['/api/files/cache/rebuild', ['POST']], ['/api/files/migrate', ['POST']], ['/api/files/mounts', ['GET', 'POST']], ['/api/files/reconcile', ['POST']],
   ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/import/bundle/commit', ['POST']], ['/api/import/bundle/dry-run', ['POST']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/ingest/documents', ['GET', 'POST']], ['/api/mcp', ['POST']],
