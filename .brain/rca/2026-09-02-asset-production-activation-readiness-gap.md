@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-02T12:19:45+07:00,RWANG"
-last_update: "2026-09-02T12:24:44+07:00,RWANG"
+last_update: "2026-09-02T12:39:30+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -105,8 +105,17 @@ deployable Asset migration artifact for that target.
 
 - No database, storage, Vercel project, secret or production alias was mutated.
 - The merged application remains at the verified local-beta boundary.
-- Production activation is blocked until CR-016 and ADR-057 are approved and the
-  intended Vercel/Supabase targets are authenticated.
+- At investigation time, production activation was blocked until CR-016/ADR-057
+  approval and authentication of the intended Vercel/Supabase targets.
+
+## Remediation status
+
+CR-016 and ADR-057 were approved. The missing repository-side Supabase migrations,
+environment contract, runbook, receipt validator and regression tests are implemented
+and locally verified. The remaining blocker is narrower: the intended Vercel and
+Supabase targets are still not authenticated or unambiguously visible to this operator
+context. Therefore remote inventory/apply/deploy/canary/promotion remain gated and no
+production mutation has occurred.
 
 ## CHANGELOG
 
@@ -114,3 +123,4 @@ deployable Asset migration artifact for that target.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | draft | Recorded the verified production-readiness gap and proposed prevention | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Owner approved the containment and remediation direction | working-tree | RWANG |
+| 0.3.0b | 2026-09-02 | beta | Recorded local remediation completion and narrowed the blocker to authenticated production targets | working-tree | RWANG |

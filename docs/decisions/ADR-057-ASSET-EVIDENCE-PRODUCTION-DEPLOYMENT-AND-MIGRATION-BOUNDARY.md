@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-02T12:19:45+07:00,RWANG"
-last_update: "2026-09-02T12:24:44+07:00,RWANG"
+last_update: "2026-09-02T12:39:30+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -16,6 +16,8 @@ attributes:
 
 **Status:** Accepted as beta by the owner on 2026-09-02. Implementation and
 production mutation may proceed only through the gates in this decision.
+The repository migration/env/runbook/receipt artifacts are locally verified; the
+remote target, apply, canary and promotion gates have not yet run.
 
 ## Context
 
@@ -152,3 +154,4 @@ Costs:
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | draft | Proposed the production target, migration, deployment and canary boundary | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Owner accepted the production deployment and migration boundary | working-tree | RWANG |
+| 0.2.1b | 2026-09-02 | beta | Recorded local artifact completion while keeping remote activation gated | working-tree | RWANG |

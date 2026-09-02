@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-02T12:19:45+07:00,RWANG"
-last_update: "2026-09-02T12:24:44+07:00,RWANG"
+last_update: "2026-09-02T12:39:30+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -121,9 +121,27 @@ recorded in the CR-015 W4 report and the RCA at
 The owner approved this CR together with ADR-057 on 2026-09-02. Implementation,
 verification and production activation may proceed under the gates in this document.
 
+## Repository implementation state
+
+The repository-side activation artifacts are implemented and locally GREEN:
+
+- two additive PostgreSQL/Supabase Asset migrations, including forced RLS and the
+  private 20 MiB evidence bucket;
+- explicit server environment names in `.env.example`;
+- an identity-to-rollback operator runbook and executable redacted-receipt validator;
+- 13 focused Asset files / 69 tests, PostgreSQL Prisma validation, full build,
+  documentation governance and Playwright verification.
+
+The full verification run passed 2,954 unit/integration tests, generated 45 static
+pages, reported 0 documentation criticals/warnings and passed 96 E2E tests. Remote
+target identity, backup/inventory, migration apply, protected deployment, real-provider
+canary and promotion remain `NOT_RUN`; no production system was mutated and this CR is
+not yet production-complete.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | draft | Proposed production activation gates for the verified local beta | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Owner approved the production activation gates for implementation | working-tree | RWANG |
+| 0.3.0b | 2026-09-02 | beta | Implemented and fully verified repository activation artifacts; remote production gates remain NOT_RUN | working-tree | RWANG |

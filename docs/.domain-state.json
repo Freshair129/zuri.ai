@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T05:25:23.176Z",
+  "generatedAt": "2026-09-02T05:42:35.353Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -360,7 +360,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "checks": {
@@ -529,14 +529,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-134",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-135",
@@ -557,28 +557,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-138",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-139",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-140",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "checks": {
@@ -1353,7 +1353,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "checks": {
@@ -2515,14 +2515,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-134",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-135",
@@ -2543,21 +2543,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-138",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-139",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "checks": {
@@ -3872,14 +3872,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-134",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-135",
@@ -3918,6 +3918,7 @@
         "tests/unit/asset-management-navigation.test.js",
         "tests/unit/asset-management-pipeline-contract.test.js",
         "tests/unit/asset-management-schema-contract.test.js",
+        "tests/unit/asset-production-activation-contract.test.js",
         "tests/unit/conversation-analysis-contract.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
@@ -3959,28 +3960,28 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-138",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-139",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-140",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
@@ -4013,7 +4014,8 @@
         "tests/unit/asset-evidence-intake-service-contract.test.js",
         "tests/unit/asset-evidence-route-schema-contract.test.js",
         "tests/unit/asset-evidence-storage-contract.test.js",
-        "tests/unit/asset-intake-adapters-contract.test.js"
+        "tests/unit/asset-intake-adapters-contract.test.js",
+        "tests/unit/asset-production-activation-contract.test.js"
       ]
     },
     {

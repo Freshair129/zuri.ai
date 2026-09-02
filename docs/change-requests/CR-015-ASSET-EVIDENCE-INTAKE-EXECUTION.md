@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-02T10:30:00+07:00,RWANG"
-last_update: "2026-09-02T11:05:00+07:00,RWANG"
+last_update: "2026-09-02T12:31:04+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -133,9 +133,17 @@ Implemented and fully verified as a local beta. The Supabase Storage and OpenAI
 adapters require server configuration, and this delivery does not claim a production
 migration, a real provider request or any behavior beyond `READY_FOR_REGISTRATION`.
 
+The owner-approved production activation is tracked separately by
+[`CR-016`](CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md) and
+[`ADR-057`](../decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md).
+That slice does not rewrite this local-beta delivery claim and may not declare
+production active until its target, migration, storage, provider, canary and promotion
+gates have all passed.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Recorded the owner-approved cloud evidence, extraction review, workbook/snapshot and trusted LINE execution slice | working-tree | RWANG |
 | 0.2.0b | 2026-09-02 | beta | Recorded local implementation and full verification while preserving deployment/provider gates | working-tree | RWANG |
+| 0.2.1b | 2026-09-02 | beta | Linked the separately governed CR-016 production activation without changing the local-beta boundary | working-tree | RWANG |
