@@ -19,7 +19,21 @@ audit. The PRD-SDD registry row for this id also carries a second clause —
 creates a single record directly (not a plan) is deliberately outside that
 pipeline's scope, not an exception to it.
 
-## Decision 2026-09-02: StandaloneTaskModal is FR-005 CRUD, not plan intake
+## Decision 2026-09-02 — superseded 2026-09-03
+
+> **Superseded.** PR #205 (`fix/create-task-envelope-intake`, merged in the same
+> integration as this note) routes the All Work **Create Task** modal through the
+> one PlanEnvelope pipeline with a per-Business inbox Project; that decision is
+> recorded in [FR-017-standalone-task-inbox.md](FR-017-standalone-task-inbox.md)
+> and is the one that stands. The reasoning below is kept as the record of the
+> alternative that was considered and rejected: it was correct that `POST /api/work`
+> is audited and FR-072-authorized, but the old modal attached a "standalone" task
+> to whichever Project happened to be first in the Business, in an ad-hoc
+> workstream the user never saw — a defect the CRUD reading left in place. BR-009
+> applies to every surface that *creates* work from user intent, and the modal is
+> one; edits to an existing item remain FR-005 CRUD.
+
+### The rejected reading (2026-09-02): StandaloneTaskModal as FR-005 CRUD
 
 Gap analysis finding **D3-pm-plan-intake-02** flagged that
 `src/modules/project-manager/components/StandaloneTaskModal.jsx` creates a

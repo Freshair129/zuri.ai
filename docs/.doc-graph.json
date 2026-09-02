@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1685,
-    "total_edges": 6124,
+    "total_nodes": 1689,
+    "total_edges": 6150,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 150,
+      "document": 151,
       "adr": 57,
       "domain": 9,
       "roadmap": 35,
@@ -16,8 +16,8 @@
       "route": 177,
       "model": 80,
       "requirement": 296,
-      "test": 413,
-      "code_file": 448
+      "test": 415,
+      "code_file": 449
     },
     "coverage": {
       "requirements": 296,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (131/131)",
       "rules_anchored_in_code": "95% (125/131)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 448,
+      "annotated_code_files": 449,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -58,9 +58,16 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "doc:ROADMAP"
+      "doc:FR-017-ui-wizard-plan-intake",
+      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "code:src/modules/project-manager/import/human-plan-builder.js"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-017-standalone-task-inbox",
+      "test:tests/integration/task-modal-intake.test.js",
+      "test:tests/unit/task-intake-modal.test.js",
+      "code:src/modules/project-manager/import/task-envelope.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -8224,8 +8231,8 @@
       "id": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "hash": "aac368f5",
-      "status": "current",
+      "hash": "f543fa8d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",
@@ -8233,11 +8240,15 @@
         ],
         "@spec": [
           "BR-004",
+          "BR-009",
+          "SDD-009",
           "SEC-001",
           "SDD-018"
         ],
         "@tested": [
-          "tests/unit/work-surface-scope-inventory.test.js"
+          "tests/unit/task-intake-modal.test.js",
+          "tests/unit/work-surface-scope-inventory.test.js",
+          "tests/integration/task-modal-intake.test.js"
         ]
       }
     },
@@ -8475,8 +8486,8 @@
       "id": "code:src/modules/project-manager/import/human-plan-builder.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/human-plan-builder.js",
-      "hash": "7b74d38d",
-      "status": "current",
+      "hash": "e9c40159",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-017",
@@ -8601,6 +8612,28 @@
         "@tested": [
           "tests/unit/plan-schema.test.js",
           "tests/unit/plan-status-vocabulary.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/task-envelope.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/task-envelope.js",
+      "hash": "8c7c838e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005",
+          "FR-017"
+        ],
+        "@spec": [
+          "BR-004",
+          "BR-009",
+          "SDD-009"
+        ],
+        "@tested": [
+          "tests/unit/task-intake-modal.test.js",
+          "tests/integration/task-modal-intake.test.js"
         ]
       }
     },
@@ -9565,12 +9598,20 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-017-standalone-task-inbox",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
+      "title": "FR-017 — Create Task on All Work: what a \"standalone\" task attaches to",
+      "hash": "faf7cec5",
+      "status": "current"
+    },
+    {
       "id": "doc:FR-017-ui-wizard-plan-intake",
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
       "title": "FR-017 — UI wizard intake (\"เริ่มจากเป้าหมาย\")",
-      "hash": "dcc23c68",
-      "status": "current"
+      "hash": "85340aad",
+      "status": "changed"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -10709,7 +10750,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "066a2d63",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -17331,6 +17372,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/task-modal-intake.test.js",
+      "type": "test",
+      "path": "tests/integration/task-modal-intake.test.js",
+      "hash": "bdcada9f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
@@ -19337,6 +19385,13 @@
       "type": "test",
       "path": "tests/unit/table-integrity.test.js",
       "hash": "6a3912fc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/task-intake-modal.test.js",
+      "type": "test",
+      "path": "tests/unit/task-intake-modal.test.js",
+      "hash": "d2caf0b1",
       "status": "current"
     },
     {
@@ -31614,6 +31669,13 @@
     },
     {
       "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "to": "req:FR-005",
       "type": "implements",
       "status": "current",
@@ -31623,6 +31685,13 @@
       "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "to": "req:FR-017",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:SDD-009",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -32322,6 +32391,41 @@
     {
       "from": "code:src/modules/project-manager/import/plan-schema.js",
       "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/task-envelope.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/task-envelope.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/task-envelope.js",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/task-envelope.js",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/task-envelope.js",
+      "to": "req:SDD-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -47664,6 +47768,76 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "code:src/modules/project-manager/import/task-envelope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/task-modal-intake.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/work-listing-scope.test.js",
       "to": "code:src/modules/project-manager/application/active-filters.js",
       "type": "tests",
@@ -61606,6 +61780,69 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "code:src/modules/project-manager/import/task-envelope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/task-intake-modal.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/topbar-no-dropdown.test.js",

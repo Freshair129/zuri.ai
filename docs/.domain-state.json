@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T19:19:46.247Z",
+  "generatedAt": "2026-09-02T19:24:37.502Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2095,8 +2095,8 @@
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
-          "codeCount": 13,
-          "testCount": 13
+          "codeCount": 14,
+          "testCount": 15
         },
         {
           "id": "FR-006",
@@ -2172,8 +2172,8 @@
           "id": "FR-017",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 8
+          "codeCount": 8,
+          "testCount": 10
         },
         {
           "id": "FR-018",
@@ -2771,6 +2771,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/project-manager/CHARTER.md",
         "docs/domains/project-manager/features/FR-003-project-list-contract.md",
+        "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
         "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
         "docs/domains/project-manager/features/FR-019-enterprise-api.md",
         "docs/domains/project-manager/features/FR-020-adaptive-shell.md",
@@ -2844,7 +2845,7 @@
         "apiRoutes": 93,
         "pageRoutes": 41,
         "ownedModels": 30,
-        "featureNotes": 31
+        "featureNotes": 32
       },
       "featureIds": [
         "FEAT-001",
@@ -4318,8 +4319,8 @@
           "id": "FR-005",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 13
+          "codeCount": 15,
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -4335,11 +4336,13 @@
         "src/modules/project-manager/application/work-service.js",
         "src/modules/project-manager/components/StandaloneTaskModal.jsx",
         "src/modules/project-manager/components/WorkViewTabs.jsx",
+        "src/modules/project-manager/import/task-envelope.js",
         "src/modules/project-manager/views/KanbanBoard.jsx",
         "src/modules/project-manager/views/universal/AllWorkView.jsx",
         "tests/e2e/smoke.spec.js",
         "tests/integration/fr072-work-service-authorization.test.js",
         "tests/integration/project-core.test.js",
+        "tests/integration/task-modal-intake.test.js",
         "tests/integration/work-listing-scope.test.js",
         "tests/unit/authorization-seam-list-routes.test.js",
         "tests/unit/authorization-seam-routes.test.js",
@@ -4349,6 +4352,7 @@
         "tests/unit/project-roadmap-ui.test.js",
         "tests/unit/project-work-route.test.js",
         "tests/unit/route-reachability.test.js",
+        "tests/unit/task-intake-modal.test.js",
         "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
@@ -4829,8 +4833,8 @@
           "id": "FR-017",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 8
+          "codeCount": 8,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -4841,13 +4845,16 @@
         "src/modules/project-manager/components/StandaloneTaskModal.jsx",
         "src/modules/project-manager/import/human-plan-builder.js",
         "src/modules/project-manager/import/plan-mode-envelope.js",
+        "src/modules/project-manager/import/task-envelope.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/plan-mode-modal-intake.test.js",
         "tests/integration/project-core.test.js",
+        "tests/integration/task-modal-intake.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/human-plan-builder.test.js",
         "tests/unit/mode-default-subtype.test.js",
         "tests/unit/plan-intake-flow.test.js",
+        "tests/unit/task-intake-modal.test.js",
         "tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
