@@ -20,6 +20,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // @spec SDD-038
 // @tested tests/unit/workspace-invite-service.test.js
 // @tested tests/integration/workspace-onboarding-flow.test.js
+// @tested tests/integration/workspace-collaboration-roster.test.js
 
 export const WORKSPACE_INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
@@ -280,6 +281,89 @@ export async function removeWorkspaceMembership({ viewer, portfolioId, personId,
     payload: { portfolioId, personId },
   })
   return { membershipId: updated.id, status: updated.status }
+}
+
+/**
+ * The owner-side roster of one Workspace: who is an ACTIVE member, and which
+ * invites are still PENDING. The read behind the Workspace Home collaboration
+ * panel — an owner cannot revoke an invite or remove a member they cannot see.
+ *
+ * Same authority as every other owner mutation here, so a non-owner gets the
+ * same 404 an absent Workspace produces (ADR-027 D9) and this read can never
+ * confirm that a hidden Workspace exists.
+ *
+ * Carries NO token material in any form (SEC-014): `tokenHash` is not selected,
+ * and the raw token existed only in the mint response. Expiry is returned as a
+ * timestamp and classified by the caller, matching the fail-closed comparison at
+ * acceptance rather than a status column nobody updates.
+ */
+export async function listWorkspaceCollaboration({ viewer, portfolioId, db = prisma } = {}) {
+  await assertWorkspaceAdminAuthority(viewer, portfolioId, db)
+
+  const [memberships, invites] = await Promise.all([
+    db.workspaceMembership.findMany({
+      where: { portfolioId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        role: true,
+        createdAt: true,
+        person: { select: { id: true, code: true, displayName: true } },
+      },
+    }),
+    db.workspaceInvite.findMany({
+      where: { portfolioId, status: 'PENDING' },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        role: true,
+        invitedEmail: true,
+        targetPersonId: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    }),
+  ])
+
+  // `targetPersonId` has no relation on WorkspaceInvite, so the name is a
+  // separate lookup rather than an include — one query for the whole page, not
+  // one per invite, and skipped entirely when no invite names a Profile.
+  const targetIds = [...new Set(invites.map((i) => i.targetPersonId).filter(Boolean))]
+  const targetNames = new Map()
+  if (targetIds.length) {
+    const people = await db.person.findMany({
+      where: { id: { in: targetIds } },
+      select: { id: true, displayName: true },
+    })
+    for (const person of people) targetNames.set(person.id, person.displayName)
+  }
+
+  const iso = (value) => (value instanceof Date ? value.toISOString() : value)
+  return {
+    portfolioId,
+    members: memberships.map((m) => ({
+      membershipId: m.id,
+      personId: m.person.id,
+      code: m.person.code,
+      displayName: m.person.displayName,
+      role: m.role,
+      joinedAt: iso(m.createdAt),
+      // Marked here rather than compared in the client: the session principal is
+      // the server's to know, and the onboarding read model does not carry the
+      // person's own id. The UI uses it to refuse self-removal, which would
+      // strip an owner of the very panel that could undo it.
+      isSelf: m.person.id === viewer.principal.id,
+    })),
+    pendingInvites: invites.map((invite) => ({
+      id: invite.id,
+      role: invite.role,
+      invitedEmail: invite.invitedEmail || null,
+      targetPersonId: invite.targetPersonId || null,
+      targetName: targetNames.get(invite.targetPersonId) || null,
+      expiresAt: iso(invite.expiresAt),
+      createdAt: iso(invite.createdAt),
+    })),
+  }
 }
 
 /**

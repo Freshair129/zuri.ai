@@ -15,6 +15,7 @@ const {
   acceptWorkspaceInvite,
   revokeWorkspaceInvite,
   removeWorkspaceMembership,
+  listWorkspaceCollaboration,
   resolveRequestViewer,
 } = vi.hoisted(() => ({
   completeProfile: vi.fn(),
@@ -24,6 +25,7 @@ const {
   acceptWorkspaceInvite: vi.fn(),
   revokeWorkspaceInvite: vi.fn(),
   removeWorkspaceMembership: vi.fn(),
+  listWorkspaceCollaboration: vi.fn(),
   resolveRequestViewer: vi.fn(),
 }))
 
@@ -38,6 +40,7 @@ vi.mock('@/modules/identity/workspace-membership-service', async (importOriginal
   acceptWorkspaceInvite,
   revokeWorkspaceInvite,
   removeWorkspaceMembership,
+  listWorkspaceCollaboration,
 }))
 vi.mock('@/modules/identity/request-viewer', () => ({ resolveRequestViewer }))
 
@@ -47,7 +50,7 @@ const { POST: WORKSPACE } = await import('@/app/api/onboarding/workspaces/route'
 const { POST: MINT } = await import('@/app/api/workspace-invites/route')
 const { POST: ACCEPT } = await import('@/app/api/workspace-invites/accept/route')
 const { DELETE: REVOKE } = await import('@/app/api/workspace-invites/[id]/route')
-const { DELETE: REMOVE } = await import('@/app/api/workspace-memberships/route')
+const { DELETE: REMOVE, GET: ROSTER } = await import('@/app/api/workspace-memberships/route')
 
 const viewer = makeViewer({ principal: { id: 'per-session', code: 'PER-S', displayName: 'Session Person' } })
 
@@ -80,6 +83,7 @@ describe('session-first, fail-closed (SEC-014)', () => {
     ['POST /api/workspace-invites/accept', () => post(ACCEPT, 'http://local/api/workspace-invites/accept', { token: 't' }), acceptWorkspaceInvite],
     ['DELETE /api/workspace-invites/[id]', () => REVOKE(new Request('http://local/api/workspace-invites/inv-1', { method: 'DELETE' }), { params: { id: 'inv-1' } }), revokeWorkspaceInvite],
     ['DELETE /api/workspace-memberships', () => REMOVE(new Request('http://local/api/workspace-memberships?portfolioId=pf-1&personId=per-2', { method: 'DELETE' })), removeWorkspaceMembership],
+    ['GET /api/workspace-memberships', () => ROSTER(new Request('http://local/api/workspace-memberships?portfolioId=pf-1')), listWorkspaceCollaboration],
   ]
 
   for (const [name, run, service] of cases) {
@@ -155,5 +159,33 @@ describe('mint boundary (AC-067.6)', () => {
     const res = await post(MINT, 'http://local/api/workspace-invites', { portfolioId: 'pf-1', role: 'ADMIN' })
     expect(res.status).toBe(200)
     expect(mintWorkspaceInvite).toHaveBeenCalledWith(expect.objectContaining({ viewer, portfolioId: 'pf-1', role: 'ADMIN' }))
+  })
+})
+
+// @req FR-067 — the read the owner panel is built on. Owner-side controls that
+// cannot list their own targets cannot revoke or remove them.
+describe('roster boundary (the owner panel read)', () => {
+  it('requires portfolioId and refuses any other query key before the service runs', async () => {
+    const missing = await ROSTER(new Request('http://local/api/workspace-memberships'))
+    expect(missing.status).toBe(400)
+    // .strict() — the removal query's shape is not this one's, so a stray key
+    // cannot quietly select a different read.
+    const smuggled = await ROSTER(new Request('http://local/api/workspace-memberships?portfolioId=pf-1&personId=per-2'))
+    expect(smuggled.status).toBe(400)
+    expect(listWorkspaceCollaboration).not.toHaveBeenCalled()
+  })
+
+  it('delegates with the viewer attached, so the service re-checks owner authority', async () => {
+    listWorkspaceCollaboration.mockResolvedValue({ portfolioId: 'pf-1', members: [], pendingInvites: [] })
+    const res = await ROSTER(new Request('http://local/api/workspace-memberships?portfolioId=pf-1'))
+    expect(res.status).toBe(200)
+    expect(listWorkspaceCollaboration).toHaveBeenCalledWith({ viewer, portfolioId: 'pf-1' })
+  })
+
+  it('passes the service refusal through as the same 404 an absent Workspace produces', async () => {
+    listWorkspaceCollaboration.mockRejectedValue(Object.assign(new Error('Workspace not found'), { status: 404 }))
+    const res = await ROSTER(new Request('http://local/api/workspace-memberships?portfolioId=pf-hidden'))
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({ error: 'Workspace not found' })
   })
 })

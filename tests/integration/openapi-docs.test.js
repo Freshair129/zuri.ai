@@ -65,7 +65,9 @@ describe('OpenAPI document', () => {
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
       source: 'src/app/api/**/route.js',
-      // FR-066/067's seven onboarding/invite routes plus FR-106's two
+      // FR-066/067's seven onboarding/invite routes — eight operations over
+      // those seven paths since the owner roster GET joined the removal DELETE
+      // on /api/workspace-memberships — plus FR-106's two
       // (the Enterprise API key mint and revoke) plus FR-108's two
       // (the ExecutionPlanBundle dry-run and commit) plus FR-120's one
       // (self-serve signup — the first public route that creates an identity
@@ -75,7 +77,7 @@ describe('OpenAPI document', () => {
       // and the only operation in the family that mints — ADR-052 D4), plus
       // FR-137..140's nine evidence/intake/import/export/LINE paths.
       pathCount: 117,
-      operationCount: 150,
+      operationCount: 151,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
