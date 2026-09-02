@@ -20,6 +20,6 @@ export async function GET(request) {
 export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return upsertLocalWorkspaceMount(await request.json(), { visibleBusinessIds: viewer.visibleBusinessIds })
+    return upsertLocalWorkspaceMount(await request.json(), { viewer })
   })
 }

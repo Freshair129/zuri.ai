@@ -1,10 +1,15 @@
 // @req FR-045 — local-only, authorized reveal capability with hosted deny-by-default.
 // @spec SEC-007, SDD-023, ADR-016 D7/D8
 // @tested tests/unit/fr045-reveal.test.js
+// @req FR-072 — reveal launches a real OS side effect on the caller's machine,
+// so it refuses unless the viewer owns the governing Business, not merely sees it.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-file-asset-authorization.test.js
 import { spawn } from 'node:child_process'
 import prisma from '@/lib/db'
 import { recordAudit } from './audit'
 import { resolveContainedPath } from '../local-files/path-security'
+import { assertFileAssetWritable } from './project-authorization'
 import fsPromises from 'node:fs/promises'
 
 const LOOPBACK = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
@@ -32,7 +37,7 @@ async function launchExplorer(absolutePath) {
 
 export async function revealFileAsset(fileId, requestContext, {
   db = prisma,
-  visibleBusinessIds,
+  viewer,
   env = process.env,
   launcher = launchExplorer,
   realpath = fsPromises.realpath,
@@ -40,7 +45,7 @@ export async function revealFileAsset(fileId, requestContext, {
   validateLocalRequest(requestContext, env)
   const asset = await db.fileAsset.findUnique({ where: { id: fileId } })
   if (!asset || asset.deletedAt) throw new Error('File asset not found')
-  if (!visibleBusinessIds?.includes(asset.businessId)) throw new Error('Business access denied (not visible)')
+  assertFileAssetWritable(viewer, asset)
   if (asset.storageKind !== 'LOCAL_FILE' || !asset.relativePath) throw new Error('File asset is not a local file')
   if (asset.status !== 'ACTIVE') throw new Error(`File asset is ${asset.status}`)
   const mount = await db.localWorkspaceMount.findFirst({ where: { businessId: asset.businessId, status: 'ACTIVE' }, orderBy: { updatedAt: 'desc' } })
