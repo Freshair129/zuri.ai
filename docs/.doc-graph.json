@@ -57,7 +57,9 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP"
+      "doc:CONTEXT-MAP",
+      "doc:line-oa-provider-merge",
+      "test:tests/integration/line-oa-provider-migration.test.js"
     ],
     "added": [],
     "removed": []
@@ -10407,8 +10409,8 @@
       "type": "document",
       "path": "docs/runbooks/line-oa-provider-merge.md",
       "title": "LINE_OA provider merge runbook",
-      "hash": "9e2584cd",
-      "status": "current"
+      "hash": "6d18ce7b",
+      "status": "changed"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -17163,8 +17165,8 @@
       "id": "test:tests/integration/line-oa-provider-migration.test.js",
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
-      "hash": "cb041ac0",
-      "status": "current"
+      "hash": "c3a365f7",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
