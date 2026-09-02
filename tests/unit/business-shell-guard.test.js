@@ -27,6 +27,28 @@ describe('BusinessShell route guard', () => {
     })).toMatchObject({ state: 'AUTH_REQUIRED', redirect: '/login', reason: 'VIEWER_ERROR' })
   })
 
+  // @req FR-046 — D1-journey-states-tests-docs-01 / D1-entry-layers-09: a 503
+  // SESSION_UNAVAILABLE (the session store is down) must never collapse into
+  // the same AUTH_REQUIRED-to-/login transition as a real 401.
+  it('keeps a session-store outage apart from AUTH_REQUIRED instead of redirecting to /login', () => {
+    expect(resolveBusinessShellDecision({
+      ...base,
+      viewer: null,
+      viewerError: 'SESSION_UNAVAILABLE',
+      selection: { businessId: 'b-1' },
+    })).toMatchObject({ state: 'SESSION_UNAVAILABLE', reason: 'VIEWER_ERROR' })
+  })
+
+  it('does not attach a /login redirect to the SESSION_UNAVAILABLE state', () => {
+    const decision = resolveBusinessShellDecision({
+      ...base,
+      viewer: null,
+      viewerError: 'SESSION_UNAVAILABLE',
+      selection: { businessId: 'b-1' },
+    })
+    expect(decision.redirect).toBeUndefined()
+  })
+
   it('requires an explicit Business selection even with one visible Business', () => {
     expect(resolveBusinessShellDecision({ ...base, selection: {} })).toMatchObject({
       state: 'BUSINESS_REQUIRED',
