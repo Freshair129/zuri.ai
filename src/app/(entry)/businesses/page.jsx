@@ -18,6 +18,7 @@ import { Card, EmptyState, ErrorState, PageHeader } from '@/components/ui'
 import BusinessRoutingShell from '@/components/layouts/BusinessRoutingShell'
 import { useScope } from '@/context/ScopeContext'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
+import { classifyViewerFailure, SESSION_UNAVAILABLE_DETAIL_TH, SESSION_UNAVAILABLE_TITLE_TH } from '@/lib/viewer-failure'
 
 function BusinessChoice({ business, onSelect }) {
   const { tenant, portfolio } = business
@@ -50,12 +51,16 @@ export default function BusinessesPage() {
   const scope = useScope()
   const entry = useFetch('/api/entry')
   const availableBusinesses = entry.data?.businesses || []
+  // @req FR-046 — SESSION_UNAVAILABLE (session store outage) is kept apart
+  // from AUTH_REQUIRED (no valid session) so an outage never bounces an
+  // already-logged-in person to /login (D1-entry-layers-09).
+  const viewerFailure = classifyViewerFailure({ body: entry.error })
 
   useEffect(() => {
-    if (entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') {
+    if (viewerFailure === 'AUTH_REQUIRED') {
       router.replace('/login')
     }
-  }, [entry.error, router])
+  }, [viewerFailure, router])
 
   // @req FR-066 — no Business access yet → the pre-Business journey, never an
   // operating-scope prompt (AC-066.1). The Waiting Room forwards an incomplete
@@ -65,7 +70,11 @@ export default function BusinessesPage() {
     if (noBusinessAccess) router.replace('/waiting-room')
   }, [noBusinessAccess, router])
 
-  if (entry.loading || noBusinessAccess || entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') return <LoadingCard />
+  if (entry.loading || noBusinessAccess || viewerFailure === 'AUTH_REQUIRED') return <LoadingCard />
+
+  if (viewerFailure === 'SESSION_UNAVAILABLE') {
+    return <ErrorState title={SESSION_UNAVAILABLE_TITLE_TH} detail={SESSION_UNAVAILABLE_DETAIL_TH} retry={entry.reload} />
+  }
 
   if (entry.error) {
     return <ErrorState title="Unable to load Business Routing" detail={entry.error} retry={entry.reload} />

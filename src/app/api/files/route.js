@@ -28,6 +28,6 @@ export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const body = await request.json()
-    return createManagedFileAsset({ ...body, uploadedBy: viewer.principal.id }, { visibleBusinessIds: viewer.visibleBusinessIds })
+    return createManagedFileAsset({ ...body, uploadedBy: viewer.principal.id }, { viewer })
   })
 }

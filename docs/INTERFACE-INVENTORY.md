@@ -84,7 +84,7 @@ mean production identity, external providers or cutover gates are complete.
 | `/onboarding/profile` | Profile Setup (ตั้งค่าโปรไฟล์) | BusinessRoutingShell | complete the Profile over the session's own Person before any scope prompt (AC-066.1); routes onward by the server's `nextStep` | auth required, loading, validation error, error | implemented; `src/app/(entry)/onboarding/profile/page.jsx`, `/api/onboarding/profile`, FR-066 |
 | `/waiting-room` | Waiting Room (ห้องรอ) | BusinessRoutingShell | the Profile-only resting state: own pending invites, joined Workspaces, token acceptance, owner path Workspace creation | auth required, incomplete profile redirect, loading, error | implemented; `src/app/(entry)/waiting-room/page.jsx`, `/api/onboarding/state`, `/api/workspace-invites/accept`, FR-066/FR-067 |
 | `/plugin/authorize` | Plugin Authorization Consent (อนุมัติการเชื่อมต่อปลักอิน) | none — a bare server-rendered page, deliberately outside every shell so nothing about the granting account's scope surrounds a decision about delegating it | state, in server-derived terms only, what a first-party plugin is asking for — its registered name, the capabilities its own viewer resolves to, the exact redirect target and the granting account — and take approval or refusal. Only the POST it submits mints an authorization code (ADR-052 D4) | auth required (→ `/login`), invalid request refused in place without naming or following the `redirect_uri` that failed, session store unavailable stated as an outage rather than a refusal | implemented; `src/app/(entry)/plugin/authorize/page.jsx`, `POST /api/plugin/auth/authorize`, FR-123 |
-| `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6) | auth required, incomplete profile redirect, loading, empty, error | implemented; `src/app/(entry)/workspace-home/page.jsx`, `/api/onboarding/state`, FR-066 |
+| `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner collaboration panel — ACTIVE members with remove, PENDING invites with revoke, and a mint form whose invite code is shown once with copy affordances (AC-067.1/2/7); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6) | auth required, incomplete profile redirect, loading, empty, error, session unavailable (503 kept apart from 401 — retry state, no redirect); panel-only states: roster loading, roster refused (same 404 as an absent Workspace), no members, no pending invites, expired-but-revocable invite, minted-code shown once, per-action confirm and server refusal | implemented; `src/app/(entry)/workspace-home/page.jsx`, `src/modules/identity/workspace-collaboration-view.js`, `src/lib/viewer-failure.js`, `/api/onboarding/state`, `/api/workspace-memberships` (GET roster, DELETE remove), `/api/workspace-invites` (POST mint), `/api/workspace-invites/[id]` (DELETE revoke), FR-046, FR-066, FR-067 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 
 ### 3.2 Development domain — global surfaces
@@ -123,7 +123,7 @@ page can issue a write.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/market` | Market Intelligence Dashboard | BusinessShell → Market Intelligence / Dashboard | real-time market price normalization, listing tracking, active watch rules, and price alerts | ready, empty, loading, error, forbidden | implemented beta; `src/app/(pm)/market/page.jsx`, FR-092 |
+| `/market` | Market Intelligence Dashboard | BusinessShell → Market Intelligence / Dashboard | translated `MarketObservation` feed for the active Business (provider, source entity, observation type, resolution status) with KPI counts computed from the returned rows; watch rules are shown as a labelled not-yet-available panel with no control | ready, empty, loading, error, forbidden, no Business selected | implemented; `src/app/(pm)/market/page.jsx`, `src/modules/market-intelligence/components/MarketDashboard.jsx`, `GET /api/market/observations`, FR-092 — empty on a live installation until a translation trigger exists |
 
 ### 3.5 People and Platform domains
 
@@ -197,12 +197,12 @@ not new global domains or new persistence aggregates.
 ### 3.9 Platform Control surface
 
 Platform Control is an installation-operator-only operational surface. It is not
-one of the seven Business domains, is not configured in `DOMAINS`, and does not
-require an active Business selection.
+one of the nine operational Business domains (§4), is not configured in `DOMAINS`,
+and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
+| `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
 
 ## 4. Runtime registry reconciliation
 

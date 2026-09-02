@@ -2,6 +2,7 @@
 // @spec SDD-023, BR-010, SEC-007, ADR-016
 // @tested tests/unit/fr045-file-asset-service.test.js
 import { describe, expect, it, vi } from 'vitest'
+import { makeViewer } from '../factories/viewer'
 import {
   createManagedFileAsset,
   deleteManagedFileAsset,
@@ -12,6 +13,8 @@ import {
   relinkFileAsset,
   resolveFileAssetContent,
 } from '@/modules/project-manager/application/file-asset-service'
+
+const owner = makeViewer({ visibleBusinessIds: ['business-a'], ownedBusinessIds: ['business-a'] })
 
 function migrationDb() {
   const tx = {
@@ -80,13 +83,13 @@ describe('FR-045 FileAsset service', () => {
     const asset = await createManagedFileAsset({
       code: 'FIL-A', businessId: 'business-a', projectId: 'project-a', storageKind: 'EXTERNAL_URL',
       name: 'brief.pdf', mime: 'application/pdf', size: 10, externalUrl: 'https://example.test/brief.pdf',
-    }, { db, visibleBusinessIds: ['business-a'] })
+    }, { db, viewer: owner })
     expect(asset).toMatchObject({ businessId: 'business-a', projectId: 'project-a', status: 'ACTIVE' })
     expect(legacyFileAssetDto(asset)).toMatchObject({ id: 'asset-a', url: 'https://example.test/brief.pdf', blobRef: null })
     await expect(createManagedFileAsset({
       code: 'FIL-BAD', businessId: 'business-a', projectId: 'project-a', storageKind: 'EXTERNAL_URL',
       name: 'bad', mime: 'text/plain', size: 0, externalUrl: 'file:///C:/secret.txt',
-    }, { db, visibleBusinessIds: ['business-a'] })).rejects.toThrow('HTTP or HTTPS')
+    }, { db, viewer: owner })).rejects.toThrow('HTTP or HTTPS')
   })
 
   it('leaves failed local promotion quarantined and cleans staging', async () => {
@@ -113,7 +116,7 @@ describe('FR-045 FileAsset service', () => {
       code: 'FIL-LOCAL', businessId: 'business-a', projectId: 'project-a', storageKind: 'LOCAL_FILE',
       mountId: 'mount-a', relativePath: 'Projects/P-A/Documents/file.txt', contentBase64: 'aGVsbG8=',
       name: 'file.txt', mime: 'text/plain', size: 5,
-    }, { db, visibleBusinessIds: ['business-a'], filesystemPort: port })).rejects.toThrow('disk full')
+    }, { db, viewer: owner, filesystemPort: port })).rejects.toThrow('disk full')
     expect(updates).toContainEqual(expect.objectContaining({ status: 'QUARANTINED' }))
     expect(port.cleanupStaged).toHaveBeenCalled()
   })
@@ -125,7 +128,7 @@ describe('FR-045 FileAsset service', () => {
       localWorkspaceMount: { upsert },
       auditEvent: { create: vi.fn().mockResolvedValue({}) },
     }
-    await expect(upsertLocalWorkspaceMount({ businessId: 'business-a', deviceKey: 'desktop-a', rootPath: 'E:\\zuri' }, { db, visibleBusinessIds: ['business-a'] }))
+    await expect(upsertLocalWorkspaceMount({ businessId: 'business-a', deviceKey: 'desktop-a', rootPath: 'E:\\zuri' }, { db, viewer: owner }))
       .resolves.toMatchObject({ rootPath: 'E:\\zuri' })
     expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
       where: { businessId_deviceKey: { businessId: 'business-a', deviceKey: 'desktop-a' } },
@@ -141,8 +144,8 @@ describe('FR-045 FileAsset service', () => {
     }
     const filesystemPort = { read: vi.fn().mockResolvedValue(Buffer.from('ok')), stat: vi.fn().mockResolvedValue({ size: 2 }) }
     await expect(resolveFileAssetContent('asset-a', { db, visibleBusinessIds: ['business-a'], filesystemPort })).resolves.toMatchObject({ content: Buffer.from('ok') })
-    await expect(relinkFileAsset('asset-a', { mountId: 'mount-a', relativePath: 'new.txt' }, { db, visibleBusinessIds: ['business-a'], filesystemPort })).resolves.toMatchObject({ relativePath: 'new.txt', status: 'ACTIVE' })
-    await expect(deleteManagedFileAsset('asset-a', { db, visibleBusinessIds: ['business-a'] })).resolves.toMatchObject({ status: 'MISSING' })
+    await expect(relinkFileAsset('asset-a', { mountId: 'mount-a', relativePath: 'new.txt' }, { db, viewer: owner, filesystemPort })).resolves.toMatchObject({ relativePath: 'new.txt', status: 'ACTIVE' })
+    await expect(deleteManagedFileAsset('asset-a', { db, viewer: owner })).resolves.toMatchObject({ status: 'MISSING' })
     expect(filesystemPort.stat).toHaveBeenCalledWith({ mountRoot: 'D:\\workspace', relativePath: 'new.txt' })
   })
 

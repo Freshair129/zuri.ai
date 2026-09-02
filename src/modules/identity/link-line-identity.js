@@ -18,10 +18,46 @@ import { activateChannelIdentity } from './channel-identity'
 // @tested tests/integration/identity-link.test.js
 
 const PROVIDER = 'LINE'
+// @req FR-026 — a step-up re-authentication proof is a distinct token
+// provider on the same IdentityLinkToken table, never confusable with a LINE
+// account-linking token even though both live in one model.
+const STEP_UP_PROVIDER = 'STEPUP'
 
 const whereKey = (tenantId, lineUserId) => ({
   tenantId_provider_providerSubject: { tenantId, provider: PROVIDER, providerSubject: lineUserId },
 })
+
+/**
+ * Issue a single-use, short-lived step-up re-authentication token for a
+ * principal (Gate F, FR-026). Lives here rather than in `agent/step-up.js`
+ * because `IdentityLinkToken` is an identity model and the agent domain owns
+ * no Prisma models by design (docs/domains/agent/CHARTER.md) — this is the
+ * one declared identity entry point the agent module calls instead of
+ * writing the table itself (D2-domain-identity-02). Storage and audit shape
+ * are carried over unchanged from the code this replaces: an opaque token in
+ * the clear (matching `issueLinkToken` above — this table has never stored a
+ * hash) plus one `STEP_UP`/`ISSUED` audit event.
+ * @spec ADR-007 §P7 / Gate E→F, D2-domain-identity-02
+ * @tested tests/integration/agent-action-gate.test.js, tests/integration/agent-turn.test.js
+ * @returns {{ token: string, expiresAt: Date }}
+ */
+export async function mintStepUpLinkToken({ tenantId, personId, ttlSeconds, db = prisma }) {
+  const person = await db.person.findUnique({ where: { id: personId } })
+  if (!person) throw new Error('mintStepUpLinkToken requires an existing person')
+
+  const token = randomBytes(24).toString('base64url')
+  const expiresAt = new Date(Date.now() + ttlSeconds * 1000)
+  await db.identityLinkToken.create({
+    data: { tenantId, personId, provider: STEP_UP_PROVIDER, token, expiresAt },
+  })
+  await recordAudit(db, {
+    entityType: 'STEP_UP',
+    entityId: personId,
+    action: 'ISSUED',
+    payload: { tenantId, expiresAt: expiresAt.toISOString() },
+  })
+  return { token, expiresAt }
+}
 
 /**
  * Issue a single-use, expiring token for an existing Person, to be presented by a

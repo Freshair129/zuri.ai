@@ -1,14 +1,26 @@
 'use client'
 
-// @req FR-009, FR-012, FR-017 — Plan Mode Customizer: Design execution plans across
-// 7 canonical modes with explicit Requester (AI/Human) and Human Approver bindings.
-// @spec BR-003, BR-004, SDD-006
+// @req FR-009, FR-012, FR-017 — Plan Mode Customizer: design an execution plan
+// across the 7 canonical modes with explicit Delegator (AI or human) and Human
+// Approver bindings. The form is serialized by the shared human-plan builder
+// into a PlanEnvelope and travels the one intake pipeline — dry-run preview,
+// a human confirms, transactional commit. It never writes on its own.
+// @spec BR-003, BR-004, BR-009, SDD-006, SDD-009
+// @spec SDD-018 — Business and Space choices come from the shell's scope
+// inventory (ScopeContext); there is no second broad list endpoint behind
+// this modal.
+// @tested tests/unit/plan-intake-flow.test.js, tests/unit/work-surface-scope-inventory.test.js, tests/integration/plan-mode-modal-intake.test.js
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Plus, Trash2, Sparkles, CheckCircle2 } from 'lucide-react'
 import { Modal, Field } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
+import { visibleWorkspaces } from '@/lib/shell-mode'
 import { EXECUTION_MODES, MODE_LABELS } from '@/lib/validation/enums'
-import { api, useFetch } from './useApi'
+import { buildPlanModeEnvelope } from '../import/plan-mode-envelope'
+import { useFetch } from './useApi'
+import { usePlanIntake } from './usePlanIntake'
+import PlanPreview from './PlanPreview'
 
 const PRESET_EXAMPLES = {
   DATA_MIGRATION: {
@@ -50,40 +62,56 @@ const PRESET_EXAMPLES = {
   },
 }
 
+const DEFAULT_STREAMS = [
+  {
+    name: 'Data Extraction & Validation',
+    mode: 'DATA_MIGRATION',
+    itemsText: 'สกัดข้อมูลลูกค้าปี 2020\nตรวจสอบความถูกต้องของข้อมูล\nสรุปผลส่งมอบให้ Approver',
+  },
+]
+
 export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) {
-  const { data: businesses } = useFetch('/api/businesses')
-  const { data: workspaces } = useFetch('/api/workspaces')
-  const { data: viewer } = useFetch('/api/viewer')
+  const scope = useScope()
+  const businesses = scope.businesses
+  const { data: viewer } = useFetch(open ? '/api/viewer' : null)
+  const intake = usePlanIntake()
 
   const [objective, setObjective] = useState('')
   const [description, setDescription] = useState('')
   const [businessId, setBusinessId] = useState('')
+  const [workspaceId, setWorkspaceId] = useState('')
   const [delegator, setDelegator] = useState('')
   const [approver, setApprover] = useState('')
   const [mode, setMode] = useState('DATA_MIGRATION')
-  const [streams, setStreams] = useState([
-    {
-      name: 'Data Extraction & Validation',
-      mode: 'DATA_MIGRATION',
-      itemsText: 'สกัดข้อมูลลูกค้าปี 2020\nตรวจสอบความถูกต้องของข้อมูล\nสรุปผลส่งมอบให้ Approver',
-    },
-  ])
-  const [busy, setBusy] = useState(false)
+  const [streams, setStreams] = useState(DEFAULT_STREAMS)
   const [error, setError] = useState(null)
 
+  // Derived, never copied into state: the shell's active Business is the
+  // default, and a Space is offered only inside the chosen Business — its own
+  // Spaces plus group-level ones, the same rule the shell applies.
+  const effectiveBusinessId = businessId || scope.shell.activeBusinessId || businesses[0]?.id || ''
+  const business = businesses.find((b) => b.id === effectiveBusinessId) || null
+  const workspaces = useMemo(() => visibleWorkspaces(scope.workspaces, business), [scope.workspaces, business])
+  const pick = (id) => (id && workspaces.some((w) => w.id === id) ? id : '')
+  const effectiveWorkspaceId = pick(workspaceId) || pick(scope.selection.workspaceId) || workspaces[0]?.id || ''
+  const workspace = workspaces.find((w) => w.id === effectiveWorkspaceId) || null
+
   useEffect(() => {
-    if (open) {
-      if (businesses?.length && !businessId) {
-        setBusinessId(businesses[0].id)
-      }
-      if (viewer?.principal?.displayName && !delegator) {
-        setDelegator(viewer.principal.displayName)
-      }
-      if (!approver) {
-        setApprover(viewer?.principal?.displayName || 'Human Approver')
-      }
-    }
-  }, [open, businesses, viewer])
+    if (!open) return
+    const name = viewer?.principal?.displayName
+    if (name && !delegator) setDelegator(name)
+    if (!approver) setApprover(name || 'Human Approver')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, viewer])
+
+  // Confirm only ever commits what was previewed: any edit after the dry run
+  // discards it, so the button the human presses describes the plan they see.
+  const formKey = JSON.stringify({ objective, description, effectiveWorkspaceId, delegator, approver, streams })
+  const previewedKey = useRef(null)
+  useEffect(() => {
+    if ((intake.dryRun || intake.errors) && previewedKey.current !== formKey) intake.reset()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formKey])
 
   const applyPreset = (modeKey) => {
     const preset = PRESET_EXAMPLES[modeKey] || {
@@ -124,95 +152,54 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
     setStreams((prev) => (prev.length === 1 ? prev : prev.filter((_, i) => i !== idx)))
   }
 
-  const submit = async (e) => {
-    e.preventDefault()
-    if (!objective.trim()) {
-      setError('กรุณาระบุวัตถุประสงค์ของแผนงาน (Objective)')
-      return
-    }
-    setBusy(true)
+  const close = () => {
+    intake.reset()
     setError(null)
+    onClose?.()
+  }
+
+  // Leg 1 — read-only dry run. The server validates the envelope, checks the
+  // seven-mode semantic contract and diffs it against the Space; nothing is
+  // written until the human confirms the preview it returns.
+  const preview = async (e) => {
+    e.preventDefault()
+    setError(null)
+    if (!objective.trim()) return setError('กรุณาระบุวัตถุประสงค์ของแผนงาน (Objective)')
+    if (!workspace) return setError('ไม่พบ Space ปลายทางใน Business นี้ — สร้าง Space ก่อนนำเข้าแผน')
+    if (!streams.some((s) => s.name.trim())) return setError('กรุณาเพิ่มอย่างน้อย 1 สายงาน')
+    let plan
     try {
-      // Build PlanEnvelope contract
-      const selectedBiz = businesses?.find((b) => b.id === businessId) || businesses?.[0]
-      const targetWorkspace =
-        workspaces?.find((w) => w.businessId === selectedBiz?.id) || workspaces?.[0]
-
-      const codeSuffix = Date.now().toString().slice(-4)
-      const projectCode = `PRJ-PLAN-${codeSuffix}`
-
-      const envelope = {
-        schemaVersion: '1.0',
-        generatedBy: delegator || 'Zuri AI Planning Agent',
-        generatedAt: new Date().toISOString(),
-        metadata: {
-          delegator: delegator.trim(),
-          approver: approver.trim(),
-          requiresHumanApproval: true,
-          planMode: mode,
-        },
-        scope: {
-          businessCode: selectedBiz?.code || 'SMARTGIFT',
-          workspaceCode: targetWorkspace?.code || 'WS-DEFAULT',
-        },
-        project: {
-          code: projectCode,
-          name: objective.trim(),
-          description: description.trim() || undefined,
-          status: 'ACTIVE',
-        },
-        workstreams: streams.map((s, sIdx) => ({
-          code: `STR-${codeSuffix}-${sIdx + 1}`,
-          name: s.name.trim() || `Stream ${sIdx + 1}`,
-          executionMode: s.mode,
-          progressStrategy: s.mode === 'DATA_MIGRATION' ? 'METRIC_ROLLUP' : 'TASK_COUNT',
-          progressWeight: 1,
-          items: s.itemsText
-            .split('\n')
-            .map((t) => t.trim())
-            .filter(Boolean)
-            .map((title, iIdx) => ({
-              code: `TSK-${codeSuffix}-${sIdx + 1}-${iIdx + 1}`,
-              title,
-              subtype: 'TASK',
-              status: 'PLANNED',
-              weight: 1,
-              metadata: {
-                delegator: delegator.trim(),
-                approver: approver.trim(),
-              },
-            })),
-        })),
-      }
-
-      // Execute transactional plan import
-      const res = await api('/api/import/plan', {
-        method: 'POST',
-        body: {
-          envelope,
-          workspaceId: targetWorkspace?.id,
-          dryRun: false,
-        },
+      plan = buildPlanModeEnvelope({
+        objective,
+        description,
+        workspaceCode: workspace.code,
+        streams,
+        delegator,
+        approver,
       })
-
-      if (!res.ok && res.errors) {
-        throw new Error(res.errors.join(', '))
-      }
-
-      onGenerated?.(res)
-      onClose()
     } catch (err) {
-      setError(err.message || 'Failed to generate plan')
-    } finally {
-      setBusy(false)
+      return setError(err.message || 'Failed to build plan')
     }
+    previewedKey.current = formKey
+    await intake.preview(plan, { workspaceId: workspace.id })
+  }
+
+  // Leg 2 — transactional commit of exactly the previewed envelope.
+  const confirm = async () => {
+    const next = await intake.confirm()
+    if (!next.committed) return
+    onGenerated?.(next.committed)
+    close()
   }
 
   if (!open) return null
 
+  const errors = error ? [error] : intake.errors
+  const busy = intake.busy
+
   return (
-    <Modal open={open} onClose={onClose} title="✨ Custom Plan Mode (สร้างแผนงานตามโหมดปฏิบัติการ)">
-      <form onSubmit={submit} className="space-y-3">
+    <Modal open={open} onClose={close} title="✨ Custom Plan Mode (สร้างแผนงานตามโหมดปฏิบัติการ)" wide>
+      <form onSubmit={preview} className="space-y-3">
         {/* Preset quick buttons */}
         <div>
           <label className="text-[11px] font-semibold text-muted">ตัวอย่างแผนสำเร็จรูป (Quick Presets):</label>
@@ -256,12 +243,34 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
           />
         </Field>
 
-        <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
+        <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
           <Field label="หน่วยธุรกิจ (Business)">
-            <select className="input" value={businessId} onChange={(e) => setBusinessId(e.target.value)}>
-              {(businesses || []).map((b) => (
+            <select
+              className="input"
+              value={effectiveBusinessId}
+              onChange={(e) => {
+                setBusinessId(e.target.value)
+                setWorkspaceId('')
+              }}
+              aria-label="หน่วยธุรกิจ"
+            >
+              {businesses.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name}
+                  {b.name} ({b.code})
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Space ปลายทาง (Target Workspace)" hint="แผนจะถูกนำเข้าใน Space นี้">
+            <select
+              className="input"
+              value={effectiveWorkspaceId}
+              onChange={(e) => setWorkspaceId(e.target.value)}
+              aria-label="Space ปลายทาง"
+            >
+              {workspaces.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name} ({w.code})
                 </option>
               ))}
             </select>
@@ -341,20 +350,42 @@ export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) 
           </div>
         </div>
 
-        {error && (
-          <p className="rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-            {error}
-          </p>
+        {intake.dryRun && <PlanPreview dryRun={intake.dryRun} />}
+
+        {errors && errors.length > 0 && (
+          <ul className="space-y-1" role="alert">
+            {errors.map((message, i) => (
+              <li key={i} className="rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                {message}
+              </li>
+            ))}
+          </ul>
         )}
 
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" className="btn" onClick={onClose}>
+          <button type="button" className="btn" onClick={close}>
             ยกเลิก
           </button>
-          <button type="submit" className="btn btn-primary flex items-center gap-1.5" disabled={busy}>
+          <button
+            type="submit"
+            className={`btn flex items-center gap-1.5 ${intake.dryRun ? '' : 'btn-primary'}`}
+            disabled={busy}
+          >
             <Sparkles size={14} />
-            {busy ? 'กำลังสร้างและอนุมัติแผน…' : 'สร้าง Execution Plan ทันที'}
+            {busy && !intake.dryRun ? 'กำลังตรวจสอบแผน…' : 'ตรวจสอบแผน (Dry run)'}
           </button>
+          {intake.dryRun && (
+            <button
+              type="button"
+              className="btn btn-primary flex items-center gap-1.5"
+              onClick={confirm}
+              disabled={busy || !intake.canConfirm}
+              title={intake.canConfirm ? 'นำเข้าแผนตามพรีวิวนี้ในธุรกรรมเดียว' : 'แก้ไขข้อขัดแย้งในพรีวิวก่อนยืนยัน'}
+            >
+              <CheckCircle2 size={14} />
+              {busy ? 'กำลังนำเข้า…' : 'ยืนยันสร้าง Execution Plan'}
+            </button>
+          )}
         </div>
       </form>
     </Modal>

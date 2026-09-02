@@ -4,7 +4,10 @@
 // topological layers left-to-right, status carried by fill, pending-decision
 // badges linking into the FR-100 inbox. No client-side graph library.
 // @spec FR-101
-// @tested tests/unit/sot-pipeline-graph.test.js
+// @spec SDD-018 — the Business this graph reads for is the shell's
+// `activeBusinessId`, the one field ScopeContext exposes for it; a top-level
+// `businessId` never existed, so destructuring it fetched nothing.
+// @tested tests/unit/sot-pipeline-graph.test.js, tests/unit/sot-pipeline-scope-render.test.js
 import { useMemo } from 'react'
 import Link from 'next/link'
 
@@ -59,7 +62,8 @@ function layout(nodes) {
 }
 
 export default function SotPipelineGraphPage() {
-  const { businessId } = useScope()
+  const { shell } = useScope()
+  const businessId = shell.activeBusinessId
   const { data, error, loading } = useFetch(
     businessId ? `/api/platform/sot/plan?businessId=${businessId}` : null,
     [businessId]
@@ -67,9 +71,9 @@ export default function SotPipelineGraphPage() {
   const graph = data?.graph
   const view = useMemo(() => (graph ? layout(graph.nodes) : null), [graph])
 
-  if (!businessId) return <ErrorState message="เลือก Business ก่อนเพื่อดูกราฟ pipeline" />
+  if (!businessId) return <ErrorState title="เลือก Business ก่อนเพื่อดูกราฟ pipeline" />
   if (loading) return <LoadingCard />
-  if (error) return <ErrorState message={error} />
+  if (error) return <ErrorState detail={error} />
   if (!graph || !view) return null
 
   return (

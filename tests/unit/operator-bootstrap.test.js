@@ -1,10 +1,11 @@
 // @req FR-107 — first-operator bootstrap: empty-set-only, one transaction,
 // password material never stored or audited, and the session port resolves the
-// grant per request.
+// grant per request. Also covers the revocable half: listOperatorGrants /
+// revokeOperatorGrant.
 // @spec FR-075, SEC-008, SEC-014
 // @tested tests/unit/operator-bootstrap.test.js
 import { describe, expect, it, vi } from 'vitest'
-import { bootstrapOperator, hashInitialPassword, hasOperatorGrant } from '@/modules/identity/operator-bootstrap'
+import { bootstrapOperator, hashInitialPassword, hasOperatorGrant, listOperatorGrants, revokeOperatorGrant } from '@/modules/identity/operator-bootstrap'
 import { verifyPassword, generateSessionToken } from '@/modules/identity/auth-service'
 import { createSessionPort } from '@/modules/identity/session-port'
 
@@ -153,5 +154,96 @@ describe('hasOperatorGrant → session port', () => {
     const second = await sessionPort.read({ headers: { cookie: `zuri_session=${token}` } })
     expect(second).toMatchObject({ state: 'AUTHENTICATED', platformGrant: false })
     expect(findFirst).toHaveBeenCalledTimes(2)
+  })
+})
+
+function revokeDb({ grant = null, activeCount = 1 } = {}) {
+  const updateManyCalls = []
+  const audit = { event: null }
+  const db = {
+    platformGrant: {
+      findUnique: vi.fn(async () => grant),
+      count: vi.fn(async () => activeCount),
+      updateMany: vi.fn(async ({ where, data }) => {
+        updateManyCalls.push({ where, data })
+        if (!grant || grant.status !== 'ACTIVE' || where.id !== grant.id) return { count: 0 }
+        grant.status = data.status
+        return { count: 1 }
+      }),
+    },
+    auditEvent: { create: vi.fn(async ({ data }) => { audit.event = data; return { id: 'audit-1', ...data } }) },
+  }
+  return { db, updateManyCalls, audit }
+}
+
+describe('revokeOperatorGrant', () => {
+  it('rejects a grant id that does not exist', async () => {
+    const { db } = revokeDb({ grant: null })
+    await expect(revokeOperatorGrant('grant-ghost', { db }))
+      .rejects.toMatchObject({ status: 404, message: expect.stringContaining('OPERATOR_GRANT_NOT_FOUND') })
+  })
+
+  it('rejects a grant that is not OPERATOR capability', async () => {
+    const { db } = revokeDb({ grant: { id: 'grant-1', personId: 'per-1', capability: 'OTHER', status: 'ACTIVE', person: { code: 'PER-1' } } })
+    await expect(revokeOperatorGrant('grant-1', { db }))
+      .rejects.toMatchObject({ status: 404, message: expect.stringContaining('OPERATOR_GRANT_NOT_FOUND') })
+  })
+
+  it('rejects a grant that is already not ACTIVE', async () => {
+    const { db } = revokeDb({ grant: { id: 'grant-1', personId: 'per-1', capability: 'OPERATOR', status: 'REVOKED', person: { code: 'PER-1' } } })
+    await expect(revokeOperatorGrant('grant-1', { db }))
+      .rejects.toMatchObject({ status: 409, message: expect.stringContaining('OPERATOR_GRANT_ALREADY_INACTIVE') })
+  })
+
+  it('refuses to revoke the LAST ACTIVE OPERATOR grant without --allow-last', async () => {
+    const { db, updateManyCalls } = revokeDb({
+      grant: { id: 'grant-1', personId: 'per-1', capability: 'OPERATOR', status: 'ACTIVE', person: { code: 'PER-1' } },
+      activeCount: 1,
+    })
+    await expect(revokeOperatorGrant('grant-1', { db }))
+      .rejects.toMatchObject({ status: 409, message: expect.stringContaining('OPERATOR_GRANT_REFUSED_LAST_ACTIVE_OPERATOR') })
+    expect(updateManyCalls).toHaveLength(0)
+  })
+
+  it('revokes the last ACTIVE OPERATOR grant when allowLast is set', async () => {
+    const { db, audit } = revokeDb({
+      grant: { id: 'grant-1', personId: 'per-1', capability: 'OPERATOR', status: 'ACTIVE', person: { code: 'PER-1' } },
+      activeCount: 1,
+    })
+    const result = await revokeOperatorGrant('grant-1', { db, allowLast: true, reason: 'test override' })
+    expect(result).toMatchObject({ id: 'grant-1', personId: 'per-1', personCode: 'PER-1', revoked: true, status: 'REVOKED' })
+    expect(audit.event.action).toBe('OPERATOR_GRANT_REVOKED')
+    expect(JSON.parse(audit.event.payloadJson)).toMatchObject({ personCode: 'PER-1', grantId: 'grant-1', reason: 'test override' })
+  })
+
+  it('revokes freely when another ACTIVE OPERATOR grant still stands, and audits with no credential material', async () => {
+    const { db, audit } = revokeDb({
+      grant: { id: 'grant-1', personId: 'per-1', capability: 'OPERATOR', status: 'ACTIVE', person: { code: 'PER-1' } },
+      activeCount: 2,
+    })
+    const result = await revokeOperatorGrant('grant-1', { db })
+    expect(result).toMatchObject({ revoked: true, status: 'REVOKED' })
+    expect(JSON.stringify(audit.event)).not.toMatch(/scrypt\$/)
+  })
+})
+
+describe('listOperatorGrants', () => {
+  it('defaults to ACTIVE OPERATOR grants, newest last, no credential material', async () => {
+    const findMany = vi.fn(async () => [
+      { id: 'grant-1', personId: 'per-1', status: 'ACTIVE', createdAt: new Date(0), revokedAt: null, revokeReason: null, grantedByPersonId: null, person: { code: 'PER-1', displayName: 'One' } },
+    ])
+    const db = { platformGrant: { findMany } }
+    const grants = await listOperatorGrants({ db })
+    expect(findMany.mock.calls[0][0].where).toMatchObject({ capability: 'OPERATOR', status: 'ACTIVE' })
+    expect(grants).toEqual([
+      { id: 'grant-1', personId: 'per-1', personCode: 'PER-1', displayName: 'One', status: 'ACTIVE', createdAt: new Date(0), revokedAt: null, revokeReason: null, grantedByPersonId: null },
+    ])
+  })
+
+  it('status ALL removes the status filter, so revoked grants are visible too', async () => {
+    const findMany = vi.fn(async () => [])
+    const db = { platformGrant: { findMany } }
+    await listOperatorGrants({ status: 'ALL', db })
+    expect(findMany.mock.calls[0][0].where).toEqual({ capability: 'OPERATOR' })
   })
 })

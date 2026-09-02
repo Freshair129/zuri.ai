@@ -251,6 +251,7 @@
     "FR-138",
     "FR-139",
     "FR-140",
+    "FR-141",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2708,6 +2709,19 @@
       "history": [
         {
           "anchor": "trusted line asset handoff",
+          "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-141": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c772db1e9a688b809166bd09ed6441513d8cbe370569a3e96974140c0964d6e8",
+      "history": [
+        {
+          "anchor": "edge device heartbeat registry",
           "since": "2026-09-02",
           "reason": "declared"
         }

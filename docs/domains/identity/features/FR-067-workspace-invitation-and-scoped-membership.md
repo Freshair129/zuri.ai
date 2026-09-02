@@ -148,6 +148,47 @@ chain.
 - **AC-067.8** All invitation and membership mutations preserve tenant
   isolation and append immutable AuditEvents.
 
+## Owner surface — where the owner half actually happens
+
+Until 2026-09-02 this feature shipped as three authenticated endpoints with no
+caller: acceptance had a page, and mint/revoke/remove existed only as JSON. A
+contract nobody can reach is not a delivered capability, so the owner controls
+now live on **Workspace Home** (`src/app/(entry)/workspace-home/page.jsx`), where
+ADR-027 §D5 already places membership and invitation state — not on a new route.
+
+- **Reading the roster.** `GET /api/workspace-memberships?portfolioId=…` returns
+  the ACTIVE members and still-PENDING invites of one Workspace. It carries no
+  token material and takes the same owner authority as every mutation beside it,
+  so a non-owner gets the identical 404 an absent Workspace produces (ADR-027
+  §D9). Members and invites answer one request rather than two, so the two halves
+  of one panel cannot disagree after a mutation.
+- **Who sees the panel.** Derived from the server's own read model
+  (`GET /api/onboarding/state`, where `role` is the person's WorkspaceMembership
+  row), never from a client-held role string. This is the conservative subset:
+  the service also accepts a Tenant owner under the Workspace
+  (`viewer.ownedTenantIds`), which that read model does not expose, so such an
+  owner currently sees no panel. Widening it means widening the server read
+  model, not guessing in the client.
+- **The token is handed over once.** The raw invite exists in the mint response
+  and nowhere else, so the panel shows it once with a copy affordance, bound to
+  the Workspace it was minted for, and offers no way to retrieve it later.
+  Acceptance stays the Waiting Room's paste field — there is no accept-by-link
+  route, and this added none.
+- **Self-removal is the one action the client blocks.** The service permits it,
+  and permits removing another OWNER (a co-owner handover is legitimate), but an
+  owner who removes their own last membership loses the panel that would undo it.
+  `isSelf` is marked by the server, which is the only side that knows the
+  session principal.
+- **Every refusal reaches the person.** Each mutation confirms first and renders
+  the server's message; the translation keeps the original text inside it, since
+  a friendly sentence that hides which refusal occurred says almost as little as
+  silence.
+
+The decisions above are pure functions in
+`src/modules/identity/workspace-collaboration-view.js`, tested in
+`tests/unit/workspace-collaboration-view.test.js` — this repository has no React
+rendering harness, so logic that lives in JSX cannot be proven at all.
+
 ## Non-goals
 
 - using Workspace membership as a replacement for Business authorization;

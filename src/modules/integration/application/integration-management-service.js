@@ -13,6 +13,7 @@ import {
   DEFAULT_STALE_AFTER_MS,
   evaluateConnectionHealth,
 } from '@/platform/integrations/core/connection-health'
+import { LINE_REGISTRY_TYPES } from './line-registry-service'
 
 // @req FR-080 — owner-scoped Platform metadata management for the Phase 1
 // connection; raw secret values never cross this service boundary. AC-075.3 also
@@ -146,6 +147,12 @@ export async function listPhase1Integrations({
         { purpose: PHASE1_LINE_LLM_PURPOSE },
         { provider: { code: LINE_OA_PROVIDER_CODE } },
       ],
+      // …and nothing else that happens to sit under the same provider. LINE
+      // Registry rows (FR-080 group/contact metadata) are neither a channel nor
+      // a model connection: they carry no credential and no ingress evidence, so
+      // health cannot be computed for them and they would read as permanently
+      // unhealthy on this surface (D3-integration-knowledge-document-intake-17).
+      NOT: { purpose: { in: [LINE_REGISTRY_TYPES.GROUP, LINE_REGISTRY_TYPES.USER] } },
     },
     orderBy: { updatedAt: 'desc' },
     include: { provider: true, credential: true },

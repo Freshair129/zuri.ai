@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1627,
-    "total_edges": 5631,
+    "total_nodes": 1656,
+    "total_edges": 5895,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 147,
+      "document": 148,
       "adr": 57,
       "domain": 9,
       "roadmap": 35,
       "feature": 16,
-      "route": 173,
+      "route": 174,
       "model": 80,
-      "requirement": 295,
-      "test": 379,
-      "code_file": 432
+      "requirement": 296,
+      "test": 398,
+      "code_file": 439
     },
     "coverage": {
-      "requirements": 295,
-      "fr_with_code": "100% (130/130)",
-      "fr_with_tests": "100% (130/130)",
+      "requirements": 296,
+      "fr_with_code": "100% (131/131)",
+      "fr_with_tests": "100% (131/131)",
       "rules_anchored_in_code": "95% (125/131)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 432,
+      "annotated_code_files": 439,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,11 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
       "doc:README",
-      "spec:ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY",
       "doc:CONTEXT-MAP",
-      "test:tests/unit/asset-production-activation-contract.test.js"
+      "test:tests/integration/agent-heartbeat-route.test.js"
     ],
     "added": [],
     "removed": []
@@ -130,7 +128,7 @@
       "id": "code:src/app/(entry)/businesses/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
-      "hash": "f2a8ad81",
+      "hash": "3a1c2f6b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -156,12 +154,13 @@
       "id": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
-      "hash": "78b6c55f",
+      "hash": "c7b83086",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
-          "FR-122"
+          "FR-122",
+          "FR-046"
         ],
         "@spec": [
           "BR-016",
@@ -196,12 +195,13 @@
       "id": "code:src/app/(entry)/waiting-room/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/waiting-room/page.jsx",
-      "hash": "08c2373a",
+      "hash": "d4e83b0c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
-          "FR-067"
+          "FR-067",
+          "FR-046"
         ],
         "@spec": [
           "BR-016",
@@ -217,18 +217,22 @@
       "id": "code:src/app/(entry)/workspace-home/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/workspace-home/page.jsx",
-      "hash": "f47b0957",
+      "hash": "f7922b6b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-067",
+          "FR-046"
         ],
         "@spec": [
           "BR-016",
+          "SEC-014",
           "SDD-038"
         ],
         "@tested": [
-          "tests/unit/workspace-onboarding-routes.test.js"
+          "tests/unit/workspace-onboarding-routes.test.js",
+          "tests/unit/workspace-collaboration-view.test.js"
         ]
       }
     },
@@ -450,17 +454,18 @@
       "id": "code:src/app/(pm)/market/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/market/page.jsx",
-      "hash": "36df76e7",
+      "hash": "175290c5",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-092"
         ],
         "@spec": [
-          "SDD-049"
+          "SDD-049",
+          "BR-001"
         ],
         "@tested": [
-          "tests/unit/market-intelligence/price-observation-domain.test.js"
+          "tests/unit/market-intelligence/market-observations-route.test.js"
         ]
       }
     },
@@ -559,7 +564,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "3abef3ed",
+      "hash": "a874803b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -623,17 +628,19 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "hash": "b3b13b36",
+      "hash": "4b14bbdd",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-101"
         ],
         "@spec": [
-          "FR-101"
+          "FR-101",
+          "SDD-018"
         ],
         "@tested": [
-          "tests/unit/sot-pipeline-graph.test.js"
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-pipeline-scope-render.test.js"
         ]
       }
     },
@@ -641,17 +648,19 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "hash": "c62dfd7b",
+      "hash": "6af475a2",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-100"
         ],
         "@spec": [
-          "FR-100"
+          "FR-100",
+          "SDD-018"
         ],
         "@tested": [
-          "tests/unit/sot-inbox-ui.test.js"
+          "tests/unit/sot-inbox-ui.test.js",
+          "tests/unit/sot-pipeline-scope-render.test.js"
         ]
       }
     },
@@ -659,17 +668,19 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "hash": "4e554393",
+      "hash": "258eaf6f",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-099"
         ],
         "@spec": [
-          "FR-099"
+          "FR-099",
+          "SDD-018"
         ],
         "@tested": [
-          "tests/unit/sot-plan-board-ui.test.js"
+          "tests/unit/sot-plan-board-ui.test.js",
+          "tests/unit/sot-pipeline-scope-render.test.js"
         ]
       }
     },
@@ -1061,15 +1072,21 @@
       "id": "code:src/app/(pm)/settings/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
-      "hash": "ca193264",
+      "hash": "8e1eef50",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-020"
+          "FR-020",
+          "FR-105",
+          "FR-075"
+        ],
+        "@spec": [
+          "SEC-020"
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js",
-          "tests/integration/adaptive-shell.test.js"
+          "tests/integration/adaptive-shell.test.js",
+          "tests/unit/platform-control-guard.test.js"
         ]
       }
     },
@@ -1141,17 +1158,18 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "f2a474d7",
+      "hash": "ee2ae351",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-080"
+          "FR-141"
         ],
         "@spec": [
-          "SEC-016"
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/unit/fr080-ui-contract.test.js"
+          "tests/unit/fr141-edge-device-heartbeat.test.js"
         ]
       }
     },
@@ -1956,7 +1974,7 @@
       "id": "code:src/app/api/files/[id]/relink/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/relink/route.js",
-      "hash": "f789beca",
+      "hash": "e4f76625",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1979,7 +1997,7 @@
       "id": "code:src/app/api/files/[id]/reveal/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/reveal/route.js",
-      "hash": "5f3d2704",
+      "hash": "a80d2dc9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2002,7 +2020,7 @@
       "id": "code:src/app/api/files/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/route.js",
-      "hash": "871bc56b",
+      "hash": "999a94b9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2025,7 +2043,7 @@
       "id": "code:src/app/api/files/cache/rebuild/route.js",
       "type": "code_file",
       "path": "src/app/api/files/cache/rebuild/route.js",
-      "hash": "6350bd5f",
+      "hash": "6468c91d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2069,7 +2087,7 @@
       "id": "code:src/app/api/files/mounts/route.js",
       "type": "code_file",
       "path": "src/app/api/files/mounts/route.js",
-      "hash": "fa3e3e16",
+      "hash": "e2507393",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2091,7 +2109,7 @@
       "id": "code:src/app/api/files/reconcile/route.js",
       "type": "code_file",
       "path": "src/app/api/files/reconcile/route.js",
-      "hash": "a1b676ff",
+      "hash": "20a4a5aa",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2113,7 +2131,7 @@
       "id": "code:src/app/api/files/route.js",
       "type": "code_file",
       "path": "src/app/api/files/route.js",
-      "hash": "954d50db",
+      "hash": "201510e3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2314,6 +2332,27 @@
         "@tested": [
           "tests/unit/platform/cloud-sot-agent.test.js",
           "tests/unit/document-intake-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/market/observations/route.js",
+      "type": "code_file",
+      "path": "src/app/api/market/observations/route.js",
+      "hash": "c3376529",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "SEC-001",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observations-route.test.js"
         ]
       }
     },
@@ -2639,7 +2678,7 @@
       "id": "code:src/app/api/platform/integrations/line-registry/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/integrations/line-registry/route.js",
-      "hash": "ad52e3ba",
+      "hash": "62ba8879",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2647,10 +2686,12 @@
         ],
         "@spec": [
           "SEC-016",
-          "SDD-044"
+          "SDD-044",
+          "SEC-001"
         ],
         "@tested": [
-          "tests/unit/line-registry-service.test.js"
+          "tests/unit/line-registry-service.test.js",
+          "tests/integration/line-registry-scope.test.js"
         ]
       }
     },
@@ -3516,7 +3557,7 @@
       "id": "code:src/app/api/workspace-memberships/route.js",
       "type": "code_file",
       "path": "src/app/api/workspace-memberships/route.js",
-      "hash": "cc117667",
+      "hash": "508cb104",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3528,7 +3569,8 @@
           "SDD-038"
         ],
         "@tested": [
-          "tests/unit/workspace-onboarding-routes.test.js"
+          "tests/unit/workspace-onboarding-routes.test.js",
+          "tests/integration/workspace-collaboration-roster.test.js"
         ]
       }
     },
@@ -3790,18 +3832,20 @@
       "id": "code:src/components/layouts/BusinessShellGuard.jsx",
       "type": "code_file",
       "path": "src/components/layouts/BusinessShellGuard.jsx",
-      "hash": "01a3c330",
+      "hash": "902963cb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-046"
         ],
         "@spec": [
           "SDD-022"
         ],
         "@tested": [
           "tests/unit/business-shell-guard.test.js",
-          "tests/unit/entry-routing-boundary.test.js"
+          "tests/unit/entry-routing-boundary.test.js",
+          "tests/unit/viewer-failure.test.js"
         ]
       }
     },
@@ -3894,11 +3938,12 @@
       "id": "code:src/components/layouts/PlatformControlShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlShell.jsx",
-      "hash": "9e1960a8",
+      "hash": "46214f8f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-105"
+          "FR-105",
+          "FR-075"
         ],
         "@spec": [
           "NFR-008"
@@ -4090,16 +4135,19 @@
       "id": "code:src/lib/business-shell-guard.js",
       "type": "code_file",
       "path": "src/lib/business-shell-guard.js",
-      "hash": "d21222a4",
+      "hash": "8d51ecc8",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
+          "FR-046",
           "FR-060",
           "FR-061"
         ],
         "@spec": [
-          "SDD-022"
+          "SDD-022",
+          "SDD-024",
+          "SEC-008"
         ],
         "@tested": [
           "tests/unit/business-shell-guard.test.js"
@@ -4300,6 +4348,26 @@
       }
     },
     {
+      "id": "code:src/lib/viewer-failure.js",
+      "type": "code_file",
+      "path": "src/lib/viewer-failure.js",
+      "hash": "6b4e1efa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-123"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/viewer-failure.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/action-gate.js",
       "type": "code_file",
       "path": "src/modules/agent/action-gate.js",
@@ -4404,6 +4472,25 @@
         "@tested": [
           "tests/integration/agent-context.test.js",
           "tests/integration/agent-multi-principal.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/edge-device-registry.js",
+      "type": "code_file",
+      "path": "src/modules/agent/edge-device-registry.js",
+      "hash": "51e15c6f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-141"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr141-edge-device-heartbeat.test.js"
         ]
       }
     },
@@ -4735,7 +4822,7 @@
       "id": "code:src/modules/agent/step-up.js",
       "type": "code_file",
       "path": "src/modules/agent/step-up.js",
-      "hash": "7504b7a5",
+      "hash": "6bd473ce",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4842,7 +4929,7 @@
       "id": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-evidence-service.js",
-      "hash": "7c658bb9",
+      "hash": "00ab8ab7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5509,12 +5596,13 @@
       "id": "code:src/modules/identity/link-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
-      "hash": "5259bcbb",
+      "hash": "241cdd48",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
-          "FR-097"
+          "FR-097",
+          "FR-026"
         ],
         "@spec": [
           "BR-002",
@@ -5522,7 +5610,9 @@
           "SEC-018"
         ],
         "@tested": [
-          "tests/integration/identity-link.test.js"
+          "tests/integration/identity-link.test.js",
+          "tests/integration/agent-action-gate.test.js",
+          "tests/integration/agent-turn.test.js"
         ]
       }
     },
@@ -5589,7 +5679,7 @@
       "id": "code:src/modules/identity/operator-bootstrap.js",
       "type": "code_file",
       "path": "src/modules/identity/operator-bootstrap.js",
-      "hash": "a3fd2130",
+      "hash": "2f28d45b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5630,7 +5720,7 @@
       "id": "code:src/modules/identity/plugin-auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
-      "hash": "f5a72a2a",
+      "hash": "4d743ccc",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6007,10 +6097,30 @@
       }
     },
     {
+      "id": "code:src/modules/identity/workspace-collaboration-view.js",
+      "type": "code_file",
+      "path": "src/modules/identity/workspace-collaboration-view.js",
+      "hash": "58a07f84",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-collaboration-view.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/workspace-membership-service.js",
       "type": "code_file",
       "path": "src/modules/identity/workspace-membership-service.js",
-      "hash": "5a09a061",
+      "hash": "ee22af32",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6023,7 +6133,8 @@
         ],
         "@tested": [
           "tests/unit/workspace-invite-service.test.js",
-          "tests/integration/workspace-onboarding-flow.test.js"
+          "tests/integration/workspace-onboarding-flow.test.js",
+          "tests/integration/workspace-collaboration-roster.test.js"
         ]
       }
     },
@@ -6071,7 +6182,7 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "b3e37f31",
+      "hash": "2047f229",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6091,7 +6202,7 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "55d683eb",
+      "hash": "52a85b13",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6099,10 +6210,13 @@
         ],
         "@spec": [
           "SEC-016",
-          "SDD-044"
+          "SDD-044",
+          "SEC-001",
+          "BR-002"
         ],
         "@tested": [
-          "tests/unit/line-registry-service.test.js"
+          "tests/unit/line-registry-service.test.js",
+          "tests/integration/line-registry-scope.test.js"
         ]
       }
     },
@@ -6670,7 +6784,7 @@
       "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/market-observation-service.js",
-      "hash": "0a54664c",
+      "hash": "fb7c7107",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6681,6 +6795,9 @@
           "BR-019",
           "SDD-049",
           "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observation-service.test.js"
         ]
       }
     },
@@ -6781,17 +6898,19 @@
       "id": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
       "type": "code_file",
       "path": "src/modules/market-intelligence/components/MarketDashboard.jsx",
-      "hash": "05f3dd0f",
+      "hash": "07ea2a76",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-092"
         ],
         "@spec": [
-          "SDD-049"
+          "SDD-049",
+          "BR-001",
+          "SEC-001"
         ],
         "@tested": [
-          "tests/unit/market-intelligence/price-observation-domain.test.js"
+          "tests/unit/market-intelligence/market-observations-route.test.js"
         ]
       }
     },
@@ -6926,7 +7045,7 @@
       "id": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
-      "hash": "2cc480c7",
+      "hash": "1cdb0490",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7037,11 +7156,12 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "00a181fa",
+      "hash": "32fca65e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-092",
           "FR-123"
         ],
         "@spec": [
@@ -7184,20 +7304,25 @@
       "id": "code:src/modules/project-manager/application/file-asset-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-asset-service.js",
-      "hash": "d2055dc0",
+      "hash": "895692fa",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-045"
+          "FR-045",
+          "FR-072"
         ],
         "@spec": [
           "SDD-023",
           "BR-010",
-          "SEC-007"
+          "SEC-007",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
           "tests/unit/fr045-file-asset-service.test.js",
-          "tests/integration/fr045-managed-files.test.js"
+          "tests/integration/fr045-managed-files.test.js",
+          "tests/integration/fr072-file-asset-authorization.test.js"
         ]
       }
     },
@@ -7227,19 +7352,24 @@
       "id": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-reconcile-cache-service.js",
-      "hash": "83d8ff97",
+      "hash": "bd065eb2",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-045"
+          "FR-045",
+          "FR-072"
         ],
         "@spec": [
           "SDD-023",
           "BR-010",
-          "SEC-007"
+          "SEC-007",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
-          "tests/unit/fr045-reconcile-cache.test.js"
+          "tests/unit/fr045-reconcile-cache.test.js",
+          "tests/integration/fr072-file-asset-authorization.test.js"
         ]
       }
     },
@@ -7247,18 +7377,23 @@
       "id": "code:src/modules/project-manager/application/local-file-reveal-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/local-file-reveal-service.js",
-      "hash": "20c1261a",
+      "hash": "80fee713",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-045"
+          "FR-045",
+          "FR-072"
         ],
         "@spec": [
           "SEC-007",
-          "SDD-023"
+          "SDD-023",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
-          "tests/unit/fr045-reveal.test.js"
+          "tests/unit/fr045-reveal.test.js",
+          "tests/integration/fr072-file-asset-authorization.test.js"
         ]
       }
     },
@@ -7342,11 +7477,12 @@
       "id": "code:src/modules/project-manager/application/project-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-authorization.js",
-      "hash": "abd89c12",
+      "hash": "404c1983",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-072",
+          "FR-045",
           "FR-073"
         ],
         "@spec": [
@@ -7355,7 +7491,8 @@
           "BR-001"
         ],
         "@tested": [
-          "tests/integration/project-authorization.test.js"
+          "tests/integration/project-authorization.test.js",
+          "tests/integration/fr072-file-asset-authorization.test.js"
         ]
       }
     },
@@ -7765,7 +7902,7 @@
       "id": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
-      "hash": "ea34eb32",
+      "hash": "5f720d8a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7776,7 +7913,34 @@
         "@spec": [
           "BR-003",
           "BR-004",
-          "SDD-006"
+          "BR-009",
+          "SDD-006",
+          "SDD-009",
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/plan-intake-flow.test.js",
+          "tests/unit/work-surface-scope-inventory.test.js",
+          "tests/integration/plan-mode-modal-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/PlanPreview.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/PlanPreview.jsx",
+      "hash": "eef98344",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-012"
+        ],
+        "@spec": [
+          "BR-009",
+          "SDD-009"
+        ],
+        "@tested": [
+          "tests/unit/plan-intake-flow.test.js"
         ]
       }
     },
@@ -7857,7 +8021,7 @@
       "id": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "hash": "cbbab68f",
+      "hash": "aac368f5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7866,7 +8030,11 @@
         ],
         "@spec": [
           "BR-004",
-          "SEC-001"
+          "SEC-001",
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/work-surface-scope-inventory.test.js"
         ]
       }
     },
@@ -7894,7 +8062,7 @@
       "id": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/UploadPlanModal.jsx",
-      "hash": "16bb0f6b",
+      "hash": "90b19a15",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7902,7 +8070,13 @@
           "FR-018"
         ],
         "@spec": [
-          "BR-009"
+          "BR-009",
+          "SDD-009",
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/plan-intake-flow.test.js",
+          "tests/unit/work-surface-scope-inventory.test.js"
         ]
       }
     },
@@ -7921,6 +8095,25 @@
         ],
         "@tested": [
           "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/usePlanIntake.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/usePlanIntake.js",
+      "hash": "8dec8931",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-012"
+        ],
+        "@spec": [
+          "BR-009",
+          "SDD-009"
+        ],
+        "@tested": [
+          "tests/unit/plan-intake-flow.test.js"
         ]
       }
     },
@@ -8160,6 +8353,29 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/plan-mode-envelope.js",
+      "hash": "b2343feb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-009",
+          "FR-017"
+        ],
+        "@spec": [
+          "BR-003",
+          "BR-004",
+          "BR-009",
+          "SDD-006"
+        ],
+        "@tested": [
+          "tests/unit/plan-intake-flow.test.js",
+          "tests/integration/plan-mode-modal-intake.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
@@ -8388,17 +8604,19 @@
       "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "hash": "b236c528",
+      "hash": "fcc8dbe4",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-005"
         ],
         "@spec": [
-          "NFR-008"
+          "NFR-008",
+          "SDD-018"
         ],
         "@tested": [
-          "tests/unit/global-view-drilldown.test.js"
+          "tests/unit/global-view-drilldown.test.js",
+          "tests/unit/work-surface-scope-inventory.test.js"
         ]
       }
     },
@@ -8869,9 +9087,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.30.0b",
+      "version": "1.31.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "24eb1d5f",
+      "hash": "0f4e2e77",
       "status": "current"
     },
     {
@@ -9030,7 +9248,7 @@
       "path": "docs/change-requests/CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "CR-016 — Asset Evidence Production Activation",
       "hash": "aad8e515",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -9111,7 +9329,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.16.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "7fb27af9",
+      "hash": "c13c07a2",
       "status": "current"
     },
     {
@@ -9276,7 +9494,7 @@
       "path": "docs/domains/identity/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "3637c57f",
+      "hash": "b04301a7",
       "status": "current"
     },
     {
@@ -9458,7 +9676,7 @@
       "title": "FR-067 — Workspace invitation and scoped membership",
       "version": "1.0.0",
       "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
-      "hash": "e148ea0b",
+      "hash": "0938ce5b",
       "status": "current"
     },
     {
@@ -9864,6 +10082,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-141-edge-device-heartbeat-registry",
+      "type": "document",
+      "path": "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
+      "title": "FR-141 — Edge Device heartbeat registry",
+      "hash": "568e06da",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -9908,7 +10134,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "78db7015",
+      "hash": "ab262a1d",
       "status": "current"
     },
     {
@@ -10200,7 +10426,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.135.0b",
       "doc_status": "Draft",
-      "hash": "80a10bb2",
+      "hash": "b368cc4f",
       "status": "current"
     },
     {
@@ -10244,7 +10470,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ab2bee77",
+      "hash": "55451ee4",
       "status": "current"
     },
     {
@@ -10270,7 +10496,7 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "8860fdc7",
+      "hash": "0877267c",
       "status": "current"
     },
     {
@@ -10486,7 +10712,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "6d18ff36",
+      "hash": "ef9fd9d8",
       "status": "current"
     },
     {
@@ -10627,7 +10853,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "41635af5",
+      "hash": "00b7725c",
       "status": "current"
     },
     {
@@ -10638,14 +10864,17 @@
       "owns_models": [
         "MarketObservation"
       ],
-      "owns_routes": [],
+      "owns_routes": [
+        "src/app/(pm)/market/**",
+        "src/app/api/market/**"
+      ],
       "owns_code": [
         "src/modules/market-intelligence/**"
       ],
       "modules": [
         "market-intelligence"
       ],
-      "hash": "a60bfbbd",
+      "hash": "19a854ee",
       "status": "current"
     },
     {
@@ -11772,9 +12001,9 @@
       "family": "FR",
       "label": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent ✅ "
+      "row_text": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent 🟠 implemented at the library level and unit/integration-tested, but `createPhase1BusinessAgentPortsFromEnv` — the only ports factory the production LINE webhook route calls — never constructs or injects an MSP transport or a `graphTraverse`/knowledge reader; every live LINE turn falls back to ephemeral in-process memory (`createInMemoryMemory()`) and to the plain Prisma relation reader (`queryKnowledge`), never to MSP or the GenesisBlockDB-backed graph reader this requirement names. Production wiring of both ports is pending "
     },
     {
       "id": "req:FR-030",
@@ -12404,7 +12633,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. ✅ implemented; shipped in PR #88 (merge `1136863`) — translator, `MarketObservation` persistence behind an atomic unique-lineage insert, trusted Integration raw read port and injected GKS resolution live in `src/modules/market-intelligence/`, covered by `tests/integration/market-intelligence-persistence.test.js`, `tests/integration/market-intelligence-gks-resolution.test.js` and `tests/unit/market-intelligence-schema-migration.test.js` — status flip 2026-08-30 "
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. ✅ implemented; shipped in PR #88 (merge `1136863`) — translator, `MarketObservation` persistence behind an atomic unique-lineage insert, trusted Integration raw read port and injected GKS resolution live in `src/modules/market-intelligence/`, covered by `tests/integration/market-intelligence-persistence.test.js`, `tests/integration/market-intelligence-gks-resolution.test.js` and `tests/unit/market-intelligence-schema-migration.test.js` — status flip 2026-08-30; 2026-09-02: console read surface delivered — `GET /api/market/observations` (viewer must see the Business, GET only) feeds `/market` with real rows (`tests/integration/market-intelligence-observation-feed.test.js`); the production translation trigger is still outstanding, so a live installation shows an honest empty state "
     },
     {
       "id": "req:FR-093",
@@ -12554,7 +12783,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Installation-operator grant store and bootstrap: FR-075's `isOperator` capability becomes holdable in production. A `PlatformGrant` row (Person-bound, capability `OPERATOR`, revocable, audited) is the server-held store, and the session port resolves `platformGrant` from it on every request — replacing the hardcoded `false` that made the capability unholdable by any web session — so revoking a grant denies the very next request and no session snapshot outlives it (NFR-019 discipline). `scripts/bootstrap-operator.mjs` creates the installation's FIRST operator (Person + scrypt credential with a random initial password shown exactly once + ACTIVE grant, one transaction, audited with no password material) and refuses while any ACTIVE OPERATOR grant stands — bootstrap serves the empty operator set only; every later grant is issued by a standing operator. Where the store is absent (test doubles, pre-migration databases) resolution reads `false`, the pre-FR-107 behavior, never a widened one. ✅ implemented; Supabase migration applied 2026-08-27; first operator bootstrapped onto the pre-existing PER-BOSS Person (grant-only — the credential already existed via FR-104, so the all-or-nothing CLI correctly refused and the grant was issued by operator script) "
+      "row_text": "Installation-operator grant store and bootstrap: FR-075's `isOperator` capability becomes holdable in production. A `PlatformGrant` row (Person-bound, capability `OPERATOR`, revocable, audited) is the server-held store, and the session port resolves `platformGrant` from it on every request — replacing the hardcoded `false` that made the capability unholdable by any web session — so revoking a grant denies the very next request and no session snapshot outlives it (NFR-019 discipline). `scripts/bootstrap-operator.mjs` creates the installation's FIRST operator (Person + scrypt credential with a random initial password shown exactly once + ACTIVE grant, one transaction, audited with no password material) and refuses while any ACTIVE OPERATOR grant stands — bootstrap serves the empty operator set only; every later grant is issued by a standing operator. Where the store is absent (test doubles, pre-migration databases) resolution reads `false`, the pre-FR-107 behavior, never a widened one. ✅ implemented; Supabase migration applied 2026-08-27; first operator bootstrapped onto the pre-existing PER-BOSS Person (grant-only — the credential already existed via FR-104, so the all-or-nothing CLI correctly refused and the grant was issued by operator script); 2026-09-02: the revoke/list half exists — `scripts/revoke-operator-grant.mjs` (refuses to revoke the last ACTIVE grant without `--allow-last`, audited, no credential material) and `scripts/list-operator-grants.mjs`, CLI-only like bootstrap; no HTTP route or UI yet "
     },
     {
       "id": "req:FR-108",
@@ -12885,6 +13114,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service. 🟠 implementation authorized under ADR-056 / FEAT-016 "
+    },
+    {
+      "id": "req:FR-141",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make. 🟠 implemented 2026-09-02 — route, `src/modules/agent/edge-device-registry.js` and `tests/unit/fr141-edge-device-heartbeat.test.js`; persistence deliberately deferred, owner decision open (feature note) "
     },
     {
       "id": "req:NFR-001",
@@ -14627,6 +14866,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/market/observations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/market/observations",
+      "path": "src/app/api/market/observations/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/mcp",
       "type": "route",
       "kind": "api",
@@ -15787,7 +16034,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
       "title": "ADR-027 — Profile-first and Workspace-first onboarding",
-      "hash": "423f145a",
+      "hash": "7f3fd11d",
       "status": "current"
     },
     {
@@ -16028,7 +16275,7 @@
       "path": "docs/decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md",
       "title": "ADR-057 — Asset Evidence Production Deployment and Migration Boundary",
       "hash": "55535bfe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -16083,7 +16330,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
-      "hash": "fa29f9f0",
+      "hash": "42494a93",
       "status": "current"
     },
     {
@@ -16169,6 +16416,13 @@
       "path": "tests/integration/agent-context.test.js",
       "hash": "2f5c497a",
       "status": "current"
+    },
+    {
+      "id": "test:tests/integration/agent-heartbeat-route.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-heartbeat-route.test.js",
+      "hash": "22cdecfc",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/agent-msp-port.test.js",
@@ -16293,7 +16547,7 @@
       "id": "test:tests/integration/fr045-managed-files.test.js",
       "type": "test",
       "path": "tests/integration/fr045-managed-files.test.js",
-      "hash": "a287eb9f",
+      "hash": "9cb62029",
       "status": "current"
     },
     {
@@ -16322,6 +16576,13 @@
       "type": "test",
       "path": "tests/integration/fr072-dependency-authorization.test.js",
       "hash": "a1004176",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-file-asset-authorization.test.js",
+      "hash": "5a69b853",
       "status": "current"
     },
     {
@@ -16426,7 +16687,7 @@
       "id": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
       "type": "test",
       "path": "tests/integration/fr123-plugin-auth-reaper.test.js",
-      "hash": "d3a4115b",
+      "hash": "7256cb0c",
       "status": "current"
     },
     {
@@ -16577,6 +16838,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-registry-scope.test.js",
+      "type": "test",
+      "path": "tests/integration/line-registry-scope.test.js",
+      "hash": "2f41d731",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/line-reply-record.test.js",
       "type": "test",
       "path": "tests/integration/line-reply-record.test.js",
@@ -16605,6 +16873,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-observation-feed.test.js",
+      "hash": "c03f31a8",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/market-intelligence-persistence.test.js",
       "type": "test",
       "path": "tests/integration/market-intelligence-persistence.test.js",
@@ -16622,7 +16897,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "227e89fc",
+      "hash": "de8179ba",
       "status": "current"
     },
     {
@@ -16644,6 +16919,20 @@
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
       "hash": "0a6711d7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "type": "test",
+      "path": "tests/integration/plan-mode-modal-intake.test.js",
+      "hash": "31562324",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/platform-grant-revoke.test.js",
+      "type": "test",
+      "path": "tests/integration/platform-grant-revoke.test.js",
+      "hash": "14ad08f7",
       "status": "current"
     },
     {
@@ -16738,6 +17027,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "type": "test",
+      "path": "tests/integration/workspace-collaboration-roster.test.js",
+      "hash": "aba5ae01",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/workspace-onboarding-flow.test.js",
       "type": "test",
       "path": "tests/integration/workspace-onboarding-flow.test.js",
@@ -16791,6 +17087,13 @@
       "type": "test",
       "path": "tests/unit/api-access-key-routes.test.js",
       "hash": "b1cd6e5f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/api-path-reachability.test.js",
+      "type": "test",
+      "path": "tests/unit/api-path-reachability.test.js",
+      "hash": "13545843",
       "status": "current"
     },
     {
@@ -16896,7 +17199,7 @@
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
       "hash": "4bb78d36",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/audit-page.test.js",
@@ -16979,7 +17282,7 @@
       "id": "test:tests/unit/business-shell-guard.test.js",
       "type": "test",
       "path": "tests/unit/business-shell-guard.test.js",
-      "hash": "b93b15fe",
+      "hash": "8aed343a",
       "status": "current"
     },
     {
@@ -17301,7 +17604,7 @@
       "id": "test:tests/unit/fr045-file-asset-service.test.js",
       "type": "test",
       "path": "tests/unit/fr045-file-asset-service.test.js",
-      "hash": "7b6ef0a5",
+      "hash": "7e0bd861",
       "status": "current"
     },
     {
@@ -17329,14 +17632,14 @@
       "id": "test:tests/unit/fr045-reconcile-cache.test.js",
       "type": "test",
       "path": "tests/unit/fr045-reconcile-cache.test.js",
-      "hash": "21a93426",
+      "hash": "0bdc53bb",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr045-reveal.test.js",
       "type": "test",
       "path": "tests/unit/fr045-reveal.test.js",
-      "hash": "6bb0aa8c",
+      "hash": "7e289f80",
       "status": "current"
     },
     {
@@ -17588,7 +17891,7 @@
       "id": "test:tests/unit/fr123-plugin-auth-service.test.js",
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
-      "hash": "77995422",
+      "hash": "f58596cc",
       "status": "current"
     },
     {
@@ -17617,6 +17920,13 @@
       "type": "test",
       "path": "tests/unit/fr124-product-readiness-ui.test.js",
       "hash": "fc946d92",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "type": "test",
+      "path": "tests/unit/fr141-edge-device-heartbeat.test.js",
+      "hash": "4dc5ee06",
       "status": "current"
     },
     {
@@ -17861,7 +18171,7 @@
       "id": "test:tests/unit/line-registry-service.test.js",
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
-      "hash": "a763c151",
+      "hash": "0dc93356",
       "status": "current"
     },
     {
@@ -17869,6 +18179,13 @@
       "type": "test",
       "path": "tests/unit/line-webhook-scope-fail-closed.test.js",
       "hash": "50dac684",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/list-operator-grants-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/list-operator-grants-cli.test.js",
+      "hash": "4a96235b",
       "status": "current"
     },
     {
@@ -17893,10 +18210,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-feed.test.js",
+      "hash": "fc135338",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/market-observation-repository.test.js",
-      "hash": "1ae80100",
+      "hash": "b4ed189f",
       "status": "current"
     },
     {
@@ -17904,6 +18228,13 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/market-observation-service.test.js",
       "hash": "ec6df85c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observations-route.test.js",
+      "hash": "54213efb",
       "status": "current"
     },
     {
@@ -18022,7 +18353,7 @@
       "id": "test:tests/unit/operator-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/operator-bootstrap.test.js",
-      "hash": "59cd16dc",
+      "hash": "e374d482",
       "status": "current"
     },
     {
@@ -18110,6 +18441,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/plan-intake-flow.test.js",
+      "type": "test",
+      "path": "tests/unit/plan-intake-flow.test.js",
+      "hash": "a0066a21",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
@@ -18128,6 +18466,13 @@
       "type": "test",
       "path": "tests/unit/platform-approver-profile-migration.test.js",
       "hash": "34f79a9f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-control-entry-link.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-control-entry-link.test.js",
+      "hash": "2a520165",
       "status": "current"
     },
     {
@@ -18425,6 +18770,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/revoke-operator-grant-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/revoke-operator-grant-cli.test.js",
+      "hash": "6fea64f7",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/roadmap-coverage.test.js",
       "type": "test",
       "path": "tests/unit/roadmap-coverage.test.js",
@@ -18565,6 +18917,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-pipeline-scope-render.test.js",
+      "hash": "c8214b23",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/sot-plan-board-ui.test.js",
       "type": "test",
       "path": "tests/unit/sot-plan-board-ui.test.js",
@@ -18649,6 +19008,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/viewer-failure.test.js",
+      "type": "test",
+      "path": "tests/unit/viewer-failure.test.js",
+      "hash": "e93124a0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/viewer-gate.test.js",
       "type": "test",
       "path": "tests/unit/viewer-gate.test.js",
@@ -18663,6 +19029,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "type": "test",
+      "path": "tests/unit/work-surface-scope-inventory.test.js",
+      "hash": "e151bbe8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/workspace-collaboration-view.test.js",
+      "type": "test",
+      "path": "tests/unit/workspace-collaboration-view.test.js",
+      "hash": "e0c13f94",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/workspace-invite-service.test.js",
       "type": "test",
       "path": "tests/unit/workspace-invite-service.test.js",
@@ -18673,7 +19053,7 @@
       "id": "test:tests/unit/workspace-onboarding-routes.test.js",
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
-      "hash": "76e1c1c4",
+      "hash": "5727f16e",
       "status": "current"
     },
     {
@@ -18834,6 +19214,13 @@
     },
     {
       "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "to": "req:FR-066",
       "type": "implements",
       "status": "current",
@@ -18883,6 +19270,13 @@
     },
     {
       "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
       "to": "req:FR-066",
       "type": "implements",
       "status": "current",
@@ -18918,6 +19312,13 @@
     },
     {
       "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
       "to": "req:FR-066",
       "type": "implements",
       "status": "current",
@@ -18925,7 +19326,21 @@
     },
     {
       "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
       "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19233,6 +19648,13 @@
     },
     {
       "from": "code:src/app/(pm)/market/page.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/market/page.jsx",
       "to": "req:FR-092",
       "type": "implements",
       "status": "current",
@@ -19449,6 +19871,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
       "to": "req:FR-100",
       "type": "implements",
@@ -19463,6 +19892,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
       "to": "req:FR-099",
       "type": "implements",
@@ -19472,6 +19908,13 @@
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
       "to": "req:FR-099",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19974,6 +20417,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:SEC-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/timeline/page.jsx",
       "to": "req:FR-064",
       "type": "implements",
@@ -20010,14 +20474,21 @@
     },
     {
       "from": "code:src/app/api/agent/heartbeat/route.js",
-      "to": "req:FR-080",
+      "to": "req:FR-141",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/agent/heartbeat/route.js",
-      "to": "req:SEC-016",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/heartbeat/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22032,6 +22503,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/market/observations/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/observations/route.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/observations/route.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/observations/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/observations/route.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/mcp/route.js",
       "to": "req:FR-069",
       "type": "implements",
@@ -22468,6 +22974,13 @@
     {
       "from": "code:src/app/api/platform/integrations/line-registry/route.js",
       "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24203,6 +24716,13 @@
     },
     {
       "from": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessShellGuard.jsx",
       "to": "req:SDD-022",
       "type": "follows",
       "status": "current",
@@ -24317,6 +24837,13 @@
       "from": "code:src/components/layouts/PlatformControlGuard.jsx",
       "to": "req:SEC-020",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:FR-075",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -24637,6 +25164,13 @@
     },
     {
       "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
       "to": "req:FR-060",
       "type": "implements",
       "status": "current",
@@ -24652,6 +25186,20 @@
     {
       "from": "code:src/lib/business-shell-guard.js",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24937,6 +25485,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/viewer-failure.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/viewer-failure.js",
+      "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/viewer-failure.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/viewer-failure.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/action-gate.js",
       "to": "req:BR-009",
       "type": "follows",
@@ -25129,6 +25705,27 @@
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-098",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/edge-device-registry.js",
+      "to": "req:FR-141",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/edge-device-registry.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/edge-device-registry.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -26779,6 +27376,13 @@
     },
     {
       "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:FR-026",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
       "to": "req:FR-097",
       "type": "implements",
       "status": "current",
@@ -27457,6 +28061,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/workspace-collaboration-view.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-collaboration-view.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-collaboration-view.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-collaboration-view.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/workspace-membership-service.js",
       "to": "req:BR-016",
       "type": "follows",
@@ -27563,6 +28195,13 @@
     },
     {
       "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-registry-service.js",
       "to": "req:FR-080",
       "type": "implements",
       "status": "current",
@@ -27571,6 +28210,13 @@
     {
       "from": "code:src/modules/integration/application/line-registry-service.js",
       "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28326,6 +28972,13 @@
     },
     {
       "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
       "to": "req:FR-092",
       "type": "implements",
       "status": "current",
@@ -28334,6 +28987,13 @@
     {
       "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
       "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28580,6 +29240,13 @@
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-019",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-092",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -28872,6 +29539,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
       "to": "req:BR-010",
       "type": "follows",
       "status": "current",
@@ -28886,6 +29560,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -28893,7 +29574,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28935,6 +29630,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
       "to": "req:BR-010",
       "type": "follows",
       "status": "current",
@@ -28949,6 +29651,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -28956,7 +29665,28 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:BR-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28970,6 +29700,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -28977,7 +29714,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29091,6 +29842,13 @@
       "from": "code:src/modules/project-manager/application/project-authorization.js",
       "to": "req:BR-001",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:FR-045",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -29887,6 +30645,13 @@
     },
     {
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:FR-009",
       "type": "implements",
       "status": "current",
@@ -29909,6 +30674,41 @@
     {
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanPreview.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanPreview.jsx",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanPreview.jsx",
+      "to": "req:SDD-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30020,6 +30820,13 @@
     },
     {
       "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -30068,6 +30875,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/useApi.js",
       "to": "req:FR-045",
       "type": "implements",
@@ -30077,6 +30898,27 @@
     {
       "from": "code:src/modules/project-manager/components/useApi.js",
       "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/usePlanIntake.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/usePlanIntake.js",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/usePlanIntake.js",
+      "to": "req:SDD-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30572,6 +31414,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:BR-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:FR-009",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/import/plan-schema.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -30854,6 +31738,13 @@
     {
       "from": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
+      "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -33617,6 +34508,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-141",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -34926,6 +35824,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/market/observations",
+      "to": "domain:market-intelligence",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/mcp",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -35452,7 +36357,7 @@
     },
     {
       "from": "route:page:/market",
-      "to": "domain:project-manager",
+      "to": "domain:market-intelligence",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -38910,6 +39815,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-086",
       "type": "verifies",
       "status": "current",
@@ -38932,6 +39844,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-105",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39042,6 +39961,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/adaptive-shell.test.js",
       "to": "code:src/app/(pm)/settings/page.jsx",
       "type": "tests",
@@ -39091,6 +40017,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "code:src/modules/agent/action-gate.js",
       "type": "tests",
@@ -39120,7 +40067,35 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "code:src/modules/identity/link-line-identity.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-022",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39197,6 +40172,13 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:FR-098",
       "type": "verifies",
       "status": "current",
@@ -39219,6 +40201,13 @@
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39341,6 +40330,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-heartbeat-route.test.js",
+      "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-heartbeat-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-heartbeat-route.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/agent-msp-port.test.js",
@@ -39617,7 +40627,35 @@
     },
     {
       "from": "test:tests/integration/agent-turn.test.js",
+      "to": "code:src/modules/identity/link-line-identity.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
       "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:FR-026",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -40765,6 +41803,13 @@
     },
     {
       "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
       "to": "req:BR-010",
       "type": "verifies",
       "status": "current",
@@ -40779,6 +41824,13 @@
     },
     {
       "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -40786,10 +41838,24 @@
     },
     {
       "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
       "to": "req:SEC-007",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr046-entry-contract.test.js",
@@ -41038,6 +42104,118 @@
     },
     {
       "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/file-asset-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/project-authorization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:BR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -42592,6 +43770,13 @@
     },
     {
       "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:FR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
       "to": "req:FR-097",
       "type": "verifies",
       "status": "current",
@@ -43340,6 +44525,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "code:src/modules/integration/application/line-registry-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-registry-scope.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-reply-record.test.js",
       "to": "code:src/app/api/agent/line-delivery/route.js",
       "type": "tests",
@@ -43487,6 +44728,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/market-intelligence-persistence.test.js",
       "to": "req:FR-092",
       "type": "verifies",
@@ -43586,10 +44862,24 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-071",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -43914,6 +45204,118 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-mode-modal-intake.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/platform-grant-revoke.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/platform-grant-revoke.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/platform-grant-revoke.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/platform-grant-revoke.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/platform-grant-revoke.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/platform/integration-persistence.test.js",
       "to": "code:src/platform/integrations/core/raw-record-repository.js",
       "type": "tests",
@@ -43954,6 +45356,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/project-authorization.test.js",
@@ -44908,6 +46317,48 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "code:src/app/api/workspace-memberships/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "code:src/modules/identity/workspace-membership-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
       "to": "code:src/modules/identity/onboarding-service.js",
       "type": "tests",
@@ -45477,6 +46928,34 @@
     {
       "from": "test:tests/unit/api-access-key-routes.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-path-reachability.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-path-reachability.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-path-reachability.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-path-reachability.test.js",
+      "to": "req:SDD-009",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -47352,6 +48831,13 @@
     },
     {
       "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
       "to": "req:FR-060",
       "type": "verifies",
       "status": "current",
@@ -47370,6 +48856,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/business-strategy-route.test.js",
@@ -48556,6 +50056,13 @@
     },
     {
       "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -49249,6 +50756,13 @@
     },
     {
       "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
       "to": "req:BR-010",
       "type": "verifies",
       "status": "current",
@@ -49270,6 +50784,13 @@
     },
     {
       "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -49278,6 +50799,13 @@
     {
       "from": "test:tests/unit/fr045-file-asset-service.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -49417,6 +50945,13 @@
     },
     {
       "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
       "to": "req:BR-010",
       "type": "verifies",
       "status": "current",
@@ -49438,6 +50973,13 @@
     },
     {
       "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -49446,6 +50988,13 @@
     {
       "from": "test:tests/unit/fr045-reconcile-cache.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -49480,6 +51029,13 @@
     },
     {
       "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
       "to": "req:FR-045",
       "type": "verifies",
       "status": "current",
@@ -49494,6 +51050,13 @@
     },
     {
       "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -49502,6 +51065,13 @@
     {
       "from": "test:tests/unit/fr045-reveal.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -51090,13 +52660,6 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
-      "to": "code:src/app/api/agent/heartbeat/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "code:src/app/api/platform/integrations/route.js",
       "type": "tests",
       "status": "current",
@@ -51712,6 +53275,48 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "code:src/app/api/agent/heartbeat/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "code:src/modules/agent/edge-device-registry.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/gate-cap-rounding.test.js",
       "to": "req:BR-006",
       "type": "verifies",
@@ -51801,6 +53406,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/global-view-drilldown.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/global-view-drilldown.test.js",
@@ -53071,6 +54683,13 @@
     },
     {
       "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:FR-080",
       "type": "verifies",
       "status": "current",
@@ -53099,6 +54718,13 @@
     },
     {
       "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:SEC-016",
       "type": "verifies",
       "status": "current",
@@ -53121,6 +54747,20 @@
     {
       "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/list-operator-grants-cli.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/list-operator-grants-cli.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -53210,6 +54850,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
       "to": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
       "type": "tests",
@@ -53221,7 +54889,7 @@
       "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
@@ -53239,6 +54907,104 @@
     },
     {
       "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "code:src/app/(pm)/market/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "code:src/app/api/market/observations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observations-route.test.js",
       "to": "req:SEC-017",
       "type": "verifies",
       "status": "current",
@@ -53348,20 +55114,6 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
-      "to": "code:src/app/(pm)/market/page.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
-      "to": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
     },
     {
       "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
@@ -54393,6 +56145,111 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "code:src/modules/project-manager/components/PlanPreview.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "code:src/modules/project-manager/components/usePlanIntake.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "code:src/modules/project-manager/import/plan-mode-envelope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-intake-flow.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "code:src/lib/validation/enums.js",
       "type": "tests",
@@ -54638,6 +56495,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/platform-control-entry-link.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-entry-link.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-entry-link.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/app/(pm)/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "test:tests/unit/platform-control-guard.test.js",
       "to": "code:src/components/layouts/PlatformControlGuard.jsx",
       "type": "tests",
@@ -54650,6 +56535,20 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform-control-guard.test.js",
@@ -54699,6 +56598,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
@@ -56850,6 +58756,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/revoke-operator-grant-cli.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/revoke-operator-grant-cli.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/rollup.test.js",
       "to": "code:src/modules/project-manager/progress/rollup.js",
       "type": "tests",
@@ -57494,6 +59414,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/sot-inbox-ui.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/sot-pipeline-graph.test.js",
       "to": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
       "type": "tests",
@@ -57529,6 +59456,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "req:FR-099",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "req:FR-101",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-scope-render.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/sot-plan-board-ui.test.js",
       "to": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
       "type": "tests",
@@ -57541,6 +59524,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-board-ui.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/sot-plan-service.test.js",
@@ -57802,6 +59792,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "code:src/lib/viewer-failure.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/viewer-gate.test.js",
       "to": "code:src/app/api/viewer/route.js",
       "type": "tests",
@@ -57921,6 +59967,181 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/work-surface-scope-inventory.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "code:src/app/(entry)/workspace-home/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "code:src/modules/identity/workspace-collaboration-view.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-collaboration-view.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/workspace-invite-service.test.js",
       "to": "code:src/modules/identity/workspace-membership-service.js",
       "type": "tests",
@@ -58031,6 +60252,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/workspace-onboarding-routes.test.js",

@@ -138,4 +138,67 @@ describe('MarketObservation scoped repository adapter (#76)', () => {
       }),
     ).toThrow(/model is not available/i)
   })
+
+  // --- read side (FR-092 `/market` feed) -------------------------------------
+
+  it('lists newest observation first, inside the constructed scope only', async () => {
+    const prisma = createPrisma()
+    prisma.marketObservation.findMany = vi.fn(async () => [
+      { id: 'obs-2', tenantId: 'tenant-a', businessId: 'business-a' },
+      { id: 'obs-1', tenantId: 'tenant-a', businessId: 'business-a' },
+    ])
+    const repository = createMarketObservationRepository(prisma, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    const rows = await repository.listRecent({ limit: 10 })
+
+    expect(prisma.marketObservation.findMany).toHaveBeenCalledWith({
+      where: { tenantId: 'tenant-a', businessId: 'business-a' },
+      orderBy: [{ observedAt: 'desc' }, { createdAt: 'desc' }],
+      take: 10,
+    })
+    expect(rows.map((row) => row.id)).toEqual(['obs-2', 'obs-1'])
+  })
+
+  it('caps the page size so a caller cannot ask the adapter for the whole table', async () => {
+    const prisma = createPrisma()
+    prisma.marketObservation.findMany = vi.fn(async () => [])
+    const repository = createMarketObservationRepository(prisma, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    await repository.listRecent({ limit: 100000 })
+
+    expect(prisma.marketObservation.findMany.mock.calls[0][0].take).toBe(200)
+    await expect(repository.listRecent({ limit: 0 })).rejects.toThrow(/positive integer/i)
+  })
+
+  it('refuses a returned row that resolves outside trusted scope', async () => {
+    // The `where` clause is not the only guard. A row whose tenant differs from the
+    // one this repository was constructed with is an identity leak whatever produced
+    // it, and the read path re-checks for the same reason the write path does.
+    const prisma = createPrisma()
+    prisma.marketObservation.findMany = vi.fn(async () => [
+      { id: 'obs-ok', tenantId: 'tenant-a', businessId: 'business-a' },
+      { id: 'obs-evil', tenantId: 'tenant-evil', businessId: 'business-a' },
+    ])
+    const repository = createMarketObservationRepository(prisma, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    await expect(repository.listRecent({ limit: 10 })).rejects.toThrow(/outside repository scope/i)
+  })
+
+  it('says so when the Prisma model cannot answer a list', async () => {
+    const repository = createMarketObservationRepository(createPrisma(), {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+    })
+
+    await expect(repository.listRecent()).rejects.toThrow(/findMany/i)
+  })
 })

@@ -13,6 +13,6 @@ export const dynamic = 'force-dynamic'
 export async function POST(request, { params }) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return relinkFileAsset(params.id, await request.json(), { visibleBusinessIds: viewer.visibleBusinessIds })
+    return relinkFileAsset(params.id, await request.json(), { viewer })
   })
 }

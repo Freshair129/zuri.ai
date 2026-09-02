@@ -17,6 +17,6 @@ export async function POST(request, { params }) {
       requestUrl: request.url,
       origin: request.headers.get('origin'),
       intent: request.headers.get('x-zuri-local-intent'),
-    }, { visibleBusinessIds: viewer.visibleBusinessIds })
+    }, { viewer })
   })
 }

@@ -4,7 +4,7 @@
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { inspectAssetEvidence, buildAssetEvidenceObjectKey } from '../domain/evidence-policy'
-import { assertAssetIntakeWrite, assertAssetEvidenceReview } from './asset-authority'
+import { assertAssetIntakeWrite, assertAssetEvidenceReview, canWriteAssetIntake } from './asset-authority'
 import { createManagedBlobFileAsset, resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { refreshAssetIntakeStatus } from './asset-intake-service'
@@ -50,7 +50,7 @@ export async function uploadAssetEvidence({ businessId, name, mime, content }, {
       sha256: inspected.sha256,
       blobRef: stored.ref,
       uploadedBy: viewer?.principal?.id || null,
-    }, { db, visibleBusinessIds: viewer?.visibleBusinessIds })
+    }, { db, viewer, authorize: canWriteAssetIntake })
     return {
       id: asset.id,
       code: asset.code,

@@ -13,6 +13,6 @@ export const dynamic = 'force-dynamic'
 export async function DELETE(request, { params }) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return deleteManagedFileAsset(params.id, { visibleBusinessIds: viewer.visibleBusinessIds })
+    return deleteManagedFileAsset(params.id, { viewer })
   })
 }

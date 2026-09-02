@@ -4,7 +4,10 @@
 // actions (approve / reject-with-reason), each recorded as an individual
 // audited decision. The payload is displayed verbatim and never edited here.
 // @spec FR-100
-// @tested tests/unit/sot-inbox-ui.test.js
+// @spec SDD-018 — the Business this inbox reads for is the shell's
+// `activeBusinessId`, the one field ScopeContext exposes for it; a top-level
+// `businessId` never existed, so destructuring it fetched nothing.
+// @tested tests/unit/sot-inbox-ui.test.js, tests/unit/sot-pipeline-scope-render.test.js
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -20,7 +23,8 @@ const TYPE_TH = {
 }
 
 function SotInboxPageInner() {
-  const { businessId } = useScope()
+  const { shell } = useScope()
+  const businessId = shell.activeBusinessId
   const params = useSearchParams()
   const phaseId = params.get('phaseId') || ''
   const [typeFilter, setTypeFilter] = useState('')
@@ -64,8 +68,8 @@ function SotInboxPageInner() {
     if (reason && reason.trim()) decide(decision, 'REJECTED', reason.trim())
   }
 
-  if (!businessId) return <ErrorState message="เลือก Business ก่อนเพื่อเปิดกล่องรออนุมัติ" />
-  if (planQuery.error) return <ErrorState message={planQuery.error} />
+  if (!businessId) return <ErrorState title="เลือก Business ก่อนเพื่อเปิดกล่องรออนุมัติ" />
+  if (planQuery.error) return <ErrorState detail={planQuery.error} />
   if (loading || planQuery.loading) return <LoadingCard />
 
   const decisions = data?.decisions || []
@@ -84,8 +88,8 @@ function SotInboxPageInner() {
           </select>
         )}
       />
-      {actionError ? <ErrorState message={actionError} /> : null}
-      {error ? <ErrorState message={error} /> : null}
+      {actionError ? <ErrorState detail={actionError} /> : null}
+      {error ? <ErrorState detail={error} /> : null}
       {decisions.length === 0 ? (
         <Card>ไม่มีรายการรออนุมัติ{typeFilter || phaseId ? 'ตามตัวกรองนี้' : ''} 🎉</Card>
       ) : (

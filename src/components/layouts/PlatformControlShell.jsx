@@ -1,6 +1,11 @@
 // @req FR-105 — Platform Control has Zuri framing but no BusinessShell chrome.
+// @req FR-075 — the shell's only way back is Business Routing (`/businesses`),
+// the safe destination whether or not the operator currently has a Business
+// selected — never `/overview`, which assumes one (D1-journey-states-tests-docs-12).
 // @spec ADR-048 D1, NFR-008
 // @tested tests/unit/platform-control-route-contract.test.js
+
+import Link from 'next/link'
 
 export default function PlatformControlShell({ children }) {
   return (
@@ -15,7 +20,9 @@ export default function PlatformControlShell({ children }) {
             <p className="truncate text-sm font-bold">Platform Control</p>
           </div>
         </div>
-        <p className="ml-auto text-xs text-white/60">Installation operator surface</p>
+        <Link href="/businesses" className="ml-auto text-xs font-semibold text-white/80 underline-offset-2 hover:underline">
+          กลับสู่ Business
+        </Link>
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 p-6 max-md:p-4">{children}</main>
       <footer className="border-t border-[var(--border)] bg-white px-6 py-2 text-[10px] text-[var(--text-tertiary)] max-md:px-4">
