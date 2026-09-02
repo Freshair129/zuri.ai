@@ -140,7 +140,7 @@ pipeline or connector state.
 - [x] unit and route contract tests pass;
 - [x] local schema/migration and Postgres schema generation pass;
 - [x] `npm run govern` passes with regenerated graph/preflight;
-- [ ] production Supabase migration applied and recorded in `supabase_migrations.schema_migrations`;
+- [x] production Supabase migration applied and recorded in `supabase_migrations.schema_migrations` — `20260830120000_plugin_auth`, 2026-09-03, owner-instructed; verified RLS forced, `zuri_app_runtime_all` policy, no public/anon/service_role grants;
 - [ ] live production client registration and device-binding evidence are complete;
 - [x] a consent step exists: `GET /authorize` renders and never mints, and only a POST
       from the consent screen — session cookie + session-bound anti-CSRF token +

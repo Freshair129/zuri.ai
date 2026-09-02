@@ -14,6 +14,8 @@ attributes:
 
 **Status:** Accepted for the documentation/declaration boundary. No schema
 migration or runtime slice is authorized by this ADR.
+Production migration `20260830221729_conversation_analysis` applied 2026-09-03 on the
+owner's explicit instruction; the runtime slice remains unauthorized.
 **Date:** 2026-08-30
 **Decided by:** Boss
 **Relates to:** [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7),

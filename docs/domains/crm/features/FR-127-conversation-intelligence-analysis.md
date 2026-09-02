@@ -57,3 +57,10 @@ CRM-owned consent/owner-gated persistence and visibility-gated read service, sna
 PDPA erasure hook are implemented. The service uses `Conversation.id` plus a
 generated analysis id per run; same-day runs remain separate. Worker/LLM/provider
 processing, FR-126/FR-128 models, public routes and UI remain out of scope.
+
+**2026-09-03 — production migration applied.** `20260830221729_conversation_analysis`
+was applied to the production database and recorded in
+`supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-054 had
+withheld that authorization pending the owner). The table exists with forced RLS and the
+`zuri_app_runtime_all` policy and is empty: nothing above changes — there is still no
+worker/LLM producer, public route or UI.
