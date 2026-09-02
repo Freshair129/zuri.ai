@@ -5,7 +5,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 // @req FR-072 — mutations behind the route-viewer baseline refuse the write
 // unless the viewer owns the governing Business, derived from the target's Space.
 // @spec SEC-001, SEC-008, BR-001
-// @tested tests/integration/project-authorization.test.js
+// @tested tests/integration/project-authorization.test.js, tests/integration/fr072-file-asset-authorization.test.js
 //
 // 23 route files exported a mutating verb and resolved no viewer at all: every
 // write behind them was one nobody could attribute. 19 are repaid through this
@@ -155,6 +155,68 @@ export function assertWorkspaceWritable(viewer, workspace, { notFoundMessage = '
   // if one ever exists `ownsBusiness(viewer, null)` is false for every viewer,
   // so this arm fails closed without a special case.
   if (!authorize(viewer, workspace)) throw refusal(404, notFoundMessage)
+}
+
+/**
+ * May this viewer write directly to this Business?
+ *
+ * @req FR-072 — FR-045's FileAsset/mount/reconcile/cache surfaces (
+ * `file-asset-service.js`, `file-reconcile-cache-service.js`,
+ * `local-file-reveal-service.js`) name a Business as their own target via a
+ * `businessId` on the request — not derived through a Project/Workspace chain
+ * the way `assertProjectWritable` is. Those six write functions previously
+ * gated on `visibleBusinessIds` with a local `assertVisible` helper, which
+ * authorizes a MEMBER (or a platform DEV, who owns nothing) to create, relink,
+ * reconcile, rebuild-cache or delete FileAssets in a Business they merely see —
+ * the same bug class fixed for FR-059, FR-038 and FR-061
+ * (.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md).
+ *
+ * Same Tier A shape as every other assert* here: an existing-but-unowned
+ * Business answers exactly like a nonexistent one, both status 404 with the
+ * identical message, so a caller cannot use the response to learn the
+ * Business exists.
+ */
+/**
+ * `authorize` defaults to `ownsBusiness` — the universal predicate — but a
+ * caller whose domain already grants a broader capability (e.g. asset
+ * management's `canWriteAssetIntake`, which also accepts a specific RBAC
+ * permission grant) may pass that predicate instead, so this gate agrees with
+ * whichever rule already authorized the caller rather than silently
+ * re-narrowing it to ownership alone.
+ */
+export async function assertBusinessWritable(
+  viewer,
+  businessId,
+  { db = prisma, notFoundMessage = 'Business not found', authorize = ownsBusiness } = {}
+) {
+  requireViewer(viewer, 'assertBusinessWritable')
+  const business = businessId ? await db.business.findUnique({ where: { id: businessId } }) : null
+  if (!business) throw refusal(404, notFoundMessage)
+  if (!authorize(viewer, businessId)) throw refusal(404, notFoundMessage)
+  return business
+}
+
+/**
+ * May this viewer write to this already-resolved FileAsset record?
+ *
+ * @req FR-072 — the FileAsset-as-target counterpart of `assertBusinessWritable`
+ * above, for `relinkFileAsset`, `deleteManagedFileAsset` and `revealFileAsset`,
+ * which name the asset itself (via `fileId`) rather than a `businessId`.
+ * Record-based like `assertWorkspaceWritable`: each caller already loads the
+ * asset for its own business logic (storage kind, relative path, status), so
+ * this decides against the record already in hand instead of loading a second
+ * copy. The refusal echoes "File asset not found" — the same message an absent
+ * `fileId` already produces — so an owned-but-unowned asset is indistinguishable
+ * from one that never existed.
+ */
+export function assertFileAssetWritable(viewer, asset, { notFoundMessage = 'File asset not found', authorize = ownsBusiness } = {}) {
+  requireViewer(viewer, 'assertFileAssetWritable')
+  if (!asset || typeof asset !== 'object') {
+    throw new Error(
+      'assertFileAssetWritable(): asset is required — resolve the target before authorizing it'
+    )
+  }
+  if (!authorize(viewer, asset.businessId)) throw refusal(404, notFoundMessage)
 }
 
 /**

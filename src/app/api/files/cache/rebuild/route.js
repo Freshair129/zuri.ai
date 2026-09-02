@@ -13,6 +13,6 @@ export const dynamic = 'force-dynamic'
 export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return rebuildBusinessFileCache(await request.json(), { visibleBusinessIds: viewer.visibleBusinessIds })
+    return rebuildBusinessFileCache(await request.json(), { viewer })
   })
 }

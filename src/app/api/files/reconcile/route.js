@@ -13,6 +13,6 @@ export const dynamic = 'force-dynamic'
 export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return reconcileLocalFiles(await request.json(), { visibleBusinessIds: viewer.visibleBusinessIds })
+    return reconcileLocalFiles(await request.json(), { viewer })
   })
 }

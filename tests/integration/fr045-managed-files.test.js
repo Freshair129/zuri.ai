@@ -24,6 +24,7 @@ describe('FR-045 managed local files integration', () => {
   let project
   let mount
   let asset
+  let owner
 
   beforeAll(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'zuri-fr045-'))
@@ -32,9 +33,9 @@ describe('FR-045 managed local files integration', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: `FR045 ${suffix}`, code: `TNT-F45-${suffix}` })
     business = await createBusiness({ tenantId: tenant.id, name: `FR045 ${suffix}`, code: `BUS-F45-${suffix}` })
     const workspace = await createWorkspace({ name: `FR045 ${suffix}`, scopeType: 'BUSINESS', businessId: business.id, code: `WS-F45-${suffix}` })
-    const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     project = await createProject({ workspaceId: workspace.id, name: `FR045 ${suffix}`, code: `PRJ-F45-${suffix}` }, { viewer: owner })
-    mount = await upsertLocalWorkspaceMount({ businessId: business.id, deviceKey: `test-${suffix}`, rootPath: root }, { visibleBusinessIds: [business.id] })
+    mount = await upsertLocalWorkspaceMount({ businessId: business.id, deviceKey: `test-${suffix}`, rootPath: root }, { viewer: owner })
   })
 
   afterAll(async () => {
@@ -47,7 +48,7 @@ describe('FR-045 managed local files integration', () => {
       businessId: business.id, projectId: project.id, storageKind: 'LOCAL_FILE', mountId: mount.id,
       relativePath: 'Projects/report.txt', contentBase64: Buffer.from('managed').toString('base64'),
       name: 'report.txt', mime: 'text/plain', size: 7,
-    }, { visibleBusinessIds: [business.id] })
+    }, { viewer: owner })
     expect(asset).toMatchObject({ businessId: business.id, projectId: project.id, status: 'ACTIVE' })
     expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/)
     await expect(fs.readFile(path.join(root, 'Projects', 'report.txt'), 'utf8')).resolves.toBe('managed')
@@ -60,11 +61,11 @@ describe('FR-045 managed local files integration', () => {
 
   it('marks an external move missing and restores identity only after explicit relink', async () => {
     await fs.rename(path.join(root, 'Projects', 'report.txt'), path.join(root, 'Projects', 'moved.txt'))
-    const preview = await reconcileLocalFiles({ businessId: business.id, mountId: mount.id }, { visibleBusinessIds: [business.id] })
+    const preview = await reconcileLocalFiles({ businessId: business.id, mountId: mount.id }, { viewer: owner })
     expect(preview.missing).toContain(asset.id)
-    await reconcileLocalFiles({ businessId: business.id, mountId: mount.id, confirm: true }, { visibleBusinessIds: [business.id] })
+    await reconcileLocalFiles({ businessId: business.id, mountId: mount.id, confirm: true }, { viewer: owner })
     await expect(resolveFileAssetContent(asset.id, { visibleBusinessIds: [business.id] })).rejects.toThrow('MISSING')
-    const relinked = await relinkFileAsset(asset.id, { mountId: mount.id, relativePath: 'Projects/moved.txt' }, { visibleBusinessIds: [business.id] })
+    const relinked = await relinkFileAsset(asset.id, { mountId: mount.id, relativePath: 'Projects/moved.txt' }, { viewer: owner })
     expect(relinked).toMatchObject({ id: asset.id, relativePath: 'Projects/moved.txt', status: 'ACTIVE' })
     await expect(resolveFileAssetContent(asset.id, { visibleBusinessIds: [business.id] })).resolves.toMatchObject({ content: Buffer.from('managed') })
   })

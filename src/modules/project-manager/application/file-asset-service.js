@@ -1,6 +1,10 @@
 // @req FR-045 — SQLite-authoritative managed files, lossless legacy migration and remount metadata.
 // @spec SDD-023, BR-010, SEC-007, ADR-016, ZV2-CR-001
 // @tested tests/unit/fr045-file-asset-service.test.js, tests/integration/fr045-managed-files.test.js
+// @req FR-072 — every FileAsset/mount write refuses unless the viewer owns the
+// governing Business; reads stay scoped to visible Businesses.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-file-asset-authorization.test.js
 import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
@@ -9,6 +13,7 @@ import { uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { createConfiguredAssetObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { assertBusinessWritable, assertFileAssetWritable } from './project-authorization'
 import {
   buildBusinessFileManagerReadModel,
   buildProjectFileManagerReadModel,
@@ -51,6 +56,10 @@ const fileInput = z.object({
   }
 })
 
+// READ-only gate. `visibleBusinessIds` authorizes *seeing* a Business (an
+// OWNER or a plain MEMBER Membership both populate it); it is never a
+// substitute for `assertBusinessWritable`/`assertFileAssetWritable` below,
+// which every write in this file uses instead (FR-072).
 function assertVisible(businessId, visibleBusinessIds) {
   if (!Array.isArray(visibleBusinessIds) || !visibleBusinessIds.includes(businessId)) {
     throw new Error('Business access denied (not visible)')
@@ -85,11 +94,16 @@ export function localFileCapability(env = process.env) {
 
 export async function createManagedFileAsset(input, {
   db = prisma,
-  visibleBusinessIds,
+  viewer,
+  // A caller whose own domain already authorizes the write under a broader
+  // rule (e.g. asset-management's `canWriteAssetIntake`, which also accepts an
+  // RBAC permission grant, not only ownership) may pass that predicate so this
+  // gate agrees with it instead of re-narrowing to plain ownership.
+  authorize,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   const value = fileInput.parse(input)
-  assertVisible(value.businessId, visibleBusinessIds)
+  await assertBusinessWritable(viewer, value.businessId, { db, ...(authorize ? { authorize } : {}) })
   const { business } = await businessScope(db, value.businessId, value.projectId, value.workItemId)
   const code = await nextCode(db, value.name, value.code)
   const mount = value.storageKind === 'LOCAL_FILE'
@@ -178,12 +192,10 @@ export async function listManagedFileAssets({ businessId, projectId = null }, {
     : buildBusinessFileManagerReadModel(args)
 }
 
-export async function upsertLocalWorkspaceMount(input, { db = prisma, visibleBusinessIds } = {}) {
+export async function upsertLocalWorkspaceMount(input, { db = prisma, viewer } = {}) {
   const value = z.object({ businessId: z.string().min(1), deviceKey: z.string().min(1), rootPath: z.string().min(1) }).parse(input)
-  assertVisible(value.businessId, visibleBusinessIds)
+  const business = await assertBusinessWritable(viewer, value.businessId, { db })
   if (!win.isAbsolute(value.rootPath)) throw new Error('Mount root must be an absolute Windows path')
-  const business = await db.business.findUnique({ where: { id: value.businessId }, select: { tenantId: true } })
-  if (!business) throw new Error('Business not found')
   const mount = await db.localWorkspaceMount.upsert({
     where: { businessId_deviceKey: { businessId: value.businessId, deviceKey: value.deviceKey } },
     create: { tenantId: business.tenantId, businessId: value.businessId, deviceKey: value.deviceKey, rootPath: win.normalize(value.rootPath) },
@@ -234,12 +246,12 @@ export async function createManagedBlobFileAsset(input, options = {}) {
 
 export async function relinkFileAsset(fileId, { mountId, relativePath }, {
   db = prisma,
-  visibleBusinessIds,
+  viewer,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   const asset = await db.fileAsset.findUnique({ where: { id: fileId } })
   if (!asset || asset.deletedAt) throw new Error('File asset not found')
-  assertVisible(asset.businessId, visibleBusinessIds)
+  assertFileAssetWritable(viewer, asset)
   if (asset.storageKind !== 'LOCAL_FILE') throw new Error('Only local files can be relinked')
   const mount = await db.localWorkspaceMount.findFirst({ where: { id: mountId, businessId: asset.businessId, status: 'ACTIVE' } })
   if (!mount) throw new Error('Active local workspace mount not found')
@@ -255,10 +267,10 @@ export async function relinkFileAsset(fileId, { mountId, relativePath }, {
   return updated
 }
 
-export async function deleteManagedFileAsset(fileId, { db = prisma, visibleBusinessIds } = {}) {
+export async function deleteManagedFileAsset(fileId, { db = prisma, viewer } = {}) {
   const asset = await db.fileAsset.findUnique({ where: { id: fileId } })
   if (!asset || asset.deletedAt) throw new Error('File asset not found')
-  assertVisible(asset.businessId, visibleBusinessIds)
+  assertFileAssetWritable(viewer, asset)
   const deleted = await db.fileAsset.update({
     where: { id: fileId },
     data: { deletedAt: new Date(), status: 'MISSING', version: { increment: 1 } },
