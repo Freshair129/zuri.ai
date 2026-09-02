@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1656,
-    "total_edges": 5895,
+    "total_nodes": 1685,
+    "total_edges": 6124,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 148,
+      "document": 150,
       "adr": 57,
       "domain": 9,
       "roadmap": 35,
       "feature": 16,
-      "route": 174,
+      "route": 177,
       "model": 80,
       "requirement": 296,
-      "test": 398,
-      "code_file": 439
+      "test": 413,
+      "code_file": 448
     },
     "coverage": {
       "requirements": 296,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (131/131)",
       "rules_anchored_in_code": "95% (125/131)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 439,
+      "annotated_code_files": 448,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,11 +56,95 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
       "doc:README",
+      "doc:FR-141-edge-device-heartbeat-registry",
       "doc:CONTEXT-MAP",
-      "test:tests/integration/agent-heartbeat-route.test.js"
+      "domain:crm",
+      "domain:identity",
+      "doc:FR-038-profile-and-permissions",
+      "doc:FR-106-enterprise-api-access-key",
+      "domain:integration",
+      "doc:FR-092-market-translation-core",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROUTES-SITEMAP",
+      "doc:SITEMAP-DOMAIN-NAV",
+      "test:tests/integration/agent-heartbeat-route.test.js",
+      "test:tests/integration/crm-conversation-analysis.test.js",
+      "test:tests/integration/crm-conversation-inbox.test.js",
+      "test:tests/integration/crm-customer-consent.test.js",
+      "test:tests/integration/line-reply-record.test.js",
+      "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/api-access-key-routes.test.js",
+      "test:tests/unit/customer-consent-service.test.js",
+      "test:tests/unit/fr045-file-asset-service.test.js",
+      "test:tests/unit/fr080-integration-management.test.js",
+      "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "test:tests/unit/people-service.test.js",
+      "test:tests/unit/platform-control-guard.test.js",
+      "test:tests/unit/viewer-failure.test.js",
+      "code:src/app/(pm)/customer/conversations/page.jsx",
+      "code:src/app/(pm)/platform/users/page.jsx",
+      "code:src/app/api/agent/heartbeat/route.js",
+      "code:src/app/api/files/migrate/route.js",
+      "code:src/app/api/people/route.js",
+      "code:src/app/api/platform/api-access-keys/route.js",
+      "code:src/components/layouts/PlatformControlGuard.jsx",
+      "code:src/lib/platform-control-guard.js",
+      "code:src/modules/crm/conversation-read-model.js",
+      "code:src/modules/crm/customer-consent-service.js",
+      "code:src/modules/identity/api-access-auth.js",
+      "code:src/modules/identity/erase-principal.js",
+      "code:src/modules/identity/profile-permission-service.js",
+      "code:src/modules/identity/viewer-domains.js",
+      "code:src/modules/integration/application/integration-management-service.js",
+      "code:src/modules/integration/application/line-registry-service.js",
+      "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "code:src/modules/people/application/people-service.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/file-asset-service.js",
+      "code:src/modules/project-manager/application/project-authorization.js"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-017-ui-wizard-plan-intake",
+      "doc:line-oa-provider-merge",
+      "route:api:/api/crm/customers/[customerId]/erasure",
+      "route:api:/api/market/translations",
+      "route:api:/api/platform/users/memberships",
+      "test:tests/integration/crm-customer-erasure.test.js",
+      "test:tests/integration/domain-visibility-server.test.js",
+      "test:tests/integration/fr038-business-membership-add.test.js",
+      "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "test:tests/integration/line-oa-provider-migration.test.js",
+      "test:tests/integration/market-intelligence-translation-run.test.js",
+      "test:tests/unit/customer-erasure-confirmation.test.js",
+      "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "test:tests/unit/platform-users-page-render.test.js",
+      "test:tests/unit/platform-users-view.test.js",
+      "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "code:src/app/api/market/translations/route.js",
+      "code:src/app/api/platform/users/memberships/route.js",
+      "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "code:src/modules/crm/conversation-redaction-service.js",
+      "code:src/modules/identity/erase-customer-principal.js",
+      "code:src/modules/identity/platform-users-view.js",
+      "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "code:src/platform/integrations/core/raw-record-redaction.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -326,13 +410,14 @@
       "id": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/customer/conversations/page.jsx",
-      "hash": "ad52879d",
-      "status": "current",
+      "hash": "8075bf17",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
           "FR-103",
           "SEC-005",
+          "FR-022",
           "FR-059"
         ],
         "@spec": [
@@ -688,23 +773,26 @@
       "id": "code:src/app/(pm)/platform/users/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/users/page.jsx",
-      "hash": "214e05dc",
-      "status": "current",
+      "hash": "634807be",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-038",
-          "FR-062"
+          "FR-062",
+          "FR-106"
         ],
         "@spec": [
           "SDD-017",
           "SEC-003",
           "FR-038",
           "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md",
-          "SDD-035"
+          "SDD-035",
+          "SEC-006"
         ],
         "@tested": [
           "tests/unit/profile-permission-service.test.js",
-          "tests/unit/fr062-permissions-read-scope.test.js"
+          "tests/unit/fr062-permissions-read-scope.test.js",
+          "tests/unit/platform-users-view.test.js"
         ]
       }
     },
@@ -1158,8 +1246,8 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "ee2ae351",
-      "status": "current",
+      "hash": "fc52cba7",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-141"
@@ -1869,6 +1957,28 @@
       }
     },
     {
+      "id": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "hash": "fe556762",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-103"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-003",
+          "SEC-005",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/integration/crm-customer-erasure.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/dependencies/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/dependencies/[id]/route.js",
@@ -2065,21 +2175,25 @@
       "id": "code:src/app/api/files/migrate/route.js",
       "type": "code_file",
       "path": "src/app/api/files/migrate/route.js",
-      "hash": "63cde383",
-      "status": "current",
+      "hash": "69a76907",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-045",
-          "FR-046"
+          "FR-046",
+          "FR-072",
+          "FR-075"
         ],
         "@spec": [
           "SDD-023",
           "SDD-024",
-          "SEC-008"
+          "SEC-008",
+          "SEC-001"
         ],
         "@tested": [
           "tests/unit/fr045-file-asset-service.test.js",
-          "tests/unit/fr046-api-ui-contract.test.js"
+          "tests/unit/fr046-api-ui-contract.test.js",
+          "tests/integration/fr072-files-migrate-authorization.test.js"
         ]
       }
     },
@@ -2357,6 +2471,27 @@
       }
     },
     {
+      "id": "code:src/app/api/market/translations/route.js",
+      "type": "code_file",
+      "path": "src/app/api/market/translations/route.js",
+      "hash": "0977551e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "SEC-001",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-translations-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/mcp/route.js",
       "type": "code_file",
       "path": "src/app/api/mcp/route.js",
@@ -2485,12 +2620,13 @@
       "id": "code:src/app/api/people/route.js",
       "type": "code_file",
       "path": "src/app/api/people/route.js",
-      "hash": "f438a8c6",
-      "status": "current",
+      "hash": "74a39469",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
-          "FR-042"
+          "FR-042",
+          "FR-061"
         ],
         "@spec": [
           "SDD-024",
@@ -2499,7 +2635,8 @@
         ],
         "@tested": [
           "tests/unit/fr046-api-ui-contract.test.js",
-          "tests/unit/people-route.test.js"
+          "tests/unit/people-route.test.js",
+          "tests/integration/domain-visibility-server.test.js"
         ]
       }
     },
@@ -2613,8 +2750,8 @@
       "id": "code:src/app/api/platform/api-access-keys/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/api-access-keys/route.js",
-      "hash": "21210b31",
-      "status": "current",
+      "hash": "2ce0e712",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-106"
@@ -2791,6 +2928,30 @@
         ],
         "@tested": [
           "tests/unit/sot-plan-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/users/memberships/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/users/memberships/route.js",
+      "hash": "ea711c8a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008",
+          "SDD-017",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/fr046-api-ui-contract.test.js",
+          "tests/integration/fr038-business-membership-add.test.js"
         ]
       }
     },
@@ -3920,13 +4081,37 @@
       "id": "code:src/components/layouts/PlatformControlGuard.jsx",
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlGuard.jsx",
-      "hash": "c1ff12ac",
+      "hash": "8b869b33",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-105",
+          "FR-046"
+        ],
+        "@spec": [
+          "SEC-020",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-guard.test.js",
+          "tests/unit/viewer-failure.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/PlatformControlSessionRetry.jsx",
+      "hash": "303068f4",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-105"
+          "FR-105",
+          "FR-046"
         ],
         "@spec": [
+          "SDD-024",
           "SEC-020"
         ],
         "@tested": [
@@ -4260,17 +4445,21 @@
       "id": "code:src/lib/platform-control-guard.js",
       "type": "code_file",
       "path": "src/lib/platform-control-guard.js",
-      "hash": "289d1e52",
-      "status": "current",
+      "hash": "1415f12f",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-105"
+          "FR-105",
+          "FR-046"
         ],
         "@spec": [
-          "SEC-020"
+          "SEC-020",
+          "SDD-024",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/unit/platform-control-guard.test.js"
+          "tests/unit/platform-control-guard.test.js",
+          "tests/unit/viewer-failure.test.js"
         ]
       }
     },
@@ -5285,11 +5474,12 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
-      "hash": "0e8ee09c",
-      "status": "current",
+      "hash": "c87f2a86",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
+          "FR-061",
           "FR-103",
           "SEC-005"
         ],
@@ -5307,15 +5497,37 @@
       }
     },
     {
-      "id": "code:src/modules/crm/customer-consent-service.js",
+      "id": "code:src/modules/crm/conversation-redaction-service.js",
       "type": "code_file",
-      "path": "src/modules/crm/customer-consent-service.js",
-      "hash": "d5e2ea60",
+      "path": "src/modules/crm/conversation-redaction-service.js",
+      "hash": "1785bf1a",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-022"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-005",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/integration/crm-customer-erasure.test.js",
+          "tests/integration/identity-erase.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/customer-consent-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/customer-consent-service.js",
+      "hash": "d27baeaf",
+      "status": "changed",
+      "annotations": {
+        "@req": [
           "FR-103",
-          "SEC-005"
+          "SEC-005",
+          "FR-061"
         ],
         "@spec": [
           "SDD-053",
@@ -5431,8 +5643,8 @@
       "id": "code:src/modules/identity/api-access-auth.js",
       "type": "code_file",
       "path": "src/modules/identity/api-access-auth.js",
-      "hash": "a401ac46",
-      "status": "current",
+      "hash": "e53f9846",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-106"
@@ -5558,11 +5770,35 @@
       }
     },
     {
+      "id": "code:src/modules/identity/erase-customer-principal.js",
+      "type": "code_file",
+      "path": "src/modules/identity/erase-customer-principal.js",
+      "hash": "c22d9e3f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-103"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-005",
+          "SEC-003",
+          "BR-001",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/integration/crm-customer-erasure.test.js",
+          "tests/unit/customer-erasure-confirmation.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "c45caf4b",
-      "status": "current",
+      "hash": "e39c004b",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-022",
@@ -5573,7 +5809,8 @@
         ],
         "@tested": [
           "tests/integration/identity-erase.test.js",
-          "tests/integration/crm-conversation-analysis.test.js"
+          "tests/integration/crm-conversation-analysis.test.js",
+          "tests/integration/crm-customer-erasure.test.js"
         ]
       }
     },
@@ -5717,6 +5954,28 @@
       }
     },
     {
+      "id": "code:src/modules/identity/platform-users-view.js",
+      "type": "code_file",
+      "path": "src/modules/identity/platform-users-view.js",
+      "hash": "82f3d98b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038",
+          "FR-106"
+        ],
+        "@spec": [
+          "SDD-017",
+          "SEC-001",
+          "SEC-006",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/platform-users-view.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/plugin-auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
@@ -5827,8 +6086,8 @@
       "id": "code:src/modules/identity/profile-permission-service.js",
       "type": "code_file",
       "path": "src/modules/identity/profile-permission-service.js",
-      "hash": "06df1a04",
-      "status": "current",
+      "hash": "414c655a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6080,8 +6339,8 @@
       "id": "code:src/modules/identity/viewer-domains.js",
       "type": "code_file",
       "path": "src/modules/identity/viewer-domains.js",
-      "hash": "db0b80b8",
-      "status": "current",
+      "hash": "bc65fe05",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-061"
@@ -6182,8 +6441,8 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "2047f229",
-      "status": "current",
+      "hash": "c0c66691",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6202,8 +6461,8 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "52a85b13",
-      "status": "current",
+      "hash": "0d1d36b5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6781,15 +7040,35 @@
       }
     },
     {
-      "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "id": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
       "type": "code_file",
-      "path": "src/modules/market-intelligence/application/market-observation-service.js",
-      "hash": "fb7c7107",
+      "path": "src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "hash": "5cb2b6f2",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/generic-candidate-extractor.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/market-observation-service.js",
+      "hash": "06b497d9",
+      "status": "changed",
+      "annotations": {
+        "@req": [
           "FR-092",
-          "NFR-018"
+          "NFR-018",
+          "FR-061"
         ],
         "@spec": [
           "BR-019",
@@ -6898,8 +7177,8 @@
       "id": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
       "type": "code_file",
       "path": "src/modules/market-intelligence/components/MarketDashboard.jsx",
-      "hash": "07ea2a76",
-      "status": "current",
+      "hash": "e8632a7d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-092"
@@ -7045,8 +7324,8 @@
       "id": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
-      "hash": "1cdb0490",
-      "status": "current",
+      "hash": "3c54f840",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-092",
@@ -7065,8 +7344,8 @@
       "id": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
-      "hash": "17379376",
-      "status": "current",
+      "hash": "bed73740",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-092"
@@ -7085,18 +7364,20 @@
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
-      "hash": "67d06dd2",
-      "status": "current",
+      "hash": "0e13bdf2",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-042"
+          "FR-042",
+          "FR-061"
         ],
         "@spec": [
           "BR-001",
           "SEC-003"
         ],
         "@tested": [
-          "tests/unit/people-service.test.js"
+          "tests/unit/people-service.test.js",
+          "tests/integration/domain-visibility-server.test.js"
         ]
       }
     },
@@ -7156,12 +7437,15 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "32fca65e",
-      "status": "current",
+      "hash": "cc627304",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-022",
           "FR-092",
+          "FR-106",
+          "FR-038",
           "FR-123"
         ],
         "@spec": [
@@ -7304,12 +7588,13 @@
       "id": "code:src/modules/project-manager/application/file-asset-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-asset-service.js",
-      "hash": "895692fa",
-      "status": "current",
+      "hash": "f5e6c704",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-045",
-          "FR-072"
+          "FR-072",
+          "FR-075"
         ],
         "@spec": [
           "SDD-023",
@@ -7322,7 +7607,8 @@
         "@tested": [
           "tests/unit/fr045-file-asset-service.test.js",
           "tests/integration/fr045-managed-files.test.js",
-          "tests/integration/fr072-file-asset-authorization.test.js"
+          "tests/integration/fr072-file-asset-authorization.test.js",
+          "tests/integration/fr072-files-migrate-authorization.test.js"
         ]
       }
     },
@@ -7477,8 +7763,8 @@
       "id": "code:src/modules/project-manager/application/project-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-authorization.js",
-      "hash": "404c1983",
-      "status": "current",
+      "hash": "6d606449",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-072",
@@ -7492,7 +7778,8 @@
         ],
         "@tested": [
           "tests/integration/project-authorization.test.js",
-          "tests/integration/fr072-file-asset-authorization.test.js"
+          "tests/integration/fr072-file-asset-authorization.test.js",
+          "tests/integration/fr072-files-migrate-authorization.test.js"
         ]
       }
     },
@@ -8957,6 +9244,25 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/raw-record-redaction.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/raw-record-redaction.js",
+      "hash": "34c51db6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-081"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/crm-customer-erasure.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/raw-record-repository.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-record-repository.js",
@@ -9087,10 +9393,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.31.0b",
+      "version": "1.34.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "0f4e2e77",
-      "status": "current"
+      "hash": "03cb6054",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9343,6 +9649,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-017-ui-wizard-plan-intake",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
+      "title": "FR-017 — UI wizard intake (\"เริ่มจากเป้าหมาย\")",
+      "hash": "dcc23c68",
+      "status": "current"
+    },
+    {
       "id": "doc:FR-019-enterprise-api",
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-019-enterprise-api.md",
@@ -9439,8 +9753,8 @@
       "title": "FR-038 — My Profile and Users & Permissions",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "48df2fc8",
-      "status": "current"
+      "hash": "0aed3e2d",
+      "status": "changed"
     },
     {
       "id": "doc:FR-039-business-scope-ceiling",
@@ -9792,8 +10106,8 @@
       "type": "document",
       "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
       "title": "FR-092 — Market translation core",
-      "hash": "ec7ce288",
-      "status": "current"
+      "hash": "3cc328c6",
+      "status": "changed"
     },
     {
       "id": "doc:FR-093-reply-delivery-receipt",
@@ -9878,8 +10192,8 @@
       "title": "Enterprise API tenant token authentication (`ApiAccessKey`)",
       "version": "1.0.0",
       "doc_status": "Implemented (FR-106)",
-      "hash": "cc7efba2",
-      "status": "current"
+      "hash": "0eaa336d",
+      "status": "changed"
     },
     {
       "id": "doc:FR-108-execution-plan-bundle",
@@ -10086,8 +10400,8 @@
       "type": "document",
       "path": "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
       "title": "FR-141 — Edge Device heartbeat registry",
-      "hash": "568e06da",
-      "status": "current"
+      "hash": "893e4b77",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -10134,8 +10448,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "ab262a1d",
-      "status": "current"
+      "hash": "d8764dd3",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -10145,6 +10459,14 @@
       "version": "1.0.0",
       "doc_status": "Draft — adopted as the source specification by ADR-050",
       "hash": "4685378c",
+      "status": "current"
+    },
+    {
+      "id": "doc:line-oa-provider-merge",
+      "type": "document",
+      "path": "docs/runbooks/line-oa-provider-merge.md",
+      "title": "LINE_OA provider merge runbook",
+      "hash": "9e2584cd",
       "status": "current"
     },
     {
@@ -10426,8 +10748,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.135.0b",
       "doc_status": "Draft",
-      "hash": "b368cc4f",
-      "status": "current"
+      "hash": "dd2f128b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10496,8 +10818,8 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "0877267c",
-      "status": "current"
+      "hash": "13235b2c",
+      "status": "changed"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -10506,8 +10828,8 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.6.0",
       "doc_status": "Accepted",
-      "hash": "16c4fc59",
-      "status": "current"
+      "hash": "3deab322",
+      "status": "changed"
     },
     {
       "id": "doc:SRS",
@@ -10760,8 +11082,8 @@
       "modules": [
         "crm"
       ],
-      "hash": "5fdfa64a",
-      "status": "current"
+      "hash": "44f4773c",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -10802,8 +11124,8 @@
       "modules": [
         "identity"
       ],
-      "hash": "01d490dc",
-      "status": "current"
+      "hash": "375f62db",
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -10839,8 +11161,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "77233d86",
-      "status": "current"
+      "hash": "50030c76",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -11933,7 +12255,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021 ✅ "
+      "row_text": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021 ✅; 2026-09-02: production trigger `POST /api/crm/customers/[customerId]/erasure` (per-Business OWNER in the Customer's tenant or the installation operator, typed `confirmation: 'ERASE'`, 404-shaped refusals) reached from the CRM Inbox; the erasure now also tombstones `Message.body` and the matching `RawExternalRecord` payloads through the crm/integration contracts inside the same transaction "
     },
     {
       "id": "req:FR-023",
@@ -11951,9 +12273,9 @@
       "family": "FR",
       "label": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes ✅ "
+      "row_text": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes 🟠 library-complete and unit/integration-tested, but neither side has a production caller: `projectKnowledgeGraph`/`writeGraph` (the GKS write path) are exported from `src/modules/knowledge/index.js` and never invoked outside tests, and the graph read side (`createGraphKnowledgeReader`) is only reached through `createAgentPorts`, which the production LINE webhook never calls (see FR-029). Every live turn still reads through the plain Prisma `queryKnowledge` fallback, never a GKS/KG graph "
     },
     {
       "id": "req:FR-025",
@@ -12093,7 +12415,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access. ✅ "
+      "row_text": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access. ✅; 2026-09-02: `addBusinessMembership` + `POST /api/platform/users/memberships` — an OWNER attaches an existing Person (exact code/email) to an owned Business as MEMBER with a domain allow-list, from `/platform/users` "
     },
     {
       "id": "req:FR-039",
@@ -12323,7 +12645,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer. ✅ "
+      "row_text": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer. ✅; 2026-09-02: enforced server-side as well — `assertDomainVisible(viewer, businessId, domainKey)` in `src/modules/identity/viewer-domains.js`, applied in the crm, market and people read models (404 indistinguishable from an unknown Business), ratchet `tests/unit/domain-visibility-server-enforcement.test.js`; project-manager routes deliberately out (Business Home is alwaysVisible) "
     },
     {
       "id": "req:FR-062",
@@ -12633,7 +12955,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. ✅ implemented; shipped in PR #88 (merge `1136863`) — translator, `MarketObservation` persistence behind an atomic unique-lineage insert, trusted Integration raw read port and injected GKS resolution live in `src/modules/market-intelligence/`, covered by `tests/integration/market-intelligence-persistence.test.js`, `tests/integration/market-intelligence-gks-resolution.test.js` and `tests/unit/market-intelligence-schema-migration.test.js` — status flip 2026-08-30; 2026-09-02: console read surface delivered — `GET /api/market/observations` (viewer must see the Business, GET only) feeds `/market` with real rows (`tests/integration/market-intelligence-observation-feed.test.js`); the production translation trigger is still outstanding, so a live installation shows an honest empty state "
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. ✅ implemented; shipped in PR #88 (merge `1136863`) — translator, `MarketObservation` persistence behind an atomic unique-lineage insert, trusted Integration raw read port and injected GKS resolution live in `src/modules/market-intelligence/`, covered by `tests/integration/market-intelligence-persistence.test.js`, `tests/integration/market-intelligence-gks-resolution.test.js` and `tests/unit/market-intelligence-schema-migration.test.js` — status flip 2026-08-30; 2026-09-02: console read surface delivered — `GET /api/market/observations` (viewer must see the Business, GET only) feeds `/market` with real rows (`tests/integration/market-intelligence-observation-feed.test.js`); 2026-09-03: production translation trigger delivered — `POST /api/market/translations` (owner-only, body `{ businessId, limit? }`) runs the existing translate-and-persist seam over a Business's untranslated `MARKET_INTELLIGENCE` raw backlog and is wired into `MarketDashboard.jsx` as an owner-only \"แปลข้อมูลจากแหล่งภายนอก\" button, closing gap-analysis findings D2-domain-market-intelligence-07 and D3-integration-knowledge-document-intake-05 (`tests/unit/market-intelligence/market-translations-route.test.js`, `tests/unit/market-intelligence/market-translation-run.test.js`, `tests/integration/market-intelligence-translation-run.test.js`); acquisition adapters (`marketplace-listing-adapter.js`, `retail-price-adapter.js`) remain deliberately unwired pending a source-specific legal/ToS review — see the FR-092 feature note's \"Decision 2026-09-02\" "
     },
     {
       "id": "req:FR-093",
@@ -12773,7 +13095,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". ✅ implemented; Supabase migration applied and ledger-recorded 2026-08-27 (RSK-016 closed) "
+      "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". ✅ implemented; Supabase migration applied and ledger-recorded 2026-08-27 (RSK-016 closed); 2026-09-02: `GET /api/platform/api-access-keys` (metadata only) and a list / mint-once / revoke panel on `/platform/users` for Tenant owners and the operator "
     },
     {
       "id": "req:FR-107",
@@ -14690,6 +15012,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/crm/customers/[customerId]/erasure",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/customers/[customerId]/erasure",
+      "path": "src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/dependencies",
       "type": "route",
       "kind": "api",
@@ -14874,6 +15204,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/market/translations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/market/translations",
+      "path": "src/app/api/market/translations/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/mcp",
       "type": "route",
       "kind": "api",
@@ -15055,6 +15393,14 @@
       "kind": "api",
       "route": "/api/platform/users",
       "path": "src/app/api/platform/users/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/users/memberships",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/users/memberships",
+      "path": "src/app/api/platform/users/memberships/route.js",
       "status": "current"
     },
     {
@@ -16421,7 +16767,7 @@
       "id": "test:tests/integration/agent-heartbeat-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-heartbeat-route.test.js",
-      "hash": "22cdecfc",
+      "hash": "74af8d37",
       "status": "changed"
     },
     {
@@ -16505,21 +16851,35 @@
       "id": "test:tests/integration/crm-conversation-analysis.test.js",
       "type": "test",
       "path": "tests/integration/crm-conversation-analysis.test.js",
-      "hash": "c5cfb893",
-      "status": "current"
+      "hash": "b2fdafea",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/crm-conversation-inbox.test.js",
       "type": "test",
       "path": "tests/integration/crm-conversation-inbox.test.js",
-      "hash": "553c125b",
-      "status": "current"
+      "hash": "d3dee26a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/crm-customer-consent.test.js",
       "type": "test",
       "path": "tests/integration/crm-customer-consent.test.js",
-      "hash": "2e264fb0",
+      "hash": "ed630d5f",
+      "status": "changed"
+    },
+    {
+      "id": "test:tests/integration/crm-customer-erasure.test.js",
+      "type": "test",
+      "path": "tests/integration/crm-customer-erasure.test.js",
+      "hash": "aee86a67",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/domain-visibility-server.test.js",
+      "type": "test",
+      "path": "tests/integration/domain-visibility-server.test.js",
+      "hash": "b8d56a41",
       "status": "current"
     },
     {
@@ -16541,6 +16901,13 @@
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
       "hash": "39ab746f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr038-business-membership-add.test.js",
+      "type": "test",
+      "path": "tests/integration/fr038-business-membership-add.test.js",
+      "hash": "15a1fcd4",
       "status": "current"
     },
     {
@@ -16583,6 +16950,13 @@
       "type": "test",
       "path": "tests/integration/fr072-file-asset-authorization.test.js",
       "hash": "5a69b853",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-files-migrate-authorization.test.js",
+      "hash": "dce8f840",
       "status": "current"
     },
     {
@@ -16660,6 +17034,13 @@
       "type": "test",
       "path": "tests/integration/fr089-team-scope.test.js",
       "hash": "8356e783",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "type": "test",
+      "path": "tests/integration/fr106-api-access-key-listing.test.js",
+      "hash": "e62a237c",
       "status": "current"
     },
     {
@@ -16838,6 +17219,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-oa-provider-migration.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-provider-migration.test.js",
+      "hash": "cb041ac0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
@@ -16848,8 +17236,8 @@
       "id": "test:tests/integration/line-reply-record.test.js",
       "type": "test",
       "path": "tests/integration/line-reply-record.test.js",
-      "hash": "83676d20",
-      "status": "current"
+      "hash": "b032c941",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
@@ -16876,14 +17264,21 @@
       "id": "test:tests/integration/market-intelligence-observation-feed.test.js",
       "type": "test",
       "path": "tests/integration/market-intelligence-observation-feed.test.js",
-      "hash": "c03f31a8",
-      "status": "current"
+      "hash": "39b95119",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/market-intelligence-persistence.test.js",
       "type": "test",
       "path": "tests/integration/market-intelligence-persistence.test.js",
       "hash": "cea62aa8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-translation-run.test.js",
+      "hash": "282b069d",
       "status": "current"
     },
     {
@@ -16897,8 +17292,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "de8179ba",
-      "status": "current"
+      "hash": "375af261",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -17086,8 +17481,8 @@
       "id": "test:tests/unit/api-access-key-routes.test.js",
       "type": "test",
       "path": "tests/unit/api-access-key-routes.test.js",
-      "hash": "b1cd6e5f",
-      "status": "current"
+      "hash": "c84a90c4",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/api-path-reachability.test.js",
@@ -17380,14 +17775,21 @@
       "id": "test:tests/unit/customer-consent-service.test.js",
       "type": "test",
       "path": "tests/unit/customer-consent-service.test.js",
-      "hash": "87aec2b8",
-      "status": "current"
+      "hash": "d98442f3",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/customer-data-contract.test.js",
       "type": "test",
       "path": "tests/unit/customer-data-contract.test.js",
       "hash": "f9d074f5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-erasure-confirmation.test.js",
+      "hash": "91a3cb85",
       "status": "current"
     },
     {
@@ -17545,6 +17947,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "type": "test",
+      "path": "tests/unit/domain-visibility-server-enforcement.test.js",
+      "hash": "f10b0e2d",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
       "type": "test",
       "path": "tests/unit/e2e-reconnecting-request.test.js",
@@ -17604,8 +18013,8 @@
       "id": "test:tests/unit/fr045-file-asset-service.test.js",
       "type": "test",
       "path": "tests/unit/fr045-file-asset-service.test.js",
-      "hash": "7e0bd861",
-      "status": "current"
+      "hash": "eb276cb0",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr045-file-manager-read-model.test.js",
@@ -17807,8 +18216,8 @@
       "id": "test:tests/unit/fr080-integration-management.test.js",
       "type": "test",
       "path": "tests/unit/fr080-integration-management.test.js",
-      "hash": "32901d3f",
-      "status": "current"
+      "hash": "9c02ea03",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr080-runtime-wiring.test.js",
@@ -17842,8 +18251,8 @@
       "id": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
-      "hash": "2982c144",
-      "status": "current"
+      "hash": "7ca08a26",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr120-signup-page.test.js",
@@ -17926,8 +18335,8 @@
       "id": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
       "type": "test",
       "path": "tests/unit/fr141-edge-device-heartbeat.test.js",
-      "hash": "4dc5ee06",
-      "status": "current"
+      "hash": "0da925c3",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/gate-cap-rounding.test.js",
@@ -18196,10 +18605,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "hash": "4444f605",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
       "hash": "e4f76e21",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "hash": "e145d775",
       "status": "current"
     },
     {
@@ -18213,15 +18636,15 @@
       "id": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/market-observation-feed.test.js",
-      "hash": "fc135338",
-      "status": "current"
+      "hash": "3155ad03",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/market-observation-repository.test.js",
-      "hash": "b4ed189f",
-      "status": "current"
+      "hash": "a2a5a19a",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-observation-service.test.js",
@@ -18241,8 +18664,8 @@
       "id": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/market-raw-record-repository.test.js",
-      "hash": "8ae01f8a",
-      "status": "current"
+      "hash": "63f2fcb1",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-research-domain.test.js",
@@ -18256,6 +18679,20 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/market-signals-domain.test.js",
       "hash": "957fc412",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-translation-run.test.js",
+      "hash": "fedc6457",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-translations-route.test.js",
+      "hash": "9430e1f9",
       "status": "current"
     },
     {
@@ -18402,8 +18839,8 @@
       "id": "test:tests/unit/people-service.test.js",
       "type": "test",
       "path": "tests/unit/people-service.test.js",
-      "hash": "9bdc2986",
-      "status": "current"
+      "hash": "bb70d97f",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
@@ -18479,8 +18916,8 @@
       "id": "test:tests/unit/platform-control-guard.test.js",
       "type": "test",
       "path": "tests/unit/platform-control-guard.test.js",
-      "hash": "514a33b6",
-      "status": "current"
+      "hash": "68cd929a",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/platform-control-route-contract.test.js",
@@ -18494,6 +18931,20 @@
       "type": "test",
       "path": "tests/unit/platform-grant-migration.test.js",
       "hash": "9773c820",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-users-page-render.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-users-page-render.test.js",
+      "hash": "616bd5fb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-users-view.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-users-view.test.js",
+      "hash": "735bccff",
       "status": "current"
     },
     {
@@ -19011,8 +19462,8 @@
       "id": "test:tests/unit/viewer-failure.test.js",
       "type": "test",
       "path": "tests/unit/viewer-failure.test.js",
-      "hash": "e93124a0",
-      "status": "current"
+      "hash": "a2c23012",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/viewer-gate.test.js",
@@ -19508,6 +19959,13 @@
     },
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:FR-059",
       "type": "implements",
       "status": "current",
@@ -19949,6 +20407,13 @@
     },
     {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -19964,6 +20429,13 @@
     {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -21698,6 +22170,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/dependencies/[id]/route.js",
       "to": "req:FR-007",
       "type": "implements",
@@ -22028,6 +22542,20 @@
     },
     {
       "from": "code:src/app/api/files/migrate/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/migrate/route.js",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/migrate/route.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -22036,6 +22564,13 @@
     {
       "from": "code:src/app/api/files/migrate/route.js",
       "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/migrate/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22538,6 +23073,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/market/translations/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/translations/route.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/translations/route.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/translations/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/market/translations/route.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/mcp/route.js",
       "to": "req:FR-069",
       "type": "implements",
@@ -22743,6 +23313,13 @@
     {
       "from": "code:src/app/api/people/route.js",
       "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/route.js",
+      "to": "req:FR-061",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -23100,6 +23677,55 @@
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
       "to": "req:FR-101",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24828,6 +25454,13 @@
     },
     {
       "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
       "to": "req:FR-105",
       "type": "implements",
       "status": "current",
@@ -24835,6 +25468,48 @@
     },
     {
       "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:SEC-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
       "to": "req:SEC-020",
       "type": "follows",
       "status": "current",
@@ -25318,8 +25993,29 @@
     },
     {
       "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
       "to": "req:FR-105",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -26914,6 +27610,13 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:FR-091",
       "type": "implements",
       "status": "current",
@@ -26955,9 +27658,44 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/conversation-redaction-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-redaction-service.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-redaction-service.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-redaction-service.js",
+      "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/crm/customer-consent-service.js",
       "to": "req:BR-001",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:FR-061",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -27326,6 +28064,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-customer-principal.js",
+      "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/erase-principal.js",
       "to": "req:FR-022",
       "type": "implements",
@@ -27524,6 +28311,48 @@
     {
       "from": "code:src/modules/identity/password-reset-copy.js",
       "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/platform-users-view.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28845,9 +29674,37 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
       "to": "req:BR-019",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:FR-061",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -29175,6 +30032,13 @@
     },
     {
       "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -29245,7 +30109,28 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-106",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -29561,6 +30446,13 @@
     {
       "from": "code:src/modules/project-manager/application/file-asset-service.js",
       "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:FR-075",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -32250,6 +33142,27 @@
       "from": "code:src/platform/integrations/core/raw-ingest-service.js",
       "to": "req:FR-109",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-redaction.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-redaction.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-redaction.js",
+      "to": "req:SEC-001",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -35670,6 +36583,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/crm/customers/[customerId]/erasure",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/dependencies/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -35831,6 +36751,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/market/translations",
+      "to": "domain:market-intelligence",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/mcp",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -35980,6 +36907,13 @@
     {
       "from": "route:api:/api/platform/sot/plan",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/users/memberships",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -39129,6 +40063,13 @@
     },
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -41166,6 +42107,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-067",
       "type": "verifies",
       "status": "current",
@@ -41320,6 +42268,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -41383,6 +42338,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:FR-091",
       "type": "verifies",
       "status": "current",
@@ -41401,6 +42363,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
@@ -41453,6 +42429,13 @@
     },
     {
       "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
       "to": "req:FR-091",
       "type": "verifies",
       "status": "current",
@@ -41461,6 +42444,13 @@
     {
       "from": "test:tests/integration/crm-customer-consent.test.js",
       "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -41482,6 +42472,202 @@
     {
       "from": "test:tests/integration/crm-customer-consent.test.js",
       "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "code:src/modules/crm/conversation-redaction-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "code:src/modules/identity/erase-customer-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "code:src/modules/identity/erase-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "code:src/platform/integrations/core/raw-record-redaction.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "code:src/app/api/people/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "code:src/modules/people/application/people-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -41795,6 +42981,69 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "code:src/app/api/platform/users/memberships/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:FR-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr038-business-membership-add.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/fr045-managed-files.test.js",
       "to": "code:src/modules/project-manager/application/file-asset-service.js",
       "type": "tests",
@@ -41825,6 +43074,13 @@
     {
       "from": "test:tests/integration/fr045-managed-files.test.js",
       "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -42195,6 +43451,13 @@
     },
     {
       "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -42216,6 +43479,111 @@
     },
     {
       "from": "test:tests/integration/fr072-file-asset-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "code:src/app/api/files/migrate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/file-asset-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/project-authorization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:BR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-files-migrate-authorization.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -43265,6 +44633,48 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
       "to": "req:BR-021",
       "type": "verifies",
@@ -43693,10 +45103,24 @@
     },
     {
       "from": "test:tests/integration/identity-erase.test.js",
+      "to": "code:src/modules/crm/conversation-redaction-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
       "to": "code:src/modules/identity/erase-principal.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/identity-erase.test.js",
@@ -43714,7 +45138,21 @@
     },
     {
       "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44525,6 +45963,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/line-oa-provider-migration.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-provider-migration.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-provider-migration.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-registry-scope.test.js",
       "to": "code:src/app/api/platform/integrations/line-registry/route.js",
       "type": "tests",
@@ -44611,6 +46070,13 @@
     {
       "from": "test:tests/integration/line-reply-record.test.js",
       "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-061",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -44736,6 +46202,13 @@
     },
     {
       "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-observation-feed.test.js",
       "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
@@ -44765,6 +46238,48 @@
     {
       "from": "test:tests/integration/market-intelligence-persistence.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-translation-run.test.js",
+      "to": "req:SEC-017",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -44849,6 +46364,20 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-038",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -49377,6 +50906,13 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:FR-091",
       "type": "verifies",
       "status": "current",
@@ -49496,6 +51032,13 @@
     },
     {
       "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
       "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
@@ -49525,6 +51068,62 @@
     {
       "from": "test:tests/unit/customer-data-contract.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "code:src/modules/identity/erase-customer-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-erasure-confirmation.test.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -50001,6 +51600,48 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-visibility-server-enforcement.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -50787,7 +52428,14 @@
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/fr045-file-asset-service.test.js",
@@ -51232,6 +52880,13 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "code:src/app/api/platform/users/memberships/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "code:src/app/api/platform/users/route.js",
       "type": "tests",
       "status": "current",
@@ -51337,7 +52992,28 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -51394,6 +53070,13 @@
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -52289,6 +53972,13 @@
     },
     {
       "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -52311,6 +54001,13 @@
     {
       "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -52794,6 +54491,13 @@
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-022",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -54801,6 +56505,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "to": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/generic-candidate-extractor.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
       "to": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
       "type": "tests",
@@ -54829,6 +56561,41 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-dashboard-render.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
       "to": "code:src/modules/market-intelligence/domain/market-observation.js",
       "type": "tests",
@@ -54852,6 +56619,13 @@
     {
       "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
       "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-feed.test.js",
+      "to": "req:FR-061",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -54922,6 +56696,13 @@
     {
       "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
       "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "to": "req:FR-061",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -55029,7 +56810,7 @@
       "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
@@ -55090,6 +56871,83 @@
     {
       "from": "test:tests/unit/market-intelligence/market-signals-domain.test.js",
       "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "code:src/app/api/market/translations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-translations-route.test.js",
+      "to": "req:SEC-017",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -55831,6 +57689,13 @@
     },
     {
       "from": "test:tests/unit/people-route.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-route.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -55860,6 +57725,20 @@
     {
       "from": "test:tests/unit/people-service.test.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -56531,6 +58410,13 @@
     },
     {
       "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/components/layouts/PlatformControlSessionRetry.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
       "to": "code:src/lib/platform-control-guard.js",
       "type": "tests",
       "status": "current",
@@ -56539,6 +58425,13 @@
     {
       "from": "test:tests/unit/platform-control-guard.test.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-046",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -56556,6 +58449,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform-control-guard.test.js",
@@ -56651,6 +58558,111 @@
     {
       "from": "test:tests/unit/platform-grant-migration.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-page-render.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-page-render.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-page-render.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-page-render.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "code:src/app/(pm)/platform/users/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "code:src/modules/identity/platform-users-view.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:FR-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:SDD-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -57511,6 +59523,13 @@
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -57547,6 +59566,13 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -59800,6 +61826,20 @@
     },
     {
       "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "code:src/lib/platform-control-guard.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
       "to": "code:src/lib/viewer-failure.js",
       "type": "tests",
       "status": "current",
@@ -59818,6 +61858,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/viewer-failure.test.js",
@@ -59846,6 +61893,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-failure.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/viewer-gate.test.js",

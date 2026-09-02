@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T11:50:33.323Z",
+  "generatedAt": "2026-09-02T19:18:33.557Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -311,14 +311,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-093",
@@ -386,7 +386,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 118,
+            "openApiPaths": 121,
             "missingFromOpenApi": 0
           }
         },
@@ -680,11 +680,25 @@
       "status": "verified",
       "requirements": [
         {
+          "id": "FR-022",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
+        },
+        {
           "id": "FR-023",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-061",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 27
         },
         {
           "id": "FR-078",
@@ -719,7 +733,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-127",
@@ -838,8 +852,8 @@
           "id": "FR-022",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 5,
+          "testCount": 12
         },
         {
           "id": "FR-026",
@@ -866,8 +880,8 @@
           "id": "FR-038",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 12
+          "codeCount": 4,
+          "testCount": 16
         },
         {
           "id": "FR-044",
@@ -881,28 +895,28 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 62
+          "testCount": 66
         },
         {
           "id": "FR-059",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 27
         },
         {
           "id": "FR-062",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 6
         },
         {
           "id": "FR-066",
@@ -923,14 +937,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 21
+          "testCount": 26
         },
         {
           "id": "FR-076",
@@ -958,7 +972,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-096",
@@ -986,7 +1000,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
+        },
+        {
+          "id": "FR-103",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
         },
         {
           "id": "FR-104",
@@ -999,8 +1020,8 @@
           "id": "FR-106",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 15
+          "codeCount": 2,
+          "testCount": 20
         },
         {
           "id": "FR-107",
@@ -1061,7 +1082,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 118,
+            "openApiPaths": 121,
             "missingFromOpenApi": 0
           }
         },
@@ -1232,6 +1253,13 @@
       "status": "partial",
       "requirements": [
         {
+          "id": "FR-022",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
+        },
+        {
           "id": "FR-028",
           "declared": "done",
           "status": "verified",
@@ -1271,21 +1299,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 16
+          "codeCount": 10,
+          "testCount": 18
         },
         {
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 24
+          "testCount": 29
         },
         {
           "id": "FR-099",
@@ -1313,7 +1341,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-109",
@@ -1395,7 +1423,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 118,
+            "openApiPaths": 121,
             "missingFromOpenApi": 0
           }
         },
@@ -1535,7 +1563,7 @@
       "requirements": [
         {
           "id": "FR-024",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
           "testCount": 8
@@ -1794,14 +1822,21 @@
       "progressPercent": 93.3
     },
     "market-intelligence": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
+        {
+          "id": "FR-061",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 27
+        },
         {
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 18,
-          "testCount": 24
+          "codeCount": 20,
+          "testCount": 29
         }
       ],
       "checks": {
@@ -1825,9 +1860,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 118,
+            "routes": 2,
+            "inventoried": 2,
+            "openApiPaths": 121,
             "missingFromOpenApi": 0
           }
         },
@@ -1866,14 +1901,14 @@
           }
         },
         "authorization": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
           "gaps": [],
           "details": {
-            "mutations": 0,
-            "guardedMutations": 0,
+            "mutations": 1,
+            "guardedMutations": 1,
             "reads": 1,
             "unguardedReads": 0
           }
@@ -1902,8 +1937,8 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 2,
-        "apiRoutes": 1,
+        "routes": 3,
+        "apiRoutes": 2,
         "pageRoutes": 1,
         "ownedModels": 1,
         "featureNotes": 1
@@ -1919,18 +1954,25 @@
       "status": "verified",
       "requirements": [
         {
+          "id": "FR-046",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 66
+        },
+        {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 26
         },
         {
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "checks": {
@@ -2155,6 +2197,13 @@
           "testCount": 14
         },
         {
+          "id": "FR-022",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 12
+        },
+        {
           "id": "FR-031",
           "declared": "done",
           "status": "verified",
@@ -2207,8 +2256,8 @@
           "id": "FR-038",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 7,
+          "testCount": 16
         },
         {
           "id": "FR-039",
@@ -2236,7 +2285,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-043",
@@ -2257,14 +2306,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 58,
-          "testCount": 62
+          "codeCount": 61,
+          "testCount": 66
         },
         {
           "id": "FR-056",
@@ -2285,7 +2334,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-060",
@@ -2298,15 +2347,15 @@
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 12
+          "codeCount": 4,
+          "testCount": 27
         },
         {
           "id": "FR-062",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 6
         },
         {
           "id": "FR-063",
@@ -2368,29 +2417,29 @@
           "id": "FR-072",
           "declared": "done",
           "status": "verified",
-          "codeCount": 30,
-          "testCount": 31
+          "codeCount": 31,
+          "testCount": 37
         },
         {
           "id": "FR-073",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-074",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 21
+          "codeCount": 8,
+          "testCount": 26
         },
         {
           "id": "FR-077",
@@ -2411,7 +2460,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-082",
@@ -2467,14 +2516,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 24
+          "testCount": 29
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-100",
@@ -2488,14 +2537,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-103",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 9
+          "codeCount": 3,
+          "testCount": 11
         },
         {
           "id": "FR-104",
@@ -2508,15 +2557,15 @@
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 5
+          "codeCount": 4,
+          "testCount": 6
         },
         {
           "id": "FR-106",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 15
+          "codeCount": 11,
+          "testCount": 20
         },
         {
           "id": "FR-107",
@@ -2640,9 +2689,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 91,
-            "inventoried": 91,
-            "openApiPaths": 118,
+            "routes": 93,
+            "inventoried": 93,
+            "openApiPaths": 121,
             "missingFromOpenApi": 0
           }
         },
@@ -2695,9 +2744,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 74,
-            "guardedMutations": 74,
-            "reads": 44,
+            "mutations": 76,
+            "guardedMutations": 76,
+            "reads": 45,
             "unguardedReads": 0
           }
         },
@@ -2722,6 +2771,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/project-manager/CHARTER.md",
         "docs/domains/project-manager/features/FR-003-project-list-contract.md",
+        "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
         "docs/domains/project-manager/features/FR-019-enterprise-api.md",
         "docs/domains/project-manager/features/FR-020-adaptive-shell.md",
         "docs/domains/project-manager/features/FR-032-home-entry.md",
@@ -2790,11 +2840,11 @@
         }
       ],
       "details": {
-        "routes": 132,
-        "apiRoutes": 91,
+        "routes": 134,
+        "apiRoutes": 93,
         "pageRoutes": 41,
         "ownedModels": 30,
-        "featureNotes": 30
+        "featureNotes": 31
       },
       "featureIds": [
         "FEAT-001",
@@ -2882,7 +2932,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-058",
@@ -2931,6 +2981,7 @@
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr045-managed-files.test.js",
         "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/project-authorization.test.js",
@@ -3154,7 +3205,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -3177,6 +3228,7 @@
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
         "tests/integration/line-oa-connection-health.test.js",
+        "tests/integration/line-oa-provider-migration.test.js",
         "tests/integration/line-registry-scope.test.js",
         "tests/unit/activation-readiness-integration.test.js",
         "tests/unit/connection-health.test.js",
@@ -3558,7 +3610,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-096",
@@ -3612,6 +3664,7 @@
         "tests/integration/backup.test.js",
         "tests/integration/channel-identity.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/iam-authorization.test.js",
         "tests/integration/identity-erase.test.js",
@@ -4984,7 +5037,10 @@
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
-        "identity"
+        "crm",
+        "identity",
+        "integration",
+        "project-manager"
       ],
       "useCase": "สมาชิกใช้ token ครั้งเดียวเพื่อ link LINE กับบัญชี และขอ revoke หรือ erase ตาม PDPA",
       "progressPercent": 100,
@@ -4996,22 +5052,33 @@
           "id": "FR-022",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 10,
+          "testCount": 12
         }
       ],
       "evidence": [
+        "src/app/(pm)/customer/conversations/page.jsx",
+        "src/app/api/crm/customers/[customerId]/erasure/route.js",
+        "src/modules/crm/conversation-redaction-service.js",
         "src/modules/identity/classify-principal.js",
+        "src/modules/identity/erase-customer-principal.js",
         "src/modules/identity/erase-principal.js",
         "src/modules/identity/gate.js",
         "src/modules/identity/link-line-identity.js",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/platform/integrations/core/raw-record-redaction.js",
+        "tests/e2e/fr091-conversation-inbox.spec.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-turn.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
         "tests/integration/identity-classify.test.js",
         "tests/integration/identity-erase.test.js",
         "tests/integration/identity-gate.test.js",
-        "tests/integration/identity-link.test.js"
+        "tests/integration/identity-link.test.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/unit/customer-erasure-confirmation.test.js",
+        "tests/unit/fr091-inbox-ui-contract.test.js"
       ]
     },
     {
@@ -5553,21 +5620,26 @@
           "id": "FR-038",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 12
+          "codeCount": 11,
+          "testCount": 16
         }
       ],
       "evidence": [
         "src/app/(pm)/platform/users/page.jsx",
         "src/app/(pm)/profile/page.jsx",
+        "src/app/api/platform/users/memberships/route.js",
         "src/app/api/platform/users/route.js",
         "src/app/api/profile/route.js",
         "src/components/layouts/DomainBar.jsx",
+        "src/modules/identity/platform-users-view.js",
         "src/modules/identity/profile-permission-service.js",
         "src/modules/identity/resolve-viewer.js",
         "src/modules/identity/viewer-authority.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "tests/e2e/fr041-business-first.spec.js",
+        "tests/integration/fr038-business-membership-add.test.js",
         "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/openapi-docs.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr036-team-authorization.test.js",
@@ -5575,6 +5647,8 @@
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr062-permissions-read-scope.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/platform-users-page-render.test.js",
+        "tests/unit/platform-users-view.test.js",
         "tests/unit/profile-permission-service.test.js",
         "tests/unit/viewer-authority.test.js",
         "tests/unit/viewer-gate.test.js"
@@ -5706,7 +5780,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -5719,6 +5793,7 @@
         "src/modules/people/components/PeopleDirectory.jsx",
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/fr059-strategy-edit.spec.js",
+        "tests/integration/domain-visibility-server.test.js",
         "tests/unit/asset-management-navigation.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
@@ -5866,6 +5941,7 @@
       "primaryDomain": "identity",
       "contributorDomains": [
         "identity",
+        "platform-control",
         "project-manager"
       ],
       "useCase": "production request ใช้ trusted session เพื่อคืน Business Routing payload ที่กรองบน server แล้ว",
@@ -5878,8 +5954,8 @@
           "id": "FR-046",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 74,
-          "testCount": 62
+          "codeCount": 78,
+          "testCount": 66
         }
       ],
       "evidence": [
@@ -5920,6 +5996,7 @@
         "src/app/api/milestones/[id]/route.js",
         "src/app/api/milestones/route.js",
         "src/app/api/people/route.js",
+        "src/app/api/platform/users/memberships/route.js",
         "src/app/api/platform/users/route.js",
         "src/app/api/profile/route.js",
         "src/app/api/progress/project/[id]/route.js",
@@ -5948,8 +6025,11 @@
         "src/app/login/page.jsx",
         "src/components/forms/PasswordField.jsx",
         "src/components/layouts/BusinessShellGuard.jsx",
+        "src/components/layouts/PlatformControlGuard.jsx",
+        "src/components/layouts/PlatformControlSessionRetry.jsx",
         "src/context/ScopeContext.jsx",
         "src/lib/business-shell-guard.js",
+        "src/lib/platform-control-guard.js",
         "src/lib/viewer-failure.js",
         "src/modules/identity/auth-service.js",
         "src/modules/identity/entry-read-model.js",
@@ -5961,9 +6041,12 @@
         "tests/e2e/fr104-password-reset-redemption.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/backup.test.js",
+        "tests/integration/domain-visibility-server.test.js",
+        "tests/integration/fr038-business-membership-add.test.js",
         "tests/integration/fr046-entry-contract.test.js",
         "tests/integration/fr059-business-strategy-mutation.test.js",
         "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-milestone-gate-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr072-project-service-authorization.test.js",
@@ -6008,6 +6091,7 @@
         "tests/unit/password-reset-page.test.js",
         "tests/unit/password-reset-service.test.js",
         "tests/unit/people-route.test.js",
+        "tests/unit/platform-control-guard.test.js",
         "tests/unit/playwright-database-bootstrap.test.js",
         "tests/unit/profile-permission-service.test.js",
         "tests/unit/project-dependency-route.test.js",
@@ -6442,7 +6526,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -6468,6 +6552,7 @@
         "tests/unit/fr060-business-home-read-model.test.js",
         "tests/unit/fr060-business-home-visibility.test.js",
         "tests/unit/fr091-inbox-ui-contract.test.js",
+        "tests/unit/market-intelligence/market-dashboard-render.test.js",
         "tests/unit/overview-split.test.js",
         "tests/unit/repositories-page-ui-contract.test.js",
         "tests/unit/viewer-authority.test.js"
@@ -6483,7 +6568,9 @@
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
+        "crm",
         "identity",
+        "market-intelligence",
         "project-manager"
       ],
       "useCase": "สมาชิกเห็น CRM ใน Business A แต่ไม่เห็นใน Business B ตาม grant ของแต่ละ Membership",
@@ -6496,26 +6583,46 @@
           "id": "FR-061",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 10,
+          "testCount": 27
         }
       ],
       "evidence": [
+        "src/app/api/people/route.js",
         "src/components/layouts/CommandPalette.jsx",
         "src/components/layouts/DomainBar.jsx",
         "src/lib/business-shell-guard.js",
+        "src/modules/crm/conversation-read-model.js",
+        "src/modules/crm/customer-consent-service.js",
         "src/modules/identity/resolve-viewer.js",
         "src/modules/identity/viewer-domains.js",
+        "src/modules/market-intelligence/application/market-observation-service.js",
+        "src/modules/people/application/people-service.js",
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/crm-conversation-inbox.test.js",
+        "tests/integration/crm-customer-consent.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
+        "tests/integration/domain-visibility-server.test.js",
         "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/line-reply-record.test.js",
+        "tests/integration/market-intelligence-observation-feed.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/business-shell-guard.test.js",
         "tests/unit/command-palette-index.test.js",
+        "tests/unit/conversation-read-model.test.js",
+        "tests/unit/customer-consent-service.test.js",
         "tests/unit/domain-navigation.test.js",
+        "tests/unit/domain-visibility-server-enforcement.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
         "tests/unit/fr060-business-home-visibility.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/market-intelligence/market-observation-feed.test.js",
+        "tests/unit/market-intelligence/market-observation-service.test.js",
+        "tests/unit/people-route.test.js",
+        "tests/unit/people-service.test.js",
         "tests/unit/profile-permission-service.test.js",
         "tests/unit/viewer-gate.test.js"
       ]
@@ -6544,15 +6651,17 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 6
         }
       ],
       "evidence": [
         "src/app/(pm)/platform/users/page.jsx",
         "src/modules/identity/profile-permission-service.js",
+        "tests/integration/fr038-business-membership-add.test.js",
         "tests/integration/fr089-team-scope.test.js",
         "tests/unit/fr036-team-authorization.test.js",
         "tests/unit/fr062-permissions-read-scope.test.js",
+        "tests/unit/platform-users-view.test.js",
         "tests/unit/profile-permission-service.test.js"
       ]
     },
@@ -6863,8 +6972,8 @@
           "id": "FR-072",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
-          "testCount": 31
+          "codeCount": 31,
+          "testCount": 37
         }
       ],
       "evidence": [
@@ -6872,6 +6981,7 @@
         "src/app/api/containers/route.js",
         "src/app/api/dependencies/[id]/route.js",
         "src/app/api/dependencies/route.js",
+        "src/app/api/files/migrate/route.js",
         "src/app/api/gates/[id]/route.js",
         "src/app/api/gates/route.js",
         "src/app/api/milestones/[id]/route.js",
@@ -6901,10 +7011,13 @@
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/adaptive-shell.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
+        "tests/integration/domain-visibility-server.test.js",
         "tests/integration/fr045-managed-files.test.js",
         "tests/integration/fr059-business-strategy-mutation.test.js",
         "tests/integration/fr072-dependency-authorization.test.js",
         "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-milestone-gate-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr072-project-service-authorization.test.js",
@@ -6921,11 +7034,14 @@
         "tests/integration/scope-and-isolation.test.js",
         "tests/integration/work-listing-scope.test.js",
         "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/domain-visibility-server-enforcement.test.js",
         "tests/unit/fr045-file-asset-service.test.js",
         "tests/unit/fr045-reconcile-cache.test.js",
         "tests/unit/fr045-reveal.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
         "tests/unit/fr089-br018-team-grants-nothing.test.js",
         "tests/unit/global-view-drilldown.test.js",
+        "tests/unit/people-service.test.js",
         "tests/unit/project-dependency-service.test.js",
         "tests/unit/project-file-service.test.js",
         "tests/unit/project-list-contract.test.js"
@@ -6954,7 +7070,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -6969,6 +7085,7 @@
         "tests/e2e/smoke.spec.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-refusal-disclosure.test.js",
         "tests/integration/fr072-repository-link-authorization.test.js",
         "tests/integration/fr073-repository-scope.test.js",
@@ -7002,7 +7119,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -7013,12 +7130,14 @@
         "tests/integration/adaptive-shell.test.js",
         "tests/integration/fr072-workspace-mutation-authorization.test.js",
         "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/fr106-api-access-key-listing.test.js",
         "tests/integration/scope-and-isolation.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/api-access-auth.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/platform-users-view.test.js",
         "tests/unit/viewer-authority.test.js",
         "tests/unit/viewer-gate.test.js"
       ]
@@ -7047,24 +7166,29 @@
           "id": "FR-075",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 21
+          "codeCount": 11,
+          "testCount": 26
         }
       ],
       "evidence": [
         "src/app/(pm)/settings/page.jsx",
         "src/app/api/backup/export/route.js",
         "src/app/api/backup/import/route.js",
+        "src/app/api/files/migrate/route.js",
         "src/components/layouts/PlatformControlShell.jsx",
         "src/modules/identity/operator-bootstrap.js",
         "src/modules/identity/resolve-viewer.js",
         "src/modules/identity/viewer-authority.js",
         "src/modules/project-manager/application/backup-service.js",
+        "src/modules/project-manager/application/file-asset-service.js",
         "src/modules/project-manager/application/scope-service.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/adaptive-shell.test.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/fr045-managed-files.test.js",
+        "tests/integration/fr072-file-asset-authorization.test.js",
+        "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-workspace-mutation-authorization.test.js",
         "tests/integration/fr074-scope-creation-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
@@ -7073,6 +7197,8 @@
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr045-file-asset-service.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/operator-bootstrap.test.js",
@@ -7152,8 +7278,8 @@
           "id": "FR-081",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 12,
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -7165,16 +7291,19 @@
         "src/platform/integrations/core/idempotency.js",
         "src/platform/integrations/core/integration-registry.js",
         "src/platform/integrations/core/raw-ingest-service.js",
+        "src/platform/integrations/core/raw-record-redaction.js",
         "src/platform/integrations/core/raw-record-repository.js",
         "src/platform/integrations/providers/line/line-oa-evidence.js",
         "src/platform/integrations/providers/line/line-oa-webhook.js",
         "tests/integration/agent-webhook-route.test.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/fr109-knowledge-ingestion-executor.test.js",
         "tests/integration/line-oa-connection-health.test.js",
         "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/market-intelligence-translation-run.test.js",
         "tests/integration/platform/integration-persistence.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr079-runtime-cutover.test.js",
@@ -7244,15 +7373,17 @@
           "id": "FR-092",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 22,
-          "testCount": 24
+          "codeCount": 24,
+          "testCount": 29
         }
       ],
       "evidence": [
         "src/app/(pm)/market/page.jsx",
         "src/app/api/market/observations/route.js",
+        "src/app/api/market/translations/route.js",
         "src/modules/integration/adapters/marketplace-listing-adapter.js",
         "src/modules/integration/adapters/retail-price-adapter.js",
+        "src/modules/market-intelligence/application/generic-candidate-extractor.js",
         "src/modules/market-intelligence/application/market-observation-service.js",
         "src/modules/market-intelligence/application/market-research-service.js",
         "src/modules/market-intelligence/application/price-intelligence-service.js",
@@ -7276,12 +7407,15 @@
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/market-intelligence-observation-feed.test.js",
         "tests/integration/market-intelligence-persistence.test.js",
+        "tests/integration/market-intelligence-translation-run.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/integration/marketplace-listing-adapter.test.js",
         "tests/unit/integration/retail-price-adapter.test.js",
         "tests/unit/market-intelligence-schema-migration.test.js",
+        "tests/unit/market-intelligence/generic-candidate-extractor.test.js",
         "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+        "tests/unit/market-intelligence/market-dashboard-render.test.js",
         "tests/unit/market-intelligence/market-observation-domain.test.js",
         "tests/unit/market-intelligence/market-observation-feed.test.js",
         "tests/unit/market-intelligence/market-observation-repository.test.js",
@@ -7290,6 +7424,8 @@
         "tests/unit/market-intelligence/market-raw-record-repository.test.js",
         "tests/unit/market-intelligence/market-research-domain.test.js",
         "tests/unit/market-intelligence/market-signals-domain.test.js",
+        "tests/unit/market-intelligence/market-translation-run.test.js",
+        "tests/unit/market-intelligence/market-translations-route.test.js",
         "tests/unit/market-intelligence/price-intelligence-service.test.js",
         "tests/unit/market-intelligence/price-observation-domain.test.js",
         "tests/unit/market-intelligence/procurement-recommendation.test.js",
@@ -7322,7 +7458,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -7332,6 +7468,7 @@
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr106-api-access-key-listing.test.js",
         "tests/integration/sot-decisions-route.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/mint-sot-data-plane-key-cli.test.js",
@@ -7352,6 +7489,7 @@
       "primaryDomain": "crm",
       "contributorDomains": [
         "crm",
+        "identity",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจบันทึกในคอนโซล CRM ว่าลูกค้ารายนี้ให้หรือปฏิเสธ consent พร้อมเวลาและผู้บันทึก โดยแถวเดิมที่มีก่อนคอลัมน์นี้ไม่ถูกปิดกั้นย้อนหลัง",
@@ -7364,22 +7502,26 @@
           "id": "FR-103",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 11
         }
       ],
       "evidence": [
         "src/app/(pm)/customer/conversations/page.jsx",
         "src/app/api/crm/customers/[customerId]/consent/route.js",
+        "src/app/api/crm/customers/[customerId]/erasure/route.js",
         "src/modules/crm/conversation-read-model.js",
         "src/modules/crm/customer-consent-service.js",
+        "src/modules/identity/erase-customer-principal.js",
         "tests/e2e/fr091-conversation-inbox.spec.js",
         "tests/integration/crm-conversation-inbox.test.js",
         "tests/integration/crm-customer-consent.test.js",
+        "tests/integration/crm-customer-erasure.test.js",
         "tests/unit/conversation-read-model.test.js",
         "tests/unit/crm-customer-consent-route.test.js",
         "tests/unit/customer-consent-migration.test.js",
         "tests/unit/customer-consent-service.test.js",
+        "tests/unit/customer-erasure-confirmation.test.js",
         "tests/unit/fr091-inbox-ui-contract.test.js",
         "tests/unit/sot-decision-service.test.js"
       ]
@@ -7452,8 +7594,8 @@
           "id": "FR-105",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 5
+          "codeCount": 9,
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -7461,6 +7603,7 @@
         "src/app/(control)/layout.jsx",
         "src/app/(pm)/settings/page.jsx",
         "src/components/layouts/PlatformControlGuard.jsx",
+        "src/components/layouts/PlatformControlSessionRetry.jsx",
         "src/components/layouts/PlatformControlShell.jsx",
         "src/lib/platform-control-guard.js",
         "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
@@ -7469,7 +7612,8 @@
         "tests/integration/adaptive-shell.test.js",
         "tests/unit/platform-control-entry-link.test.js",
         "tests/unit/platform-control-guard.test.js",
-        "tests/unit/platform-control-route-contract.test.js"
+        "tests/unit/platform-control-route-contract.test.js",
+        "tests/unit/viewer-failure.test.js"
       ]
     },
     {
@@ -7495,11 +7639,12 @@
           "id": "FR-106",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 15
+          "codeCount": 13,
+          "testCount": 20
         }
       ],
       "evidence": [
+        "src/app/(pm)/platform/users/page.jsx",
         "src/app/api/docs/route.js",
         "src/app/api/import/commit/route.js",
         "src/app/api/import/dry-run/route.js",
@@ -7507,6 +7652,8 @@
         "src/app/api/platform/api-access-keys/route.js",
         "src/app/api/resolve/route.js",
         "src/modules/identity/api-access-auth.js",
+        "src/modules/identity/platform-users-view.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
         "src/modules/project-manager/import/import-authorization.js",
         "src/modules/project-manager/import/plan-import-service.js",
@@ -7515,6 +7662,7 @@
         "tests/integration/enterprise-api-auth.test.js",
         "tests/integration/external-ref-import.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr106-api-access-key-listing.test.js",
         "tests/integration/import-target-authorization.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/integration/plan-import.test.js",
@@ -7523,8 +7671,12 @@
         "tests/unit/api-access-key-migration.test.js",
         "tests/unit/api-access-key-routes.test.js",
         "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr062-permissions-read-scope.test.js",
         "tests/unit/import-authorization.test.js",
-        "tests/unit/mint-api-access-key-cli.test.js"
+        "tests/unit/mint-api-access-key-cli.test.js",
+        "tests/unit/platform-users-page-render.test.js",
+        "tests/unit/platform-users-view.test.js",
+        "tests/unit/profile-permission-service.test.js"
       ]
     },
     {
