@@ -1,10 +1,15 @@
 import { domainForPath, isDomainVisible } from '@/config/domains'
 import { domainsForBusiness } from '@/modules/identity/viewer-domains'
+import { classifyViewerFailure } from './viewer-failure'
 
 // @req FR-044 — Business selection and viewer access are resolved before the
 // BusinessShell/AppShell is mounted.
 // @spec ADR-015, SDD-022 — AUTH_REQUIRED, BUSINESS_REQUIRED, READY, FORBIDDEN,
 // NOT_FOUND route decisions; Project.businessId remains the owner.
+// @req FR-046 — a 503 SESSION_UNAVAILABLE viewer failure is a server-state
+// outage, not a login failure, and must not collapse into the AUTH_REQUIRED
+// redirect (D1-journey-states-tests-docs-01).
+// @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/business-shell-guard.test.js
 
 const ENTRY_PATHS = new Set(['/', '/login', '/businesses'])
@@ -36,7 +41,7 @@ function visibleDomain(viewer, domainKey, businessId) {
  * @param {{ pathname?: string, scopeLoaded?: boolean, viewerLoading?: boolean,
  *   viewerError?: string|null, selection?: object, businesses?: object[],
  *   projects?: object[], viewer?: object|null }} input
- * @returns {{state: 'BYPASS'|'LOADING'|'AUTH_REQUIRED'|'BUSINESS_REQUIRED'|'READY'|'FORBIDDEN'|'NOT_FOUND', redirect?: string, businessId?: string, reason?: string, domain?: string}}
+ * @returns {{state: 'BYPASS'|'LOADING'|'AUTH_REQUIRED'|'SESSION_UNAVAILABLE'|'BUSINESS_REQUIRED'|'READY'|'FORBIDDEN'|'NOT_FOUND', redirect?: string, businessId?: string, reason?: string, domain?: string}}
  */
 export function resolveBusinessShellDecision({
   pathname = '',
@@ -49,7 +54,15 @@ export function resolveBusinessShellDecision({
   viewer = null,
 } = {}) {
   if (ENTRY_PATHS.has(pathname)) return { state: 'BYPASS' }
-  if (viewerError) return { state: 'AUTH_REQUIRED', redirect: '/login', reason: 'VIEWER_ERROR' }
+  if (viewerError) {
+    // @req FR-046 — SESSION_UNAVAILABLE (the session store is down) is kept
+    // apart from AUTH_REQUIRED (no valid session) here so the guard never
+    // redirects an outage to /login as if the viewer had been logged out.
+    if (classifyViewerFailure({ body: viewerError }) === 'SESSION_UNAVAILABLE') {
+      return { state: 'SESSION_UNAVAILABLE', reason: 'VIEWER_ERROR' }
+    }
+    return { state: 'AUTH_REQUIRED', redirect: '/login', reason: 'VIEWER_ERROR' }
+  }
   if (viewerLoading || !scopeLoaded) return { state: 'LOADING' }
   if (!viewer) return { state: 'AUTH_REQUIRED', redirect: '/login' }
 

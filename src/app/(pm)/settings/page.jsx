@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { PageHeader, Card, SectionTitle, Field } from '@/components/ui'
 import { MODE_LABELS, MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
-import { api } from '@/modules/project-manager/components/useApi'
+import { api, useFetch } from '@/modules/project-manager/components/useApi'
+import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 
 // @req FR-020 — the A → B transition lives here: the word "เครือ" appears for
 // the first time when the owner adds a second business.
@@ -81,6 +83,29 @@ function AddBusinessCard({ scope }) {
   )
 }
 
+// @req FR-105 — an installation operator's one entry point into Platform
+// Control from inside the BusinessShell; nobody else sees it.
+// @req FR-075 — visibility is gated on the exact same `isInstallationOperator`
+// capability the route itself enforces (src/lib/platform-control-guard.js),
+// never re-derived from `isPlatform` or a role (D1-journey-states-tests-docs-12).
+// @spec ADR-048 D2, SEC-020
+// @tested tests/unit/platform-control-guard.test.js
+function PlatformControlCard() {
+  const viewer = useFetch('/api/viewer')
+  if (!isInstallationOperator(viewer.data)) return null
+  return (
+    <Card>
+      <SectionTitle caption="สำหรับผู้ดูแลการติดตั้งเท่านั้น — โปรแกรมทั้งชุด (immutable static plan) แยกจาก Business shell">
+        Platform Control
+      </SectionTitle>
+      <p className="text-xs">Programme Roadmap (FR-105) — read-only projection of the platform's own delivery plan.</p>
+      <Link href="/control/roadmap" className="btn mt-3 inline-flex">
+        ไปที่ Platform Control
+      </Link>
+    </Card>
+  )
+}
+
 export default function SettingsPage() {
   const scope = useScope()
   return (
@@ -88,6 +113,7 @@ export default function SettingsPage() {
       <PageHeader eyebrow="Settings" title="Settings" subtitle="Authenticated account, execution-mode reference, and data utilities." />
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <AddBusinessCard scope={scope} />
+        <PlatformControlCard />
         <Card>
           <SectionTitle caption="Your account and current Business memberships">Identity</SectionTitle>
           <p className="text-xs">Your signed-in account is governed by server-side credentials and memberships.</p>

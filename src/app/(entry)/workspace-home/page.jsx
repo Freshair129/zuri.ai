@@ -17,6 +17,7 @@ import { Card, EmptyState, ErrorState, PageHeader } from '@/components/ui'
 import BusinessRoutingShell from '@/components/layouts/BusinessRoutingShell'
 import { LoadingCard, api, useFetch } from '@/modules/project-manager/components/useApi'
 import { onboardingPathFor } from '@/modules/identity/onboarding-steps'
+import { classifyViewerFailure, SESSION_UNAVAILABLE_DETAIL_TH, SESSION_UNAVAILABLE_TITLE_TH } from '@/lib/viewer-failure'
 
 export default function WorkspaceHomePage() {
   const router = useRouter()
@@ -25,12 +26,16 @@ export default function WorkspaceHomePage() {
   const [businessWorkspace, setBusinessWorkspace] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  // @req FR-046 — SESSION_UNAVAILABLE (session store outage) is kept apart
+  // from AUTH_REQUIRED (no valid session) so an outage never bounces an
+  // already-logged-in person to /login (D1-entry-layers-09).
+  const viewerFailure = classifyViewerFailure({ body: state.error })
 
   useEffect(() => {
-    if (state.error === 'AUTH_REQUIRED' || state.error === 'SESSION_UNAVAILABLE') {
+    if (viewerFailure === 'AUTH_REQUIRED') {
       router.replace('/login')
     }
-  }, [state.error, router])
+  }, [viewerFailure, router])
 
   // AC-066.1 — an incomplete profile is routed to Profile setup first.
   useEffect(() => {
@@ -39,7 +44,10 @@ export default function WorkspaceHomePage() {
     }
   }, [state.data, router])
 
-  if (state.loading || state.error === 'AUTH_REQUIRED' || state.error === 'SESSION_UNAVAILABLE') return <LoadingCard />
+  if (state.loading || viewerFailure === 'AUTH_REQUIRED') return <LoadingCard />
+  if (viewerFailure === 'SESSION_UNAVAILABLE') {
+    return <ErrorState title={SESSION_UNAVAILABLE_TITLE_TH} detail={SESSION_UNAVAILABLE_DETAIL_TH} retry={state.reload} />
+  }
   if (state.error) {
     return <ErrorState title="ไม่สามารถโหลด Workspace" detail={state.error} retry={state.reload} />
   }
