@@ -14,6 +14,12 @@
 // @req FR-092, NFR-018
 // @spec SDD-049, SEC-017, ADR-038
 // @tested tests/unit/market-intelligence/market-observation-repository.test.js
+//
+// The read side added for the `/market` surface obeys the same scope rule and is
+// deliberately narrow: `listRecent` is a newest-first page of the rows this repository
+// was constructed to own, nothing more. It re-checks every row it is about to return
+// rather than trusting the `where` clause alone — the same reason the write path
+// re-checks the row it loads after a unique collision.
 
 function assertPrismaModel(prisma) {
   if (!prisma?.marketObservation) {
@@ -63,6 +69,16 @@ function assertObservationScope(observation, scopeWhere) {
   }
 }
 
+export const MARKET_OBSERVATION_PAGE_LIMIT = 200
+
+function normalizeLimit(limit) {
+  const value = Number(limit)
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error('MarketObservation listRecent limit must be a positive integer')
+  }
+  return Math.min(value, MARKET_OBSERVATION_PAGE_LIMIT)
+}
+
 export function createMarketObservationRepository(prisma, scope) {
   assertPrismaModel(prisma)
   assertScope(scope)
@@ -73,6 +89,30 @@ export function createMarketObservationRepository(prisma, scope) {
   }
 
   return Object.freeze({
+    /**
+     * Newest observations first, inside this repository's scope only.
+     *
+     * `observedAt` is the ordering the surface means — when the market was seen, not
+     * when the row happened to be written — with `createdAt` breaking ties so a page
+     * is stable across two requests. The `take` is bounded here as well as at the
+     * query boundary: a caller that forgets to cap cannot ask this adapter for the
+     * whole table.
+     */
+    async listRecent({ limit = MARKET_OBSERVATION_PAGE_LIMIT } = {}) {
+      if (typeof prisma.marketObservation.findMany !== 'function') {
+        throw new Error('Prisma MarketObservation model must support findMany')
+      }
+
+      const rows = await prisma.marketObservation.findMany({
+        where: { ...scopeWhere },
+        orderBy: [{ observedAt: 'desc' }, { createdAt: 'desc' }],
+        take: normalizeLimit(limit),
+      })
+
+      for (const row of rows) assertObservationScope(row, scopeWhere)
+      return rows
+    },
+
     async insertIfAbsent(draft) {
       assertDraftScope(draft, scopeWhere)
 

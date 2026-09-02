@@ -1,75 +1,92 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { TrendingUp, Bell, Search, ShieldCheck, Tag, BarChart3, AlertCircle, Plus } from 'lucide-react'
+import React from 'react'
+import { TrendingUp, Bell, ShieldCheck, Tag, BarChart3, AlertCircle } from 'lucide-react'
+import { useScope } from '@/context/ScopeContext'
+import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 
-// @req FR-092
-// @spec SDD-049, ADR-038
-// @tested tests/unit/market-intelligence/price-observation-domain.test.js
+// @req FR-092 — the console surface over translated `MarketObservation` state. Every
+//   number and row on this page comes from `GET /api/market/observations` for the
+//   Business the shell has open; there are no fixtures left in this file.
+// @spec SDD-049, BR-001, SEC-001, ADR-038
+// @tested tests/unit/market-intelligence/market-observations-route.test.js,
+//   tests/unit/market-intelligence/market-observation-feed.test.js,
+//   tests/integration/market-intelligence-observation-feed.test.js
+//
+// This component previously held two `useState` fixture arrays and made no request at
+// all, while ADR-038's truthful-navigation rule had already opened the nav entry — so a
+// business owner could read invented prices as delivered capability. The fix is not a
+// nicer mock: the page now shows exactly what the domain has recorded, including
+// nothing.
+//
+// The `@tested` files above cover the data contract this component renders, not the
+// component itself. There is no React rendering harness in this repository, so the
+// honest claim is the narrow one: what is proved is the route, the authorization and
+// the row shape — not the JSX.
+//
+// **Watch rules are not implemented.** `WatchRule` is a candidate concept in the
+// market-intelligence charter with no persisted model, no service and no route. The
+// panel below therefore states that, and carries no control a person could press — a
+// disabled-looking button that opens a modal over nothing is the same lie in a quieter
+// voice.
+
+const numberFormat = new Intl.NumberFormat('th-TH')
+
+function formatPrice(price, currency) {
+  if (price === null || price === undefined) return null
+  return `${numberFormat.format(price)}${currency ? ` ${currency}` : ''}`
+}
+
+function formatObservedAt(iso) {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return null
+  return date.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })
+}
+
+function KpiCard({ label, value, hint, icon: Icon, iconClass, valueClass }) {
+  return (
+    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-2">
+      <div className="flex items-center justify-between text-gray-500">
+        <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+        <Icon className={`w-4 h-4 ${iconClass}`} />
+      </div>
+      <div className={`text-2xl font-bold ${valueClass || 'text-gray-900'}`}>{value}</div>
+      <div className="text-xs text-gray-500">{hint}</div>
+    </div>
+  )
+}
+
+function Notice({ tone = 'muted', title, detail }) {
+  const tones = {
+    muted: 'border-gray-100 bg-white text-gray-600',
+    error: 'border-red-100 bg-red-50 text-red-700',
+  }
+  return (
+    <div className={`rounded-xl border p-6 text-center text-sm shadow-sm ${tones[tone]}`}>
+      <p className="font-semibold">{title}</p>
+      {detail && <p className="mt-1 text-xs opacity-80">{detail}</p>}
+    </div>
+  )
+}
 
 export default function MarketDashboard() {
-  const [activeTab, setActiveTab] = useState('overview')
-  const [watchRules, setWatchRules] = useState([
-    {
-      id: 'wr-1',
-      name: 'GPU RTX 3060 Deal Watch',
-      query: 'RTX 3060',
-      maxPrice: 5500,
-      condition: 'USED',
-      intent: 'SELL',
-      active: true,
-      excludeKeywords: ['3060 Ti'],
-    },
-    {
-      id: 'wr-2',
-      name: 'Retail Bundle Discount Watch',
-      query: 'Orange Juice 250ml',
-      maxPrice: 30,
-      condition: 'NEW',
-      intent: 'BUY',
-      active: true,
-      excludeKeywords: [],
-    },
-  ])
+  const scope = useScope()
+  const businessId = scope.shell.activeBusinessId
+  const businessLabel = scope.shell.activeBusiness
+    ? `${scope.shell.activeBusiness.code} · ${scope.shell.activeBusiness.name}`
+    : null
 
-  const [observations] = useState([
-    {
-      id: 'obs-1',
-      productTitle: 'Zotac Gaming RTX 3060 12GB Twin Edge',
-      sourceProvider: 'facebook_marketplace',
-      rawPrice: 5000,
-      unitPrice: 5000,
-      currency: 'THB',
-      condition: 'USED',
-      sellerName: 'Somchai Tech',
-      observedAt: '10 mins ago',
-      isAlert: true,
-    },
-    {
-      id: 'obs-2',
-      productTitle: 'Fresh Orange Juice 250ml Pack 6',
-      sourceProvider: 'retail_lotus',
-      rawPrice: 156,
-      unitPrice: 26,
-      currency: 'THB',
-      condition: 'NEW',
-      sellerName: "Lotus's Retail",
-      observedAt: '25 mins ago',
-      isAlert: true,
-    },
-    {
-      id: 'obs-3',
-      productTitle: 'Colorful iGame RTX 3060 Ultra W OC 12GB',
-      sourceProvider: 'shopee_listing',
-      rawPrice: 6200,
-      unitPrice: 6200,
-      currency: 'THB',
-      condition: 'USED',
-      sellerName: 'GPU Store BKK',
-      observedAt: '1 hour ago',
-      isAlert: false,
-    },
-  ])
+  // `useFetch(null)` performs no request, so a shell with no Business selected asks the
+  // server nothing rather than asking it a question with a missing scope.
+  const { data, loading, error } = useFetch(
+    businessId ? `/api/market/observations?businessId=${encodeURIComponent(businessId)}` : null,
+    [businessId],
+  )
+
+  const observations = data?.observations ?? []
+  const counts = data?.counts ?? null
+  const resolved = counts?.byResolutionStatus?.RESOLVED ?? 0
+  const unresolved = counts?.byResolutionStatus?.UNRESOLVED ?? 0
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -83,144 +100,146 @@ export default function MarketDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Market Intelligence</h1>
           </div>
           <p className="text-sm text-gray-500 mt-1">
-            Real-time external price normalization, listing tracking, and watch rule matching.
+            ข้อมูลตลาดภายนอกที่แปลและบันทึกไว้แล้ว พร้อมที่มาของแหล่งข้อมูล
+            {businessLabel ? ` — ธุรกิจ: ${businessLabel}` : ''}
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => alert('New Watch Rule Modal')}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-[#E8820C] hover:bg-[#F09420] rounded-lg shadow-sm transition"
-          >
-            <Plus className="w-4 h-4" />
-            New Watch Rule
-          </button>
-        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active Watch Rules</span>
-            <Bell className="w-4 h-4 text-[#E8820C]" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">{watchRules.filter((r) => r.active).length}</div>
-          <div className="text-xs text-emerald-600 font-medium">All rules actively listening</div>
-        </div>
+      {!businessId && (
+        <Notice
+          title="ยังไม่ได้เลือกธุรกิจ"
+          detail="เลือกธุรกิจจากแถบด้านบนก่อน ระบบจึงจะแสดงข้อมูลตลาดของธุรกิจนั้นได้"
+        />
+      )}
 
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Observed Listings</span>
-            <Tag className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">{observations.length}</div>
-          <div className="text-xs text-gray-500">Across 2 connected sources</div>
-        </div>
+      {businessId && loading && <LoadingCard />}
 
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Triggered Alerts</span>
-            <AlertCircle className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">{observations.filter((o) => o.isAlert).length}</div>
-          <div className="text-xs text-amber-600 font-medium">Matching target criteria</div>
-        </div>
+      {businessId && error && (
+        <Notice tone="error" title="โหลดข้อมูลตลาดไม่สำเร็จ" detail={error} />
+      )}
 
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Lineage Integrity</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-600">100%</div>
-          <div className="text-xs text-gray-500">SHA-256 Provenance verified</div>
-        </div>
-      </div>
-
-      {/* Main Content Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Latest Observations & Price Feed */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#E8820C]" />
-              Latest Translated Market Observations
-            </h2>
-            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-              Live Feed
-            </span>
+      {businessId && !loading && !error && (
+        <>
+          {/* KPI Cards — every figure is counted from the rows below, not asserted */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <KpiCard
+              label="รายการที่สังเกตได้"
+              value={counts?.observations ?? 0}
+              hint={data?.truncated ? `แสดงล่าสุด ${data.limit} รายการ` : 'ในขอบเขตธุรกิจนี้'}
+              icon={Tag}
+              iconClass="text-blue-500"
+            />
+            <KpiCard
+              label="แหล่งข้อมูล"
+              value={counts?.providers ?? 0}
+              hint="จำนวนผู้ให้ข้อมูลที่ปรากฏในรายการนี้"
+              icon={BarChart3}
+              iconClass="text-[#E8820C]"
+            />
+            <KpiCard
+              label="ระบุสินค้าได้แล้ว"
+              value={resolved}
+              hint="จับคู่กับสินค้าใน Knowledge ได้"
+              icon={ShieldCheck}
+              iconClass="text-emerald-500"
+              valueClass="text-emerald-600"
+            />
+            <KpiCard
+              label="ยังระบุสินค้าไม่ได้"
+              value={unresolved}
+              hint="ยังไม่จับคู่ — ถือเป็นสถานะปกติ ไม่ใช่ข้อผิดพลาด"
+              icon={AlertCircle}
+              iconClass="text-amber-500"
+            />
           </div>
 
-          <div className="divide-y divide-gray-100">
-            {observations.map((obs) => (
-              <div key={obs.id} className="p-4 hover:bg-gray-50/50 transition flex items-center justify-between">
-                <div className="space-y-1 max-w-md">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900 text-sm">{obs.productTitle}</span>
-                    {obs.isAlert && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800">
-                        Watch Match
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span className="capitalize">Source: {obs.sourceProvider.replace('_', ' ')}</span>
-                    <span>•</span>
-                    <span>Condition: {obs.condition}</span>
-                    <span>•</span>
-                    <span>Seller: {obs.sellerName}</span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="text-base font-bold text-gray-900">
-                    {obs.unitPrice.toLocaleString()} {obs.currency}
-                    {obs.rawPrice !== obs.unitPrice && (
-                      <span className="text-xs text-gray-400 font-normal ml-1">/unit</span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-400">{obs.observedAt}</div>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: the observations themselves */}
+            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-100">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-[#E8820C]" />
+                  รายการตลาดที่แปลแล้ว (ล่าสุดก่อน)
+                </h2>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Right Col: Active Watch Rules */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#E8820C]" />
-              Active Watch Rules
-            </h2>
-          </div>
+              {observations.length === 0 ? (
+                <div className="p-8 text-center">
+                  <p className="text-sm font-semibold text-gray-700">ยังไม่มีข้อมูลตลาดสำหรับธุรกิจนี้</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    ข้อมูลจะปรากฏที่นี่เมื่อมีการแปลบันทึกดิบจากการเชื่อมต่อภายนอกเป็น Market Observation แล้ว
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {observations.map((obs) => {
+                    const price = formatPrice(obs.price, obs.currency)
+                    const observedAt = formatObservedAt(obs.observedAt)
+                    return (
+                      <div key={obs.id} className="p-4 flex items-start justify-between gap-4">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-gray-900 text-sm break-words">
+                              {obs.title || obs.externalId}
+                            </span>
+                            {obs.resolutionStatus !== 'RESOLVED' && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600">
+                                {obs.resolutionStatus === 'PARTIAL' ? 'ระบุได้บางส่วน' : 'ยังไม่ระบุสินค้า'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                            <span>แหล่ง: {obs.provider}</span>
+                            <span>•</span>
+                            <span>ประเภท: {obs.observationType}</span>
+                            {obs.condition && (
+                              <>
+                                <span>•</span>
+                                <span>สภาพ: {obs.condition}</span>
+                              </>
+                            )}
+                            {obs.seller && (
+                              <>
+                                <span>•</span>
+                                <span>ผู้ขาย: {obs.seller}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
 
-          <div className="divide-y divide-gray-100">
-            {watchRules.map((rule) => (
-              <div key={rule.id} className="p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-900">{rule.name}</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <div className="text-right shrink-0">
+                          <div className="text-base font-bold text-gray-900">
+                            {price || <span className="text-xs font-normal text-gray-400">ไม่มีข้อมูลราคา</span>}
+                          </div>
+                          <div className="text-xs text-gray-400">{observedAt || '—'}</div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <div>
-                    <span className="text-gray-400">Target:</span> {rule.query}
-                  </div>
-                  {rule.excludeKeywords.length > 0 && (
-                    <div>
-                      <span className="text-gray-400">Excludes:</span> {rule.excludeKeywords.join(', ')}
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-gray-400">Max Price:</span> ≤ {rule.maxPrice.toLocaleString()} THB (
-                    {rule.condition})
-                  </div>
-                </div>
+              )}
+            </div>
+
+            {/* Right: watch rules — declared unbuilt, with nothing to press */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-2">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-gray-400" />
+                  กฎเฝ้าติดตาม (Watch Rules)
+                </h2>
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 whitespace-nowrap">
+                  ยังไม่เปิดใช้งาน
+                </span>
               </div>
-            ))}
+              <div className="p-4 text-xs text-gray-500 space-y-2">
+                <p>ยังไม่มีการจัดเก็บกฎเฝ้าติดตามในระบบ จึงยังตั้งกฎหรือรับการแจ้งเตือนไม่ได้</p>
+                <p>ส่วนนี้จะเปิดใช้งานเมื่อมีการส่งมอบโมเดลและบริการของ Watch Rule ตามข้อกำหนดที่ประกาศไว้แล้ว</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
