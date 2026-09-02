@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-02T00:00:00+07:00,CLAUDE"
-last_update: "2026-09-03T04:10:00+07:00,CLAUDE"
+last_update: "2026-09-03T05:00:00+07:00,CLAUDE"
 status: "applied"
 superseded_by: null
 attributes:
@@ -17,9 +17,11 @@ attributes:
 `src/modules/integration/application/line-registry-service.js` once upserted its
 own lowercase `line-oa` provider row while the rest of the lane addressed the
 same channel as `LINE_OA` — two identities for one provider, which BR-002
-forbids. Writes were fixed to use the shared `LINE_OA_PROVIDER_CODE` constant;
-reads still tolerate the legacy code (`LEGACY_LINE_OA_PROVIDER_CODE`) so rows
-written before that fix stay visible. This runbook retires those rows.
+forbids. Writes were fixed to use the shared `LINE_OA_PROVIDER_CODE` constant; reads
+tolerated the legacy code (`LEGACY_LINE_OA_PROVIDER_CODE`) only until the
+production merge recorded in §5 was applied on 2026-09-03, after which that
+tolerance was retired (PR #208) — a `line-oa` row is no longer part of the
+registry read model anywhere. This runbook retires those rows.
 
 This procedure only re-points `IntegrationConnection` rows and disables
 unresolved duplicates. It never deletes a connection, never touches
@@ -176,3 +178,4 @@ in application code.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Initial runbook for the line-oa → LINE_OA provider merge | working-tree | Claude |
 | 0.2.0b | 2026-09-03 | applied | Production apply recorded (1 legacy row re-pointed, 0 collisions, legacy provider deleted); Step 2 SQL corrected after the 42P01 rollback; read tolerance retired | working-tree | Claude Code |
+| 0.2.1b | 2026-09-03 | applied | Purpose paragraph no longer says reads still tolerate the legacy code — the tolerance was retired with the production apply | working-tree | Claude Code |
