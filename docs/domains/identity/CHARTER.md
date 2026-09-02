@@ -53,6 +53,18 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.
+- `eraseCustomerPrincipal` (FR-022) is erasure's one production trigger, behind
+  `POST /api/crm/customers/[customerId]/erasure`. It adds no authority of its own:
+  it reuses the FR-103 consent writer's shape — per-Business OWNER over a Business
+  in the Customer's tenant (BR-001), or the installation operator — refuses with
+  404 in every case so an irreversible action cannot double as an existence
+  oracle (FR-072), and requires a typed `confirmation: 'ERASE'` checked before any
+  lookup. Inside `erasePrincipal`'s transaction it reaches `Message.body` and the
+  matching `RawExternalRecord` payloads only through the crm and integration
+  contract exports, never by writing those models directly.
+- `assertDomainVisible(viewer, businessId, domainKey)` (FR-061/062) is the one
+  server-side answer to "may this principal use this domain in this Business";
+  the crm, market and people read models apply it and refuse 404-shaped.
 - `resolveAuthorizationContext` and `authorizeScope` — the server-owned policy
   decision used before protected Web/API, agent and tool work. Client, prompt,
   model and tool scope values cannot widen this context.
