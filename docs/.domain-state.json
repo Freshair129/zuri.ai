@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T06:37:19.022Z",
+  "generatedAt": "2026-09-02T11:50:33.323Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -311,7 +311,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-081",
@@ -367,7 +367,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 1
+          "testCount": 2
         }
       ],
       "checks": {
@@ -1271,7 +1271,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-081",
@@ -3154,7 +3154,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -3176,7 +3176,6 @@
         "src/platform/integrations/llm/provider-catalog.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
-        "tests/integration/agent-heartbeat-route.test.js",
         "tests/integration/line-oa-connection-health.test.js",
         "tests/integration/line-registry-scope.test.js",
         "tests/unit/activation-readiness-integration.test.js",
@@ -8242,12 +8241,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 1
+          "testCount": 2
         }
       ],
       "evidence": [
         "src/app/api/agent/heartbeat/route.js",
         "src/modules/agent/edge-device-registry.js",
+        "tests/integration/agent-heartbeat-route.test.js",
         "tests/unit/fr141-edge-device-heartbeat.test.js"
       ]
     }

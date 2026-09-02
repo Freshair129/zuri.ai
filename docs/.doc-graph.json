@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1656,
-    "total_edges": 5894,
+    "total_edges": 5895,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -56,108 +56,11 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:README",
-      "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
-      "domain:agent",
       "doc:CONTEXT-MAP",
-      "doc:FR-044-entry-landing-login-business-routing",
-      "doc:FR-067-workspace-invitation-and-scoped-membership",
-      "domain:knowledge",
-      "domain:market-intelligence",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "doc:ROUTES-SITEMAP",
-      "test:tests/e2e/fr060-business-home.spec.js",
-      "test:tests/integration/fr045-managed-files.test.js",
-      "test:tests/integration/fr123-plugin-auth-reaper.test.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/business-shell-guard.test.js",
-      "test:tests/unit/fr045-file-asset-service.test.js",
-      "test:tests/unit/fr045-reconcile-cache.test.js",
-      "test:tests/unit/fr045-reveal.test.js",
-      "test:tests/unit/fr123-plugin-auth-service.test.js",
-      "test:tests/unit/line-registry-service.test.js",
-      "test:tests/unit/market-intelligence/market-observation-repository.test.js",
-      "test:tests/unit/operator-bootstrap.test.js",
-      "test:tests/unit/workspace-onboarding-routes.test.js",
-      "code:src/app/(entry)/businesses/page.jsx",
-      "code:src/app/(entry)/onboarding/profile/page.jsx",
-      "code:src/app/(entry)/waiting-room/page.jsx",
-      "code:src/app/(entry)/workspace-home/page.jsx",
-      "code:src/app/(pm)/market/page.jsx",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "code:src/app/(pm)/settings/page.jsx",
-      "code:src/app/api/agent/heartbeat/route.js",
-      "code:src/app/api/files/cache/rebuild/route.js",
-      "code:src/app/api/files/mounts/route.js",
-      "code:src/app/api/files/reconcile/route.js",
-      "code:src/app/api/files/route.js",
-      "code:src/app/api/files/[id]/relink/route.js",
-      "code:src/app/api/files/[id]/reveal/route.js",
-      "code:src/app/api/files/[id]/route.js",
-      "code:src/app/api/platform/integrations/line-registry/route.js",
-      "code:src/app/api/workspace-memberships/route.js",
-      "code:src/components/layouts/BusinessShellGuard.jsx",
-      "code:src/components/layouts/PlatformControlShell.jsx",
-      "code:src/lib/business-shell-guard.js",
-      "code:src/modules/agent/step-up.js",
-      "code:src/modules/asset-management/application/asset-evidence-service.js",
-      "code:src/modules/identity/link-line-identity.js",
-      "code:src/modules/identity/operator-bootstrap.js",
-      "code:src/modules/identity/plugin-auth-service.js",
-      "code:src/modules/identity/workspace-membership-service.js",
-      "code:src/modules/integration/application/integration-management-service.js",
-      "code:src/modules/integration/application/line-registry-service.js",
-      "code:src/modules/market-intelligence/application/market-observation-service.js",
-      "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
-      "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/file-asset-service.js",
-      "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
-      "code:src/modules/project-manager/application/local-file-reveal-service.js",
-      "code:src/modules/project-manager/application/project-authorization.js",
-      "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
-      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "code:src/modules/project-manager/components/UploadPlanModal.jsx",
-      "code:src/modules/project-manager/views/universal/AllWorkView.jsx"
+      "test:tests/integration/agent-heartbeat-route.test.js"
     ],
-    "added": [
-      "doc:FR-141-edge-device-heartbeat-registry",
-      "route:api:/api/market/observations",
-      "req:FR-141",
-      "test:tests/integration/agent-heartbeat-route.test.js",
-      "test:tests/integration/fr072-file-asset-authorization.test.js",
-      "test:tests/integration/line-registry-scope.test.js",
-      "test:tests/integration/market-intelligence-observation-feed.test.js",
-      "test:tests/integration/plan-mode-modal-intake.test.js",
-      "test:tests/integration/platform-grant-revoke.test.js",
-      "test:tests/integration/workspace-collaboration-roster.test.js",
-      "test:tests/unit/api-path-reachability.test.js",
-      "test:tests/unit/fr141-edge-device-heartbeat.test.js",
-      "test:tests/unit/list-operator-grants-cli.test.js",
-      "test:tests/unit/market-intelligence/market-observation-feed.test.js",
-      "test:tests/unit/market-intelligence/market-observations-route.test.js",
-      "test:tests/unit/plan-intake-flow.test.js",
-      "test:tests/unit/platform-control-entry-link.test.js",
-      "test:tests/unit/revoke-operator-grant-cli.test.js",
-      "test:tests/unit/sot-pipeline-scope-render.test.js",
-      "test:tests/unit/viewer-failure.test.js",
-      "test:tests/unit/work-surface-scope-inventory.test.js",
-      "test:tests/unit/workspace-collaboration-view.test.js",
-      "code:src/app/api/market/observations/route.js",
-      "code:src/lib/viewer-failure.js",
-      "code:src/modules/agent/edge-device-registry.js",
-      "code:src/modules/identity/workspace-collaboration-view.js",
-      "code:src/modules/project-manager/components/PlanPreview.jsx",
-      "code:src/modules/project-manager/components/usePlanIntake.js",
-      "code:src/modules/project-manager/import/plan-mode-envelope.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -226,7 +129,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
       "hash": "3a1c2f6b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -252,7 +155,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
       "hash": "c7b83086",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -293,7 +196,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/waiting-room/page.jsx",
       "hash": "d4e83b0c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -315,7 +218,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/workspace-home/page.jsx",
       "hash": "f7922b6b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -552,7 +455,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/market/page.jsx",
       "hash": "175290c5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-092"
@@ -662,7 +565,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "a874803b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -726,7 +629,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
       "hash": "4b14bbdd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-101"
@@ -746,7 +649,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
       "hash": "6af475a2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-100"
@@ -766,7 +669,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/page.jsx",
       "hash": "258eaf6f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-099"
@@ -1170,7 +1073,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
       "hash": "8e1eef50",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020",
@@ -1256,7 +1159,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
       "hash": "ee2ae351",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-141"
@@ -2072,7 +1975,7 @@
       "type": "code_file",
       "path": "src/app/api/files/[id]/relink/route.js",
       "hash": "e4f76625",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2095,7 +1998,7 @@
       "type": "code_file",
       "path": "src/app/api/files/[id]/reveal/route.js",
       "hash": "a80d2dc9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2118,7 +2021,7 @@
       "type": "code_file",
       "path": "src/app/api/files/[id]/route.js",
       "hash": "999a94b9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2141,7 +2044,7 @@
       "type": "code_file",
       "path": "src/app/api/files/cache/rebuild/route.js",
       "hash": "6468c91d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2185,7 +2088,7 @@
       "type": "code_file",
       "path": "src/app/api/files/mounts/route.js",
       "hash": "e2507393",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2207,7 +2110,7 @@
       "type": "code_file",
       "path": "src/app/api/files/reconcile/route.js",
       "hash": "20a4a5aa",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2229,7 +2132,7 @@
       "type": "code_file",
       "path": "src/app/api/files/route.js",
       "hash": "201510e3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -2776,7 +2679,7 @@
       "type": "code_file",
       "path": "src/app/api/platform/integrations/line-registry/route.js",
       "hash": "62ba8879",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -3655,7 +3558,7 @@
       "type": "code_file",
       "path": "src/app/api/workspace-memberships/route.js",
       "hash": "508cb104",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-067"
@@ -3930,7 +3833,7 @@
       "type": "code_file",
       "path": "src/components/layouts/BusinessShellGuard.jsx",
       "hash": "902963cb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -4036,7 +3939,7 @@
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlShell.jsx",
       "hash": "46214f8f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-105",
@@ -4233,7 +4136,7 @@
       "type": "code_file",
       "path": "src/lib/business-shell-guard.js",
       "hash": "8d51ecc8",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -4920,7 +4823,7 @@
       "type": "code_file",
       "path": "src/modules/agent/step-up.js",
       "hash": "6bd473ce",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-026"
@@ -5027,7 +4930,7 @@
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-evidence-service.js",
       "hash": "00ab8ab7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-137",
@@ -5694,7 +5597,7 @@
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
       "hash": "241cdd48",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -5777,7 +5680,7 @@
       "type": "code_file",
       "path": "src/modules/identity/operator-bootstrap.js",
       "hash": "2f28d45b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-107",
@@ -5818,7 +5721,7 @@
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
       "hash": "4d743ccc",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-123"
@@ -6218,7 +6121,7 @@
       "type": "code_file",
       "path": "src/modules/identity/workspace-membership-service.js",
       "hash": "ee22af32",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-067"
@@ -6280,7 +6183,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
       "hash": "2047f229",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6300,7 +6203,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
       "hash": "52a85b13",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6882,7 +6785,7 @@
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/market-observation-service.js",
       "hash": "fb7c7107",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-092",
@@ -6996,7 +6899,7 @@
       "type": "code_file",
       "path": "src/modules/market-intelligence/components/MarketDashboard.jsx",
       "hash": "07ea2a76",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-092"
@@ -7143,7 +7046,7 @@
       "type": "code_file",
       "path": "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
       "hash": "1cdb0490",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-092",
@@ -7254,7 +7157,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "32fca65e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -7402,7 +7305,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-asset-service.js",
       "hash": "895692fa",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -7450,7 +7353,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-reconcile-cache-service.js",
       "hash": "bd065eb2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -7475,7 +7378,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/local-file-reveal-service.js",
       "hash": "80fee713",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
@@ -7575,7 +7478,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-authorization.js",
       "hash": "404c1983",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-072",
@@ -8000,7 +7903,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "hash": "5f720d8a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-009",
@@ -8119,7 +8022,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "hash": "aac368f5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -8160,7 +8063,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/UploadPlanModal.jsx",
       "hash": "90b19a15",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -8702,7 +8605,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
       "hash": "fcc8dbe4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005"
@@ -9187,7 +9090,7 @@
       "version": "1.31.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "0f4e2e77",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9427,7 +9330,7 @@
       "version": "1.16.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "c13c07a2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -9592,7 +9495,7 @@
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
       "hash": "b04301a7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-045-managed-local-file-workspace",
@@ -9774,7 +9677,7 @@
       "version": "1.0.0",
       "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
       "hash": "0938ce5b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-068-human-visible-execution-roadmap",
@@ -10232,7 +10135,7 @@
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "ab262a1d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -10524,7 +10427,7 @@
       "version": "1.135.0b",
       "doc_status": "Draft",
       "hash": "b368cc4f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10568,7 +10471,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "55451ee4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10594,7 +10497,7 @@
       "version": "1.0.0",
       "doc_status": "draft",
       "hash": "0877267c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -10810,7 +10713,7 @@
         "agent"
       ],
       "hash": "ef9fd9d8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -10951,7 +10854,7 @@
         "knowledge"
       ],
       "hash": "00b7725c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -10972,7 +10875,7 @@
         "market-intelligence"
       ],
       "hash": "19a854ee",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:platform-control",
@@ -16132,7 +16035,7 @@
       "path": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
       "title": "ADR-027 — Profile-first and Workspace-first onboarding",
       "hash": "7f3fd11d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
@@ -16428,7 +16331,7 @@
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
       "hash": "42494a93",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
@@ -16518,8 +16421,8 @@
       "id": "test:tests/integration/agent-heartbeat-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-heartbeat-route.test.js",
-      "hash": "5df49f8d",
-      "status": "current"
+      "hash": "22cdecfc",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/agent-msp-port.test.js",
@@ -16645,7 +16548,7 @@
       "type": "test",
       "path": "tests/integration/fr045-managed-files.test.js",
       "hash": "9cb62029",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr046-entry-contract.test.js",
@@ -16785,7 +16688,7 @@
       "type": "test",
       "path": "tests/integration/fr123-plugin-auth-reaper.test.js",
       "hash": "7256cb0c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr123-plugin-consent-gate.test.js",
@@ -16995,7 +16898,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "de8179ba",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -17380,7 +17283,7 @@
       "type": "test",
       "path": "tests/unit/business-shell-guard.test.js",
       "hash": "8aed343a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/business-strategy-route.test.js",
@@ -17702,7 +17605,7 @@
       "type": "test",
       "path": "tests/unit/fr045-file-asset-service.test.js",
       "hash": "7e0bd861",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr045-file-manager-read-model.test.js",
@@ -17730,14 +17633,14 @@
       "type": "test",
       "path": "tests/unit/fr045-reconcile-cache.test.js",
       "hash": "0bdc53bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr045-reveal.test.js",
       "type": "test",
       "path": "tests/unit/fr045-reveal.test.js",
       "hash": "7e289f80",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr045-schema-contract.test.js",
@@ -17989,7 +17892,7 @@
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
       "hash": "f58596cc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr123-plugin-consent-view.test.js",
@@ -18269,7 +18172,7 @@
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
       "hash": "0dc93356",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
@@ -18318,7 +18221,7 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/market-observation-repository.test.js",
       "hash": "b4ed189f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-observation-service.test.js",
@@ -18451,7 +18354,7 @@
       "type": "test",
       "path": "tests/unit/operator-bootstrap.test.js",
       "hash": "e374d482",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/overview-split.test.js",
@@ -19151,7 +19054,7 @@
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
       "hash": "5727f16e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",
@@ -40430,14 +40333,21 @@
     },
     {
       "from": "test:tests/integration/agent-heartbeat-route.test.js",
-      "to": "req:FR-080",
+      "to": "req:FR-141",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/integration/agent-heartbeat-route.test.js",
-      "to": "req:SEC-016",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-heartbeat-route.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
