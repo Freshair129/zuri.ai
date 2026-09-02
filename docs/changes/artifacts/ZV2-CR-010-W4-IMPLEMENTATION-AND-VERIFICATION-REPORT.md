@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-02T11:05:00+07:00,RWANG"
-last_update: "2026-09-02T11:17:00+07:00,RWANG"
+last_update: "2026-09-02T11:20:00+07:00,RWANG"
 status: "beta"
 superseded_by: null
 attributes:
@@ -66,8 +66,16 @@ The production build performs the final syntax, lint and type gate.
 
 These are deployment/provider gates, not hidden local completion claims.
 
+## Delivery commit
+
+The verified implementation, source documents and generated projections were committed
+as `a010f5d4897cc874a8614e303c8a5c196b9e2efe` on branch
+`codex/asset-evidence-intake`. This report update is evidence-only and changes no
+runtime behavior.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Recorded Phase 4 implementation, full verification and remaining operational gates | working-tree | RWANG |
+| 0.2.0b | 2026-09-02 | beta | Bound W4 evidence to the exact verified implementation commit | a010f5d4897cc874a8614e303c8a5c196b9e2efe | RWANG |
