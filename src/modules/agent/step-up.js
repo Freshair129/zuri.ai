@@ -1,6 +1,4 @@
-import { randomBytes } from 'node:crypto'
-import prisma from '@/lib/db'
-import { recordAudit } from '@/modules/project-manager/application/audit'
+import { mintStepUpLinkToken } from '@/modules/identity/link-line-identity'
 import { zIssueStepUpInput } from '@/lib/validation/entities'
 
 // @req FR-026 — step-up re-authentication for HIGH-sensitivity agent actions (Gate F).
@@ -8,6 +6,12 @@ import { zIssueStepUpInput } from '@/lib/validation/entities'
 //   safe until authorization, audit AND step-up auth are proven. A HIGH action (refund,
 //   cancel, deactivate) must present a fresh, single-use, expiring proof that the
 //   principal re-authenticated — not merely that they are logged in.
+// @spec D2-domain-identity-02 — the agent domain owns no Prisma models by design
+//   (docs/domains/agent/CHARTER.md); minting the proof is `identity`'s
+//   `mintStepUpLinkToken` (src/modules/identity/link-line-identity.js), not a
+//   direct `prisma.identityLinkToken.create` here. `issueStepUp` is now a thin
+//   validation-and-delegate wrapper so every existing caller (agent/index.js,
+//   agent-action-gate.js, the integration tests) keeps its exact signature.
 // @tested tests/integration/agent-action-gate.test.js
 //
 // Storage: reuses the IdentityLinkToken table's single-use/expiring/(tenant,person)-scoped
@@ -22,21 +26,7 @@ const PROVIDER = 'STEPUP'
  */
 export async function issueStepUp(input) {
   const { tenantId, personId, ttlSeconds } = zIssueStepUpInput.parse(input)
-  const person = await prisma.person.findUnique({ where: { id: personId } })
-  if (!person) throw new Error('issueStepUp requires an existing person')
-
-  const token = randomBytes(24).toString('base64url')
-  const expiresAt = new Date(Date.now() + ttlSeconds * 1000)
-  await prisma.identityLinkToken.create({
-    data: { tenantId, personId, provider: PROVIDER, token, expiresAt },
-  })
-  await recordAudit(prisma, {
-    entityType: 'STEP_UP',
-    entityId: personId,
-    action: 'ISSUED',
-    payload: { tenantId, expiresAt: expiresAt.toISOString() },
-  })
-  return { token, expiresAt }
+  return mintStepUpLinkToken({ tenantId, personId, ttlSeconds })
 }
 
 /**

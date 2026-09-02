@@ -18,9 +18,17 @@ function createDb() {
   const installations = new Map()
   const codes = new Map()
   const sessions = new Map()
+  const auditEvents = []
   let sequence = 0
 
   const db = {
+    auditEvent: {
+      create: vi.fn(async ({ data }) => {
+        const row = { id: `audit-${++sequence}`, ...data }
+        auditEvents.push(row)
+        return row
+      }),
+    },
     pluginInstallation: {
       findUnique: vi.fn(async ({ where }) => {
         if (where.installationId) return [...installations.values()].find((row) => row.installationId === where.installationId) || null
@@ -84,7 +92,7 @@ function createDb() {
     $transaction: vi.fn(async (callback) => callback(db)),
   }
 
-  return { db, installations, codes, sessions }
+  return { db, installations, codes, sessions, auditEvents }
 }
 
 const configEnv = {
@@ -342,6 +350,82 @@ describe('FR-123 plugin auth service', () => {
     await expect(getPluginCapabilities({ db, token: exchange.accessToken, env: configEnv, now: NOW })).rejects.toMatchObject({
       code: 'AUTH_REQUIRED',
       status: 401,
+    })
+  })
+
+  // @spec D3-identity-onboarding-forms-03 — every plugin-auth write is audited,
+  // and none of those audit payloads may carry the secret material the write
+  // itself handled.
+  describe('audit coverage (D3-identity-onboarding-forms-03)', () => {
+    it('audits a new installation and the authorization code mint, without the code in the payload', async () => {
+      const { db, auditEvents } = createDb()
+      const result = await createPluginAuthorizationCode({
+        db, principalId: 'person-1', input: authorizeInput, env: configEnv, now: NOW,
+      })
+
+      const installationEvent = auditEvents.find((event) => event.action === 'PLUGIN_INSTALLATION_CREATED')
+      expect(installationEvent).toMatchObject({
+        entityType: 'PluginInstallation',
+        actorId: 'person-1',
+      })
+      const mintEvent = auditEvents.find((event) => event.action === 'PLUGIN_AUTH_CODE_MINTED')
+      expect(mintEvent).toMatchObject({
+        entityType: 'PluginAuthorizationCode',
+        actorId: 'person-1',
+      })
+      const serialized = JSON.stringify(auditEvents)
+      expect(serialized).not.toContain(result.code)
+      expect(serialized).not.toContain(authorizeInput.code_challenge)
+
+      // A second code minted for the same installation must not audit a
+      // second installation creation — only the code mint fires again.
+      const before = auditEvents.filter((event) => event.action === 'PLUGIN_INSTALLATION_CREATED').length
+      await createPluginAuthorizationCode({
+        db, principalId: 'person-1', input: { ...authorizeInput, state: 'state_test_002_long_enough' }, env: configEnv, now: NOW,
+      })
+      expect(auditEvents.filter((event) => event.action === 'PLUGIN_INSTALLATION_CREATED')).toHaveLength(before)
+    })
+
+    it('audits session issuance on exchange, without the access token, code or verifier in the payload', async () => {
+      const { db, auditEvents } = createDb()
+      const { authorization, exchange } = await authorizeAndExchange(db)
+
+      const issuedEvent = auditEvents.find((event) => event.action === 'PLUGIN_SESSION_ISSUED')
+      expect(issuedEvent).toMatchObject({ entityType: 'PluginSession', actorType: 'PLUGIN' })
+      const serialized = JSON.stringify(auditEvents)
+      expect(serialized).not.toContain(exchange.accessToken)
+      expect(serialized).not.toContain(authorization.code)
+      expect(serialized).not.toContain(TEST_VERIFIER)
+    })
+
+    it('audits the replay-triggered session revocation, without the replayed code in the payload', async () => {
+      const { db, auditEvents } = createDb()
+      const { authorization } = await authorizeAndExchange(db)
+
+      await expect(exchangePluginAuthorizationCode({
+        db, input: tokenInput(authorization.code), env: configEnv, now: NOW,
+      })).rejects.toMatchObject({ code: 'INVALID_GRANT' })
+
+      const replayEvent = auditEvents.find((event) => event.action === 'PLUGIN_SESSION_REVOKED_REPLAY')
+      expect(replayEvent).toMatchObject({ entityType: 'PluginAuthorizationCode' })
+      expect(JSON.stringify(auditEvents)).not.toContain(authorization.code)
+    })
+
+    it('audits explicit token revoke, without the token in the payload', async () => {
+      const { db, auditEvents } = createDb()
+      const { exchange } = await authorizeAndExchange(db)
+
+      await revokePluginToken({ db, token: exchange.accessToken, now: NOW })
+
+      const revokeEvent = auditEvents.find((event) => event.action === 'PLUGIN_TOKEN_REVOKED')
+      expect(revokeEvent).toMatchObject({ entityType: 'PluginSession', actorType: 'PLUGIN' })
+      expect(JSON.stringify(auditEvents)).not.toContain(exchange.accessToken)
+
+      // Revoking a token that never existed must not fabricate an audit row —
+      // that would make the audit stream itself an oracle over real tokens.
+      const before = auditEvents.length
+      await revokePluginToken({ db, token: 'never_issued_token', now: NOW })
+      expect(auditEvents).toHaveLength(before)
     })
   })
 })

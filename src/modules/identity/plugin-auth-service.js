@@ -2,10 +2,15 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { resolveViewer } from './resolve-viewer'
+import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // @req FR-123 — plugin authorization is a separate public-client boundary;
 // it never reuses the browser cookie or the MCP continuation id.
-// @spec ADR-052, SDD-074, SEC-022
+// @spec ADR-052, SDD-074, SEC-022, D3-identity-onboarding-forms-03 — every
+// write below is audited. The payload is deliberately narrow: ids, client_id,
+// installation_id and an outcome label, and never a code, token, verifier,
+// hash or redirect parameter value — the audit stream must stay safe to read
+// without becoming a second place secret material could leak from.
 // @tested tests/unit/fr123-plugin-auth-service.test.js
 
 export const PLUGIN_AUTH_CODE_TTL_SECONDS = 60
@@ -150,14 +155,14 @@ function assertOpaqueToken(value) {
   return value
 }
 
-async function findOrCreateInstallation(tx, installationId, clientId, now) {
+async function findOrCreateInstallation(tx, installationId, clientId, now, principalId) {
   const existing = await tx.pluginInstallation.findUnique({ where: { installationId } })
   if (existing) {
     if (existing.clientId !== clientId || existing.status !== 'ACTIVE') throw invalidRequest()
     return existing
   }
 
-  return tx.pluginInstallation.create({
+  const created = await tx.pluginInstallation.create({
     data: {
       installationId,
       clientId,
@@ -166,6 +171,14 @@ async function findOrCreateInstallation(tx, installationId, clientId, now) {
       updatedAt: now,
     },
   })
+  await recordAudit(tx, {
+    entityType: 'PluginInstallation',
+    entityId: created.id,
+    action: 'PLUGIN_INSTALLATION_CREATED',
+    actorId: principalId,
+    payload: { installationId: created.installationId, clientId: created.clientId, outcome: 'CREATED' },
+  })
+  return created
 }
 
 export async function createPluginAuthorizationCode({
@@ -185,8 +198,8 @@ export async function createPluginAuthorizationCode({
   const code = randomBytes(32).toString('base64url')
   const expiresAt = new Date(issuedAt.getTime() + PLUGIN_AUTH_CODE_TTL_SECONDS * 1000)
   await db.$transaction(async (tx) => {
-    const installation = await findOrCreateInstallation(tx, parsed.installation_id, config.clientId, issuedAt)
-    await tx.pluginAuthorizationCode.create({
+    const installation = await findOrCreateInstallation(tx, parsed.installation_id, config.clientId, issuedAt, principalId)
+    const codeRow = await tx.pluginAuthorizationCode.create({
       data: {
         codeHash: hashOpaque(code),
         clientId: config.clientId,
@@ -200,6 +213,15 @@ export async function createPluginAuthorizationCode({
         revokedAt: null,
         createdAt: issuedAt,
       },
+    })
+    // No code, challenge or redirect value in the payload — only the ids that
+    // answer "who authorized which plugin installation, when".
+    await recordAudit(tx, {
+      entityType: 'PluginAuthorizationCode',
+      entityId: codeRow.id,
+      action: 'PLUGIN_AUTH_CODE_MINTED',
+      actorId: principalId,
+      payload: { installationId: installation.installationId, clientId: config.clientId, personId: principalId, outcome: 'ISSUED' },
     })
   })
 
@@ -220,10 +242,25 @@ async function readAuthorizationCode(db, code) {
 // coexisting, which is precisely the case the rule exists for.
 async function revokeSessionsFromReplayedCode({ db, codeRecord, revokedAt }) {
   if (typeof db.pluginSession?.updateMany !== 'function') return
-  await db.pluginSession.updateMany({
+  const result = await db.pluginSession.updateMany({
     where: { authorizationCodeId: codeRecord.id, revokedAt: null },
     data: { revokedAt },
   })
+  if (result.count > 0) {
+    await recordAudit(db, {
+      entityType: 'PluginAuthorizationCode',
+      entityId: codeRecord.id,
+      action: 'PLUGIN_SESSION_REVOKED_REPLAY',
+      actorId: codeRecord.personId,
+      payload: {
+        installationId: codeRecord.pluginInstallation?.installationId ?? null,
+        clientId: codeRecord.clientId,
+        personId: codeRecord.personId,
+        revokedSessionCount: result.count,
+        outcome: 'REPLAY_DETECTED',
+      },
+    })
+  }
 }
 
 // @req FR-123 — expired plugin credentials are pruned, while an expired
@@ -291,6 +328,16 @@ export async function reapExpiredPluginAuthRecords({
       deletedAuthorizationCodes += deleted.count
     }
 
+    if (deletedSessions.count > 0 || deletedAuthorizationCodes > 0) {
+      await recordAudit(tx, {
+        entityType: 'PluginAuthMaintenance',
+        entityId: `reap:${observedAt.toISOString()}`,
+        action: 'PLUGIN_AUTH_RECORDS_REAPED',
+        actorType: 'SYSTEM',
+        payload: { deletedSessions: deletedSessions.count, deletedAuthorizationCodes, outcome: 'REAPED' },
+      })
+    }
+
     return { deletedSessions: deletedSessions.count, deletedAuthorizationCodes }
   })
 }
@@ -347,7 +394,7 @@ export async function exchangePluginAuthorizationCode({
     })
     if (consumed.count !== 1) throw invalidGrant()
 
-    return tx.pluginSession.create({
+    const createdSession = await tx.pluginSession.create({
       data: {
         tokenHash: hashOpaque(accessToken),
         clientId: config.clientId,
@@ -361,6 +408,24 @@ export async function exchangePluginAuthorizationCode({
         updatedAt: issuedAt,
       },
     })
+    // The access token itself never appears here — only the session id, which
+    // identifies the row without letting the audit stream double as a token
+    // store.
+    await recordAudit(tx, {
+      entityType: 'PluginSession',
+      entityId: createdSession.id,
+      action: 'PLUGIN_SESSION_ISSUED',
+      actorType: 'PLUGIN',
+      actorId: config.clientId,
+      payload: {
+        installationId: codeRecord.pluginInstallation.installationId,
+        clientId: config.clientId,
+        personId: codeRecord.personId,
+        authorizationCodeId: codeRecord.id,
+        outcome: 'ISSUED',
+      },
+    })
+    return createdSession
   })
 
   return {
@@ -473,9 +538,32 @@ export async function getPluginCapabilities({
 export async function revokePluginToken({ db = prisma, token, now = new Date() } = {}) {
   if (typeof token !== 'string' || !token.trim()) throw invalidRequest()
   const revokedAt = asDate(now)
-  await db.pluginSession.updateMany({
-    where: { tokenHash: hashOpaque(token), revokedAt: null },
+  const tokenHash = hashOpaque(token)
+  // Read before the conditional update purely to name the row in the audit
+  // event — the response below stays `{ revoked: true }` either way, so this
+  // extra read cannot turn revoke into an oracle over which tokens exist.
+  const existing = await db.pluginSession.findUnique({
+    where: { tokenHash },
+    select: { id: true, clientId: true, personId: true, pluginInstallation: { select: { installationId: true } } },
+  })
+  const result = await db.pluginSession.updateMany({
+    where: { tokenHash, revokedAt: null },
     data: { revokedAt },
   })
+  if (result.count > 0 && existing) {
+    await recordAudit(db, {
+      entityType: 'PluginSession',
+      entityId: existing.id,
+      action: 'PLUGIN_TOKEN_REVOKED',
+      actorType: 'PLUGIN',
+      actorId: existing.clientId,
+      payload: {
+        installationId: existing.pluginInstallation?.installationId ?? null,
+        clientId: existing.clientId,
+        personId: existing.personId,
+        outcome: 'REVOKED',
+      },
+    })
+  }
   return { revoked: true }
 }

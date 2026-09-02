@@ -190,6 +190,16 @@ describe('FR-123 expired plugin credential reaper', () => {
     expect(await prisma.pluginAuthorizationCode.findUnique({ where: { id: revokedLinkedCode.id } })).toBeNull()
     expect(await prisma.pluginAuthorizationCode.findUnique({ where: { id: futureCode.id } })).not.toBeNull()
     expect(await prisma.pluginAuthorizationCode.findUnique({ where: { id: activeLinkedCode.id } })).not.toBeNull()
+
+    // @spec D3-identity-onboarding-forms-03 — the reaper's own deletes are audited.
+    const reapEvent = await prisma.auditEvent.findFirst({
+      where: { entityType: 'PluginAuthMaintenance', action: 'PLUGIN_AUTH_RECORDS_REAPED', entityId: `reap:${NOW.toISOString()}` },
+    })
+    expect(reapEvent).toMatchObject({ action: 'PLUGIN_AUTH_RECORDS_REAPED' })
+    expect(JSON.parse(reapEvent.payloadJson)).toMatchObject({
+      deletedSessions: result.deletedSessions,
+      deletedAuthorizationCodes: result.deletedAuthorizationCodes,
+    })
   })
 
   it('retains an expired consumed code until its active session is gone so replay still revokes it', async () => {
@@ -242,6 +252,19 @@ describe('FR-123 expired plugin credential reaper', () => {
     await expect(exchangePluginAuthorizationCode({ db: prisma, input: exchangeInput, env: ENV, now: later(62) }))
       .rejects.toMatchObject({ code: 'INVALID_GRANT', status: 400 })
     expect(await prisma.pluginSession.findUnique({ where: { id: exchange.sessionId } })).toMatchObject({ revokedAt: later(62) })
+
+    // @spec D3-identity-onboarding-forms-03 — mint, issue and replay-revoke are
+    // all audited, and none of those rows carry the code or access token.
+    const auditRows = await prisma.auditEvent.findMany({
+      where: { entityId: { in: [storedCode.id, exchange.sessionId] } },
+    })
+    expect(auditRows.map((row) => row.action)).toEqual(expect.arrayContaining([
+      'PLUGIN_AUTH_CODE_MINTED', 'PLUGIN_SESSION_ISSUED', 'PLUGIN_SESSION_REVOKED_REPLAY',
+    ]))
+    const serializedAudit = JSON.stringify(auditRows)
+    expect(serializedAudit).not.toContain(authorization.code)
+    expect(serializedAudit).not.toContain(exchange.accessToken)
+    expect(serializedAudit).not.toContain(VERIFIER)
   })
 
   it('orders reaper-first expiry cleanup before redemption without creating a session', async () => {
