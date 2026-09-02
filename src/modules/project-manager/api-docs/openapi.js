@@ -19,6 +19,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
+  // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
+  // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
+  ['/api/crm/customers/{customerId}/erasure', ['POST']],
   // @req FR-092 — Market Intelligence's first surface-reachable endpoint. GET only:
   // the FR-092 translation seam is the sole writer of MarketObservation rows.
   ['/api/market/observations', ['GET']],
