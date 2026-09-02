@@ -57,9 +57,7 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP",
-      "test:tests/integration/line-registry-scope.test.js",
-      "test:tests/unit/line-registry-service.test.js"
+      "doc:CONTEXT-MAP"
     ],
     "added": [],
     "removed": []
@@ -17173,7 +17171,7 @@
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
       "hash": "a6934b9a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18531,7 +18529,7 @@
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
       "hash": "1ff5ec87",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
