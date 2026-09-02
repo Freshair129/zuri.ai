@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 260,
+    "docs": 259,
     "routes": 121,
     "test_files": 415
   },
   "summary": {
-    "critical": 2,
+    "critical": 0,
     "warning": 0,
     "info": 23,
-    "overall": "CRITICAL"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -191,30 +191,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "C17",
-      "severity": "critical",
-      "check": "id-uniqueness",
-      "title": "FR-017 is claimed by 2 documents",
-      "details": "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md · docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
-      "files": [
-        "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
-        "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md"
-      ],
-      "action": "Ids are immutable keys — the later claimant takes the next free number (AGENTS.md §18)"
-    },
-    {
-      "id": "C18",
-      "severity": "critical",
-      "check": "generated-view",
-      "title": "FEATURE-MAP is blind to 1 feature note(s) that exist on disk",
-      "details": "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
-      "files": [
-        "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md"
-      ],
-      "action": "The generator's discovery is broken or the map is stale — fix scripts/doc-graph.mjs and rerun docs:graph"
-    },
-    {
-      "id": "I19",
+      "id": "I17",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -225,7 +202,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I18",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -236,7 +213,7 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I19",
       "severity": "info",
       "check": "id-stability",
       "title": "467 id(s) pinned across 10 families",
@@ -247,7 +224,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I22",
+      "id": "I20",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -258,7 +235,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -269,10 +246,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I24",
+      "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 260 document(s)",
+      "title": "table integrity checked in 259 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -280,7 +257,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I25",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",

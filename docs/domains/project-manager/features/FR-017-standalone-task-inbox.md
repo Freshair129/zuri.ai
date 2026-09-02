@@ -68,3 +68,23 @@ is a visible place — the Business's inbox — not a silent guess.
   through `usePlanIntake` and `PlanPreview`
 - Tests: `tests/unit/task-intake-modal.test.js`,
   `tests/integration/task-modal-intake.test.js`
+
+## Context — the FR-017 wizard, and the reading this decision replaced
+
+`FR-017` is first of all the outcome-first UI wizard ("เริ่มจากเป้าหมาย") that builds a
+`PlanEnvelope` and hands it to the one intake pipeline (BR-009, SDD-009): validate →
+semantic check → read-only dry run → preview → single transaction → audit. The PRD
+row's second clause — "direct modal creation is edit-only" — means a modal that
+*edits* an existing record stays outside that pipeline; it never licensed a modal
+that *creates* work from user intent to write directly.
+
+On 2026-09-02 the gap-fix wave recorded the opposite reading for a day: that the
+All Work **Create Task** modal's direct `POST /api/work` was ordinary FR-005 CRUD
+because `createItem` in `work-service.js` resolves a trusted viewer, calls
+`assertWorkstreamWritable` (FR-072) before any write and records an audit event.
+Those three facts are true and still hold for edits. The reading was withdrawn on
+2026-09-03 when this note's implementation landed (PR #205): audited-and-authorized
+does not answer *where the task went* — the old modal attached a "standalone" task
+to whichever Project happened to be first in the Business, in an ad-hoc workstream
+the user never saw, which is exactly the defect D3-pm-plan-intake-02 recorded. One
+note now carries FR-017 so the id-uniqueness guard has one owner to point at.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T19:24:37.502Z",
+  "generatedAt": "2026-09-02T19:25:21.598Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2772,7 +2772,6 @@
         "docs/domains/project-manager/CHARTER.md",
         "docs/domains/project-manager/features/FR-003-project-list-contract.md",
         "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
-        "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
         "docs/domains/project-manager/features/FR-019-enterprise-api.md",
         "docs/domains/project-manager/features/FR-020-adaptive-shell.md",
         "docs/domains/project-manager/features/FR-032-home-entry.md",
@@ -2845,7 +2844,7 @@
         "apiRoutes": 93,
         "pageRoutes": 41,
         "ownedModels": 30,
-        "featureNotes": 32
+        "featureNotes": 31
       },
       "featureIds": [
         "FEAT-001",

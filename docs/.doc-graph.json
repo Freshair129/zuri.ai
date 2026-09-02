@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1689,
+    "total_nodes": 1688,
     "total_edges": 6150,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 151,
+      "document": 150,
       "adr": 57,
       "domain": 9,
       "roadmap": 35,
@@ -58,17 +58,12 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "doc:FR-017-ui-wizard-plan-intake",
-      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "code:src/modules/project-manager/import/human-plan-builder.js"
+      "doc:FR-017-standalone-task-inbox"
     ],
-    "added": [
-      "doc:FR-017-standalone-task-inbox",
-      "test:tests/integration/task-modal-intake.test.js",
-      "test:tests/unit/task-intake-modal.test.js",
-      "code:src/modules/project-manager/import/task-envelope.js"
-    ],
-    "removed": []
+    "added": [],
+    "removed": [
+      "doc:FR-017-ui-wizard-plan-intake"
+    ]
   },
   "nodes": [
     {
@@ -8232,7 +8227,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "hash": "f543fa8d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -8487,7 +8482,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/human-plan-builder.js",
       "hash": "e9c40159",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-017",
@@ -9602,15 +9597,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-017-standalone-task-inbox.md",
       "title": "FR-017 — Create Task on All Work: what a \"standalone\" task attaches to",
-      "hash": "faf7cec5",
-      "status": "current"
-    },
-    {
-      "id": "doc:FR-017-ui-wizard-plan-intake",
-      "type": "document",
-      "path": "docs/domains/project-manager/features/FR-017-ui-wizard-plan-intake.md",
-      "title": "FR-017 — UI wizard intake (\"เริ่มจากเป้าหมาย\")",
-      "hash": "85340aad",
+      "hash": "498c580b",
       "status": "changed"
     },
     {
