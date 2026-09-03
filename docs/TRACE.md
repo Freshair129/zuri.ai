@@ -1127,3 +1127,11 @@
 - **Code:** `src/app/api/agent/heartbeat/route.js` · `src/modules/agent/edge-device-registry.js`
 - **Follows:** SEC-001, SEC-008
 - **Tests:** `tests/integration/agent-heartbeat-route.test.js` · `tests/unit/fr141-edge-device-heartbeat.test.js`
+
+### FR-142 — Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere.
+
+- **Status:** n/a
+- **Surface:** `/platform/integrations` (page) · `/api/health` (api)
+- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/health/route.js` · `src/app/layout.jsx` · `src/lib/public-base-url.js`
+- **Follows:** NFR-008, SDD-022, SDD-044, SEC-006, SEC-009, SEC-016
+- **Tests:** `tests/integration/openapi-docs.test.js` · `tests/unit/entry-routing-boundary.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/fr142-health-route.test.js` · `tests/unit/line-registry-service.test.js` · `tests/unit/public-base-url.test.js`

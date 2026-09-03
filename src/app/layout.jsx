@@ -1,12 +1,15 @@
 import './globals.css'
 import { ScopeProvider } from '@/context/ScopeContext'
+import { resolvePublicBaseUrl } from '@/lib/public-base-url'
 
 // @req FR-044 — keep entry and business-routing surfaces outside the BusinessShell.
 // @spec ADR-015, SDD-022 — AppShell is mounted only by the protected PM layout.
 // @tested tests/unit/entry-routing-boundary.test.js
+// @req FR-142 — the public origin comes from PUBLIC_BASE_URL (ADR-058), never a
+//   platform hostname; NEXT_PUBLIC_APP_URL stays as the build-time alias.
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100'),
+  metadataBase: new URL(resolvePublicBaseUrl()),
   title: 'Zuri — See the whole business. Move with clarity.',
   description: 'Zuri is a local-first, AI-ready business operating system built for clear, human-controlled execution.',
   icons: {

@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 259,
-    "routes": 121,
-    "test_files": 415
+    "docs": 261,
+    "routes": 122,
+    "test_files": 417
   },
   "summary": {
     "critical": 0,
-    "warning": 0,
+    "warning": 1,
     "info": 23,
-    "overall": "PASS"
+    "overall": "WARN"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "467 id(s) pinned across 10 families",
-      "details": "ADR 57 · BR 25 · FEAT 16 · FR 141 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 84 · SEC 24 · ZV2-CR 10 · roster 467",
+      "title": "469 id(s) pinned across 10 families",
+      "details": "ADR 58 · BR 25 · FEAT 16 · FR 142 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 84 · SEC 24 · ZV2-CR 10 · roster 469",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -246,10 +246,22 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "W22",
+      "severity": "warning",
+      "check": "untracked-docs",
+      "title": "2 document(s) under docs/ are untracked and invisible to every other check",
+      "details": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md, docs/deployment/docker-ngrok.md",
+      "files": [
+        "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
+        "docs/deployment/docker-ngrok.md"
+      ],
+      "action": "git add them if they belong to the repository, or delete them if they do not. Adding them to .gitignore is NOT the third option: an ignored file is hidden from this check too, which is strictly worse than an untracked one. This check CANNOT fire in CI — a CI checkout has no untracked files by construction, so it passes there regardless of what sits in any working tree. A green governance run on a pull request is not evidence that this class is clean. It is closed by running npm run govern locally, and by nothing else."
+    },
+    {
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 259 document(s)",
+      "title": "table integrity checked in 261 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -257,7 +269,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",

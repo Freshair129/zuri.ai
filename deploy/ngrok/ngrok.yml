@@ -1,0 +1,11 @@
+# ngrok agent configuration mounted read-only into the `ngrok` service
+# (docker-compose.yml). No credential lives here: the authtoken is read by the
+# agent from the NGROK_AUTHTOKEN environment variable, and the tunnel itself is
+# declared on the command line (`ngrok http web:3000 [--domain=...]`) so the
+# static-domain / temporary-URL choice stays in .env.
+version: "3"
+# The inspection UI/API must bind to all container interfaces to be reachable on
+# the host at 127.0.0.1:4040 (the default 127.0.0.1 would be the container's own
+# loopback). Compose publishes it on the host loopback only.
+web_addr: 0.0.0.0:4040
+log_level: info

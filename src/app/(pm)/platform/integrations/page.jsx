@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   KeyRound, ShieldCheck, Users, MessageSquare, Clock, Plus,
   CheckCircle2, Search, ArrowLeft, ExternalLink, Settings, Sparkles,
@@ -10,6 +10,7 @@ import {
 
 import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
+import { lineWebhookUrl, resolveBrowserOrigin, resolvePublicBaseUrl } from '@/lib/public-base-url'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm/provider-catalog'
 import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
@@ -118,6 +119,14 @@ export default function IntegrationsPage() {
 
   // View state: 'CATALOG' | 'LINE_SETTINGS' | 'MODEL_SETTINGS'
   const [activeView, setActiveView] = useState('CATALOG')
+  // @req FR-142 — the origin shown for pairing and the webhook URL is the one this
+  // page was served from (through ngrok: the HTTPS domain), never a platform host.
+  // Starts from the build-time value so server and first client render agree, then
+  // adopts window.location.origin after mount.
+  const [publicOrigin, setPublicOrigin] = useState(() => resolvePublicBaseUrl())
+  useEffect(() => {
+    setPublicOrigin(resolveBrowserOrigin({ location: window.location }))
+  }, [])
   const [filterTab, setFilterTab] = useState('ALL') // 'ALL' | 'CONNECTED' | 'NOT_CONNECTED'
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -189,7 +198,7 @@ export default function IntegrationsPage() {
       businessId,
       businessCode: selectedBusiness?.code || 'BUS-SMARTGIFT',
       businessName: selectedBusiness?.name || 'SmartGift',
-      apiBaseUrl: typeof window !== 'undefined' ? window.location.origin : 'https://zuri-ai-woad.vercel.app',
+      apiBaseUrl: publicOrigin,
       generatedAt: new Date().toISOString(),
       instructions: 'นำ Token และ Secret นี้ไปบันทึกลงใน Zuri Edge Device Control GUI (:8787/gui) หรือไฟล์ .env'
     }
@@ -928,7 +937,7 @@ export default function IntegrationsPage() {
                       required
                     />
                   </Field>
-                  <Field label="LINE Group ID (ขึ้นต้นด้วย C)" hint="ดูจากข้อความตอบกลับของบอท หรือ Vercel Ingress Logs">
+                  <Field label="LINE Group ID (ขึ้นต้นด้วย C)" hint="ดูจากข้อความตอบกลับของบอท หรือ log ของเซิร์ฟเวอร์ (docker compose logs -f web)">
                     <div className="flex gap-2">
                       <input
                         className="input font-mono"
@@ -1177,7 +1186,7 @@ export default function IntegrationsPage() {
                   <div>
                     <span className="font-semibold text-muted">Webhook URL สำหรับนำไปใส่ใน LINE Developers Console:</span>
                     <div className="mt-1.5 flex items-center gap-2 rounded bg-[var(--surface-muted)] p-2.5 font-mono text-[11px]">
-                      <span className="flex-1 select-all">https://zuri-ai-woad.vercel.app/api/agent/line-webhook</span>
+                      <span className="flex-1 select-all">{lineWebhookUrl(publicOrigin)}</span>
                     </div>
                   </div>
                   <div className="rounded-lg border border-[var(--border)] p-3 space-y-2">

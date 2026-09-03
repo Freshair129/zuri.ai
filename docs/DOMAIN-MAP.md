@@ -95,7 +95,7 @@ Charter: [docs/domains/platform-control/CHARTER.md](domains/platform-control/CHA
 |---|---|
 | Modules | `src/modules/platform-control` |
 | Models owned | — (state lives outside the shared schema by design) |
-| Routes owned | 1 (0 api · 1 pages) |
+| Routes owned | 2 (1 api · 1 pages) |
 | FRs implemented in lane | FR-105 |
 
 ## project-manager
