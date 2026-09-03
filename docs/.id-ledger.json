@@ -253,6 +253,8 @@
     "FR-140",
     "FR-141",
     "FR-142",
+    "FR-143",
+    "FR-144",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -359,6 +361,7 @@
     "SDD-082",
     "SDD-083",
     "SDD-084",
+    "SDD-085",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -383,6 +386,7 @@
     "SEC-022",
     "SEC-023",
     "SEC-024",
+    "SEC-025",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -399,6 +403,7 @@
     "FEAT-014",
     "FEAT-015",
     "FEAT-016",
+    "FEAT-017",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -545,6 +550,7 @@
     "ADR-056",
     "ADR-057",
     "ADR-058",
+    "ADR-059",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2742,6 +2748,32 @@
         }
       ]
     },
+    "FR-143": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1ced75ecec6b77f04033d024a0f7db947b9dde5db6e7bcd73165c435a742bbda",
+      "history": [
+        {
+          "anchor": "edge executed asset evidence extraction adr 059",
+          "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-144": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f208ae8023d946a69e2475326c61c2ca247a1cbf1499cc045d5b03ba77b3aeb6",
+      "history": [
+        {
+          "anchor": "edge device credential",
+          "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4136,6 +4168,19 @@
         }
       ]
     },
+    "SDD-085": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2ce8a0268ea9bd6ddb7f54e2d6d6e623c646ffcfc5198d61deacaf764a8f246f",
+      "history": [
+        {
+          "anchor": "edge extraction is one pull model job record not a cloud",
+          "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4458,6 +4503,19 @@
         }
       ]
     },
+    "SEC-025": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5ae93cac78cc6f551954e4ba4dcdb504aef0c8bbeb156c497b09d194f8260d65",
+      "history": [
+        {
+          "anchor": "device credential and evidence download boundary failing",
+          "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -4662,6 +4720,19 @@
         {
           "anchor": "asset evidence intake execution",
           "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-017": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "956771913ffd6022be2b644b00792cba1c21529efaa0a15ae69e5c41297fb935",
+      "history": [
+        {
+          "anchor": "edge executed evidence extraction",
+          "since": "2026-09-03",
           "reason": "declared"
         }
       ]
@@ -6569,6 +6640,19 @@
       "history": [
         {
           "anchor": "docker compose ngrok replace vercel as the deployment path",
+          "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-059": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md",
+      "status": "current",
+      "statement_digest": "3bb76bfa5c7b8433773a3c768d884a3ba6164c6b130fe594401eeff9aa635081",
+      "history": [
+        {
+          "anchor": "edge executed evidence extraction pull model",
           "since": "2026-09-03",
           "reason": "declared"
         }

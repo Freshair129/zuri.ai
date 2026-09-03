@@ -13,11 +13,14 @@ owns_models:
   - AssetLocationHistory
   - AssetProjectAllocation
   - AssetDepreciationCandidate
+  - AssetExtractionJob
+owns_routes:
+  - src/app/api/edge/extraction-jobs/**
 technical_owner: TD-ASSET-MANAGEMENT
 status: active-evidence-intake-beta
-version: "1.1.0b"
+version: "1.2.0b"
 created_at: "2026-09-01T00:00:00+07:00"
-updated_at: "2026-09-02T10:30:00+07:00"
+updated_at: "2026-09-04T09:00:00+07:00"
 ---
 
 # Asset Management domain charter
@@ -52,6 +55,11 @@ The domain answers four questions without relying on a parallel spreadsheet:
   Workstream without moving ownership into Project Manager.
 - `AssetDepreciationCandidate` deterministic preview evidence. It is not an
   accounting book, journal or posting authority.
+- `AssetExtractionJob` (FR-143, ADR-059) — the queued unit of work that lets the
+  customer-premise Zuri Edge Device execute FR-138 extraction. The domain owns the
+  job's lifecycle (QUEUED → CLAIMED → COMPLETED | FAILED | CANCELLED), its 10-minute
+  lease and its result; it does **not** own the device's identity, which is
+  identity's `EdgeDeviceCredential` (FR-144).
 
 ## Explicitly not owned
 
@@ -117,6 +125,16 @@ Runtime surfaces are under `/assets` and `/api/assets`. The domain must not impo
 page/route to reach another domain's private repository; cross-domain work uses an
 explicit contract or read projection.
 
+The device-authenticated extraction routes are a separate family,
+`/api/edge/extraction-jobs/**` (claim · evidence · complete · fail), and are the one
+place in this domain where the caller is **not** a session viewer: they authenticate
+through identity's `resolveEdgeDeviceContext` (FR-144) and are scoped to the Business
+of the presented credential. They are named in `owns_routes` because they sit outside
+the `/api/assets` prefix and would otherwise fall to project-manager's
+`src/app/api/**` catch-all. `GET .../[id]/evidence` streams bytes to the
+lease-holding device only and never hands out a bucket URL, signed link or storage
+credential (SEC-025, ADR-041 D3).
+
 ## Delivery state
 
 The foundation declares and locally proves the canonical contract, validation,
@@ -137,10 +155,13 @@ Inventory projection are still gated and are not implied by this status.
 - [CR-015 evidence execution](../../change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
 - [ADR-056 cloud and extraction boundary](../../decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md)
 - [FR-137 evidence execution feature](features/FR-137-asset-evidence-intake-execution.md)
+- [ADR-059 edge-executed evidence extraction](../../decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md)
+- [FR-143 edge-executed extraction feature](features/FR-143-edge-executed-evidence-extraction.md)
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0b | 2026-09-04 | active-evidence-intake-beta | Claimed `AssetExtractionJob` and the device-authenticated `/api/edge/extraction-jobs/**` route family for FR-143 / ADR-059 — declaration only, no implementation in this commit | working-tree | Claude Code |
 | 1.1.0b | 2026-09-02 | beta | Added receiver/reviewer capabilities and the provider-neutral evidence, extraction, workbook/snapshot and LINE handoff execution lane | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | active-foundation | Established Asset Management ownership, scope, invariants, intake convergence and explicit external boundaries | working-tree | Codex |
