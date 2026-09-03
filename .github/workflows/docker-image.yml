@@ -1,0 +1,84 @@
+name: docker-image
+
+# Builds the production image defined by Dockerfile (ADR-058). On a pull request that
+# touches the deployment layer it only builds, proving the image still assembles; on
+# main and on a v* tag it also pushes to GitHub Container Registry so a later VPS can
+# `docker compose pull web` with ZURI_WEB_IMAGE=ghcr.io/<owner>/<repo>:<tag> instead of
+# building on the box. No machine-specific path, no secret beyond GITHUB_TOKEN.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - docker-compose.yml
+      - deploy/**
+      - next.config.js
+      - package.json
+      - package-lock.json
+      - .github/workflows/docker-image.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  compose-config:
+    # The Compose file must interpolate from nothing but .env.example plus the two
+    # values a real deployment supplies — a variable added to the file without a
+    # default or an example line fails here, not on the operator's machine.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate docker-compose.yml against .env.example
+        shell: bash
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+          COMPOSE_PROFILES=local-db docker compose config --quiet
+          rm -f .env
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build (and push outside pull requests)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runner
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,63 @@
+# Build context for Dockerfile. Everything listed here never reaches the image.
+# Secrets first — no environment file is ever copied; runtime config arrives via
+# docker-compose.yml → env_file / environment.
+.env
+.env.*
+!.env.example
+*.local
+certs/**/*.key
+config/certs/**/*.key
+
+# Dependencies and build output are produced inside the image
+node_modules
+.next
+.next-stale*
+src/generated
+
+# Local databases and test state
+*.db
+*.db-journal
+prisma/.test-dbs
+prisma/dev.db*
+test-results
+playwright-report
+.playwright-cli
+.pytest_cache
+__pycache__
+
+# Working trees, agent state, evidence and scratch directories
+.git
+.github
+.claude
+.brain
+.agent
+.rwang-tasks
+_worktrees
+.worktrees
+artifacts
+output
+screenshot
+import-data
+reference
+reports
+skills
+supabase
+tests
+# docs/ is not shipped, except the generated readiness projection that
+# src/modules/project-manager/application/product-readiness-read-model.js imports.
+docs/*
+!docs/.domain-state.json
+*.md
+!README.md
+
+# Deployment metadata that is not part of the app
+docker-compose.yml
+deploy
+Dockerfile
+.dockerignore
+.vercel
+run.bat
+run-local-edge.bat
+*.gwal
+*.gseg
+*.bin

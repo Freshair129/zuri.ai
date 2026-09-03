@@ -4,6 +4,7 @@ modules:
   - platform-control
 owns_routes:
   - src/app/(control)/control/**
+  - src/app/api/health/**
 owns_code:
   - src/modules/platform-control/**
   - src/components/layouts/PlatformControlShell.jsx
@@ -28,6 +29,11 @@ persistence model.
 - `src/config/domains.js` is the Business-only navigation registry. This domain
   may not add itself to `DOMAINS`.
 - Project-local roadmap work remains Project Manager authority under ADR-028.
+- `GET /api/health` (FR-142, ADR-058) is the deployment liveness probe Docker
+  Compose polls. It is infrastructure, not a Business capability: unauthenticated,
+  read-only, one trivial query, states and timings only. It lives in this lane
+  because it is an operational projection that can be removed with the
+  deployment layer and touches no Business data or navigation.
 
 ## Removal contract
 

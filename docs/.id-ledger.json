@@ -252,6 +252,7 @@
     "FR-139",
     "FR-140",
     "FR-141",
+    "FR-142",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -543,6 +544,7 @@
     "ADR-055",
     "ADR-056",
     "ADR-057",
+    "ADR-058",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2723,6 +2725,19 @@
         {
           "anchor": "edge device heartbeat registry",
           "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-142": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6c9f08487229605004ad20edfac29d05cc3cee229119db9f067b75a95ad0ec56",
+      "history": [
+        {
+          "anchor": "deployment liveness probe and public origin abstraction adr",
+          "since": "2026-09-03",
           "reason": "declared"
         }
       ]
@@ -6542,6 +6557,19 @@
         {
           "anchor": "asset evidence production deployment and migration boundary",
           "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-058": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
+      "status": "current",
+      "statement_digest": "38d191d7ae6f51d2eed97ce3d9ee425000bf1160eae57ba56417fbd13a5c3767",
+      "history": [
+        {
+          "anchor": "docker compose ngrok replace vercel as the deployment path",
+          "since": "2026-09-03",
           "reason": "declared"
         }
       ]

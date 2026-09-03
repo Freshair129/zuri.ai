@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1688,
-    "total_edges": 6150,
+    "total_nodes": 1696,
+    "total_edges": 6168,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 150,
-      "adr": 57,
+      "document": 151,
+      "adr": 58,
       "domain": 9,
       "roadmap": 35,
       "feature": 16,
-      "route": 177,
+      "route": 178,
       "model": 80,
-      "requirement": 296,
-      "test": 415,
-      "code_file": 449
+      "requirement": 297,
+      "test": 417,
+      "code_file": 451
     },
     "coverage": {
-      "requirements": 296,
-      "fr_with_code": "100% (131/131)",
-      "fr_with_tests": "100% (131/131)",
+      "requirements": 297,
+      "fr_with_code": "100% (132/132)",
+      "fr_with_tests": "100% (132/132)",
       "rules_anchored_in_code": "95% (125/131)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 449,
+      "annotated_code_files": 451,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,15 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION",
       "doc:README",
-      "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
-      "doc:CONTEXT-MAP",
-      "doc:FR-127-conversation-intelligence-analysis",
-      "doc:FR-123-plugin-authentication-and-capability-discovery",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "doc:ASSET-EVIDENCE-PRODUCTION-ACTIVATION"
+      "doc:docker-ngrok",
+      "doc:CONTEXT-MAP"
     ],
     "added": [],
     "removed": []
@@ -571,12 +565,13 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "a874803b",
+      "hash": "b10783db",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
-          "FR-130"
+          "FR-130",
+          "FR-142"
         ],
         "@spec": [
           "SEC-016",
@@ -2229,6 +2224,25 @@
       }
     },
     {
+      "id": "code:src/app/api/health/route.js",
+      "type": "code_file",
+      "path": "src/app/api/health/route.js",
+      "hash": "bd8f6d53",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-142"
+        ],
+        "@spec": [
+          "SEC-009",
+          "SEC-006"
+        ],
+        "@tested": [
+          "tests/unit/fr142-health-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/import/bundle/commit/route.js",
       "type": "code_file",
       "path": "src/app/api/import/bundle/commit/route.js",
@@ -3725,11 +3739,12 @@
       "id": "code:src/app/layout.jsx",
       "type": "code_file",
       "path": "src/app/layout.jsx",
-      "hash": "26b1019e",
+      "hash": "4ffd7b6c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-142"
         ],
         "@spec": [
           "SDD-022"
@@ -4382,6 +4397,21 @@
         "@tested": [
           "tests/unit/platform-control-guard.test.js",
           "tests/unit/viewer-failure.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/public-base-url.js",
+      "type": "code_file",
+      "path": "src/lib/public-base-url.js",
+      "hash": "0cb72e69",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-142"
+        ],
+        "@tested": [
+          "tests/unit/public-base-url.test.js"
         ]
       }
     },
@@ -7359,7 +7389,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "cc627304",
+      "hash": "62bbfdbb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9341,9 +9371,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.34.0b",
+      "version": "1.35.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "03cb6054",
+      "hash": "7bd2d116",
       "status": "current"
     },
     {
@@ -9388,7 +9418,7 @@
       "path": "docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "Asset Evidence Production Activation Runbook",
       "hash": "7755a25a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:B-db-schema",
@@ -9502,7 +9532,7 @@
       "path": "docs/change-requests/CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "CR-016 — Asset Evidence Production Activation",
       "hash": "e76fed85",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -9513,6 +9543,14 @@
       "doc_status": "Approved",
       "hash": "80dc1e06",
       "status": "current"
+    },
+    {
+      "id": "doc:docker-ngrok",
+      "type": "document",
+      "path": "docs/deployment/docker-ngrok.md",
+      "title": "Deploying zuri-ai with Docker Compose + ngrok",
+      "hash": "68ee0465",
+      "status": "changed"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -9583,7 +9621,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.16.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "c13c07a2",
+      "hash": "7206be18",
       "status": "current"
     },
     {
@@ -10269,7 +10307,7 @@
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
       "hash": "36796fe0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-124-product-readiness-dashboard",
@@ -10293,7 +10331,7 @@
       "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
       "title": "FR-127 — Conversation intelligence analysis",
       "hash": "fc204a32",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-129-catalog-publication-approval-gate",
@@ -10694,10 +10732,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.135.0b",
+      "version": "1.136.0b",
       "doc_status": "Draft",
-      "hash": "c43cde6e",
-      "status": "changed"
+      "hash": "91dd6a2a",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10740,8 +10778,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "79803ab4",
-      "status": "changed"
+      "hash": "88ee33ed",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11154,7 +11192,8 @@
       "title": "Domain — platform-control",
       "owns_models": [],
       "owns_routes": [
-        "src/app/(control)/control/**"
+        "src/app/(control)/control/**",
+        "src/app/api/health/**"
       ],
       "owns_code": [
         "src/modules/platform-control/**",
@@ -11164,7 +11203,7 @@
       "modules": [
         "platform-control"
       ],
-      "hash": "12568078",
+      "hash": "f20604d4",
       "status": "current"
     },
     {
@@ -13396,6 +13435,16 @@
       "row_text": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make. 🟠 implemented 2026-09-02 — route, `src/modules/agent/edge-device-registry.js` and `tests/unit/fr141-edge-device-heartbeat.test.js`; persistence deliberately deferred, owner decision open (feature note) "
     },
     {
+      "id": "req:FR-142",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere. 🟠 implemented 2026-09-03 — `src/app/api/health/route.js`, `src/lib/public-base-url.js`, `tests/unit/fr142-health-route.test.js`, `tests/unit/public-base-url.test.js`; Docker Compose + ngrok stack (`Dockerfile`, `docker-compose.yml`, `docs/deployment/docker-ngrok.md`) built and run locally against the bundled Postgres profile "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -15088,6 +15137,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/health",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/health",
+      "path": "src/app/api/health/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/import/bundle/commit",
       "type": "route",
       "kind": "api",
@@ -16545,7 +16602,7 @@
       "path": "docs/decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md",
       "title": "ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence",
       "hash": "b004a110",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
@@ -16569,6 +16626,14 @@
       "path": "docs/decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md",
       "title": "ADR-057 — Asset Evidence Production Deployment and Migration Boundary",
       "hash": "55535bfe",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "type": "adr",
+      "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
+      "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
+      "hash": "f94f28a4",
       "status": "current"
     },
     {
@@ -17240,7 +17305,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "375af261",
+      "hash": "28282fd4",
       "status": "current"
     },
     {
@@ -18294,6 +18359,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/fr142-health-route.test.js",
+      "type": "test",
+      "path": "tests/unit/fr142-health-route.test.js",
+      "hash": "672f37f4",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/gate-cap-rounding.test.js",
       "type": "test",
       "path": "tests/unit/gate-cap-rounding.test.js",
@@ -19152,6 +19224,13 @@
       "type": "test",
       "path": "tests/unit/projects-dashboard-ui.test.js",
       "hash": "371c504b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/public-base-url.test.js",
+      "type": "test",
+      "path": "tests/unit/public-base-url.test.js",
+      "hash": "10255e82",
       "status": "current"
     },
     {
@@ -20195,6 +20274,13 @@
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:FR-130",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:FR-142",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22727,6 +22813,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/health/route.js",
+      "to": "req:FR-142",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/health/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/health/route.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/import/bundle/commit/route.js",
       "to": "req:BR-007",
       "type": "follows",
@@ -25045,6 +25152,13 @@
     },
     {
       "from": "code:src/app/layout.jsx",
+      "to": "req:FR-142",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/layout.jsx",
       "to": "req:SDD-022",
       "type": "follows",
       "status": "current",
@@ -25985,6 +26099,13 @@
       "from": "code:src/lib/platform-control-guard.js",
       "to": "req:SEC-020",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/public-base-url.js",
+      "to": "req:FR-142",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -35439,6 +35560,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-142",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -36701,6 +36829,13 @@
     {
       "from": "route:api:/api/gates",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/health",
+      "to": "domain:platform-control",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -46465,6 +46600,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -51785,6 +51927,13 @@
     },
     {
       "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -54459,6 +54608,13 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -55097,6 +55253,34 @@
     {
       "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr142-health-route.test.js",
+      "to": "code:src/app/api/health/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr142-health-route.test.js",
+      "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr142-health-route.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr142-health-route.test.js",
+      "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -56483,6 +56667,13 @@
     {
       "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:FR-142",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -60753,6 +60944,20 @@
     {
       "from": "test:tests/unit/projects-dashboard-ui.test.js",
       "to": "req:SDD-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/public-base-url.test.js",
+      "to": "code:src/lib/public-base-url.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/public-base-url.test.js",
+      "to": "req:FR-142",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

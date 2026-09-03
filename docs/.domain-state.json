@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T22:19:46.411Z",
+  "generatedAt": "2026-09-03T14:30:10.125Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 9,
-    "featureCount": 111,
-    "readyFeatureCount": 97,
-    "requirementCount": 141,
-    "verifiedRequirementCount": 131,
-    "progressPercent": 92.9,
+    "featureCount": 112,
+    "readyFeatureCount": 98,
+    "requirementCount": 142,
+    "verifiedRequirementCount": 132,
+    "progressPercent": 93,
     "gapCount": 18,
     "gaps": [
       {
@@ -386,7 +386,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 121,
+            "openApiPaths": 122,
             "missingFromOpenApi": 0
           }
         },
@@ -1082,7 +1082,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 121,
+            "openApiPaths": 122,
             "missingFromOpenApi": 0
           }
         },
@@ -1398,6 +1398,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 18
+        },
+        {
+          "id": "FR-142",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -1423,7 +1430,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 121,
+            "openApiPaths": 122,
             "missingFromOpenApi": 0
           }
         },
@@ -1862,7 +1869,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 121,
+            "openApiPaths": 122,
             "missingFromOpenApi": 0
           }
         },
@@ -1951,7 +1958,7 @@
       "progressPercent": 100
     },
     "platform-control": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-046",
@@ -1973,6 +1980,13 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 6
+        },
+        {
+          "id": "FR-142",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -1989,9 +2003,18 @@
           }
         },
         "httpApi": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 122,
+            "missingFromOpenApi": 0
+          }
         },
         "mcp": {
           "status": "verified",
@@ -2022,9 +2045,17 @@
           "gaps": []
         },
         "authorization": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "unknown",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 0,
+            "guardedMutations": 0,
+            "reads": 0,
+            "unguardedReads": 0
+          }
         },
         "tests": {
           "status": "verified",
@@ -2037,9 +2068,11 @@
       "evidence": [
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
         "docs/domains/platform-control/CHARTER.md",
         "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/pipeline-mcp-transport.test.js",
@@ -2047,17 +2080,18 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 1,
-        "apiRoutes": 0,
+        "routes": 2,
+        "apiRoutes": 1,
         "pageRoutes": 1,
         "ownedModels": 0,
         "featureNotes": 1
       },
       "featureIds": [
-        "FR-105"
+        "FR-105",
+        "FR-142"
       ],
-      "featureCount": 1,
-      "readyFeatureCount": 1,
+      "featureCount": 2,
+      "readyFeatureCount": 2,
       "progressPercent": 100
     },
     "project-manager": {
@@ -2691,7 +2725,7 @@
           "details": {
             "routes": 93,
             "inventoried": 93,
-            "openApiPaths": 121,
+            "openApiPaths": 122,
             "missingFromOpenApi": 0
           }
         },
@@ -8407,6 +8441,46 @@
         "src/modules/agent/edge-device-registry.js",
         "tests/integration/agent-heartbeat-route.test.js",
         "tests/unit/fr141-edge-device-heartbeat.test.js"
+      ]
+    },
+    {
+      "id": "FR-142",
+      "title": "Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-142"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "integration",
+        "platform-control"
+      ],
+      "useCase": "ผู้ดูแลระบบรัน docker compose up -d บนเครื่องของตนเอง แล้ว Compose รู้เองว่า web พร้อมให้บริการจาก GET /api/health ก่อนจะเปิด ngrok ออกสู่อินเทอร์เน็ต และหน้า Platform Integrations แสดง webhook URL จาก origin ที่เปิดอยู่จริง (https://<NGROK_DOMAIN>/api/agent/line-webhook) โดยไม่ต้องพึ่ง Vercel",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-142",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/integrations/page.jsx",
+        "src/app/api/health/route.js",
+        "src/app/layout.jsx",
+        "src/lib/public-base-url.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/unit/entry-routing-boundary.test.js",
+        "tests/unit/fr080-ui-contract.test.js",
+        "tests/unit/fr142-health-route.test.js",
+        "tests/unit/line-registry-service.test.js",
+        "tests/unit/public-base-url.test.js"
       ]
     }
   ]

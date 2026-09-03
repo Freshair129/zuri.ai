@@ -84,9 +84,11 @@ describe('OpenAPI document', () => {
       // no preview and leaves a redacted Customer behind). FR-038's Membership
       // attach adds one path and one operation (POST /api/platform/users/memberships);
       // FR-106's key listing adds a GET to the existing /api/platform/api-access-keys
-      // path — one more operation, no new path — bringing the totals to:
-      pathCount: 121,
-      operationCount: 156,
+      // path — one more operation, no new path. FR-142's liveness probe adds one
+      // path and one operation (GET /api/health — unauthenticated, ADR-058) —
+      // bringing the totals to:
+      pathCount: 122,
+      operationCount: 157,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

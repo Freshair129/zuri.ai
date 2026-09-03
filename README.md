@@ -48,3 +48,17 @@ npm run docs:check     # CI guard: fails if the committed graph is stale
 
 A change is not done until tests pass, the build is clean, and
 `docs:graph` + `docs:preflight` are green — see CLAUDE.md.
+
+## Deployment (Docker Compose + ngrok)
+
+```bash
+cp .env.example .env   # fill DATABASE_URL, ZURI_SESSION_SECRET, NGROK_AUTHTOKEN, NGROK_DOMAIN
+docker compose up -d --build
+docker compose ps      # web healthy, ngrok running
+```
+
+Public URL: `https://<NGROK_DOMAIN>`; LINE webhook seam:
+`https://<NGROK_DOMAIN>/api/agent/line-webhook`. Full guide, verification steps
+and the VPS migration path: [docs/deployment/docker-ngrok.md](docs/deployment/docker-ngrok.md)
+([ADR-058](docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md)).
+Vercel is no longer a deployment dependency.

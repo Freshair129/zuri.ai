@@ -1,0 +1,175 @@
+# docker-compose.yml — zuri-ai without Vercel (ADR-058).
+#
+#   Internet ──► ngrok HTTPS endpoint ──► ngrok container ──► web:3000 (Next.js: UI + API + LINE seam)
+#                                                              │
+#                                        (profile local-db)    └──► db:5432 (Postgres, volume db-data)
+#                                                            or an external Postgres (Supabase) via DATABASE_URL
+#
+# Real services only: this repository is ONE Next.js app. There is no separate API,
+# gateway, worker, queue or Redis to compose — every route handler, the LINE webhook
+# seam (`POST /api/agent/line-webhook`) and the console are served by `web`.
+#
+# Configuration:
+#   .env         — required; interpolates this file and is the web container's env_file
+#   .env.docker  — optional; container-only overrides (e.g. a Postgres DATABASE_URL while
+#                  .env keeps SQLite for `npm run dev`). Never committed (.gitignore: .env*).
+#   COMPOSE_PROFILES=local-db in .env starts the bundled Postgres + schema push.
+#
+# Nothing here contains a credential: every secret is a ${VARIABLE} or comes from env_file.
+
+name: zuri-ai
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    # A registry tag lets a later VPS `docker compose pull web` instead of building
+    # (see .github/workflows/docker-image.yml). Local builds keep the :local tag.
+    image: ${ZURI_WEB_IMAGE:-zuri-ai-web:local}
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: true
+      - path: .env.docker
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      # The one public-origin variable (src/lib/public-base-url.js). Explicit
+      # PUBLIC_BASE_URL wins; otherwise the static ngrok domain; otherwise localhost.
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-${NGROK_DOMAIN:+https://${NGROK_DOMAIN}}}
+      # The Supabase CA bundle ships in the image (Dockerfile), so a Windows path in
+      # .env cannot leak into the container.
+      ZURI_LINE_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
+      ZURI_CUSTOMER_REVIEW_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
+    ports:
+      # Loopback by default: the public path is ngrok, not the host's LAN interface.
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    healthcheck:
+      # FR-142 — one trivial query against the configured database, no session needed.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+      db-migrate:
+        condition: service_completed_successfully
+        required: false
+    networks:
+      - zuri-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  ngrok:
+    image: ngrok/ngrok:3
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      # Never hardcoded: comes from .env (gitignored) or the shell.
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    volumes:
+      - ./deploy/ngrok/ngrok.yml:/etc/ngrok.yml:ro
+    # `web:3000` — the Compose DNS name of the app. `localhost` inside this container
+    # would be the ngrok container itself. `--domain` is added only when NGROK_DOMAIN
+    # is set (a static/assigned domain keeps the public URL stable across restarts);
+    # without it ngrok assigns a temporary URL — read it with scripts/ngrok-url.ps1.
+    # `--host-header=preserve`: by default the agent rewrites Host to the upstream
+    # address (`web:3000`). The app builds absolute redirects from request.url
+    # (plugin consent, FR-123) and exempts loopback hosts from auth on /api/docs
+    # (SEC-006), so the public hostname must reach it unchanged.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - exec ngrok http web:3000 --config /etc/ngrok.yml --host-header=preserve --log stdout --log-format json ${NGROK_DOMAIN:+--domain=${NGROK_DOMAIN}}
+    ports:
+      # ngrok's local inspection API/UI — loopback only, never public.
+      - "127.0.0.1:${NGROK_INSPECT_PORT:-4040}:4040"
+    networks:
+      - zuri-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Optional bundled Postgres (COMPOSE_PROFILES=local-db). Production-mode zuri-ai
+  # refuses SQLite (src/lib/db.js: PRODUCTION_DATABASE_URL_REQUIRED), so a deployment
+  # is either this service or an external Postgres such as Supabase. No host port is
+  # published: the database is reachable only on the Compose network.
+  db:
+    image: postgres:16-alpine
+    profiles: ["local-db"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zuri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-zuri}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - zuri-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # One-shot schema push for the bundled Postgres (prisma/schema.postgres.prisma is the
+  # generated Postgres twin of prisma/schema.prisma). Runs before `web` when the
+  # local-db profile is active, then exits. The same image carries the repo's
+  # operator scripts, e.g.
+  #   docker compose run --rm --no-deps db-migrate node scripts/bootstrap-operator.mjs --email you@example.com --name "You"
+  db-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: tools
+    image: ${ZURI_TOOLS_IMAGE:-zuri-ai-tools:local}
+    profiles: ["local-db"]
+    restart: "no"
+    env_file:
+      - path: .env
+        required: true
+      - path: .env.docker
+        required: false
+    environment:
+      NODE_ENV: production
+      ZURI_LINE_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
+      ZURI_CUSTOMER_REVIEW_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
+    # DIRECT_URL is what the Prisma CLI reads for schema work; it defaults to
+    # DATABASE_URL so the bundled database needs one URL, not two.
+    command:
+      - /bin/sh
+      - -c
+      - 'export DIRECT_URL="$${DIRECT_URL:-$$DATABASE_URL}"; exec node node_modules/prisma/build/index.js db push --schema prisma/schema.postgres.prisma --skip-generate'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - zuri-network
+
+networks:
+  zuri-network:
+    driver: bridge
+
+volumes:
+  # Durable Postgres data for the local-db profile; survives `docker compose down`
+  # (only `down -v` removes it).
+  db-data:
