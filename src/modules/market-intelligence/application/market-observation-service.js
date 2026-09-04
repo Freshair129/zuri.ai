@@ -408,7 +408,7 @@ export async function runMarketTranslationForBusiness(
   // One audit event per run, never per row — the counts are the record; raw candidate
   // payloads are never written to the audit log (SEC-003 minimal-disclosure spirit).
   await recordAudit(db, {
-    entityType: 'MarketObservation',
+    entityType: 'MARKET_OBSERVATION',
     entityId: business.id,
     action: 'MARKET_TRANSLATION_RUN',
     payload: {

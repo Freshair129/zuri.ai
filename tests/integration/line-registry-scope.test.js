@@ -38,7 +38,7 @@ const GROUP_ID = 'Cregistry-scope-group'
 const USER_ID = 'Uregistry-scope-user'
 
 const auditFor = (entityId) => prisma.auditEvent.findMany({
-  where: { entityType: 'IntegrationConnection', entityId },
+  where: { entityType: 'INTEGRATION_CONNECTION', entityId },
   orderBy: { occurredAt: 'asc' },
 })
 

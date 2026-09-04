@@ -172,7 +172,7 @@ async function findOrCreateInstallation(tx, installationId, clientId, now, princ
     },
   })
   await recordAudit(tx, {
-    entityType: 'PluginInstallation',
+    entityType: 'PLUGIN_INSTALLATION',
     entityId: created.id,
     action: 'PLUGIN_INSTALLATION_CREATED',
     actorId: principalId,
@@ -217,7 +217,7 @@ export async function createPluginAuthorizationCode({
     // No code, challenge or redirect value in the payload — only the ids that
     // answer "who authorized which plugin installation, when".
     await recordAudit(tx, {
-      entityType: 'PluginAuthorizationCode',
+      entityType: 'PLUGIN_AUTHORIZATION_CODE',
       entityId: codeRow.id,
       action: 'PLUGIN_AUTH_CODE_MINTED',
       actorId: principalId,
@@ -248,7 +248,7 @@ async function revokeSessionsFromReplayedCode({ db, codeRecord, revokedAt }) {
   })
   if (result.count > 0) {
     await recordAudit(db, {
-      entityType: 'PluginAuthorizationCode',
+      entityType: 'PLUGIN_AUTHORIZATION_CODE',
       entityId: codeRecord.id,
       action: 'PLUGIN_SESSION_REVOKED_REPLAY',
       actorId: codeRecord.personId,
@@ -330,7 +330,7 @@ export async function reapExpiredPluginAuthRecords({
 
     if (deletedSessions.count > 0 || deletedAuthorizationCodes > 0) {
       await recordAudit(tx, {
-        entityType: 'PluginAuthMaintenance',
+        entityType: 'PLUGIN_AUTH_MAINTENANCE',
         entityId: `reap:${observedAt.toISOString()}`,
         action: 'PLUGIN_AUTH_RECORDS_REAPED',
         actorType: 'SYSTEM',
@@ -412,7 +412,7 @@ export async function exchangePluginAuthorizationCode({
     // identifies the row without letting the audit stream double as a token
     // store.
     await recordAudit(tx, {
-      entityType: 'PluginSession',
+      entityType: 'PLUGIN_SESSION',
       entityId: createdSession.id,
       action: 'PLUGIN_SESSION_ISSUED',
       actorType: 'PLUGIN',
@@ -552,7 +552,7 @@ export async function revokePluginToken({ db = prisma, token, now = new Date() }
   })
   if (result.count > 0 && existing) {
     await recordAudit(db, {
-      entityType: 'PluginSession',
+      entityType: 'PLUGIN_SESSION',
       entityId: existing.id,
       action: 'PLUGIN_TOKEN_REVOKED',
       actorType: 'PLUGIN',

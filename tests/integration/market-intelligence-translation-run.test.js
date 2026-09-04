@@ -185,7 +185,7 @@ describe('POST /api/market/translations over a real database (FR-092)', () => {
     expect(secondBody).toEqual({ translated: 0, unchanged: 0, failed: [] })
 
     const auditEvents = await prisma.auditEvent.findMany({
-      where: { entityType: 'MarketObservation', action: 'MARKET_TRANSLATION_RUN', entityId: freshBusiness.id },
+      where: { entityType: 'MARKET_OBSERVATION', action: 'MARKET_TRANSLATION_RUN', entityId: freshBusiness.id },
       orderBy: { occurredAt: 'asc' },
     })
     expect(auditEvents.length).toBe(2)

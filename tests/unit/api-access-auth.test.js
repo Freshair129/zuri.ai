@@ -84,7 +84,7 @@ describe('FR-106 mintApiAccessKey', () => {
   it('audits the mint without any token material', async () => {
     const minted = await mintApiAccessKey({ label: 'audited-mint', tenantId: tenant.id, viewer: operator() })
     const events = await prisma.auditEvent.findMany({
-      where: { entityType: 'ApiAccessKey', entityId: minted.id, action: 'API_ACCESS_KEY_MINTED' },
+      where: { entityType: 'API_ACCESS_KEY', entityId: minted.id, action: 'API_ACCESS_KEY_MINTED' },
     })
     expect(events).toHaveLength(1)
     expect(events[0].payloadJson).toContain(tenant.id)
@@ -158,7 +158,7 @@ describe('FR-106 revokeApiAccessKey', () => {
     expect(result).toEqual({ id: minted.id, revoked: true })
 
     const events = await prisma.auditEvent.findMany({
-      where: { entityType: 'ApiAccessKey', entityId: minted.id, action: 'API_ACCESS_KEY_REVOKED' },
+      where: { entityType: 'API_ACCESS_KEY', entityId: minted.id, action: 'API_ACCESS_KEY_REVOKED' },
     })
     expect(events).toHaveLength(1)
     expect(events[0].payloadJson).toContain('compromised')
@@ -182,7 +182,7 @@ describe('FR-106 revokeApiAccessKey', () => {
     expect((await revokeApiAccessKey(minted.id, { viewer: operator() })).revoked).toBe(true)
     expect((await revokeApiAccessKey(minted.id, { viewer: operator() })).revoked).toBe(false)
     const events = await prisma.auditEvent.findMany({
-      where: { entityType: 'ApiAccessKey', entityId: minted.id, action: 'API_ACCESS_KEY_REVOKED' },
+      where: { entityType: 'API_ACCESS_KEY', entityId: minted.id, action: 'API_ACCESS_KEY_REVOKED' },
     })
     expect(events).toHaveLength(1)
   })

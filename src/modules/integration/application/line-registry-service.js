@@ -264,7 +264,7 @@ export async function saveLineGroup(payload, { resolve, now = new Date(), db = p
         })
 
     await recordAudit(tx, {
-      entityType: 'IntegrationConnection',
+      entityType: 'INTEGRATION_CONNECTION',
       entityId: row.id,
       action: existing ? 'UPDATE_LINE_GROUP' : 'CREATE_LINE_GROUP',
       actorId: actorOf(viewer),
@@ -339,7 +339,7 @@ export async function saveLineUser(payload, { resolve, now = new Date(), db = pr
         })
 
     await recordAudit(tx, {
-      entityType: 'IntegrationConnection',
+      entityType: 'INTEGRATION_CONNECTION',
       entityId: row.id,
       action: existing ? 'UPDATE_LINE_USER' : 'CREATE_LINE_USER',
       actorId: actorOf(viewer),

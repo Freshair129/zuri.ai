@@ -365,12 +365,12 @@ describe('FR-123 plugin auth service', () => {
 
       const installationEvent = auditEvents.find((event) => event.action === 'PLUGIN_INSTALLATION_CREATED')
       expect(installationEvent).toMatchObject({
-        entityType: 'PluginInstallation',
+        entityType: 'PLUGIN_INSTALLATION',
         actorId: 'person-1',
       })
       const mintEvent = auditEvents.find((event) => event.action === 'PLUGIN_AUTH_CODE_MINTED')
       expect(mintEvent).toMatchObject({
-        entityType: 'PluginAuthorizationCode',
+        entityType: 'PLUGIN_AUTHORIZATION_CODE',
         actorId: 'person-1',
       })
       const serialized = JSON.stringify(auditEvents)
@@ -391,7 +391,7 @@ describe('FR-123 plugin auth service', () => {
       const { authorization, exchange } = await authorizeAndExchange(db)
 
       const issuedEvent = auditEvents.find((event) => event.action === 'PLUGIN_SESSION_ISSUED')
-      expect(issuedEvent).toMatchObject({ entityType: 'PluginSession', actorType: 'PLUGIN' })
+      expect(issuedEvent).toMatchObject({ entityType: 'PLUGIN_SESSION', actorType: 'PLUGIN' })
       const serialized = JSON.stringify(auditEvents)
       expect(serialized).not.toContain(exchange.accessToken)
       expect(serialized).not.toContain(authorization.code)
@@ -407,7 +407,7 @@ describe('FR-123 plugin auth service', () => {
       })).rejects.toMatchObject({ code: 'INVALID_GRANT' })
 
       const replayEvent = auditEvents.find((event) => event.action === 'PLUGIN_SESSION_REVOKED_REPLAY')
-      expect(replayEvent).toMatchObject({ entityType: 'PluginAuthorizationCode' })
+      expect(replayEvent).toMatchObject({ entityType: 'PLUGIN_AUTHORIZATION_CODE' })
       expect(JSON.stringify(auditEvents)).not.toContain(authorization.code)
     })
 
@@ -418,7 +418,7 @@ describe('FR-123 plugin auth service', () => {
       await revokePluginToken({ db, token: exchange.accessToken, now: NOW })
 
       const revokeEvent = auditEvents.find((event) => event.action === 'PLUGIN_TOKEN_REVOKED')
-      expect(revokeEvent).toMatchObject({ entityType: 'PluginSession', actorType: 'PLUGIN' })
+      expect(revokeEvent).toMatchObject({ entityType: 'PLUGIN_SESSION', actorType: 'PLUGIN' })
       expect(JSON.stringify(auditEvents)).not.toContain(exchange.accessToken)
 
       // Revoking a token that never existed must not fabricate an audit row —

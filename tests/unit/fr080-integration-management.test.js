@@ -84,7 +84,7 @@ describe('FR-080 Integration metadata management', () => {
     // service used to write the SCREAMING_SNAKE_CASE 'INTEGRATION_CONNECTION'
     // instead, splitting the trail in two.
     expect(tx.auditEvent.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({ entityType: 'IntegrationConnection' }),
+      data: expect.objectContaining({ entityType: 'INTEGRATION_CONNECTION' }),
     }))
   })
 

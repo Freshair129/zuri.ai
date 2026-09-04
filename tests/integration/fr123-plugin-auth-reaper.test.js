@@ -193,7 +193,7 @@ describe('FR-123 expired plugin credential reaper', () => {
 
     // @spec D3-identity-onboarding-forms-03 — the reaper's own deletes are audited.
     const reapEvent = await prisma.auditEvent.findFirst({
-      where: { entityType: 'PluginAuthMaintenance', action: 'PLUGIN_AUTH_RECORDS_REAPED', entityId: `reap:${NOW.toISOString()}` },
+      where: { entityType: 'PLUGIN_AUTH_MAINTENANCE', action: 'PLUGIN_AUTH_RECORDS_REAPED', entityId: `reap:${NOW.toISOString()}` },
     })
     expect(reapEvent).toMatchObject({ action: 'PLUGIN_AUTH_RECORDS_REAPED' })
     expect(JSON.parse(reapEvent.payloadJson)).toMatchObject({

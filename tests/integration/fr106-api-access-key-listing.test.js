@@ -143,7 +143,7 @@ describe('mint → list → revoke, from the panel a Tenant owner sees', () => {
     expect(after.status).toBe('REVOKED')
     expect(after.revokedAt).toBeTruthy()
 
-    const events = await prisma.auditEvent.findMany({ where: { entityType: 'ApiAccessKey', entityId: minted.id } })
+    const events = await prisma.auditEvent.findMany({ where: { entityType: 'API_ACCESS_KEY', entityId: minted.id } })
     expect(events.map((event) => event.action).sort()).toEqual(['API_ACCESS_KEY_MINTED', 'API_ACCESS_KEY_REVOKED'])
     expect(events.some((event) => event.payloadJson.includes(minted.key))).toBe(false)
   })

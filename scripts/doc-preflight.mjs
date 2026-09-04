@@ -1370,6 +1370,60 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
 }
 
+// ---- Check 17: one spelling for an audit event's entityType ---------------
+// `AuditEvent.entityType` was written three ways at once: SCREAMING_SNAKE for
+// about eighty percent of it, PascalCase for the identity and integration lanes
+// ('ApiAccessKey', 'IntegrationConnection', 'PluginSession'), and a couple of
+// others. One extraction round trip wrote ASSET_EVIDENCE and AssetExtractionJob
+// in the same transaction path.
+//
+// It is not cosmetic. The audit console's filter list, its enum-shaped-value
+// test and its underscore-to-space rendering all assume SCREAMING_SNAKE, so a
+// PascalCase row renders raw and cannot be filtered for; anything grouping by
+// entityType has to know every spelling or it silently drops rows. And an
+// entityType is a category, not a model name — SNAPSHOT, STEP_UP and
+// AGENT_ACTION name no model — so spelling it like its model is a rule that
+// cannot cover its own vocabulary.
+//
+// Scope is drawn by whether the file writes audit events at all. Four other
+// models carry a column with the same name (`RawExternalRecord`,
+// `ExternalEntityRef`, `ExternalRef`, `FileLink`), and theirs are wire values
+// like 'listing' and 'retail_price' that a rename here would break. A file that
+// never calls `recordAudit` is not read by this check.
+const AUDIT_ENTITY_SHAPE = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/
+{
+  const sourceFiles = [
+    ...walk(path.join(ROOT, 'src'), '.js'),
+    ...walk(path.join(ROOT, 'src'), '.jsx'),
+  ]
+  const offenders = []
+  for (const file of sourceFiles) {
+    const source = read(file)
+    if (!/\brecordAudit\b/.test(source)) continue
+    // Comments quote the old spellings on purpose (the history is the reason);
+    // only what the code actually writes counts.
+    const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+    for (const m of code.matchAll(/entityType:\s*'([^']+)'/g)) {
+      if (!AUDIT_ENTITY_SHAPE.test(m[1])) offenders.push({ file: rel(file), value: m[1] })
+    }
+    // The same value reached through a constant, which is how two of them hid.
+    for (const m of code.matchAll(/\b[A-Z_]*ENTITY[A-Z_]*\s*=\s*'([^']+)'/g)) {
+      if (!AUDIT_ENTITY_SHAPE.test(m[1])) offenders.push({ file: rel(file), value: m[1] })
+    }
+  }
+  if (offenders.length) {
+    add('critical', 'audit-entity-type', `${offenders.length} audit entityType value(s) are not SCREAMING_SNAKE_CASE`,
+      offenders.map((o) => `${o.value} (${o.file})`).join(', '), [...new Set(offenders.map((o) => o.file))],
+      'Rewrite the value in SCREAMING_SNAKE_CASE. The rule and its reasons are on `recordAudit` in ' +
+      'src/modules/project-manager/application/audit.js. If the value is NOT an AuditEvent entityType — ' +
+      'RawExternalRecord and the link models carry a column with the same name — then the file it lives in ' +
+      'should not be calling recordAudit, and that is the thing to fix')
+  } else {
+    add('info', 'audit-entity-type', `audit entityType checked in ${sourceFiles.filter((f) => /\brecordAudit\b/.test(read(f))).length} file(s) that write audit events`,
+      'every value is SCREAMING_SNAKE_CASE', [], 'No action — recorded so this check\'s reach is visible rather than assumed')
+  }
+}
+
 // ---- Output --------------------------------------------------------------
 const counts = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] || 0) + 1 }), {})
 const report = {
