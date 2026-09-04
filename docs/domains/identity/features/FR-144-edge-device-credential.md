@@ -125,11 +125,14 @@ will not be shown again", the credential list, and revoke.
 
 ## Gates left open
 
-- **Production migration NOT applied in this wave — gate open.** The
-  `EdgeDeviceCredential` migration is written under `supabase/migrations/` following
-  `20260830120000_plugin_auth.sql` exactly (CREATE TABLE IF NOT EXISTS, indexes,
-  ENABLE + FORCE RLS, the `zuri_app_runtime_all` policy, REVOKE ALL FROM public/anon/
-  authenticated/service_role, COMMENT) and reviewed; applying it to production is a
-  separate owner-instructed step.
+- ~~Production migration NOT applied in this wave.~~ **Closed 2026-09-04**:
+  `20260904090000_edge_device_credential_and_extraction_job` was dry-run in a
+  rolled-back transaction and then applied to production on the owner's instruction,
+  and its version is recorded in `supabase_migrations.schema_migrations`.
+  `EdgeDeviceCredential` exists there with forced RLS, one `zuri_app_runtime_all`
+  policy, SELECT/INSERT/UPDATE/DELETE for `zuri_app_runtime` only, the unique
+  `keyHash` index and both scope indexes, and no grant to anon, authenticated,
+  service_role or PUBLIC. No credential has been minted on production yet — pairing a
+  device is an operator step, and the raw key it issues is shown exactly once.
 - Key rotation as a distinct operation is not declared — rotation is mint-then-revoke,
   and no requirement here promises a grace window.
