@@ -57,19 +57,9 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP",
-      "doc:FR-046-production-viewer-entry-contract",
-      "doc:INTERFACE-INVENTORY",
-      "test:tests/unit/topbar-no-dropdown.test.js",
-      "code:src/components/layouts/BusinessRoutingShell.jsx",
-      "code:src/components/layouts/PlatformControlShell.jsx",
-      "code:src/components/layouts/Topbar.jsx"
+      "doc:CONTEXT-MAP"
     ],
-    "added": [
-      "test:tests/unit/sign-out-surfaces-render.test.js",
-      "test:tests/unit/sign-out.test.js",
-      "code:src/modules/identity/sign-out.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4064,7 +4054,7 @@
       "type": "code_file",
       "path": "src/components/layouts/BusinessRoutingShell.jsx",
       "hash": "588e2901",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -4217,7 +4207,7 @@
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlShell.jsx",
       "hash": "628ac990",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-105",
@@ -4258,7 +4248,7 @@
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
       "hash": "f06400ab",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-033",
@@ -10102,7 +10092,7 @@
       "version": "0.3.0b",
       "doc_status": "Implemented — beta",
       "hash": "2a0e070f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-047-line-business-knowledge-pilot",
@@ -10684,7 +10674,7 @@
       "path": "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
       "title": "FR-143 — Edge-executed asset evidence extraction",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
-      "hash": "8dc6b93f",
+      "hash": "b2898a50",
       "status": "current"
     },
     {
@@ -10742,7 +10732,7 @@
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "ec70be21",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -11085,7 +11075,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "c5f1ee7d",
+      "hash": "95bf47a7",
       "status": "current"
     },
     {
@@ -19979,7 +19969,7 @@
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
       "hash": "826d9fc4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/untracked-docs.test.js",
