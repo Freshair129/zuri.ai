@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1738,
-    "total_edges": 6338,
+    "total_nodes": 1739,
+    "total_edges": 6340,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 185,
       "model": 82,
       "requirement": 302,
-      "test": 427,
+      "test": 428,
       "code_file": 464
     },
     "coverage": {
@@ -56,16 +56,13 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "test:tests/integration/work-listing-scope.test.js",
-      "test:tests/unit/audit-page.test.js",
-      "code:src/app/(pm)/audit/page.jsx",
-      "code:src/app/api/audit/route.js",
-      "code:src/modules/project-manager/application/audit.js"
+      "code:src/app/(pm)/settings/page.jsx"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/shell-runtime-claims.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -294,7 +291,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
       "hash": "c1062d16",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014",
@@ -1083,8 +1080,8 @@
       "id": "code:src/app/(pm)/settings/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
-      "hash": "8e1eef50",
-      "status": "current",
+      "hash": "770fadf4",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-020",
@@ -1471,7 +1468,7 @@
       "type": "code_file",
       "path": "src/app/api/audit/route.js",
       "hash": "fdd8b22c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014",
@@ -7712,7 +7709,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/audit.js",
       "hash": "1cb9ddb4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014"
@@ -9652,7 +9649,7 @@
       "version": "1.36.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "85745f41",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -17893,7 +17890,7 @@
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
       "hash": "07d136bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/workspace-collaboration-roster.test.js",
@@ -18089,7 +18086,7 @@
       "type": "test",
       "path": "tests/unit/audit-page.test.js",
       "hash": "b8124337",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/auth-service.test.js",
@@ -19832,6 +19829,13 @@
       "type": "test",
       "path": "tests/unit/shell-mode.test.js",
       "hash": "48190a69",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/shell-runtime-claims.test.js",
+      "type": "test",
+      "path": "tests/unit/shell-runtime-claims.test.js",
+      "hash": "37a5a437",
       "status": "current"
     },
     {
@@ -63032,6 +63036,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/shell-runtime-claims.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/shell-runtime-claims.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
