@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1737,
-    "total_edges": 6335,
+    "total_nodes": 1738,
+    "total_edges": 6338,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,14 +15,14 @@
       "feature": 17,
       "route": 185,
       "model": 82,
-      "requirement": 301,
+      "requirement": 302,
       "test": 427,
       "code_file": 464
     },
     "coverage": {
-      "requirements": 301,
-      "fr_with_code": "100% (134/134)",
-      "fr_with_tests": "100% (134/134)",
+      "requirements": 302,
+      "fr_with_code": "100% (135/135)",
+      "fr_with_tests": "100% (135/135)",
       "rules_anchored_in_code": "95% (127/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 464,
@@ -57,7 +57,9 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP"
+      "doc:CONTEXT-MAP",
+      "doc:FR-143-edge-executed-evidence-extraction",
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -4449,13 +4451,14 @@
       "id": "code:src/lib/db.js",
       "type": "code_file",
       "path": "src/lib/db.js",
-      "hash": "077b1514",
+      "hash": "f64bbe9c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-030",
           "FR-076",
-          "FR-078"
+          "FR-078",
+          "FR-145"
         ],
         "@tested": [
           "tests/unit/db-runtime-config.test.js"
@@ -9820,7 +9823,7 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "68ee0465",
+      "hash": "1f4526ce",
       "status": "current"
     },
     {
@@ -9900,7 +9903,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.17.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "d69b63eb",
+      "hash": "6222b528",
       "status": "current"
     },
     {
@@ -10675,7 +10678,7 @@
       "title": "FR-143 — Edge-executed asset evidence extraction",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
       "hash": "b2898a50",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-144-edge-device-credential",
@@ -11029,9 +11032,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.136.0b",
+      "version": "1.147.0b",
       "doc_status": "Draft",
-      "hash": "cbdcb72b",
+      "hash": "352ce339",
       "status": "current"
     },
     {
@@ -11075,8 +11078,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "95bf47a7",
-      "status": "current"
+      "hash": "9a28f21f",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -13782,6 +13785,16 @@
       "declared": "done",
       "status": "current",
       "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. ✅ implemented 2026-09-04 (PR #213) — `EdgeDeviceCredential`, mint/list/revoke, `resolveEdgeDeviceContext`, the FR-141 heartbeat acceptance and the `/platform/integrations` Edge panel that replaced the browser-side pairing-string generator; `tests/integration/fr144-edge-device-credential.test.js` plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. Key rotation remains mint-then-revoke with no grace window, as declared "
+    },
+    {
+      "id": "req:FR-145",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9): `resolvePoolMode(env)` (`src/lib/db.js`) picks Supavisor SESSION pooling (port 5432, no `pgbouncer` param) for a long-running process and TRANSACTION pooling (port 6543, `pgbouncer=true`) only when `VERCEL` is set, so a single container gets a small stable connection count and one Postgres round trip per query instead of paying a transaction-mode backend checkout on every query it never needed; `ZURI_DB_POOL_MODE=session|transaction` is an explicit operator override for a topology neither branch guesses (e.g. several container replicas sharing one Postgres, which still needs transaction-mode safety). Applies only to a `*.pooler.supabase.com` host — a direct connection or non-Supabase Postgres passes through untouched.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9): `resolvePoolMode(env)` (`src/lib/db.js`) picks Supavisor SESSION pooling (port 5432, no `pgbouncer` param) for a long-running process and TRANSACTION pooling (port 6543, `pgbouncer=true`) only when `VERCEL` is set, so a single container gets a small stable connection count and one Postgres round trip per query instead of paying a transaction-mode backend checkout on every query it never needed; `ZURI_DB_POOL_MODE=session|transaction` is an explicit operator override for a topology neither branch guesses (e.g. several container replicas sharing one Postgres, which still needs transaction-mode safety). Applies only to a `*.pooler.supabase.com` host — a direct connection or non-Supabase Postgres passes through untouched. 🟠 implemented 2026-09-04 — `src/lib/db.js`, `tests/unit/db-runtime-config.test.js` (12 cases incl. the FR-145 group); measured against the production Supabase project from the Docker deployment (ADR-058): the same host, a warm connection pool, transaction mode cost ~650-750ms per trivial query with no improvement across repeated calls, session mode ~130-145ms — matching raw TCP RTT. Docker Compose defaults to session mode with no operator action; Vercel behavior is unchanged "
     },
     {
       "id": "req:NFR-001",
@@ -17048,7 +17061,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
-      "hash": "f94f28a4",
+      "hash": "6ecbdc31",
       "status": "current"
     },
     {
@@ -18351,7 +18364,7 @@
       "id": "test:tests/unit/db-runtime-config.test.js",
       "type": "test",
       "path": "tests/unit/db-runtime-config.test.js",
-      "hash": "3e1b56f5",
+      "hash": "d49b8bd3",
       "status": "current"
     },
     {
@@ -26752,6 +26765,13 @@
     {
       "from": "code:src/lib/db.js",
       "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/db.js",
+      "to": "req:FR-145",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36553,6 +36573,13 @@
       "from": "req:FR-144",
       "to": "req:FR-143",
       "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-145",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
@@ -52855,6 +52882,13 @@
     {
       "from": "test:tests/unit/db-runtime-config.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/db-runtime-config.test.js",
+      "to": "req:FR-145",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
