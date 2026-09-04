@@ -11,13 +11,18 @@ The system must model business execution, not just software delivery.
 
 ### 1. Do not modify the legacy zuri project
 
-`G:\zuri` (and its remote `Freshair129/zuri`) is a **different product's
-repository** — the legacy zuri project, discontinued as far as this product is
+`Freshair129/zuri` — the repository, whichever machine holds it — is a **different
+product's** repository: the legacy zuri project, discontinued as far as this product is
 concerned ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
 as prior art is fine. Writing to it never is.
 
-`D:\workspace\zuri-edge-device` (`Freshair129/zuri-edge-device`) is the on-premise
-Zuri Edge Device runtime (ADR-041) this product talks to. Never read or copy its `.env` (secrets).
+`Freshair129/zuri-edge-device` is the on-premise Zuri Edge Device runtime (ADR-041)
+this product talks to. **Never read or copy its `.env`** — it holds on-premise secrets
+and pairing keys. On the current machine that checkout is
+`C:\Users\pc\workspace\zuri-edge-device`; it was documented as
+`D:\workspace\zuri-edge-device` until 2026-09-04, and that path no longer exists.
+The rule follows the repository, not the drive letter — a secret does not stop being one
+because somebody moved the checkout.
 
 > History (kept so old citations resolve): earlier revisions of this section moved
 > twice — first "standalone, do not copy" (ADR-001), then "copying is expected,
@@ -27,7 +32,7 @@ Zuri Edge Device runtime (ADR-041) this product talks to. Never read or copy its
 > describes a dead plan — do not derive work from it.
 
 Do not:
-- edit anything under `G:\zuri`
+- edit anything in that repository, wherever it is checked out
 - touch its database
 - treat its documents or ids as authority over anything in this repository
 
@@ -466,7 +471,7 @@ with the program they served. Two things remain true:
    (`V1-ADR-060`). Those citations resolve to nothing here — they are fossils, and
    that is fine; do not "fix" them.
 2. If a design question genuinely benefits from how the legacy project solved it,
-   read `G:\zuri` directly, read-only, as prior art (ADR-024 D7) — the same way
+   read that repository directly, read-only, as prior art (ADR-024 D7) — the same way
    you would read any external codebase.
 
 ### 21. Existence claims require enumeration, not search
@@ -491,8 +496,8 @@ modes it forbids:
 Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
 
 1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client, Live Monitor & Command Console (LINE, FB, Webhook, Prompt-to-Zuri Voice Dispatcher).
-2. **Tier 2 (MSP — `D:\msp`, remote: [Memory-and-Soul-Passport](https://github.com/Freshair129/Memory-and-Soul-Passport))**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
-3. **Tier 3 (GKS — `D:\gks`, remote: [Genesis-Knowledge-System](https://github.com/Freshair129/Genesis-Knowledge-System))**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
+2. **Tier 2 (MSP — remote: [Memory-and-Soul-Passport](https://github.com/Freshair129/Memory-and-Soul-Passport))**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
+3. **Tier 3 (GKS — remote: [Genesis-Knowledge-System](https://github.com/Freshair129/Genesis-Knowledge-System))**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
 4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).
 
 Both MSP and GKS are standalone repos with their own `.claude/agents/`

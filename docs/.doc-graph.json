@@ -56,7 +56,6 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:docker-ngrok",
       "doc:CONTEXT-MAP"
     ],
     "added": [],
@@ -9822,7 +9821,7 @@
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "570c3551",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DOMAIN-MODEL",
