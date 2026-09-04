@@ -225,7 +225,12 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     // references it.
     const stillLegacyProvider = await prisma.integrationProvider.findUnique({ where: { code: RETIRED_LINE_OA_PROVIDER_CODE } })
     expect(stillLegacyProvider).toBeTruthy()
-    const remainingLegacyRefs = await prisma.integrationConnection.count({ where: { providerId: legacyProvider.id } })
+    // Tenant-scoped: the retired provider row is shared across the whole run's
+    // database, so an unscoped count here is really counting every other suite's
+    // legacy fixtures too — which made this assertion depend on file order.
+    const remainingLegacyRefs = await prisma.integrationConnection.count({
+      where: { providerId: legacyProvider.id, tenantId: { in: [tenantA.id, tenantB.id] } },
+    })
     expect(remainingLegacyRefs).toBe(1)
   })
 
@@ -235,12 +240,21 @@ describe('LINE_OA provider merge migration (FR-080)', () => {
     expect(plan.disable).toHaveLength(0)
     expect(plan.unresolved).toHaveLength(0)
 
-    const result = await applyLineOaProviderMerge(prisma)
+    // Scoped, like the plan above it. An unscoped apply sweeps the whole run's
+    // shared database, so this assertion was really "no other suite has seeded a
+    // legacy-provider row yet" — true only by the order the files happened to
+    // run in. It is this suite's own tenants that must be idempotent.
+    const result = await applyLineOaProviderMerge(prisma, { tenantIds: [tenantA.id, tenantB.id] })
     expect(result.repointedCount).toBe(0)
     expect(result.disabledCount).toBe(0)
     expect(result.legacyProviderDeleted).toBe(false)
 
-    const remainingLegacyRefs = await prisma.integrationConnection.count({ where: { providerId: legacyProvider.id } })
+    // Tenant-scoped: the retired provider row is shared across the whole run's
+    // database, so an unscoped count here is really counting every other suite's
+    // legacy fixtures too — which made this assertion depend on file order.
+    const remainingLegacyRefs = await prisma.integrationConnection.count({
+      where: { providerId: legacyProvider.id, tenantId: { in: [tenantA.id, tenantB.id] } },
+    })
     expect(remainingLegacyRefs).toBe(1)
   })
 
