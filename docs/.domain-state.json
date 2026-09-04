@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-04T04:21:09.668Z",
+  "generatedAt": "2026-09-04T04:57:00.705Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2334,7 +2334,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-022",
@@ -5215,7 +5215,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -5240,7 +5240,8 @@
         "tests/unit/platform-control-guard.test.js",
         "tests/unit/rollup.test.js",
         "tests/unit/scope-view-context.test.js",
-        "tests/unit/shell-mode.test.js"
+        "tests/unit/shell-mode.test.js",
+        "tests/unit/shell-runtime-claims.test.js"
       ]
     },
     {
