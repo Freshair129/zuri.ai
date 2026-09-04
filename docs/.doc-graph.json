@@ -56,9 +56,8 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP",
-      "test:tests/unit/integrations-page-claims.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx"
+      "doc:docker-ngrok",
+      "doc:CONTEXT-MAP"
     ],
     "added": [],
     "removed": []
@@ -566,7 +565,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "a37606b7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -9822,8 +9821,8 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "1f4526ce",
-      "status": "current"
+      "hash": "570c3551",
+      "status": "changed"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -18973,7 +18972,7 @@
       "type": "test",
       "path": "tests/unit/integrations-page-claims.test.js",
       "hash": "35a52bc9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-chunking.test.js",
