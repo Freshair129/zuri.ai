@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-02T12:31:04+07:00,RWANG"
-last_update: "2026-09-03T05:10:00+07:00,CLAUDE"
+last_update: "2026-09-04T07:20:00+07:00,CLAUDE"
 status: "beta"
 superseded_by: null
 attributes:
@@ -113,6 +113,18 @@ Production must contain `DATABASE_URL`, `SUPABASE_URL`,
 `OPENAI_API_KEY` and optional `ZURI_ASSET_EVIDENCE_MODEL`. No credential may
 start with `NEXT_PUBLIC_`. `ZURI_ASSET_EVIDENCE_BUCKET` must name the private
 bucket provisioned by migration (`asset-evidence` for this release).
+
+> **`OPENAI_API_KEY` becomes optional once the edge provider is activated
+> (FR-143, FR-144, ADR-059).** `ZURI_ASSET_EVIDENCE_PROVIDER` selects the
+> extraction path (`openai` | `edge`); an explicit value always wins, and with
+> it unset the platform picks `edge` when no `OPENAI_API_KEY` is configured
+> **and** the Business has at least one ACTIVE `EdgeDeviceCredential`, else it
+> picks `openai`. A production Business running edge-only extraction may
+> therefore ship this environment gate with `OPENAI_API_KEY` absent — see
+> `docs/runbooks/EDGE-EXTRACTION-ACTIVATION.md` for minting the device
+> credential and confirming a job completes end to end. The cloud never holds
+> an edge model credential or secret of its own (ADR-041 D3); the only new
+> production-relevant setting here is `ZURI_ASSET_EVIDENCE_PROVIDER` itself.
 
 ## 4. Apply migrations
 
@@ -259,3 +271,4 @@ ID and hash in the receipt. Never drop production tables as rollback.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-02 | beta | Added the approved identity-to-rollback production activation procedure | working-tree | RWANG |
 | 0.2.0b | 2026-09-03 | beta | §2 inventory, §4 migration apply and §5 storage verification recorded as done on production (direct SQL over DIRECT_URL, versions ledgered); backup step skipped on an empty additive-only baseline; §3, §6–§8 remain NOT_RUN | working-tree | Claude Code |
+| 0.3.0b | 2026-09-04 | beta | §3 notes `OPENAI_API_KEY` is optional once `ZURI_ASSET_EVIDENCE_PROVIDER=edge` is active (FR-143, FR-144, ADR-059) and points to the new `EDGE-EXTRACTION-ACTIVATION.md` runbook; no other section changed | working-tree | Claude Code |
