@@ -1241,13 +1241,29 @@ export default function IntegrationsPage() {
                     </div>
                   </div>
                   <div className="rounded-lg border border-[var(--border)] p-3 space-y-2">
-                    <p className="font-semibold text-[var(--foreground)]">✅ สิ่งที่ระบบจัดการให้อัตโนมัติ:</p>
+                    {/* Two items on this list were things this system does not do.
+                        BR-011 gives a LINE event exactly one reply owner, and it is
+                        `zuri.command-agent`: it owns signature verification and the
+                        Reply API transport, while zuri-ai owns knowledge, provider and
+                        answer policy. Nothing under src/ ever calls api.line.me, and
+                        the webhook route handles no verification challenge — its own
+                        header says it returns reply text "without receiving or consuming
+                        the LINE replyToken here".
+
+                        So "verifies the LINE Developer challenge automatically" and
+                        "sends the reply to the LINE Messaging API in real time" were
+                        claims about the edge runtime's work, printed under a green tick
+                        on the cloud console. The split is the design (ADR-041, BR-011);
+                        describing it accurately is the point, not hiding it. */}
+                    <p className="font-semibold text-[var(--foreground)]">✅ สิ่งที่ระบบนี้ทำให้:</p>
                     <ul className="list-disc pl-4 space-y-1 text-muted">
-                      <li>ตรวจสอบ Webhook Verification Challenge จาก LINE Developer อัตโนมัติ</li>
-                      <li>เชื่อมต่อสมองกล Zuri Brand Persona และองค์ความรู้ SmartGift Catalog</li>
-                      <li>แยกแยะห้องแชตกลุ่ม (Group ID) และผู้ส่ง (User ID) ลงในระบบอัตโนมัติ</li>
-                      <li>ส่งข้อความตอบกลับไปยัง LINE Messaging API แบบ Real-time ทันที</li>
+                      <li>รับ event ที่ zuri-cli ส่งต่อเข้ามา แล้วแยกห้องแชตกลุ่ม (Group ID) กับผู้ส่ง (User ID) ลงในระบบอัตโนมัติ</li>
+                      <li>เชื่อมต่อสมองกล Zuri Brand Persona และองค์ความรู้ SmartGift Catalog เพื่อเรียบเรียงคำตอบ</li>
+                      <li>ส่งข้อความตอบกลับที่เรียบเรียงแล้วคืนให้ zuri-cli พร้อม correlation id — และบันทึกหลักฐานเมื่อ zuri-cli รายงานกลับมาว่าส่งถึงลูกค้าแล้ว</li>
                     </ul>
+                    <p className="mt-2 text-[11px] text-muted">
+                      <b>ไม่ได้ทำที่นี่:</b> การตรวจลายเซ็น webhook และการยิง LINE Messaging API เป็นหน้าที่ของ <code>zuri.command-agent</code> ฝั่งอุปกรณ์ (BR-011) — เหตุการณ์หนึ่งมีเจ้าของการตอบกลับได้เพียงรายเดียว
+                    </p>
                   </div>
                 </div>
               </Card>

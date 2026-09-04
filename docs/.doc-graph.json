@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1740,
-    "total_edges": 6343,
+    "total_edges": 6344,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -57,14 +57,10 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "test:tests/integration/line-oa-provider-migration.test.js",
-      "test:tests/integration/line-registry-scope.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/modules/integration/application/line-registry-service.js"
+      "test:tests/unit/integrations-page-claims.test.js",
+      "code:src/app/(pm)/platform/integrations/page.jsx"
     ],
-    "added": [
-      "test:tests/unit/integrations-page-claims.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -569,7 +565,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "8cc664a0",
+      "hash": "a37606b7",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -6689,7 +6685,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
       "hash": "cac57dab",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -17689,14 +17685,14 @@
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
       "hash": "de4b366d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
       "hash": "c68776bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18976,8 +18972,8 @@
       "id": "test:tests/unit/integrations-page-claims.test.js",
       "type": "test",
       "path": "tests/unit/integrations-page-claims.test.js",
-      "hash": "5efa12bb",
-      "status": "current"
+      "hash": "35a52bc9",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/knowledge-chunking.test.js",
@@ -57365,6 +57361,13 @@
     {
       "from": "test:tests/unit/integration/retail-price-adapter.test.js",
       "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:BR-011",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
