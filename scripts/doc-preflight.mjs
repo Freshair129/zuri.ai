@@ -862,10 +862,23 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // session, so this check has nothing to say about it either way.)
   const IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT = (p) =>
     p.includes('/api/plugin/auth/token/') || p.includes('/api/plugin/auth/revoke/')
+  // FR-143 / FR-144 / ADR-059 — the edge device job routes are the same class one
+  // boundary further out again. A Zuri Edge Device sits on a customer premise
+  // behind NAT and holds no browser session by construction (ADR-041); it
+  // authenticates with its own Business-scoped credential through
+  // `resolveEdgeDeviceContext`, and every one of these handlers refuses 401
+  // without one. Requiring `resolveRequestViewer` here would add a second, wrong
+  // identity boundary rather than a check — the same reason login/logout and the
+  // plugin token lifecycle sit here. Named path by path, not by pattern, so a
+  // future route cannot claim device authentication by sitting in the folder.
+  const IS_EDGE_DEVICE_ENDPOINT = (p) =>
+    p.includes('/api/edge/extraction-jobs/claim/') ||
+    p.includes('/api/edge/extraction-jobs/[id]/complete/') ||
+    p.includes('/api/edge/extraction-jobs/[id]/fail/')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
-    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
+    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_EDGE_DEVICE_ENDPOINT(rel(file))) continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue

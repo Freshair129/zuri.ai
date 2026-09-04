@@ -1,54 +1,14 @@
 // @req FR-138 — OpenAI is the first strict candidate extractor behind the Asset port.
-// @spec SDD-082, BR-025, NFR-022, SEC-024, ADR-056
+// @spec SDD-082, SDD-085, BR-025, NFR-022, SEC-024, ADR-056, ADR-059
 // @tested tests/unit/asset-evidence-extractor-contract.test.js
-import { z } from 'zod'
-import { ASSET_EVIDENCE_DOCUMENT_TYPES, zAssetEvidenceDocumentType } from '@/lib/validation/enums'
+//
+// The candidate schema moved to a shared module (SDD-085) so the edge completion
+// path (FR-143) validates a device-posted candidate with the very object this
+// adapter asks the provider for. Re-exported here because the contract test and
+// the poller import it from this path.
+import { zCandidate, CANDIDATE_OUTPUT_SCHEMA as OUTPUT_SCHEMA } from './asset-evidence-candidate-schema'
 
-const zCandidate = z.object({
-  schemaVersion: z.literal('1.0'),
-  status: z.literal('CANDIDATE'),
-  documentType: zAssetEvidenceDocumentType,
-  fields: z.array(z.object({
-    field: z.string().min(1).max(100),
-    value: z.union([z.string(), z.number(), z.boolean(), z.null()]),
-    confidence: z.number().min(0).max(1),
-    page: z.number().int().positive().nullable().optional(),
-    anchor: z.string().max(500).nullable().optional(),
-    bounds: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }).nullable().optional(),
-  }).strict()).max(200),
-}).strict()
-
-const OUTPUT_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['schemaVersion', 'status', 'documentType', 'fields'],
-  properties: {
-    schemaVersion: { type: 'string', enum: ['1.0'] },
-    status: { type: 'string', enum: ['CANDIDATE'] },
-    documentType: { type: 'string', enum: ASSET_EVIDENCE_DOCUMENT_TYPES },
-    fields: {
-      type: 'array', maxItems: 200,
-      items: {
-        type: 'object', additionalProperties: false,
-        required: ['field', 'value', 'confidence', 'page', 'anchor', 'bounds'],
-        properties: {
-          field: { type: 'string' },
-          value: { anyOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }, { type: 'null' }] },
-          confidence: { type: 'number', minimum: 0, maximum: 1 },
-          page: { anyOf: [{ type: 'integer', minimum: 1 }, { type: 'null' }] },
-          anchor: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-          bounds: {
-            anyOf: [{
-              type: 'object', additionalProperties: false,
-              required: ['x', 'y', 'width', 'height'],
-              properties: { x: { type: 'number' }, y: { type: 'number' }, width: { type: 'number' }, height: { type: 'number' } },
-            }, { type: 'null' }],
-          },
-        },
-      },
-    },
-  },
-}
+export { zCandidate, CANDIDATE_OUTPUT_SCHEMA } from './asset-evidence-candidate-schema'
 
 function extractorError(message, status = 503) {
   const error = new Error(message)

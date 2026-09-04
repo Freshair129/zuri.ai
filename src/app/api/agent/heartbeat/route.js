@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { handle, httpError, queryParams } from '../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
+import { resolveEdgeDeviceContext } from '@/modules/identity/edge-device-credential'
 import {
   listEdgeDevices,
   recordEdgeDeviceHeartbeat,
@@ -56,6 +57,25 @@ export async function GET(request) {
 
 export async function POST(request) {
   return handle(async () => {
+    // @req FR-144 — a paired device authenticates with its own credential rather
+    // than a human session, which is what closes FR-141's stated open item. The
+    // Business comes from the credential; a payload that names a different one is
+    // refused rather than silently overridden, so a stolen key cannot report for
+    // a Business it was never paired with.
+    const deviceContext = await resolveEdgeDeviceContext(request)
+    if (deviceContext) {
+      const body = await readJsonObject(request)
+      if (body.businessId && body.businessId !== deviceContext.businessId) {
+        throw httpError(403, 'This credential is paired with a different Business')
+      }
+      if (body.deviceId && body.deviceId !== deviceContext.deviceId) {
+        throw httpError(403, 'This credential is paired with a different device')
+      }
+      return recordEdgeDeviceHeartbeat(
+        { ...body, businessId: deviceContext.businessId, deviceId: deviceContext.deviceId },
+        { deviceContext },
+      )
+    }
     const viewer = await resolveRequestViewer(request)
     const body = await readJsonObject(request)
     return recordEdgeDeviceHeartbeat(body, { viewer })

@@ -12,6 +12,7 @@ owns_routes:
   - src/app/api/workspace-invites/**
   - src/app/api/workspace-memberships/**
   - src/app/api/plugin/auth/**
+  - src/app/api/platform/edge-devices/**
 owns_models:
   - ExternalIdentity
   - IdentityLinkToken
@@ -29,6 +30,7 @@ owns_models:
   - PluginInstallation
   - PluginAuthorizationCode
   - PluginSession
+  - EdgeDeviceCredential
 ---
 
 # Domain charter — identity
@@ -71,6 +73,21 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
+- `resolveEdgeDeviceContext(request)` (FR-144) is a **third** request identity,
+  beside the session seam and `resolveSotDataPlaneViewer`: an `EdgeDeviceCredential`
+  bearer token (`Authorization: Bearer edgk_…`) scoped to one **Business**, resolving
+  to `{ deviceId, businessId, tenantId, credentialId }` and to nothing Person-shaped.
+  It exists because no existing credential answers "which device at which Business" —
+  `ApiAccessKey` is Tenant-bound (FR-106) and a `PluginSession` is a browser-obtained
+  public-client identity (FR-123) — and collapsing the three would let one leaked
+  credential satisfy a check it was never issued for (ADR-047 D2, ADR-059 D2). It
+  never produces `isOperator`, never satisfies `ownsBusiness` or `isApiAccessFor`,
+  and refuses with one generic 401 in which missing, malformed, unknown, revoked and
+  foreign-prefix keys are indistinguishable. Mint / list / revoke live at
+  `/api/platform/edge-devices/credentials` under Business OWNER or operator
+  authority, with 404-shaped refusals (FR-072); the raw `edgk_` key exists only in
+  the mint response and is stored only as SHA-256 (SEC-025, ADR-041 D3). Its
+  consumers are the FR-143 edge extraction routes and the FR-141 heartbeat `POST`.
 - `listUserPermissions`, `updateUserPermissions` and `addBusinessMembership`
   (FR-038) are the one seam that administers `Membership` role and per-domain
   grants. `addBusinessMembership` attaches an **existing** Person to a Business

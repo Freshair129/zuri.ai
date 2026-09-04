@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1696,
-    "total_edges": 6168,
+    "total_nodes": 1734,
+    "total_edges": 6285,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 151,
-      "adr": 58,
+      "document": 154,
+      "adr": 59,
       "domain": 9,
       "roadmap": 35,
-      "feature": 16,
-      "route": 178,
-      "model": 80,
-      "requirement": 297,
-      "test": 417,
-      "code_file": 451
+      "feature": 17,
+      "route": 185,
+      "model": 82,
+      "requirement": 301,
+      "test": 425,
+      "code_file": 463
     },
     "coverage": {
-      "requirements": 297,
+      "requirements": 301,
       "fr_with_code": "100% (132/132)",
       "fr_with_tests": "100% (132/132)",
-      "rules_anchored_in_code": "95% (125/131)",
+      "rules_anchored_in_code": "95% (127/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 451,
+      "annotated_code_files": 463,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -36,7 +36,9 @@
         "FR-126",
         "FR-128",
         "FR-131",
-        "FR-132"
+        "FR-132",
+        "FR-143",
+        "FR-144"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -57,10 +59,12 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:docker-ngrok",
       "doc:CONTEXT-MAP"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/edge-device-credential-routes.test.js",
+      "test:tests/unit/edge-device-credential.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -565,13 +569,14 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "b10783db",
+      "hash": "332b84c2",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
           "FR-130",
-          "FR-142"
+          "FR-142",
+          "FR-144"
         ],
         "@spec": [
           "SEC-016",
@@ -1163,11 +1168,12 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "fc52cba7",
+      "hash": "d9ca75b5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-141"
+          "FR-141",
+          "FR-144"
         ],
         "@spec": [
           "SEC-001",
@@ -1255,20 +1261,41 @@
       "id": "code:src/app/api/assets/evidence/[id]/extract/route.js",
       "type": "code_file",
       "path": "src/app/api/assets/evidence/[id]/extract/route.js",
-      "hash": "090b5138",
+      "hash": "f2ae16e9",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-138"
+          "FR-138",
+          "FR-143"
         ],
         "@spec": [
           "SDD-082",
+          "SDD-085",
           "BR-025",
           "NFR-022",
           "SEC-024"
         ],
         "@tested": [
           "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "hash": "61ce39c8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143"
+        ],
+        "@spec": [
+          "SDD-085",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/fr143-asset-extraction-job.test.js"
         ]
       }
     },
@@ -1951,6 +1978,86 @@
         ],
         "@spec": [
           "SEC-006"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "hash": "13b77986",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143",
+          "FR-144"
+        ],
+        "@spec": [
+          "SDD-085",
+          "SEC-025",
+          "BR-025"
+        ],
+        "@tested": [
+          "tests/integration/fr143-asset-extraction-job.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "hash": "516afa4b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143",
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/fr143-asset-extraction-job.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "hash": "57498f31",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143",
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/integration/fr143-asset-extraction-job.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/extraction-jobs/claim/route.js",
+      "hash": "38ebfd43",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143",
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/fr143-asset-extraction-job.test.js"
         ]
       }
     },
@@ -2744,6 +2851,46 @@
         ],
         "@tested": [
           "tests/unit/customer-import-review-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "hash": "66dea32e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-device-credential-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/edge-devices/credentials/route.js",
+      "hash": "63e63865",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-device-credential-routes.test.js"
         ]
       }
     },
@@ -4620,11 +4767,12 @@
       "id": "code:src/modules/agent/edge-device-registry.js",
       "type": "code_file",
       "path": "src/modules/agent/edge-device-registry.js",
-      "hash": "51e15c6f",
+      "hash": "70050863",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-141"
+          "FR-141",
+          "FR-144"
         ],
         "@spec": [
           "SEC-001",
@@ -5091,6 +5239,59 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-extraction-job-service.js",
+      "hash": "939edb59",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143"
+        ],
+        "@spec": [
+          "SDD-085",
+          "SEC-025",
+          "BR-025"
+        ],
+        "@tested": [
+          "tests/unit/asset-extraction-job-view.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-extraction-job-view.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-extraction-job-view.js",
+      "hash": "73236daf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143"
+        ],
+        "@spec": [
+          "SDD-085"
+        ],
+        "@tested": [
+          "tests/unit/asset-extraction-job-view.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-extraction-provider.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-extraction-provider.js",
+      "hash": "e8ba54fc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-143"
+        ],
+        "@tested": [
+          "tests/unit/asset-extraction-provider.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-intake-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-intake-service.js",
@@ -5343,10 +5544,31 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "hash": "e3367ca3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-138",
+          "FR-143"
+        ],
+        "@spec": [
+          "SDD-085",
+          "SDD-082",
+          "BR-025"
+        ],
+        "@tested": [
+          "tests/unit/asset-evidence-extractor-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
       "type": "code_file",
       "path": "src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
-      "hash": "df2001c5",
+      "hash": "578193d0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5354,6 +5576,7 @@
         ],
         "@spec": [
           "SDD-082",
+          "SDD-085",
           "BR-025",
           "NFR-022",
           "SEC-024"
@@ -5698,6 +5921,26 @@
         ],
         "@tested": [
           "tests/integration/identity-classify.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/edge-device-credential.js",
+      "type": "code_file",
+      "path": "src/modules/identity/edge-device-credential.js",
+      "hash": "af5044e4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/edge-device-credential.test.js",
+          "tests/integration/fr144-edge-device-credential.test.js"
         ]
       }
     },
@@ -7389,11 +7632,13 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "62bbfdbb",
+      "hash": "11fc1b6d",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-143",
+          "FR-144",
           "FR-022",
           "FR-092",
           "FR-106",
@@ -7452,7 +7697,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "add9b22d",
+      "hash": "f1cf74b2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9373,7 +9618,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.35.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "7bd2d116",
+      "hash": "d985536d",
       "status": "current"
     },
     {
@@ -9417,7 +9662,7 @@
       "type": "document",
       "path": "docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
       "title": "Asset Evidence Production Activation Runbook",
-      "hash": "7755a25a",
+      "hash": "be030813",
       "status": "current"
     },
     {
@@ -9427,7 +9672,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.14.0b",
       "doc_status": "Draft",
-      "hash": "bb7a4eff",
+      "hash": "075e75a0",
       "status": "current"
     },
     {
@@ -9550,7 +9795,7 @@
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "68ee0465",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -9568,6 +9813,14 @@
       "version": "1.2.0",
       "doc_status": "Draft",
       "hash": "3a8beb94",
+      "status": "current"
+    },
+    {
+      "id": "doc:EDGE-EXTRACTION-ACTIVATION",
+      "type": "document",
+      "path": "docs/runbooks/EDGE-EXTRACTION-ACTIVATION.md",
+      "title": "Edge-Executed Evidence Extraction Activation Runbook",
+      "hash": "0a7f1f9a",
       "status": "current"
     },
     {
@@ -9619,9 +9872,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.16.0b",
+      "version": "1.17.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "7206be18",
+      "hash": "d69b63eb",
       "status": "current"
     },
     {
@@ -10390,6 +10643,24 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-143-edge-executed-evidence-extraction",
+      "type": "document",
+      "path": "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
+      "title": "FR-143 — Edge-executed asset evidence extraction",
+      "doc_status": "Declared 2026-09-04; implementation lanes in flight",
+      "hash": "5da85933",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-144-edge-device-credential",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-144-edge-device-credential.md",
+      "title": "FR-144 — Edge device credential (`EdgeDeviceCredential`)",
+      "doc_status": "Declared 2026-09-04; implementation lanes in flight",
+      "hash": "fa7179f4",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -10734,7 +11005,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.136.0b",
       "doc_status": "Draft",
-      "hash": "91dd6a2a",
+      "hash": "d40aa947",
       "status": "current"
     },
     {
@@ -10778,7 +11049,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "88ee33ed",
+      "hash": "6c4a44eb",
       "status": "current"
     },
     {
@@ -11037,14 +11308,17 @@
         "AssetResponsibility",
         "AssetLocationHistory",
         "AssetProjectAllocation",
-        "AssetDepreciationCandidate"
+        "AssetDepreciationCandidate",
+        "AssetExtractionJob"
       ],
-      "owns_routes": [],
+      "owns_routes": [
+        "src/app/api/edge/extraction-jobs/**"
+      ],
       "owns_code": [],
       "modules": [
         "asset-management"
       ],
-      "hash": "a71af47a",
+      "hash": "4d107c90",
       "status": "current"
     },
     {
@@ -11092,7 +11366,8 @@
         "PlatformGrant",
         "PluginInstallation",
         "PluginAuthorizationCode",
-        "PluginSession"
+        "PluginSession",
+        "EdgeDeviceCredential"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -11104,13 +11379,14 @@
         "src/app/api/onboarding/**",
         "src/app/api/workspace-invites/**",
         "src/app/api/workspace-memberships/**",
-        "src/app/api/plugin/auth/**"
+        "src/app/api/plugin/auth/**",
+        "src/app/api/platform/edge-devices/**"
       ],
       "owns_code": [],
       "modules": [
         "identity"
       ],
-      "hash": "375f62db",
+      "hash": "21c806ea",
       "status": "current"
     },
     {
@@ -11375,6 +11651,13 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-017",
+      "type": "feature",
+      "label": "Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:ApiAccessKey",
       "type": "model",
       "status": "current"
@@ -11386,6 +11669,11 @@
     },
     {
       "id": "model:AssetEvidence",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetExtractionJob",
       "type": "model",
       "status": "current"
     },
@@ -11496,6 +11784,11 @@
     },
     {
       "id": "model:Dependency",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:EdgeDeviceCredential",
       "type": "model",
       "status": "current"
     },
@@ -13445,6 +13738,26 @@
       "row_text": "Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere. 🟠 implemented 2026-09-03 — `src/app/api/health/route.js`, `src/lib/public-base-url.js`, `tests/unit/fr142-health-route.test.js`, `tests/unit/public-base-url.test.js`; Docker Compose + ngrok stack (`Dockerfile`, `docker-compose.yml`, `docs/deployment/docker-ngrok.md`) built and run locally against the bundled Postgres profile "
     },
     {
+      "id": "req:FR-143",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Edge-executed asset evidence extraction (ADR-059 — the pull model): a cloud-queued `AssetExtractionJob` lets the customer-premise Zuri Edge Device (ADR-041) run the FR-138 candidate extraction under its own subscription-based auth, so neither a provider API key nor any edge secret has to live in the cloud (ADR-041 D3) and the cloud never has to reach a device behind NAT. `POST /api/assets/evidence/{id}/extract` chooses the provider — `ZURI_ASSET_EVIDENCE_PROVIDER` = `openai` | `edge` wins when set; unset resolves to `edge` when no `OPENAI_API_KEY` is configured **and** the Business has at least one ACTIVE FR-144 credential, otherwise `openai` — where `openai` is FR-138 unchanged and `edge` creates exactly one QUEUED job and answers `202 { job }`. The lifecycle is QUEUED → CLAIMED → COMPLETED | FAILED, plus CANCELLED, plus lease expiry back to QUEUED, with at most one non-terminal job per `AssetEvidence`. The device claims work with the FR-144 credential: `POST /api/edge/extraction-jobs/claim` returns the oldest QUEUED job of that credential's Business under a 10-minute lease or `204` when none is queued; `GET /api/edge/extraction-jobs/{id}/evidence` streams the evidence bytes with the `FileAsset` MIME **only** while the job is CLAIMED by that device and the lease is live, never a bucket URL or storage credential; `POST /api/edge/extraction-jobs/{id}/complete` `{candidate, model}` and `POST /api/edge/extraction-jobs/{id}/fail` `{reason}` close it. The returned candidate is validated with the **same** `zCandidate` schema the OpenAI adapter uses — one shared module, so the two adapters cannot drift — and written through the same path as `extractAssetEvidence`: `AssetEvidence.extractionJson`, status `EXTRACTED`, one `ASSET_EVIDENCE_EXTRACTED` audit event carrying provider `edge`, the model the device reported and the device id. Extraction creates a candidate and never a review or an approval (BR-025 stands). `complete`/`fail` are idempotent per job `version`, a COMPLETED job is never re-claimed, and `GET /api/assets/evidence/{id}/extraction-job` gives the review surface the latest job to poll.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Edge-executed asset evidence extraction (ADR-059 — the pull model): a cloud-queued `AssetExtractionJob` lets the customer-premise Zuri Edge Device (ADR-041) run the FR-138 candidate extraction under its own subscription-based auth, so neither a provider API key nor any edge secret has to live in the cloud (ADR-041 D3) and the cloud never has to reach a device behind NAT. `POST /api/assets/evidence/{id}/extract` chooses the provider — `ZURI_ASSET_EVIDENCE_PROVIDER` = `openai` | `edge` wins when set; unset resolves to `edge` when no `OPENAI_API_KEY` is configured **and** the Business has at least one ACTIVE FR-144 credential, otherwise `openai` — where `openai` is FR-138 unchanged and `edge` creates exactly one QUEUED job and answers `202 { job }`. The lifecycle is QUEUED → CLAIMED → COMPLETED | FAILED, plus CANCELLED, plus lease expiry back to QUEUED, with at most one non-terminal job per `AssetEvidence`. The device claims work with the FR-144 credential: `POST /api/edge/extraction-jobs/claim` returns the oldest QUEUED job of that credential's Business under a 10-minute lease or `204` when none is queued; `GET /api/edge/extraction-jobs/{id}/evidence` streams the evidence bytes with the `FileAsset` MIME **only** while the job is CLAIMED by that device and the lease is live, never a bucket URL or storage credential; `POST /api/edge/extraction-jobs/{id}/complete` `{candidate, model}` and `POST /api/edge/extraction-jobs/{id}/fail` `{reason}` close it. The returned candidate is validated with the **same** `zCandidate` schema the OpenAI adapter uses — one shared module, so the two adapters cannot drift — and written through the same path as `extractAssetEvidence`: `AssetEvidence.extractionJson`, status `EXTRACTED`, one `ASSET_EVIDENCE_EXTRACTED` audit event carrying provider `edge`, the model the device reported and the device id. Extraction creates a candidate and never a review or an approval (BR-025 stands). `complete`/`fail` are idempotent per job `version`, a COMPLETED job is never re-claimed, and `GET /api/assets/evidence/{id}/extraction-job` gives the review surface the latest job to poll. 🔜 declared 2026-09-04; implementation lanes in flight "
+    },
+    {
+      "id": "req:FR-144",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. 🔜 declared 2026-09-04; implementation lanes in flight "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -14505,6 +14818,16 @@
       "row_text": "LINE attachment execution is a one-way trusted handoff: zuri-cli verifies transport and retrieves/uploads bytes; zuri-ai derives scope from its server-owned binding, accepts opaque FileAsset IDs and binds source correlation to a normalized payload hash. Replays return the same intake and cannot overwrite a different payload. FR-140; SEC-024; ADR-056 "
     },
     {
+      "id": "req:SDD-085",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Edge extraction is one pull-model job record, not a cloud→device callback: the cloud owns `AssetExtractionJob` and its lifecycle (QUEUED → CLAIMED → COMPLETED | FAILED | CANCELLED), the device claims the oldest QUEUED job **of its own credential's Business** under a 10-minute lease, and an expired lease returns the job to QUEUED for another attempt rather than stranding it. Result validation reuses the FR-138 `zCandidate` schema exported from one shared module, so the OpenAI and edge adapters validate identically by construction; evidence bytes are streamed by the cloud to the lease-holding device only, never as a storage URL or credential.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Edge extraction is one pull-model job record, not a cloud→device callback: the cloud owns `AssetExtractionJob` and its lifecycle (QUEUED → CLAIMED → COMPLETED | FAILED | CANCELLED), the device claims the oldest QUEUED job **of its own credential's Business** under a 10-minute lease, and an expired lease returns the job to QUEUED for another attempt rather than stranding it. Result validation reuses the FR-138 `zCandidate` schema exported from one shared module, so the OpenAI and edge adapters validate identically by construction; evidence bytes are streamed by the cloud to the lease-holding device only, never as a storage URL or credential. FR-143; FR-144; SEC-025; ADR-059; ADR-041 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -14745,6 +15068,16 @@
       "row_text": "Asset evidence secrets and sensitive content remain server-confined: authorize scope before bytes/model/entity disclosure; verify content not extension; keep object/provider/LINE credentials out of client bundles, responses, logs, audits and workbooks; use private storage and `store: false`; reject client authority, arbitrary attachment URLs and malformed provider output without changing review/readiness state. FR-137..140 / ADR-056 security gate "
     },
     {
+      "id": "req:SEC-025",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Device credential and evidence-download boundary, failing closed: the raw `edgk_` key exists only in the mint response — persisted as SHA-256 only, absent from list responses, logs, audit payloads and the reference poller; mint/list/revoke refuse a Business the viewer does not own with the same 404 a nonexistent Business gets; `resolveEdgeDeviceContext` answers one generic 401 for missing, malformed, unknown, revoked or foreign-prefix credentials; `GET /api/edge/extraction-jobs/{id}/evidence` serves bytes only to the device holding a live lease on that job and never a bucket URL, signed link or storage credential (ADR-041 D3); and a device may neither read nor complete a job outside its own Business.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Device credential and evidence-download boundary, failing closed: the raw `edgk_` key exists only in the mint response — persisted as SHA-256 only, absent from list responses, logs, audit payloads and the reference poller; mint/list/revoke refuse a Business the viewer does not own with the same 404 a nonexistent Business gets; `resolveEdgeDeviceContext` answers one generic 401 for missing, malformed, unknown, revoked or foreign-prefix credentials; `GET /api/edge/extraction-jobs/{id}/evidence` serves bytes only to the device holding a live lease on that job and never a bucket URL, signed link or storage credential (ADR-041 D3); and a device may neither read nor complete a job outside its own Business. 🔜 FR-143 / FR-144 / ADR-059 security gate — declared 2026-09-04 "
+    },
+    {
       "id": "route:api:/api/agent/heartbeat",
       "type": "route",
       "kind": "api",
@@ -14790,6 +15123,14 @@
       "kind": "api",
       "route": "/api/assets/evidence/[id]/extract",
       "path": "src/app/api/assets/evidence/[id]/extract/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/evidence/[id]/extraction-job",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/evidence/[id]/extraction-job",
+      "path": "src/app/api/assets/evidence/[id]/extraction-job/route.js",
       "status": "current"
     },
     {
@@ -15038,6 +15379,38 @@
       "kind": "api",
       "route": "/api/docs",
       "path": "src/app/api/docs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/extraction-jobs/[id]/complete",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/extraction-jobs/[id]/complete",
+      "path": "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/extraction-jobs/[id]/evidence",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/extraction-jobs/[id]/evidence",
+      "path": "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/extraction-jobs/[id]/fail",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/extraction-jobs/[id]/fail",
+      "path": "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/extraction-jobs/claim",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/extraction-jobs/claim",
+      "path": "src/app/api/edge/extraction-jobs/claim/route.js",
       "status": "current"
     },
     {
@@ -15342,6 +15715,22 @@
       "kind": "api",
       "route": "/api/platform/customer-import-reviews/targets",
       "path": "src/app/api/platform/customer-import-reviews/targets/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/edge-devices/credentials",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/edge-devices/credentials",
+      "path": "src/app/api/platform/edge-devices/credentials/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/edge-devices/credentials/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/edge-devices/credentials/[id]",
+      "path": "src/app/api/platform/edge-devices/credentials/[id]/route.js",
       "status": "current"
     },
     {
@@ -16637,6 +17026,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md",
+      "title": "ADR-059 — Edge-executed evidence extraction (pull model)",
+      "hash": "0f758aa5",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -17099,6 +17496,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "type": "test",
+      "path": "tests/integration/fr143-asset-extraction-job.test.js",
+      "hash": "eda07d1b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "type": "test",
+      "path": "tests/integration/fr144-edge-device-credential.test.js",
+      "hash": "217187fd",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -17305,7 +17716,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "28282fd4",
+      "hash": "27316edb",
       "status": "current"
     },
     {
@@ -17565,6 +17976,20 @@
       "type": "test",
       "path": "tests/unit/asset-evidence-storage-contract.test.js",
       "hash": "275b59b9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-extraction-job-view.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-extraction-job-view.test.js",
+      "hash": "b65ddee6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-extraction-provider.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-extraction-provider.test.js",
+      "hash": "0598069e",
       "status": "current"
     },
     {
@@ -17985,6 +18410,34 @@
       "type": "test",
       "path": "tests/unit/e2e-warmup.test.js",
       "hash": "96105e8a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-device-credential-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/edge-device-credential-routes.test.js",
+      "hash": "9b0c93d8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-device-credential.test.js",
+      "type": "test",
+      "path": "tests/unit/edge-device-credential.test.js",
+      "hash": "e97d86ff",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-extraction-job-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/edge-extraction-job-contract.test.js",
+      "hash": "13527f5b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-extraction-poller.test.js",
+      "type": "test",
+      "path": "tests/unit/edge-extraction-poller.test.js",
+      "hash": "5777e869",
       "status": "current"
     },
     {
@@ -20287,6 +20740,13 @@
     },
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:NFR-008",
       "type": "follows",
       "status": "current",
@@ -21001,6 +21461,13 @@
     },
     {
       "from": "code:src/app/api/agent/heartbeat/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/heartbeat/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -21197,6 +21664,13 @@
     },
     {
       "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
       "to": "req:NFR-022",
       "type": "follows",
       "status": "current",
@@ -21211,7 +21685,35 @@
     },
     {
       "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extract/route.js",
       "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22346,6 +22848,118 @@
     {
       "from": "code:src/app/api/docs/route.js",
       "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "to": "req:SEC-025",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -23607,6 +24221,62 @@
       "from": "code:src/app/api/platform/customer-import-reviews/targets/route.js",
       "to": "req:FR-078",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -26496,6 +27166,13 @@
     },
     {
       "from": "code:src/modules/agent/edge-device-registry.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/edge-device-registry.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -27153,6 +27830,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-view.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-job-view.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-extraction-provider.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/application/asset-intake-service.js",
       "to": "req:BR-025",
       "type": "follows",
@@ -27566,6 +28292,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "to": "req:BR-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "to": "req:FR-138",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "to": "req:SDD-085",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
       "to": "req:BR-025",
       "type": "follows",
@@ -27589,6 +28350,13 @@
     {
       "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
       "to": "req:SDD-082",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+      "to": "req:SDD-085",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28121,6 +28889,27 @@
     {
       "from": "code:src/modules/identity/classify-principal.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-device-credential.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-device-credential.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-device-credential.js",
+      "to": "req:SEC-025",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30221,6 +31010,20 @@
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-143",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-144",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -33824,6 +34627,20 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-017",
+      "to": "req:FR-143",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-017",
+      "to": "req:FR-144",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -33839,6 +34656,13 @@
     },
     {
       "from": "model:AssetEvidence",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetExtractionJob",
       "to": "domain:asset-management",
       "type": "owned_by",
       "status": "current",
@@ -33994,6 +34818,13 @@
     {
       "from": "model:Dependency",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:EdgeDeviceCredential",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -35567,6 +36398,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-143",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-144",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -36309,6 +37154,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-085",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -36491,6 +37343,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SEC-025",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "route:api:/api/agent/heartbeat",
       "to": "domain:agent",
       "type": "owned_by",
@@ -36520,6 +37379,13 @@
     },
     {
       "from": "route:api:/api/assets/evidence/[id]/extract",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/evidence/[id]/extraction-job",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -36745,6 +37611,34 @@
     {
       "from": "route:api:/api/docs",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/extraction-jobs/[id]/complete",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/extraction-jobs/[id]/evidence",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/extraction-jobs/[id]/fail",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/extraction-jobs/claim",
+      "to": "domain:asset-management",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -37011,6 +37905,20 @@
     {
       "from": "route:api:/api/platform/customer-import-reviews",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/edge-devices/credentials/[id]",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/edge-devices/credentials",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -45171,6 +46079,118 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "code:src/app/api/assets/evidence/[id]/extraction-job/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "code:src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "code:src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "code:src/app/api/edge/extraction-jobs/claim/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr143-asset-extraction-job.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "to": "code:src/modules/identity/edge-device-credential.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr144-edge-device-credential.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/iam-authorization.test.js",
       "to": "code:src/modules/identity/authorization-context.js",
       "type": "tests",
@@ -46601,6 +47621,20 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-144",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -48826,6 +49860,13 @@
     },
     {
       "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "code:src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
       "to": "code:src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
       "type": "tests",
       "status": "current",
@@ -48854,6 +49895,13 @@
     },
     {
       "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
       "to": "req:NFR-022",
       "type": "verifies",
       "status": "current",
@@ -48872,6 +49920,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
@@ -49064,6 +50119,13 @@
     },
     {
       "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
       "to": "req:NFR-022",
       "type": "verifies",
       "status": "current",
@@ -49096,6 +50158,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -49170,6 +50239,69 @@
     {
       "from": "test:tests/unit/asset-evidence-storage-contract.test.js",
       "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "code:src/modules/asset-management/application/asset-extraction-job-view.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "req:BR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-job-view.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-provider.test.js",
+      "to": "code:src/modules/asset-management/application/asset-extraction-provider.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-provider.test.js",
+      "to": "req:FR-138",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-extraction-provider.test.js",
+      "to": "req:FR-143",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -51886,6 +53018,125 @@
     {
       "from": "test:tests/unit/e2e-warmup.test.js",
       "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "code:src/app/api/platform/edge-devices/credentials/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "code:src/app/api/platform/edge-devices/credentials/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential-routes.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential.test.js",
+      "to": "code:src/modules/identity/edge-device-credential.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-device-credential.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-job-contract.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-job-contract.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-job-contract.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-job-contract.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-poller.test.js",
+      "to": "req:FR-143",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-poller.test.js",
+      "to": "req:SDD-085",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-extraction-poller.test.js",
+      "to": "req:SEC-025",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -54615,6 +55866,13 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -55242,6 +56500,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr141-edge-device-heartbeat.test.js",
@@ -56674,6 +57939,13 @@
     {
       "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:FR-142",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:FR-144",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
