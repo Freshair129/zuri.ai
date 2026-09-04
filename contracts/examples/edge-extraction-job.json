@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0",
+  "job": {
+    "id": "aej_01J9Q2M4X7K3B8T6R0V5N2C1D",
+    "businessId": "biz_01J8ZK4Q7M2N5P9R3T6V8W1X0",
+    "evidenceId": "aev_01J9Q1P8H4J2K6M0N3Q5R7T9V",
+    "status": "CLAIMED",
+    "claimedByDeviceId": "edge-bkk-warehouse-01",
+    "claimedAt": "2026-09-04T03:12:44.000Z",
+    "leaseExpiresAt": "2026-09-04T03:22:44.000Z",
+    "attempts": 1,
+    "provider": "edge",
+    "model": null,
+    "error": null,
+    "version": 2,
+    "evidence": {
+      "mime": "image/jpeg",
+      "byteSize": 418233,
+      "documentType": "RECEIPT"
+    },
+    "createdAt": "2026-09-04T03:11:02.000Z",
+    "updatedAt": "2026-09-04T03:12:44.000Z"
+  },
+  "claimRequest": {},
+  "claimResponse": {
+    "job": {
+      "id": "aej_01J9Q2M4X7K3B8T6R0V5N2C1D",
+      "businessId": "biz_01J8ZK4Q7M2N5P9R3T6V8W1X0",
+      "evidenceId": "aev_01J9Q1P8H4J2K6M0N3Q5R7T9V",
+      "status": "CLAIMED",
+      "claimedByDeviceId": "edge-bkk-warehouse-01",
+      "claimedAt": "2026-09-04T03:12:44.000Z",
+      "leaseExpiresAt": "2026-09-04T03:22:44.000Z",
+      "attempts": 1,
+      "provider": "edge",
+      "model": null,
+      "error": null,
+      "version": 2,
+      "evidence": {
+        "mime": "image/jpeg",
+        "byteSize": 418233,
+        "documentType": "RECEIPT"
+      },
+      "createdAt": "2026-09-04T03:11:02.000Z",
+      "updatedAt": "2026-09-04T03:12:44.000Z"
+    }
+  },
+  "completeRequest": {
+    "candidate": {
+      "schemaVersion": "1.0",
+      "status": "CANDIDATE",
+      "documentType": "RECEIPT",
+      "fields": [
+        {
+          "field": "vendorName",
+          "value": "บริษัท สยามฮาร์ดแวร์ จำกัด",
+          "confidence": 0.94,
+          "page": 1,
+          "anchor": "header",
+          "bounds": { "x": 0.08, "y": 0.06, "width": 0.52, "height": 0.05 }
+        },
+        {
+          "field": "documentDate",
+          "value": "2026-08-29",
+          "confidence": 0.88,
+          "page": 1,
+          "anchor": "วันที่",
+          "bounds": null
+        },
+        {
+          "field": "totalAmount",
+          "value": 18750,
+          "confidence": 0.91,
+          "page": 1,
+          "anchor": "รวมทั้งสิ้น",
+          "bounds": null
+        },
+        {
+          "field": "taxId",
+          "value": null,
+          "confidence": 0.12,
+          "page": null,
+          "anchor": null,
+          "bounds": null
+        }
+      ]
+    },
+    "model": "qwen2.5-vl-7b-instruct-q4"
+  },
+  "failRequest": {
+    "reason": "Local vision daemon returned no parseable output after 3 attempts (page count 1, mime image/jpeg)"
+  },
+  "jobResponse": {
+    "job": {
+      "id": "aej_01J9Q2M4X7K3B8T6R0V5N2C1D",
+      "businessId": "biz_01J8ZK4Q7M2N5P9R3T6V8W1X0",
+      "evidenceId": "aev_01J9Q1P8H4J2K6M0N3Q5R7T9V",
+      "status": "COMPLETED",
+      "claimedByDeviceId": "edge-bkk-warehouse-01",
+      "claimedAt": "2026-09-04T03:12:44.000Z",
+      "leaseExpiresAt": "2026-09-04T03:22:44.000Z",
+      "attempts": 1,
+      "provider": "edge",
+      "model": "qwen2.5-vl-7b-instruct-q4",
+      "error": null,
+      "version": 3,
+      "evidence": {
+        "mime": "image/jpeg",
+        "byteSize": 418233,
+        "documentType": "RECEIPT"
+      },
+      "createdAt": "2026-09-04T03:11:02.000Z",
+      "updatedAt": "2026-09-04T03:13:51.000Z"
+    }
+  }
+}
