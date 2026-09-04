@@ -9820,7 +9820,7 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "1f4526ce",
+      "hash": "570c3551",
       "status": "current"
     },
     {
