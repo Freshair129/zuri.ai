@@ -177,32 +177,60 @@ export default function IntegrationsPage() {
   const [groupMessage, setGroupMessage] = useState(null)
   const [groupError, setGroupError] = useState(null)
 
-  // Edge Device Pairing Key & Secret Generator State
+  // @req FR-144 — Edge Device pairing. This used to generate `tok_edge_…` and
+  // `sec_edge_…` strings in the browser: convincing to read, accepted by
+  // nothing, because no server ever stored them. The mint below is the real
+  // one — the server issues the key, keeps only its SHA-256 hash, and returns
+  // the raw value exactly once (ADR-059 D2).
   const [generatedPairing, setGeneratedPairing] = useState(null)
   const [customDeviceName, setCustomDeviceName] = useState('')
+  const [pairingBusy, setPairingBusy] = useState(false)
+  const [pairingError, setPairingError] = useState(null)
+  const credentials = useFetch(businessId ? `/api/platform/edge-devices/credentials?businessId=${encodeURIComponent(businessId)}` : null, [businessId])
 
-  const generateNewPairingKeys = () => {
-    const randomHex = (len = 16) => Array.from(crypto.getRandomValues(new Uint8Array(len))).map(b => b.toString(16).padStart(2, '0')).join('')
-    const cleanMachineName = customDeviceName.trim()
+  const generateNewPairingKeys = async () => {
+    if (!businessId) { setPairingError('เลือกธุรกิจก่อนจึงจะจับคู่อุปกรณ์ได้'); return }
+    const deviceId = customDeviceName.trim()
       ? customDeviceName.trim().replace(/[^a-zA-Z0-9_-]/g, '-').toUpperCase()
-      : `DEV-${(selectedBusiness?.code || 'SMARTGIFT').replace(/[^A-Z0-9]/g, '')}-${randomHex(3).toUpperCase()}`
-    const deviceId = cleanMachineName
-    const token = `tok_edge_${(selectedBusiness?.code || 'smartgift').toLowerCase()}_${randomHex(12)}`
-    const secret = `sec_edge_${randomHex(24)}`
-    const payload = {
-      deviceId,
-      token,
-      secret,
-      tenantId,
-      tenantCode,
-      businessId,
-      businessCode: selectedBusiness?.code || 'BUS-SMARTGIFT',
-      businessName: selectedBusiness?.name || 'SmartGift',
-      apiBaseUrl: publicOrigin,
-      generatedAt: new Date().toISOString(),
-      instructions: 'นำ Token และ Secret นี้ไปบันทึกลงใน Zuri Edge Device Control GUI (:8787/gui) หรือไฟล์ .env'
+      : `DEV-${(selectedBusiness?.code || 'EDGE').replace(/[^A-Za-z0-9]/g, '').toUpperCase()}-01`
+    setPairingBusy(true)
+    setPairingError(null)
+    try {
+      const res = await fetch('/api/platform/edge-devices/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, deviceId, label: deviceId }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body?.error || 'ไม่สามารถออกกุญแจจับคู่ได้')
+      setGeneratedPairing({
+        deviceId: body.credential.deviceId,
+        key: body.key,
+        businessId,
+        businessCode: selectedBusiness?.code || null,
+        businessName: selectedBusiness?.name || null,
+        apiBaseUrl: publicOrigin,
+        generatedAt: body.credential.createdAt,
+        instructions: 'บันทึกกุญแจนี้ลงใน Zuri Edge Device (ZURI_EDGE_DEVICE_KEY) — ระบบจะไม่แสดงอีก',
+      })
+      credentials.reload?.()
+    } catch (error) {
+      setPairingError(error.message)
+    } finally {
+      setPairingBusy(false)
     }
-    setGeneratedPairing(payload)
+  }
+
+  const revokeEdgeCredential = async (id, deviceId) => {
+    if (!confirm(`เพิกถอนกุญแจของอุปกรณ์ ${deviceId} ใช่หรือไม่? อุปกรณ์จะใช้งานไม่ได้ทันที`)) return
+    try {
+      const res = await fetch(`/api/platform/edge-devices/credentials/${encodeURIComponent(id)}`, { method: 'DELETE' })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body?.error || 'เพิกถอนไม่สำเร็จ')
+      credentials.reload?.()
+    } catch (error) {
+      setPairingError(error.message)
+    }
   }
 
   const deleteEdgeDevice = async (deviceId) => {
@@ -856,8 +884,9 @@ export default function IntegrationsPage() {
                       type="button"
                       className="btn btn-primary text-xs font-semibold flex items-center gap-1.5 h-8"
                       onClick={generateNewPairingKeys}
+                      disabled={pairingBusy || !businessId}
                     >
-                      <Plus size={14} /> สร้าง Pairing Keys
+                      <Plus size={14} /> {pairingBusy ? 'กำลังออกกุญแจ…' : 'ออกกุญแจจับคู่อุปกรณ์'}
                     </button>
                     <a
                       href="http://localhost:8787/gui"
@@ -895,17 +924,21 @@ export default function IntegrationsPage() {
                         <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-slate-900 border border-amber-200">{generatedPairing.deviceId}</code>
                       </div>
                       <div>
-                        <span className="font-semibold text-slate-700">Edge Token (Public):</span>
-                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-slate-900 border border-amber-200">{generatedPairing.token}</code>
+                        <span className="font-semibold text-slate-700">ZURI_EDGE_DEVICE_KEY (แสดงครั้งเดียว):</span>
+                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-rose-700 font-bold border border-amber-200 break-all">{generatedPairing.key}</code>
+                        <button
+                          type="button"
+                          className="ml-2 rounded border border-amber-300 px-2 py-0.5 font-semibold text-amber-900 hover:bg-amber-100"
+                          onClick={() => navigator.clipboard?.writeText(generatedPairing.key)}
+                        >
+                          คัดลอก
+                        </button>
                       </div>
-                      <div>
-                        <span className="font-semibold text-slate-700">Edge Secret (Private Key - เก็บเป็นความลับ):</span>
-                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-rose-700 font-bold border border-amber-200">{generatedPairing.secret}</code>
-                      </div>
+                      <div className="text-[11px] text-slate-600">{generatedPairing.instructions}</div>
                     </div>
 
                     <div className="mt-3 flex items-center justify-between border-t border-amber-200/60 pt-2 text-[11px] text-amber-800">
-                      <span>⚠️ กรุณาดาวน์โหลดหรือคัดลอกทันที หน้านี้จะไม่บันทึก Secret ลงฐานข้อมูลคลาวด์</span>
+                      <span>⚠️ คัดลอกทันที ระบบเก็บเฉพาะค่าแฮชของกุญแจนี้ และจะไม่แสดงค่าจริงอีก</span>
                       <button
                         type="button"
                         className="text-amber-900 hover:underline font-semibold"
@@ -916,6 +949,44 @@ export default function IntegrationsPage() {
                     </div>
                   </div>
                 )}
+
+                {pairingError && (
+                  <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{pairingError}</p>
+                )}
+
+                {/* @req FR-144 — the credentials this Business has issued, as metadata
+                    only. A REVOKED row stays listed so an operator can see what was
+                    withdrawn and when. */}
+                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+                  <div className="mb-2 text-xs font-semibold text-slate-700">กุญแจอุปกรณ์ที่ออกให้ธุรกิจนี้</div>
+                  {(credentials.data?.credentials || []).length === 0 ? (
+                    <p className="text-xs text-slate-500">ยังไม่มีอุปกรณ์ที่จับคู่ไว้</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {(credentials.data?.credentials || []).map((row) => (
+                        <li key={row.id} className="flex items-center justify-between gap-2 text-xs">
+                          <span className="flex items-center gap-2">
+                            <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-800">{row.deviceId}</code>
+                            <span className="text-slate-500">{row.keyPrefix}…</span>
+                            <span className={row.status === 'ACTIVE' ? 'text-emerald-700' : 'text-slate-400'}>
+                              {row.status === 'ACTIVE' ? 'ใช้งานอยู่' : 'เพิกถอนแล้ว'}
+                            </span>
+                            {row.lastUsedAt && <span className="text-slate-400">ใช้ล่าสุด {new Date(row.lastUsedAt).toLocaleString('th-TH')}</span>}
+                          </span>
+                          {row.status === 'ACTIVE' && (
+                            <button
+                              type="button"
+                              className="font-semibold text-rose-700 hover:underline"
+                              onClick={() => revokeEdgeCredential(row.id, row.deviceId)}
+                            >
+                              เพิกถอน
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
           )}

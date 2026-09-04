@@ -15,6 +15,13 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-143, FR-144 — the edge-executed extraction surface: three
+  // owner-governed credential operations on the Platform side, four
+  // device-authenticated job operations, and the review surface's job read.
+  ['/api/platform/edge-devices/credentials', ['GET', 'POST']], ['/api/platform/edge-devices/credentials/{id}', ['DELETE']],
+  ['/api/edge/extraction-jobs/claim', ['POST']], ['/api/edge/extraction-jobs/{id}/evidence', ['GET']],
+  ['/api/edge/extraction-jobs/{id}/complete', ['POST']], ['/api/edge/extraction-jobs/{id}/fail', ['POST']],
+  ['/api/assets/evidence/{id}/extraction-job', ['GET']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],

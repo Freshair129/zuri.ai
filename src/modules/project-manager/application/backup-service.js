@@ -132,6 +132,15 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
   pluginSession:
     'FR-123 opaque bearer sessions are credentials. They are never exported or restored, so a restore cannot ' +
     'carry an old plugin session forward past the revocation or expiry that ended it.',
+  edgeDeviceCredential:
+    'FR-144 edge device credentials are credential material — a SHA-256 lookup hash bound to one Business. ' +
+    'They are never exported or restored, so a recovery cannot resurrect a key that was revoked, and a ' +
+    'restored installation pairs its devices again under the authority that holds it then (SEC-025).',
+  assetExtractionJob:
+    'FR-143 extraction jobs are in-flight work, not business truth: a queued job names a device lease that ' +
+    'expired the moment the installation stopped, and the candidate a completed one produced already lives ' +
+    'on AssetEvidence.extractionJson, which IS exported. Restoring the queue would hand a device work whose ' +
+    'result the restore already carries.',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +

@@ -63,6 +63,8 @@ model Tenant {
   registeredAssets          RegisteredAsset[]
   assetIntakes              AssetIntake[]
   assetLots                 AssetLot[]
+  edgeDeviceCredentials     EdgeDeviceCredential[]
+  assetExtractionJobs       AssetExtractionJob[]
 
   @@index([portfolioId])
 }
@@ -136,6 +138,8 @@ model Business {
   registeredAssets          RegisteredAsset[]
   assetIntakes              AssetIntake[]
   assetLots                 AssetLot[]
+  edgeDeviceCredentials     EdgeDeviceCredential[]
+  assetExtractionJobs       AssetExtractionJob[]
 
   @@index([tenantId])
 }
@@ -1146,9 +1150,10 @@ model AssetEvidence {
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
 
-  intake          AssetIntake      @relation(fields: [intakeId], references: [id], onDelete: Cascade)
-  registeredAsset RegisteredAsset? @relation(fields: [registeredAssetId], references: [id], onDelete: SetNull)
-  fileAsset       FileAsset        @relation(fields: [fileAssetId], references: [id])
+  intake          AssetIntake          @relation(fields: [intakeId], references: [id], onDelete: Cascade)
+  registeredAsset RegisteredAsset?     @relation(fields: [registeredAssetId], references: [id], onDelete: SetNull)
+  fileAsset       FileAsset            @relation(fields: [fileAssetId], references: [id])
+  extractionJobs  AssetExtractionJob[]
 
   @@unique([intakeId, fileAssetId, role])
   @@index([tenantId, businessId, status])
@@ -2159,4 +2164,67 @@ model ApiAccessKey {
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, status])
+}
+
+/// @req FR-144 — a Business-scoped bearer credential a Zuri Edge Device presents
+/// to claim extraction work and to send heartbeats. Mirrors ApiAccessKey (FR-106):
+/// high-entropy random secret, stored only as a SHA-256 lookup hash, a display
+/// prefix that identifies a row in an admin listing without helping guess the
+/// secret. Scoped to one Business, never a Tenant — the device belongs to one
+/// customer premise (ADR-041), and a Tenant-wide device credential would widen
+/// the blast radius of a stolen key past the site that holds it.
+/// @spec SEC-025, ADR-059 D2, ADR-041 D3
+model EdgeDeviceCredential {
+  id           String    @id @default(uuid())
+  tenantId     String
+  businessId   String
+  deviceId     String
+  label        String
+  keyHash      String    @unique
+  keyPrefix    String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  revokeReason String?
+  lastUsedAt   DateTime?
+  version      Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, status])
+  @@index([businessId, deviceId])
+}
+
+/// @req FR-143 — one unit of extraction work handed to an edge device. The cloud
+/// queues it, a device claims it under a time-boxed lease, and the device posts a
+/// candidate back through the same schema the OpenAI adapter produces. The job is
+/// the whole record of that exchange: no bucket URL and no storage credential ever
+/// leaves the cloud (ADR-041 D3), and a candidate is evidence, never approval
+/// (BR-025).
+/// @spec SDD-085, ADR-059 D1/D3
+model AssetExtractionJob {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String
+  evidenceId        String
+  status            String    @default("QUEUED")
+  claimedByDeviceId String?
+  claimedAt         DateTime?
+  leaseExpiresAt    DateTime?
+  attempts          Int       @default(0)
+  lastError         String?
+  resultJson        String    @default("{}")
+  provider          String?
+  model             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  evidence AssetEvidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, status, createdAt])
+  @@index([evidenceId, status])
 }

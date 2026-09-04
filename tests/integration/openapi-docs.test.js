@@ -87,8 +87,11 @@ describe('OpenAPI document', () => {
       // path — one more operation, no new path. FR-142's liveness probe adds one
       // path and one operation (GET /api/health — unauthenticated, ADR-058) —
       // bringing the totals to:
-      pathCount: 122,
-      operationCount: 157,
+      // FR-143/FR-144 add seven paths and eight operations: the credential
+      // family (GET+POST on one path, DELETE on another), the four device job
+      // operations, and the review surface read.
+      pathCount: 129,
+      operationCount: 165,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

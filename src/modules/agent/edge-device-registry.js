@@ -136,9 +136,20 @@ export function listEdgeDevices({ viewer, businessId = null, now = Date.now() } 
  * record minus anything a device could leak: the token is never in it because
  * it is never in the record.
  */
-export async function recordEdgeDeviceHeartbeat(input, { viewer, db = prisma, now = () => new Date() } = {}) {
+export async function recordEdgeDeviceHeartbeat(input, { viewer, deviceContext = null, db = prisma, now = () => new Date() } = {}) {
   const { deviceToken: _ignored, timestamp, ...heartbeat } = zEdgeDeviceHeartbeat.parse(input)
-  assertOwned(viewer, heartbeat.businessId)
+  // @req FR-144 — a paired device authenticates with its own Business-scoped
+  // credential instead of a human session, which closes FR-141's stated open
+  // item. There is no viewer to own anything in that case: the credential already
+  // names the Business, so the check is equality against it, and the route has
+  // already refused a payload that names a different one.
+  if (deviceContext?.isEdgeDevice) {
+    if (deviceContext.businessId !== heartbeat.businessId) {
+      throw httpError(403, 'Business is outside your owned scope')
+    }
+  } else {
+    assertOwned(viewer, heartbeat.businessId)
+  }
 
   const seenAt = now()
   const key = keyOf(heartbeat.businessId, heartbeat.deviceId)
@@ -166,6 +177,7 @@ export async function recordEdgeDeviceHeartbeat(input, { viewer, db = prisma, no
       entityId: record.deviceId,
       action: registered ? 'REGISTERED' : 'STATUS_CHANGED',
       actorId: viewer?.principal?.id ?? null,
+      actorType: deviceContext?.isEdgeDevice ? 'EDGE_DEVICE' : undefined,
       payload: {
         businessId: record.businessId,
         status: record.status,
