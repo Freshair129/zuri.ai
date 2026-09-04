@@ -25,7 +25,7 @@ export const EXTRACTION_JOB_TERMINAL = Object.freeze(['COMPLETED', 'FAILED', 'CA
 export const EXTRACTION_LEASE_MS = 10 * 60 * 1000
 /** After three failed attempts the job stops being retried and stays FAILED. */
 export const EXTRACTION_MAX_ATTEMPTS = 3
-export const EXTRACTION_JOB_ENTITY = 'AssetExtractionJob'
+export const EXTRACTION_JOB_ENTITY = 'ASSET_EXTRACTION_JOB'
 export const EDGE_PROVIDER = 'edge'
 
 const zComplete = z.object({

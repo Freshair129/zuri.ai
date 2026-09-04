@@ -7,10 +7,10 @@
     "test_files": 427
   },
   "summary": {
-    "critical": 0,
+    "critical": 1,
     "warning": 0,
     "info": 23,
-    "overall": "PASS"
+    "overall": "CRITICAL"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -267,6 +267,17 @@
         "docs/SITEMAP-DOMAIN-NAV.md"
       ],
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
+    },
+    {
+      "id": "C24",
+      "severity": "critical",
+      "check": "audit-entity-type",
+      "title": "1 audit entityType value(s) are not SCREAMING_SNAKE_CASE",
+      "details": "AssetExtractionJob (src/modules/asset-management/application/asset-extraction-job-service.js)",
+      "files": [
+        "src/modules/asset-management/application/asset-extraction-job-service.js"
+      ],
+      "action": "Rewrite the value in SCREAMING_SNAKE_CASE. The rule and its reasons are on `recordAudit` in src/modules/project-manager/application/audit.js. If the value is NOT an AuditEvent entityType — RawExternalRecord and the link models carry a column with the same name — then the file it lives in should not be calling recordAudit, and that is the thing to fix"
     }
   ]
 }

@@ -56,8 +56,26 @@
   },
   "drift": {
     "changed": [
+      "doc:B-db-schema",
       "doc:README",
-      "doc:CONTEXT-MAP"
+      "doc:CONTEXT-MAP",
+      "test:tests/integration/fr106-api-access-key-listing.test.js",
+      "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "test:tests/integration/line-registry-scope.test.js",
+      "test:tests/integration/market-intelligence-translation-run.test.js",
+      "test:tests/unit/api-access-auth.test.js",
+      "test:tests/unit/fr080-integration-management.test.js",
+      "test:tests/unit/fr123-plugin-auth-service.test.js",
+      "test:tests/unit/market-intelligence/market-translation-run.test.js",
+      "code:src/modules/asset-management/application/asset-extraction-job-service.js",
+      "code:src/modules/identity/api-access-auth.js",
+      "code:src/modules/identity/edge-device-credential.js",
+      "code:src/modules/identity/plugin-auth-service.js",
+      "code:src/modules/integration/application/integration-management-service.js",
+      "code:src/modules/integration/application/line-registry-service.js",
+      "code:src/modules/integration/application/sot-decision-service.js",
+      "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "code:src/modules/project-manager/application/audit.js"
     ],
     "added": [],
     "removed": []
@@ -5249,8 +5267,8 @@
       "id": "code:src/modules/asset-management/application/asset-extraction-job-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-extraction-job-service.js",
-      "hash": "939edb59",
-      "status": "current",
+      "hash": "f78ee8ee",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-143"
@@ -5825,8 +5843,8 @@
       "id": "code:src/modules/identity/api-access-auth.js",
       "type": "code_file",
       "path": "src/modules/identity/api-access-auth.js",
-      "hash": "e53f9846",
-      "status": "current",
+      "hash": "58352670",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-106"
@@ -5935,8 +5953,8 @@
       "id": "code:src/modules/identity/edge-device-credential.js",
       "type": "code_file",
       "path": "src/modules/identity/edge-device-credential.js",
-      "hash": "af5044e4",
-      "status": "current",
+      "hash": "91c12160",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-144"
@@ -6181,8 +6199,8 @@
       "id": "code:src/modules/identity/plugin-auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
-      "hash": "4d743ccc",
-      "status": "current",
+      "hash": "0b01143a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-123"
@@ -6662,8 +6680,8 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "c0c66691",
-      "status": "current",
+      "hash": "a89aab73",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6682,8 +6700,8 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "bee81bd1",
-      "status": "current",
+      "hash": "75259a40",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6704,8 +6722,8 @@
       "id": "code:src/modules/integration/application/sot-decision-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
-      "hash": "a642c27e",
-      "status": "current",
+      "hash": "b08483cd",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-100",
@@ -7283,8 +7301,8 @@
       "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/market-observation-service.js",
-      "hash": "06b497d9",
-      "status": "current",
+      "hash": "d0661656",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-092",
@@ -7704,8 +7722,8 @@
       "id": "code:src/modules/project-manager/application/audit.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/audit.js",
-      "hash": "897d415e",
-      "status": "current",
+      "hash": "c0d65341",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-014"
@@ -9696,10 +9714,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.14.0b",
+      "version": "1.15.0b",
       "doc_status": "Draft",
-      "hash": "075e75a0",
-      "status": "current"
+      "hash": "2befea94",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -17476,8 +17494,8 @@
       "id": "test:tests/integration/fr106-api-access-key-listing.test.js",
       "type": "test",
       "path": "tests/integration/fr106-api-access-key-listing.test.js",
-      "hash": "e62a237c",
-      "status": "current"
+      "hash": "8517a099",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/fr109-ingestion-run-identity.test.js",
@@ -17504,8 +17522,8 @@
       "id": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
       "type": "test",
       "path": "tests/integration/fr123-plugin-auth-reaper.test.js",
-      "hash": "7256cb0c",
-      "status": "current"
+      "hash": "ed1e1ce8",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/fr123-plugin-consent-gate.test.js",
@@ -17679,8 +17697,8 @@
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "b3248fef",
-      "status": "current"
+      "hash": "18bd1be9",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -17728,8 +17746,8 @@
       "id": "test:tests/integration/market-intelligence-translation-run.test.js",
       "type": "test",
       "path": "tests/integration/market-intelligence-translation-run.test.js",
-      "hash": "282b069d",
-      "status": "current"
+      "hash": "5ac8b58a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/msp-vault-memory-port.test.js",
@@ -17924,8 +17942,8 @@
       "id": "test:tests/unit/api-access-auth.test.js",
       "type": "test",
       "path": "tests/unit/api-access-auth.test.js",
-      "hash": "448b3546",
-      "status": "current"
+      "hash": "ff2c8c00",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/api-access-key-migration.test.js",
@@ -18715,8 +18733,8 @@
       "id": "test:tests/unit/fr080-integration-management.test.js",
       "type": "test",
       "path": "tests/unit/fr080-integration-management.test.js",
-      "hash": "9c02ea03",
-      "status": "current"
+      "hash": "31cc00a9",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr080-runtime-wiring.test.js",
@@ -18799,8 +18817,8 @@
       "id": "test:tests/unit/fr123-plugin-auth-service.test.js",
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
-      "hash": "f58596cc",
-      "status": "current"
+      "hash": "aefa1b40",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr123-plugin-consent-view.test.js",
@@ -19191,8 +19209,8 @@
       "id": "test:tests/unit/market-intelligence/market-translation-run.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/market-translation-run.test.js",
-      "hash": "fedc6457",
-      "status": "current"
+      "hash": "e60f08b2",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-translations-route.test.js",

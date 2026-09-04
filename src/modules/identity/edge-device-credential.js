@@ -26,7 +26,7 @@ const KEY_SECRET_BYTES = 24
 // Long enough to identify a credential in the Edge tab, short enough to be
 // useless toward reconstructing the secret — the same trade FR-102/FR-106 made.
 const KEY_PREFIX_LENGTH = EDGE_DEVICE_KEY_PREFIX.length + 1 + 8
-export const EDGE_DEVICE_CREDENTIAL_ENTITY = 'EdgeDeviceCredential'
+export const EDGE_DEVICE_CREDENTIAL_ENTITY = 'EDGE_DEVICE_CREDENTIAL'
 
 function hashKey(rawKey) {
   return createHash('sha256').update(rawKey, 'utf8').digest('hex')

@@ -75,7 +75,7 @@ export async function mintApiAccessKey({ label, tenantId, viewer, db = prisma } 
     },
   })
   await recordAudit(db, {
-    entityType: 'ApiAccessKey',
+    entityType: 'API_ACCESS_KEY',
     entityId: row.id,
     action: 'API_ACCESS_KEY_MINTED',
     // No token material here in any form — not even the display prefix. The
@@ -156,7 +156,7 @@ export async function revokeApiAccessKey(id, { reason = 'REVOKED', viewer, db = 
   const revoked = result.count > 0
   if (revoked) {
     await recordAudit(db, {
-      entityType: 'ApiAccessKey',
+      entityType: 'API_ACCESS_KEY',
       entityId: row.id,
       action: 'API_ACCESS_KEY_REVOKED',
       payload: { tenantId: row.tenantId, label: row.label, reason },

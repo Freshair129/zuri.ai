@@ -179,7 +179,7 @@ export async function decideSotDecision(decisionId, input, { viewer, db = prisma
   requireDecider(viewer, row)
   if (row.status !== 'PENDING') throw serviceError(409, 'This decision is already decided; submit a new version to change it')
   const audit = await recordAudit(db, {
-    entityType: 'SotDecision',
+    entityType: 'SOT_DECISION',
     entityId: row.id,
     action: `SOT_DECISION_${parsed.decision}`,
     payload: { decisionType: row.decisionType, subjectRef: row.subjectRef, decisionVersion: row.decisionVersion, reason: parsed.reason ?? null },

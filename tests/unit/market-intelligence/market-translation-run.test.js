@@ -93,7 +93,7 @@ describe('runMarketTranslationForBusiness (FR-092)', () => {
     expect(result).toEqual({ translated: 2, unchanged: 0, failed: [] })
     expect(db.auditEvent.create).toHaveBeenCalledTimes(1)
     const [[auditCall]] = db.auditEvent.create.mock.calls
-    expect(auditCall.data.entityType).toBe('MarketObservation')
+    expect(auditCall.data.entityType).toBe('MARKET_OBSERVATION')
     expect(auditCall.data.action).toBe('MARKET_TRANSLATION_RUN')
     const payload = JSON.parse(auditCall.data.payloadJson)
     expect(payload).toMatchObject({ businessId: 'business-a', translated: 2, unchanged: 0, failed: 0 })
