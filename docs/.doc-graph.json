@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1739,
-    "total_edges": 6340,
+    "total_nodes": 1740,
+    "total_edges": 6343,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,14 +16,14 @@
       "route": 185,
       "model": 82,
       "requirement": 302,
-      "test": 428,
+      "test": 429,
       "code_file": 464
     },
     "coverage": {
       "requirements": 302,
       "fr_with_code": "100% (135/135)",
       "fr_with_tests": "100% (135/135)",
-      "rules_anchored_in_code": "95% (127/133)",
+      "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 464,
       "fr_planned": [
@@ -45,7 +45,6 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SDD-076",
         "SDD-077"
       ],
       "rules_superseded": [
@@ -58,10 +57,13 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "code:src/app/(pm)/settings/page.jsx"
+      "test:tests/integration/line-oa-provider-migration.test.js",
+      "test:tests/integration/line-registry-scope.test.js",
+      "code:src/app/(pm)/platform/integrations/page.jsx",
+      "code:src/modules/integration/application/line-registry-service.js"
     ],
     "added": [
-      "test:tests/unit/shell-runtime-claims.test.js"
+      "test:tests/unit/integrations-page-claims.test.js"
     ],
     "removed": []
   },
@@ -567,8 +569,8 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "332b84c2",
-      "status": "current",
+      "hash": "8cc664a0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080",
@@ -1081,7 +1083,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
       "hash": "770fadf4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020",
@@ -6686,8 +6688,8 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "75259a40",
-      "status": "current",
+      "hash": "cac57dab",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -17686,15 +17688,15 @@
       "id": "test:tests/integration/line-oa-provider-migration.test.js",
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
-      "hash": "f886dbca",
-      "status": "current"
+      "hash": "de4b366d",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "18bd1be9",
-      "status": "current"
+      "hash": "c68776bb",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18968,6 +18970,13 @@
       "type": "test",
       "path": "tests/unit/integration/retail-price-adapter.test.js",
       "hash": "f9e81650",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/integrations-page-claims.test.js",
+      "type": "test",
+      "path": "tests/unit/integrations-page-claims.test.js",
+      "hash": "5efa12bb",
       "status": "current"
     },
     {
@@ -57356,6 +57365,27 @@
     {
       "from": "test:tests/unit/integration/retail-price-adapter.test.js",
       "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:SDD-076",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

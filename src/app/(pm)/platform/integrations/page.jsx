@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import {
-  KeyRound, ShieldCheck, Users, MessageSquare, Clock, Plus,
+  KeyRound, ShieldCheck, Users, MessageSquare, Plus,
   CheckCircle2, Search, ArrowLeft, ExternalLink, Settings, Sparkles,
   Bot, RefreshCw, AlertTriangle, Layers, Database, Mail, Folder,
   Github, Globe, Radio, ChevronRight, Building2, Copy, Check, Trash2
@@ -171,8 +171,6 @@ export default function IntegrationsPage() {
   const [groupId, setGroupId] = useState('')
   const [groupUrl, setGroupUrl] = useState('')
   const [departmentType, setDepartmentType] = useState('SALES_TEAM')
-  const [enableDailyReport, setEnableDailyReport] = useState(true)
-  const [reportSchedule, setReportSchedule] = useState('0 9 * * *')
   const [groupBusy, setGroupBusy] = useState(false)
   const [groupMessage, setGroupMessage] = useState(null)
   const [groupError, setGroupError] = useState(null)
@@ -339,15 +337,6 @@ export default function IntegrationsPage() {
     setGroupError(null)
     setGroupMessage(null)
     try {
-      const automationJobs = enableDailyReport ? [
-        {
-          name: 'สรุปยอดขายและสถานะงานประจำวัน',
-          schedule: reportSchedule,
-          action: 'PUSH_DAILY_SALES_REPORT',
-          enabled: true,
-        }
-      ] : []
-
       await api('/api/platform/integrations/line-registry', {
         method: 'POST',
         body: {
@@ -356,7 +345,9 @@ export default function IntegrationsPage() {
           groupId: groupId.trim(),
           groupUrl: groupUrl.trim() || undefined,
           departmentType,
-          automationJobs,
+          // `automationJobs` is deliberately not sent. The field is optional on the
+          // service, which keeps whatever a row already stores rather than letting a
+          // save about the group's name erase it.
         },
       })
       setGroupMessage('บันทึกข้อมูล LINE Group พร้อมผูก Tenant & Business ID สำเร็จ')
@@ -454,7 +445,7 @@ export default function IntegrationsPage() {
                 )}
               </h1>
               <p className="text-[11px] text-muted">
-                {activeView === 'LINE_SETTINGS' ? 'จัดการห้องแชตกลุ่ม, รายชื่อผู้ใช้ และระบบตั้งเวลางานอัตโนมัติ' : 'ตั้งค่า Vault reference และ Model AI'}
+                {activeView === 'LINE_SETTINGS' ? 'จัดการห้องแชตกลุ่ม รายชื่อผู้ใช้ และการจับคู่ Zuri Edge Device' : 'ตั้งค่า Vault reference และ Model AI'}
               </p>
             </div>
           </div>
@@ -799,7 +790,15 @@ export default function IntegrationsPage() {
                           </div>
                           <p className="mt-0.5 text-xs text-muted">
                             {isOnline ? (
-                              <>Engine: <span className="font-semibold text-slate-800">{device?.engine || 'GenesisBlock + Codex Luna 5.6'}</span> · Model: <code className="font-mono text-slate-700">{device?.model || 'gpt-5.6-luna'}</code></>
+                              /* The FR-141 heartbeat carries contractVersion, status,
+                                 registeredQueries, approvedTemplates and lastSeenAt — and
+                                 nothing else. `device.engine` and `device.model` were never
+                                 fields on it, so the `||` fallbacks below rendered every
+                                 time: a hardcoded "GenesisBlock + Codex Luna 5.6 / gpt-5.6-luna"
+                                 wearing the syntax of a derived value, which reads to a
+                                 reviewer as though the device had reported it. What the
+                                 device does report is shown instead. */
+                              <>Contract <code className="font-mono text-slate-700">{device?.contractVersion || '—'}</code> · เห็นสัญญาณล่าสุด {device?.lastSeenAt ? new Date(device.lastSeenAt).toLocaleTimeString() : '—'}</>
                             ) : isPaired ? (
                               <>อุปกรณ์ออฟไลน์ชั่วคราว: เปิดรัน <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-amber-900">start-edge-device.bat</code> บนเครื่อง</>
                             ) : (
@@ -846,13 +845,20 @@ export default function IntegrationsPage() {
                         <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : isPaired ? 'text-amber-500' : 'text-slate-400'} />
                         <span>Device Host: <code className="font-mono font-bold text-slate-900">{device?.deviceId || (isPaired ? 'Unknown Host' : 'None (Unpaired)')}</code></span>
                       </div>
+                      {/* "RAG Engine: GenesisBlock Graph DB" and "Intelligence: Codex CLI
+                          (Zero Token Cost)" stood here as literals. Nothing reported either:
+                          the heartbeat has no engine, model or cost field. Beside a
+                          "Device Host: None (Unpaired)" cell they described the stack of a
+                          device that did not exist, and the icon colours — which ARE
+                          conditioned on isOnline — made the whole strip read as live
+                          telemetry. These two cells now show counts the device itself sent. */}
                       <div className="flex items-center gap-2 text-slate-700">
                         <Database size={16} className={isOnline ? 'text-blue-600' : 'text-slate-400'} />
-                        <span>RAG Engine: <b>GenesisBlock Graph DB</b></span>
+                        <span>Registered queries: <b>{isPaired ? (device?.registeredQueries?.length ?? 0) : '—'}</b></span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-700">
                         <Sparkles size={16} className={isOnline ? 'text-amber-500' : 'text-slate-400'} />
-                        <span>Intelligence: <b>Codex CLI (Zero Token Cost)</b></span>
+                        <span>Approved templates: <b>{isPaired ? (device?.approvedTemplates?.length ?? 0) : '—'}</b></span>
                       </div>
                     </div>
                   </div>
@@ -868,7 +874,7 @@ export default function IntegrationsPage() {
                       Zero-Trust Edge Device Pairing Generator
                     </h4>
                     <p className="mt-1 text-xs text-slate-600 max-w-2xl leading-relaxed">
-                      สร้างรหัสคู่ <b>Pairing Token (Public Identifier)</b> และ <b>Pairing Secret (Private HMAC Key)</b> เพื่อนำไปใส่ใน Local Edge Device ระบบจะอนุญาตให้ดาวน์โหลดไฟล์ <code>.json</code> ได้เพียง 1 ครั้งเท่านั้นเพื่อความปลอดภัย
+                      ออก <b>กุญแจอุปกรณ์ (device key)</b> หนึ่งดอกสำหรับ Local Edge Device เครื่องนี้ นำไปตั้งเป็น <code>ZURI_EDGE_DEVICE_KEY</code> เซิร์ฟเวอร์เก็บไว้เพียงค่าแฮช จึง<b>แสดงค่าจริงครั้งเดียวเท่านั้น</b> — ปิดหน้านี้แล้วเรียกดูอีกไม่ได้ ต้องออกกุญแจใหม่และเพิกถอนดอกเดิม
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -1046,35 +1052,16 @@ export default function IntegrationsPage() {
                     />
                   </Field>
 
-                  {/* Automation Section */}
-                  <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold flex items-center gap-1.5">
-                        <Clock size={13} /> งานส่งรายงานอัตโนมัติ (Automate Job)
-                      </span>
-                      <label className="flex items-center gap-1.5 text-xs cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={enableDailyReport}
-                          onChange={(e) => setEnableDailyReport(e.target.checked)}
-                        />
-                        เปิดใช้งาน
-                      </label>
-                    </div>
-                    {enableDailyReport && (
-                      <div className="mt-2.5 space-y-2 border-t border-[var(--border)] pt-2 text-xs">
-                        <p className="text-muted">ส่งสรุปยอดขาย รายการ Lead ใหม่ และสถิติประจำวันเข้ากลุ่มนี้อัตโนมัติ</p>
-                        <Field label="รอบเวลาส่ง (Cron Expression)" hint="0 9 * * * = ทุกวัน เวลา 09:00 น.">
-                          <input
-                            className="input font-mono text-xs"
-                            value={reportSchedule}
-                            onChange={(e) => setReportSchedule(e.target.value)}
-                            required
-                          />
-                        </Field>
-                      </div>
-                    )}
-                  </div>
+                  {/* An "Automate Job" section stood here: a checkbox defaulted ON and a
+                      cron field, which wrote a PUSH_DAILY_SALES_REPORT job into the
+                      connection's metadata. Nothing in this repository executes one —
+                      there is no scheduler, and that action string is dispatched by
+                      nothing — so every group registered through this form got a daily
+                      report that was never sent, confirmed afterwards by a green tick.
+                      Production still carries such a group. Removed rather than reworded:
+                      an affordance for a capability that does not exist cannot be made
+                      honest by its label. Stored jobs are preserved by the service and
+                      never erased by a save from this form. */}
 
                   <button
                     type="submit"
@@ -1126,18 +1113,11 @@ export default function IntegrationsPage() {
                           GroupID: {row.externalAccountId}
                         </div>
 
-                        {Array.isArray(row.metadata?.automationJobs) && row.metadata.automationJobs.length > 0 && (
-                          <div className="mt-2.5 border-t border-[var(--border)] pt-2 text-xs">
-                            <span className="font-semibold text-muted">Automate Jobs:</span>
-                            <ul className="mt-1 space-y-1">
-                              {row.metadata.automationJobs.map((job, idx) => (
-                                <li key={idx} className="flex items-center gap-1 text-[11px] text-muted">
-                                  <CheckCircle2 size={12} className="text-[var(--success)]" /> {job.name} ({job.schedule})
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        {/* The jobs stored on this row used to be listed here under a green
+                            tick. The tick asserted that each one runs; none does. The rows
+                            are kept in storage but are no longer shown as if they were
+                            scheduled work — a list of things that will not happen, marked
+                            with a success icon, is the defect this page is being cleared of. */}
                       </Card>
                     ))}
                   </div>
