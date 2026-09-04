@@ -194,12 +194,12 @@
       "id": "I17",
       "severity": "info",
       "check": "enum-copy",
-      "title": "1 hand-copied enum list(s) remain (accepted debt)",
-      "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
+      "title": "1 baseline entr(ies) no longer copy an enum",
+      "details": "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES",
       "files": [
         "docs/.enum-copy-baseline.json"
       ],
-      "action": "Derive from enums.js; the baseline may only shrink"
+      "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
       "id": "I18",

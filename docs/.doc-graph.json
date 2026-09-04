@@ -56,25 +56,13 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
+      "doc:A-api-spec",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "test:tests/integration/fr106-api-access-key-listing.test.js",
-      "test:tests/integration/fr123-plugin-auth-reaper.test.js",
-      "test:tests/integration/line-registry-scope.test.js",
-      "test:tests/integration/market-intelligence-translation-run.test.js",
-      "test:tests/unit/api-access-auth.test.js",
-      "test:tests/unit/fr080-integration-management.test.js",
-      "test:tests/unit/fr123-plugin-auth-service.test.js",
-      "test:tests/unit/market-intelligence/market-translation-run.test.js",
-      "code:src/modules/asset-management/application/asset-extraction-job-service.js",
-      "code:src/modules/identity/api-access-auth.js",
-      "code:src/modules/identity/edge-device-credential.js",
-      "code:src/modules/identity/plugin-auth-service.js",
-      "code:src/modules/integration/application/integration-management-service.js",
-      "code:src/modules/integration/application/line-registry-service.js",
-      "code:src/modules/integration/application/sot-decision-service.js",
-      "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "test:tests/integration/work-listing-scope.test.js",
+      "test:tests/unit/audit-page.test.js",
+      "code:src/app/(pm)/audit/page.jsx",
+      "code:src/app/api/audit/route.js",
       "code:src/modules/project-manager/application/audit.js"
     ],
     "added": [],
@@ -305,8 +293,8 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "a66ed2c0",
-      "status": "current",
+      "hash": "c1062d16",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-014",
@@ -1482,8 +1470,8 @@
       "id": "code:src/app/api/audit/route.js",
       "type": "code_file",
       "path": "src/app/api/audit/route.js",
-      "hash": "cedfc448",
-      "status": "current",
+      "hash": "fdd8b22c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-014",
@@ -5269,7 +5257,7 @@
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-extraction-job-service.js",
       "hash": "f78ee8ee",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-143"
@@ -5845,7 +5833,7 @@
       "type": "code_file",
       "path": "src/modules/identity/api-access-auth.js",
       "hash": "58352670",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-106"
@@ -5955,7 +5943,7 @@
       "type": "code_file",
       "path": "src/modules/identity/edge-device-credential.js",
       "hash": "91c12160",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-144"
@@ -6201,7 +6189,7 @@
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
       "hash": "0b01143a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-123"
@@ -6682,7 +6670,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
       "hash": "a89aab73",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6702,7 +6690,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
       "hash": "75259a40",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -6724,7 +6712,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
       "hash": "b08483cd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-100",
@@ -7303,7 +7291,7 @@
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/market-observation-service.js",
       "hash": "d0661656",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-092",
@@ -7723,7 +7711,7 @@
       "id": "code:src/modules/project-manager/application/audit.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/audit.js",
-      "hash": "c0d65341",
+      "hash": "1cb9ddb4",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -9661,10 +9649,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.35.0b",
+      "version": "1.36.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "d985536d",
-      "status": "current"
+      "hash": "85745f41",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9718,7 +9706,7 @@
       "version": "1.15.0b",
       "doc_status": "Draft",
       "hash": "2befea94",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -17506,7 +17494,7 @@
       "type": "test",
       "path": "tests/integration/fr106-api-access-key-listing.test.js",
       "hash": "8517a099",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr109-ingestion-run-identity.test.js",
@@ -17534,7 +17522,7 @@
       "type": "test",
       "path": "tests/integration/fr123-plugin-auth-reaper.test.js",
       "hash": "ed1e1ce8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr123-plugin-consent-gate.test.js",
@@ -17709,7 +17697,7 @@
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
       "hash": "18bd1be9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -17758,7 +17746,7 @@
       "type": "test",
       "path": "tests/integration/market-intelligence-translation-run.test.js",
       "hash": "5ac8b58a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/msp-vault-memory-port.test.js",
@@ -17904,8 +17892,8 @@
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
-      "hash": "206e2f3f",
-      "status": "current"
+      "hash": "07d136bb",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/workspace-collaboration-roster.test.js",
@@ -17954,7 +17942,7 @@
       "type": "test",
       "path": "tests/unit/api-access-auth.test.js",
       "hash": "ff2c8c00",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/api-access-key-migration.test.js",
@@ -18100,8 +18088,8 @@
       "id": "test:tests/unit/audit-page.test.js",
       "type": "test",
       "path": "tests/unit/audit-page.test.js",
-      "hash": "c6dda94e",
-      "status": "current"
+      "hash": "b8124337",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/auth-service.test.js",
@@ -18745,7 +18733,7 @@
       "type": "test",
       "path": "tests/unit/fr080-integration-management.test.js",
       "hash": "31cc00a9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr080-runtime-wiring.test.js",
@@ -18829,7 +18817,7 @@
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
       "hash": "aefa1b40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr123-plugin-consent-view.test.js",
@@ -19221,7 +19209,7 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/market-translation-run.test.js",
       "hash": "e60f08b2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/market-intelligence/market-translations-route.test.js",

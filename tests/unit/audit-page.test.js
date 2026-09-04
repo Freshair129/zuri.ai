@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { describePayload, formatPayloadValue, humanizeEnumLikeValue, humanizeFieldKey } from '@/app/(pm)/audit/page'
+import { buildEntityTypeOptions, describePayload, formatPayloadValue, humanizeEnumLikeValue, humanizeFieldKey } from '@/app/(pm)/audit/page'
 
 // @req FR-014, FR-046 — UAT internal-leakage sweep on /audit.
 //
@@ -165,5 +165,69 @@ describe('Audit page — installation-wide scope is disclosed on the page (FR-04
     const route = src('src/app/api/audit/route.js')
     expect(route).toContain('@req FR-046 — audit is an installation-wide read')
     expect(route).toContain("isInstallationOperator(viewer)")
+  })
+})
+
+describe('Audit page — the entity filter is built from the log, not a hand-kept list (FR-014)', () => {
+  // A hand-maintained ENTITY_TYPES array offered 15 of the 57 entityTypes this
+  // codebase writes. Of the seven types actually present in production, four
+  // were missing — PERSON among them, the second most common. On an audit log
+  // that is the worst kind of gap: a type absent from the filter is
+  // indistinguishable from a type that never happened.
+  const facets = [
+    { value: 'ASSET_EVIDENCE', count: 3 },
+    { value: 'PERSON', count: 11 },
+    { value: 'WORK_ITEM', count: 12 },
+  ]
+
+  it('offers every entityType the API reported, with its count', () => {
+    expect(buildEntityTypeOptions(facets)).toEqual([
+      { value: '', label: 'All entity types' },
+      { value: 'ASSET_EVIDENCE', label: 'ASSET EVIDENCE (3)' },
+      { value: 'PERSON', label: 'PERSON (11)' },
+      { value: 'WORK_ITEM', label: 'WORK ITEM (12)' },
+    ])
+  })
+
+  it('offers only "all" before the first response, rather than inventing options', () => {
+    // The page renders once before the fetch resolves. Showing a placeholder
+    // list would offer types that may not exist in this installation.
+    expect(buildEntityTypeOptions(undefined)).toEqual([{ value: '', label: 'All entity types' }])
+    expect(buildEntityTypeOptions(null)).toEqual([{ value: '', label: 'All entity types' }])
+    expect(buildEntityTypeOptions([])).toEqual([{ value: '', label: 'All entity types' }])
+  })
+
+  it('keeps a selected value the facet does not contain, so the control cannot silently reset', () => {
+    // The page refetches with ?entityType=, so a selection that vanished from
+    // the facet would otherwise snap the <select> back to "All" while the table
+    // below stayed filtered — the control and the data disagreeing in silence.
+    const options = buildEntityTypeOptions(facets, 'GONE_TYPE')
+    expect(options.map((option) => option.value)).toContain('GONE_TYPE')
+    expect(options.find((option) => option.value === 'GONE_TYPE').label).toBe('GONE TYPE (0)')
+  })
+
+  it('does not duplicate a selected value that the facet already carries', () => {
+    const values = buildEntityTypeOptions(facets, 'PERSON').map((option) => option.value)
+    expect(values.filter((value) => value === 'PERSON')).toHaveLength(1)
+  })
+
+  it('survives a malformed facet row rather than rendering a blank option', () => {
+    const options = buildEntityTypeOptions([{ value: '', count: 4 }, { value: 'PERSON' }, null, 'PERSON'])
+    expect(options).toEqual([
+      { value: '', label: 'All entity types' },
+      { value: 'PERSON', label: 'PERSON' },
+    ])
+  })
+
+  it('the page reads the options from the response, and keeps no local list', () => {
+    const page = src('src/app/(pm)/audit/page.jsx')
+    expect(page).toContain('buildEntityTypeOptions(data?.entityTypes')
+    // The old hand-kept array and its narrow enum source are gone for good.
+    expect(page).not.toContain('const ENTITY_TYPES')
+    expect(page).not.toContain('DEPENDENCY_ENDPOINT_TYPES }')
+  })
+
+  it('the route asks for the facet, so the page never has to guess', () => {
+    expect(src('src/app/api/audit/route.js')).toContain('withEntityTypes: true')
   })
 })

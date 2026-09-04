@@ -53,7 +53,7 @@ export const AUDIT_MAX_LIMIT = 500
  * turns "not in the visible 200" into "never happened". The cap stays — one
  * request must not stream the whole table — but it now says so.
  */
-export async function listAudit(db, { entityType, entityId, limit = 100 } = {}) {
+export async function listAudit(db, { entityType, entityId, limit = 100, withEntityTypes = false } = {}) {
   const where = {}
   if (entityType) where.entityType = entityType
   if (entityId) where.entityId = entityId
@@ -69,7 +69,35 @@ export async function listAudit(db, { entityType, entityId, limit = 100 } = {}) 
     events: rows.slice(0, effective).map((e) => ({ ...e, payload: safeParse(e.payloadJson) })),
     limit: effective,
     truncated: rows.length > effective,
+    ...(withEntityTypes ? { entityTypes: await listAuditEntityTypes(db) } : {}),
   }
+}
+
+/**
+ * @req FR-014 — every entityType present in the log, with how many rows carry it.
+ *
+ * Deliberately **unfiltered**: it counts the whole table, not the current
+ * `where`. A facet that narrowed with its own filter would collapse to the one
+ * option already chosen, and there would be no way back to the others.
+ *
+ * Counting the whole table is also what makes the numbers worth showing next to
+ * a window that is capped at `AUDIT_MAX_LIMIT`: an operator looking at 200 rows
+ * can still see that 4,000 PERSON events exist. `groupBy` on `entityType` reads
+ * the leading column of the `(entityType, entityId)` index rather than the rows.
+ *
+ * Ordered here rather than by the database, by codepoint. SQLite's binary
+ * collation and Postgres's put `WORK_ITEM` and `WORKSTREAM` in opposite orders,
+ * because they disagree about where `_` sorts. This list is read by a human
+ * scanning a dropdown, so it must not depend on which engine is underneath.
+ */
+export async function listAuditEntityTypes(db) {
+  const groups = await db.auditEvent.groupBy({
+    by: ['entityType'],
+    _count: { entityType: true },
+  })
+  return groups
+    .map((g) => ({ value: g.entityType, count: g._count.entityType }))
+    .sort((a, b) => (a.value < b.value ? -1 : a.value > b.value ? 1 : 0))
 }
 
 export function safeParse(json, fallback = {}) {
