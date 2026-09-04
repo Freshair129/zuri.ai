@@ -115,3 +115,30 @@ describe('the connector catalog stays derived (FR-130 must not regress)', () => 
     expect(page).not.toMatch(/status: 'CONNECTED'/)
   })
 })
+
+describe('the webhook panel claims only what this system does (BR-011)', () => {
+  const page = shipped(src(PAGE))
+
+  it('does not claim it verifies the LINE webhook challenge', () => {
+    // The route handles no challenge, and BR-011 gives signature verification to
+    // zuri.command-agent.
+    expect(page).not.toMatch(/Webhook Verification Challenge/)
+  })
+
+  it('does not claim it pushes replies to the LINE Messaging API', () => {
+    // Nothing under src/ calls api.line.me. The webhook route returns reply text
+    // "without receiving or consuming the LINE replyToken here".
+    expect(page).not.toMatch(/ส่งข้อความตอบกลับไปยัง LINE Messaging API/)
+  })
+
+  it('names the owner of the half it does not perform', () => {
+    // The split is the design, not something to leave unsaid.
+    expect(page).toMatch(/zuri\.command-agent/)
+    expect(page).toMatch(/BR-011/)
+  })
+
+  it('still describes the half it does perform', () => {
+    expect(page).toMatch(/Group ID/)
+    expect(page).toMatch(/User ID/)
+  })
+})
