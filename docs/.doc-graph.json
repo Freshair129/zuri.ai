@@ -56,9 +56,7 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP",
-      "test:tests/unit/integrations-page-claims.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx"
+      "doc:CONTEXT-MAP"
     ],
     "added": [],
     "removed": []
@@ -566,7 +564,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "a37606b7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -18973,7 +18971,7 @@
       "type": "test",
       "path": "tests/unit/integrations-page-claims.test.js",
       "hash": "35a52bc9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-chunking.test.js",

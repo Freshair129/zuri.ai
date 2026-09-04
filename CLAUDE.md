@@ -29,8 +29,8 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 
 | Rule | Why |
 |---|---|
-| **Never modify anything under `G:\zuri`** | It is a different product's repository (the legacy zuri project). Reading it as prior art is fine (ADR-024 D7); writing to it never is |
-| **Never read `D:\workspace\zuri-edge-device\.env`** | It holds local on-premise secrets and pairing keys (ADR-041) |
+| **Never modify the legacy `Freshair129/zuri` repository** (historically checked out at `G:\zuri`) | It is a different product's repository. Reading it as prior art is fine (ADR-024 D7); writing to it never is. The rule keys on the **repository**, not the drive letter: `G:\` is not mounted on the current machine, so the path names nothing — and a rule that points at a path nobody has is a rule nobody applies |
+| **Never read the `.env` of the `Freshair129/zuri-edge-device` checkout** — currently `C:\Users\pc\workspace\zuri-edge-device\.env` | It holds local on-premise secrets and pairing keys (ADR-041). This rule said `D:\workspace\zuri-edge-device\.env` until 2026-09-04; that path does not exist, while the real file does — so the rule named an empty location and left the secret it protects unnamed. Wherever that repository is checked out, its `.env` is the thing not to read |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
 | **`D:\zuri-ai` is not a working lane** | Several sessions share this one working copy, so its branch, index and tree are global mutable state. It stays on a detached HEAD at `origin/main` **on purpose** — do not check out a branch "to fix it". See below |
