@@ -146,10 +146,14 @@ Evidence review surface shows the job state in Thai with a refresh control:
 
 ## Gates left open
 
-- **Production migration NOT applied in this wave — gate open.** The
-  `AssetExtractionJob` migration is written under `supabase/migrations/` following
-  the plugin-auth template and reviewed; applying it to production is a separate,
-  owner-instructed step (ADR-057 D2/D3 discipline).
+- ~~Production migration NOT applied in this wave.~~ **Closed 2026-09-04**:
+  `20260904090000_edge_device_credential_and_extraction_job` was dry-run in a
+  rolled-back transaction and then applied to production on the owner's instruction,
+  and its version is recorded in `supabase_migrations.schema_migrations`.
+  `AssetExtractionJob` exists there with forced RLS, one `zuri_app_runtime_all`
+  policy, SELECT/INSERT/UPDATE/DELETE for `zuri_app_runtime` only, both declared
+  indexes, and no grant to anon, authenticated, service_role or PUBLIC. The table is
+  empty: nothing queues a job until a device is paired.
 - The edge **runtime** — the daemon that runs the local model — lives in the
   `zuri-edge-device` repository (ADR-059 D6). This repository ships the contract and
   the reference poller only.

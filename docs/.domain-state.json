@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-04T00:59:40.009Z",
+  "generatedAt": "2026-09-04T01:37:26.186Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,9 +40,9 @@
     "featureCount": 113,
     "readyFeatureCount": 98,
     "requirementCount": 144,
-    "verifiedRequirementCount": 132,
-    "progressPercent": 92.8,
-    "gapCount": 29,
+    "verifiedRequirementCount": 134,
+    "progressPercent": 93.1,
+    "gapCount": 20,
     "gaps": [
       {
         "domain": "agent",
@@ -79,33 +79,6 @@
         "evidence": []
       },
       {
-        "domain": "agent",
-        "id": "REQ-FR-144",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-144 is partial",
-        "evidence": [
-          "src/app/api/agent/heartbeat/route.js",
-          "src/modules/agent/edge-device-registry.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/fr144-edge-device-credential.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/edge-device-credential-routes.test.js",
-          "tests/unit/edge-device-credential.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/fr080-ui-contract.test.js",
-          "tests/unit/fr141-edge-device-heartbeat.test.js",
-          "tests/unit/line-registry-service.test.js"
-        ]
-      },
-      {
-        "domain": "asset-management",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
         "domain": "asset-management",
         "id": "AUTH-001",
         "severity": "high",
@@ -118,60 +91,6 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "asset-management",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "asset-management",
-        "id": "REQ-FR-143",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-143 is partial",
-        "evidence": [
-          "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-          "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-          "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-          "src/app/api/edge/extraction-jobs/claim/route.js",
-          "src/modules/asset-management/application/asset-extraction-job-service.js",
-          "src/modules/asset-management/application/asset-extraction-job-view.js",
-          "src/modules/asset-management/application/asset-extraction-provider.js",
-          "src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/asset-evidence-extractor-contract.test.js",
-          "tests/unit/asset-evidence-route-schema-contract.test.js",
-          "tests/unit/asset-extraction-job-view.test.js",
-          "tests/unit/asset-extraction-provider.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/edge-extraction-poller.test.js"
-        ]
-      },
-      {
-        "domain": "asset-management",
-        "id": "REQ-FR-144",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-144 is partial",
-        "evidence": [
-          "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-          "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-          "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-          "src/app/api/edge/extraction-jobs/claim/route.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/fr144-edge-device-credential.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/edge-device-credential-routes.test.js",
-          "tests/unit/edge-device-credential.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/fr080-ui-contract.test.js",
-          "tests/unit/fr141-edge-device-heartbeat.test.js",
-          "tests/unit/line-registry-service.test.js"
-        ]
       },
       {
         "domain": "identity",
@@ -203,27 +122,6 @@
         "evidence": []
       },
       {
-        "domain": "identity",
-        "id": "REQ-FR-144",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-144 is partial",
-        "evidence": [
-          "src/app/api/platform/edge-devices/credentials/[id]/route.js",
-          "src/app/api/platform/edge-devices/credentials/route.js",
-          "src/modules/identity/edge-device-credential.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/fr144-edge-device-credential.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/edge-device-credential-routes.test.js",
-          "tests/unit/edge-device-credential.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/fr080-ui-contract.test.js",
-          "tests/unit/fr141-edge-device-heartbeat.test.js",
-          "tests/unit/line-registry-service.test.js"
-        ]
-      },
-      {
         "domain": "integration",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -244,25 +142,6 @@
         "check": "requirements",
         "summary": "FR-125 is planned",
         "evidence": []
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-144",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-144 is partial",
-        "evidence": [
-          "src/app/(pm)/platform/integrations/page.jsx",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/fr144-edge-device-credential.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/edge-device-credential-routes.test.js",
-          "tests/unit/edge-device-credential.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/fr080-ui-contract.test.js",
-          "tests/unit/fr141-edge-device-heartbeat.test.js",
-          "tests/unit/line-registry-service.test.js"
-        ]
       },
       {
         "domain": "knowledge",
@@ -317,45 +196,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-143",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-143 is partial",
-        "evidence": [
-          "src/app/api/assets/evidence/[id]/extract/route.js",
-          "src/app/api/assets/evidence/[id]/extraction-job/route.js",
-          "src/modules/project-manager/api-docs/openapi.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/asset-evidence-extractor-contract.test.js",
-          "tests/unit/asset-evidence-route-schema-contract.test.js",
-          "tests/unit/asset-extraction-job-view.test.js",
-          "tests/unit/asset-extraction-provider.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/edge-extraction-poller.test.js"
-        ]
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-144",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-144 is partial",
-        "evidence": [
-          "src/modules/project-manager/api-docs/openapi.js",
-          "tests/integration/fr143-asset-extraction-job.test.js",
-          "tests/integration/fr144-edge-device-credential.test.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/edge-device-credential-routes.test.js",
-          "tests/unit/edge-device-credential.test.js",
-          "tests/unit/edge-extraction-job-contract.test.js",
-          "tests/unit/fr080-ui-contract.test.js",
-          "tests/unit/fr141-edge-device-heartbeat.test.js",
-          "tests/unit/line-registry-service.test.js"
-        ]
       }
     ]
   },
@@ -545,23 +385,10 @@
         },
         {
           "id": "FR-144",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 2,
-          "testCount": 9,
-          "evidence": [
-            "src/app/api/agent/heartbeat/route.js",
-            "src/modules/agent/edge-device-registry.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
+          "testCount": 9
         }
       ],
       "checks": {
@@ -694,25 +521,6 @@
           "check": "requirements",
           "summary": "FR-132 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-144 is partial",
-          "evidence": [
-            "src/app/api/agent/heartbeat/route.js",
-            "src/modules/agent/edge-device-registry.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -804,50 +612,17 @@
         },
         {
           "id": "FR-143",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 8,
-          "testCount": 8,
-          "evidence": [
-            "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-            "src/app/api/edge/extraction-jobs/claim/route.js",
-            "src/modules/asset-management/application/asset-extraction-job-service.js",
-            "src/modules/asset-management/application/asset-extraction-job-view.js",
-            "src/modules/asset-management/application/asset-extraction-provider.js",
-            "src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/asset-evidence-extractor-contract.test.js",
-            "tests/unit/asset-evidence-route-schema-contract.test.js",
-            "tests/unit/asset-extraction-job-view.test.js",
-            "tests/unit/asset-extraction-provider.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/edge-extraction-poller.test.js"
-          ]
+          "testCount": 8
         },
         {
           "id": "FR-144",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 4,
-          "testCount": 9,
-          "evidence": [
-            "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-            "src/app/api/edge/extraction-jobs/claim/route.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
+          "testCount": 9
         }
       ],
       "checks": {
@@ -881,18 +656,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "verified",
@@ -937,17 +706,11 @@
           }
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -968,12 +731,6 @@
       ],
       "gaps": [
         {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
@@ -984,57 +741,6 @@
           "severity": "medium",
           "check": "authorization",
           "summary": "At least one read route lacks a recognizable request viewer seam"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-143",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-143 is partial",
-          "evidence": [
-            "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-            "src/app/api/edge/extraction-jobs/claim/route.js",
-            "src/modules/asset-management/application/asset-extraction-job-service.js",
-            "src/modules/asset-management/application/asset-extraction-job-view.js",
-            "src/modules/asset-management/application/asset-extraction-provider.js",
-            "src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/asset-evidence-extractor-contract.test.js",
-            "tests/unit/asset-evidence-route-schema-contract.test.js",
-            "tests/unit/asset-extraction-job-view.test.js",
-            "tests/unit/asset-extraction-provider.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/edge-extraction-poller.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-144 is partial",
-          "evidence": [
-            "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-            "src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-            "src/app/api/edge/extraction-jobs/claim/route.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -1051,7 +757,7 @@
       ],
       "featureCount": 3,
       "readyFeatureCount": 0,
-      "progressPercent": 96
+      "progressPercent": 100
     },
     "crm": {
       "status": "verified",
@@ -1437,24 +1143,10 @@
         },
         {
           "id": "FR-144",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 9,
-          "evidence": [
-            "src/app/api/platform/edge-devices/credentials/[id]/route.js",
-            "src/app/api/platform/edge-devices/credentials/route.js",
-            "src/modules/identity/edge-device-credential.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
+          "testCount": 9
         }
       ],
       "checks": {
@@ -1613,26 +1305,6 @@
           "check": "requirements",
           "summary": "FR-121 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-144 is partial",
-          "evidence": [
-            "src/app/api/platform/edge-devices/credentials/[id]/route.js",
-            "src/app/api/platform/edge-devices/credentials/route.js",
-            "src/modules/identity/edge-device-credential.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -1827,22 +1499,10 @@
         },
         {
           "id": "FR-144",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 9,
-          "evidence": [
-            "src/app/(pm)/platform/integrations/page.jsx",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
+          "testCount": 9
         }
       ],
       "checks": {
@@ -1980,24 +1640,6 @@
           "check": "requirements",
           "summary": "FR-125 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-144 is partial",
-          "evidence": [
-            "src/app/(pm)/platform/integrations/page.jsx",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -3150,42 +2792,17 @@
         },
         {
           "id": "FR-143",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 8,
-          "evidence": [
-            "src/app/api/assets/evidence/[id]/extract/route.js",
-            "src/app/api/assets/evidence/[id]/extraction-job/route.js",
-            "src/modules/project-manager/api-docs/openapi.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/asset-evidence-extractor-contract.test.js",
-            "tests/unit/asset-evidence-route-schema-contract.test.js",
-            "tests/unit/asset-extraction-job-view.test.js",
-            "tests/unit/asset-extraction-provider.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/edge-extraction-poller.test.js"
-          ]
+          "testCount": 8
         },
         {
           "id": "FR-144",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 9,
-          "evidence": [
-            "src/modules/project-manager/api-docs/openapi.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
+          "testCount": 9
         }
       ],
       "checks": {
@@ -3366,43 +2983,6 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-143",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-143 is partial",
-          "evidence": [
-            "src/app/api/assets/evidence/[id]/extract/route.js",
-            "src/app/api/assets/evidence/[id]/extraction-job/route.js",
-            "src/modules/project-manager/api-docs/openapi.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/asset-evidence-extractor-contract.test.js",
-            "tests/unit/asset-evidence-route-schema-contract.test.js",
-            "tests/unit/asset-extraction-job-view.test.js",
-            "tests/unit/asset-extraction-provider.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/edge-extraction-poller.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-144 is partial",
-          "evidence": [
-            "src/modules/project-manager/api-docs/openapi.js",
-            "tests/integration/fr143-asset-extraction-job.test.js",
-            "tests/integration/fr144-edge-device-credential.test.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/edge-device-credential-routes.test.js",
-            "tests/unit/edge-device-credential.test.js",
-            "tests/unit/edge-extraction-job-contract.test.js",
-            "tests/unit/fr080-ui-contract.test.js",
-            "tests/unit/fr141-edge-device-heartbeat.test.js",
-            "tests/unit/line-registry-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -4712,26 +4292,24 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจออกกุญแจให้ Zuri Edge Device ของตนเองหนึ่งครั้ง แล้วอุปกรณ์ที่หน้างานดึงงานอ่านหลักฐานทรัพย์สินไปประมวลผลด้วยโมเดลในเครื่องตนเอง ส่งผลกลับมาให้คนตรวจในหน้าเดิม โดยคลาวด์ไม่เก็บ API key ของผู้ให้บริการและไม่เก็บความลับของอุปกรณ์",
-      "progressPercent": 80,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-017 registry status is building",
-        "FR-143 is partial",
-        "FR-144 is partial"
+        "FEAT-017 registry status is building"
       ],
       "requirements": [
         {
           "id": "FR-143",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 11,
           "testCount": 8
         },
         {
           "id": "FR-144",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 11,
           "testCount": 9
         }

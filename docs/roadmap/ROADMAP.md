@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.22.0"
+version: "2.23.0"
 updated: "2026-09-04"
 owner: "Owen"
 source_of_truth: true
@@ -200,6 +200,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > Revision 2.21.0 (2026-09-03): เพิ่ม TASK-FR-142 — deployment layer ใหม่ตาม ADR-058: Docker Compose + ngrok แทน Vercel (`Dockerfile`, `docker-compose.yml`, `scripts/deploy.ps1`, `docs/deployment/docker-ngrok.md`) พร้อม `GET /api/health` และ `PUBLIC_BASE_URL`; ลบ `vercel.json` / `.vercelignore` ที่เป็น deployment-only
 
 > Revision 2.22.0 (2026-09-04): ประกาศ **FEAT-017 / FR-143 + FR-144** ตาม **ADR-059** — ย้ายการอ่านหลักฐานทรัพย์สิน (FR-138) จาก OpenAI key ของแพลตฟอร์มไปรันบน Zuri Edge Device ที่หน้างานลูกค้า ด้วยรูปแบบ **pull**: คลาวด์เข้าคิวงาน `AssetExtractionJob` อุปกรณ์เป็นฝ่ายเปิดการเชื่อมต่อออกมารับงานเอง (claim → ดาวน์โหลดไบต์ → complete/fail) เพราะอุปกรณ์อยู่หลัง NAT และตัวแอปเองก็รันบน Docker Compose + ngrok แล้ว (ADR-058) คลาวด์จึงเรียกเข้าไปไม่ได้และไม่ควรถือความลับของอุปกรณ์ (ADR-041 D3). อุปกรณ์ยืนยันตัวด้วย `EdgeDeviceCredential` ที่ผูกกับ Business เดียว เก็บเฉพาะ SHA-256 คืนกุญแจดิบครั้งเดียวตอน mint และเพิกถอนได้ — เป็นตระกูลที่สามแยกจาก `ApiAccessKey` (ผูก Tenant, FR-106) และ plugin session (FR-123) พร้อมปิดรายการค้าง "device-scoped credential" ของ FR-141. เลนนี้เป็น **governance เท่านั้น**: ประกาศ id, ADR, feature note, ความเป็นเจ้าของใน charter, task นี้ และ contract `contracts/edge-extraction-job.schema.json` ที่ repo `zuri-edge-device` จะเขียนตาม — ยังไม่มี route, model, migration หรือ UI ในคอมมิตนี้ และ **ยังไม่ apply migration ขึ้น production** ในเวฟนี้. ทาง OpenAI (FR-138) ไม่เปลี่ยนและยังเลือกใช้ได้ผ่าน `ZURI_ASSET_EVIDENCE_PROVIDER`
+
+> Revision 2.23.0 (2026-09-04): FR-143 / FR-144 ส่งมอบจริงและ apply migration บน production แล้ว — PR #213 (merge `6e7aadc`) ลง `EdgeDeviceCredential`, `AssetExtractionJob`, สี่ device route, credential mint/list/revoke, การเลือก provider และ panel บน `/platform/integrations` ที่แทนตัวสร้าง pairing string ปลอมในเบราว์เซอร์ (`tok_edge_` / `sec_edge_` ที่ไม่มี server ไหนเก็บ); `npm test` 404 ไฟล์ / 3,450 tests, build clean, govern critical 0 · warning 0. จากนั้นตามคำสั่งเจ้าของ migration `20260904090000_edge_device_credential_and_extraction_job` ถูก dry-run ใน transaction ที่ ROLLBACK แล้ว apply บน production และบันทึก version ลง `supabase_migrations.schema_migrations` — ตรวจแล้วทั้งสองตารางมี RLS enabled+forced, policy `zuri_app_runtime_all` ตารางละ 1, `zuri_app_runtime` ได้ SELECT/INSERT/UPDATE/DELETE, ไม่มี grant ให้ anon/authenticated/service_role/PUBLIC และ index ครบตามที่ประกาศ. **ยังเปิดอยู่:** runtime ฝั่งอุปกรณ์อยู่ใน repo `zuri-edge-device` (ADR-059 D6) — repo นี้ให้ contract schema กับ reference poller เท่านั้น; ยังไม่มีการ mint credential บน production; และ ADR-059 ตั้งใจไม่ตัดสินว่าใครยกเลิกงานที่ CLAIMED ได้ จึงไม่มี surface ไหนไปถึงสถานะ CANCELLED
 
 ## Phases
 
