@@ -26,7 +26,7 @@ describe('FR-137/138 Asset evidence intake execution', () => {
     attacker = ownsElsewhere({ owns: otherBusiness.id, sees: business.id, visibleDomains: ['assets'] })
   })
 
-  it('persists one FileAsset, intake/evidence/refs and advances only after human review', async () => {
+  it('persists Asset photo and payment evidence, then advances only after every human review', async () => {
     const file = await uploadAssetEvidence({
       businessId: business.id,
       name: 'receipt.pdf',
@@ -42,25 +42,43 @@ describe('FR-137/138 Asset evidence intake execution', () => {
     }, { viewer: owner, objectStoragePort })
     expect(duplicate.id).toBe(file.id)
     expect(objectStoragePort.put).toHaveBeenCalledTimes(1)
+    const photo = await uploadAssetEvidence({
+      businessId: business.id,
+      name: 'asset-photo.jpg',
+      mime: 'image/jpeg',
+      content: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]),
+    }, { viewer: owner, objectStoragePort })
+    expect(photo).toMatchObject({ mime: 'image/jpeg', status: 'ACTIVE' })
+    expect(objectStoragePort.put).toHaveBeenCalledTimes(2)
 
     const envelope = {
       schemaVersion: '1.0', source: { channel: 'WEB', correlationId: 'integration-receipt-1' },
       businessId: business.id, origin: 'PROCUREMENT_PURCHASE',
       item: { name: 'Notebook', categoryCode: 'IT', quantity: 1, expiryControlled: false },
-      evidence: [{ fileAssetId: file.id, role: 'PAYMENT_PROOF' }],
+      evidence: [
+        { fileAssetId: photo.id, role: 'ASSET_PHOTO' },
+        { fileAssetId: file.id, role: 'PAYMENT_PROOF' },
+      ],
       procurementRefs: [{ type: 'PR', system: 'ERP', value: 'PR-E-1' }, { type: 'PO', system: 'ERP', value: 'PO-E-1' }],
       lot: null, responsibilities: [], location: null, projectAllocation: null, depreciation: null,
     }
     const created = await upsertAssetIntake(envelope, { viewer: owner })
     expect(created).toMatchObject({ replayed: false, validation: { ok: true }, intake: { status: 'NEEDS_REVIEW' } })
-    expect(created.intake.evidence).toHaveLength(1)
+    expect(created.intake.evidence).toHaveLength(2)
     expect(created.intake.procurementRefs).toHaveLength(2)
 
     const replay = await upsertAssetIntake(envelope, { viewer: owner })
     expect(replay).toMatchObject({ replayed: true, intake: { id: created.intake.id } })
     expect(await prisma.assetIntake.count({ where: { sourceCorrelationId: 'integration-receipt-1' } })).toBe(1)
 
-    const reviewed = await reviewAssetEvidence(created.intake.evidence[0].id, {
+    const photoEvidence = created.intake.evidence.find((item) => item.role === 'ASSET_PHOTO')
+    const paymentEvidence = created.intake.evidence.find((item) => item.role === 'PAYMENT_PROOF')
+    const photoReviewed = await reviewAssetEvidence(photoEvidence.id, {
+      decision: 'ACCEPT', corrections: [], note: 'Matched physical Asset',
+    }, { viewer: owner })
+    expect(photoReviewed).toMatchObject({ evidence: { status: 'REVIEWED' }, intakeStatus: 'NEEDS_REVIEW' })
+
+    const reviewed = await reviewAssetEvidence(paymentEvidence.id, {
       decision: 'ACCEPT', corrections: [], note: 'Matched source document',
     }, { viewer: owner })
     expect(reviewed).toMatchObject({ evidence: { status: 'REVIEWED' }, intakeStatus: 'READY_FOR_REGISTRATION' })

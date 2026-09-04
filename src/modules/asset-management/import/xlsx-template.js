@@ -77,7 +77,7 @@ export function buildAssetTemplateWorkbook({ exampleRows = [] } = {}) {
   ;[
     'Zuri Asset Intake 1.0 — zuri-ai เป็น source of truth; Excel/Google Sheets เป็น snapshot สำหรับ preview',
     '1. กรอก Assets หนึ่งแถวต่อ correlationId แล้วผูก Evidence และ ProcurementRefs ด้วย correlationId เดียวกัน',
-    '2. PROCUREMENT_PURCHASE ต้องมี PAYMENT_PROOF, PR และ PO; สินค้าควบคุมอายุต้องมี lotId และ expiresOn',
+    '2. PROCUREMENT_PURCHASE ต้องมี ASSET_PHOTO, PAYMENT_PROOF, PR และ PO; WARRANTY ใส่เมื่อมี; สินค้าควบคุมอายุต้องมี lotId และ expiresOn',
     '3. FileAsset ID ต้องอัปโหลดผ่านระบบก่อน — ห้ามใส่ URL, token, secret หรือ binary ใน workbook',
     '4. Import รายงานชีต/แถว/คอลัมน์และไม่บันทึกข้อมูลโดยอัตโนมัติ',
   ].forEach((value, index) => { readme.getCell(index + 1, 1).value = value })
