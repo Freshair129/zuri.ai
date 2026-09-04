@@ -178,7 +178,8 @@ writing one sentence here, or the governance chain stops.
   {"id":"FR-131","primaryDomain":"knowledge","useCase":"ผู้ดูแลนำเข้าใบอัตราค่าขนส่งของซัพพลายเออร์เป็นเอกสาร แล้วอัตราตามระดับสมาชิกถูกเผยแพร่เป็น business knowledge ที่บอกได้ว่ามีผลเมื่อใด ใครอนุมัติ และมาจากไฟล์ต้นทางใด ไม่ใช่ตารางที่แก้ทับได้เงียบ ๆ"},
   {"id":"FR-132","primaryDomain":"agent","useCase":"ลูกค้าถามราคาในห้องแชท LINE เดิม แล้วได้ใบเสนอราคาแบบขั้นบันไดที่ปัดขึ้นเป็นสิบบาทกลับไปในคำตอบ โดยกำไรขั้นต่ำถูกบังคับก่อนตอบและไม่ถูกส่งออกไปกับราคา"},
   {"id":"FR-141","primaryDomain":"agent","useCase":"เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์"},
-  {"id":"FR-142","primaryDomain":"platform-control","useCase":"ผู้ดูแลระบบรัน docker compose up -d บนเครื่องของตนเอง แล้ว Compose รู้เองว่า web พร้อมให้บริการจาก GET /api/health ก่อนจะเปิด ngrok ออกสู่อินเทอร์เน็ต และหน้า Platform Integrations แสดง webhook URL จาก origin ที่เปิดอยู่จริง (https://<NGROK_DOMAIN>/api/agent/line-webhook) โดยไม่ต้องพึ่ง Vercel"}
+  {"id":"FR-142","primaryDomain":"platform-control","useCase":"ผู้ดูแลระบบรัน docker compose up -d บนเครื่องของตนเอง แล้ว Compose รู้เองว่า web พร้อมให้บริการจาก GET /api/health ก่อนจะเปิด ngrok ออกสู่อินเทอร์เน็ต และหน้า Platform Integrations แสดง webhook URL จาก origin ที่เปิดอยู่จริง (https://<NGROK_DOMAIN>/api/agent/line-webhook) โดยไม่ต้องพึ่ง Vercel"},
+  {"id":"FR-145","primaryDomain":"platform-control","useCase":"ผู้ดูแลระบบรัน docker compose up -d แล้ว query ทุกตัวไปหา Supabase ผ่าน session pooling ที่เร็วเป็นค่า default โดยไม่ต้องตั้งค่าอะไรเพิ่ม เพราะระบบรู้เองว่าตัวเองรันเป็น container เดียวยาว ๆ ไม่ใช่ serverless function บน Vercel"}
 ]
 ```
 <!-- readiness-metadata:end -->

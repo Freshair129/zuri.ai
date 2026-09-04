@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-04T03:28:13.497Z",
+  "generatedAt": "2026-09-04T03:44:01.038Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 9,
-    "featureCount": 113,
-    "readyFeatureCount": 98,
-    "requirementCount": 144,
-    "verifiedRequirementCount": 134,
+    "featureCount": 114,
+    "readyFeatureCount": 99,
+    "requirementCount": 145,
+    "verifiedRequirementCount": 135,
     "progressPercent": 93.1,
     "gapCount": 20,
     "gaps": [
@@ -2193,10 +2193,11 @@
       },
       "featureIds": [
         "FR-105",
-        "FR-142"
+        "FR-142",
+        "FR-145"
       ],
-      "featureCount": 2,
-      "readyFeatureCount": 2,
+      "featureCount": 3,
+      "readyFeatureCount": 3,
       "progressPercent": 100
     },
     "project-manager": {
@@ -8704,6 +8705,35 @@
         "tests/unit/fr142-health-route.test.js",
         "tests/unit/line-registry-service.test.js",
         "tests/unit/public-base-url.test.js"
+      ]
+    },
+    {
+      "id": "FR-145",
+      "title": "Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9): `resolvePoolMode(env)` (`src/lib/db.js`) picks Supavisor SESSION pooling (port 5432, no `pgbouncer` param) for a long-running process and TRANSACTION pooling (port 6543, `pgbouncer=true`) only when `VERCEL` is set, so a single container gets a small stable connection count and one Postgres round trip per query instead of paying a transaction-mode backend checkout on every query it never needed; `ZURI_DB_POOL_MODE=session|transaction` is an explicit operator override for a topology neither branch guesses (e.g. several container replicas sharing one Postgres, which still needs transaction-mode safety). Applies only to a `*.pooler.supabase.com` host — a direct connection or non-Supabase Postgres passes through untouched.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-145"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [],
+      "useCase": "ผู้ดูแลระบบรัน docker compose up -d แล้ว query ทุกตัวไปหา Supabase ผ่าน session pooling ที่เร็วเป็นค่า default โดยไม่ต้องตั้งค่าอะไรเพิ่ม เพราะระบบรู้เองว่าตัวเองรันเป็น container เดียวยาว ๆ ไม่ใช่ serverless function บน Vercel",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-145",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "src/lib/db.js",
+        "tests/unit/db-runtime-config.test.js"
       ]
     }
   ]

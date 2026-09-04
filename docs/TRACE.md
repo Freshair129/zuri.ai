@@ -1153,3 +1153,10 @@
 - **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/agent/heartbeat/route.js` · `src/app/api/edge/extraction-jobs/[id]/complete/route.js` · `src/app/api/edge/extraction-jobs/[id]/evidence/route.js` · `src/app/api/edge/extraction-jobs/[id]/fail/route.js` · `src/app/api/edge/extraction-jobs/claim/route.js` · `src/app/api/platform/edge-devices/credentials/[id]/route.js` · `src/app/api/platform/edge-devices/credentials/route.js` · `src/modules/agent/edge-device-registry.js` · `src/modules/identity/edge-device-credential.js` · `src/modules/project-manager/api-docs/openapi.js`
 - **Follows:** BR-002, BR-025, FR-019, NFR-008, SDD-044, SDD-085, SEC-001, SEC-008, SEC-016, SEC-025, docs/features/FR-019-enterprise-api.md
 - **Tests:** `tests/integration/fr143-asset-extraction-job.test.js` · `tests/integration/fr144-edge-device-credential.test.js` · `tests/integration/openapi-docs.test.js` · `tests/unit/edge-device-credential-routes.test.js` · `tests/unit/edge-device-credential.test.js` · `tests/unit/edge-extraction-job-contract.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/fr141-edge-device-heartbeat.test.js` · `tests/unit/line-registry-service.test.js`
+
+### FR-145 — Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9): `resolvePoolMode(env)` (`src/lib/db.js`) picks Supavisor SESSION pooling (port 5432, no `pgbouncer` param) for a long-running process and TRANSACTION pooling (port 6543, `pgbouncer=true`) only when `VERCEL` is set, so a single container gets a small stable connection count and one Postgres round trip per query instead of paying a transaction-mode backend checkout on every query it never needed; `ZURI_DB_POOL_MODE=session|transaction` is an explicit operator override for a topology neither branch guesses (e.g. several container replicas sharing one Postgres, which still needs transaction-mode safety). Applies only to a `*.pooler.supabase.com` host — a direct connection or non-Supabase Postgres passes through untouched.
+
+- **Status:** n/a
+- **Code:** `src/lib/db.js`
+- **Follows:** —
+- **Tests:** `tests/unit/db-runtime-config.test.js`

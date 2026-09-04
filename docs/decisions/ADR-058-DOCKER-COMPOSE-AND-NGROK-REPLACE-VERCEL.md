@@ -100,6 +100,27 @@ D8. **The later VPS step needs no application change.** `.github/workflows/
     `docker compose pull web` instead of building; replacing ngrok with a
     domain + reverse proxy is `--scale ngrok=0` plus a `PUBLIC_BASE_URL` change.
 
+D9. **The Supabase pooler MODE follows deployment topology, not a fixed
+    default (FR-145).** Verifying this deployment for real (2026-09-04) found
+    every query paying a Supavisor transaction-mode round trip — the mode
+    `src/lib/db.js` forced for every deployment because Vercel, a serverless
+    platform with many concurrent short-lived invocations, was the only target
+    that ever existed. Measured on the same host, same Supabase project, a
+    pre-warmed connection pool: transaction mode (port 6543, `pgbouncer=true`)
+    cost ~650-750ms per trivial query with **no** improvement across repeated
+    calls; session mode (port 5432, no `pgbouncer` param) cost ~130-145ms,
+    matching raw TCP RTT — a sustained ~5x difference, confirmed both over
+    HTTP and in-process against the client directly. A single long-running
+    container is exactly the case session pooling is for: one process holds a
+    small, stable connection count for its whole lifetime, so it never needs
+    the per-transaction backend-checkout mechanism that protects a Postgres
+    instance from a burst of ephemeral serverless connections. `resolvePoolMode`
+    now defaults to `session` and switches to `transaction` only when `VERCEL`
+    (the platform's own env var) is present, with `ZURI_DB_POOL_MODE` as an
+    explicit override for a topology neither branch guesses (e.g. several
+    container replicas against one Postgres). Vercel's own behavior is
+    unchanged.
+
 ## Consequences
 
 - `docker compose up -d --build` starts the whole deployment; `docker compose

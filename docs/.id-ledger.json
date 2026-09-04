@@ -255,6 +255,7 @@
     "FR-142",
     "FR-143",
     "FR-144",
+    "FR-145",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2770,6 +2771,19 @@
         {
           "anchor": "edge device credential",
           "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-145": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fe0b5247d3f5d5f07f4d892abdd5f16dce155d24e5e032c20d288d9769d69e20",
+      "history": [
+        {
+          "anchor": "supabase pooler mode follows deployment topology not a",
+          "since": "2026-09-04",
           "reason": "declared"
         }
       ]

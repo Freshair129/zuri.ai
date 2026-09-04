@@ -7,10 +7,10 @@
     "test_files": 427
   },
   "summary": {
-    "critical": 1,
+    "critical": 0,
     "warning": 0,
-    "info": 23,
-    "overall": "CRITICAL"
+    "info": 24,
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "475 id(s) pinned across 10 families",
-      "details": "ADR 59 · BR 25 · FEAT 17 · FR 144 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 475",
+      "title": "476 id(s) pinned across 10 families",
+      "details": "ADR 59 · BR 25 · FEAT 17 · FR 145 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 476",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -269,15 +269,13 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "C24",
-      "severity": "critical",
+      "id": "I24",
+      "severity": "info",
       "check": "audit-entity-type",
-      "title": "1 audit entityType value(s) are not SCREAMING_SNAKE_CASE",
-      "details": "AssetExtractionJob (src/modules/asset-management/application/asset-extraction-job-service.js)",
-      "files": [
-        "src/modules/asset-management/application/asset-extraction-job-service.js"
-      ],
-      "action": "Rewrite the value in SCREAMING_SNAKE_CASE. The rule and its reasons are on `recordAudit` in src/modules/project-manager/application/audit.js. If the value is NOT an AuditEvent entityType — RawExternalRecord and the link models carry a column with the same name — then the file it lives in should not be calling recordAudit, and that is the thing to fix"
+      "title": "audit entityType checked in 48 file(s) that write audit events",
+      "details": "every value is SCREAMING_SNAKE_CASE",
+      "files": [],
+      "action": "No action — recorded so this check's reach is visible rather than assumed"
     }
   ]
 }
