@@ -12,7 +12,7 @@ import { listWorkForViewer } from '@/modules/project-manager/application/work-re
 import { archiveWorkstream } from '@/modules/project-manager/application/project-service'
 import { computeProjectProgress } from '@/modules/project-manager/application/progress-service'
 import { activeWorkstream } from '@/modules/project-manager/application/active-filters'
-import { listAudit, AUDIT_MAX_LIMIT } from '@/modules/project-manager/application/audit'
+import { listAudit, listAuditEntityTypes, recordAudit, AUDIT_MAX_LIMIT } from '@/modules/project-manager/application/audit'
 import { makeViewer } from '../factories/viewer'
 
 // @req FR-005, FR-007, FR-014 — the global browser lists the population the
@@ -220,5 +220,47 @@ describe('the audit stream says when it is a window', () => {
   it('never honours a limit above the hard cap', async () => {
     const result = await listAudit(prisma, { limit: 10_000 })
     expect(result.limit).toBe(AUDIT_MAX_LIMIT)
+  })
+})
+
+describe('the audit filter offers what the log actually contains', () => {
+  // The page used to keep its own list of entityTypes: 15 of the 57 this
+  // codebase writes. On an audit log a missing filter option is not a cosmetic
+  // gap — it is indistinguishable from "that never happened".
+  it('reports every entityType present, with a real count', async () => {
+    await recordAudit(prisma, { entityType: 'AUDIT_FACET_PROBE', entityId: 'probe-1', action: 'PROBED' })
+    await recordAudit(prisma, { entityType: 'AUDIT_FACET_PROBE', entityId: 'probe-2', action: 'PROBED' })
+
+    const facets = await listAuditEntityTypes(prisma)
+    const probe = facets.find((facet) => facet.value === 'AUDIT_FACET_PROBE')
+    expect(probe).toBeDefined()
+    expect(probe.count).toBe(2)
+
+    // Whatever else the suite wrote is in there too — the point of deriving it.
+    expect(facets.length).toBeGreaterThan(1)
+    expect(facets.every((facet) => typeof facet.value === 'string' && facet.value.length > 0)).toBe(true)
+    // By codepoint, not locale, and not the database's collation: SQLite and
+    // Postgres disagree about where `_` sorts, so `WORK_ITEM` and `WORKSTREAM`
+    // would swap places between dev and production if the engine ordered this.
+    const byCodepoint = [...facets].sort((a, b) => (a.value < b.value ? -1 : a.value > b.value ? 1 : 0))
+    expect(byCodepoint).toEqual(facets)
+  })
+
+  it('counts the whole log, not the filtered window', async () => {
+    // A facet narrowed by its own filter would collapse to the single option
+    // already chosen, and an operator could not get back to the others.
+    const filtered = await listAudit(prisma, { entityType: 'AUDIT_FACET_PROBE', limit: 1, withEntityTypes: true })
+    expect(filtered.events).toHaveLength(1)
+    expect(filtered.entityTypes.length).toBeGreaterThan(1)
+    expect(filtered.entityTypes.some((facet) => facet.value !== 'AUDIT_FACET_PROBE')).toBe(true)
+
+    // And the counts outlive the window: the cap hid a row, the facet did not.
+    const probe = filtered.entityTypes.find((facet) => facet.value === 'AUDIT_FACET_PROBE')
+    expect(probe.count).toBeGreaterThan(filtered.events.length)
+  })
+
+  it('is opt-in, so an existing caller pays for no extra query', async () => {
+    const plain = await listAudit(prisma, { limit: 1 })
+    expect(plain).not.toHaveProperty('entityTypes')
   })
 })

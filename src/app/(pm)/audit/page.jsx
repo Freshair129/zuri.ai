@@ -9,33 +9,36 @@
 // the requirement the API implements.
 // @tested tests/e2e/smoke.spec.js, tests/unit/audit-page.test.js
 import { useState } from 'react'
-import { DEPENDENCY_ENDPOINT_TYPES } from '@/lib/validation/enums'
 import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 
-// The dependency-endpoint half is DERIVED: those six are the same vocabulary
-// `DEPENDENCY_ENDPOINT_TYPES` declares, so a new endpoint type appears in this
-// filter without anyone remembering to add it (SDD-002).
+// The filter's options come from the LOG, not from a list kept here.
 //
-// The rest stays spelled out, and PORTFOLIO/TENANT/BUSINESS deliberately are NOT
-// taken from `WORKSPACE_SCOPE_TYPES` even though the three values are identical.
-// Here they name the **entity** an AuditEvent is about; there they name a
-// Workspace's scope. Deriving one from the other because the strings coincide
-// would couple two vocabularies that are free to diverge — a worse defect than
-// the copy, and a silent one.
-const ENTITY_TYPES = [
-  '', ...DEPENDENCY_ENDPOINT_TYPES,
-  'DEPENDENCY', 'REPOSITORY', 'PROJECT_REPOSITORY', 'WORKSPACE', 'PORTFOLIO', 'TENANT',
-  'BUSINESS', 'BRANCH', 'LEGAL_ENTITY', 'SNAPSHOT',
-]
+// This used to be six values derived from `DEPENDENCY_ENDPOINT_TYPES` plus ten
+// spelled out by hand. That covered 15 of the 57 entityTypes this codebase
+// writes, and the gap was not academic: of the seven types actually present in
+// production, four could not be filtered for — PERSON among them, the second
+// most common. A partial filter on an audit log is worse than none, because a
+// type that is missing from the dropdown looks exactly like a type that never
+// happened.
+//
+// Deriving from one enum was the right instinct (SDD-002) applied to too small
+// a source. `AuditEvent.entityType` has no single enum behind it and cannot
+// have one: it is written by every domain's write service and it names
+// categories that are not models at all (SNAPSHOT, STEP_UP, AGENT_ACTION). The
+// only complete source is the table, so the API returns what is in it.
+//
+// This also removes a failure the old list could not avoid — offering an option
+// that matches zero rows, which is indistinguishable from a broken filter.
 
 // Payload fields come from every domain's write service (project, work item,
 // goal, membership, ...), so there is no single enum list this page could
-// hand-copy to label them (that list would be incomplete the day it was
-// written, and stale the day after — SDD-002's reasoning for the derived half
-// of ENTITY_TYPES above applies here too). Instead this reuses the one thing
-// every enum in this codebase already has in common: it is written as
-// SCREAMING_SNAKE_CASE. That is the same underscore-replacement idiom the
+// hand-copy to label them — that list would be incomplete the day it was
+// written and stale the day after, which is exactly what happened to the
+// entityType filter above before it was derived from the log. Instead this
+// reuses the one thing every enum in this codebase already has in common: it
+// is written as SCREAMING_SNAKE_CASE (enforced for audit entityTypes by
+// preflight `audit-entity-type`). That is the same underscore-replacement idiom the
 // entityType column and StatusPill already apply on this page — extended to
 // payload values that have the same shape, whichever domain wrote them.
 const ENUM_LIKE_VALUE = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/
@@ -135,6 +138,42 @@ function PayloadSummary({ payload }) {
   )
 }
 
+/**
+ * The filter's options, from the facet the API returned.
+ *
+ * Exported for the same reason the payload formatters are: this project's
+ * client components run under a node test environment with no DOM, so a pure
+ * function is the real checkable surface.
+ *
+ * Two things it has to get right that a plain `.map()` would not:
+ *
+ *  - **Before the first response there is no facet.** Returning only "All
+ *    entity types" is correct — the page is still loading and has nothing to
+ *    offer yet. Inventing a placeholder list would show options that may not
+ *    exist.
+ *  - **The selected value must survive.** The page refetches with
+ *    `?entityType=`, and a facet that arrived without the current selection
+ *    (a row deleted between renders, or a hand-typed URL) would silently reset
+ *    the `<select>` to "All" while the list below stayed filtered. It is kept
+ *    as an option, marked so an operator can see why it shows nothing.
+ */
+export function buildEntityTypeOptions(facets, selected = '') {
+  const rows = Array.isArray(facets) ? facets : []
+  const options = [{ value: '', label: 'All entity types' }]
+  for (const row of rows) {
+    if (!row || typeof row.value !== 'string' || !row.value) continue
+    const count = Number.isFinite(row.count) ? row.count : null
+    options.push({
+      value: row.value,
+      label: count === null ? humanizeEnumLikeValue(row.value) : `${humanizeEnumLikeValue(row.value)} (${count})`,
+    })
+  }
+  if (selected && !options.some((option) => option.value === selected)) {
+    options.push({ value: selected, label: `${humanizeEnumLikeValue(selected)} (0)` })
+  }
+  return options
+}
+
 export default function AuditPage() {
   const [entityType, setEntityType] = useState('')
   const url = entityType ? `/api/audit?entityType=${entityType}&limit=200` : '/api/audit?limit=200'
@@ -157,8 +196,8 @@ export default function AuditPage() {
       </p>
       <div className="mb-3">
         <select className="input w-auto" value={entityType} onChange={(e) => setEntityType(e.target.value)} aria-label="Filter by entity type">
-          {ENTITY_TYPES.map((t) => (
-            <option key={t} value={t}>{t ? t.replace(/_/g, ' ') : 'All entity types'}</option>
+          {buildEntityTypeOptions(data?.entityTypes, entityType).map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </div>

@@ -22,6 +22,11 @@ export async function GET(request) {
       entityType: q.entityType || undefined,
       entityId: q.entityId || undefined,
       limit: q.limit ? Number(q.limit) : 100,
+      // The filter's options come from the log itself. A hand-kept list on the
+      // page offered 15 of the 57 entityTypes this codebase writes, so four of
+      // the seven types actually present in production could not be filtered
+      // for at all — including PERSON, the second most common.
+      withEntityTypes: true,
     })
   })
 }

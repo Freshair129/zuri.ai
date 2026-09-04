@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.35.0b |
+| **Version** | 1.36.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-03 |
 
@@ -334,7 +334,7 @@ these compatibility reads are not second stable list DTOs and are not used by
 | POST | `/api/import/bundle/commit` | `{bundle}` → atomic single-transaction commit ของทั้ง programme ผ่าน orchestrator ที่เรียกเฉพาะ service เดิม; bundle receipt + idempotent replay ด้วย `trace.idempotencyKey` (FR-108, ADR-049 D8/D9) |
 | GET | `/api/backup/export` | full snapshot JSON |
 | POST | `/api/backup/import` | `{snapshot}` = preview; `{snapshot, confirm:true}` = restore |
-| GET | `/api/audit` | events (filter: entityType, entityId, limit) |
+| GET | `/api/audit` | events (filter: entityType, entityId, limit), plus `entityTypes: [{value, count}]` — every entityType present in the log with how many rows carry it. The facet is **unfiltered**: it counts the whole table, not the current `where`, so choosing one option never removes the others and the counts stay true past the `limit` window. The audit console builds its filter from this instead of a hand-kept list, which covered 15 of the 57 entityTypes the codebase writes (FR-014) |
 
 ## Managed local files (FR-045 — implemented beta)
 
@@ -466,6 +466,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.36.0b | 2026-09-04 | candidate | `GET /api/audit` additionally returns an `entityTypes` facet — every entityType present in the log with its row count, counted across the whole table rather than the current filter. The audit console's entity filter is built from it; the hand-kept list it replaces offered 15 of the 57 entityTypes this codebase writes, and missed four of the seven types actually present in production. Additive: no request parameter changes and no existing response field moves. | working-tree | Claude Code |
 | 1.35.0b | 2026-09-04 | candidate | FR-144 adds the three edge device credential operations under `/api/platform/edge-devices/credentials`; FR-143 adds the four device-authenticated job operations under `/api/edge/extraction-jobs` and the review surface's `GET /api/assets/evidence/[id]/extraction-job`, and gives the existing extract route a provider choice (202 + job on the edge path). Route handler count 122 → 129 | working-tree | Claude Code |
 | 1.34.0b | 2026-09-03 | candidate | FR-092 gains its production trigger: `POST /api/market/translations` (owner-only, body `{ businessId, limit? }`, one audit event per run). Closes D2-domain-market-intelligence-07 and D3-integration-knowledge-document-intake-05 — the translation seam had no caller outside tests. Acquisition adapters stay unwired pending a source-specific legal/ToS review (FR-092 feature note, "Decision 2026-09-02"); route handler count 118 → 119 | working-tree | Claude Code |
 | 1.33.0b | 2026-09-02 | candidate | Gap-fix wave 2 integration: FR-038 `POST /api/platform/users/memberships` (an owner attaches an existing Person to an owned Business as MEMBER — the first surface that can create a Business-level Membership for somebody other than the caller); FR-106 `GET /api/platform/api-access-keys` (metadata-only listing under the mint/revoke authority); FR-061/062 domain grants are now enforced server-side on the crm, market and people families — a caller whose Membership lacks the domain receives `404 Business not found`, indistinguishable from an unknown Business. Handler-count marker reconciled to the route tree | — | Claude Code |
