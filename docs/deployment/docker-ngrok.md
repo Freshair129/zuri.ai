@@ -245,6 +245,32 @@ No application change is needed:
 3. Disable the tunnel: `docker compose up -d --scale ngrok=0`, or remove the
    service.
 
+## Database connection pooling (FR-145, ADR-058 D9)
+
+If `DATABASE_URL` points at a Supabase `*.pooler.supabase.com` host, `src/lib/db.js`
+picks the Supavisor pooler MODE automatically — no operator action needed:
+
+- **Session pooling** (port 5432, default): correct for this deployment. One
+  container is one long-running process; a small, stable connection count and
+  one Postgres round trip per query is both sufficient and fast.
+- **Transaction pooling** (port 6543, `pgbouncer=true`): only when the `VERCEL`
+  env var is present — a serverless platform with many concurrent short-lived
+  invocations, where transaction-mode pooling protects Postgres from a
+  connection burst at the cost of a per-transaction backend checkout on every
+  query.
+
+Measured 2026-09-04 against a real production Supabase project from this exact
+deployment, same host, a pre-warmed connection pool: transaction mode cost
+~650-750ms per trivial query with no improvement across repeated calls; session
+mode cost ~130-145ms, matching raw TCP round-trip time — a sustained ~5x
+difference. `GET /api/health`'s `dbLatencyMs` field is the fastest way to see
+which mode is active on a given deployment.
+
+Set `ZURI_DB_POOL_MODE=transaction` in `.env` only for a topology this
+auto-detection cannot see — e.g. several container replicas sharing one
+Postgres, which needs transaction-mode's connection-limit protection despite
+not being Vercel. Leave it unset otherwise.
+
 ## Known limits
 
 - FR-045 local file mounts use Windows path semantics on purpose (SEC-007); the
