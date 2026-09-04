@@ -5,14 +5,19 @@
 // @tested tests/unit/topbar-no-dropdown.test.js, tests/unit/scope-view-context.test.js
 // @req FR-043 - direct Project owner fills the Business context when a deep link has no saved shell selection.
 // @spec ADR-014, SDD-021
-import { usePathname } from 'next/navigation'
+// @req FR-046, FR-095 — sign-out control: nothing in the BusinessShell chrome
+// called `POST /api/auth/logout` before this, so a signed-in person had no way
+// to sign out. `useRouter` returns here for that redirect only — `router.push`
+// for Project creation (ADR-036 D1) stays removed; see topbar-no-dropdown.test.js.
+// @spec ADR-017, SEC-008
+// @tested tests/unit/sign-out.test.js, tests/unit/topbar-no-dropdown.test.js
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Link from 'next/link'
-// The removed creation button was the only reader of the router hook and of its
-// own icon, so both imports went with it — an import kept "in case" is how a
-// deleted control grows back without a decision being made.
-import { Bell, Command, Sparkles, UserRound } from 'lucide-react'
+import { Bell, Command, LogOut, Sparkles, UserRound } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
+import { performSignOut } from '@/modules/identity/sign-out'
 
 function ViewToggle({ mode, onChange }) {
   return (
@@ -43,6 +48,24 @@ export default function Topbar({ onOpenPalette }) {
   const scope = useScope()
   const { viewMode, setViewMode, currentPortfolio, currentTenant, currentBusiness } = scope
   const pathname = usePathname()
+  const router = useRouter()
+  const [signingOut, setSigningOut] = useState(false)
+
+  // @req FR-046, FR-095 — the redirect to /login always happens, whether the
+  // server confirmed the revoke or not (the route's own 503 path still clears
+  // the cookie). A failed revoke is surfaced, not swallowed: window.alert is
+  // this codebase's existing convention for a client mutation that must report
+  // its own failure (see src/app/(pm)/platform/integrations/page.jsx).
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    try {
+      const { path, warning } = await performSignOut()
+      if (warning) window.alert(warning)
+      router.replace(path)
+    } finally {
+      setSigningOut(false)
+    }
+  }
   const routeProjectId = pathname.match(/^\/projects\/([^/]+)/)?.[1]
   const routeProject = scope.projects.find((project) => project.id === routeProjectId) || null
   const routeBusiness = routeProject?.businessId
@@ -129,6 +152,16 @@ export default function Topbar({ onOpenPalette }) {
           <Link href="/profile" aria-label="My profile" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold" title="My profile">
             <UserRound size={16} aria-hidden />
           </Link>
+          <button
+            type="button"
+            className="grid h-9 w-9 place-items-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+            onClick={handleSignOut}
+            disabled={signingOut}
+            aria-label="ออกจากระบบ"
+            title="ออกจากระบบ"
+          >
+            <LogOut size={16} aria-hidden />
+          </button>
         </div>
       </div>
     </header>

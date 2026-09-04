@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1734,
-    "total_edges": 6290,
+    "total_nodes": 1737,
+    "total_edges": 6335,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 185,
       "model": 82,
       "requirement": 301,
-      "test": 425,
-      "code_file": 463
+      "test": 427,
+      "code_file": 464
     },
     "coverage": {
       "requirements": 301,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (134/134)",
       "rules_anchored_in_code": "95% (127/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 463,
+      "annotated_code_files": 464,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -58,12 +58,18 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "doc:FR-143-edge-executed-evidence-extraction",
-      "doc:FR-144-edge-device-credential",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "doc:FR-046-production-viewer-entry-contract",
+      "doc:INTERFACE-INVENTORY",
+      "test:tests/unit/topbar-no-dropdown.test.js",
+      "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "code:src/components/layouts/PlatformControlShell.jsx",
+      "code:src/components/layouts/Topbar.jsx"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/sign-out-surfaces-render.test.js",
+      "test:tests/unit/sign-out.test.js",
+      "code:src/modules/identity/sign-out.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -4057,18 +4063,22 @@
       "id": "code:src/components/layouts/BusinessRoutingShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/BusinessRoutingShell.jsx",
-      "hash": "ec18541c",
-      "status": "current",
+      "hash": "588e2901",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-046",
+          "FR-095"
         ],
         "@spec": [
-          "SDD-022"
+          "SDD-022",
+          "SEC-008"
         ],
         "@tested": [
           "tests/unit/business-routing-page.test.js",
-          "tests/e2e/fr044-entry-routing.spec.js"
+          "tests/e2e/fr044-entry-routing.spec.js",
+          "tests/unit/sign-out.test.js"
         ]
       }
     },
@@ -4206,18 +4216,22 @@
       "id": "code:src/components/layouts/PlatformControlShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlShell.jsx",
-      "hash": "46214f8f",
-      "status": "current",
+      "hash": "628ac990",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-105",
-          "FR-075"
+          "FR-075",
+          "FR-046",
+          "FR-095"
         ],
         "@spec": [
-          "NFR-008"
+          "NFR-008",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/unit/platform-control-route-contract.test.js"
+          "tests/unit/platform-control-route-contract.test.js",
+          "tests/unit/sign-out.test.js"
         ]
       }
     },
@@ -4243,24 +4257,28 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
-      "hash": "da73645f",
-      "status": "current",
+      "hash": "f06400ab",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-033",
           "FR-039",
           "FR-044",
           "FR-043",
+          "FR-046",
+          "FR-095",
           "FR-086"
         ],
         "@spec": [
           "SDD-012",
           "SDD-018",
-          "SDD-021"
+          "SDD-021",
+          "SEC-008"
         ],
         "@tested": [
           "tests/unit/topbar-no-dropdown.test.js",
-          "tests/unit/scope-view-context.test.js"
+          "tests/unit/scope-view-context.test.js",
+          "tests/unit/sign-out.test.js"
         ]
       }
     },
@@ -6429,6 +6447,25 @@
           "tests/unit/fr046-session-port.test.js",
           "tests/unit/iam-session.test.js",
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/sign-out.js",
+      "type": "code_file",
+      "path": "src/modules/identity/sign-out.js",
+      "hash": "d55c22fa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-095"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/sign-out.test.js"
         ]
       }
     },
@@ -10064,8 +10101,8 @@
       "title": "FR-046 — Production viewer session and entry contract",
       "version": "0.3.0b",
       "doc_status": "Implemented — beta",
-      "hash": "a73c4c73",
-      "status": "current"
+      "hash": "2a0e070f",
+      "status": "changed"
     },
     {
       "id": "doc:FR-047-line-business-knowledge-pilot",
@@ -10648,7 +10685,7 @@
       "title": "FR-143 — Edge-executed asset evidence extraction",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
       "hash": "8dc6b93f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-144-edge-device-credential",
@@ -10657,7 +10694,7 @@
       "title": "FR-144 — Edge device credential (`EdgeDeviceCredential`)",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
       "hash": "d52ae32e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -10704,8 +10741,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d8764dd3",
-      "status": "current"
+      "hash": "ec70be21",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -11005,7 +11042,7 @@
       "version": "1.136.0b",
       "doc_status": "Draft",
       "hash": "cbdcb72b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11049,7 +11086,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "c5f1ee7d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -19798,6 +19835,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/sign-out-surfaces-render.test.js",
+      "type": "test",
+      "path": "tests/unit/sign-out-surfaces-render.test.js",
+      "hash": "faf68285",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sign-out.test.js",
+      "type": "test",
+      "path": "tests/unit/sign-out.test.js",
+      "hash": "86eb3815",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/smartgift-document-intake-migration.test.js",
       "type": "test",
       "path": "tests/unit/smartgift-document-intake-migration.test.js",
@@ -19927,8 +19978,8 @@
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
-      "hash": "1439f6b4",
-      "status": "current"
+      "hash": "826d9fc4",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/untracked-docs.test.js",
@@ -26073,7 +26124,28 @@
     },
     {
       "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -26262,7 +26334,21 @@
     },
     {
       "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
       "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:FR-095",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -26277,6 +26363,13 @@
     {
       "from": "code:src/components/layouts/PlatformControlShell.jsx",
       "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -26325,7 +26418,21 @@
     },
     {
       "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
       "to": "req:FR-086",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-095",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -26347,6 +26454,13 @@
     {
       "from": "code:src/components/layouts/Topbar.jsx",
       "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29609,6 +29723,27 @@
     {
       "from": "code:src/modules/identity/session-port.js",
       "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/sign-out.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/sign-out.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/sign-out.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -40766,6 +40901,13 @@
     },
     {
       "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
       "to": "req:FR-060",
       "type": "verifies",
       "status": "current",
@@ -40773,10 +40915,24 @@
     },
     {
       "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr045-files.spec.js",
@@ -51623,6 +51779,13 @@
     },
     {
       "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -60086,7 +60249,21 @@
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
       "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -60111,6 +60288,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
@@ -62718,6 +62902,13 @@
     },
     {
       "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
       "to": "req:SDD-012",
       "type": "verifies",
       "status": "current",
@@ -62845,6 +63036,160 @@
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out-surfaces-render.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out-surfaces-render.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out-surfaces-render.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "code:src/components/layouts/Topbar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "code:src/modules/identity/sign-out.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:SDD-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sign-out.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63383,7 +63728,21 @@
     },
     {
       "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
       "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63405,6 +63764,13 @@
     {
       "from": "test:tests/unit/topbar-no-dropdown.test.js",
       "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

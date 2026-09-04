@@ -81,10 +81,46 @@ input; generated traceability links FR-046, SDD-024, and SEC-008 to code and tes
 The remaining global-view smoke assertions are an authorization-scope follow-up,
 not a login bypass.
 
+## Decision — logout had no surface until now (2026-09-04)
+
+`POST /api/auth/logout` (this file's AC-046-09/-12) revoked the live `Session`
+and cleared its cookie since 0.3.0b, but nothing in the UI ever called it —
+`grep -rn "logout" src/components src/app --include=*.jsx` found no caller. A
+signed-in person had no way to sign out: only session expiry or clearing
+cookies by hand ended a session. This closes that gap without opening a new
+requirement, because the behaviour it needed was already specified here and in
+FR-095 (Session/IAM boundary) — adding a caller to an existing, tested contract
+is not a new capability.
+
+The request-and-redirect decision lives in one pure module,
+`src/modules/identity/sign-out.js` (`buildSignOutRequest`,
+`resolveSignOutRedirect`, `performSignOut`), so the four shells that can hold a
+signed-in person call the same logic instead of four hand-written
+fetch-then-redirect copies:
+
+- `src/components/layouts/Topbar.jsx` — the BusinessShell chrome (`/overview`
+  and Business domains).
+- `src/components/layouts/PlatformControlShell.jsx` — the operator surface
+  (`/control/**`).
+- `src/components/layouts/BusinessRoutingShell.jsx` — the shared pre-shell for
+  `/businesses`, `/onboarding/profile`, `/waiting-room` and `/workspace-home`.
+  The Waiting Room in particular holds the person most likely to need
+  sign-out: Profile-only, no Business grant yet.
+
+`/login`, `/signup` and `/reset-password` (EntryShell) get no control — nobody
+is signed in there. The redirect to `/login` is unconditional (`router.replace`,
+never `push`, so the back button cannot return to a page the now-cleared
+session no longer authorizes) because the route's own 503 path still clears
+the cookie; what varies is whether the person is told the server-side revoke
+did not confirm, which is surfaced via `window.alert` (this codebase's
+existing convention for a client mutation that must report its own failure)
+rather than dropped silently.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0b | 2026-09-04 | beta | Added the sign-out UI surface (`src/modules/identity/sign-out.js`) that was missing across every signed-in shell; no change to the route or its ACs | working-tree | Claude Opus 5 |
 | 0.4.0b | 2026-08-29 | beta | AC-046-15: "remember me" makes the seven-day cookie opt-in; the default is now a browser-session cookie. The token's `exp` and the verified ceiling are untouched, so opting out is strictly shorter-lived and opting in restores exactly the previous behaviour | working-tree | ATHER |
 | 0.3.0b | 2026-08-22 | beta | Added PersonCredential verification, signed session login/logout, and removed the local-demo authentication path | working-tree | ATHER |
 | 0.1.0b | 2026-08-14 | candidate | Initial EARS requirements, AC and scope boundary | pending | ATHER |
