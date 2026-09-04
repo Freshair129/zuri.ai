@@ -156,7 +156,19 @@ Evidence review surface shows the job state in Thai with a refresh control:
   empty: nothing queues a job until a device is paired.
 - The edge **runtime** — the daemon that runs the local model — lives in the
   `zuri-edge-device` repository (ADR-059 D6). This repository ships the contract and
-  the reference poller only.
+  the reference poller only. **The round trip is now proven end to end** (2026-09-04):
+  against a local Ollama daemon running a Thai document-OCR vision model, a device
+  claimed a queued job, fetched the evidence bytes through this application, read a
+  Thai/English receipt and posted a candidate carrying all nine printed fields. The
+  evidence reached `EXTRACTED` with provider `edge`, the model recorded on the job, and
+  one `ASSET_EVIDENCE_EXTRACTED` audit event naming the device. The run found a real
+  defect on the device side — a model that answered with a label-keyed `fields` map had
+  every reading discarded, and the job completed with zero fields rather than failing —
+  fixed in `zuri-edge-device` PR #21. This repository needed no change: the four device
+  routes, the lease, the schema validation and the audit write all behaved as declared.
+  Two branches remain unexercised by that run and are only covered by tests: the
+  managed-blob storage path (the smoke fixture used a `LOCAL_FILE` evidence asset, so no
+  Supabase object was fetched) and the retry ladder.
 - Cancellation authority (who may cancel a CLAIMED job, and whether that revokes a
   live lease) is deliberately unanswered by ADR-059; implement conservatively
   (owner-only, no lease revocation) or leave CANCELLED unreachable from the UI.
