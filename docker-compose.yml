@@ -82,16 +82,19 @@ services:
     volumes:
       - ./deploy/ngrok/ngrok.yml:/etc/ngrok.yml:ro
     # `web:3000` — the Compose DNS name of the app. `localhost` inside this container
-    # would be the ngrok container itself. `--domain` is added only when NGROK_DOMAIN
-    # is set (a static/assigned domain keeps the public URL stable across restarts);
+    # would be the ngrok container itself. `--url` is added only when NGROK_DOMAIN is
+    # set (a static/assigned domain keeps the public URL stable across restarts);
     # without it ngrok assigns a temporary URL — read it with scripts/ngrok-url.ps1.
+    # `--url=https://<domain>`, not the older `--domain=<domain>`: verified 2026-09-04
+    # against the pulled ngrok/ngrok:3 image (agent v3.39) — `--domain` still works but
+    # logs "Flag --domain has been deprecated, use --url instead".
     # `--host-header=preserve`: by default the agent rewrites Host to the upstream
     # address (`web:3000`). The app builds absolute redirects from request.url
     # (plugin consent, FR-123) and exempts loopback hosts from auth on /api/docs
     # (SEC-006), so the public hostname must reach it unchanged.
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - exec ngrok http web:3000 --config /etc/ngrok.yml --host-header=preserve --log stdout --log-format json ${NGROK_DOMAIN:+--domain=${NGROK_DOMAIN}}
+      - exec ngrok http web:3000 --config /etc/ngrok.yml --host-header=preserve --log stdout --log-format json ${NGROK_DOMAIN:+--url=https://${NGROK_DOMAIN}}
     ports:
       # ngrok's local inspection API/UI — loopback only, never public.
       - "127.0.0.1:${NGROK_INSPECT_PORT:-4040}:4040"
