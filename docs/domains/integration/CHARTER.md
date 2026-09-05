@@ -86,7 +86,10 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
 - Ollama is a local/dev/test evaluation provider and is not a public LINE or
-  production provider.
+  production provider **of this cloud runtime**. An EDGE-mode LINE OA account
+  (ADR-060 D5) answers on its own Zuri Edge Device, whose local Ollama or Codex
+  CLI is the device's provider — never one this lane resolves, proxies or lists
+  (ADR-031 revision 0.3.0b).
 - **This lane owns the execution ledger — the six `Pipeline*` models — for every
   pipeline, not only its own.** `PipelineRun`, `PipelineStep`,
   `PipelineEventReceipt`, `PipelineRecordEvent`, `PipelineReconciliation` and

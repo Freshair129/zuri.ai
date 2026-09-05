@@ -56,13 +56,13 @@
   "drift": {
     "changed": [
       "doc:README",
+      "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
       "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
+      "domain:integration",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:ROADMAP",
-      "doc:SITEMAP-DOMAIN-NAV"
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -11097,7 +11097,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "a75efaa5",
+      "hash": "0811b40f",
       "status": "changed"
     },
     {
@@ -11134,7 +11134,7 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "1344c977",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SRS",
@@ -11479,8 +11479,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "50030c76",
-      "status": "current"
+      "hash": "3d279514",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -11513,7 +11513,7 @@
         "line-oa-studio"
       ],
       "hash": "2b160eb2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -16891,8 +16891,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md",
       "title": "ADR-031 — Phase 1 LINE runtime connection cut-over",
-      "hash": "de015981",
-      "status": "current"
+      "hash": "ced340ed",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
@@ -17123,7 +17123,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md",
       "title": "ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts",
-      "hash": "f4210b41",
+      "hash": "26c58c50",
       "status": "changed"
     },
     {

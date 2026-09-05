@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.27.0"
+version: "2.28.0"
 updated: "2026-09-05"
 owner: "Owen"
 source_of_truth: true
@@ -210,6 +210,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > Revision 2.26.0 (2026-09-05): เพิ่ม PHASE-ZAI-LINE-OA-STUDIO — ประกาศโดเมนใหม่ **LINE OA Studio** (`DOM-LINE-OA-STUDIO`, ADR-060) ตามคำสั่งเจ้าของ: ศูนย์บัญชาการ LINE Official Account แบบ **multi-account** (หนึ่ง Business มีได้หลายบัญชี OA; หนึ่งบัญชีอยู่กับ Business เดียว) ครอบ Accounts · Rich Menu · Flex · Flows · LIFF · Templates · Dispatch · Analytics · Command Center โดยอิงภาพต้นแบบ LINE Studio ของเจ้าของ (2026-08-27). เวฟนี้เป็น **declaration เท่านั้น**: ADR-060, `docs/domains/line-oa-studio/` (charter + context map + SRS), lane `src/modules/line-oa-studio/README.md` และแถว catalog ใน SITEMAP — ยังไม่มี route, model, FR หรือ navigation จริง. ขอบเขตที่ตัดสินแล้ว: Studio ไม่ถือ channel secret/access token และไม่เรียก LINE API จากคลาวด์ — ทุกอย่างที่ต้องถึง LINE เป็น `LineOaTransportJob` ให้ transport owner (zuri-edge-device / zuri-cli) มา claim แบบ pull ตามแบบ ADR-059; flow เป็นข้อมูลที่ interpreter บริสุทธิ์อ่าน ไม่ใช่โค้ด (BR-007); "Project" ของต้นแบบคือ `LineOaAccount` ไม่ใช่ `Project` ของ Development. **พบ prerequisite ฝั่ง crm** ระหว่างสำรวจ: webhook สร้าง thread key จาก `userId` อย่างเดียว และ `Conversation` unique ที่ `(tenantId, channel, externalThreadId)` — ผู้ใช้ LINE คนเดียวคุยกับสอง OA ใน tenant เดียวจึงยุบเป็น Conversation เดียว; ต้องเพิ่ม `channelAccountId` เข้า identity ของ Conversation (งานของ crm, ADR-060 D9) ก่อนมุมมองต่อบัญชีจะเป็นจริง
 
 > Revision 2.27.0 (2026-09-05): ADR-060 → 0.2.0 ตามคำตอบเจ้าของ — Zuri Edge Device มีเฉพาะ tenant ที่ต้องการ local LLM ผ่าน Ollama หรือ Codex CLI บนโควตาแพครายเดือน (ไม่ใช้ API key) ส่วน tenant อื่นให้บริการจากคลาวด์ ดังนั้น transport ของ LINE เป็น **โหมดต่อบัญชี** `transportMode` = EDGE | CLOUD: บัญชี EDGE ให้อุปกรณ์ claim `LineOaTransportJob` แบบ pull และดึง published config (flows · rich menu · bot profile) ไปรันบน LLM ท้องถิ่น, บัญชี CLOUD ให้ worker ในคลาวด์ทำงานผ่าน LINE Messaging port ของเลน integration ที่ resolve access token จาก Supabase Vault ต่อครั้ง (แบบ FR-079) — จึงตีกรอบ ADR-041 D2 ให้ครอบเฉพาะบัญชี EDGE; หนึ่งบัญชีมีเจ้าของ transport ได้ทีละหนึ่ง (BR-011) สลับได้ด้วย CAS ที่ปิด routing ก่อนและ audited. Phase 1 gate เปลี่ยนเป็นพิสูจน์ deploy rich menu จริง**โหมดละหนึ่งครั้ง**
+
+> Revision 2.28.0 (2026-09-05): ADR-031 → 0.3.0b ตามคำสั่งเจ้าของ — ตีกรอบ D4 ("production LINE เลือก Ollama ไม่ได้") ให้เป็นกฎของ Phase 1 runtime ฝั่งคลาวด์ใน repo นี้เท่านั้น และ**ยกเว้นบัญชี EDGE** (ADR-060 D5) ที่ตอบด้วย Ollama หรือ Codex CLI บน Zuri Edge Device ของ tenant เอง: คลาวด์ไม่เก็บ credential ไม่ list ไม่ proxy และไม่ fallback ไปหา provider นั้น; FR-079 / NFR-015 / SEC-015 / SDD-043 บรรยาย runtime คลาวด์และคงเดิมไม่แก้; charter ของ integration เพิ่มประโยคตีกรอบเดียวกัน ไม่มีการเปลี่ยนโค้ด (`phase1-runtime.js` ยัง fail closed เหมือนเดิม)
 
 ## Phases
 

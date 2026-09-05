@@ -1,7 +1,7 @@
 ---
-version: "0.2.0"
+version: "0.2.1"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-05T12:00:00+07:00,Claude Code"
+last_update: "2026-09-05T13:00:00+07:00,Claude Code"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -59,6 +59,9 @@ secrets and access tokens live on the edge for `EDGE`-mode accounts only; a
 `CLOUD`-mode account's LINE credentials live in the integration lane's secret
 manager (Supabase Vault) and are resolved by the cloud runtime role alone (D5).
 ADR-041 D3 — the cloud console shows no secret — is unchanged in both modes.
+ADR-031 D4 is scoped by its own revision 0.3.0b, recorded from the same owner
+answer: the local-Ollama production ban is the cloud runtime's rule, and an
+`EDGE` account answers on its device with local Ollama or Codex CLI.
 
 ## Context
 
@@ -345,10 +348,12 @@ data — through a device-authenticated, ETag-versioned read
 (`GET /api/line-oa/accounts/[accountId]/published-config`, FR-144 credential),
 caches it, and evaluates the same pure interpreter, shipped from this
 repository as a contract plus reference implementation that `zuri-edge-device`
-codes against (ADR-059 D6). The owner's answer implies the EDGE turn answers on
-the device's local LLM (Ollama or Codex CLI); how that composes with identity,
-CRM ingest and the single-reply rule is the agent charter's and ADR-041's
-decision (FR-028, FR-093), which this ADR consumes rather than makes.
+codes against (ADR-059 D6). The EDGE turn answers on the device's local LLM
+(Ollama or Codex CLI): ADR-031 revision 0.3.0b scopes that ADR's Ollama ban to
+the cloud runtime, so this is permitted rather than implied. How the device
+turn composes with identity, CRM ingest and the single-reply rule stays with
+the agent charter and ADR-041 (FR-028, FR-093), which this ADR consumes rather
+than decides.
 
 - The `CONNECTOR_ACTION` node (the prototype's "API Call") may target only a
   **registered allow-list of internal contracts** — a knowledge query, a CRM
@@ -585,5 +590,6 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.1 | 2026-09-05 | proposed | Cross-reference ADR-031 revision 0.3.0b: the cloud runtime's Ollama ban no longer reads as forbidding an EDGE account's device from answering on local Ollama or Codex CLI | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer: a Zuri Edge Device exists only for local-LLM (Ollama) / Codex CLI tenants — added `transportMode` EDGE / CLOUD per account, the CLOUD claimant over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes, the audited mode switch; scoped ADR-041 D2; Phase 1 gate now proves one deploy per mode | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Declared LINE OA Studio as a first-class multi-account Business domain; fixed credential/transport, flow, dispatch, insight, media/team and authorization boundaries; named the crm thread-identity prerequisite; reserved navigation and phased delivery | working-tree | Claude Code |
