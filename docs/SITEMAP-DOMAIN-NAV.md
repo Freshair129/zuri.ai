@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.6.0 |
+| **Version** | 0.7.0 |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-09-01 |
-| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Date** | 2026-09-05 |
+| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-060 (LINE OA Studio — catalog reservation only), ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
 sub-features, with an explicit root contract per domain** — and binds it to V2's new
@@ -36,7 +36,7 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 ```
 Tier 1  Context    Portfolio → Tenant → Business  (Workspace → Organization → Business in UI; shell stops here)
 Tier 2  Domain     Business Home · Commerce · CRM · Market Intelligence · Marketing · Operations ·
-                   HR / People · Asset Management · Development · Platform
+                   HR / People · Asset Management · LINE OA Studio · Development · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
 ```
@@ -57,6 +57,7 @@ domain identities used by FR-070.
 | `DOM-OPERATIONS` | `operations` | Operations | operating periods, processes and SLA outcomes |
 | `DOM-PEOPLE` | `people` | HR / People | workforce and accountable Human context |
 | `DOM-ASSET-MANAGEMENT` | `assets` | Asset Management | physical asset identity, intake, custody, location and allocation |
+| `DOM-LINE-OA-STUDIO` | `line-oa` | LINE OA Studio | design, publication and operation of LINE Official Accounts, several per Business (ADR-060 — reserved; no runtime wiring yet) |
 | `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
 | `DOM-PLATFORM` | `platform` | Platform | configuration, identity, audit and system capabilities |
 
@@ -89,7 +90,7 @@ as `technicalOwnerDomainId` (FR-070).
 ┌──────────────────────────────────────────────────────────────┐
 │ Zuri   Workspace › Organization › Business    ERP · PM   ⌘K   ◐   👤 │  Base Context Bar — exactly 3 levels
 ├──────────────────────────────────────────────────────────────┤     (no Space or Project selector)
-│ Business Home  Commerce  CRM  Market Intelligence  Marketing  Operations  HR / People  Asset Management  Development · Platform │  Domain bar (Tier 2, per-business)
+│ Business Home  Commerce  CRM  Market Intelligence  Marketing  Operations  HR / People  Asset Management  LINE OA Studio  Development · Platform │  Domain bar (Tier 2, per-business)
 ├──────────────────────────────────────────────────────────────┤
 │ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
@@ -107,6 +108,7 @@ flowchart TD
   B --> D4[Operations]
   B --> D5[HR / People]
   B --> D5b[Asset Management]
+  B --> D5c[LINE OA Studio]
   B --> D6[Development]
   B --> D7[Platform]
   D1 --> C0["Dashboard (always #1)"]
@@ -263,6 +265,24 @@ The remaining entries are stable information architecture, not a claim that ever
 surface is live. Project Inventory consumes Asset allocation as a read projection and
 does not appear as an Asset writer.
 
+### LINE OA Studio — multi-account command center for LINE Official Accounts *(reserved — route key `line-oa`, ADR-060; no runtime wiring)*
+
+1. **Dashboard** — the selected Business's accounts with computed health and sourced KPIs
+2. Accounts — connect, pause, archive; per-account overview, Design Studio (Rich Menu · Flex · Flows · LIFF), Dispatches, Analytics
+3. Templates — flow / Flex / rich menu / LIFF library at `SYSTEM` · `TENANT` · `BUSINESS` scope
+4. Analytics — translated LINE Insight facts across the Business's accounts
+5. Command Center — health, transport jobs, dispatch console, links to the CRM Inbox
+6. Media — projection of Files (`FileAsset`); owns no bytes
+7. Team — projection of identity's grants and roles; owns no membership
+8. Settings — Business-level Studio defaults
+
+Every entry is stable information architecture reserved by ADR-060 D12. Nothing
+here is live: `src/config/domains.js` gains the slot only with the Phase 1
+implementation slice and its declared requirement ids. The prototype's "Project"
+is an **Account** here — `Project` stays Development's model. Publishing and
+dispatching reach LINE only through the trusted transport owner's pull-model job
+lane (ADR-060 D5); the console holds no LINE secret.
+
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
 2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
@@ -276,12 +296,12 @@ does not appear as an Asset writer.
 
 ## 4. Business-binding rules (which domains appear)
 
-| Business kind | Commerce | CRM | Market Intelligence | Marketing | Operations | HR / People | Asset Management | Development | Platform |
-|---|---|---|---|---|---|---|---|---|---|
-| Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ | ✓ |
-| Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ | ✓ |
-| Services / B2B only | ✓ (B2B) | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ |
-| Internal / holding | – | – | – | – | – | ✓ | – | ✓ |
+| Business kind | Commerce | CRM | Market Intelligence | Marketing | Operations | HR / People | Asset Management | LINE OA Studio | Development | Platform |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ | ✓ (when an OA is connected) | ✓ |
+| Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ | ✓ (when an OA is connected) | ✓ |
+| Services / B2B only | ✓ (B2B) | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ (when an OA is connected) | ✓ |
+| Internal / holding | – | – | – | – | – | ✓ | – | – | ✓ |
 
 - The enabled set is a per-Business module registry (Platform → Business config edits it).
 - A domain with zero enabled sub-domains is hidden from the bar entirely.
@@ -298,6 +318,8 @@ does not appear as an Asset writer.
 /assets                   → Asset Management Dashboard
 /assets/receiving         → evidence upload, extraction candidate, human review and readiness (FR-137..139)
 /assets/register          → physical Asset register (foundation information architecture)
+/line-oa                  → LINE OA Studio Dashboard (reserved by ADR-060; not wired)
+/line-oa/accounts/{id}/…  → one LINE Official Account as a resource: studio · dispatches · analytics (reserved)
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
 /platform/integrations    → owner-scoped Phase 1 Integration metadata and redacted Vault status (FR-080; local implementation)
@@ -338,7 +360,7 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
 
 ## 7. Decisions (resolved — [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · Development · Platform.
+1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · LINE OA Studio (slot reserved by ADR-060, hidden until its Phase 1 slice wires it) · Development · Platform.
 2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
    delivery view), never the app root.
 3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.

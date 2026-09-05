@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.24.0"
-updated: "2026-09-04"
+version: "2.26.0"
+updated: "2026-09-05"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -207,6 +207,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 > Revision 2.25.0 (2026-09-04): เพิ่ม TASK-FR-145 — Supabase Supavisor pooler mode ตาม deployment topology (ADR-058 D9): พบขณะตรวจ deployment จริงว่าทุก query จ่าย transaction-mode round trip ~650-750ms โดยไม่จำเป็น (container เดียวรันยาว ไม่ใช่ serverless) ส่วน session mode วัดได้ ~130-145ms บน host เดียวกัน — สลับ default ตาม `VERCEL` env var, เปิด `ZURI_DB_POOL_MODE` ให้ override ได้
 
+> Revision 2.26.0 (2026-09-05): เพิ่ม PHASE-ZAI-LINE-OA-STUDIO — ประกาศโดเมนใหม่ **LINE OA Studio** (`DOM-LINE-OA-STUDIO`, ADR-060) ตามคำสั่งเจ้าของ: ศูนย์บัญชาการ LINE Official Account แบบ **multi-account** (หนึ่ง Business มีได้หลายบัญชี OA; หนึ่งบัญชีอยู่กับ Business เดียว) ครอบ Accounts · Rich Menu · Flex · Flows · LIFF · Templates · Dispatch · Analytics · Command Center โดยอิงภาพต้นแบบ LINE Studio ของเจ้าของ (2026-08-27). เวฟนี้เป็น **declaration เท่านั้น**: ADR-060, `docs/domains/line-oa-studio/` (charter + context map + SRS), lane `src/modules/line-oa-studio/README.md` และแถว catalog ใน SITEMAP — ยังไม่มี route, model, FR หรือ navigation จริง. ขอบเขตที่ตัดสินแล้ว: Studio ไม่ถือ channel secret/access token และไม่เรียก LINE API จากคลาวด์ — ทุกอย่างที่ต้องถึง LINE เป็น `LineOaTransportJob` ให้ transport owner (zuri-edge-device / zuri-cli) มา claim แบบ pull ตามแบบ ADR-059; flow เป็นข้อมูลที่ interpreter บริสุทธิ์อ่าน ไม่ใช่โค้ด (BR-007); "Project" ของต้นแบบคือ `LineOaAccount` ไม่ใช่ `Project` ของ Development. **พบ prerequisite ฝั่ง crm** ระหว่างสำรวจ: webhook สร้าง thread key จาก `userId` อย่างเดียว และ `Conversation` unique ที่ `(tenantId, channel, externalThreadId)` — ผู้ใช้ LINE คนเดียวคุยกับสอง OA ใน tenant เดียวจึงยุบเป็น Conversation เดียว; ต้องเพิ่ม `channelAccountId` เข้า identity ของ Conversation (งานของ crm, ADR-060 D9) ก่อนมุมมองต่อบัญชีจะเป็นจริง
+
 ## Phases
 
 | Phase | Goal | Exit Criteria | Status | Progress |
@@ -226,6 +228,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM-ANALYSIS-LOCAL | FR-127 increment ที่อนุมัติ: schema + authorized consent-gated persistence/read + erasure + snapshot; ไม่รวม producer/LLM/UI/public API/production | local tests, build, governance และ e2e ผ่านบน source ชุดรวม; progress เป็น binary acceptance 0/100 เฉพาะ increment นี้ ไม่ใช่ความพร้อม FEAT-014 ทั้งชุด | done | 100 |
 | PHASE-ZAI-ASSET-FOUNDATION | FEAT-015 / FR-133..136: Asset Management domain, evidence intake contract, PR/PO/payment/lot gates, temporal responsibility/location/Project allocation, depreciation preview, schema/backup/navigation/dashboard | local focused RED→GREEN, schema parity, backup completeness, build/govern/e2e complete; external OCR/LINE/Sheet/Procurement/Finance adapters remain unavailable until their own gates close | done (local foundation) | 100 |
 | PHASE-ZAI-ASSET-EVIDENCE | FEAT-016 / FR-137..140: private evidence upload, OCR/Vision candidate and human review, Asset Excel/Google Sheets snapshots, trusted LINE FileAsset handoff and persisted readiness | W1–W4 evidence complete; local full verify passes; provider credentials/production migration remain deployment gates; registration/Procurement/Finance remain outside the gate | done (local beta) | 100 |
+| PHASE-ZAI-LINE-OA-STUDIO | LINE OA Studio (`DOM-LINE-OA-STUDIO`, ADR-060): ศูนย์บัญชาการ LINE Official Account แบบ multi-account — Accounts · Rich Menu · Flex · Flows · LIFF · Templates · Dispatch · Analytics · Command Center. Phase 0 = declaration เท่านั้น (ADR + charter + context map + SRS + module lane + catalog row); Phase 1..4 ตาม ADR-060 D14 แต่ละ phase ประกาศ FR ของตัวเองพร้อม tests | เจ้าของยอมรับ ADR-060; Phase 1 ต้องส่งมอบ `LineOaAccount` + Rich Menu + `LineOaTransportJob` (pull model, FR-144 credential) + prerequisite ฝั่ง crm (`channelAccountId` ใน Conversation identity) และพิสูจน์ deploy rich menu จริงหนึ่งครั้งผ่าน transport owner จริงพร้อม receipt ที่ตรงความจริง | planned | 0 |
 
 ## Backlog Items
 

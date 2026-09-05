@@ -552,6 +552,7 @@
     "ADR-057",
     "ADR-058",
     "ADR-059",
+    "ADR-060",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -6676,6 +6677,19 @@
         {
           "anchor": "edge executed evidence extraction pull model",
           "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-060": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "d43fb8afee3248d25d92c56e8773c91da7dd058bdd51780d173aeeff6bc13777",
+      "history": [
+        {
+          "anchor": "line oa studio is a first class zuri domain",
+          "since": "2026-09-05",
           "reason": "declared"
         }
       ]
