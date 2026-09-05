@@ -76,6 +76,17 @@ Charter: [docs/domains/knowledge/CHARTER.md](domains/knowledge/CHARTER.md)
 | Routes owned | 0 (0 api · 0 pages) |
 | FRs implemented in lane | BR-022, FR-024, FR-047, FR-051, FR-052, FR-054, FR-071, FR-109, FR-110, FR-111, FR-112, FR-113, FR-114, FR-115, FR-116, FR-117, FR-118, FR-119 |
 
+## line-oa-studio
+
+Charter: [docs/domains/line-oa-studio/CHARTER.md](domains/line-oa-studio/CHARTER.md)
+
+| | |
+|---|---|
+| Modules | `src/modules/line-oa-studio` |
+| Models owned | — (state lives outside the shared schema by design) |
+| Routes owned | 0 (0 api · 0 pages) |
+| FRs implemented in lane | — |
+
 ## market-intelligence
 
 Charter: [docs/domains/market-intelligence/CHARTER.md](domains/market-intelligence/CHARTER.md)

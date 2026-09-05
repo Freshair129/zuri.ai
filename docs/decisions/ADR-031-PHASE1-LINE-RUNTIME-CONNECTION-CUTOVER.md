@@ -1,13 +1,13 @@
 ---
-version: "0.2.1b"
+version: "0.3.0b"
 created_at: "2026-08-18T03:02:18+07:00,ATHER"
-last_update: "2026-08-18T16:35:00+07:00,ATHER"
+last_update: "2026-09-05T13:00:00+07:00,Claude Code"
 status: "beta"
 superseded_by: null
 attributes:
   domain: "line-ai"
   doc_type: "architecture-decision"
-  scope: "Phase 1 LINE runtime connection selection, secret resolution and local Ollama boundary"
+  scope: "Phase 1 LINE runtime connection selection, secret resolution and local Ollama boundary; revision 0.3.0b scopes the Ollama boundary to the cloud runtime and exempts EDGE-mode LINE OA accounts (ADR-060 D5)"
 ---
 
 # ADR-031 — Phase 1 LINE runtime connection cut-over
@@ -94,6 +94,43 @@ and user-supplied production base URLs. Missing server/model inventory is a
 fail-closed provider-not-ready result; it never triggers automatic fallback.
 `PRODUCTION_LINE` and public LINE cannot select Ollama.
 
+**Revision 0.3.0b (2026-09-05) — what D4 governs, and the EDGE exemption.**
+Owner decision, recorded from the same answer that produced ADR-060 0.2.0: a
+Zuri Edge Device exists only for tenants that want a local LLM through Ollama,
+or Codex CLI on a monthly-plan quota instead of an API key; every other tenant
+is served from the cloud.
+
+- D4 governs the Phase 1 runtime **in this repository** — the cloud process
+  composed by `createPhase1BusinessAgentPortsFromEnv` under `PRODUCTION_LINE`
+  (`src/modules/agent/phase1-runtime.js`). For that runtime nothing changes:
+  `PRODUCTION_LINE` still fails closed on Ollama, on a raw credential and on
+  the local file vault; the Integrations UI still lists no Ollama production
+  provider (ADR-032); FR-079, NFR-015, SEC-015 and SDD-043 describe this
+  runtime and stay true unchanged.
+- D4 does **not** govern a LINE OA account whose `transportMode` is `EDGE`
+  (ADR-060 D5). For such an account the answering runtime is the device's own
+  process in `zuri-edge-device` (ADR-041), not the Phase 1 cloud runtime: the
+  device selects its local Ollama or Codex CLI under its own configuration,
+  holds the LINE channel credentials on premise (ADR-041 D2), and the cloud
+  never resolves, proxies, lists or falls back to that provider. The
+  subscription-backed CLI that P1-W3 denied for public LINE is, on an edge
+  device, the tenant's own login on the tenant's own hardware; the cloud stores
+  no credential for it and receives only a provider label and model name in
+  receipts, the FR-143 `provider: edge` shape.
+- What still holds for an EDGE account: loopback-only Ollama on the device (the
+  edge adapter keeps this ADR's loopback, redirect and SSRF rules, coded in the
+  edge repository against contracts this repository publishes); no automatic
+  fallback between cloud and device in either direction; exactly one answering
+  runtime and one transport owner per account at any instant (ADR-060 D5,
+  BR-011); ADR-020 activation and truthful receipts. A mode switch to `CLOUD`
+  moves the credential and the runtime together, so the cloud runtime never
+  serves an EDGE account's traffic on Ollama by accident.
+- PHASE-01 acceptance criterion 8 ("Public LINE cannot select Ollama or a
+  local subscription-backed CLI provider") remains the pilot's rule for the
+  cloud runtime it was written against. For an EDGE account the provider is
+  chosen on the device by the tenant that runs it, a topology the 2026-08-14
+  pilot plan did not contemplate; it is not reopened, it is scoped.
+
 ### D5 — Ownership and rollback
 
 `zuri-cli` remains the sole LINE signature/Reply API owner and retains the LINE
@@ -129,6 +166,10 @@ authorize production traffic until the external activation gates pass.
   activation boundary.
 - The integration-platform branch must be reconciled onto current main while
   restoring the FR-072 authorization code/tests and preserving unrelated work.
+- Since revision 0.3.0b, "production LINE cannot select Ollama" is a statement
+  about the cloud runtime. An EDGE-mode LINE OA account (ADR-060 D5) answers on
+  its own Zuri Edge Device with local Ollama or Codex CLI; the cloud keeps no
+  credential for either and the two runtimes never fall back to each other.
 
 ## CHANGELOG
 
@@ -137,3 +178,4 @@ authorize production traffic until the external activation gates pass.
 | 0.1.0b | 2026-08-18 | beta | Owner-approved Phase 1 connection cut-over boundary with provider-neutral secrets and local Ollama isolation | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | beta | Select Supabase Vault, wire the production resolver adapter and preserve live migration/canary gates | working-tree | ATHER |
 | 0.2.1b | 2026-08-18 | beta | Clarify cache invalidation lifecycle gates and add an apply-time Vault owner precondition | working-tree | ATHER |
+| 0.3.0b | 2026-09-05 | beta | Owner decision: D4's Ollama boundary is scoped to the Phase 1 cloud runtime; an EDGE-mode LINE OA account (ADR-060 D5) answers on its own Zuri Edge Device with local Ollama or Codex CLI on the monthly-plan quota, with no cloud credential, listing or fallback; FR-079 / NFR-015 / SEC-015 / SDD-043 unchanged | working-tree | Claude Code |

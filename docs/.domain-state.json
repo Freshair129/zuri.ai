@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-05T01:34:25.552Z",
+  "generatedAt": "2026-09-05T04:44:49.806Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -36,7 +36,7 @@
   },
   "overall": {
     "status": "partial",
-    "domainCount": 9,
+    "domainCount": 10,
     "featureCount": 114,
     "readyFeatureCount": 99,
     "requirementCount": 145,
@@ -1925,6 +1925,76 @@
       "featureCount": 13,
       "readyFeatureCount": 11,
       "progressPercent": 93.3
+    },
+    "line-oa-studio": {
+      "status": "verified",
+      "requirements": [],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "verified",
+          "evidence": [
+            "src/app/api/mcp/route.js",
+            "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/project-manager-mcp.test.js"
+          ],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "docs/domains/line-oa-studio/CHARTER.md",
+        "src/app/api/mcp/route.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
+        "tests/unit/project-manager-mcp.test.js"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 0,
+        "featureNotes": 0
+      },
+      "featureIds": [],
+      "featureCount": 0,
+      "readyFeatureCount": 0,
+      "progressPercent": null
     },
     "market-intelligence": {
       "status": "verified",

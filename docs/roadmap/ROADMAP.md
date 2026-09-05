@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.24.0"
-updated: "2026-09-04"
+version: "2.29.0"
+updated: "2026-09-05"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -207,6 +207,14 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 > Revision 2.25.0 (2026-09-04): เพิ่ม TASK-FR-145 — Supabase Supavisor pooler mode ตาม deployment topology (ADR-058 D9): พบขณะตรวจ deployment จริงว่าทุก query จ่าย transaction-mode round trip ~650-750ms โดยไม่จำเป็น (container เดียวรันยาว ไม่ใช่ serverless) ส่วน session mode วัดได้ ~130-145ms บน host เดียวกัน — สลับ default ตาม `VERCEL` env var, เปิด `ZURI_DB_POOL_MODE` ให้ override ได้
 
+> Revision 2.26.0 (2026-09-05): เพิ่ม PHASE-ZAI-LINE-OA-STUDIO — ประกาศโดเมนใหม่ **LINE OA Studio** (`DOM-LINE-OA-STUDIO`, ADR-060) ตามคำสั่งเจ้าของ: ศูนย์บัญชาการ LINE Official Account แบบ **multi-account** (หนึ่ง Business มีได้หลายบัญชี OA; หนึ่งบัญชีอยู่กับ Business เดียว) ครอบ Accounts · Rich Menu · Flex · Flows · LIFF · Templates · Dispatch · Analytics · Command Center โดยอิงภาพต้นแบบ LINE Studio ของเจ้าของ (2026-08-27). เวฟนี้เป็น **declaration เท่านั้น**: ADR-060, `docs/domains/line-oa-studio/` (charter + context map + SRS), lane `src/modules/line-oa-studio/README.md` และแถว catalog ใน SITEMAP — ยังไม่มี route, model, FR หรือ navigation จริง. ขอบเขตที่ตัดสินแล้ว: Studio ไม่ถือ channel secret/access token และไม่เรียก LINE API จากคลาวด์ — ทุกอย่างที่ต้องถึง LINE เป็น `LineOaTransportJob` ให้ transport owner (zuri-edge-device / zuri-cli) มา claim แบบ pull ตามแบบ ADR-059; flow เป็นข้อมูลที่ interpreter บริสุทธิ์อ่าน ไม่ใช่โค้ด (BR-007); "Project" ของต้นแบบคือ `LineOaAccount` ไม่ใช่ `Project` ของ Development. **พบ prerequisite ฝั่ง crm** ระหว่างสำรวจ: webhook สร้าง thread key จาก `userId` อย่างเดียว และ `Conversation` unique ที่ `(tenantId, channel, externalThreadId)` — ผู้ใช้ LINE คนเดียวคุยกับสอง OA ใน tenant เดียวจึงยุบเป็น Conversation เดียว; ต้องเพิ่ม `channelAccountId` เข้า identity ของ Conversation (งานของ crm, ADR-060 D9) ก่อนมุมมองต่อบัญชีจะเป็นจริง
+
+> Revision 2.27.0 (2026-09-05): ADR-060 → 0.2.0 ตามคำตอบเจ้าของ — Zuri Edge Device มีเฉพาะ tenant ที่ต้องการ local LLM ผ่าน Ollama หรือ Codex CLI บนโควตาแพครายเดือน (ไม่ใช้ API key) ส่วน tenant อื่นให้บริการจากคลาวด์ ดังนั้น transport ของ LINE เป็น **โหมดต่อบัญชี** `transportMode` = EDGE | CLOUD: บัญชี EDGE ให้อุปกรณ์ claim `LineOaTransportJob` แบบ pull และดึง published config (flows · rich menu · bot profile) ไปรันบน LLM ท้องถิ่น, บัญชี CLOUD ให้ worker ในคลาวด์ทำงานผ่าน LINE Messaging port ของเลน integration ที่ resolve access token จาก Supabase Vault ต่อครั้ง (แบบ FR-079) — จึงตีกรอบ ADR-041 D2 ให้ครอบเฉพาะบัญชี EDGE; หนึ่งบัญชีมีเจ้าของ transport ได้ทีละหนึ่ง (BR-011) สลับได้ด้วย CAS ที่ปิด routing ก่อนและ audited. Phase 1 gate เปลี่ยนเป็นพิสูจน์ deploy rich menu จริง**โหมดละหนึ่งครั้ง**
+
+> Revision 2.28.0 (2026-09-05): ADR-031 → 0.3.0b ตามคำสั่งเจ้าของ — ตีกรอบ D4 ("production LINE เลือก Ollama ไม่ได้") ให้เป็นกฎของ Phase 1 runtime ฝั่งคลาวด์ใน repo นี้เท่านั้น และ**ยกเว้นบัญชี EDGE** (ADR-060 D5) ที่ตอบด้วย Ollama หรือ Codex CLI บน Zuri Edge Device ของ tenant เอง: คลาวด์ไม่เก็บ credential ไม่ list ไม่ proxy และไม่ fallback ไปหา provider นั้น; FR-079 / NFR-015 / SEC-015 / SDD-043 บรรยาย runtime คลาวด์และคงเดิมไม่แก้; charter ของ integration เพิ่มประโยคตีกรอบเดียวกัน ไม่มีการเปลี่ยนโค้ด (`phase1-runtime.js` ยัง fail closed เหมือนเดิม)
+
+> Revision 2.29.0 (2026-09-05): ADR-060 → 0.3.0 บันทึกคำตอบสามข้อสุดท้ายของเจ้าของ — (1) template ระดับ Business พอสำหรับรุ่นแรก ค่า `TENANT` สงวนไว้ ไม่มี UI และ write path (2) scheduler เป็นของ Studio เอง: `LineOaSchedule` (scheduled dispatch · flow WAIT) ยิงโดย worker tick ในโปรเซสเดียวกัน ใช้ lease/idempotency แบบเดียวกับ transport job ยิงได้ครั้งเดียว หมดเวลาแล้วขึ้น EXPIRED ไม่ส่งช้าเงียบ ๆ — ส่งมอบ scheduled dispatch ใน Phase 2 และ WAIT แบบจับเวลาใน Phase 3 (3) ยืนยัน role key `LINE_OA_PUBLISHER`; ไม่เหลือคำถามเปิดใน SRS §12 สิ่งที่รอคือการยอมรับ ADR-060
+
 ## Phases
 
 | Phase | Goal | Exit Criteria | Status | Progress |
@@ -226,6 +234,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM-ANALYSIS-LOCAL | FR-127 increment ที่อนุมัติ: schema + authorized consent-gated persistence/read + erasure + snapshot; ไม่รวม producer/LLM/UI/public API/production | local tests, build, governance และ e2e ผ่านบน source ชุดรวม; progress เป็น binary acceptance 0/100 เฉพาะ increment นี้ ไม่ใช่ความพร้อม FEAT-014 ทั้งชุด | done | 100 |
 | PHASE-ZAI-ASSET-FOUNDATION | FEAT-015 / FR-133..136: Asset Management domain, evidence intake contract, PR/PO/payment/lot gates, temporal responsibility/location/Project allocation, depreciation preview, schema/backup/navigation/dashboard | local focused RED→GREEN, schema parity, backup completeness, build/govern/e2e complete; external OCR/LINE/Sheet/Procurement/Finance adapters remain unavailable until their own gates close | done (local foundation) | 100 |
 | PHASE-ZAI-ASSET-EVIDENCE | FEAT-016 / FR-137..140: private evidence upload, OCR/Vision candidate and human review, Asset Excel/Google Sheets snapshots, trusted LINE FileAsset handoff and persisted readiness | W1–W4 evidence complete; local full verify passes; provider credentials/production migration remain deployment gates; registration/Procurement/Finance remain outside the gate | done (local beta) | 100 |
+| PHASE-ZAI-LINE-OA-STUDIO | LINE OA Studio (`DOM-LINE-OA-STUDIO`, ADR-060): ศูนย์บัญชาการ LINE Official Account แบบ multi-account — Accounts · Rich Menu · Flex · Flows · LIFF · Templates · Dispatch · Analytics · Command Center. Phase 0 = declaration เท่านั้น (ADR + charter + context map + SRS + module lane + catalog row); Phase 1..4 ตาม ADR-060 D14 แต่ละ phase ประกาศ FR ของตัวเองพร้อม tests | เจ้าของยอมรับ ADR-060; Phase 1 ต้องส่งมอบ `LineOaAccount` (มี `transportMode` EDGE / CLOUD) + Rich Menu + `LineOaTransportJob` ที่มี claimant สองแบบ (EDGE = อุปกรณ์ pull ด้วย FR-144 credential, CLOUD = worker ผ่าน LINE port ของ integration ที่ resolve token จาก Vault) + prerequisite ฝั่ง crm (`channelAccountId` ใน Conversation identity) และพิสูจน์ deploy rich menu จริงโหมดละหนึ่งครั้งพร้อม receipt ที่ตรงความจริง | planned | 0 |
 
 ## Backlog Items
 

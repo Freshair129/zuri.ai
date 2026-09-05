@@ -49,7 +49,7 @@ describe('domain state projection', () => {
     // did not catch it either: its staleness step checks FEATURE-MAP, DOMAIN-MAP,
     // TRACE and D-traceability, and .domain-state.json is not in that list.
     expect(Object.keys(state.domains).sort()).toEqual([
-      'agent', 'asset-management', 'crm', 'identity', 'integration', 'knowledge', 'market-intelligence', 'platform-control', 'project-manager',
+      'agent', 'asset-management', 'crm', 'identity', 'integration', 'knowledge', 'line-oa-studio', 'market-intelligence', 'platform-control', 'project-manager',
     ])
   })
 
