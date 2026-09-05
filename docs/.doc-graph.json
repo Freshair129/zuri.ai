@@ -9717,7 +9717,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
       "title": "Context map — LINE OA Studio",
-      "hash": "b9f99b62",
+      "hash": "8663bb64",
       "status": "changed"
     },
     {
@@ -11138,7 +11138,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/SRS.md",
       "title": "SRS — LINE OA Studio domain",
-      "hash": "96c90840",
+      "hash": "1c725c1f",
       "status": "changed"
     },
     {
@@ -17120,7 +17120,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md",
       "title": "ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts",
-      "hash": "08a66585",
+      "hash": "8804969b",
       "status": "current"
     },
     {

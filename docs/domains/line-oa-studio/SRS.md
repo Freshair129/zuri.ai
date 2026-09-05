@@ -2,7 +2,7 @@
 domain: line-oa-studio
 stable_domain_id: DOM-LINE-OA-STUDIO
 status: proposed
-version: 0.3.0
+version: 0.3.1
 date: 2026-09-05
 architecture: domain-driven-modular-monolith
 ---
@@ -334,8 +334,16 @@ and the pure calculators over them.
   (LOS-RQ-085). Approval, consent, quota and confirmation gates SHALL be
   evaluated at scheduling time and again at fire time; a dispatch whose gate
   fails at fire time SHALL be marked FAILED with the reason, never sent.
+- **LOS-RQ-087 — One send, one receipt path.** A send SHALL be reported on
+  exactly one path, chosen by who initiated it: a reply or push the transport
+  owner sends while handling an inbound turn SHALL be reported by that owner
+  through `POST /api/agent/line-delivery` (FR-093) and SHALL never be queued as
+  a job; a Studio-initiated dispatch SHALL be reported only as its
+  `LineOaTransportJob` result, from which the Studio records any conversational
+  outbound Message through the crm contract on the cloud side. The transport
+  owner SHALL NOT report a job send through the delivery route (ADR-060 D5).
 
-### 5.9 Scheduler (Studio-owned)
+### 5.7 Scheduler (Studio-owned)
 
 The owner decided on 2026-09-05 that scheduling is a Studio requirement, not a
 platform one. This repository has no scheduler today; the Studio builds one for
@@ -355,7 +363,7 @@ its own needs rather than storing promises nothing keeps.
   silence. Cancelling the underlying dispatch, ending the flow session or
   archiving the account SHALL cancel its schedules.
 
-### 5.7 Analytics and Command Center
+### 5.8 Analytics and Command Center
 
 - **LOS-RQ-090 — Insight snapshots.** `translateInsightRecord` SHALL produce a
   per-account, per-day snapshot (followers, targeted reaches, blocks, delivered
@@ -370,7 +378,7 @@ its own needs rather than storing promises nothing keeps.
   link to the CRM Inbox, and quota; it SHALL offer the dispatch console under
   §5.6 rules. It SHALL NOT offer human takeover; that stays in the Inbox.
 
-### 5.8 Projections and settings
+### 5.9 Projections and settings
 
 - **LOS-RQ-095 — Media projection.** The Media page SHALL be a filtered view of
   `FileAsset` with upload through the existing file contract.
@@ -505,7 +513,7 @@ with a truthful receipt.
    for the first release; `TENANT` stays a reserved value (LOS-RQ-024,
    LOS-RQ-072).
 4. **Scheduler — answered 2026-09-05.** A Studio requirement: the Studio owns
-   its own durable scheduler (§5.9, LOS-RQ-085/086); scheduled dispatch lands
+   its own durable scheduler (§5.7, LOS-RQ-085/086); scheduled dispatch lands
    in Phase 2 and timed WAIT in Phase 3.
 5. **Publisher role name — answered 2026-09-05.** `LINE_OA_PUBLISHER` is
    confirmed (LOS-RQ-010).
@@ -516,6 +524,7 @@ No question remains open; the next decision is acceptance of ADR-060 itself.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
-| 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (LOS-RQ-072), a Studio-owned scheduler (§5.9, LOS-RQ-085/086; 065 and 084 reworded), `LINE_OA_PUBLISHER` confirmed | Claude Code |
+| 0.3.1 | 2026-09-05 | proposed | Added LOS-RQ-087 (one send, one receipt path: FR-093 for reply-turn sends, the job result for Studio-initiated sends) and put the scheduler section in order as §5.7 | Claude Code |
+| 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (LOS-RQ-072), a Studio-owned scheduler (§5.7, LOS-RQ-085/086; 065 and 084 reworded), `LINE_OA_PUBLISHER` confirmed | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer on edge devices: transport mode per account (LOS-RQ-017..019, 029), published-config pull for edge runtimes (LOS-RQ-067), open questions 1–2 answered | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | First draft: boundaries, multi-account model, capability requirements, security, data-model candidates, contracts, surfaces, phasing and open questions | Claude Code |
