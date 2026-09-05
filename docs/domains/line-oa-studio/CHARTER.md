@@ -289,11 +289,14 @@ FEAT-018) — the model in both provider schemas with additive migrations
 `GET/PATCH /api/line-oa/accounts/[id]`, the confirmed `LINE_OA_PUBLISHER` role
 in identity's registry, the reserved `line-oa` domain slot (hidden `soon`) so a
 grant can name the domain, and the integration lane's
-`readLineOaConnectionHealth` read contract. Not yet: the agent binding reader
-(so `effectiveStatus` cannot reach LIVE and health reports the binding as
-UNKNOWN), the `/line-oa` pages, transport jobs and quota. ADR-060 D14 phases
-the rest; each slice declares its own ids first and updates this charter's
-ownership claims in the same change.
+`readLineOaConnectionHealth` read contract. Slice 2 (FR-147) wired the agent
+lane's binding status contract as the account's default `bindingStatus` port,
+so `effectiveStatus` reaches LIVE when the read role sees an ACTIVE, in-window
+binding and health reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN with its
+source. Not yet: the `/line-oa` pages, transport jobs and quota, and a
+per-Tenant read policy (today pinned to SmartGift, so other Tenants read
+NOT_ACTIVE). ADR-060 D14 phases the rest; each slice declares its own ids
+first and updates this charter's ownership claims in the same change.
 
 ## References
 
@@ -308,6 +311,7 @@ ownership claims in the same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.1 | 2026-09-05 | phase-1-building | Slice 2: the account's `bindingStatus` port defaults to the agent lane's FR-147 read contract; LIVE is now reachable; the read policy's SmartGift pin recorded as the remaining gap | working-tree | Claude Fable 5.1 |
 | 0.4.0 | 2026-09-05 | phase-1-building | Claimed `LineOaAccount` in `owns_models` as FR-146 slice 1 lands: model, only writer, two routes, publisher role, reserved domain slot, integration read contract; binding reader, pages, jobs and quota still open | working-tree | Claude Fable 5.1 |
 | 0.3.1 | 2026-09-05 | phase-1-declared | Delivery state: FR-146 (`LineOaAccount`, FEAT-018) declared as the first Phase 1 slice; ownership claims unchanged until the model lands | working-tree | Claude Fable 5.1 |
 | 0.3.0 | 2026-09-05 | proposed-phase-0 | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`), `LINE_OA_PUBLISHER` confirmed | working-tree | Claude Code |

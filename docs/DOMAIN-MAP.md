@@ -19,7 +19,7 @@ Charter: [docs/domains/agent/CHARTER.md](domains/agent/CHARTER.md)
 | Modules | `src/modules/agent` |
 | Models owned | — (state lives outside the shared schema by design) |
 | Routes owned | 4 (4 api · 0 pages) |
-| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144 |
+| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144, FR-147 |
 
 ## asset-management
 

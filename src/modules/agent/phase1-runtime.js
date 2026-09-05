@@ -83,6 +83,30 @@ export async function executeAsLineSecretRole(pool, sql, values) {
   return executeAsRole(pool, 'zuri_line_runtime', sql, values)
 }
 
+/**
+ * A read-role query function for a consumer outside the turn — today the
+ * FR-147 binding status reader — or `null` when the LINE runtime database is
+ * not configured. Shares this module's one pool and the same short
+ * transaction + `set local role zuri_line_smartgift_ro` wrapper the turn uses,
+ * so a second reader cannot acquire a wider role or a second connection
+ * budget. Requires the same two settings the runtime itself requires; with
+ * either missing the consumer is expected to report UNKNOWN, not guess.
+ *
+ * @req FR-147 — read-only access to the runtime's binding state for other lanes.
+ * @spec FR-052, SEC-010 — same role, same RLS, same pool.
+ * @tested tests/unit/line-binding-status.test.js
+ */
+export function createLineReadQueryFromEnv(env = process.env) {
+  if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true' || !env.ZURI_LINE_DB_URL) return null
+  const databaseUrl = assertRuntimeDatabaseUrl(env.ZURI_LINE_DB_URL)
+  const pool = runtimePool(
+    databaseUrl,
+    Number(env.ZURI_KNOWLEDGE_TIMEOUT_MS ?? 5000),
+    readRuntimeDatabaseCa(env),
+  )
+  return (sql, values) => executeAsLineReadRole(pool, sql, values)
+}
+
 function runtimeSourceFor(env) {
   const source = env.ZURI_PHASE1_RUNTIME_SOURCE
     ?? (env.NODE_ENV === 'production' ? null : env.NODE_ENV === 'test' ? 'TEST' : 'LOCAL_DEV')

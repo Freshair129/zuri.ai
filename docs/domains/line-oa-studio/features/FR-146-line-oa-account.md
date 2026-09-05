@@ -33,10 +33,15 @@ starts from a connection an operator already registered.
 **`LIVE` is derived, never stored.** The stored status machine is DRAFT →
 CONNECTED → PAUSED | ARCHIVED. An account reads LIVE only while the agent lane
 reports an ACTIVE binding for it (FR-052). That read model lives in the
-production Postgres runtime, not the shared Prisma schema, and this slice wires
-no reader for it — so the DTO says `binding.status: 'UNKNOWN'` and names the
-reason in `health.sources`, instead of inventing a state. A later slice
-injects the agent lane's reader through the same port.
+production Postgres runtime, not the shared Prisma schema. Slice 1 wired no
+reader and said `UNKNOWN`; slice 2 (FR-147, same day) added the agent lane's
+read-only contract and made it the default `bindingStatus` port. The contract
+is narrow on purpose: the `zuri_line_smartgift_ro` policy shows only ACTIVE,
+in-window rows, so the port reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN
+and never a PENDING or INACTIVE it cannot see, and `health.sources.binding`
+says which of the four applies and why. The policy is still pinned to the
+SmartGift Tenant/Business; other Tenants read NOT_ACTIVE until an operator
+migration widens it.
 
 **Health is computed from three owners and stored nowhere.** Connection status,
 secret readiness and the last webhook receipt come from the integration lane's
@@ -66,9 +71,9 @@ answers "Integration connection not found".
 
 ## Out of this slice
 
-The `/line-oa` pages, the agent binding reader, rich menus, the transport-job
-lane, the crm thread-key prerequisite (ADR-060 D9) and production application of
-`supabase/migrations/20260905120000_line_oa_account.sql`.
+The `/line-oa` pages, rich menus, the transport-job lane, the crm thread-key
+prerequisite (ADR-060 D9), a per-Tenant binding read policy, and production
+application of `supabase/migrations/20260905120000_line_oa_account.sql`.
 
 ## Proof
 

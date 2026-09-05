@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-05T08:07:52.494Z",
+  "generatedAt": "2026-09-05T08:53:02.596Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,8 +39,8 @@
     "domainCount": 10,
     "featureCount": 115,
     "readyFeatureCount": 99,
-    "requirementCount": 146,
-    "verifiedRequirementCount": 136,
+    "requirementCount": 147,
+    "verifiedRequirementCount": 137,
     "progressPercent": 93.2,
     "gapCount": 20,
     "gaps": [
@@ -243,14 +243,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-048",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-049",
@@ -283,7 +283,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-053",
@@ -325,7 +325,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-081",
@@ -389,6 +389,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 10
+        },
+        {
+          "id": "FR-147",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -1369,14 +1376,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-071",
@@ -1397,7 +1404,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-081",
@@ -1692,7 +1699,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-051",
@@ -1706,7 +1713,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-054",
@@ -3480,7 +3487,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-079",
@@ -3494,7 +3501,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -3533,6 +3540,7 @@
         "tests/unit/fr080-ui-contract.test.js",
         "tests/unit/fr141-edge-device-heartbeat.test.js",
         "tests/unit/grounded-business-answer.test.js",
+        "tests/unit/line-binding-status.test.js",
         "tests/unit/line-registry-service.test.js",
         "tests/unit/model-provider-port.test.js",
         "tests/unit/phase1-business-agent-runtime.test.js",
@@ -4513,10 +4521,12 @@
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
-        "FR-146"
+        "FR-146",
+        "FR-147"
       ],
       "primaryDomain": "line-oa-studio",
       "contributorDomains": [
+        "agent",
         "identity",
         "integration",
         "line-oa-studio",
@@ -4536,6 +4546,13 @@
           "progressPercent": 100,
           "codeCount": 12,
           "testCount": 20
+        },
+        {
+          "id": "FR-147",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 3
         }
       ],
       "evidence": [
@@ -4543,6 +4560,8 @@
         "src/app/api/line-oa/accounts/route.js",
         "src/config/domains.js",
         "src/lib/validation/enums.js",
+        "src/modules/agent/line-binding-status.js",
+        "src/modules/agent/phase1-runtime.js",
         "src/modules/identity/rbac.js",
         "src/modules/integration/application/integration-management-service.js",
         "src/modules/line-oa-studio/application/line-oa-account-authority.js",
@@ -4567,9 +4586,11 @@
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/fr080-integration-management.test.js",
+        "tests/unit/line-binding-status.test.js",
         "tests/unit/line-oa-account-domain.test.js",
         "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/line-oa-account-schema-contract.test.js",
+        "tests/unit/phase1-business-agent-runtime.test.js",
         "tests/unit/plan-schema.test.js"
       ]
     },
@@ -6596,7 +6617,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
@@ -6604,6 +6625,7 @@
         "src/modules/knowledge/business-contract.js",
         "src/modules/knowledge/supabase-business-knowledge.js",
         "tests/unit/business-knowledge-contract.test.js",
+        "tests/unit/line-binding-status.test.js",
         "tests/unit/phase1-business-agent-runtime.test.js",
         "tests/unit/supabase-business-knowledge.test.js"
       ]
@@ -6739,7 +6761,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -6751,6 +6773,7 @@
         "src/platform/integrations/providers/line/line-oa-evidence.js",
         "src/platform/integrations/providers/line/line-oa-webhook.js",
         "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/line-oa-cross-repo-round-trip.test.js",
         "tests/integration/line-oa-evidence-convergence.test.js",
         "tests/integration/line-oa-golden-path.test.js",
@@ -6758,6 +6781,7 @@
         "tests/integration/line-webhook-unbound-production.test.js",
         "tests/integration/smartgift-webhook-e2e.test.js",
         "tests/unit/line-binding-resolver.test.js",
+        "tests/unit/line-binding-status.test.js",
         "tests/unit/line-channel-binding.test.js",
         "tests/unit/line-webhook-scope-fail-closed.test.js",
         "tests/unit/phase1-business-agent-runtime.test.js",
