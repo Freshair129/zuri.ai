@@ -55,12 +55,11 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "code:src/modules/line-oa-studio/domain/line-oa-account.js"
+      "test:tests/unit/asset-production-activation-contract.test.js"
     ],
     "added": [],
     "removed": []
@@ -7355,7 +7354,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
       "hash": "45a5816c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146"
@@ -9771,7 +9770,7 @@
       "version": "1.37.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "5cc1285b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -18323,8 +18322,8 @@
       "id": "test:tests/unit/asset-production-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
-      "hash": "4bb78d36",
-      "status": "current"
+      "hash": "b66186db",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
