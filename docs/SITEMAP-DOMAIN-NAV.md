@@ -276,9 +276,11 @@ does not appear as an Asset writer.
 7. Team — projection of identity's grants and roles; owns no membership
 8. Settings — Business-level Studio defaults
 
-Every entry is stable information architecture reserved by ADR-060 D12. Nothing
-here is live: `src/config/domains.js` gains the slot only with the Phase 1
-implementation slice and its declared requirement ids. The prototype's "Project"
+Every entry is stable information architecture reserved by ADR-060 D12. The
+`line-oa` slot exists in `src/config/domains.js` as a hidden `soon` entry since
+FR-146 — so a Membership grant can name the domain and the account API can
+require it — and `/api/line-oa/accounts` is live locally; no page renders yet,
+so the bar still shows nothing for it. The prototype's "Project"
 is an **Account** here — `Project` stays Development's model. Publishing and
 dispatching reach LINE only as transport jobs (ADR-060 D5): an EDGE account's
 Zuri Edge Device claims them, a CLOUD account's worker executes them through the
@@ -320,7 +322,7 @@ either mode.
 /assets                   → Asset Management Dashboard
 /assets/receiving         → evidence upload, extraction candidate, human review and readiness (FR-137..139)
 /assets/register          → physical Asset register (foundation information architecture)
-/line-oa                  → LINE OA Studio Dashboard (reserved by ADR-060; not wired)
+/line-oa                  → LINE OA Studio Dashboard (slot registered as hidden `soon` in `src/config/domains.js` by FR-146; API `/api/line-oa/accounts` live locally; no page yet)
 /line-oa/accounts/{id}/…  → one LINE Official Account as a resource: studio · dispatches · analytics (reserved)
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory

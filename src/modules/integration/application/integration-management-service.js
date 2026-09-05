@@ -240,3 +240,36 @@ export async function createPhase1Integration(input, { db = prisma, resolve } = 
     return toMetadata({ ...connection, provider, credential })
   })
 }
+
+/**
+ * The redacted read model of LINE_OA connections, keyed by connection id, for
+ * a consumer that already holds trusted ids — today the LINE OA Studio account
+ * aggregate (FR-146), which references a connection 1:1 and computes its
+ * health from this rather than reading the connection or credential tables.
+ *
+ * @req FR-146 — the integration lane stays the only reader of connection and
+ *   credential state; the Studio consumes this contract and never the tables.
+ * @spec ADR-060 D3, SEC-016 — same redaction as the Platform page: masked
+ *   secret reference, status and version only, never material. `lastEventAt`
+ *   is the newest inbound evidence (FR-081), the honest "when did we last hear
+ *   from this channel".
+ * @tested tests/integration/fr146-line-oa-account.test.js
+ */
+export async function readLineOaConnectionHealth({
+  db = prisma,
+  connectionIds = [],
+  now = new Date(),
+  staleAfterMs = DEFAULT_STALE_AFTER_MS,
+} = {}) {
+  const ids = [...new Set((Array.isArray(connectionIds) ? connectionIds : []).filter(Boolean))]
+  if (ids.length === 0) return new Map()
+  const rows = await db.integrationConnection.findMany({
+    where: { id: { in: ids }, provider: { code: LINE_OA_PROVIDER_CODE } },
+    include: { provider: true, credential: true },
+  })
+  const lastEvents = await lastEventByConnection(db, rows.map((row) => row.id))
+  return new Map(rows.map((row) => {
+    const lastEventAt = lastEvents.get(row.id) ?? null
+    return [row.id, { ...toMetadata(row, { lastEventAt, now, staleAfterMs }), lastEventAt }]
+  }))
+}

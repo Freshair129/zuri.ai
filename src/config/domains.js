@@ -5,7 +5,7 @@ import {
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
   Workflow, Gauge, TrendingUp,
-  PackageCheck,
+  PackageCheck, MessageCircle,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -139,6 +139,16 @@ export const DOMAINS = [
       { label: 'Receiving & Inspection', path: '/assets/receiving', icon: ClipboardCheck },
       { label: 'Asset Register', path: '/assets/register', icon: PackageCheck },
     ],
+  },
+  {
+    // @req FR-146 — LINE OA Studio (ADR-060, `DOM-LINE-OA-STUDIO`). A reserved
+    // slot on purpose: `soon` keeps it out of the bar and the palette (ADR-060
+    // D12 — no fake clickable surface before its pages exist), while the key
+    // being in the registry is what lets a Membership grant name the domain
+    // (FR-061 filters grants through this list) and lets the FR-146 API refuse
+    // a viewer without it. The page tree lands with the Phase 1 UI slice.
+    key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle, soon: true,
+    sub: [{ label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard }],
   },
   {
     key: 'platform', label: 'Platform', icon: ServerCog,

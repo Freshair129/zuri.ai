@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1750,
-    "total_edges": 6354,
+    "total_nodes": 1765,
+    "total_edges": 6428,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 157,
+      "document": 159,
       "adr": 60,
       "domain": 10,
       "roadmap": 35,
       "feature": 18,
-      "route": 185,
-      "model": 82,
+      "route": 187,
+      "model": 83,
       "requirement": 303,
-      "test": 432,
-      "code_file": 464
+      "test": 436,
+      "code_file": 470
     },
     "coverage": {
       "requirements": 303,
-      "fr_with_code": "100% (135/135)",
-      "fr_with_tests": "100% (135/135)",
+      "fr_with_code": "100% (136/136)",
+      "fr_with_tests": "100% (136/136)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 464,
+      "annotated_code_files": 470,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -36,8 +36,7 @@
         "FR-126",
         "FR-128",
         "FR-131",
-        "FR-132",
-        "FR-146"
+        "FR-132"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -56,19 +55,14 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "code:src/modules/line-oa-studio/domain/line-oa-account.js"
     ],
-    "added": [
-      "feat:FEAT-018",
-      "req:FR-146"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2497,6 +2491,44 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/accounts/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/accounts/[id]/route.js",
+      "hash": "8015ce82",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-account-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/accounts/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/accounts/route.js",
+      "hash": "37e85469",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-account-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/market/observations/route.js",
       "type": "code_file",
       "path": "src/app/api/market/observations/route.js",
@@ -4305,7 +4337,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "284059fb",
+      "hash": "959a26c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4316,6 +4348,7 @@
           "FR-091",
           "FR-086",
           "FR-133",
+          "FR-146",
           "FR-124"
         ],
         "@spec": [
@@ -4623,7 +4656,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "96a6b4a8",
+      "hash": "da31fba2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4634,6 +4667,7 @@
           "FR-134",
           "FR-135",
           "FR-136",
+          "FR-146",
           "FR-012"
         ],
         "@spec": [
@@ -6339,12 +6373,13 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
-      "hash": "645f9d82",
+      "hash": "b1443669",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
-          "FR-078"
+          "FR-078",
+          "FR-146"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -6672,11 +6707,12 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "a89aab73",
+      "hash": "aa83ef27",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-080"
+          "FR-080",
+          "FR-146"
         ],
         "@spec": [
           "SEC-016",
@@ -6684,7 +6720,8 @@
         ],
         "@tested": [
           "tests/unit/fr080-integration-management.test.js",
-          "tests/unit/connection-health.test.js"
+          "tests/unit/connection-health.test.js",
+          "tests/integration/fr146-line-oa-account.test.js"
         ]
       }
     },
@@ -7271,6 +7308,83 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "hash": "aba60a76",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/fr146-line-oa-account.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "hash": "eb1ece4d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-002",
+          "BR-012",
+          "FR-072",
+          "FR-080",
+          "FR-144"
+        ],
+        "@tested": [
+          "tests/integration/fr146-line-oa-account.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
+      "hash": "45a5816c",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-account-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/index.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/index.js",
+      "hash": "ee21f1e3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-account-domain.test.js",
+          "tests/integration/fr146-line-oa-account.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/generic-candidate-extractor.js",
@@ -7668,13 +7782,14 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "11fc1b6d",
+      "hash": "bcf585f4",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
           "FR-143",
           "FR-144",
+          "FR-146",
           "FR-022",
           "FR-092",
           "FR-106",
@@ -7733,7 +7848,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "f1cf74b2",
+      "hash": "8736eb74",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7744,6 +7859,7 @@
           "FR-075",
           "FR-081",
           "FR-092",
+          "FR-146",
           "FR-090",
           "FR-095",
           "FR-107",
@@ -9652,10 +9768,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.36.0b",
+      "version": "1.37.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "85745f41",
-      "status": "current"
+      "hash": "5cc1285b",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9708,7 +9824,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.15.0b",
       "doc_status": "Draft",
-      "hash": "2befea94",
+      "hash": "a6234351",
       "status": "current"
     },
     {
@@ -9924,10 +10040,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.18.0b",
+      "version": "1.19.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "acdb70d3",
-      "status": "changed"
+      "hash": "65d7f1f5",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10713,6 +10829,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-146-line-oa-account",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+      "title": "FR-146 — `LineOaAccount`, the account aggregate",
+      "hash": "9bb485a1",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -10757,7 +10881,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "ec70be21",
+      "hash": "5ebf9935",
       "status": "current"
     },
     {
@@ -11055,10 +11179,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.149.0b",
+      "version": "1.150.0b",
       "doc_status": "Draft",
-      "hash": "7bd4210a",
-      "status": "changed"
+      "hash": "e46b2085",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11101,8 +11225,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8f3850d5",
-      "status": "changed"
+      "hash": "b721c3af",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11137,7 +11261,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.7.0",
       "doc_status": "Accepted",
-      "hash": "eee78131",
+      "hash": "01a84952",
       "status": "current"
     },
     {
@@ -11154,6 +11278,16 @@
       "path": "docs/domains/market-intelligence/SRS.md",
       "title": "SRS — Market Intelligence Domain",
       "hash": "8a5ef02c",
+      "status": "current"
+    },
+    {
+      "id": "doc:SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/SYSTEM-DIAGRAM.md",
+      "title": "System Diagram — zuri-ai ทั้งระบบ",
+      "version": "1.0.0",
+      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
+      "hash": "e5b570d1",
       "status": "current"
     },
     {
@@ -11483,7 +11617,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "3d279514",
+      "hash": "0ecd7f2b",
       "status": "current"
     },
     {
@@ -11505,7 +11639,9 @@
       "type": "domain",
       "path": "docs/domains/line-oa-studio/CHARTER.md",
       "title": "Domain — line-oa-studio",
-      "owns_models": [],
+      "owns_models": [
+        "LineOaAccount"
+      ],
       "owns_routes": [
         "src/app/(pm)/line-oa/**",
         "src/app/api/line-oa/**"
@@ -11516,8 +11652,8 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "a363b3dd",
-      "status": "changed"
+      "hash": "e148372b",
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -11740,7 +11876,7 @@
       "id": "feat:FEAT-018",
       "type": "feature",
       "label": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
-      "declared": "proposed",
+      "declared": "building",
       "status": "current"
     },
     {
@@ -11940,6 +12076,11 @@
     },
     {
       "id": "model:LegalEntityIdentifier",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LineOaAccount",
       "type": "model",
       "status": "current"
     },
@@ -13859,9 +14000,9 @@
       "family": "FR",
       "label": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content. 🔜 declared 2026-09-05 — ADR-060 D14 Phase 1, bundled by FEAT-018; no model, route or code yet "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content. 🟠 implemented locally 2026-09-05 (FEAT-018 slice 1): `LineOaAccount` in both provider schemas with additive migrations (production SQL `supabase/migrations/20260905120000_line_oa_account.sql` written, **not applied**), the only writer `src/modules/line-oa-studio/application/line-oa-account-service.js`, `GET/POST /api/line-oa/accounts` and `GET/PATCH /api/line-oa/accounts/{id}`, the `LINE_OA_PUBLISHER` role in identity's registry, the reserved (hidden `soon`) `line-oa` domain slot, and the integration lane's `readLineOaConnectionHealth` read contract; `tests/integration/fr146-line-oa-account.test.js` plus three unit suites. Not yet: the agent binding reader — `effectiveStatus` cannot reach LIVE and health reports the binding as UNKNOWN until it is wired — the `/line-oa` pages, transport jobs and quota in health "
     },
     {
       "id": "req:NFR-001",
@@ -15677,6 +15818,22 @@
       "kind": "api",
       "route": "/api/ingest/documents",
       "path": "src/app/api/ingest/documents/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts",
+      "path": "src/app/api/line-oa/accounts/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts/[id]",
+      "path": "src/app/api/line-oa/accounts/[id]/route.js",
       "status": "current"
     },
     {
@@ -17631,6 +17788,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr146-line-oa-account.test.js",
+      "type": "test",
+      "path": "tests/integration/fr146-line-oa-account.test.js",
+      "hash": "b5635046",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -17837,7 +18001,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "27316edb",
+      "hash": "67e0cb91",
       "status": "current"
     },
     {
@@ -19189,6 +19353,27 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "605ccffc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-account-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-account-domain.test.js",
+      "hash": "fee13442",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-account-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-account-routes.test.js",
+      "hash": "ca156d8a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-account-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-account-schema-contract.test.js",
+      "hash": "c04182ea",
       "status": "current"
     },
     {
@@ -23884,6 +24069,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/accounts/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/route.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/route.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/market/observations/route.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -26664,6 +26891,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -27127,6 +27361,13 @@
     {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-146",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -29645,6 +29886,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/request-viewer.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -30130,6 +30378,13 @@
     {
       "from": "code:src/modules/integration/application/integration-management-service.js",
       "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/integration-management-service.js",
+      "to": "req:FR-146",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -30800,6 +31055,104 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:FR-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:FR-144",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/index.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/application/generic-candidate-extractor.js",
       "to": "req:BR-019",
       "type": "follows",
@@ -31283,6 +31636,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -31467,6 +31827,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-146",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35182,6 +35549,13 @@
       "source": "charter"
     },
     {
+      "from": "model:LineOaAccount",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:LocalWorkspaceMount",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -38080,6 +38454,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/line-oa/accounts/[id]",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/accounts",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/market/observations",
       "to": "domain:market-intelligence",
       "type": "owned_by",
@@ -40930,6 +41318,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -43380,6 +43775,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -43661,6 +44063,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -45928,6 +46337,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -46541,6 +46957,111 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "code:src/modules/integration/application/integration-management-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "code:src/modules/line-oa-studio/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -47987,6 +48508,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -49722,6 +50250,13 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -50997,6 +51532,13 @@
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -52417,6 +52959,13 @@
     },
     {
       "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
       "to": "req:SDD-044",
       "type": "verifies",
       "status": "current",
@@ -52572,6 +53121,13 @@
     {
       "from": "test:tests/unit/conversation-analysis-contract.test.js",
       "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -52941,6 +53497,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "code:src/modules/crm/customer-import-review-store.js",
       "type": "tests",
@@ -53279,6 +53842,13 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -53978,6 +54548,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -54224,6 +54801,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -55994,6 +56578,13 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -56159,6 +56750,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr080-integration-management.test.js",
@@ -58310,6 +58908,104 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "code:src/modules/line-oa-studio/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "code:src/app/api/line-oa/accounts/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "code:src/app/api/line-oa/accounts/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-schema-contract.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-schema-contract.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-schema-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-registry-service.test.js",
       "to": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "tests",
@@ -60195,6 +60891,13 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

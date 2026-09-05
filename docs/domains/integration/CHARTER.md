@@ -144,7 +144,11 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   `docs/domains/integration/features/FR-081-raw-external-ingestion.md`.
 - `src/modules/integration/application/integration-management-service.js` — the
   owner-scoped read and create path behind `/platform/integrations`; raw secret
-  values never cross it and connection health is computed, never stored.
+  values never cross it and connection health is computed, never stored. Its
+  `readLineOaConnectionHealth` (FR-146) hands the same redacted LINE_OA read
+  model, keyed by connection id, to the LINE OA Studio account aggregate — so
+  that lane computes account health from this contract and never reads the
+  connection or credential tables itself.
 - `src/platform/integrations/core/pipeline-tracking-contract.js` /
   `pipeline-tracking-service.js` — the FR-071 execution ledger's identity
   envelope and server-owned write path; `PIPELINE_DEFINITIONS` (SDD-066) is

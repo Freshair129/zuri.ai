@@ -72,6 +72,7 @@ model Tenant {
   assetLots                 AssetLot[]
   edgeDeviceCredentials     EdgeDeviceCredential[]
   assetExtractionJobs       AssetExtractionJob[]
+  lineOaAccounts            LineOaAccount[]
 
   @@index([portfolioId])
 }
@@ -147,6 +148,7 @@ model Business {
   assetLots                 AssetLot[]
   edgeDeviceCredentials     EdgeDeviceCredential[]
   assetExtractionJobs       AssetExtractionJob[]
+  lineOaAccounts            LineOaAccount[]
 
   @@index([tenantId])
 }
@@ -1868,6 +1870,8 @@ model IntegrationConnection {
   cursors       SyncCursor[]
   externalRefs  ExternalEntityRef[]
   deadLetters   DeadLetterRecord[]
+  // @req FR-146 — at most one LINE OA Studio account operates a connection.
+  lineOaAccount LineOaAccount?
 
   @@unique([tenantId, providerId, externalAccountId])
   @@index([tenantId, businessId, purpose, status, role])
@@ -2234,4 +2238,40 @@ model AssetExtractionJob {
 
   @@index([businessId, status, createdAt])
   @@index([evidenceId, status])
+}
+
+// @req FR-146 — LINE OA Studio account aggregate (ADR-060 D2/D3/D5): one row per
+// LINE Official Account a Business operates, many per Business, one Business
+// each. References the integration lane's LINE_OA connection 1:1 and the agent
+// lane's binding code; holds no credential material. `status` is the stored
+// machine (DRAFT → CONNECTED → PAUSED | ARCHIVED); LIVE is derived from the
+// binding and never stored. `transportMode` is EDGE or CLOUD.
+// @spec BR-002 — basicId is a LINE attribute, never a key; SEC-001 — every row
+// carries tenantId and businessId.
+// @tested tests/unit/line-oa-account-schema-contract.test.js, tests/integration/fr146-line-oa-account.test.js
+model LineOaAccount {
+  id                      String    @id @default(uuid())
+  code                    String
+  tenantId                String
+  businessId              String
+  integrationConnectionId String    @unique
+  bindingCode             String?
+  displayName             String
+  basicId                 String?
+  status                  String    @default("DRAFT")
+  transportMode           String    @default("CLOUD")
+  isDefaultForBusiness    Boolean   @default(false)
+  botProfileJson          String    @default("{}")
+  archivedAt              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  version                 Int       @default(1)
+
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business   Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id])
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, bindingCode])
+  @@index([businessId, status])
 }

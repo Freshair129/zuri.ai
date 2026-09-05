@@ -181,6 +181,16 @@ export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'G
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 
+// @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
+// derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
+// ARCHIVED, and an account reads LIVE only while the agent lane reports an
+// ACTIVE binding for it. `transportMode` names who owns the account's LINE
+// transport — the tenant's Zuri Edge Device or the cloud.
+export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
+export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
+export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -212,6 +222,9 @@ export const zAssetEvidenceDocumentType = z.enum(ASSET_EVIDENCE_DOCUMENT_TYPES)
 export const zAssetProcurementRefType = z.enum(ASSET_PROCUREMENT_REF_TYPES)
 export const zAssetResponsibilityRole = z.enum(ASSET_RESPONSIBILITY_ROLES)
 export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
+export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
+export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
+export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
