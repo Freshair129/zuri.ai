@@ -256,6 +256,7 @@
     "FR-143",
     "FR-144",
     "FR-145",
+    "FR-146",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -405,6 +406,7 @@
     "FEAT-015",
     "FEAT-016",
     "FEAT-017",
+    "FEAT-018",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -2797,6 +2799,19 @@
         }
       ]
     },
+    "FR-146": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e37c0b87f7b62ed71ae2d092282530a6be126b6c011de55b4e7a2a6184542492",
+      "history": [
+        {
+          "anchor": "line oa studio account aggregate",
+          "since": "2026-09-05",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4756,6 +4771,19 @@
         {
           "anchor": "edge executed evidence extraction",
           "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-018": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "43f2b2585315007d6e81c3b2e1db4cd3cc1dc313192d320157d8e13c0e7f3e53",
+      "history": [
+        {
+          "anchor": "line oa studio",
+          "since": "2026-09-05",
           "reason": "declared"
         }
       ]

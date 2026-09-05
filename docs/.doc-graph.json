@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1748,
-    "total_edges": 6352,
+    "total_nodes": 1750,
+    "total_edges": 6354,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -12,15 +12,15 @@
       "adr": 60,
       "domain": 10,
       "roadmap": 35,
-      "feature": 17,
+      "feature": 18,
       "route": 185,
       "model": 82,
-      "requirement": 302,
+      "requirement": 303,
       "test": 432,
       "code_file": 464
     },
     "coverage": {
-      "requirements": 302,
+      "requirements": 303,
       "fr_with_code": "100% (135/135)",
       "fr_with_tests": "100% (135/135)",
       "rules_anchored_in_code": "96% (128/133)",
@@ -36,7 +36,8 @@
         "FR-126",
         "FR-128",
         "FR-131",
-        "FR-132"
+        "FR-132",
+        "FR-146"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -9917,9 +9918,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.17.0b",
+      "version": "1.18.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "6222b528",
+      "hash": "acdb70d3",
       "status": "current"
     },
     {
@@ -11048,9 +11049,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.148.0b",
+      "version": "1.149.0b",
       "doc_status": "Draft",
-      "hash": "f25b39a7",
+      "hash": "7bd4210a",
       "status": "current"
     },
     {
@@ -11094,7 +11095,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "f4ef1075",
+      "hash": "8f3850d5",
       "status": "current"
     },
     {
@@ -11509,7 +11510,7 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "a27fcac4",
+      "hash": "a363b3dd",
       "status": "current"
     },
     {
@@ -11727,6 +11728,13 @@
       "type": "feature",
       "label": "Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-018",
+      "type": "feature",
+      "label": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
+      "declared": "proposed",
       "status": "current"
     },
     {
@@ -13838,6 +13846,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9): `resolvePoolMode(env)` (`src/lib/db.js`) picks Supavisor SESSION pooling (port 5432, no `pgbouncer` param) for a long-running process and TRANSACTION pooling (port 6543, `pgbouncer=true`) only when `VERCEL` is set, so a single container gets a small stable connection count and one Postgres round trip per query instead of paying a transaction-mode backend checkout on every query it never needed; `ZURI_DB_POOL_MODE=session|transaction` is an explicit operator override for a topology neither branch guesses (e.g. several container replicas sharing one Postgres, which still needs transaction-mode safety). Applies only to a `*.pooler.supabase.com` host — a direct connection or non-Supabase Postgres passes through untouched. 🟠 implemented 2026-09-04 — `src/lib/db.js`, `tests/unit/db-runtime-config.test.js` (12 cases incl. the FR-145 group); measured against the production Supabase project from the Docker deployment (ADR-058): the same host, a warm connection pool, transaction mode cost ~650-750ms per trivial query with no improvement across repeated calls, session mode ~130-145ms — matching raw TCP RTT. Docker Compose defaults to session mode with no operator action; Vercel behavior is unchanged "
+    },
+    {
+      "id": "req:FR-146",
+      "type": "requirement",
+      "family": "FR",
+      "label": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content. 🔜 declared 2026-09-05 — ADR-060 D14 Phase 1, bundled by FEAT-018; no model, route or code yet "
     },
     {
       "id": "req:NFR-001",
@@ -34871,6 +34889,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-018",
+      "to": "req:FR-146",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -36664,6 +36689,13 @@
     },
     {
       "from": "req:FR-145",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-146",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
