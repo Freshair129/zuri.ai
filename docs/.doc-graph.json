@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1740,
-    "total_edges": 6344,
+    "total_nodes": 1744,
+    "total_edges": 6351,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 154,
+      "document": 155,
       "adr": 59,
       "domain": 9,
       "roadmap": 35,
@@ -16,7 +16,7 @@
       "route": 185,
       "model": 82,
       "requirement": 302,
-      "test": 429,
+      "test": 432,
       "code_file": 464
     },
     "coverage": {
@@ -56,9 +56,26 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP"
+      "doc:CONTEXT-MAP",
+      "doc:FR-133-asset-management-foundation",
+      "doc:FR-137-asset-evidence-intake-execution",
+      "doc:FR-066-profile-first-workspace-onboarding",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "test:tests/unit/asset-management-contract.test.js",
+      "code:src/app/(entry)/waiting-room/page.jsx",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "code:src/modules/asset-management/domain/asset-intake.js",
+      "code:src/modules/asset-management/import/xlsx-template.js"
     ],
-    "added": [],
+    "added": [
+      "doc:CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION",
+      "test:tests/e2e/fr066-waiting-room.spec.js",
+      "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "test:tests/unit/waiting-room-page.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -193,8 +210,8 @@
       "id": "code:src/app/(entry)/waiting-room/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/waiting-room/page.jsx",
-      "hash": "d4e83b0c",
-      "status": "current",
+      "hash": "223d8673",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-066",
@@ -4613,8 +4630,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "b01abfc2",
-      "status": "current",
+      "hash": "96a6b4a8",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -5345,8 +5362,8 @@
       "id": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
-      "hash": "ff853570",
-      "status": "current",
+      "hash": "6f1a991a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-137",
@@ -5368,8 +5385,8 @@
       "id": "code:src/modules/asset-management/domain/asset-intake.js",
       "type": "code_file",
       "path": "src/modules/asset-management/domain/asset-intake.js",
-      "hash": "4e8c5a85",
-      "status": "current",
+      "hash": "bc71449a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-134",
@@ -5510,8 +5527,8 @@
       "id": "code:src/modules/asset-management/import/xlsx-template.js",
       "type": "code_file",
       "path": "src/modules/asset-management/import/xlsx-template.js",
-      "hash": "4b693b64",
-      "status": "current",
+      "hash": "ba01ed3c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-139"
@@ -9806,6 +9823,14 @@
       "status": "current"
     },
     {
+      "id": "doc:CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION",
+      "type": "document",
+      "path": "docs/change-requests/CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION.md",
+      "title": "CR-017 — Asset Evidence and Waiting Room UX Correction",
+      "hash": "f2ad7c83",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -10243,10 +10268,10 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
       "title": "FR-066 — Profile-first Workspace onboarding",
-      "version": "1.0.0",
-      "doc_status": "✅ Implemented (2026-08-26) — `onboarding-service.js`, `/api/onboarding/*`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` (D8's provisional `/workspaces` path is occupied by the PM Space compatibility page; its move to `/spaces` is a separate slice)",
-      "hash": "62c889b8",
-      "status": "current"
+      "version": "1.1.0b",
+      "doc_status": "🟠 UX correction approved (2026-09-04) — implementation pending for current-person profile summary and Home navigation; the existing onboarding authority boundary remains implemented",
+      "hash": "56017d26",
+      "status": "changed"
     },
     {
       "id": "doc:FR-067-workspace-invitation-and-scoped-membership",
@@ -10649,16 +10674,16 @@
       "type": "document",
       "path": "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
       "title": "FR-133..136 — Asset Management foundation",
-      "hash": "779b90e6",
-      "status": "current"
+      "hash": "7024fab1",
+      "status": "changed"
     },
     {
       "id": "doc:FR-137-asset-evidence-intake-execution",
       "type": "document",
       "path": "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
       "title": "FR-137..140 — Asset Evidence Intake Execution",
-      "hash": "f553ceab",
-      "status": "current"
+      "hash": "dca458b6",
+      "status": "changed"
     },
     {
       "id": "doc:FR-141-edge-device-heartbeat-registry",
@@ -11029,10 +11054,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.147.0b",
+      "version": "1.148.0b",
       "doc_status": "Draft",
-      "hash": "352ce339",
-      "status": "current"
+      "hash": "f25b39a7",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -12327,11 +12352,11 @@
       "id": "req:BR-024",
       "type": "requirement",
       "family": "BR",
-      "label": "A procurement-origin Asset cannot be approved without both active payment evidence and typed PR plus PO references; expiry-controlled categories additionally require lot and expiry. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves.",
+      "label": "A procurement-origin Asset cannot be approved without both active Asset-photo and payment evidence plus typed PR and PO references; expiry-controlled categories additionally require lot and expiry. Warranty evidence is conditional on a warranty document existing. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "A procurement-origin Asset cannot be approved without both active payment evidence and typed PR plus PO references; expiry-controlled categories additionally require lot and expiry. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves. FR-134; FR-135; SEC-023 "
+      "row_text": "A procurement-origin Asset cannot be approved without both active Asset-photo and payment evidence plus typed PR and PO references; expiry-controlled categories additionally require lot and expiry. Warranty evidence is conditional on a warranty document existing. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves. FR-134; FR-135; SEC-023; CR-017 "
     },
     {
       "id": "req:BR-025",
@@ -12997,11 +13022,11 @@
       "id": "req:FR-066",
       "type": "requirement",
       "family": "FR",
-      "label": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
+      "label": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. Waiting Room renders only the current person's completed Profile summary and provides an accessible action back to public Home.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. ✅ implemented "
+      "row_text": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. Waiting Room renders only the current person's completed Profile summary and provides an accessible action back to public Home. 🟠 current-person profile/Home UX correction approved under CR-017; authority boundary remains implemented "
     },
     {
       "id": "req:FR-067",
@@ -13677,11 +13702,11 @@
       "id": "req:FR-134",
       "type": "requirement",
       "family": "FR",
-      "label": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied.",
+      "label": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content with explicit roles, including `ASSET_PHOTO`, `PAYMENT_PROOF` and conditional `WARRANTY`. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `ASSET_PHOTO` and `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied. 🟠 local contract/preview implementation authorized; LINE binary, OCR/Vision, live Sheet and Procurement adapters gated "
+      "row_text": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content with explicit roles, including `ASSET_PHOTO`, `PAYMENT_PROOF` and conditional `WARRANTY`. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `ASSET_PHOTO` and `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied. 🟠 CR-017 multi-evidence UX/validation correction approved; LINE binary, live Sheet and Procurement adapters remain gated "
     },
     {
       "id": "req:FR-135",
@@ -13707,11 +13732,11 @@
       "id": "req:FR-137",
       "type": "requirement",
       "family": "FR",
-      "label": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record.",
+      "label": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF Asset photos, receipts, e-receipts, payment evidence or warranty evidence through a bounded content-policy gate. Each FileAsset receives an explicit evidence role; filename and upload order never establish meaning. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record. 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016) "
+      "row_text": "Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF Asset photos, receipts, e-receipts, payment evidence or warranty evidence through a bounded content-policy gate. Each FileAsset receives an explicit evidence role; filename and upload order never establish meaning. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record. 🟠 CR-017 role-keyed upload/review UX correction approved; production deployment/canary gates remain as recorded by CR-016 "
     },
     {
       "id": "req:FR-138",
@@ -17126,6 +17151,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr066-waiting-room.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr066-waiting-room.spec.js",
+      "hash": "933f1306",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
@@ -17269,8 +17301,8 @@
       "id": "test:tests/integration/asset-evidence-intake-execution.test.js",
       "type": "test",
       "path": "tests/integration/asset-evidence-intake-execution.test.js",
-      "hash": "f664ca8a",
-      "status": "current"
+      "hash": "55166ce8",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/backup.test.js",
@@ -18032,8 +18064,8 @@
       "id": "test:tests/unit/asset-intake-adapters-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-intake-adapters-contract.test.js",
-      "hash": "f2296730",
-      "status": "current"
+      "hash": "6eb60ac5",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-management-api-ui-contract.test.js",
@@ -18046,8 +18078,8 @@
       "id": "test:tests/unit/asset-management-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-management-contract.test.js",
-      "hash": "ed5bcf25",
-      "status": "current"
+      "hash": "90ea1cb5",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-management-navigation.test.js",
@@ -18075,6 +18107,13 @@
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
       "hash": "4bb78d36",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-receiving-evidence-ui.test.js",
+      "hash": "c5c98889",
       "status": "current"
     },
     {
@@ -20028,6 +20067,13 @@
       "type": "test",
       "path": "tests/unit/viewer-gate.test.js",
       "hash": "8c5c09b3",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/waiting-room-page.test.js",
+      "type": "test",
+      "path": "tests/unit/waiting-room-page.test.js",
+      "hash": "f50d23a4",
       "status": "current"
     },
     {
@@ -41278,6 +41324,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr066-waiting-room.spec.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr066-waiting-room.spec.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/fr077-project-inventory.spec.js",
       "to": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
       "type": "tests",
@@ -51108,6 +51168,27 @@
     {
       "from": "test:tests/unit/asset-production-activation-contract.test.js",
       "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "to": "req:BR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "to": "req:FR-137",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "to": "req:SDD-081",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -64089,6 +64170,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/waiting-room-page.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/waiting-room-page.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/wbs-structure.test.js",

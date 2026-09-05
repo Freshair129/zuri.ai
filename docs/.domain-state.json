@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-04T07:52:01.058Z",
+  "generatedAt": "2026-09-05T01:34:25.552Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -587,7 +587,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-138",
@@ -1003,10 +1003,10 @@
         },
         {
           "id": "FR-066",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-067",
@@ -2782,7 +2782,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-138",
@@ -4235,7 +4235,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-138",
@@ -4292,7 +4292,8 @@
         "tests/unit/asset-evidence-storage-contract.test.js",
         "tests/unit/asset-extraction-provider.test.js",
         "tests/unit/asset-intake-adapters-contract.test.js",
-        "tests/unit/asset-production-activation-contract.test.js"
+        "tests/unit/asset-production-activation-contract.test.js",
+        "tests/unit/asset-receiving-evidence-ui.test.js"
       ]
     },
     {
@@ -7047,7 +7048,7 @@
     },
     {
       "id": "FR-066",
-      "title": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
+      "title": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. Waiting Room renders only the current person's completed Profile summary and provides an accessible action back to public Home.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -7068,7 +7069,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 13
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -7083,6 +7084,7 @@
         "src/modules/identity/onboarding-steps.js",
         "src/modules/identity/signup-service.js",
         "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/fr066-waiting-room.spec.js",
         "tests/e2e/fr120-signup.spec.js",
         "tests/integration/openapi-docs.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
@@ -7093,6 +7095,7 @@
         "tests/unit/fr120-signup-service.test.js",
         "tests/unit/onboarding-service.test.js",
         "tests/unit/profile-identity-fields-migration.test.js",
+        "tests/unit/waiting-room-page.test.js",
         "tests/unit/workspace-collaboration-view.test.js",
         "tests/unit/workspace-onboarding-routes.test.js"
       ]

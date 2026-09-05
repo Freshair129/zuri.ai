@@ -9,10 +9,12 @@
 // session become an ACTIVE WorkspaceMembership; every failure mode answers
 // with one generic refusal.
 // @spec ADR-027 D3/D4/D8, BR-016, SEC-014, SDD-038
-// @tested tests/unit/workspace-onboarding-routes.test.js
+// @tested tests/unit/workspace-onboarding-routes.test.js,
+//   tests/unit/waiting-room-page.test.js, tests/e2e/fr066-waiting-room.spec.js
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Home } from 'lucide-react'
 import { Card, PageHeader, ErrorState } from '@/components/ui'
 import BusinessRoutingShell from '@/components/layouts/BusinessRoutingShell'
 import { LoadingCard, api, useFetch } from '@/modules/project-manager/components/useApi'
@@ -93,11 +95,30 @@ export default function WaitingRoomPage() {
         eyebrow="ห้องรอ"
         title="รอคำเชิญเข้าทีม"
         subtitle="โปรไฟล์ของคุณพร้อมแล้ว คุณสามารถรอคำเชิญจากเจ้าของทีม หรือสร้าง Workspace ของคุณเองได้"
+        actions={<Link href="/" className="btn"><Home size={15} /> กลับหน้าแรก</Link>}
       />
       {error ? <p className="mb-3 text-sm text-[var(--danger)]" role="alert">{error}</p> : null}
       {notice ? <p className="mb-3 text-sm" role="status">{notice}</p> : null}
 
       <div className="grid max-w-3xl gap-4">
+        <Card className="p-5">
+          <h2 className="text-sm font-bold">โปรไฟล์ของผู้รอ</h2>
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <div className="grid h-12 w-12 place-items-center rounded-full bg-[var(--action-primary)] text-sm font-bold text-white" aria-hidden="true">
+              {`${data.profile.firstName?.[0] || ''}${data.profile.lastName?.[0] || ''}` || data.profile.displayName?.slice(0, 2) || '?'}
+            </div>
+            <div>
+              <p className="font-semibold">
+                {data.profile.displayName || [data.profile.firstName, data.profile.lastName].filter(Boolean).join(' ') || 'ผู้ใช้งาน'}
+              </p>
+              <dl className="mt-1 grid gap-1 text-xs text-muted">
+                <div><dt className="inline font-semibold">อีเมล:</dt> <dd className="inline">{data.profile.email || '—'}</dd></div>
+                <div><dt className="inline font-semibold">โทรศัพท์:</dt> <dd className="inline">{data.profile.phone || '—'}</dd></div>
+              </dl>
+            </div>
+          </div>
+        </Card>
+
         <Card className="p-5">
           <h2 className="text-sm font-bold">คำเชิญที่รอดำเนินการ</h2>
           {data.pendingInvites.length === 0 ? (

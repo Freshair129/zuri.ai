@@ -16,6 +16,20 @@ const row = {
 }
 
 describe('FR-139 Asset workbook and Sheet snapshot', () => {
+  it('publishes ASSET_PHOTO as a governed evidence-role lookup value', async () => {
+    const template = await optionalModule('src/modules/asset-management/import/xlsx-template.js')
+    expect(template, 'Asset workbook template must exist').not.toBeNull()
+    if (!template) return
+
+    const workbook = template.buildAssetTemplateWorkbook()
+    const lookups = workbook.getWorksheet('Lookups')
+    const evidenceRoles = lookups.getRows(1, lookups.rowCount)
+      .map((lookupRow) => [lookupRow.getCell(1).value, lookupRow.getCell(2).value])
+      .filter(([list]) => list === 'evidenceRole')
+      .map(([, value]) => value)
+    expect(evidenceRoles).toContain('ASSET_PHOTO')
+  })
+
   it('generates the governed workbook topology and round-trips one canonical row', async () => {
     const template = await optionalModule('src/modules/asset-management/import/xlsx-template.js')
     const converter = await optionalModule('src/modules/asset-management/import/xlsx-convert.js')
@@ -24,15 +38,22 @@ describe('FR-139 Asset workbook and Sheet snapshot', () => {
     if (!template || !converter) return
 
     const workbook = template.buildAssetTemplateWorkbook({ exampleRows: [row] })
+    workbook.getWorksheet('Evidence').addRow({
+      correlationId: row.correlationId, fileAssetId: 'file-photo', role: 'ASSET_PHOTO',
+    })
     expect(workbook.worksheets.map((sheet) => sheet.name)).toEqual([
       'อ่านก่อน (Read Me)', 'Assets', 'Evidence', 'ProcurementRefs', 'Lookups',
     ])
+    expect(workbook.getWorksheet('อ่านก่อน (Read Me)').getCell(3, 1).value).toContain('ASSET_PHOTO')
     const buffer = await workbook.xlsx.writeBuffer()
     const preview = await converter.assetWorkbookToEnvelopes(Buffer.from(buffer), { businessId: 'business-a' })
     expect(preview.errors).toEqual([])
     expect(preview.envelopes[0]).toMatchObject({
       businessId: 'business-a', source: { channel: 'EXCEL', correlationId: 'sheet-1' },
-      evidence: [expect.objectContaining({ fileAssetId: 'file-payment', role: 'PAYMENT_PROOF' })],
+      evidence: expect.arrayContaining([
+        expect.objectContaining({ fileAssetId: 'file-photo', role: 'ASSET_PHOTO' }),
+        expect.objectContaining({ fileAssetId: 'file-payment', role: 'PAYMENT_PROOF' }),
+      ]),
       procurementRefs: expect.arrayContaining([expect.objectContaining({ type: 'PR' }), expect.objectContaining({ type: 'PO' })]),
     })
   })
@@ -64,18 +85,24 @@ describe('FR-139 Asset workbook and Sheet snapshot', () => {
     }
     const workbook = template.buildAssetExportWorkbook([{
       sourceCorrelationId: 'export-1', origin: 'PROCUREMENT_PURCHASE', normalizedEnvelopeJson: JSON.stringify(envelope),
-      evidence: [{ fileAssetId: 'file-export', role: 'PAYMENT_PROOF', paymentReference: 'PAY-1' }],
+      evidence: [
+        { fileAssetId: 'file-export-photo', role: 'ASSET_PHOTO' },
+        { fileAssetId: 'file-export', role: 'PAYMENT_PROOF', paymentReference: 'PAY-1' },
+      ],
       procurementRefs: [{ type: 'PR', system: 'ERP', value: 'PR-EXPORT' }, { type: 'PO', system: 'ERP', value: 'PO-EXPORT' }],
     }])
     expect(workbook.getWorksheet('Assets').getCell('A3').value).toBe('export-1')
-    expect(workbook.getWorksheet('Evidence').getCell('B3').value).toBe('file-export')
+    expect(workbook.getWorksheet('Evidence').getCell('B3').value).toBe('file-export-photo')
     expect(workbook.getWorksheet('ProcurementRefs').getCell('D3').value).toBe('PR-EXPORT')
     const buffer = await workbook.xlsx.writeBuffer()
     const preview = await converter.assetWorkbookToEnvelopes(Buffer.from(buffer), { businessId: 'business-a' })
     expect(preview.errors).toEqual([])
     expect(preview.envelopes[0]).toMatchObject({
       source: { correlationId: 'export-1' },
-      evidence: [expect.objectContaining({ fileAssetId: 'file-export' })],
+      evidence: expect.arrayContaining([
+        expect.objectContaining({ fileAssetId: 'file-export-photo', role: 'ASSET_PHOTO' }),
+        expect.objectContaining({ fileAssetId: 'file-export', role: 'PAYMENT_PROOF' }),
+      ]),
       procurementRefs: expect.arrayContaining([expect.objectContaining({ value: 'PR-EXPORT' }), expect.objectContaining({ value: 'PO-EXPORT' })]),
     })
   })

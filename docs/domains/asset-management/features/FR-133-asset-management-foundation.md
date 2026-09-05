@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0b"
 status: building
 domain: asset-management
 requirements:
@@ -33,8 +33,8 @@ the registration decision is traceable to what physically arrived.
 - Each draft records Business, source correlation, item description/category,
   quantity and evidence references.
 - Draft save may be incomplete; Submit validates the complete policy.
-- A procurement-origin Submit without `PAYMENT_PROOF` is rejected with a field-level
-  code and does not create Asset truth.
+- A procurement-origin Submit without both `ASSET_PHOTO` and `PAYMENT_PROOF` is
+  rejected with field-level codes and does not create Asset truth.
 
 ### US-AM-02 — Attach receipt, e-receipt, PDF and payment slip
 
@@ -42,8 +42,10 @@ As an asset officer, I want to attach images, PDFs, e-receipts and transfer slip
 an auditor can inspect the original source.
 
 - Evidence references an active `FileAsset`; it does not copy the file bytes.
-- Roles include receipt/invoice, payment proof, delivery, inspection, warranty and
-  other supporting evidence.
+- Roles include Asset photo, receipt/invoice, payment proof, delivery, inspection,
+  warranty and other supporting evidence.
+- The receiving UI exposes separate Asset-photo and receipt/payment slots; warranty
+  is conditional because an Asset may have no warranty document.
 - MIME/type/size policy is based on inspected metadata, not filename extension.
 - Duplicate hashes/payment references are reported as conflicts, never silently
   merged.
@@ -272,11 +274,12 @@ text and icon, never color alone.
 - Pipeline IDs/catalog are distinct and tested.
 - Schema and backup contracts cover the declared Asset records.
 - Focused tests prove required payment evidence, PR+PO, lot/expiry, temporal overlap,
-  depreciation bounds and server-scope refusal.
+  required Asset photo, depreciation bounds and server-scope refusal.
 - External adapters remain visibly `UNAVAILABLE`, never falsely green.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-09-04 | beta | Required explicit Asset photo plus payment evidence and documented conditional warranty capture | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | building | Declared detailed user stories, canonical envelope, validation, wireframes and foundation acceptance for FEAT-015 | working-tree | Codex |

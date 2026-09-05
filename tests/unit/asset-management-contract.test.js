@@ -1,5 +1,5 @@
 // @req FR-134, FR-135 — every intake surface converges on one strict envelope
-// with payment/PR/PO/lot/scope and temporal validation before Asset truth.
+// with asset-photo/payment/PR/PO/lot/scope validation before Asset truth.
 // @spec SDD-079, SDD-080, BR-023, BR-024, SEC-023, ADR-055
 // @tested tests/unit/asset-management-contract.test.js
 import fs from 'node:fs'
@@ -26,7 +26,10 @@ function validProcurementIntake(overrides = {}) {
       quantity: 1,
       expiryControlled: false,
     },
-    evidence: [{ fileAssetId: 'file-payment', role: 'PAYMENT_PROOF' }],
+    evidence: [
+      { fileAssetId: 'file-photo', role: 'ASSET_PHOTO' },
+      { fileAssetId: 'file-payment', role: 'PAYMENT_PROOF' },
+    ],
     procurementRefs: [
       { type: 'PR', system: 'ERP', value: 'PR-0001' },
       { type: 'PO', system: 'ERP', value: 'PO-0001', lineValue: '10' },
@@ -47,7 +50,7 @@ async function requireContract() {
 }
 
 describe('AssetIntakeEnvelope', () => {
-  it('accepts one strict procurement envelope with payment evidence plus PR and PO', async () => {
+  it('accepts one strict procurement envelope with asset photo, payment evidence, PR and PO', async () => {
     const contract = await requireContract()
     if (!contract) return
     const result = contract.validateAssetIntake(validProcurementIntake(), {
@@ -70,7 +73,8 @@ describe('AssetIntakeEnvelope', () => {
   })
 
   it.each([
-    ['payment proof', { evidence: [] }, 'PAYMENT_PROOF_REQUIRED'],
+    ['asset photo', { evidence: [{ fileAssetId: 'file-payment', role: 'PAYMENT_PROOF' }] }, 'ASSET_PHOTO_REQUIRED'],
+    ['payment proof', { evidence: [{ fileAssetId: 'file-photo', role: 'ASSET_PHOTO' }] }, 'PAYMENT_PROOF_REQUIRED'],
     ['PR reference', { procurementRefs: [{ type: 'PO', system: 'ERP', value: 'PO-0001' }] }, 'PR_REQUIRED'],
     ['PO reference', { procurementRefs: [{ type: 'PR', system: 'ERP', value: 'PR-0001' }] }, 'PO_REQUIRED'],
   ])('fails a procurement Submit without %s', async (_label, overrides, expectedCode) => {

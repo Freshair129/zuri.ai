@@ -869,14 +869,16 @@
       "family": "BR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "d82562975a3e5ace0113cf87316f0362bb8dc2b29d184d73af23c3b729204cf7",
+      "statement_digest": "a4a5b291b2323da2f57a62a3ea205096ddc15984021163378a03aac77f98af37",
       "history": [
         {
           "anchor": "a procurement origin asset cannot be approved without both",
           "since": "2026-09-01",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-04",
+      "statement_digest_reason": "CR-017 approved expansion keeps each original subject while adding explicit Asset evidence and Waiting Room presentation acceptance criteria."
     },
     "BR-025": {
       "family": "BR",
@@ -1751,7 +1753,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "ec64e1f04dca30c14a67e6d5f00043c6eabca702e6cce91b9e92ee8d82f97980"
+      "statement_digest": "c103b2a79ea01cf5ea77792ec3aa2048d4a01f0ecb420226f938899fa89925d5",
+      "statement_digest_reviewed_at": "2026-09-04",
+      "statement_digest_reason": "CR-017 approved expansion keeps each original subject while adding explicit Asset evidence and Waiting Room presentation acceptance criteria."
     },
     "FR-067": {
       "family": "FR",
@@ -2636,14 +2640,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bd8c147351b99c692ce8f4d4b5274a2f6ff879b364737a641ca085d9fd76df03",
+      "statement_digest": "8022c609159bef3aff31582e22b170d9414314ab5084acc867fff154727a3be6",
       "history": [
         {
           "anchor": "multi surface asset intake and evidence validation",
           "since": "2026-09-01",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-04",
+      "statement_digest_reason": "CR-017 approved expansion keeps each original subject while adding explicit Asset evidence and Waiting Room presentation acceptance criteria."
     },
     "FR-135": {
       "family": "FR",
@@ -2675,14 +2681,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "15ceee2560e38a090614f5d12aa3737578beb1f363a75361d9f1d194677de2b6",
+      "statement_digest": "a54dccd3517701f393d1c7de38345cad74922c9befba2289e9535eea918e56f3",
       "history": [
         {
           "anchor": "asset cloud evidence intake",
           "since": "2026-09-02",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-04",
+      "statement_digest_reason": "CR-017 approved expansion keeps each original subject while adding explicit Asset evidence and Waiting Room presentation acceptance criteria."
     },
     "FR-138": {
       "family": "FR",

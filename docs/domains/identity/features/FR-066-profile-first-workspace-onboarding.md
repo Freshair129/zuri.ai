@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Status** | ✅ Implemented (2026-08-26) — `onboarding-service.js`, `/api/onboarding/*`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` (D8's provisional `/workspaces` path is occupied by the PM Space compatibility page; its move to `/spaces` is a separate slice) |
+| **Version** | 1.1.0b |
+| **Status** | 🟠 UX correction approved (2026-09-04) — implementation pending for current-person profile summary and Home navigation; the existing onboarding authority boundary remains implemented |
 | **Date** | 2026-08-17 |
 | **Relates to** | [ADR-027](../../../decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), FR-038, FR-044, FR-046, SDD-038 |
 
@@ -74,6 +74,11 @@ use (ADR-027 §D8):
 - **AC-066.11** Project creation from onboarding names a Business and a Project
   only. No screen in the first-run path asks the user to pick, name or create a
   Space.
+- **AC-066.12** Waiting Room renders a summary of the current session principal's
+  completed Profile using the already-scoped onboarding state. It never lists or
+  queries the profiles of other waiting people.
+- **AC-066.13** Waiting Room exposes an accessible `กลับหน้าแรก` action to `/`
+  without mounting BusinessShell or inventing Business access.
 
 ## Non-goals
 
@@ -83,3 +88,9 @@ use (ADR-027 §D8):
 - ~~implementing the route or database changes in this documentation slice~~
   (that later slice is now this one — implemented 2026-08-26).
 
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.1.0b | 2026-09-04 | beta | Added current-person profile-summary and public Home-navigation acceptance | working-tree | RWANG |
+| 1.0.0 | 2026-08-26 | implemented | Delivered Profile-first onboarding, Waiting Room and Workspace collaboration boundary | historical | Claude Fable 5 |

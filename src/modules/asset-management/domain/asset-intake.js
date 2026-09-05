@@ -140,6 +140,9 @@ export function validateAssetIntake(input, { trustedTenantId, trustedBusinessId 
   }
 
   if (value.origin === 'PROCUREMENT_PURCHASE') {
+    if (!value.evidence.some((entry) => entry.role === 'ASSET_PHOTO')) {
+      issues.push(issue('ASSET_PHOTO_REQUIRED', 'evidence', 'Asset photo is required'))
+    }
     if (!value.evidence.some((entry) => entry.role === 'PAYMENT_PROOF')) {
       issues.push(issue('PAYMENT_PROOF_REQUIRED', 'evidence', 'Payment proof is required'))
     }

@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-02T10:30:00+07:00,RWANG"
-last_update: "2026-09-02T10:30:00+07:00,RWANG"
+last_update: "2026-09-04T09:39:36+07:00,RWANG"
 status: "beta"
 superseded_by: null
 domain: asset-management
@@ -17,7 +17,7 @@ attributes:
 
 | ID | Subject | Outcome |
 |---|---|---|
-| FR-137 | Cloud evidence and immutable FileAsset | authorized users upload verified receipt/payment evidence to private managed storage |
+| FR-137 | Cloud evidence and immutable FileAsset | authorized users upload verified Asset photos, receipt/payment evidence and warranty evidence to private managed storage |
 | FR-138 | OCR/Vision extraction and human review | provider output is reconstructable candidate evidence and a reviewer saves separate corrections |
 | FR-139 | Asset Excel/Google Sheets import-export | canonical rows preview through one validator and export without becoming a second source of truth |
 | FR-140 | Trusted LINE OA/LIFF handoff | zuri-cli hands opaque staged FileAsset IDs to the same draft writer without sharing LINE secrets |
@@ -34,10 +34,11 @@ attributes:
 
 ## Detailed user stories
 
-### US-137.1 — Upload receipt or payment evidence
+### US-137.1 — Upload Asset photo, receipt/payment or warranty evidence
 
-As an Asset receiver, I want to attach a phone photo, PDF or e-receipt so that the
-original proof is preserved before data extraction.
+As an Asset receiver, I want to attach a physical Asset photo, receipt/payment
+evidence and an available warranty document so that the received item and its
+supporting transaction evidence are preserved before data extraction.
 
 Acceptance:
 
@@ -52,6 +53,10 @@ Acceptance:
 5. Storage failure creates no successful FileAsset. Metadata failure triggers a
    best-effort object removal and reports failure.
 6. Unsupported, empty, oversized or spoofed content is rejected deterministically.
+7. Evidence meaning is explicit: `ASSET_PHOTO`, `PAYMENT_PROOF` and `WARRANTY`
+   are role values, never inferred from filename or upload order.
+8. A procurement-origin intake requires `ASSET_PHOTO` and `PAYMENT_PROOF`.
+   `WARRANTY` is required only when a warranty document exists for the Asset.
 
 States: idle, selecting, uploading, uploaded, invalid-file, unauthorized,
 provider-unavailable and retryable-failure.
@@ -184,10 +189,10 @@ Acceptance:
 ┌ Assets / Receiving ──────────────────────────────────────────────────────┐
 │ Business: [server-selected]      Draft: DRAFT / NEEDS_REVIEW / READY    │
 ├ 1 Evidence ────────────────────────┬ 2 OCR candidate ────────────────────┤
-│ [Drop photo/PDF/e-receipt]         │ Vendor        [candidate]  92%      │
-│ ☑ Receipt.pdf  RECEIPT             │ Total         [candidate]  88%      │
-│ ☑ Slip.jpg     PAYMENT_PROOF       │ PO / PR       [candidate]  71%      │
-│ [Upload] [Run extraction]          │ [Accept] [Correct] [Reject]         │
+│ [Asset photo]      ASSET_PHOTO      │ Vendor        [candidate]  92%      │
+│ [Receipt/payment]  PAYMENT_PROOF    │ Total         [candidate]  88%      │
+│ [Warranty]         WARRANTY optional│ PO / PR       [candidate]  71%      │
+│ [Upload each] [Run payment OCR]     │ [Review each evidence item]         │
 ├ 3 Asset data ──────────────────────┴─────────────────────────────────────┤
 │ Name · Category · Qty · Serial · PR · PO · Lot · Expiry                │
 │ Accountable · Custodian · Users · Department · Location · Project      │
@@ -224,4 +229,5 @@ Expected proof:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-04 | beta | Added role-keyed Asset photo, receipt/payment and conditional warranty evidence with per-item review | working-tree | RWANG |
 | 0.1.0b | 2026-09-02 | beta | Defined FR-137..140 actors, detailed stories, acceptance states, readiness rules and receiving wireframe | working-tree | RWANG |
