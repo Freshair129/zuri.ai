@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 272,
     "routes": 131,
-    "test_files": 436
+    "test_files": 437
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 24,
+    "info": 25,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "479 id(s) pinned across 10 families",
-      "details": "ADR 60 · BR 25 · FEAT 18 · FR 146 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 479",
+      "title": "480 id(s) pinned across 10 families",
+      "details": "ADR 60 · BR 25 · FEAT 18 · FR 147 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 480",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -238,7 +238,18 @@
       "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
-      "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",
+      "title": "1 baseline requirement(s) now have a roadmap row",
+      "details": "FR-052",
+      "files": [
+        "docs/.roadmap-coverage-baseline.json"
+      ],
+      "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
+    },
+    {
+      "id": "I22",
+      "severity": "info",
+      "check": "roadmap-coverage",
+      "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
       "details": "baseline: docs/.roadmap-coverage-baseline.json",
       "files": [
         "docs/.roadmap-coverage-baseline.json"
@@ -246,7 +257,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 272 document(s)",
@@ -257,7 +268,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -269,7 +280,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I24",
+      "id": "I25",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 49 file(s) that write audit events",

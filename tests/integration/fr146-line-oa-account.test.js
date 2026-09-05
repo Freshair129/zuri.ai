@@ -14,6 +14,7 @@ import {
 } from '@/platform/integrations/core/integration-registry'
 import { mintEdgeDeviceCredential } from '@/modules/identity/edge-device-credential'
 import { ROLE_LINE_OA_PUBLISHER } from '@/modules/identity/rbac'
+import { createLineBindingStatusReaderFromEnv, readLineBindingStatusLabel } from '@/modules/agent/line-binding-status'
 import {
   applyLineOaAccountAction,
   connectLineOaAccount,
@@ -82,10 +83,11 @@ describe('FR-146 LineOaAccount', () => {
     })
     // Health names its sources and reports what is not wired instead of guessing.
     expect(account.health.connection).toMatchObject({ status: 'ACTIVE', secretConfigured: false, secretStatus: 'MISSING', lastWebhookAt: null })
-    expect(account.health.binding).toEqual({ code: null, status: 'UNKNOWN' })
+    // No binding code yet: the FR-147 label says so, whether or not a reader exists.
+    expect(account.health.binding).toEqual({ code: null, status: 'NO_BINDING' })
     expect(account.health.transportJobs).toBeNull()
     expect(account.health.quota).toBeNull()
-    expect(account.health.sources.binding).toMatch(/not wired/)
+    expect(account.health.sources.binding).toMatch(/no binding code/)
 
     const audit = await prisma.auditEvent.findMany({ where: { entityId: account.id, action: 'LINE_OA_ACCOUNT_CONNECTED' } })
     expect(audit).toHaveLength(1)
@@ -115,7 +117,10 @@ describe('FR-146 LineOaAccount', () => {
       businessId: business.id, integrationConnectionId: (await lineConnection(business)).id, code: 'oa-cloud-support', displayName: 'Support', bindingCode: 'cloud-support-binding',
     }, { viewer: owner })
     expect(second).toMatchObject({ status: 'CONNECTED', effectiveStatus: 'CONNECTED', isDefaultForBusiness: false, bindingCode: 'cloud-support-binding' })
+    // A binding code but no LINE runtime database in the test process: the
+    // FR-147 reader is absent, so the label is UNKNOWN and says why.
     expect(second.health.binding).toEqual({ code: 'cloud-support-binding', status: 'UNKNOWN' })
+    expect(second.health.sources.binding).toMatch(/not configured/)
 
     const moved = await applyLineOaAccountAction(second.id, { action: 'SET_DEFAULT', version: second.version }, { viewer: owner })
     expect(moved.isDefaultForBusiness).toBe(true)
@@ -215,22 +220,42 @@ describe('FR-146 LineOaAccount', () => {
     expect(trail.every((row) => !/secret|token/i.test(row.payloadJson))).toBe(true)
   })
 
-  it('AC-146.7 — LIVE is derived from the agent lane\'s binding through the port, never stored', async () => {
+  it('AC-146.7 / FR-147 — LIVE is derived from the agent lane\'s binding contract, never stored', async () => {
     const account = await prisma.lineOaAccount.findFirst({ where: { code: 'oa-by-publisher' } })
     const withBinding = await applyLineOaAccountAction(account.id, { action: 'ARCHIVE', version: account.version }, { viewer: owner, ports: { bindingStatus: async () => 'ACTIVE' } })
     // Archived stays archived whatever the binding says.
     expect(withBinding.effectiveStatus).toBe('ARCHIVED')
 
+    // The real FR-147 reader over an injected query function: the read role
+    // sees an ACTIVE, in-window row for this account's tenant/business/code.
+    const seen = []
+    const reader = createLineBindingStatusReaderFromEnv({}, {
+      queryFn: async (sql, values) => {
+        seen.push(values)
+        return { rows: [{ code: values[2], status: 'ACTIVE', valid_from: new Date().toISOString(), expires_at: null, rotated_at: null, version: 1 }] }
+      },
+    })
+    const bindingStatus = (row) => readLineBindingStatusLabel(reader, { tenantId: row.tenantId, businessId: row.businessId, code: row.bindingCode })
     const connected = await connectLineOaAccount({
       businessId: business.id, integrationConnectionId: (await lineConnection(business)).id, code: 'oa-live', displayName: 'Live', bindingCode: 'live-binding',
-    }, { viewer: owner, ports: { bindingStatus: async () => 'ACTIVE' } })
+    }, { viewer: owner, ports: { bindingStatus } })
     expect(connected.status).toBe('CONNECTED')
     expect(connected.effectiveStatus).toBe('LIVE')
     expect(connected.health.binding).toEqual({ code: 'live-binding', status: 'ACTIVE' })
+    expect(connected.health.sources.binding).toMatch(/FR-147/)
+    // The reader was asked about exactly this account's server-owned scope.
+    expect(seen).toContainEqual([tenant.id, business.id, 'live-binding'])
     const stored = await prisma.lineOaAccount.findUnique({ where: { id: connected.id } })
     expect(stored.status).toBe('CONNECTED')
-    // Without the port the same row reports UNKNOWN and is not LIVE.
+
+    // A configured reader that sees no row: NOT_ACTIVE, and not LIVE.
+    const blind = createLineBindingStatusReaderFromEnv({}, { queryFn: async () => ({ rows: [] }) })
+    const notActive = await getLineOaAccount(connected.id, { viewer: owner, ports: { bindingStatus: (row) => readLineBindingStatusLabel(blind, { tenantId: row.tenantId, businessId: row.businessId, code: row.bindingCode }) } })
+    expect(notActive.health.binding.status).toBe('NOT_ACTIVE')
+    expect(notActive.effectiveStatus).toBe('CONNECTED')
+    // No reader at all (this test process): UNKNOWN, and not LIVE.
     const plain = await getLineOaAccount(connected.id, { viewer: owner })
+    expect(plain.health.binding.status).toBe('UNKNOWN')
     expect(plain.effectiveStatus).toBe('CONNECTED')
   })
 

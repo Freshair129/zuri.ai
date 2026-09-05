@@ -257,6 +257,7 @@
     "FR-144",
     "FR-145",
     "FR-146",
+    "FR-147",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2807,6 +2808,19 @@
       "history": [
         {
           "anchor": "line oa studio account aggregate",
+          "since": "2026-09-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-147": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "91c54a11193ee188d8c800055ff9e3201de8e50258654633d8b910275ed69ccd",
+      "history": [
+        {
+          "anchor": "line binding status read contract",
           "since": "2026-09-05",
           "reason": "declared"
         }

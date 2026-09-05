@@ -286,8 +286,10 @@ Business. Reading needs Business visibility plus the `line-oa` domain grant
 refusal is `404 Business not found` (FR-072), so the surface enumerates neither
 Businesses nor accounts. No operation here reads, returns or creates credential
 material, and none activates LINE routing (ADR-020); `health` is computed from
-the integration lane's redacted read model and, until the agent lane's binding
-reader is wired, reports `binding.status: 'UNKNOWN'` and names why.
+the integration lane's redacted read model and the agent lane's FR-147 binding
+contract — `binding.status` is `ACTIVE`, `NOT_ACTIVE`, `NO_BINDING` or
+`UNKNOWN` (no LINE runtime database configured in the process), with the reason
+in `health.sources.binding`; `effectiveStatus` is `LIVE` only on `ACTIVE`.
 
 | Method | Path | Success | Failure |
 |---|---|---|---|

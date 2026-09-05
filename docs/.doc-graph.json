@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1765,
-    "total_edges": 6428,
+    "total_nodes": 1768,
+    "total_edges": 6453,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,17 +15,17 @@
       "feature": 18,
       "route": 187,
       "model": 83,
-      "requirement": 303,
-      "test": 436,
-      "code_file": 470
+      "requirement": 304,
+      "test": 437,
+      "code_file": 471
     },
     "coverage": {
-      "requirements": 303,
-      "fr_with_code": "100% (136/136)",
-      "fr_with_tests": "100% (136/136)",
+      "requirements": 304,
+      "fr_with_code": "100% (137/137)",
+      "fr_with_tests": "100% (137/137)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 470,
+      "annotated_code_files": 471,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,13 +55,26 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
       "doc:README",
+      "domain:agent",
       "doc:CONTEXT-MAP",
+      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
+      "doc:FR-146-line-oa-account",
       "doc:SRS",
-      "test:tests/unit/asset-production-activation-contract.test.js"
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/fr146-line-oa-account.test.js",
+      "code:src/modules/agent/phase1-runtime.js",
+      "code:src/modules/line-oa-studio/application/line-oa-account-service.js"
     ],
-    "added": [],
+    "added": [
+      "req:FR-147",
+      "test:tests/unit/line-binding-status.test.js",
+      "code:src/modules/agent/line-binding-status.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -4964,6 +4977,26 @@
       }
     },
     {
+      "id": "code:src/modules/agent/line-binding-status.js",
+      "type": "code_file",
+      "path": "src/modules/agent/line-binding-status.js",
+      "hash": "a3f9a52f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-147"
+        ],
+        "@spec": [
+          "FR-052",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/line-binding-status.test.js",
+          "tests/integration/fr146-line-oa-account.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/line-channel-binding.js",
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
@@ -5102,14 +5135,15 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "0d907f98",
-      "status": "current",
+      "hash": "94b8088f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-047",
           "FR-048",
           "FR-052",
-          "FR-080"
+          "FR-080",
+          "FR-147"
         ],
         "@spec": [
           "SDD-025",
@@ -5117,10 +5151,12 @@
           "SDD-044",
           "SEC-009",
           "SEC-010",
-          "SEC-016"
+          "SEC-016",
+          "FR-052"
         ],
         "@tested": [
-          "tests/unit/phase1-business-agent-runtime.test.js"
+          "tests/unit/phase1-business-agent-runtime.test.js",
+          "tests/unit/line-binding-status.test.js"
         ]
       }
     },
@@ -7330,8 +7366,8 @@
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "hash": "eb1ece4d",
-      "status": "current",
+      "hash": "a200cb33",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146"
@@ -9769,8 +9805,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.37.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "5cc1285b",
-      "status": "current"
+      "hash": "38c82e72",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10039,10 +10075,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.19.0b",
+      "version": "1.20.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "65d7f1f5",
-      "status": "current"
+      "hash": "ea2aa958",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10832,8 +10868,8 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
       "title": "FR-146 — `LineOaAccount`, the account aggregate",
-      "hash": "9bb485a1",
-      "status": "current"
+      "hash": "3f8f666d",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -11178,10 +11214,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.150.0b",
+      "version": "1.151.0b",
       "doc_status": "Draft",
-      "hash": "e46b2085",
-      "status": "current"
+      "hash": "7c9b8721",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -11224,8 +11260,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b721c3af",
-      "status": "current"
+      "hash": "1ad47888",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11484,8 +11520,8 @@
       "modules": [
         "agent"
       ],
-      "hash": "ef9fd9d8",
-      "status": "current"
+      "hash": "35170031",
+      "status": "changed"
     },
     {
       "id": "domain:asset-management",
@@ -11651,8 +11687,8 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "e148372b",
-      "status": "current"
+      "hash": "7f05e33d",
+      "status": "changed"
     },
     {
       "id": "domain:market-intelligence",
@@ -14001,7 +14037,17 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content. 🟠 implemented locally 2026-09-05 (FEAT-018 slice 1): `LineOaAccount` in both provider schemas with additive migrations (production SQL `supabase/migrations/20260905120000_line_oa_account.sql` written, **not applied**), the only writer `src/modules/line-oa-studio/application/line-oa-account-service.js`, `GET/POST /api/line-oa/accounts` and `GET/PATCH /api/line-oa/accounts/{id}`, the `LINE_OA_PUBLISHER` role in identity's registry, the reserved (hidden `soon`) `line-oa` domain slot, and the integration lane's `readLineOaConnectionHealth` read contract; `tests/integration/fr146-line-oa-account.test.js` plus three unit suites. Not yet: the agent binding reader — `effectiveStatus` cannot reach LIVE and health reports the binding as UNKNOWN until it is wired — the `/line-oa` pages, transport jobs and quota in health "
+      "row_text": "LINE OA Studio account aggregate — `LineOaAccount`, the Business-scoped operating record for one LINE Official Account and the root of the multi-account command center (ADR-060 D2/D3/D5/D11). Identity: internal UUID plus a Tenant-unique human `code`; `tenantId` and `businessId` derived from the trusted viewer and the selected visible Business, never from the payload; a 1:1 reference to an existing `LINE_OA` `IntegrationConnection` (FR-080); an optional agent binding `code` (= identity's `channelAccountId`, FR-052 / FR-097); LINE channel id, basic id and bot user id are external references (BR-002), never keys. State: `status` DRAFT → CONNECTED → LIVE | PAUSED | ARCHIVED, where LIVE is derived from the agent lane's ACTIVE binding and can never be set by a client; `transportMode` EDGE | CLOUD, fixed at connect time from whether the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144, the ADR-059 D5 rule), overridable by a publisher at connect time and changed afterwards only by an audited, versioned switch that cancels work queued under the old owner; `isDefaultForBusiness` at most one per Business; a presentation profile (greeting, fallback text, persona label) that is configuration, not knowledge. Cardinality: any number of accounts per Business, exactly one Business per account; moving an account is a new account plus an archive. Authority: list and read require Business visibility plus the `line-oa` domain (FR-061); connect, pause, archive, default and mode override require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding` (FR-076 pattern); refusals are 404-shaped (FR-072). Connecting never creates, reads or returns credential material and never activates routing (ADR-020): the connection is created only through the integration lane's owner-only contract, and health (connection status and secret readiness, binding status, last webhook receipt, queued or failed transport jobs, quota) is computed read-model output, never stored. Every write is transactional, versioned and audited without secret or customer content. 🟠 implemented locally 2026-09-05 (FEAT-018 slice 1): `LineOaAccount` in both provider schemas with additive migrations (production SQL `supabase/migrations/20260905120000_line_oa_account.sql` written, **not applied**), the only writer `src/modules/line-oa-studio/application/line-oa-account-service.js`, `GET/POST /api/line-oa/accounts` and `GET/PATCH /api/line-oa/accounts/{id}`, the `LINE_OA_PUBLISHER` role in identity's registry, the reserved (hidden `soon`) `line-oa` domain slot, and the integration lane's `readLineOaConnectionHealth` read contract; `tests/integration/fr146-line-oa-account.test.js` plus three unit suites. Not yet: the agent binding reader — `effectiveStatus` cannot reach LIVE and health reports the binding as UNKNOWN until it is wired — the `/line-oa` pages, transport jobs and quota in health. 2026-09-05 (FR-147): the binding reader is wired — `health.binding.status` is now ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN from the agent lane's contract, and `effectiveStatus` reaches LIVE on ACTIVE "
+    },
+    {
+      "id": "req:FR-147",
+      "type": "requirement",
+      "family": "FR",
+      "label": "LINE binding status read contract — a read-only, Tenant/Business-scoped reader over the agent lane's `zuri_core.line_channel_binding` (`createPostgresLineBindingStatusReader`, `src/modules/agent/line-binding-status.js`) that answers one question, \"is there a currently valid ACTIVE binding with this code for this Tenant and Business\", and nothing else. It selects `code`, `status`, `valid_from`, `expires_at`, `rotated_at` and `version` and never a hash or credential column; runs through the same `zuri_line_smartgift_ro` read role, short transaction and forced-RLS path as the Phase 1 runtime (FR-052, SEC-010); and takes Tenant, Business and code from the caller's server-owned row (FR-146's account), never from a request. Because that role's policy exposes only ACTIVE, in-window rows of the scope it is granted for, the contract has exactly four honest labels: `ACTIVE` (a row is visible and ACTIVE), `NOT_ACTIVE` (a reader is configured and no such row is visible — pending, inactive, expired, rotated, absent and out-of-policy are indistinguishable by design), `NO_BINDING` (the account carries no binding code), and `UNKNOWN` (no reader is configured: `ZURI_LINE_BUSINESS_AGENT_ENABLED` is not `true` or `ZURI_LINE_DB_URL` is unset — the dev/test default). FR-146's account health reports the label with its source, and `effectiveStatus` reaches `LIVE` only on `ACTIVE`. The contract activates, rotates or expires nothing: ADR-020 stays the only mutation path.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "LINE binding status read contract — a read-only, Tenant/Business-scoped reader over the agent lane's `zuri_core.line_channel_binding` (`createPostgresLineBindingStatusReader`, `src/modules/agent/line-binding-status.js`) that answers one question, \"is there a currently valid ACTIVE binding with this code for this Tenant and Business\", and nothing else. It selects `code`, `status`, `valid_from`, `expires_at`, `rotated_at` and `version` and never a hash or credential column; runs through the same `zuri_line_smartgift_ro` read role, short transaction and forced-RLS path as the Phase 1 runtime (FR-052, SEC-010); and takes Tenant, Business and code from the caller's server-owned row (FR-146's account), never from a request. Because that role's policy exposes only ACTIVE, in-window rows of the scope it is granted for, the contract has exactly four honest labels: `ACTIVE` (a row is visible and ACTIVE), `NOT_ACTIVE` (a reader is configured and no such row is visible — pending, inactive, expired, rotated, absent and out-of-policy are indistinguishable by design), `NO_BINDING` (the account carries no binding code), and `UNKNOWN` (no reader is configured: `ZURI_LINE_BUSINESS_AGENT_ENABLED` is not `true` or `ZURI_LINE_DB_URL` is unset — the dev/test default). FR-146's account health reports the label with its source, and `effectiveStatus` reaches `LIVE` only on `ACTIVE`. The contract activates, rotates or expires nothing: ADR-020 stays the only mutation path. 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the SmartGift Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then "
     },
     {
       "id": "req:NFR-001",
@@ -17790,8 +17836,8 @@
       "id": "test:tests/integration/fr146-line-oa-account.test.js",
       "type": "test",
       "path": "tests/integration/fr146-line-oa-account.test.js",
-      "hash": "b5635046",
-      "status": "current"
+      "hash": "e1bfb783",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/iam-authorization.test.js",
@@ -18323,7 +18369,7 @@
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
       "hash": "b66186db",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
@@ -19338,6 +19384,13 @@
       "type": "test",
       "path": "tests/unit/line-binding-resolver.test.js",
       "hash": "07c18f76",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-binding-status.test.js",
+      "type": "test",
+      "path": "tests/unit/line-binding-status.test.js",
+      "hash": "a52345f0",
       "status": "current"
     },
     {
@@ -27883,6 +27936,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/line-binding-status.js",
+      "to": "req:FR-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-status.js",
+      "to": "req:FR-147",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-status.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/line-channel-binding.js",
       "to": "req:BR-012",
       "type": "follows",
@@ -28066,7 +28140,21 @@
     },
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-147",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35268,6 +35356,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-018",
+      "to": "req:FR-147",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -37075,6 +37170,13 @@
     },
     {
       "from": "req:FR-146",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-147",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -46959,6 +47061,13 @@
     },
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "code:src/modules/agent/line-binding-status.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
       "to": "code:src/modules/integration/application/integration-management-service.js",
       "type": "tests",
       "status": "current",
@@ -47008,6 +47117,13 @@
     },
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
@@ -47036,6 +47152,13 @@
     },
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-147",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
       "to": "req:SDD-044",
       "type": "verifies",
       "status": "current",
@@ -47047,6 +47170,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
@@ -58823,6 +58953,97 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "code:src/modules/agent/line-binding-status.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "code:src/modules/agent/phase1-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-147",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/line-canary-preflight.test.js",
       "to": "code:src/modules/agent/canary-preflight.js",
       "type": "tests",
@@ -60442,6 +60663,13 @@
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-147",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

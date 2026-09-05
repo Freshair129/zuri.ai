@@ -2,6 +2,7 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { readLineOaConnectionHealth } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
+import { createLineBindingStatusReaderFromEnv, readLineBindingStatusLabel } from '@/modules/agent/line-binding-status'
 import {
   LINE_OA_ACCOUNT_ENTITY,
   defaultTransportMode,
@@ -50,10 +51,13 @@ function failure(status, message) {
  * - `connectionHealth(connectionIds)` — the integration lane's redacted
  *   connection read model (FR-080): status, secret readiness, last webhook
  *   receipt. The Studio never reads the credential table itself.
- * - `bindingStatus(account)` — the agent lane's `zuri_core.line_channel_binding`
- *   state. It lives in the production Postgres runtime, not the shared Prisma
- *   schema, and this slice wires no reader for it: the default answers `null`,
- *   which the DTO reports as UNKNOWN rather than pretending.
+ * - `bindingStatus(account)` — the agent lane's FR-147 read contract over
+ *   `zuri_core.line_channel_binding`, which lives in the production Postgres
+ *   runtime rather than the shared Prisma schema. The default reader exists
+ *   only when that runtime is configured (`ZURI_LINE_BUSINESS_AGENT_ENABLED`
+ *   and `ZURI_LINE_DB_URL`); otherwise the label is UNKNOWN, which the DTO
+ *   reports as such rather than pretending. The four labels are the contract's
+ *   own: ACTIVE, NOT_ACTIVE, NO_BINDING, UNKNOWN.
  */
 function portsOf(db, ports = {}) {
   return {
@@ -61,9 +65,21 @@ function portsOf(db, ports = {}) {
       ?? (async (businessId) => (await db.edgeDeviceCredential.count({ where: { businessId, status: 'ACTIVE' } })) > 0),
     connectionHealth: ports.connectionHealth
       ?? ((connectionIds) => readLineOaConnectionHealth({ db, connectionIds })),
-    bindingStatus: ports.bindingStatus ?? (async () => null),
+    bindingStatus: ports.bindingStatus ?? defaultBindingStatus,
   }
 }
+
+async function defaultBindingStatus(row) {
+  const reader = createLineBindingStatusReaderFromEnv()
+  return readLineBindingStatusLabel(reader, { tenantId: row.tenantId, businessId: row.businessId, code: row.bindingCode })
+}
+
+const BINDING_SOURCES = Object.freeze({
+  ACTIVE: 'agent binding read contract (FR-147): an ACTIVE, in-window binding is visible to the read role',
+  NOT_ACTIVE: 'agent binding read contract (FR-147): no ACTIVE, in-window binding is visible to the read role — pending, inactive, expired, rotated, absent and out-of-policy are indistinguishable by design',
+  NO_BINDING: 'this account carries no binding code yet',
+  UNKNOWN: 'agent binding read contract (FR-147) not configured in this process — LINE runtime database unset',
+})
 
 const SELECT = {
   id: true, code: true, tenantId: true, businessId: true, integrationConnectionId: true,
@@ -94,7 +110,7 @@ function toHealth(row, { connection, bindingStatus }) {
     quota: null,
     sources: {
       connection: 'integration read model (FR-080) — computed, never stored',
-      binding: bindingStatus == null ? 'agent binding read model not wired in this slice' : 'agent binding read model',
+      binding: BINDING_SOURCES[bindingStatus ?? 'UNKNOWN'] ?? BINDING_SOURCES.UNKNOWN,
       transportJobs: 'not built (ADR-060 Phase 1, later slice)',
       quota: 'not built (ADR-060 Phase 4)',
     },
@@ -113,7 +129,7 @@ function toDto(row, health) {
     integrationConnectionId: row.integrationConnectionId,
     bindingCode: row.bindingCode,
     status: row.status,
-    effectiveStatus: deriveEffectiveStatus(row.status, health?.binding?.status === 'UNKNOWN' ? null : health?.binding?.status),
+    effectiveStatus: deriveEffectiveStatus(row.status, health?.binding?.status ?? null),
     transportMode: row.transportMode,
     isDefaultForBusiness: row.isDefaultForBusiness,
     botProfile: parseBotProfile(row.botProfileJson),

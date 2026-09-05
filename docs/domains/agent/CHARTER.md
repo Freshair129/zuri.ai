@@ -40,6 +40,14 @@ a database superuser.
   keyed by the viewer's owned Business, process-local per instance by decision,
   registration/transition/removal audited. It is a cache of a device's last
   heartbeat, not a pairing record — durable pairing is undeclared.
+- `createPostgresLineBindingStatusReader` / `createLineBindingStatusReaderFromEnv`
+  / `readLineBindingStatusLabel` (`line-binding-status.js`, FR-147) — the
+  read-only view of `zuri_core.line_channel_binding` other lanes may consume:
+  Tenant/Business/code-scoped, state columns only, through the same read role
+  and RLS path as the turn. It answers ACTIVE / NOT_ACTIVE / NO_BINDING /
+  UNKNOWN and nothing finer, and mutates nothing — activation stays the
+  operator path of ADR-020. First consumer: the LINE OA Studio account's
+  `effectiveStatus` (FR-146, ADR-060 D3).
 
 ## Design docs in this domain
 

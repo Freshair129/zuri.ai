@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.19.0b |
+| **Version** | 1.20.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -37,7 +37,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
 | FEAT-017 | Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash | FR-143, FR-144 | building |
-| FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060) | FR-146 | building |
+| FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060) | FR-146, FR-147 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -50,6 +50,8 @@ Version diff 1.16.0b → 1.17.0b (2026-09-04): FEAT-017 is declared under ADR-05
 Version diff 1.17.0b → 1.18.0b (2026-09-05): FEAT-018 is declared under ADR-060 as Phase 1's first slice. It bundles FR-146, the `LineOaAccount` aggregate — the operating record for one LINE Official Account, many per Business, joined by reference to the integration lane's LINE_OA connection, the agent lane's binding code and the account's transport owner. Nothing is claimed built: no model, route, migration, navigation or code. The rich-menu designer, the transport-job lane, the publisher role and the crm thread-key prerequisite follow as their own FRs inside the same feature.
 
 Version diff 1.18.0b → 1.19.0b (2026-09-05): FEAT-018 is building. FR-146's first slice is implemented locally — the `LineOaAccount` model, its only writer, the two account routes, the confirmed `LINE_OA_PUBLISHER` role and the reserved `line-oa` domain slot — with an integration suite against a real database. Not claimed: the agent binding reader (so no account can read LIVE yet), the `/line-oa` pages, transport jobs, quota, and production application of the migration.
+
+Version diff 1.19.0b → 1.20.0b (2026-09-05): FEAT-018 gains FR-147, the agent lane's read-only binding status contract, wired as FR-146's default binding port — an account can now read LIVE when the read role sees an ACTIVE, in-window binding. The contract reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN and nothing finer, because the read policy cannot see more. Still not claimed: the `/line-oa` pages, transport jobs, quota, production application of the migration, and a per-Tenant read policy (today pinned to SmartGift).
 
 ## Readiness Dashboard presentation metadata
 
