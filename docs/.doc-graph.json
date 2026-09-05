@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1742,
-    "total_edges": 6345,
+    "total_nodes": 1744,
+    "total_edges": 6351,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,14 +16,14 @@
       "route": 185,
       "model": 82,
       "requirement": 302,
-      "test": 430,
+      "test": 432,
       "code_file": 464
     },
     "coverage": {
       "requirements": 302,
       "fr_with_code": "100% (135/135)",
       "fr_with_tests": "100% (135/135)",
-      "rules_anchored_in_code": "95% (127/133)",
+      "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 464,
       "fr_planned": [
@@ -45,7 +45,6 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SDD-076",
         "SDD-077"
       ],
       "rules_superseded": [
@@ -57,9 +56,26 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:CONTEXT-MAP"
+      "doc:CONTEXT-MAP",
+      "doc:FR-133-asset-management-foundation",
+      "doc:FR-137-asset-evidence-intake-execution",
+      "doc:FR-066-profile-first-workspace-onboarding",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/asset-evidence-intake-execution.test.js",
+      "test:tests/unit/asset-intake-adapters-contract.test.js",
+      "test:tests/unit/asset-management-contract.test.js",
+      "code:src/app/(entry)/waiting-room/page.jsx",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+      "code:src/modules/asset-management/domain/asset-intake.js",
+      "code:src/modules/asset-management/import/xlsx-template.js"
     ],
-    "added": [],
+    "added": [
+      "doc:CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION",
+      "test:tests/e2e/fr066-waiting-room.spec.js",
+      "test:tests/unit/asset-receiving-evidence-ui.test.js",
+      "test:tests/unit/waiting-room-page.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -195,7 +211,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/waiting-room/page.jsx",
       "hash": "223d8673",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-066",
@@ -564,7 +580,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "332b84c2",
+      "hash": "a37606b7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1077,7 +1093,7 @@
       "id": "code:src/app/(pm)/settings/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
-      "hash": "8e1eef50",
+      "hash": "770fadf4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4615,7 +4631,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "96a6b4a8",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -5347,7 +5363,7 @@
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
       "hash": "6f1a991a",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-137",
@@ -5370,7 +5386,7 @@
       "type": "code_file",
       "path": "src/modules/asset-management/domain/asset-intake.js",
       "hash": "bc71449a",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-134",
@@ -5512,7 +5528,7 @@
       "type": "code_file",
       "path": "src/modules/asset-management/import/xlsx-template.js",
       "hash": "ba01ed3c",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-139"
@@ -6683,7 +6699,7 @@
       "id": "code:src/modules/integration/application/line-registry-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
-      "hash": "75259a40",
+      "hash": "cac57dab",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9829,7 +9845,7 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "1f4526ce",
+      "hash": "570c3551",
       "status": "current"
     },
     {
@@ -10255,7 +10271,7 @@
       "version": "1.1.0b",
       "doc_status": "🟠 UX correction approved (2026-09-04) — implementation pending for current-person profile summary and Home navigation; the existing onboarding authority boundary remains implemented",
       "hash": "56017d26",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-067-workspace-invitation-and-scoped-membership",
@@ -10659,7 +10675,7 @@
       "path": "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
       "title": "FR-133..136 — Asset Management foundation",
       "hash": "7024fab1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-137-asset-evidence-intake-execution",
@@ -10667,7 +10683,7 @@
       "path": "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
       "title": "FR-137..140 — Asset Evidence Intake Execution",
       "hash": "dca458b6",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-141-edge-device-heartbeat-registry",
@@ -11041,7 +11057,7 @@
       "version": "1.148.0b",
       "doc_status": "Draft",
       "hash": "f25b39a7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -17286,7 +17302,7 @@
       "type": "test",
       "path": "tests/integration/asset-evidence-intake-execution.test.js",
       "hash": "55166ce8",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/backup.test.js",
@@ -17698,14 +17714,14 @@
       "id": "test:tests/integration/line-oa-provider-migration.test.js",
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
-      "hash": "f886dbca",
+      "hash": "de4b366d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
-      "hash": "18bd1be9",
+      "hash": "c68776bb",
       "status": "current"
     },
     {
@@ -18049,7 +18065,7 @@
       "type": "test",
       "path": "tests/unit/asset-intake-adapters-contract.test.js",
       "hash": "6eb60ac5",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-management-api-ui-contract.test.js",
@@ -18063,7 +18079,7 @@
       "type": "test",
       "path": "tests/unit/asset-management-contract.test.js",
       "hash": "90ea1cb5",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-management-navigation.test.js",
@@ -18990,6 +19006,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/integrations-page-claims.test.js",
+      "type": "test",
+      "path": "tests/unit/integrations-page-claims.test.js",
+      "hash": "35a52bc9",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/knowledge-chunking.test.js",
       "type": "test",
       "path": "tests/unit/knowledge-chunking.test.js",
@@ -19848,6 +19871,13 @@
       "type": "test",
       "path": "tests/unit/shell-mode.test.js",
       "hash": "48190a69",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/shell-runtime-claims.test.js",
+      "type": "test",
+      "path": "tests/unit/shell-runtime-claims.test.js",
+      "hash": "37a5a437",
       "status": "current"
     },
     {
@@ -57415,6 +57445,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:SDD-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/knowledge-chunking.test.js",
       "to": "code:src/modules/knowledge/chunking.js",
       "type": "tests",
@@ -63090,6 +63148,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/shell-runtime-claims.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/shell-runtime-claims.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",

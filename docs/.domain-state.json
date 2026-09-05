@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-04T04:54:39.466Z",
+  "generatedAt": "2026-09-05T01:34:25.552Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -381,7 +381,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-144",
@@ -1481,7 +1481,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-134",
@@ -2334,7 +2334,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-022",
@@ -5216,7 +5216,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -5241,7 +5241,8 @@
         "tests/unit/platform-control-guard.test.js",
         "tests/unit/rollup.test.js",
         "tests/unit/scope-view-context.test.js",
-        "tests/unit/shell-mode.test.js"
+        "tests/unit/shell-mode.test.js",
+        "tests/unit/shell-runtime-claims.test.js"
       ]
     },
     {
@@ -8565,7 +8566,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -8573,6 +8574,7 @@
         "src/platform/integrations/core/connector-catalog.js",
         "tests/e2e/fr130-connector-catalog.spec.js",
         "tests/unit/fr080-ui-contract.test.js",
+        "tests/unit/integrations-page-claims.test.js",
         "tests/unit/line-registry-service.test.js",
         "tests/unit/platform/connector-catalog.test.js"
       ]
@@ -8660,14 +8662,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
         "src/app/api/agent/heartbeat/route.js",
         "src/modules/agent/edge-device-registry.js",
         "tests/integration/agent-heartbeat-route.test.js",
-        "tests/unit/fr141-edge-device-heartbeat.test.js"
+        "tests/unit/fr141-edge-device-heartbeat.test.js",
+        "tests/unit/integrations-page-claims.test.js"
       ]
     },
     {

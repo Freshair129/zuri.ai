@@ -36,9 +36,22 @@ export default function AppShell({ children }) {
             <Breadcrumb />
           </div>
           <main className="flex-1 overflow-y-auto p-6 max-md:p-4">{children}</main>
+          {/* The two badges that used to sit here — a green "● local" dot and
+              "SQLite · offline-first" — were literals with nothing behind them.
+              On the production deployment they told every operator the console
+              was on a local offline store while it was serving Supabase
+              Postgres; `requireProductionDatabaseUrl` in src/lib/db.js throws
+              unless a Postgres URL is configured in production, so the claim
+              was not merely stale but impossible to be true there.
+
+              Nothing accurate replaced them on purpose. `GET /api/health`
+              deliberately reports states and counts with **no provider name**
+              (SEC-009), because which datastore backs an installation is not a
+              fact to hand every visitor. A truthful badge here would disclose
+              in the page footer exactly what that route is careful to withhold.
+              An operator who needs the runtime picture has the health probe and
+              the platform surfaces; a footer is not where that belongs. */}
           <footer className="flex h-7 items-center gap-3 border-t border-[var(--border)] bg-white px-3 text-[10px] text-[#7B8490]">
-            <span style={{ color: 'var(--success)' }}>● local</span>
-            <span>SQLite · offline-first</span>
             <span className="ml-auto">zuri-ai</span>
           </footer>
         </div>

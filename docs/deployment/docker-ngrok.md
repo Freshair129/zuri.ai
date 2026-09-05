@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-03T21:30:00+07:00,CLAUDE"
+last_update: "2026-09-04T14:40:00+07:00,CLAUDE"
 status: "current"
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose + ngrok
 
-**Version:** 1.0.0 · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+**Version:** 1.1.0 · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
 
 This is the deployment path that replaces Vercel. Nothing about the application
 changed to make it possible except a liveness probe (`GET /api/health`) and one
@@ -190,6 +190,16 @@ PowerShell wrappers: `scripts/deploy.ps1 [-NoBuild] [-Pull]`, `scripts/logs.ps1
 
 Local development is unchanged: `npm run dev` (SQLite) still works from the same
 checkout; Docker is an additional execution path.
+
+**Every checkout of this repo shares the one Compose project.**
+`docker-compose.yml` pins `name: zuri-ai` explicitly, so `docker compose`
+commands run from a git worktree of this repo resolve to the *same* project
+and act on the *same* live containers as the primary checkout — there is no
+directory-based isolation the way there is for `git`. A worktree carries no
+`.env` by default, so `docker compose up` there would recreate the running
+deployment from a tree missing every secret. If a genuinely separate stack is
+ever needed, pass an explicit `-p <other-name>` (and mind that only one agent
+can hold a given ngrok domain).
 
 ## Ports
 

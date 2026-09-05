@@ -27,6 +27,17 @@ const LINE_REGISTRY_PURPOSES = Object.freeze([LINE_REGISTRY_TYPES.GROUP, LINE_RE
 // still holding a legacy row, so no row can carry the legacy code from here
 // on — reads and the de-dupe lookup below use only `LINE_OA_PROVIDER_CODE`.
 
+// Nothing in this repository executes an automation job. There is no scheduler,
+// no cron and no dispatcher for an `action` — `PUSH_DAILY_SALES_REPORT` is a
+// string that reaches storage and stops there. The console used to offer a
+// checkbox that wrote one and then rendered it under a green tick, so an owner
+// enabling a daily report saw it confirmed and never received one; production
+// still carries a group whose 09:00 report has never fired. That affordance is
+// gone (see src/app/(pm)/platform/integrations/page.jsx).
+//
+// The shape stays because rows already carry it and because it is the contract a
+// scheduler would implement. It is storage, not a promise: nothing here should
+// be read as evidence that a job runs.
 const zAutomationJob = z.object({
   jobId: z.string().default(() => `job-${Date.now()}`),
   name: z.string().min(1),
@@ -43,7 +54,9 @@ const zSaveLineGroup = z.object({
   groupUrl: z.string().url().or(z.literal('')).optional(),
   departmentType: z.enum(['SALES_TEAM', 'EXECUTIVE', 'OPERATIONS', 'SUPPORT', 'GENERAL']).default('GENERAL'),
   status: z.enum(['ACTIVE', 'PAUSED', 'DRAFT']).default('ACTIVE'),
-  automationJobs: z.array(zAutomationJob).default([]),
+  // Optional, not defaulted: the console no longer sends this field, and a save
+  // that omits it must leave whatever is stored alone rather than erase it.
+  automationJobs: z.array(zAutomationJob).optional(),
 })
 
 const zSaveLineUser = z.object({
@@ -208,6 +221,22 @@ async function loadBusinessTenant(tx, businessId) {
 }
 
 /**
+ * The automation jobs already on a registration, or `[]` when there are none.
+ *
+ * Defensive about the parse: `metadataJson` is a string column, and a row this
+ * function cannot read must not take down a save that has nothing to do with it.
+ */
+function storedAutomationJobs(existing) {
+  if (!existing?.metadataJson) return []
+  try {
+    const parsed = JSON.parse(existing.metadataJson)
+    return Array.isArray(parsed?.automationJobs) ? parsed.automationJobs : []
+  } catch {
+    return []
+  }
+}
+
+/**
  * Register or update a LINE Group.
  */
 export async function saveLineGroup(payload, { resolve, now = new Date(), db = prisma } = {}) {
@@ -215,18 +244,10 @@ export async function saveLineGroup(payload, { resolve, now = new Date(), db = p
   const validated = zSaveLineGroup.parse(payload)
   assertOwned(viewer, validated.businessId)
 
-  const metadata = {
-    groupName: validated.name,
-    groupId: validated.groupId,
-    groupUrl: validated.groupUrl || null,
-    departmentType: validated.departmentType,
-    automationJobs: validated.automationJobs,
-  }
-
   // Lookup, write and audit in one transaction: the de-dupe decision and the row
   // it writes must not be separated by another writer, and an audit event that
   // can be lost is not an audit event (SEC-003).
-  const { connection, created } = await db.$transaction(async (tx) => {
+  const { connection, created, metadata } = await db.$transaction(async (tx) => {
     const tenantId = await loadBusinessTenant(tx, validated.businessId)
     const provider = await ensureLineProvider(tx)
     const existing = await findExistingRegistration(tx, {
@@ -234,6 +255,19 @@ export async function saveLineGroup(payload, { resolve, now = new Date(), db = p
       externalAccountId: validated.groupId,
     })
     assertSameBusiness(existing, validated.businessId)
+
+    // The whole metadata object is rewritten on every save, so a field this
+    // payload does not carry would be erased by a save about something else.
+    // The console no longer sends `automationJobs`, and a group that already
+    // has one must keep it: whoever stored it did not ask for it to be dropped
+    // by an edit to the group's name.
+    const metadata = {
+      groupName: validated.name,
+      groupId: validated.groupId,
+      groupUrl: validated.groupUrl || null,
+      departmentType: validated.departmentType,
+      automationJobs: validated.automationJobs ?? storedAutomationJobs(existing),
+    }
 
     const row = existing
       ? await tx.integrationConnection.update({
@@ -278,7 +312,10 @@ export async function saveLineGroup(payload, { resolve, now = new Date(), db = p
       },
     })
 
-    return { connection: row, created: !existing }
+    // `metadata` is built inside the transaction now, because preserving a stored
+    // `automationJobs` needs the existing row. It still travels out, since callers
+    // and tests read the metadata that was actually written.
+    return { connection: row, created: !existing, metadata }
   })
 
   return { ok: true, connection, created, metadata }

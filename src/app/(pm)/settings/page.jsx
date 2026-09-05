@@ -8,6 +8,38 @@ import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 
+/**
+ * Developer database commands — rendered only in a development build.
+ *
+ * This card used to ship unconditionally, captioned "Reset and reseed the local
+ * SQLite database" and offering `npm run db:reset` as something that "drops all
+ * local data". On the production deployment both statements were false: it runs
+ * against Supabase Postgres, and `requireProductionDatabaseUrl` in src/lib/db.js
+ * refuses to start otherwise. So an operator read a reassurance about *local*
+ * data next to the one command that would drop the production database.
+ *
+ * The wording was not the defect — presenting developer tooling in a shipped
+ * console was. `process.env.NODE_ENV` is replaced at build time in the client
+ * bundle, so the production image never carries this card at all rather than
+ * carrying it behind a runtime check that could be wrong.
+ *
+ * The remaining caption says "development database" and not "SQLite": what a
+ * developer points DATABASE_URL at is their business, and naming the engine
+ * here would be a claim of the same kind that was just removed.
+ */
+function DataUtilitiesCard() {
+  if (process.env.NODE_ENV === 'production') return null
+  return (
+    <Card>
+      <SectionTitle caption="Reset and reseed your development database from the terminal">Data utilities</SectionTitle>
+      <p className="mb-2 text-[11px] text-muted">Idempotent sample data seed (safe to re-run):</p>
+      <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:seed</code>
+      <p className="mb-2 mt-3 text-[11px] text-muted">Full reset — drops every row in the database this checkout is configured against, then reseeds:</p>
+      <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:reset</code>
+    </Card>
+  )
+}
+
 // @req FR-020 — the A → B transition lives here: the word "เครือ" appears for
 // the first time when the owner adds a second business.
 // @tested tests/e2e/smoke.spec.js, tests/integration/adaptive-shell.test.js
@@ -121,13 +153,7 @@ export default function SettingsPage() {
             LINE identity links and cloud sync are managed separately from this account session.
           </p>
         </Card>
-        <Card>
-          <SectionTitle caption="Reset and reseed the local SQLite database from the terminal">Data utilities</SectionTitle>
-          <p className="mb-2 text-[11px] text-muted">Idempotent sample data seed (safe to re-run):</p>
-          <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:seed</code>
-          <p className="mb-2 mt-3 text-[11px] text-muted">Full reset (drops all local data, then reseeds):</p>
-          <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:reset</code>
-        </Card>
+        <DataUtilitiesCard />
         <Card>
           <SectionTitle caption="Advanced: execution mode is normally chosen per workstream at planning time">Mode → default strategy</SectionTitle>
           <table className="w-full text-[11px]">

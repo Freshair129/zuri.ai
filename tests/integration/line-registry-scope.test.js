@@ -280,3 +280,64 @@ describe('LINE Registry scope, audit and ownership (FR-080)', () => {
     expect(rows.some((row) => row.id === undefined)).toBe(false)
   })
 })
+
+describe('automation jobs stored on a registration are not collateral damage (FR-080)', () => {
+  // The console used to write a PUSH_DAILY_SALES_REPORT job from a checkbox that
+  // defaulted ON, and nothing has ever executed one. The affordance is gone, so
+  // the page no longer sends the field — but `saveLineGroup` rewrites the whole
+  // metadata object, so an omitted field would be a silent delete of somebody
+  // else's stored row on an unrelated edit.
+  const JOB_GROUP_ID = 'Cjob-preservation-group'
+
+  it('keeps a stored job when a later save does not mention it', async () => {
+    const seeded = await saveLineGroup({
+      businessId: ownedBusiness.id,
+      name: 'กลุ่มมีงานตั้งเวลา',
+      groupId: JOB_GROUP_ID,
+      departmentType: 'SALES_TEAM',
+      automationJobs: [{ name: 'สรุปยอดขาย', schedule: '0 9 * * *', action: 'PUSH_DAILY_SALES_REPORT' }],
+    }, { resolve: async () => viewer })
+    expect(seeded.metadata.automationJobs).toHaveLength(1)
+
+    // The shape the console sends now: no automationJobs key at all.
+    const renamed = await saveLineGroup({
+      businessId: ownedBusiness.id,
+      name: 'กลุ่มเปลี่ยนชื่อแล้ว',
+      groupId: JOB_GROUP_ID,
+      departmentType: 'SALES_TEAM',
+    }, { resolve: async () => viewer })
+
+    expect(renamed.created).toBe(false)
+    expect(renamed.metadata.groupName).toBe('กลุ่มเปลี่ยนชื่อแล้ว')
+    expect(renamed.metadata.automationJobs).toHaveLength(1)
+    expect(renamed.metadata.automationJobs[0].action).toBe('PUSH_DAILY_SALES_REPORT')
+
+    const row = await prisma.integrationConnection.findUnique({ where: { id: renamed.connection.id } })
+    expect(JSON.parse(row.metadataJson).automationJobs).toHaveLength(1)
+  })
+
+  it('still lets a caller clear them explicitly, which omission must not do', () => {
+    // The distinction the optional field exists to preserve: [] means "remove
+    // them", absent means "I am not the owner of this field".
+    return saveLineGroup({
+      businessId: ownedBusiness.id,
+      name: 'กลุ่มเปลี่ยนชื่อแล้ว',
+      groupId: JOB_GROUP_ID,
+      departmentType: 'SALES_TEAM',
+      automationJobs: [],
+    }, { resolve: async () => viewer }).then((cleared) => {
+      expect(cleared.metadata.automationJobs).toEqual([])
+    })
+  })
+
+  it('creates a fresh registration with no jobs rather than inventing one', async () => {
+    const fresh = await saveLineGroup({
+      businessId: ownedBusiness.id,
+      name: 'กลุ่มใหม่ไม่มีงาน',
+      groupId: 'Cno-jobs-group',
+      departmentType: 'SALES_TEAM',
+    }, { resolve: async () => viewer })
+    expect(fresh.created).toBe(true)
+    expect(fresh.metadata.automationJobs).toEqual([])
+  })
+})
