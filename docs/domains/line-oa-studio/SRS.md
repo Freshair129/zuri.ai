@@ -2,7 +2,7 @@
 domain: line-oa-studio
 stable_domain_id: DOM-LINE-OA-STUDIO
 status: proposed
-version: 0.2.0
+version: 0.3.0
 date: 2026-09-05
 architecture: domain-driven-modular-monolith
 ---
@@ -15,7 +15,7 @@ architecture: domain-driven-modular-monolith
 **Stable product-domain ID:** `DOM-LINE-OA-STUDIO`
 **Technical owner ID:** `TD-LINE-OA-STUDIO`
 **Status:** Proposed (Phase 0 declaration)
-**Version:** Draft v0.2
+**Version:** Draft v0.3
 
 > **Clause-label note.** `LOS-RQ-*` labels below are local clause labels for
 > this proposal, in the convention CR-014 used for `AM-PRD-*`. They are **not**
@@ -143,7 +143,8 @@ cloud. An account therefore carries a `transportMode` of `EDGE` or `CLOUD`
   Membership with the domain visible; publish, dispatch, connect and archive
   SHALL require Business OWNER or an active `LINE_OA_PUBLISHER` `RoleBinding`
   (FR-076 pattern). Team membership, payload roles and client-selected scope
-  SHALL grant nothing (BR-020).
+  SHALL grant nothing (BR-020). The role key `LINE_OA_PUBLISHER` is confirmed
+  by the owner (2026-09-05).
 - **LOS-RQ-011 — Subjects are identity references.** Flow sessions and test
   dispatches SHALL reference identity's `ChannelIdentity` / `ExternalIdentity`
   rows; the Studio SHALL NOT use a raw LINE user id as a key.
@@ -199,7 +200,9 @@ and the pure calculators over them.
 - **LOS-RQ-024 — Templates are the only shared thing.** Templates SHALL carry a
   scope of `SYSTEM`, `TENANT` or `BUSINESS`; instantiating one SHALL copy it into
   an account with `templateId` lineage. No other Studio record SHALL be shared
-  across accounts.
+  across accounts. The first release SHALL offer `SYSTEM` seeds and `BUSINESS`
+  templates only; `TENANT` stays a reserved value with no UI and no write path
+  until a later release (owner, 2026-09-05).
 - **LOS-RQ-025 — Aggregation stops at the Business.** Dashboard, Analytics and
   Command Center SHALL aggregate the accounts of the selected Business that the
   viewer may see, and nothing wider (ADR-011).
@@ -283,9 +286,11 @@ and the pure calculators over them.
 - **LOS-RQ-064 — Sessions.** `LineOaFlowSession` SHALL be keyed by account and
   identity subject reference, SHALL expire, and SHALL be deleted or tombstoned
   when the subject is erased (FR-022).
-- **LOS-RQ-065 — Timers deferred.** A WAIT node with a duration SHALL NOT be
-  published until a scheduler exists; the designer SHALL say so rather than
-  accept it.
+- **LOS-RQ-065 — Timers run on the Studio scheduler.** A WAIT node with a
+  duration SHALL create a `LineOaSchedule` row (LOS-RQ-085) when a session
+  reaches it and SHALL resume the session through a PUSH dispatch when the
+  schedule fires. Until the scheduler ships (Phase 3) the designer SHALL refuse
+  to publish a timed WAIT rather than accept it silently.
 - **LOS-RQ-066 — Single reply preserved.** A flow match SHALL produce at most one
   reply per inbound event (FR-050); additional messages SHALL be PUSH dispatches
   subject to §5.6.
@@ -305,6 +310,10 @@ and the pure calculators over them.
   RICH_MENU, LIFF), a category, a scope (`SYSTEM` | `TENANT` | `BUSINESS`), an
   official flag for SYSTEM seeds, and usage derived from lineage counts; search
   and filter by kind and category SHALL be supported.
+- **LOS-RQ-072 — First-release scope.** The first release SHALL create and list
+  `SYSTEM` and `BUSINESS` templates only; a `TENANT` value SHALL be refused by
+  the write path and absent from the UI until a later release declares it
+  (owner, 2026-09-05).
 
 ### 5.6 Dispatch
 
@@ -319,8 +328,32 @@ and the pure calculators over them.
 - **LOS-RQ-083 — Receipt.** The receipt SHALL record LINE's acceptance class,
   request id and counts; `ACCEPTED_BY_LINE` SHALL NOT be presented as delivered
   or read (ADR-020 #7).
-- **LOS-RQ-084 — Scheduling deferred.** A scheduled dispatch SHALL NOT be
-  accepted until a scheduler exists.
+- **LOS-RQ-084 — Scheduled dispatch.** A dispatch MAY carry a `scheduledFor`
+  instant. Queuing it SHALL create a `LineOaSchedule` row instead of a transport
+  job, and the transport job SHALL be created only when the schedule fires
+  (LOS-RQ-085). Approval, consent, quota and confirmation gates SHALL be
+  evaluated at scheduling time and again at fire time; a dispatch whose gate
+  fails at fire time SHALL be marked FAILED with the reason, never sent.
+
+### 5.9 Scheduler (Studio-owned)
+
+The owner decided on 2026-09-05 that scheduling is a Studio requirement, not a
+platform one. This repository has no scheduler today; the Studio builds one for
+its own needs rather than storing promises nothing keeps.
+
+- **LOS-RQ-085 — Studio scheduler.** The Studio SHALL own a durable scheduler:
+  `LineOaSchedule` rows (kind `DISPATCH_SEND_AT` | `FLOW_WAIT_RESUME`, `dueAt`,
+  a target reference, status `PENDING` → `CLAIMED` → `FIRED` | `CANCELLED` |
+  `EXPIRED`, lease, attempts, idempotency key) fired by an in-process worker
+  tick. It SHALL live in one codebase and release, SHALL use the same lease and
+  idempotency discipline as transport jobs, and SHALL be extractable later
+  without changing its contract.
+- **LOS-RQ-086 — Fire semantics.** A schedule SHALL fire at most once: claim
+  under a lease, then `FIRED` with the created job or resumed session id. A
+  schedule past its due time by more than the account's tolerance SHALL be
+  marked `EXPIRED` and surfaced in the Command Center, never sent late in
+  silence. Cancelling the underlying dispatch, ending the flow session or
+  archiving the account SHALL cancel its schedules.
 
 ### 5.7 Analytics and Command Center
 
@@ -394,6 +427,7 @@ and the pure calculators over them.
 | `LineOaTemplate` | kind, category, scope, tenantId?, businessId?, isOfficial, bodyJson | SYSTEM rows have no tenant |
 | `LineOaDispatch` | accountId, kind, audienceSpecJson, messagesJson, status, approvedBy, idempotencyKey, transportJobId?, receiptJson | |
 | `LineOaTransportJob` | accountId, businessId, kind, payloadJson, status, claimedByDeviceId?, leaseExpiresAt?, attempts, resultJson?, error?, correlationId, idempotencyKey, version | mirrors `AssetExtractionJob` |
+| `LineOaSchedule` | accountId, businessId, kind (DISPATCH_SEND_AT / FLOW_WAIT_RESUME), dueAt, targetRef (dispatchId or flowSessionId), status, leaseExpiresAt?, attempts, firedJobId?, idempotencyKey, version | the Studio's own timer; fires at most once |
 | `LineOaInsightSnapshot` | accountId, snapshotDate, followers, targetedReaches, blocks, deliveredJson, rawExternalRecordId, translationVersion | unique per (account, date, translationVersion) |
 
 All internal keys are UUIDs; every external identifier is a reference; every
@@ -467,16 +501,21 @@ with a truthful receipt.
 2. **Cloud transport adapter — answered by the same decision.** It is the
    `CLOUD` mode, behind the integration lane's Vault-resolved LINE port;
    ADR-041 D2 is scoped to `EDGE` accounts (ADR-060 0.2.0).
-3. **Tenant-scope templates.** Should a Tenant-wide template library exist from
-   Phase 2, or is Business scope enough for the first release?
-4. **Scheduler.** Scheduled dispatches and WAIT timers need a scheduler this
-   repository does not have; is that a Studio requirement or a platform one?
-5. **Publisher role name.** `LINE_OA_PUBLISHER` is proposed; confirm the key
-   before it is declared in identity's role registry.
+3. **Tenant-scope templates — answered 2026-09-05.** Business scope is enough
+   for the first release; `TENANT` stays a reserved value (LOS-RQ-024,
+   LOS-RQ-072).
+4. **Scheduler — answered 2026-09-05.** A Studio requirement: the Studio owns
+   its own durable scheduler (§5.9, LOS-RQ-085/086); scheduled dispatch lands
+   in Phase 2 and timed WAIT in Phase 3.
+5. **Publisher role name — answered 2026-09-05.** `LINE_OA_PUBLISHER` is
+   confirmed (LOS-RQ-010).
+
+No question remains open; the next decision is acceptance of ADR-060 itself.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (LOS-RQ-072), a Studio-owned scheduler (§5.9, LOS-RQ-085/086; 065 and 084 reworded), `LINE_OA_PUBLISHER` confirmed | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer on edge devices: transport mode per account (LOS-RQ-017..019, 029), published-config pull for edge runtimes (LOS-RQ-067), open questions 1–2 answered | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | First draft: boundaries, multi-account model, capability requirements, security, data-model candidates, contracts, surfaces, phasing and open questions | Claude Code |

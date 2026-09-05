@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.28.0"
+version: "2.29.0"
 updated: "2026-09-05"
 owner: "Owen"
 source_of_truth: true
@@ -212,6 +212,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > Revision 2.27.0 (2026-09-05): ADR-060 → 0.2.0 ตามคำตอบเจ้าของ — Zuri Edge Device มีเฉพาะ tenant ที่ต้องการ local LLM ผ่าน Ollama หรือ Codex CLI บนโควตาแพครายเดือน (ไม่ใช้ API key) ส่วน tenant อื่นให้บริการจากคลาวด์ ดังนั้น transport ของ LINE เป็น **โหมดต่อบัญชี** `transportMode` = EDGE | CLOUD: บัญชี EDGE ให้อุปกรณ์ claim `LineOaTransportJob` แบบ pull และดึง published config (flows · rich menu · bot profile) ไปรันบน LLM ท้องถิ่น, บัญชี CLOUD ให้ worker ในคลาวด์ทำงานผ่าน LINE Messaging port ของเลน integration ที่ resolve access token จาก Supabase Vault ต่อครั้ง (แบบ FR-079) — จึงตีกรอบ ADR-041 D2 ให้ครอบเฉพาะบัญชี EDGE; หนึ่งบัญชีมีเจ้าของ transport ได้ทีละหนึ่ง (BR-011) สลับได้ด้วย CAS ที่ปิด routing ก่อนและ audited. Phase 1 gate เปลี่ยนเป็นพิสูจน์ deploy rich menu จริง**โหมดละหนึ่งครั้ง**
 
 > Revision 2.28.0 (2026-09-05): ADR-031 → 0.3.0b ตามคำสั่งเจ้าของ — ตีกรอบ D4 ("production LINE เลือก Ollama ไม่ได้") ให้เป็นกฎของ Phase 1 runtime ฝั่งคลาวด์ใน repo นี้เท่านั้น และ**ยกเว้นบัญชี EDGE** (ADR-060 D5) ที่ตอบด้วย Ollama หรือ Codex CLI บน Zuri Edge Device ของ tenant เอง: คลาวด์ไม่เก็บ credential ไม่ list ไม่ proxy และไม่ fallback ไปหา provider นั้น; FR-079 / NFR-015 / SEC-015 / SDD-043 บรรยาย runtime คลาวด์และคงเดิมไม่แก้; charter ของ integration เพิ่มประโยคตีกรอบเดียวกัน ไม่มีการเปลี่ยนโค้ด (`phase1-runtime.js` ยัง fail closed เหมือนเดิม)
+
+> Revision 2.29.0 (2026-09-05): ADR-060 → 0.3.0 บันทึกคำตอบสามข้อสุดท้ายของเจ้าของ — (1) template ระดับ Business พอสำหรับรุ่นแรก ค่า `TENANT` สงวนไว้ ไม่มี UI และ write path (2) scheduler เป็นของ Studio เอง: `LineOaSchedule` (scheduled dispatch · flow WAIT) ยิงโดย worker tick ในโปรเซสเดียวกัน ใช้ lease/idempotency แบบเดียวกับ transport job ยิงได้ครั้งเดียว หมดเวลาแล้วขึ้น EXPIRED ไม่ส่งช้าเงียบ ๆ — ส่งมอบ scheduled dispatch ใน Phase 2 และ WAIT แบบจับเวลาใน Phase 3 (3) ยืนยัน role key `LINE_OA_PUBLISHER`; ไม่เหลือคำถามเปิดใน SRS §12 สิ่งที่รอคือการยอมรับ ADR-060
 
 ## Phases
 

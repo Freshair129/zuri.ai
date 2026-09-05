@@ -1,7 +1,7 @@
 ---
-version: "0.2.1"
+version: "0.3.0"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-05T13:00:00+07:00,Claude Code"
+last_update: "2026-09-05T14:00:00+07:00,Claude Code"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -202,7 +202,9 @@ Rules:
 4. Cross-account sharing exists in exactly one place: templates, with an
    explicit scope (`SYSTEM` | `TENANT` | `BUSINESS`). Everything else is
    per-account. "Copy to another account" is instantiation with lineage, not a
-   shared row.
+   shared row. The first release ships `SYSTEM` seeds and `BUSINESS` templates;
+   `TENANT` is a reserved value with no UI and no write path until a later
+   release (owner, 2026-09-05).
 5. The Dashboard, Analytics and Command Center aggregate **the accounts of the
    selected Business** the viewer may see. The shell stops at Business
    (ADR-011); there is no portfolio-wide Studio view in this decision.
@@ -255,6 +257,7 @@ transport owner, by mode (D5)     EDGE  — the tenant's Zuri Edge Device holds 
 | `LineOaTemplate` | the library: kind (FLOW, FLEX, RICH_MENU, LIFF), category, `SYSTEM`/`TENANT`/`BUSINESS` scope, official flag, body, and usage derived from instantiation lineage |
 | `LineOaDispatch` | an outbound intent: PUSH, MULTICAST, BROADCAST, NARROWCAST or TEST; audience specification; messages; schedule; approval; receipt |
 | `LineOaTransportJob` | the queued unit of work the trusted transport owner claims and executes (D5) |
+| `LineOaSchedule` | the Studio's own durable timer — a scheduled dispatch or a flow WAIT resume: due time, target, lease, fire-once state — fired by an in-process worker tick (D6, D7) |
 | `LineOaInsightSnapshot` | per-account, per-day translated LINE Insight facts: followers, targeted reaches, blocks, delivered message counts by type |
 
 It also owns the pure calculators over these records: rich-menu bounds
@@ -361,10 +364,11 @@ than decides.
   SSRF by design and is refused at schema level (ADR-031 D4's reasoning).
 - `LineOaFlowSession` is keyed by account plus identity's channel-subject
   reference (`ChannelIdentity` / `ExternalIdentity` id), never by a raw
-  `lineUserId` as a key, and expires; a `WAIT` node that needs a timer is not
-  in the first slice, because this repository has no scheduler and the Studio
-  must not pretend it does (the `automationJobs` lesson in
-  `line-registry-service.js`).
+  `lineUserId` as a key, and expires. A `WAIT` node with a duration is a
+  `LineOaSchedule` row that resumes the session through a PUSH dispatch when it
+  fires; the scheduler is the Studio's own (D7), so until it ships in Phase 3
+  the designer refuses to publish a timed WAIT rather than store a promise
+  nothing keeps (the `automationJobs` lesson in `line-registry-service.js`).
 - A flow never widens authority: it runs with the turn's resolved scope
   (ADR-045 D4), and a `PUSH` node inside a flow is a dispatch subject to D7.
 
@@ -372,8 +376,17 @@ than decides.
 
 - Push, multicast, broadcast and narrowcast require **publisher authority**:
   Business OWNER, or the `LINE_OA_PUBLISHER` key in identity's generic
-  `RoleBinding` registry (the `PRODUCT_OWNER` / FR-076 pattern). Editing a draft
-  needs only an active Membership with the domain visible.
+  `RoleBinding` registry (the `PRODUCT_OWNER` / FR-076 pattern); the key is
+  confirmed by the owner (2026-09-05). Editing a draft needs only an active
+  Membership with the domain visible.
+- A dispatch may be **scheduled**: `scheduledFor` creates a `LineOaSchedule`
+  row instead of a job, and the job is created only when the schedule fires,
+  with every gate re-evaluated at fire time. The scheduler is the Studio's own
+  — the owner decided on 2026-09-05 that it is a Studio requirement, not a
+  platform one: a durable table plus an in-process worker tick with the same
+  lease and idempotency discipline as transport jobs, one codebase and release,
+  extractable later without changing its contract. A schedule fires at most
+  once, and one past its tolerance expires visibly instead of sending late.
 - `BROADCAST` and `NARROWCAST` additionally require a typed confirmation in the
   request body (the FR-022 `confirmation: 'ERASE'` shape), because a blast is
   irreversible and spends the account's monthly quota.
@@ -478,8 +491,8 @@ are not pinned — the CR-014 `AM-PRD-*` convention, not the MI-RQ one.
 |---|---|---|
 | 0 | this ADR, charter, context map, SRS, module lane README, catalog row | `npm run govern` green; owner acceptance |
 | 1 | `LineOaAccount` with `transportMode` + connect flow over the integration contract; Rich Menu designer; `LineOaTransportJob` + wire contract; the EDGE claimant routes (claim / bytes / complete / fail) and the CLOUD worker over the integration lane's Vault-resolved LINE port; `LINE_OA_PUBLISHER`; **crm thread-key prerequisite (D9)** | FR ids declared; one rich menu deployed end to end **per mode** — one from a real edge device, one from the cloud — with truthful receipts |
-| 2 | Flex designer and `TEST` dispatch; template library with SYSTEM seeds; push / multicast / broadcast / narrowcast with consent, quota and typed confirmation | one real broadcast under quota with a truthful receipt; consent gate proven by test |
-| 3 | Flow designer, published versions, the interpreter inside the cloud turn and the published-config pull for EDGE devices, `LineOaFlowSession`; LIFF registry | deterministic reply proven ahead of the AI turn without a second reply (FR-050), once per mode |
+| 2 | Flex designer and `TEST` dispatch; template library with SYSTEM seeds and BUSINESS scope; push / multicast / broadcast / narrowcast with consent, quota and typed confirmation; the Studio scheduler with scheduled dispatch | one real broadcast under quota with a truthful receipt; consent gate proven by test; one scheduled dispatch fired exactly once at its due time |
+| 3 | Flow designer, published versions, the interpreter inside the cloud turn and the published-config pull for EDGE devices, `LineOaFlowSession`, timed WAIT on the scheduler; LIFF registry | deterministic reply proven ahead of the AI turn without a second reply (FR-050), once per mode; one WAIT resumed by the scheduler |
 | 4 | Insight pull adapter, `LineOaInsightSnapshot`, cross-account Analytics, Command Center live view | every Dashboard tile names its source; replay-safe translation test |
 
 ## Context map
@@ -590,6 +603,7 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`, scheduled dispatch in Phase 2, timed WAIT in Phase 3), `LINE_OA_PUBLISHER` confirmed; no question remains open | working-tree | Claude Code |
 | 0.2.1 | 2026-09-05 | proposed | Cross-reference ADR-031 revision 0.3.0b: the cloud runtime's Ollama ban no longer reads as forbidding an EDGE account's device from answering on local Ollama or Codex CLI | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer: a Zuri Edge Device exists only for local-LLM (Ollama) / Codex CLI tenants — added `transportMode` EDGE / CLOUD per account, the CLOUD claimant over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes, the audited mode switch; scoped ADR-041 D2; Phase 1 gate now proves one deploy per mode | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Declared LINE OA Studio as a first-class multi-account Business domain; fixed credential/transport, flow, dispatch, insight, media/team and authorization boundaries; named the crm thread-identity prerequisite; reserved navigation and phased delivery | working-tree | Claude Code |

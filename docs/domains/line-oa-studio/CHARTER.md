@@ -11,9 +11,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: proposed-phase-0
-version: "0.2.0"
+version: "0.3.0"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-05T12:00:00+07:00"
+updated_at: "2026-09-05T14:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -88,6 +88,10 @@ these tables elsewhere:
 - `LineOaTransportJob` — the queued unit of work the trusted transport owner
   claims and executes; lifecycle QUEUED → CLAIMED → COMPLETED | FAILED |
   CANCELLED with a lease, mirroring `AssetExtractionJob` (FR-143, ADR-059).
+- `LineOaSchedule` — the Studio's own durable timer: a scheduled dispatch or a
+  flow WAIT resume, with due time, target reference, lease and fire-once state,
+  fired by an in-process worker tick. A Studio requirement by owner decision
+  (2026-09-05), not a platform service.
 - `LineOaInsightSnapshot` — per-account, per-day translated LINE Insight facts.
 
 Pure calculators owned alongside them: rich-menu bounds validation, Flex schema
@@ -134,7 +138,9 @@ slice so preflight can enforce unique model ownership.
    dev/compat path; multi-account production uses the persisted resolver.
 5. **Cross-account sharing happens only through templates**, with an explicit
    `SYSTEM` / `TENANT` / `BUSINESS` scope. Instantiating a template copies it
-   into the account with lineage; nothing else is shared between accounts.
+   into the account with lineage; nothing else is shared between accounts. The
+   first release ships `SYSTEM` seeds and `BUSINESS` templates; `TENANT` is a
+   reserved value with no UI and no write path (owner, 2026-09-05).
 6. **Aggregation stops at the Business.** Dashboard, Analytics and Command
    Center sum the accounts of the selected Business the viewer may see
    (ADR-011); there is no portfolio-wide view in this charter.
@@ -163,11 +169,16 @@ slice so preflight can enforce unique model ownership.
 - Flows are data (BR-007, SEC-002): a strict-schema graph interpreted by a pure
   function; `CONNECTOR_ACTION` targets a registered allow-list of internal
   contracts, never a URL.
-- Dispatches need publisher authority (Business OWNER or `LINE_OA_PUBLISHER`),
-  server-resolved audiences, PDPA consent `GRANTED` for marketing kinds
-  (FR-103, SEC-005), an idempotency key, and a typed confirmation for
-  BROADCAST / NARROWCAST. `TEST` reaches only the viewer's own linked LINE
-  identity or a registered staff subject.
+- Dispatches need publisher authority (Business OWNER or `LINE_OA_PUBLISHER`,
+  a role key the owner confirmed on 2026-09-05), server-resolved audiences,
+  PDPA consent `GRANTED` for marketing kinds (FR-103, SEC-005), an idempotency
+  key, and a typed confirmation for BROADCAST / NARROWCAST. `TEST` reaches only
+  the viewer's own linked LINE identity or a registered staff subject.
+- Owns its own scheduler: `LineOaSchedule` rows fired by an in-process worker
+  tick with the lease and idempotency discipline of transport jobs. A schedule
+  fires at most once, re-evaluates every gate at fire time, expires visibly
+  instead of sending late, and is cancelled with its dispatch, session or
+  account. Nothing here stores a timer without a worker behind it.
 - Receipts are truthful: `ACCEPTED_BY_LINE` is an acceptance class, never
   delivery or reading (ADR-020 #7).
 - Every write is transactional, versioned and audited with a redacted payload;
@@ -190,6 +201,8 @@ evaluateFlowStep(flowVersion, event, session)         → pure: { actions, nextS
 resolveAutomation(scope, event)                       → the contract the agent turn calls before model work
 instantiateTemplate(viewer, templateId, accountId)    → copy with lineage
 createDispatch / approveDispatch / queueDispatch(…)   → consent + quota + idempotency gates
+scheduleDispatch(viewer, dispatchId, scheduledFor)    → LineOaSchedule row; gates re-run at fire time
+fireDueSchedules(now)                                 → the scheduler tick: claim under lease, fire once, expire visibly
 claimTransportJob / completeTransportJob / failTransportJob  → device-authenticated (FR-144) pull routes (EDGE)
 runCloudTransportJob(jobId)                           → the CLOUD worker; executes through the integration LINE port
 getPublishedAccountConfig(accountId, etag)            → device-authenticated snapshot for EDGE runtimes (flows · aliases · bot profile)
@@ -235,6 +248,7 @@ LINE OA Studio
 │   └── LIFF app registry
 ├── Template library
 ├── Dispatch (push · multicast · broadcast · narrowcast · test)
+├── Scheduler (scheduled dispatch · flow WAIT timers)
 ├── Analytics (per account · per Business)
 ├── Command Center (health · transport jobs · dispatch console · links to CRM Inbox)
 └── Projections: Media (Files) · Team (identity)
@@ -249,6 +263,7 @@ src/modules/line-oa-studio/
 ├── application/       account, design, dispatch and transport-job use cases (the only writers)
 ├── domain/            strict vocabularies, schemas, rich-menu/Flex validators, flow interpreter, gates
 ├── transport/         the CLOUD claimant worker — calls the integration lane's LINE port, holds no token
+├── scheduler/         the LineOaSchedule worker tick — fires scheduled dispatches and flow WAIT resumes
 ├── translation/       insight raw-record → snapshot
 └── index.js           stable module exports
 ```
@@ -281,5 +296,6 @@ same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0 | 2026-09-05 | proposed-phase-0 | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`), `LINE_OA_PUBLISHER` confirmed | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed-phase-0 | Owner's answer on edge devices: added `transportMode` EDGE / CLOUD on the aggregate, the CLOUD worker over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes and the audited mode switch | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed-phase-0 | Established the LINE OA Studio lane: multi-account aggregate, owned concepts, explicit external boundaries, contract direction and runtime interaction; no models or routes claimed as existing | working-tree | Claude Code |

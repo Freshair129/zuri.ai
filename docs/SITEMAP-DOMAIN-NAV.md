@@ -269,7 +269,7 @@ does not appear as an Asset writer.
 
 1. **Dashboard** — the selected Business's accounts with computed health and sourced KPIs
 2. Accounts — connect, pause, archive; per-account overview, Design Studio (Rich Menu · Flex · Flows · LIFF), Dispatches, Analytics
-3. Templates — flow / Flex / rich menu / LIFF library at `SYSTEM` · `TENANT` · `BUSINESS` scope
+3. Templates — flow / Flex / rich menu / LIFF library at `SYSTEM` · `BUSINESS` scope (`TENANT` reserved for a later release)
 4. Analytics — translated LINE Insight facts across the Business's accounts
 5. Command Center — health, transport jobs, dispatch console, links to the CRM Inbox
 6. Media — projection of Files (`FileAsset`); owns no bytes

@@ -1,5 +1,5 @@
 ---
-version: "0.2.0"
+version: "0.2.1"
 status: proposed
 domain: line-oa-studio
 doc_type: context-map
@@ -210,6 +210,7 @@ LineOaAccountConnected            → Command Center · Business Home
 RichMenuPublishRequested          → LineOaTransportJob QUEUED
 TransportJobCompleted / Failed    → receipt on the design or dispatch · Command Center
 DispatchApproved / DispatchQueued → transport job · audit
+ScheduleFired / ScheduleExpired   → transport job or flow resume (PUSH dispatch) · Command Center
 FlowVersionPublished              → agent automation cache invalidation
 InsightSnapshotTranslated         → Analytics · quota gate
 ```
@@ -251,5 +252,6 @@ database, network service or hosted "studio" origin is implied.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.1 | 2026-09-05 | proposed | Added the Studio-owned scheduler's fire/expire events to the vocabulary candidates; no new neighbour, the scheduler stays inside the Studio | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Split the transport relationship by account mode after the owner's answer: EDGE device (pull model, published-config pull) vs CLOUD worker over the integration lane's Vault-resolved LINE port; one owner at a time | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Fixed providers, consumers, direction, shared concepts and anti-corruption rules for LINE OA Studio | working-tree | Claude Code |
