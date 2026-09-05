@@ -58,17 +58,11 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "test:tests/unit/asset-production-activation-contract.test.js"
     ],
-    "added": [
-      "feat:FEAT-018",
-      "req:FR-146"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -9927,7 +9921,7 @@
       "version": "1.18.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "acdb70d3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11058,7 +11052,7 @@
       "version": "1.149.0b",
       "doc_status": "Draft",
       "hash": "7bd4210a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11102,7 +11096,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "8f3850d5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11517,7 +11511,7 @@
         "line-oa-studio"
       ],
       "hash": "a363b3dd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -18159,8 +18153,8 @@
       "id": "test:tests/unit/asset-production-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
-      "hash": "4bb78d36",
-      "status": "current"
+      "hash": "b66186db",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
