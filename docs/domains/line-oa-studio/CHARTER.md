@@ -11,9 +11,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: proposed-phase-0
-version: "0.1.0"
+version: "0.2.0"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-05T00:00:00+07:00"
+updated_at: "2026-09-05T12:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -67,8 +67,9 @@ these tables elsewhere:
 - `LineOaAccount` — the aggregate: one LINE Official Account operated by one
   Business. Holds a stable Tenant-unique `code`, references the integration
   lane's `IntegrationConnection` (`LINE_OA`) 1:1 and the agent's binding code
-  (= identity's `channelAccountId`), an operating status, a default flag and
-  the bot presentation profile. N per Business.
+  (= identity's `channelAccountId`), an operating status, a `transportMode`
+  (EDGE / CLOUD — who owns this account's LINE transport, ADR-060 D5), a
+  default flag and the bot presentation profile. N per Business.
 - `LineOaRichMenu` / `LineOaRichMenuVersion` — layout, chat-bar text, tap areas
   and actions, `FileAsset` image reference, alias, default flag, published state,
   external `richMenuId` after deployment.
@@ -104,7 +105,7 @@ slice so preflight can enforce unique model ownership.
 | Raw webhook and Insight records (`RawExternalRecord`, `IngestionRun`, cursors, dead letters) | integration (FR-081) | translation input and lineage only; the Insight pull is an integration adapter |
 | `zuri_core.line_channel_binding`, activation, rollback, canary receipts | agent (FR-052, FR-055, ADR-020) | reads binding state for health; never activates or disables routing |
 | The webhook seam, the agent turn, the single reply | agent (FR-028, FR-057, FR-050) | supplies a pure automation contract the turn calls before model work |
-| LINE channel secret, channel access token, signature verification, every Messaging API and Insight API call | trusted transport owner — `zuri-edge-device` runtime / `zuri-cli` (BR-011, ADR-031 D5, ADR-041 D2) | queues `LineOaTransportJob`; serves bytes to the lease holder only; records receipts |
+| LINE channel secret, channel access token, signature verification, every Messaging API and Insight API call | by `transportMode` (ADR-060 D5): EDGE — the tenant's Zuri Edge Device (ADR-041 D2, BR-011); CLOUD — the integration lane's Vault-resolved LINE Messaging port, executed under the cloud runtime role (ADR-031 D3, FR-079's shape) | queues `LineOaTransportJob`; an EDGE device claims it and pulls bytes under a lease, the CLOUD worker executes it through the port; records receipts; never sees the token in either mode |
 | `Person`, `ExternalIdentity`, `ChannelIdentity` (namespaced by `channelAccountId`), Membership, domain grants, `RoleBinding` | identity (FR-021, FR-022, FR-061, FR-076, FR-097) | asks identity; declares the `LINE_OA_PUBLISHER` role key; owns no membership, invite or role row |
 | `Customer`, `Conversation`, `Message`, the Inbox, reply receipts, PDPA consent | crm (FR-023, FR-091, FR-093, FR-103) | reads through the crm read model; resolves dispatch audiences from crm references; writes conversational outbound records only through the crm contract |
 | Canonical business knowledge | knowledge / GKS | a flow's `CONNECTOR_ACTION` may call a registered knowledge query; the Studio stores no knowledge |
@@ -144,10 +145,21 @@ slice so preflight can enforce unique model ownership.
    account before a per-account inbox view, message count or dispatch receipt
    can be truthful (ADR-060 D9). Until that lands, the Studio labels those
    tiles as Business-wide, never per-account.
+9. **Transport mode is per account, and exactly one owner at a time.**
+   `transportMode` is EDGE or CLOUD (ADR-060 D5): EDGE for a tenant that runs a
+   Zuri Edge Device for a local LLM (Ollama) or Codex CLI on the monthly-plan
+   quota, CLOUD for everyone else. It is fixed at connect time from whether the
+   Business holds an ACTIVE `EdgeDeviceCredential`, and changes only through an
+   audited, versioned switch that disables routing first and cancels jobs queued
+   under the old owner.
 
 ## Boundaries
 
-- Holds no secret, calls no LINE API from the cloud, activates no routing.
+- Holds no secret and activates no routing. Reaches LINE only as a
+  `LineOaTransportJob`: for an EDGE account the tenant's Zuri Edge Device claims
+  it; for a CLOUD account a Studio worker executes it through the integration
+  lane's LINE Messaging port, which resolves the token from Vault per call and
+  never returns it (ADR-060 D5).
 - Flows are data (BR-007, SEC-002): a strict-schema graph interpreted by a pure
   function; `CONNECTOR_ACTION` targets a registered allow-list of internal
   contracts, never a URL.
@@ -178,7 +190,10 @@ evaluateFlowStep(flowVersion, event, session)         → pure: { actions, nextS
 resolveAutomation(scope, event)                       → the contract the agent turn calls before model work
 instantiateTemplate(viewer, templateId, accountId)    → copy with lineage
 createDispatch / approveDispatch / queueDispatch(…)   → consent + quota + idempotency gates
-claimTransportJob / completeTransportJob / failTransportJob  → device-authenticated (FR-144) pull routes
+claimTransportJob / completeTransportJob / failTransportJob  → device-authenticated (FR-144) pull routes (EDGE)
+runCloudTransportJob(jobId)                           → the CLOUD worker; executes through the integration LINE port
+getPublishedAccountConfig(accountId, etag)            → device-authenticated snapshot for EDGE runtimes (flows · aliases · bot profile)
+switchTransportMode(viewer, accountId, mode)          → publisher-only, versioned CAS, routing-first, audited
 translateInsightRecord(rawExternalRecordRef)          → LineOaInsightSnapshot
 getAccountInsights / getBusinessInsights(…)           → read models; every figure names its source
 ```
@@ -196,9 +211,16 @@ inbound   LINE → transport owner (signature) → POST /api/agent/line-webhook
 
 publish   Studio: publishRichMenu / queueDispatch / registerLiff / pullInsight
           → LineOaTransportJob QUEUED
-          → transport owner claims (Bearer edgk_…), fetches bytes if any, calls LINE
+          → EDGE account:  the device claims (Bearer edgk_…), fetches bytes if any, calls LINE
+          → CLOUD account: the Studio worker claims in-process and executes through the
+                           integration lane's Vault-resolved LINE port (token never leaves the port)
           → COMPLETED {externalIds, acceptance class, counts} | FAILED {reason}
           → receipt on the dispatch / rich menu; audit row; Command Center state
+
+edge run  EDGE account: the device pulls the published configuration snapshot
+          (flows · rich-menu aliases · bot profile) with its credential, runs the same
+          pure interpreter on its local LLM (Ollama / Codex CLI), and reports evidence
+          and reply receipts through the existing trusted seams (FR-028, FR-093)
 ```
 
 ## Capability map
@@ -226,6 +248,7 @@ These are capabilities of one product domain, not peer Tier-2 domains.
 src/modules/line-oa-studio/
 ├── application/       account, design, dispatch and transport-job use cases (the only writers)
 ├── domain/            strict vocabularies, schemas, rich-menu/Flex validators, flow interpreter, gates
+├── transport/         the CLOUD claimant worker — calls the integration lane's LINE port, holds no token
 ├── translation/       insight raw-record → snapshot
 └── index.js           stable module exports
 ```
@@ -258,4 +281,5 @@ same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0 | 2026-09-05 | proposed-phase-0 | Owner's answer on edge devices: added `transportMode` EDGE / CLOUD on the aggregate, the CLOUD worker over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes and the audited mode switch | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed-phase-0 | Established the LINE OA Studio lane: multi-account aggregate, owned concepts, explicit external boundaries, contract direction and runtime interaction; no models or routes claimed as existing | working-tree | Claude Code |

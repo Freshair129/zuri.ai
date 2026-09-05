@@ -2,7 +2,7 @@
 domain: line-oa-studio
 stable_domain_id: DOM-LINE-OA-STUDIO
 status: proposed
-version: 0.1.0
+version: 0.2.0
 date: 2026-09-05
 architecture: domain-driven-modular-monolith
 ---
@@ -15,7 +15,7 @@ architecture: domain-driven-modular-monolith
 **Stable product-domain ID:** `DOM-LINE-OA-STUDIO`
 **Technical owner ID:** `TD-LINE-OA-STUDIO`
 **Status:** Proposed (Phase 0 declaration)
-**Version:** Draft v0.1
+**Version:** Draft v0.2
 
 > **Clause-label note.** `LOS-RQ-*` labels below are local clause labels for
 > this proposal, in the convention CR-014 used for `AM-PRD-*`. They are **not**
@@ -60,7 +60,8 @@ LINE OA Studio SHALL conform to Zuri's domain-driven modular monolith
   or ownership requirement justifies it.
 
 It SHALL NOT hold a LINE channel secret or channel access token, call a LINE
-API from the cloud, activate LINE routing, create a second connection registry,
+API except through the integration lane's port for `CLOUD` accounts, activate
+LINE routing, create a second connection registry,
 secret manager, raw-ingestion store, identity model, file store or membership
 model.
 
@@ -102,16 +103,32 @@ remain agent authority.
   and a match produces the turn's one reply. The Studio SHALL NOT consume a reply
   token or send a reply itself.
 
-### 3.3 The trusted transport owner owns LINE API calls
+### 3.3 LINE transport is owned per account by its transport mode
 
-The `zuri-edge-device` runtime / `zuri-cli` holds the channel secret and access
-token (ADR-041 D2) and is the sole caller of the Messaging and Insight APIs.
+The owner's answer of 2026-09-05 fixes the topology: a Zuri Edge Device exists
+only for tenants that want a local LLM through Ollama, or Codex CLI on a
+monthly-plan quota instead of an API key; every other tenant is served from the
+cloud. An account therefore carries a `transportMode` of `EDGE` or `CLOUD`
+(ADR-060 D5), and the two modes share one job lane.
 
 - **LOS-RQ-007 — Everything to LINE is a job.** Every operation that must reach
   LINE (rich-menu image upload, create/set-default/link/delete rich menu, LIFF
   create/update, push/multicast/broadcast/narrowcast send, Insight pull) SHALL be
-  a `LineOaTransportJob` claimed and executed by the transport owner under its
-  `EdgeDeviceCredential` (FR-144), in the ADR-059 pull model.
+  a `LineOaTransportJob` with one lifecycle and one receipt shape regardless of
+  mode.
+- **LOS-RQ-017 — EDGE claimant.** For an `EDGE` account the tenant's Zuri Edge
+  Device SHALL claim and execute the job under its `EdgeDeviceCredential`
+  (FR-144) in the ADR-059 pull model; the device holds the channel secret and
+  access token (ADR-041 D2) and answers on its local LLM.
+- **LOS-RQ-018 — CLOUD claimant.** For a `CLOUD` account a Studio worker SHALL
+  claim the job in-process under the same lease rules and execute it through the
+  integration lane's LINE Messaging port, which resolves the account's access
+  token from Supabase Vault per call under the cloud runtime role and never
+  returns it (ADR-031 D3); the Studio SHALL receive results only.
+- **LOS-RQ-019 — One owner at a time.** An account SHALL be `EDGE` or `CLOUD`,
+  never both (BR-011); switching SHALL be a publisher-only, versioned
+  compare-and-swap that disables routing first, moves credentials, cancels jobs
+  queued under the old owner, re-enables routing and audits the switch.
 - **LOS-RQ-008 — Bytes to the lease holder only.** Bytes a job needs SHALL be
   served by the cloud only to the device holding the job's live lease; no bucket
   URL, signed link or storage credential SHALL be handed out (ADR-059 D4).
@@ -196,6 +213,11 @@ and the pure calculators over them.
 - **LOS-RQ-028 — Account selection is a resource, not a shell scope.** The
   active account SHALL appear in the path (`/line-oa/accounts/[accountId]/…`)
   like a Project; Tenant and Business SHALL NOT (ADR-006).
+- **LOS-RQ-029 — Transport mode per account.** `transportMode` SHALL be `EDGE`
+  or `CLOUD`, fixed at connect time from whether the Business holds an ACTIVE
+  `EdgeDeviceCredential` (the ADR-059 D5 rule) and overridable by a publisher
+  at connect time; the mode SHALL be shown on every account card and health
+  view, and a Business MAY mix modes across its accounts.
 
 ## 5. Functional requirements by capability
 
@@ -267,6 +289,12 @@ and the pure calculators over them.
 - **LOS-RQ-066 — Single reply preserved.** A flow match SHALL produce at most one
   reply per inbound event (FR-050); additional messages SHALL be PUSH dispatches
   subject to §5.6.
+- **LOS-RQ-067 — Published configuration for edge runtimes.** An `EDGE`
+  account's device SHALL be able to pull the account's published configuration
+  snapshot (published flow versions, rich-menu aliases, bot profile) through a
+  device-authenticated, ETag-versioned read; the snapshot SHALL contain no secret
+  and no customer data, and the device SHALL evaluate the same interpreter
+  contract this repository publishes.
 
 ### 5.5 LIFF and templates
 
@@ -383,10 +411,13 @@ POST /api/line-oa/transport-jobs/claim               → 204 when the queue is e
 GET  /api/line-oa/transport-jobs/[id]/bytes           → bytes for the lease holder only
 POST /api/line-oa/transport-jobs/[id]/complete        → { externalIds, acceptanceClass, counts }
 POST /api/line-oa/transport-jobs/[id]/fail            → { reason }
+GET  /api/line-oa/accounts/[accountId]/published-config → ETag-versioned snapshot for the EDGE runtime
 ```
 
 Each authenticates with `Authorization: Bearer edgk_…` (FR-144), never a session
-cookie, and is scoped to the Business of the presented credential.
+cookie, and is scoped to the Business of the presented credential. `CLOUD`
+accounts use none of these: their jobs are executed by the in-process worker
+through the integration lane's port.
 
 ### 9.2 Wire contract
 
@@ -429,11 +460,13 @@ with a truthful receipt.
 
 ## 12. Open questions for the owner
 
-1. **Transport owner in production.** Is every LINE OA served by a customer-premise
-   Zuri Edge Device, or does a hosted `zuri-cli` also claim jobs? Both fit the
-   contract; the answer decides which credential issues jobs first.
-2. **Cloud transport adapter.** Should the deferred Vault-resolved channel-token
-   path be scheduled as an ADR-041 amendment, or stay deferred indefinitely?
+1. **Transport owner in production — answered 2026-09-05.** A Zuri Edge Device
+   exists only for tenants that want a local LLM through Ollama, or Codex CLI on
+   the monthly-plan quota instead of an API key; every other tenant is served
+   from the cloud. Hence `transportMode` per account (§3.3, LOS-RQ-029).
+2. **Cloud transport adapter — answered by the same decision.** It is the
+   `CLOUD` mode, behind the integration lane's Vault-resolved LINE port;
+   ADR-041 D2 is scoped to `EDGE` accounts (ADR-060 0.2.0).
 3. **Tenant-scope templates.** Should a Tenant-wide template library exist from
    Phase 2, or is Business scope enough for the first release?
 4. **Scheduler.** Scheduled dispatches and WAIT timers need a scheduler this
@@ -445,4 +478,5 @@ with a truthful receipt.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 0.2.0 | 2026-09-05 | proposed | Owner's answer on edge devices: transport mode per account (LOS-RQ-017..019, 029), published-config pull for edge runtimes (LOS-RQ-067), open questions 1–2 answered | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | First draft: boundaries, multi-account model, capability requirements, security, data-model candidates, contracts, surfaces, phasing and open questions | Claude Code |

@@ -280,8 +280,10 @@ Every entry is stable information architecture reserved by ADR-060 D12. Nothing
 here is live: `src/config/domains.js` gains the slot only with the Phase 1
 implementation slice and its declared requirement ids. The prototype's "Project"
 is an **Account** here — `Project` stays Development's model. Publishing and
-dispatching reach LINE only through the trusted transport owner's pull-model job
-lane (ADR-060 D5); the console holds no LINE secret.
+dispatching reach LINE only as transport jobs (ADR-060 D5): an EDGE account's
+Zuri Edge Device claims them, a CLOUD account's worker executes them through the
+integration lane's Vault-resolved LINE port; the console shows no LINE secret in
+either mode.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status

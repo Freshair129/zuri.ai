@@ -27,14 +27,18 @@ LineOaAccount  (N per Business, exactly one Business per account)
         ↓ owns
 rich menu · Flex · flow · LIFF · templates · dispatch · insight snapshot
         ↓ reaches LINE only through
-LineOaTransportJob  → claimed by the trusted transport owner (pull model, FR-144 credential)
+LineOaTransportJob  → EDGE account:  claimed by the tenant's Zuri Edge Device (pull model, FR-144 credential)
+                    → CLOUD account: executed by the Studio worker through the integration lane's
+                                     Vault-resolved LINE Messaging port (token never leaves the port)
 ```
 
-Integration owns connections, credentials and raw evidence. Agent owns the
-binding, activation and the single reply. CRM owns conversations and consent.
-Identity owns persons, subjects and authority. File management owns image
-bytes. The transport owner holds every LINE secret and makes every LINE API
-call; nothing here ever does.
+Integration owns connections, credentials, raw evidence and the LINE port.
+Agent owns the binding, activation and the single reply. CRM owns conversations
+and consent. Identity owns persons, subjects and authority. File management
+owns image bytes. The transport owner — the edge device for EDGE accounts, the
+integration lane's port for CLOUD accounts — holds every LINE secret; nothing
+here ever does. An edge device exists only for tenants that want a local LLM
+(Ollama) or Codex CLI on the monthly-plan quota (owner, 2026-09-05).
 
 See:
 

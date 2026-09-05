@@ -1,7 +1,7 @@
 ---
-version: "0.1.0"
+version: "0.2.0"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-05T00:00:00+07:00,Claude Code"
+last_update: "2026-09-05T12:00:00+07:00,Claude Code"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -23,7 +23,10 @@ requirement is authorized by this ADR alone.
 multi account") and the owner's reference screenshots of a LINE Studio prototype
 (nine screens dated 2026-08-27: Dashboard, Projects, Templates, Analytics, Team,
 Media, Settings, and a per-project Design Studio with Flow Designer, Flex
-Message, Rich Menu and LIFF App tabs).
+Message, Rich Menu and LIFF App tabs). Revision 0.2.0 records the owner's
+answer of 2026-09-05 to the transport question: a Zuri Edge Device exists only
+for tenants that want a local LLM through Ollama, or Codex CLI on a monthly-plan
+quota instead of an API key; every other tenant is served from the cloud.
 
 **Repository baseline surveyed:** `74ff4e9f7537f0815ecc1b8283f6ad2d22779de2`
 (`origin/main`, 2026-09-05).
@@ -51,7 +54,11 @@ ADR introduces: [charter](../domains/line-oa-studio/CHARTER.md),
 
 **Amends:** ADR-029 D2 and the stable product-domain catalog by adding
 `DOM-LINE-OA-STUDIO`. It renames, reuses or moves no existing domain id, route
-key, requirement id or model.
+key, requirement id or model. It also **scopes ADR-041 D2**: LINE channel
+secrets and access tokens live on the edge for `EDGE`-mode accounts only; a
+`CLOUD`-mode account's LINE credentials live in the integration lane's secret
+manager (Supabase Vault) and are resolved by the cloud runtime role alone (D5).
+ADR-041 D3 — the cloud console shows no secret — is unchanged in both modes.
 
 ## Context
 
@@ -167,6 +174,7 @@ LineOaAccount
   integrationConnectionId 1:1 → IntegrationConnection (provider LINE_OA) — reference
   bindingCode?            the agent's binding code = identity's channelAccountId — reference
   status                  DRAFT | CONNECTED | LIVE | PAUSED | ARCHIVED   (Studio's operating view)
+  transportMode           EDGE | CLOUD — who owns this account's LINE transport (D5)
   isDefaultForBusiness    at most one per Business
   botProfileJson          presentation config: greeting, fallback text, persona label
   createdAt · updatedAt · version · archivedAt?
@@ -204,7 +212,8 @@ record over them and computes health from them:
 ```text
 IntegrationConnection (LINE_OA)   integration  — connection + opaque secretRef metadata (FR-080, ADR-032)
 line_channel_binding (code)       agent        — destination → Tenant/Business routing; activation (FR-052, FR-055, ADR-020)
-channel credential + transport    edge/zuri-cli — channel secret, channel access token, Messaging API calls (ADR-041 D2, BR-011)
+transport owner, by mode (D5)     EDGE  — the tenant's Zuri Edge Device holds the channel secret + token (ADR-041 D2)
+                                  CLOUD — the integration lane's Vault-resolved LINE port, run by the cloud runtime role
                  └──────────────► LineOaAccount  line-oa-studio — the operating record that references all three
 ```
 
@@ -223,6 +232,10 @@ channel credential + transport    edge/zuri-cli — channel secret, channel acce
   webhook receipt (`RawExternalRecord.receivedAt` for the connection), queued or
   failed transport jobs (this domain), and quota from the latest insight
   snapshot (this domain).
+- `transportMode` (`EDGE` or `CLOUD`) is fixed at connect time from whether the
+  Business holds an ACTIVE `EdgeDeviceCredential` — the ADR-059 D5 selection
+  rule — may be overridden by a publisher at connect time, and changes
+  afterwards only through the audited, versioned switch in D5.
 
 ### D4 — LINE OA Studio owns design, publication and operating state
 
@@ -245,25 +258,32 @@ It also owns the pure calculators over these records: rich-menu bounds
 validation, Flex schema validation, the flow interpreter, dispatch audience and
 quota gates, insight translation.
 
-### D5 — Credentials and transport stay where they are; publishing is a queued job
+### D5 — One job lane, two transport owners: the account's transport mode decides who claims
 
-The Studio holds **no** LINE channel secret and **no** channel access token, and
-it never calls the LINE Messaging API from the cloud. Both facts already stand:
-ADR-041 D2 keeps edge secrets — "LINE Channel Secret, Access Tokens" — on the
-edge; ADR-041 D3 forbids the cloud console from capturing, storing or displaying
-them; BR-011 and ADR-031 D5 make the transport owner the sole LINE signature and
-Reply API owner.
+The Studio itself holds **no** LINE channel secret and **no** channel access
+token, and none of its own code calls the LINE Messaging API. Who does depends
+on the account's `transportMode`, fixed at connect time (D3) and changed only
+through the audited switch below:
 
-Every operation that must reach LINE — uploading a rich menu image, setting the
-default rich menu, linking a rich menu to a user, creating or updating a LIFF
-app, sending a push, multicast, broadcast or narrowcast, pulling Insight — is
-therefore a **`LineOaTransportJob`**, and the pattern is ADR-059's pull model
-verbatim:
+| Mode | Who owns LINE transport and the answering runtime | Where the LINE credentials live | Which tenants |
+|---|---|---|---|
+| `EDGE` | the tenant's Zuri Edge Device (ADR-041): LINE ingress and signature verification, every Messaging API call, and the answering turn on a local LLM — Ollama, or Codex CLI on the monthly-plan quota instead of an API key | on the device (ADR-041 D2) | those that chose an edge device for a local LLM or Codex CLI |
+| `CLOUD` | zuri-ai: `POST /api/agent/line-webhook` verifies the signature (`verifySignature` in the integration lane's LINE adapter, today unused on the live path), the turn runs on the FR-079 `PHASE1_LINE_LLM` connection, and a Studio transport worker executes jobs through the integration lane's LINE Messaging port | Supabase Vault as an `IntegrationCredential` `secretRef`, resolved per call by `zuri_line_runtime` only (ADR-031 D3, FR-079's shape) | every other tenant — the common case |
+
+The owner's answer of 2026-09-05 fixed this: an edge device exists only for
+tenants that want a local LLM, so a cloud transport is not a path to defer but
+the default. What the two modes share is the **job**. Every operation that must
+reach LINE — uploading a rich-menu image, setting the default rich menu,
+linking a rich menu to a user, creating or updating a LIFF app, sending a push,
+multicast, broadcast or narrowcast, pulling Insight — is a
+**`LineOaTransportJob`** with one lifecycle, one receipt shape and one Command
+Center view; only the claimant differs. For an `EDGE` account the pattern is
+ADR-059's pull model verbatim:
 
 ```text
-Studio (cloud)                                trusted transport owner
-  queue job {kind, accountId, payload,         (zuri-edge-device runtime or zuri-cli,
-             idempotencyKey, correlationId}     holding the account's channel token)
+Studio (cloud)                                EDGE claimant: the tenant's Zuri Edge Device
+  queue job {kind, accountId, payload,         (holds the account's channel token;
+             idempotencyKey, correlationId}     claims over outbound HTTPS, ADR-059 D1)
         │                                            │
         │◄──────── claim (Bearer edgk_…, FR-144) ────┤   QUEUED → CLAIMED, 10-minute lease
         │───────── bytes to the lease holder only ──►│   e.g. the rich-menu image (ADR-059 D4)
@@ -271,6 +291,14 @@ Studio (cloud)                                trusted transport owner
         │◄──────── complete {externalIds, counts} ───┤   CLAIMED → COMPLETED
         │◄──────── fail {reason} ────────────────────┤   CLAIMED → FAILED
 ```
+
+For a `CLOUD` account the claimant is an in-process Studio worker: it takes the
+same QUEUED job under the same lease rules, executes it through the integration
+lane's `LineMessagingPort` — which resolves the account's access token from
+Vault per call and never returns it — and writes the same COMPLETED or FAILED
+result. No device route, no bytes endpoint and no device credential are
+involved; the Studio code path is identical up to the port, and the worker sees
+results, never material.
 
 - The job carries external identifiers and counts back, never token material,
   never a request echo with secrets, never customer content beyond what the
@@ -285,11 +313,14 @@ Studio (cloud)                                trusted transport owner
   the cloud and coded against by the transport repository, exactly as
   `edge-extraction-job.schema.json` is today (ADR-059 D6).
 
-A **cloud transport adapter** — resolving a LINE channel access token through
-the integration lane's secret manager the way FR-079 resolves a model provider
-key — is *deferred, not rejected*. It would move the channel token into the
-cloud-resolvable set and must therefore amend ADR-041 D2 explicitly; until that
-amendment exists the pull model is the only transport.
+**Exactly one transport owner per account at any instant** (BR-011's rule, and
+ADR-003 §D8's "one tenant, one system"): an account is `EDGE` or `CLOUD`, never
+both. Switching mode is a publisher-only, versioned compare-and-swap in
+ADR-020's shape — routing disabled first, credentials moved, routing re-enabled
+— and is audited; a job queued under the old owner is cancelled, never claimed
+by the new one. The cloud port itself is owned by the integration lane as a
+provider adapter (`src/platform/integrations/providers/line/`), beside the
+webhook normalizer that already lives there.
 
 ### D6 — Flows are data: interpreted by a pure function, executed by nobody
 
@@ -306,6 +337,18 @@ POST /api/agent/line-webhook  →  binding-resolved scope (FR-052)
             yes → deterministic actions → the ONE reply (FR-050, BR-011 unchanged)
             no  → the AI turn as today (FR-057)
 ```
+
+For an `EDGE` account the same contract runs on the device. The edge runtime
+pulls the account's **published configuration snapshot** — published flow
+versions, rich-menu aliases, the bot profile; never a secret, never customer
+data — through a device-authenticated, ETag-versioned read
+(`GET /api/line-oa/accounts/[accountId]/published-config`, FR-144 credential),
+caches it, and evaluates the same pure interpreter, shipped from this
+repository as a contract plus reference implementation that `zuri-edge-device`
+codes against (ADR-059 D6). The owner's answer implies the EDGE turn answers on
+the device's local LLM (Ollama or Codex CLI); how that composes with identity,
+CRM ingest and the single-reply rule is the agent charter's and ADR-041's
+decision (FR-028, FR-093), which this ADR consumes rather than makes.
 
 - The `CONNECTOR_ACTION` node (the prototype's "API Call") may target only a
   **registered allow-list of internal contracts** — a knowledge query, a CRM
@@ -429,9 +472,9 @@ are not pinned — the CR-014 `AM-PRD-*` convention, not the MI-RQ one.
 | Phase | Delivers | Gate |
 |---|---|---|
 | 0 | this ADR, charter, context map, SRS, module lane README, catalog row | `npm run govern` green; owner acceptance |
-| 1 | `LineOaAccount` + connect flow over the integration contract; Rich Menu designer; `LineOaTransportJob` + wire contract + claim/bytes/complete/fail routes; `LINE_OA_PUBLISHER`; **crm thread-key prerequisite (D9)** | FR ids declared; deploy of one rich menu proven end to end with a real transport owner; receipts truthful |
+| 1 | `LineOaAccount` with `transportMode` + connect flow over the integration contract; Rich Menu designer; `LineOaTransportJob` + wire contract; the EDGE claimant routes (claim / bytes / complete / fail) and the CLOUD worker over the integration lane's Vault-resolved LINE port; `LINE_OA_PUBLISHER`; **crm thread-key prerequisite (D9)** | FR ids declared; one rich menu deployed end to end **per mode** — one from a real edge device, one from the cloud — with truthful receipts |
 | 2 | Flex designer and `TEST` dispatch; template library with SYSTEM seeds; push / multicast / broadcast / narrowcast with consent, quota and typed confirmation | one real broadcast under quota with a truthful receipt; consent gate proven by test |
-| 3 | Flow designer, published versions, the interpreter inside the agent turn, `LineOaFlowSession`; LIFF registry | deterministic reply proven ahead of the AI turn without a second reply (FR-050) |
+| 3 | Flow designer, published versions, the interpreter inside the cloud turn and the published-config pull for EDGE devices, `LineOaFlowSession`; LIFF registry | deterministic reply proven ahead of the AI turn without a second reply (FR-050), once per mode |
 | 4 | Insight pull adapter, `LineOaInsightSnapshot`, cross-account Analytics, Command Center live view | every Dashboard tile names its source; replay-safe translation test |
 
 ## Context map
@@ -454,10 +497,10 @@ are not pinned — the CR-014 `AM-PRD-*` convention, not the MI-RQ one.
                  binding code     │                  │ transport jobs (pull)
                  automation call  │                  ▼
                           ┌───────▼──────┐   ┌──────────────────────────┐
-                          │    Agent     │   │ Trusted transport owner  │
-                          │ binding ·    │   │ zuri-edge-device / cli   │
-                          │ turn ·       │   │ channel secret + token   │
-                          │ single reply │   │ Messaging API · Insight  │
+                          │    Agent     │   │ Transport owner, by mode │
+                          │ binding ·    │   │ EDGE: Zuri Edge Device   │
+                          │ turn ·       │   │ CLOUD: worker over the   │
+                          │ single reply │   │ Vault-resolved LINE port │
                           └──────────────┘   └──────────────────────────┘
 ```
 
@@ -473,9 +516,12 @@ none of the records above.
 - The prototype's screens map onto the domain without duplicating Zuri: Projects
   → Accounts; Templates, Analytics and the Design Studio → Studio-owned; Team and
   Media → projections of identity and file management.
-- No secret enters zuri-ai and no LINE API is called from the cloud; the cost is
-  that every publish or blast is asynchronous and shows a job state, exactly as
-  edge extraction does today.
+- The Studio never sees a secret in either mode. For `EDGE` accounts the LINE
+  credentials stay on the device; for `CLOUD` accounts they live in Vault and
+  are resolved by the cloud runtime role alone — the scoped amendment to
+  ADR-041 D2, and the reason a mode switch is an audited credential move. Every
+  publish or blast is asynchronous and shows a job state in both modes, exactly
+  as edge extraction does today.
 - CRM must add the account to the thread identity before the Studio's
   per-account views can be truthful; declaring it here makes the dependency a
   gate rather than a surprise.
@@ -501,9 +547,17 @@ the Studio links to them.
 menus, flows, LIFF, account health and quota. Marketing may consume dispatch
 outcomes; it does not own the account.
 
-**Hold channel access tokens in the cloud and call the Messaging API directly.**
-Deferred: contradicts ADR-041 D2/D3 and the transport-owner rule. Recorded as a
-possible future amendment with the Vault path, never as an implicit default.
+**Edge-only transport — every account published through a Zuri Edge Device.**
+Rejected on the owner's answer of 2026-09-05: an edge device exists only for
+tenants that want a local LLM (Ollama) or Codex CLI on the monthly-plan quota,
+so an edge-only lane would leave every other tenant unable to publish. Revision
+0.1.0 of this ADR deferred the cloud path; 0.2.0 makes it the `CLOUD` mode,
+behind the integration lane's Vault-resolved port, with ADR-041 D2 scoped
+rather than contradicted.
+
+**Cloud-only transport — no edge mode at all.** Rejected: the edge tenants
+exist precisely to keep their LLM local and their LINE secrets on premise, and
+the FR-143 / FR-144 pull-model substrate already serves them.
 
 **One account per Business.** Rejected: the owner's requirement is
 multi-account, and the connection and binding substrate already express N.
@@ -531,4 +585,5 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0 | 2026-09-05 | proposed | Owner's answer: a Zuri Edge Device exists only for local-LLM (Ollama) / Codex CLI tenants — added `transportMode` EDGE / CLOUD per account, the CLOUD claimant over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes, the audited mode switch; scoped ADR-041 D2; Phase 1 gate now proves one deploy per mode | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Declared LINE OA Studio as a first-class multi-account Business domain; fixed credential/transport, flow, dispatch, insight, media/team and authorization boundaries; named the crm thread-identity prerequisite; reserved navigation and phased delivery | working-tree | Claude Code |

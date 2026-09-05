@@ -1,5 +1,5 @@
 ---
-version: "0.1.0"
+version: "0.2.0"
 status: proposed
 domain: line-oa-studio
 doc_type: context-map
@@ -10,8 +10,8 @@ doc_type: context-map
 This document records how LINE OA Studio collaborates with the authorities that
 already exist. It is about **ownership and contracts**, not deployment topology:
 every context below stays inside the Zuri modular monolith, and the one process
-outside it — the trusted LINE transport owner — is a boundary this repository
-already has (BR-011, ADR-041, ADR-059).
+outside it — the tenant's Zuri Edge Device, for EDGE-mode accounts — is a
+boundary this repository already has (BR-011, ADR-041, ADR-059).
 
 ## System context
 
@@ -44,10 +44,10 @@ already has (BR-011, ADR-041, ADR-059).
                                 │ turn · single│    │ transport jobs (pull) · receipts
                                 │ reply        │    ▼
                                 └──────────────┘  ┌──────────────────────────────┐
-                                                  │ Trusted LINE transport owner │
-                                                  │ zuri-edge-device / zuri-cli  │
-                                                  │ channel secret + access token│
-                                                  │ Messaging API · Insight API  │
+                                                  │ LINE transport owner by mode │
+                                                  │ EDGE:  Zuri Edge Device      │
+                                                  │ CLOUD: Studio worker over the│
+                                                  │ integration Vault LINE port  │
                                                   └──────────────────────────────┘
 ```
 
@@ -74,7 +74,12 @@ Integration owns `IntegrationProvider` (`LINE_OA`), `IntegrationConnection`,
 - consumes LINE Insight records that arrive through an integration adapter
   (provider `LINE_OA`, lane `INSIGHT`) as immutable translation input with
   lineage; re-translation is idempotent and a failed translation never mutates
-  the raw row.
+  the raw row;
+- for `CLOUD` accounts, executes transport jobs through the integration lane's
+  LINE Messaging port (a provider adapter beside the webhook normalizer), which
+  resolves the account's channel access token from Vault per call
+  (`IntegrationCredential.secretRef`, the FR-079 resolver shape) and never
+  returns it — the Studio worker sees results, never material.
 
 ### Agent ↔ LINE OA Studio
 
@@ -128,23 +133,43 @@ an audience resolver.
 - Refusals are 404-shaped (FR-072); audit payloads carry no token, secret or
   customer content (SEC-018).
 
-### LINE OA Studio ↔ Trusted transport owner
+### LINE OA Studio ↔ LINE transport owner (the account's mode decides)
 
-**Relationship:** the Studio queues; the transport owner executes. The only
-context outside the monolith.
+**Relationship:** the Studio queues; the transport owner executes. Which owner
+is fixed per account by `transportMode` (ADR-060 D5), after the owner's answer
+of 2026-09-05: a Zuri Edge Device exists only for tenants that want a local LLM
+(Ollama) or Codex CLI on the monthly-plan quota; everyone else is cloud-served.
 
-- The transport owner (the `zuri-edge-device` runtime or `zuri-cli`) holds the
-  account's channel secret and access token (ADR-041 D2) and is the sole caller
-  of the LINE Messaging and Insight APIs.
+**EDGE accounts — the only context outside the monolith.**
+
+- The tenant's Zuri Edge Device holds the account's channel secret and access
+  token (ADR-041 D2), verifies signatures, calls the LINE Messaging and Insight
+  APIs, and answers on its local LLM.
 - It claims `LineOaTransportJob`s over outbound HTTPS with its Business-scoped
   `EdgeDeviceCredential` (FR-144), downloads any bytes (rich-menu images) from
   the cloud only while holding the lease (ADR-059 D4), and reports
   `COMPLETED {externalIds, acceptanceClass, counts}` or `FAILED {reason}`.
+- It pulls the account's published configuration snapshot (published flows,
+  rich-menu aliases, bot profile — no secret, no customer data) through a
+  device-authenticated, ETag-versioned read and evaluates the same pure
+  interpreter contract, shipped from this repository as contract plus reference
+  implementation (ADR-059 D6).
 - The cloud owns the wire contract (`contracts/line-oa-transport-job.schema.json`,
-  to be added with the Phase 1 slice) and the transport repository codes against
-  it (ADR-059 D6).
-- A cloud transport adapter over the integration secret manager is deferred and
-  needs an explicit amendment to ADR-041 D2 (ADR-060 D5).
+  to be added with the Phase 1 slice) and the edge repository codes against it.
+
+**CLOUD accounts — inside the monolith.**
+
+- A Studio worker claims the same job in-process under the same lease rules and
+  executes it through the integration lane's LINE Messaging port; the port
+  resolves the token from Vault per call under the cloud runtime role and never
+  returns it. Signature verification for these accounts happens at
+  `POST /api/agent/line-webhook` (agent lane, integration's `verifySignature`).
+- One receipt shape, one Command Center view, in both modes.
+
+**One owner at a time.** An account is EDGE or CLOUD, never both (BR-011);
+switching is a publisher-only, versioned compare-and-swap that disables routing
+first, moves credentials, cancels jobs queued under the old owner and audits the
+switch.
 
 ### File management → LINE OA Studio
 
@@ -171,7 +196,7 @@ Studio truth.
 | `RawExternalRecord` (webhook, insight) | Integration | translation input + lineage; last-webhook health |
 | `line_channel_binding` code, activation state | Agent | join key (`bindingCode`); read-only health |
 | The webhook turn and the single reply | Agent | supplies `resolveAutomation`; never replies itself |
-| Channel secret, access token, LINE API calls | Transport owner | queues jobs; never holds either |
+| Channel secret, access token, LINE API calls | EDGE: the tenant's Zuri Edge Device · CLOUD: the integration lane's Vault-resolved LINE port | queues jobs; never holds either in either mode |
 | `Person`, `ChannelIdentity`, Membership, `RoleBinding` | Identity | authorization; subject references; `LINE_OA_PUBLISHER` key |
 | `Customer`, `Conversation`, `Message`, consent | CRM | read model; audience refs; outbound via contract |
 | `FileAsset` | File management | reference by id |
@@ -211,9 +236,9 @@ authorize concrete events, outbox or schema changes.
 
 ## Change protocol
 
-Any new writer, a cloud-side LINE API call, a secret in zuri-ai, a
-bidirectional sync with CRM, or a transfer of authority requires a new ADR or an
-explicit amendment to ADR-060. Adding an adapter that implements an existing
+Any new writer, a LINE API call outside the integration lane's port, a secret
+readable by Studio code, a bidirectional sync with CRM, or a transfer of
+authority requires a new ADR or an explicit amendment to ADR-060. Adding an adapter that implements an existing
 one-way contract does not transfer ownership.
 
 ## Deployment statement
@@ -226,4 +251,5 @@ database, network service or hosted "studio" origin is implied.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0 | 2026-09-05 | proposed | Split the transport relationship by account mode after the owner's answer: EDGE device (pull model, published-config pull) vs CLOUD worker over the integration lane's Vault-resolved LINE port; one owner at a time | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Fixed providers, consumers, direction, shared concepts and anti-corruption rules for LINE OA Studio | working-tree | Claude Code |
