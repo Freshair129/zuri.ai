@@ -1,7 +1,7 @@
 ---
-version: "0.3.0"
+version: "0.3.1"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-05T14:00:00+07:00,Claude Code"
+last_update: "2026-09-05T15:00:00+07:00,Claude Code"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -306,6 +306,21 @@ result. No device route, no bytes endpoint and no device credential are
 involved; the Studio code path is identical up to the port, and the worker sees
 results, never material.
 
+**Two receipt paths, split by who initiated the send — never both for one
+send.** The job lane does not replace FR-093. A reply to an inbound event, and a
+push the transport owner sends while handling that turn, are the reply owner's
+sends (BR-011, FR-050) and are reported exactly as today through
+`POST /api/agent/line-delivery` (FR-093); a reply is synchronous to its inbound
+event and is never a queued job. A `LineOaTransportJob` exists only for a send
+or call with no inbound event behind it — Studio-initiated rich-menu, LIFF,
+dispatch and Insight work — and its receipt is the job's own COMPLETED or
+FAILED result; when such a send is conversational, the Studio records the
+outbound Message from that result through the crm contract on the cloud side.
+The transport owner therefore never reports a job send through the delivery
+route and never queues a reply as a job: one send, one receipt path, or the
+Inbox double-records. Recorded after the edge runtime's maintainer asked
+exactly this on 2026-09-05.
+
 - The job carries external identifiers and counts back, never token material,
   never a request echo with secrets, never customer content beyond what the
   Studio itself queued.
@@ -399,8 +414,10 @@ than decides.
   (FR-103, SEC-005); transactional pushes inside an existing conversation are
   per-conversation and follow the reply rules.
 - One dispatch = one transport job with one idempotency key; the receipt records
-  LINE's acceptance class and counts, and the Inbox's outbound record (FR-093)
-  is written through the crm contract when the dispatch is conversational.
+  LINE's acceptance class and counts, and when the dispatch is conversational
+  the Studio writes the Inbox's outbound record through the crm contract from
+  the job result on the cloud side — the transport owner does not report it a
+  second time through the FR-093 delivery route (D5).
 
 ### D8 — Analytics come from LINE, through the integration substrate
 
@@ -603,6 +620,7 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.1 | 2026-09-05 | proposed | Clarified D5 after the edge runtime's maintainer asked: FR-093 delivery receipts and the transport-job lane coexist, split by who initiated the send — reply-turn sends report through `/api/agent/line-delivery`, Studio-initiated sends report as the job result; one send, one receipt path | working-tree | Claude Code |
 | 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`, scheduled dispatch in Phase 2, timed WAIT in Phase 3), `LINE_OA_PUBLISHER` confirmed; no question remains open | working-tree | Claude Code |
 | 0.2.1 | 2026-09-05 | proposed | Cross-reference ADR-031 revision 0.3.0b: the cloud runtime's Ollama ban no longer reads as forbidding an EDGE account's device from answering on local Ollama or Codex CLI | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer: a Zuri Edge Device exists only for local-LLM (Ollama) / Codex CLI tenants — added `transportMode` EDGE / CLOUD per account, the CLOUD claimant over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes, the audited mode switch; scoped ADR-041 D2; Phase 1 gate now proves one deploy per mode | working-tree | Claude Code |

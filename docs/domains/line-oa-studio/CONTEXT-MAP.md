@@ -1,5 +1,5 @@
 ---
-version: "0.2.1"
+version: "0.2.2"
 status: proposed
 domain: line-oa-studio
 doc_type: context-map
@@ -112,9 +112,13 @@ an audience resolver.
 - Dispatch audiences are resolved from crm references (Customer ids, segments)
   and identity's staff subjects; marketing dispatches reach only Customers with
   consent `GRANTED` (FR-103, SEC-005).
-- A conversational outbound message (a push inside an existing thread) is
-  recorded through the crm contract (`recordLineReply`, FR-093); the Studio
-  never writes `Message`.
+- A conversational outbound message has one receipt path, chosen by who
+  initiated it: a reply or push the transport owner sends while handling an
+  inbound turn is reported by that owner through `POST /api/agent/line-delivery`
+  (FR-093); a Studio-initiated dispatch is recorded by the Studio from its
+  transport job's result through the crm contract (`recordLineReply`) on the
+  cloud side, and the transport owner does not report it again. The Studio never
+  writes `Message` directly (ADR-060 D5).
 - **Prerequisite owned by crm (ADR-060 D9):** `Conversation` identity must carry
   `channelAccountId`. Until then, per-account inbox views and counts are labelled
   Business-wide.
@@ -252,6 +256,7 @@ database, network service or hosted "studio" origin is implied.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.2 | 2026-09-05 | proposed | CRM relationship: one receipt path per send — FR-093 for reply-turn sends by the transport owner, the job result for Studio-initiated sends | working-tree | Claude Code |
 | 0.2.1 | 2026-09-05 | proposed | Added the Studio-owned scheduler's fire/expire events to the vocabulary candidates; no new neighbour, the scheduler stays inside the Studio | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Split the transport relationship by account mode after the owner's answer: EDGE device (pull model, published-config pull) vs CLOUD worker over the integration lane's Vault-resolved LINE port; one owner at a time | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed | Fixed providers, consumers, direction, shared concepts and anti-corruption rules for LINE OA Studio | working-tree | Claude Code |
