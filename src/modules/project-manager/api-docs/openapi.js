@@ -22,6 +22,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/edge/extraction-jobs/claim', ['POST']], ['/api/edge/extraction-jobs/{id}/evidence', ['GET']],
   ['/api/edge/extraction-jobs/{id}/complete', ['POST']], ['/api/edge/extraction-jobs/{id}/fail', ['POST']],
   ['/api/assets/evidence/{id}/extraction-job', ['GET']],
+  // @req FR-146 — LINE OA Studio accounts: list/connect on the collection,
+  // read and versioned actions (pause, resume, archive, set default, switch
+  // transport mode) on the item. Archive is a PATCH action, never a DELETE.
+  ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],

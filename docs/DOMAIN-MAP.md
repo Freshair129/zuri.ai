@@ -52,7 +52,7 @@ Charter: [docs/domains/identity/CHARTER.md](domains/identity/CHARTER.md)
 | Modules | `src/modules/identity` |
 | Models owned | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding, PersonCredential, PasswordResetToken, Session, ChannelIdentity, SotDataPlaneKey, WorkspaceMembership, WorkspaceInvite, ApiAccessKey, PlatformGrant, PluginInstallation, PluginAuthorizationCode, PluginSession, EdgeDeviceCredential |
 | Routes owned | 26 (18 api · 8 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-026, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-066, FR-067, FR-074, FR-075, FR-076, FR-078, FR-094, FR-095, FR-096, FR-097, FR-098, FR-102, FR-103, FR-104, FR-106, FR-107, FR-120, FR-122, FR-123, FR-144, SDD-034 |
+| FRs implemented in lane | FR-021, FR-022, FR-026, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-066, FR-067, FR-074, FR-075, FR-076, FR-078, FR-094, FR-095, FR-096, FR-097, FR-098, FR-102, FR-103, FR-104, FR-106, FR-107, FR-120, FR-122, FR-123, FR-144, FR-146, SDD-034 |
 
 ## integration
 
@@ -63,7 +63,7 @@ Charter: [docs/domains/integration/CHARTER.md](domains/integration/CHARTER.md)
 | Modules | `src/modules/integration` |
 | Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord, SotDecision, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision |
 | Routes owned | 10 (6 api · 4 pages) |
-| FRs implemented in lane | FR-080, FR-081, FR-092, FR-099, FR-100, FR-101, FR-102 |
+| FRs implemented in lane | FR-080, FR-081, FR-092, FR-099, FR-100, FR-101, FR-102, FR-146 |
 
 ## knowledge
 
@@ -83,9 +83,9 @@ Charter: [docs/domains/line-oa-studio/CHARTER.md](domains/line-oa-studio/CHARTER
 | | |
 |---|---|
 | Modules | `src/modules/line-oa-studio` |
-| Models owned | — (state lives outside the shared schema by design) |
-| Routes owned | 0 (0 api · 0 pages) |
-| FRs implemented in lane | — |
+| Models owned | LineOaAccount |
+| Routes owned | 2 (2 api · 0 pages) |
+| FRs implemented in lane | FR-146 |
 
 ## market-intelligence
 
@@ -118,4 +118,4 @@ Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHART
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt |
 | Routes owned | 135 (94 api · 41 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, SDD-037 |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, SDD-037 |

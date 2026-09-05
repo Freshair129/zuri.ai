@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-05T07:44:00.924Z",
+  "generatedAt": "2026-09-05T08:07:52.494Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,8 +40,8 @@
     "featureCount": 115,
     "readyFeatureCount": 99,
     "requirementCount": 146,
-    "verifiedRequirementCount": 135,
-    "progressPercent": 92.5,
+    "verifiedRequirementCount": 136,
+    "progressPercent": 93.2,
     "gapCount": 20,
     "gaps": [
       {
@@ -325,7 +325,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-081",
@@ -388,7 +388,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "checks": {
@@ -407,7 +407,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -622,7 +622,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "checks": {
@@ -641,7 +641,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -781,7 +781,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-078",
@@ -992,7 +992,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-062",
@@ -1034,7 +1034,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-078",
@@ -1146,7 +1146,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
+        },
+        {
+          "id": "FR-146",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1172,7 +1179,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -1390,7 +1397,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-081",
@@ -1502,7 +1509,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
+        },
+        {
+          "id": "FR-146",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1528,7 +1542,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -1928,7 +1942,15 @@
     },
     "line-oa-studio": {
       "status": "verified",
-      "requirements": [],
+      "requirements": [
+        {
+          "id": "FR-146",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 20
+        }
+      ],
       "checks": {
         "ui": {
           "status": "not_applicable",
@@ -1936,9 +1958,18 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 2,
+            "inventoried": 2,
+            "openApiPaths": 131,
+            "missingFromOpenApi": 0
+          }
         },
         "mcp": {
           "status": "verified",
@@ -1951,8 +1982,11 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
           "gaps": []
         },
         "jsonSchema": {
@@ -1961,42 +1995,64 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 1,
+            "present": 1
+          }
         },
         "authorization": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 2,
+            "guardedMutations": 2,
+            "reads": 2,
+            "unguardedReads": 0
+          }
         },
         "tests": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
           "gaps": []
         }
       },
       "evidence": [
+        "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
         "docs/domains/line-oa-studio/CHARTER.md",
+        "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [],
       "details": {
-        "routes": 0,
-        "apiRoutes": 0,
+        "routes": 2,
+        "apiRoutes": 2,
         "pageRoutes": 0,
-        "ownedModels": 0,
-        "featureNotes": 0
+        "ownedModels": 1,
+        "featureNotes": 1
       },
       "featureIds": [
         "FEAT-018"
       ],
       "featureCount": 1,
       "readyFeatureCount": 0,
-      "progressPercent": 0
+      "progressPercent": 100
     },
     "market-intelligence": {
       "status": "verified",
@@ -2006,7 +2062,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-092",
@@ -2039,7 +2095,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -2189,7 +2245,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -2560,7 +2616,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-062",
@@ -2630,7 +2686,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-073",
@@ -2882,7 +2938,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
+        },
+        {
+          "id": "FR-146",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -2917,7 +2980,7 @@
           "details": {
             "routes": 94,
             "inventoried": 94,
-            "openApiPaths": 129,
+            "openApiPaths": 131,
             "missingFromOpenApi": 0
           }
         },
@@ -3431,7 +3494,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -3453,6 +3516,7 @@
         "src/platform/integrations/llm/provider-catalog.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
+        "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/line-oa-connection-health.test.js",
         "tests/integration/line-oa-provider-migration.test.js",
         "tests/integration/line-registry-scope.test.js",
@@ -4405,7 +4469,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -4428,6 +4492,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "tests/integration/fr143-asset-extraction-job.test.js",
         "tests/integration/fr144-edge-device-credential.test.js",
+        "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/asset-evidence-extractor-contract.test.js",
         "tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -4446,30 +4511,67 @@
       "id": "FEAT-018",
       "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
       "kind": "bundle",
-      "registryStatus": "proposed",
+      "registryStatus": "building",
       "requirementIds": [
         "FR-146"
       ],
       "primaryDomain": "line-oa-studio",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "identity",
+        "integration",
+        "line-oa-studio",
+        "project-manager"
+      ],
       "useCase": "เจ้าของธุรกิจเชื่อมบัญชี LINE Official Account หลายบัญชีเข้ากับ Business เดียว เห็นสถานะการเชื่อมต่อ binding และ webhook ล่าสุดของแต่ละบัญชีในที่เดียว และกำหนดว่าบัญชีไหนส่งผ่าน Zuri Edge Device ของตนเองหรือผ่านคลาวด์ โดยไม่เห็นความลับของ LINE",
-      "progressPercent": 0,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-018 registry status is proposed",
-        "FR-146 is planned"
+        "FEAT-018 registry status is building"
       ],
       "requirements": [
         {
           "id": "FR-146",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 20
         }
       ],
-      "evidence": []
+      "evidence": [
+        "src/app/api/line-oa/accounts/[id]/route.js",
+        "src/app/api/line-oa/accounts/route.js",
+        "src/config/domains.js",
+        "src/lib/validation/enums.js",
+        "src/modules/identity/rbac.js",
+        "src/modules/integration/application/integration-management-service.js",
+        "src/modules/line-oa-studio/application/line-oa-account-authority.js",
+        "src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "src/modules/line-oa-studio/domain/line-oa-account.js",
+        "src/modules/line-oa-studio/index.js",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr146-line-oa-account.test.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/integration/xlsx-intake.test.js",
+        "tests/unit/asset-management-navigation.test.js",
+        "tests/unit/connection-health.test.js",
+        "tests/unit/conversation-analysis-contract.test.js",
+        "tests/unit/customer-import-review-service.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/fr080-integration-management.test.js",
+        "tests/unit/line-oa-account-domain.test.js",
+        "tests/unit/line-oa-account-routes.test.js",
+        "tests/unit/line-oa-account-schema-contract.test.js",
+        "tests/unit/plan-schema.test.js"
+      ]
     },
     {
       "id": "FR-001",
@@ -6949,7 +7051,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -6984,6 +7086,7 @@
         "tests/unit/fr060-business-home-visibility.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/market-intelligence/market-observation-feed.test.js",
         "tests/unit/market-intelligence/market-observation-service.test.js",
         "tests/unit/people-route.test.js",
@@ -7340,7 +7443,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -7395,6 +7498,7 @@
         "tests/integration/fr073-repository-scope.test.js",
         "tests/integration/fr074-scope-creation-authorization.test.js",
         "tests/integration/fr089-team-scope.test.js",
+        "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/project-authorization.test.js",
         "tests/integration/project-business-binding.test.js",
         "tests/integration/project-core.test.js",
@@ -7601,7 +7705,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -7618,6 +7722,7 @@
         "tests/unit/db-runtime-config.test.js",
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/postgres-runtime-client.test.js",
         "tests/unit/viewer-gate.test.js"
       ]

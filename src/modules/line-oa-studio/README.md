@@ -4,10 +4,24 @@ This directory reserves the technical ownership lane `TD-LINE-OA-STUDIO`
 proposed by ADR-060 — the multi-account command center for LINE Official
 Accounts.
 
-There is intentionally **no runtime implementation in Phase 0**.
+Phase 1, slice 1 (FR-146) is built here:
 
-Before adding JavaScript, routes, Prisma models or runtime navigation, the
-implementing slice must:
+```text
+src/modules/line-oa-studio/
+├── domain/line-oa-account.js                 pure rules: input contracts, stored status machine,
+│                                             derived LIVE, transport-mode default
+├── application/line-oa-account-authority.js  view (visibility + line-oa domain) · publish (OWNER or
+│                                             LINE_OA_PUBLISHER) · one 404 for every refusal
+├── application/line-oa-account-service.js    the only writer of LineOaAccount; health through ports
+└── index.js                                  stable exports
+```
+
+Routes: `src/app/api/line-oa/accounts/route.js` (GET, POST) and
+`src/app/api/line-oa/accounts/[id]/route.js` (GET, PATCH). Everything else in
+the charter's owned-concepts list is still a claim, not code.
+
+Before adding another JavaScript file, route, Prisma model or runtime
+navigation entry, the implementing slice must:
 
 1. reserve global requirement ids in `docs/PRD-SDD-v1.0.md` (and a `FEAT` row in
    `docs/FEATURES.md` when the slice bundles several FRs), then pin them with

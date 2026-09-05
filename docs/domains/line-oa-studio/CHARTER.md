@@ -3,17 +3,18 @@ domain_id: DOM-LINE-OA-STUDIO
 domain: line-oa-studio
 modules:
   - line-oa-studio
-owns_models: []
+owns_models:
+  - LineOaAccount
 owns_routes:
   - src/app/(pm)/line-oa/**
   - src/app/api/line-oa/**
 owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
-status: proposed-phase-0
-version: "0.3.1"
+status: phase-1-building
+version: "0.4.0"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-05T16:00:00+07:00"
+updated_at: "2026-09-05T18:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -58,18 +59,21 @@ Architecture decision: [ADR-060](../../decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-A
 
 ## Owned concepts (target; models land only with an approved global implementation requirement)
 
-`owns_models` above is deliberately empty: that list mirrors
-`prisma/schema.prisma`, and each implementation slice adds a model there in the
-same change that adds it (the crm and market-intelligence charters follow the
-same discipline). Until then this section is the claim, so no other lane designs
-these tables elsewhere:
+`owns_models` above mirrors `prisma/schema.prisma`, and each implementation
+slice adds a model there in the same change that adds it (the crm and
+market-intelligence charters follow the same discipline). `LineOaAccount` landed
+with FR-146; the rest of this section is the claim for what has not, so no other
+lane designs these tables elsewhere:
 
-- `LineOaAccount` — the aggregate: one LINE Official Account operated by one
-  Business. Holds a stable Tenant-unique `code`, references the integration
-  lane's `IntegrationConnection` (`LINE_OA`) 1:1 and the agent's binding code
-  (= identity's `channelAccountId`), an operating status, a `transportMode`
-  (EDGE / CLOUD — who owns this account's LINE transport, ADR-060 D5), a
-  default flag and the bot presentation profile. N per Business.
+- `LineOaAccount` — **in the schema (FR-146).** The aggregate: one LINE
+  Official Account operated by one Business. Holds a stable Tenant-unique
+  `code`, references the integration lane's `IntegrationConnection` (`LINE_OA`)
+  1:1 and the agent's binding code (= identity's `channelAccountId`), a stored
+  status (DRAFT → CONNECTED → PAUSED | ARCHIVED; LIVE is derived from the
+  binding, never stored), a `transportMode` (EDGE / CLOUD — who owns this
+  account's LINE transport, ADR-060 D5), a default flag and the bot
+  presentation profile. N per Business. The only writer is
+  `application/line-oa-account-service.js`.
 - `LineOaRichMenu` / `LineOaRichMenuVersion` — layout, chat-bar text, tap areas
   and actions, `FileAsset` image reference, alias, default flag, published state,
   external `richMenuId` after deployment.
@@ -278,12 +282,18 @@ explicit contract or read projection.
 
 ## Delivery state
 
-Phase 1 has started with a declaration: **FR-146** (`LineOaAccount`, bundled by
-FEAT-018) is declared in the PRD on 2026-09-05. There is still no runtime code,
-route, model or migration, so `owns_models` stays empty until the model lands
-in the same change that claims it. ADR-060 D14 phases the rest; each slice
-declares its own ids first and updates this charter's ownership claims in the
-same change.
+Phase 1, slice 1 is built locally: **FR-146** (`LineOaAccount`, bundled by
+FEAT-018) — the model in both provider schemas with additive migrations
+(production SQL written, **not applied**), the only writer
+`application/line-oa-account-service.js`, `GET/POST /api/line-oa/accounts` and
+`GET/PATCH /api/line-oa/accounts/[id]`, the confirmed `LINE_OA_PUBLISHER` role
+in identity's registry, the reserved `line-oa` domain slot (hidden `soon`) so a
+grant can name the domain, and the integration lane's
+`readLineOaConnectionHealth` read contract. Not yet: the agent binding reader
+(so `effectiveStatus` cannot reach LIVE and health reports the binding as
+UNKNOWN), the `/line-oa` pages, transport jobs and quota. ADR-060 D14 phases
+the rest; each slice declares its own ids first and updates this charter's
+ownership claims in the same change.
 
 ## References
 
@@ -298,6 +308,7 @@ same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0 | 2026-09-05 | phase-1-building | Claimed `LineOaAccount` in `owns_models` as FR-146 slice 1 lands: model, only writer, two routes, publisher role, reserved domain slot, integration read contract; binding reader, pages, jobs and quota still open | working-tree | Claude Fable 5.1 |
 | 0.3.1 | 2026-09-05 | phase-1-declared | Delivery state: FR-146 (`LineOaAccount`, FEAT-018) declared as the first Phase 1 slice; ownership claims unchanged until the model lands | working-tree | Claude Fable 5.1 |
 | 0.3.0 | 2026-09-05 | proposed-phase-0 | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`), `LINE_OA_PUBLISHER` confirmed | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed-phase-0 | Owner's answer on edge devices: added `transportMode` EDGE / CLOUD on the aggregate, the CLOUD worker over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes and the audited mode switch | working-tree | Claude Code |

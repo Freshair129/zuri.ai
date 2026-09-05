@@ -28,6 +28,9 @@ const ROUTES = [
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
   '/assets', '/assets/receiving', '/assets/register',
+  // @req FR-146 — the reserved LINE OA Studio slot; like `/commerce` above it
+  // has no page yet, and `failOnStatusCode: false` below tolerates the 404.
+  '/line-oa',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

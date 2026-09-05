@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=56; operational_domain_keys=9; operational_subdomain_entries=29; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=56; operational_domain_keys=10; operational_subdomain_entries=30; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -211,13 +211,14 @@ explicitly so “domain count” cannot silently mix the two concepts:
 
 | Count | Current value | Source interpretation |
 |---|---:|---|
-| Source `DOMAINS` entries | 10 | `business-home` plus nine operational domains |
-| Operational domain keys | 9 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `platform` |
+| Source `DOMAINS` entries | 11 | `business-home` plus ten operational domains |
+| Operational domain keys | 10 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 30 | includes Business Home Dashboard |
-| Operational sub-domain entries | 29 | excludes Business Home Dashboard |
+| Source sub-domain entries | 31 | includes Business Home Dashboard |
+| Operational sub-domain entries | 30 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 3 | Dashboard and Receiving are current; Register remains a declared unavailable destination |
+| LINE OA Studio navigation entries | 1 | reserved `soon` slot registered by FR-146 (ADR-060 D12) so a Membership grant can name the `line-oa` domain; no page route exists and the bar renders nothing for it |
 | Platform navigation entries | 9 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
@@ -279,6 +280,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
 | 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |
 | 1.2.2b | 2026-08-29 | candidate | Registered the FR-120 Self-Serve Signup screen — before it no unauthenticated visitor could create an account, which also meant no new person could be invited, since an invite needs a Person to attach to — restated `/login` as having two ways out rather than one, and reconciled the marker to 50 page routes | working-tree | ATHER |

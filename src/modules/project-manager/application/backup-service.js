@@ -59,6 +59,11 @@ const SNAPSHOT_MODELS = [
   // @req FR-092 — translated market state is restored after its Integration
   // evidence and before downstream projections exist.
   'marketObservation',
+  // @req FR-146 — a LINE OA Studio account references a LINE_OA connection
+  // (above) and a Business (top of this list), so it restores after both and
+  // deletes before them. Operating truth, not credential material: it holds
+  // no secret and is exported whole.
+  'lineOaAccount',
   // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
   // both — so they restore in that order and delete in the reverse. All three,
   // plus projectGoal and roleBinding below, were absent from this list until the
