@@ -120,6 +120,19 @@ describe('CR-016 production environment and operator contract', () => {
     expect(example).not.toMatch(/NEXT_PUBLIC_(?:OPENAI|.*SERVICE_ROLE)/)
   })
 
+  it('does not default a fresh checkout at the production evidence bucket', () => {
+    // This template used to ship ZURI_ASSET_EVIDENCE_BUCKET="asset-evidence".
+    // Anyone who copied it and filled in a real Supabase URL and service-role key
+    // wrote their test evidence into the customers' bucket without choosing to —
+    // which is what happened during a verification run on 2026-09-05. The dev
+    // bucket mirrors production exactly (private, 20 MiB, the same four MIME
+    // types), so nothing about the exercise is weakened by defaulting to it.
+    const example = read(resolve(root, '.env.example'))
+    const value = example.match(/^ZURI_ASSET_EVIDENCE_BUCKET="([^"]*)"/m)?.[1]
+    expect(value).toBe('asset-evidence-dev')
+    expect(value).not.toBe('asset-evidence')
+  })
+
   it('documents identity, inventory, apply, verify, canary, promote and rollback gates', () => {
     const runbook = read(resolve(root, 'docs/runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md'))
     for (const heading of [

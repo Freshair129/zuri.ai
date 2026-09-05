@@ -56,13 +56,10 @@
   "drift": {
     "changed": [
       "doc:README",
-      "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:ROADMAP",
-      "doc:SITEMAP-DOMAIN-NAV"
+      "test:tests/unit/asset-production-activation-contract.test.js"
     ],
     "added": [],
     "removed": []
@@ -11098,7 +11095,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "f4ef1075",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11134,7 +11131,7 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "eee78131",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SRS",
@@ -11513,7 +11510,7 @@
         "line-oa-studio"
       ],
       "hash": "a27fcac4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -17124,7 +17121,7 @@
       "path": "docs/decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md",
       "title": "ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts",
       "hash": "08a66585",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -18138,8 +18135,8 @@
       "id": "test:tests/unit/asset-production-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-production-activation-contract.test.js",
-      "hash": "4bb78d36",
-      "status": "current"
+      "hash": "b66186db",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
