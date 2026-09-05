@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-05T07:17:31.326Z",
+  "generatedAt": "2026-09-05T07:30:09.761Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 10,
-    "featureCount": 114,
+    "featureCount": 115,
     "readyFeatureCount": 99,
-    "requirementCount": 145,
+    "requirementCount": 146,
     "verifiedRequirementCount": 135,
-    "progressPercent": 93.1,
+    "progressPercent": 92.5,
     "gapCount": 20,
     "gaps": [
       {
@@ -1991,10 +1991,12 @@
         "ownedModels": 0,
         "featureNotes": 0
       },
-      "featureIds": [],
-      "featureCount": 0,
+      "featureIds": [
+        "FEAT-018"
+      ],
+      "featureCount": 1,
       "readyFeatureCount": 0,
-      "progressPercent": null
+      "progressPercent": 0
     },
     "market-intelligence": {
       "status": "verified",
@@ -4439,6 +4441,35 @@
         "tests/unit/fr141-edge-device-heartbeat.test.js",
         "tests/unit/line-registry-service.test.js"
       ]
+    },
+    {
+      "id": "FEAT-018",
+      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
+      "kind": "bundle",
+      "registryStatus": "proposed",
+      "requirementIds": [
+        "FR-146"
+      ],
+      "primaryDomain": "line-oa-studio",
+      "contributorDomains": [],
+      "useCase": "เจ้าของธุรกิจเชื่อมบัญชี LINE Official Account หลายบัญชีเข้ากับ Business เดียว เห็นสถานะการเชื่อมต่อ binding และ webhook ล่าสุดของแต่ละบัญชีในที่เดียว และกำหนดว่าบัญชีไหนส่งผ่าน Zuri Edge Device ของตนเองหรือผ่านคลาวด์ โดยไม่เห็นความลับของ LINE",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-018 registry status is proposed",
+        "FR-146 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-146",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     },
     {
       "id": "FR-001",
