@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "477 id(s) pinned across 10 families",
-      "details": "ADR 60 · BR 25 · FEAT 17 · FR 145 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 477",
+      "title": "479 id(s) pinned across 10 families",
+      "details": "ADR 60 · BR 25 · FEAT 18 · FR 146 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 479",
       "files": [
         "docs/.id-ledger.json"
       ],
