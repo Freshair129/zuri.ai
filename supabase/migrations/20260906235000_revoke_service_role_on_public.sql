@@ -1,3 +1,9 @@
+-- RENUMBERED 2026-09-06 from 20260906230000, which 20260906230000_inventory_domain
+-- took on main while this branch was in review. Two files may share a version
+-- in git and never conflict; supabase_migrations.schema_migrations is keyed on
+-- the version, so the second one silently reads as applied. The guard added in
+-- PR #251 is what surfaced it here.
+--
 -- @req SEC-003, SEC-001 — take the application schema back from `service_role`.
 -- @spec ADR-056, ADR-057; docs/DB-MIGRATION-NOTES.md §Migration discipline
 -- @tested tests/unit/service-role-grant-baseline.test.js

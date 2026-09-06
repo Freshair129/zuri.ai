@@ -22,7 +22,7 @@ import { describe, expect, it } from 'vitest'
 // service_role.
 
 const DIR = 'supabase/migrations'
-const REVOKE = '20260906230000_revoke_service_role_on_public.sql'
+const REVOKE = '20260906235000_revoke_service_role_on_public.sql'
 const read = (name) => readFileSync(resolve(process.cwd(), DIR, name), 'utf8')
 const stripComments = (sql) => sql.replace(/--[^\n]*/g, '')
 const migrations = () => readdirSync(resolve(process.cwd(), DIR)).filter((f) => f.endsWith('.sql')).sort()

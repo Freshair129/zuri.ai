@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1924,
-    "total_edges": 7480,
+    "total_nodes": 1987,
+    "total_edges": 7716,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 179,
+      "document": 183,
       "adr": 63,
-      "domain": 10,
+      "domain": 11,
       "roadmap": 37,
-      "feature": 19,
-      "route": 216,
-      "model": 88,
-      "requirement": 310,
-      "test": 476,
-      "code_file": 522
+      "feature": 20,
+      "route": 231,
+      "model": 100,
+      "requirement": 313,
+      "test": 482,
+      "code_file": 543
     },
     "coverage": {
-      "requirements": 310,
-      "fr_with_code": "100% (143/143)",
-      "fr_with_tests": "100% (143/143)",
+      "requirements": 313,
+      "fr_with_code": "100% (146/146)",
+      "fr_with_tests": "100% (146/146)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 522,
+      "annotated_code_files": 543,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -468,6 +468,25 @@
         ],
         "@tested": [
           "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/inventory/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/inventory/page.jsx",
+      "hash": "400e0398",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154",
+          "FR-155"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js"
         ]
       }
     },
@@ -2863,6 +2882,297 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/bundles/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/bundles/route.js",
+      "hash": "4e17b07e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/categories/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/categories/route.js",
+      "hash": "13f25de2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/factories/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/factories/route.js",
+      "hash": "b2ba45eb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/families/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/families/route.js",
+      "hash": "c102e8c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/lots/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/lots/route.js",
+      "hash": "ae86463d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/product-masters/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/product-masters/route.js",
+      "hash": "d2773f81",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/products/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/products/[id]/route.js",
+      "hash": "058efa80",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/products/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/products/route.js",
+      "hash": "e05e9575",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/[id]/build/route.js",
+      "hash": "2ed60ec7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/[id]/route.js",
+      "hash": "37f72f75",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/recipes/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/route.js",
+      "hash": "0e630780",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/serial-units/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/serial-units/route.js",
+      "hash": "f0e09dc2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/stock-movements/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/stock-movements/route.js",
+      "hash": "142b65a0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/stock/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/stock/route.js",
+      "hash": "0aa20e81",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
       "type": "code_file",
       "path": "src/app/api/line-oa/accounts/[id]/jobs/route.js",
@@ -4915,7 +5225,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "aa1337ac",
+      "hash": "0de1745b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4927,18 +5237,21 @@
           "FR-086",
           "FR-133",
           "FR-146",
+          "FR-154",
           "FR-124"
         ],
         "@spec": [
           "SDD-018",
           "SDD-078",
-          "SEC-023"
+          "SEC-023",
+          "SEC-001"
         ],
         "@tested": [
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/e2e/fr041-business-first.spec.js",
-          "tests/unit/asset-management-navigation.test.js"
+          "tests/unit/asset-management-navigation.test.js",
+          "tests/unit/inventory-routes.test.js"
         ]
       }
     },
@@ -5234,7 +5547,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "ac323d04",
+      "hash": "e1fa4a75",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7237,13 +7550,14 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
-      "hash": "b1443669",
+      "hash": "04df3468",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
           "FR-078",
-          "FR-146"
+          "FR-146",
+          "FR-154"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -7708,6 +8022,122 @@
         ],
         "@tested": [
           "tests/unit/sot-plan-status.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-authority.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/application/inventory-authority.js",
+      "hash": "025f684f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/application/inventory-catalog-service.js",
+      "hash": "c63f9ecb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/application/inventory-recipe-service.js",
+      "hash": "dbe1c1f1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/application/inventory-stock-service.js",
+      "hash": "0cddfe8f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/domain/inventory.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/domain/inventory.js",
+      "hash": "5b774145",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154",
+          "FR-155",
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/inventory-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/index.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/index.js",
+      "hash": "58ea3632",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154",
+          "FR-155"
+        ],
+        "@tested": [
+          "tests/unit/inventory-domain.test.js"
         ]
       }
     },
@@ -8793,7 +9223,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "ace10e1d",
+      "hash": "414c19b2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8803,6 +9233,9 @@
           "FR-143",
           "FR-144",
           "FR-146",
+          "FR-154",
+          "FR-155",
+          "FR-156",
           "FR-022",
           "FR-092",
           "FR-106",
@@ -8861,7 +9294,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "073394ee",
+      "hash": "fb9d6e00",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8882,6 +9315,9 @@
           "FR-089",
           "FR-151",
           "FR-152",
+          "FR-154",
+          "FR-155",
+          "FR-156",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -10820,9 +11256,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.42.0b",
+      "version": "1.44.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "bfbf3ed2",
+      "hash": "f87f8cad",
       "status": "current"
     },
     {
@@ -10874,9 +11310,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.20.0b",
+      "version": "1.22.0b",
       "doc_status": "Draft",
-      "hash": "047a409c",
+      "hash": "2d18728c",
       "status": "current"
     },
     {
@@ -11208,9 +11644,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.24.0b",
+      "version": "1.26.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "07688cc5",
+      "hash": "d8a75d45",
       "status": "current"
     },
     {
@@ -12053,11 +12489,35 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-154-inventory-catalogue-identity",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
+      "title": "FR-154 — Inventory catalogue identity (คลังสินค้า)",
+      "hash": "8eccd9a0",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-155-inventory-stock-ledger",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
+      "title": "FR-155 — Inventory stock ledger (lot · serial · movement)",
+      "hash": "e5716395",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-156-inventory-recipe-bill-of-materials",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+      "title": "FR-156 — Recipe / bill of materials at a batch size (recipe_id)",
+      "hash": "368d2499",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "249d2b38",
+      "hash": "3dd0f9e2",
       "status": "current"
     },
     {
@@ -12105,7 +12565,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "207864d8",
+      "hash": "573d314f",
       "status": "current"
     },
     {
@@ -12142,6 +12602,14 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "9c35127c",
+      "status": "current"
+    },
+    {
+      "id": "doc:ONTOLOGY",
+      "type": "document",
+      "path": "docs/domains/inventory/ONTOLOGY.md",
+      "title": "Inventory ontology (reference)",
+      "hash": "9d90769b",
       "status": "current"
     },
     {
@@ -12499,9 +12967,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.157.0b",
+      "version": "1.159.0b",
       "doc_status": "Draft",
-      "hash": "fea7657c",
+      "hash": "d0d6cc09",
       "status": "current"
     },
     {
@@ -12529,7 +12997,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b0938bec",
+      "hash": "78cc892c",
       "status": "current"
     },
     {
@@ -12900,6 +13368,38 @@
       "status": "current"
     },
     {
+      "id": "domain:inventory",
+      "type": "domain",
+      "path": "docs/domains/inventory/CHARTER.md",
+      "title": "Domain — inventory",
+      "owns_models": [
+        "InventoryCategory",
+        "ProductFamily",
+        "Factory",
+        "ProductMaster",
+        "Product",
+        "ProductBundle",
+        "ProductBundleItem",
+        "ProductRecipe",
+        "ProductRecipeLine",
+        "ProductLot",
+        "SerialUnit",
+        "StockMovement"
+      ],
+      "owns_routes": [
+        "src/app/(pm)/inventory/**",
+        "src/app/api/inventory/**"
+      ],
+      "owns_code": [
+        "src/modules/inventory/**"
+      ],
+      "modules": [
+        "inventory"
+      ],
+      "hash": "cce76dca",
+      "status": "current"
+    },
+    {
       "id": "domain:knowledge",
       "type": "domain",
       "path": "docs/domains/knowledge/CHARTER.md",
@@ -13172,6 +13672,13 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-020",
+      "type": "feature",
+      "label": "Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`)",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:ApiAccessKey",
       "type": "model",
       "status": "current"
@@ -13322,6 +13829,11 @@
       "status": "current"
     },
     {
+      "id": "model:Factory",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:FileAsset",
       "type": "model",
       "status": "current"
@@ -13358,6 +13870,11 @@
     },
     {
       "id": "model:IntegrationProvider",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:InventoryCategory",
       "type": "model",
       "status": "current"
     },
@@ -13502,6 +14019,46 @@
       "status": "current"
     },
     {
+      "id": "model:Product",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductBundle",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductBundleItem",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductFamily",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductLot",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductMaster",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductRecipe",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductRecipeLine",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Project",
       "type": "model",
       "status": "current"
@@ -13547,6 +14104,11 @@
       "status": "current"
     },
     {
+      "id": "model:SerialUnit",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Session",
       "type": "model",
       "status": "current"
@@ -13558,6 +14120,11 @@
     },
     {
       "id": "model:SotDecision",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:StockMovement",
       "type": "model",
       "status": "current"
     },
@@ -15390,6 +15957,36 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "LINE OA LIFF app registry — `LineOaLiffApp`, the per-account record of the LIFF apps a LINE Official Account exposes (SRS LOS-RQ-070): `code` unique per Tenant, name, description, view size (COMPACT / TALL / FULL), an https endpoint, an allow-listed scope set (profile, openid, email, chat_message.write), a bot-prompt mode, and the external `liffId` LINE Developers issued — validated as a shape, unique per account, recorded by a publisher as an attribute and never looked up (BR-002). A registration is DRAFT until its `liffId` is recorded (`RECORD_LIFF_ID` activates it), ACTIVE from then, ARCHIVED on request; `UPDATE` edits the fields; every write needs Business OWNER or `LINE_OA_PUBLISHER`, every read Business visibility plus the `line-oa` domain, every refusal is the FR-072 404, every write a compare-and-swap on `version` with one audit row. The registry's purpose is resolution: a rich menu `LIFF` tap action (FR-151) names an app by code and publishes (FR-152) as `https://liff.line.me/{liffId}{path}` through an ACTIVE app — resolved at queue time and again at execution — and is refused by code when the account has no such app (`LIFF_UNRESOLVED`) or it is not active (`LIFF_NOT_ACTIVE`), never invented. Nothing here calls LINE: creating or updating the app on LINE Login is a console step today and a transport job under a LINE Login credential contract later. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migrations; production SQL **not applied**), the only writer `line-oa-liff-app-service.js`, `GET/POST /api/line-oa/liff-apps` and `GET/PATCH /api/line-oa/liff-apps/[id]`, the resolution wired into FR-152's translator, snapshot coverage; one integration suite (AC-153.1–.5), two unit suites. Not claimed: any LINE call, the designer's LIFF tab, flow LIFF nodes "
+    },
+    {
+      "id": "req:FR-154",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory catalogue identity (คลังสินค้า) — the Business-scoped catalogue the owner asked for, eight ids as attributes and one internal key (BR-002): `InventoryCategory` (`category_id`: `code` unique per Tenant, Thai and English names, optional kebab-case `slug` unique per Business, `vibe`, `targetRecipient`, `guardrail`), `ProductFamily` (`product_family`), `Factory` (`factory_id`), `ProductMaster` (`product_master`: in exactly one category, optional family and factory, `baseCost`, `specs`), `Product` (`product_id`, the SKU: variant of a master with `color`, `material`, `unit`, `safetyStock`; its `stockPolicy` — TRACKED, counted, or UNTRACKED, not counted — and `trackingMode` — NONE, LOT or SERIAL — are fixed at creation and never edited), and `ProductBundle` + `ProductBundleItem` (`bundle_id`: a pack of same-Business SKUs with quantities, reporting `availableSets` from the ledger; an uncounted item never limits). Every reference (category, family, factory, master, bundle item) must belong to the same Business or is refused by code; every read needs Business visibility plus the `inventory` domain (FR-061); every write needs Business OWNER or `INVENTORY_MANAGER`; every refusal is the FR-072 404; every write is one transaction with one audit row; product actions `UPDATE` / `ARCHIVE` compare-and-swap on `version`; nothing is deleted. The ontology's `slug` enum values are one Business's rows, not a system vocabulary; `inventory_qty` is not a column (FR-155); offers, tiers, segments and orders are deferred to a Commerce lane (`docs/domains/inventory/ONTOLOGY.md`).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory catalogue identity (คลังสินค้า) — the Business-scoped catalogue the owner asked for, eight ids as attributes and one internal key (BR-002): `InventoryCategory` (`category_id`: `code` unique per Tenant, Thai and English names, optional kebab-case `slug` unique per Business, `vibe`, `targetRecipient`, `guardrail`), `ProductFamily` (`product_family`), `Factory` (`factory_id`), `ProductMaster` (`product_master`: in exactly one category, optional family and factory, `baseCost`, `specs`), `Product` (`product_id`, the SKU: variant of a master with `color`, `material`, `unit`, `safetyStock`; its `stockPolicy` — TRACKED, counted, or UNTRACKED, not counted — and `trackingMode` — NONE, LOT or SERIAL — are fixed at creation and never edited), and `ProductBundle` + `ProductBundleItem` (`bundle_id`: a pack of same-Business SKUs with quantities, reporting `availableSets` from the ledger; an uncounted item never limits). Every reference (category, family, factory, master, bundle item) must belong to the same Business or is refused by code; every read needs Business visibility plus the `inventory` domain (FR-061); every write needs Business OWNER or `INVENTORY_MANAGER`; every refusal is the FR-072 404; every write is one transaction with one audit row; product actions `UPDATE` / `ARCHIVE` compare-and-swap on `version`; nothing is deleted. The ontology's `slug` enum values are one Business's rows, not a system vocabulary; `inventory_qty` is not a column (FR-155); offers, tiers, segments and orders are deferred to a Commerce lane (`docs/domains/inventory/ONTOLOGY.md`). 🟠 implemented locally 2026-09-06 — seven models (both schemas, additive migrations shared with FR-155; production SQL **not applied**), the only writer `inventory-catalog-service.js`, six `GET/POST /api/inventory/*` collections and `GET/PATCH /api/inventory/products/[id]`, the `inventory` domain slot and `/inventory` dashboard, `INVENTORY_MANAGER` role, snapshot coverage; one integration suite (AC-154.1–.6), two unit suites. Not claimed: Excel/LINE intake, images, costing, the Commerce offer layer "
+    },
+    {
+      "id": "req:FR-155",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. An ISSUE of a LOT-tracked SKU that names no lot is consumed **FEFO** — first expired, first out — across OPEN lots (unknown expiry last, whatever no lot holds last), one ledger row per lot touched and the allocation in the audit payload; an ISSUE that names a lot may not exceed that lot's on-hand (`INVENTORY_LOT_INSUFFICIENT_STOCK`); a lot listing reports each lot's on-hand from the ledger. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. An ISSUE of a LOT-tracked SKU that names no lot is consumed **FEFO** — first expired, first out — across OPEN lots (unknown expiry last, whatever no lot holds last), one ledger row per lot touched and the allocation in the audit payload; an ISSUE that names a lot may not exceed that lot's on-hand (`INVENTORY_LOT_INSUFFICIENT_STOCK`); a lot listing reports each lot's on-hand from the ledger. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload. 🟠 implemented locally 2026-09-06 — three models (both schemas, migrations shared with FR-154; production SQL **not applied**), the only writer `inventory-stock-service.js`, `GET/POST /api/inventory/lots`, `GET /api/inventory/serial-units`, `GET/POST /api/inventory/stock-movements`, `GET /api/inventory/stock`, the dashboard's KPIs, on-hand table and movement form; one integration suite (AC-155.1–.5), calculators in the unit suite. Not claimed: warehouse locations, reservations, expiry alerts, stocktake campaigns, costing "
+    },
+    {
+      "id": "req:FR-156",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory recipe / bill of materials at a batch size — `ProductRecipe` (`recipe_id`: `code` unique per Tenant, one row per output SKU and `batchSize` — \"the recipe for 10 seats\" and \"for 20 seats\" are two rows on one product, exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets — with `yieldQty`, `unit`, `notes`, ACTIVE / ARCHIVED, `version`) and `ProductRecipeLine` (a same-Business component SKU with `qty` per batch, optional `unit`, `fixed` for a line that does not scale with the quantity built, such as tooling; a component appears once and is never the output). Pure calculators pick the recipe for a quantity (the largest batch size that fits, else the smallest), explode it (scaled lines multiply by `quantity / batchSize`, fixed lines do not, the output yield follows the batch), compare with on-hand recomputed from the ledger (a fractional requirement is issued as the next whole unit; an uncounted component never blocks) and state the maximum buildable quantity. `GET /api/inventory/recipes/[id]?quantity=` returns that explosion; `POST …/build` is one transaction that issues every counted component through the FR-155 ledger (FEFO for lots) and receives the output SKU when it is counted — refused whole with `INVENTORY_RECIPE_SHORTAGE` and a per-component list when any component is short, and refused when a component or the output is SERIAL-tracked or a LOT-tracked output has no `outputLotCode`. `UPDATE` replaces the fields and, when given, the whole line set; `ARCHIVE` keeps the row; both compare-and-swap on `version`; manager authority, FR-072 refusals, one audit row per write. A bundle (FR-154) is the special case \"a kit at batch size 1\"; offers and price tiers stay in Commerce.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory recipe / bill of materials at a batch size — `ProductRecipe` (`recipe_id`: `code` unique per Tenant, one row per output SKU and `batchSize` — \"the recipe for 10 seats\" and \"for 20 seats\" are two rows on one product, exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets — with `yieldQty`, `unit`, `notes`, ACTIVE / ARCHIVED, `version`) and `ProductRecipeLine` (a same-Business component SKU with `qty` per batch, optional `unit`, `fixed` for a line that does not scale with the quantity built, such as tooling; a component appears once and is never the output). Pure calculators pick the recipe for a quantity (the largest batch size that fits, else the smallest), explode it (scaled lines multiply by `quantity / batchSize`, fixed lines do not, the output yield follows the batch), compare with on-hand recomputed from the ledger (a fractional requirement is issued as the next whole unit; an uncounted component never blocks) and state the maximum buildable quantity. `GET /api/inventory/recipes/[id]?quantity=` returns that explosion; `POST …/build` is one transaction that issues every counted component through the FR-155 ledger (FEFO for lots) and receives the output SKU when it is counted — refused whole with `INVENTORY_RECIPE_SHORTAGE` and a per-component list when any component is short, and refused when a component or the output is SERIAL-tracked or a LOT-tracked output has no `outputLotCode`. `UPDATE` replaces the fields and, when given, the whole line set; `ARCHIVE` keeps the row; both compare-and-swap on `version`; manager authority, FR-072 refusals, one audit row per write. A bundle (FR-154) is the special case \"a kit at batch size 1\"; offers and price tiers stay in Commerce. 🟠 implemented locally 2026-09-06 — two models (both schemas, additive migration `20260906233000_inventory_recipe`; production SQL **not applied**), the only writer `inventory-recipe-service.js`, `GET/POST /api/inventory/recipes`, `GET/PATCH /api/inventory/recipes/[id]`, `POST /api/inventory/recipes/[id]/build`, snapshot coverage; one integration suite (AC-156.1–.5), calculators in the unit suite. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion "
     },
     {
       "id": "req:NFR-001",
@@ -17320,6 +17917,118 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/inventory/bundles",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/bundles",
+      "path": "src/app/api/inventory/bundles/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/categories",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/categories",
+      "path": "src/app/api/inventory/categories/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/factories",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/factories",
+      "path": "src/app/api/inventory/factories/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/families",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/families",
+      "path": "src/app/api/inventory/families/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/lots",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/lots",
+      "path": "src/app/api/inventory/lots/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/product-masters",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/product-masters",
+      "path": "src/app/api/inventory/product-masters/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/products",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/products",
+      "path": "src/app/api/inventory/products/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/products/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/products/[id]",
+      "path": "src/app/api/inventory/products/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/recipes",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes",
+      "path": "src/app/api/inventory/recipes/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/recipes/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes/[id]",
+      "path": "src/app/api/inventory/recipes/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/recipes/[id]/build",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes/[id]/build",
+      "path": "src/app/api/inventory/recipes/[id]/build/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/serial-units",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/serial-units",
+      "path": "src/app/api/inventory/serial-units/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/stock",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/stock",
+      "path": "src/app/api/inventory/stock/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/stock-movements",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/stock-movements",
+      "path": "src/app/api/inventory/stock-movements/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/line-oa/accounts",
       "type": "route",
       "kind": "api",
@@ -18077,6 +18786,14 @@
       "kind": "page",
       "route": "/files",
       "path": "src/app/(pm)/files/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/inventory",
+      "type": "route",
+      "kind": "page",
+      "route": "/inventory",
+      "path": "src/app/(pm)/inventory/page.jsx",
       "status": "current"
     },
     {
@@ -19074,6 +19791,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr154-inventory-dashboard.spec.js",
+      "hash": "0e28d593",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
@@ -19480,6 +20204,27 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "type": "test",
+      "path": "tests/integration/fr154-inventory-catalog.test.js",
+      "hash": "385f1f37",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr155-inventory-stock.test.js",
+      "type": "test",
+      "path": "tests/integration/fr155-inventory-stock.test.js",
+      "hash": "05d49946",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "type": "test",
+      "path": "tests/integration/fr156-inventory-recipe.test.js",
+      "hash": "2d4ffb48",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -19693,7 +20438,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "eb92a4d3",
+      "hash": "46991e19",
       "status": "current"
     },
     {
@@ -20498,7 +21243,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "dcfc0b61",
+      "hash": "c26f44ff",
       "status": "current"
     },
     {
@@ -21038,6 +21783,20 @@
       "type": "test",
       "path": "tests/unit/integrations-page-claims.test.js",
       "hash": "35a52bc9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/inventory-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/inventory-domain.test.js",
+      "hash": "f361666a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/inventory-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/inventory-routes.test.js",
+      "hash": "e5e2ab37",
       "status": "current"
     },
     {
@@ -22031,7 +22790,7 @@
       "id": "test:tests/unit/service-role-grant-baseline.test.js",
       "type": "test",
       "path": "tests/unit/service-role-grant-baseline.test.js",
-      "hash": "9af50513",
+      "hash": "d86648c9",
       "status": "current"
     },
     {
@@ -22921,6 +23680,27 @@
     {
       "from": "code:src/app/(pm)/files/page.jsx",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -26615,6 +27395,377 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/inventory/bundles/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/bundles/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/bundles/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/bundles/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/categories/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/categories/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/categories/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/categories/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/factories/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/factories/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/factories/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/factories/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/families/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/families/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/families/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/families/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/lots/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/lots/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/lots/route.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/lots/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/product-masters/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/product-masters/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/product-masters/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/product-masters/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/[id]/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/[id]/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/products/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/serial-units/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/serial-units/route.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/serial-units/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock-movements/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock-movements/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock-movements/route.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock-movements/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock/route.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stock/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
       "to": "req:FR-149",
       "type": "implements",
@@ -29654,6 +30805,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -29662,6 +30820,13 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -33153,6 +34318,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/request-viewer.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -33835,6 +35007,160 @@
       "from": "code:src/modules/integration/application/sot-plan.js",
       "to": "req:SEC-002",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-authority.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-authority.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-authority.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-authority.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-155",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -35085,6 +36411,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -35304,6 +36651,27 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-156",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -39782,6 +41150,20 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-154-inventory-catalogue-identity",
+      "to": "doc:ONTOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-156-inventory-recipe-bill-of-materials",
+      "to": "doc:ONTOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -41021,6 +42403,34 @@
       "status": "current"
     },
     {
+      "from": "domain:inventory",
+      "to": "doc:FR-154-inventory-catalogue-identity",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:inventory",
+      "to": "doc:FR-155-inventory-stock-ledger",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:inventory",
+      "to": "doc:ONTOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:inventory",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "domain:line-oa-studio",
       "to": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "type": "references",
@@ -41525,6 +42935,27 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-154",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-155",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-156",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -41735,6 +43166,13 @@
       "source": "charter"
     },
     {
+      "from": "model:Factory",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:FileAsset",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -41786,6 +43224,13 @@
     {
       "from": "model:IntegrationProvider",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:InventoryCategory",
+      "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -41987,6 +43432,62 @@
       "source": "charter"
     },
     {
+      "from": "model:ProductBundle",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductBundleItem",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Product",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductFamily",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductLot",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductMaster",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductRecipe",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductRecipeLine",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Project",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -42050,6 +43551,13 @@
       "source": "charter"
     },
     {
+      "from": "model:SerialUnit",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Session",
       "to": "domain:identity",
       "type": "owned_by",
@@ -42066,6 +43574,13 @@
     {
       "from": "model:SotDecision",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:StockMovement",
+      "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -43416,6 +44931,27 @@
     },
     {
       "from": "req:FR-153",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-154",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-155",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-156",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -44892,6 +46428,104 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/inventory/bundles",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/categories",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/factories",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/families",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/lots",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/product-masters",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/products/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/products",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes/[id]/build",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/serial-units",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/stock-movements",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/stock",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/line-oa/accounts/[id]/jobs",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -45545,6 +47179,13 @@
     {
       "from": "route:page:/files",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/inventory",
+      "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -48498,6 +50139,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -49353,6 +51001,27 @@
     {
       "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -51039,6 +52708,27 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -51355,6 +53045,27 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -53664,6 +55375,27 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -54553,6 +56285,251 @@
     },
     {
       "from": "test:tests/integration/fr153-line-oa-liff-app.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/bundles/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/categories/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/factories/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/families/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/product-masters/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/products/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/app/api/inventory/products/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/modules/inventory/application/inventory-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "code:src/app/api/inventory/lots/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "code:src/app/api/inventory/serial-units/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "code:src/app/api/inventory/stock-movements/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "code:src/app/api/inventory/stock/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -55981,6 +57958,27 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -56395,6 +58393,27 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -60083,6 +62102,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -60105,6 +62131,13 @@
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -62252,6 +64285,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "code:src/modules/crm/customer-import-review-store.js",
       "type": "tests",
@@ -62617,6 +64657,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -62639,6 +64686,13 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -62674,6 +64728,20 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63317,6 +65385,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -63360,6 +65435,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -63598,6 +65680,27 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -65375,6 +67478,13 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -66919,6 +69029,307 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "code:src/modules/inventory/domain/inventory.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "code:src/modules/inventory/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/(pm)/inventory/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/bundles/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/categories/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/factories/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/families/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/lots/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/product-masters/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/products/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/products/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/serial-units/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/stock-movements/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/stock/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/knowledge-chunking.test.js",
