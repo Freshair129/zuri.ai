@@ -155,16 +155,32 @@ policy allow-flag, an `APPROVED` FR-071 ledger status, a `PASS` /
 `PASS_WITH_WARNINGS` verdict, a non-null snapshot, no failed or critical
 dimension — without itself publishing or mutating anything.
 
+**The receiver exists since ADR-067 (2026-09-07), and it is not in this
+lane.** `recordKnowledgeStageReport`, `recordKnowledgeStage17Decision`,
+`finishKnowledgeIngestionRun` and `readKnowledgeIngestionJob` live in the
+integration lane's `knowledge-ingestion-executor.js` — the write path belongs
+where the models are owned, the same rule SDD-069 followed — fronted by four
+routes under `/api/pipelines/knowledge/{executionRunId}` that authenticate the
+run's Tenant's FR-102 data-plane key (the owner's D2 decision). What this lane
+added for it stays pure: `knowledgeJobState` derives FR-109's §5 job state
+from ledger facts with no clock (AC-109.11 closed), and `knowledgeRunOutcome`
+derives what closing a run may write; neither opens a database. The envelopes
+in `published-snapshot-contract.js` gained `outcome`, `failure`, `startedAt`
+and `finishedAt`.
+
 Still open, and still not authorized by this charter:
 
 - No route or caller invokes `evaluateKnowledgePublication` in production; it
-  has unit-test callers only.
-- No external reporter writes the Stage 9–16 aggregate report this contract
-  validates — the nine stages ADR-050 assigns to GKS/GenesisBlockDB do not
-  report onto it yet.
+  has unit-test callers only. Publication is the external tiers' act; the
+  receiver records their decision rather than making one.
+- No external tier has yet written to the receiver — the nine stages ADR-050
+  assigns to GKS/GenesisBlockDB now have somewhere to report, and have not
+  (verified against their repositories on 2026-09-07: GKS's own ledger-reporting
+  ADR is accepted "before any code exists").
 - Atomic publication (the write that makes a snapshot the one a retrieval
   reads) is not built here or anywhere in this repository.
-- No route or model beyond this validation module is authorized by FR-110.
+- No model. The four reporter routes are authorized by ADR-067; nothing else
+  beyond the validation module is authorized by FR-110.
 
 ## Public contract
 

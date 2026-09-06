@@ -117,8 +117,11 @@ describe('OpenAPI document', () => {
       // and the atomic build (POST) — three paths, five operations.
       // FR-161 adds sales tasks: the collection (GET, POST) and the item
       // (GET, PATCH) — two paths, four operations.
-      pathCount: 181,
-      operationCount: 247,
+      // FR-110 (ADR-067) adds the knowledge ingestion reporter surface: the
+      // job read (GET) and the stage, gate and finish verbs (POST each) —
+      // four paths, four operations.
+      pathCount: 185,
+      operationCount: 251,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

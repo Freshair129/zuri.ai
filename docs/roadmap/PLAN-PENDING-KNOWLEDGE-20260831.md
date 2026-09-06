@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-08-31T03:43:30+07:00,ATHER,424f5fab525d20fdf1180fabee4c8cf9d16dd994"
-last_update: "2026-08-31T03:52:00+07:00,ATHER"
+last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -154,11 +154,11 @@ Stage17 `PASS` หรือ `PASS_WITH_WARNINGS` เป็นเพียงเ�
 
 | Label | AC / SC ที่ต้องพิสูจน์ | เจ้าของหลักฐาน | สถานะก่อนอนุมัติ |
 |---|---|---|---|
-| KNO-01 | FR-110 envelope strict; versions/snapshot/stats/scope ครบ; external stage payload ถูกปฏิเสธ เหลือ aggregate counters ตาม D4 | Knowledge + Integration | proposed; schema test `NOT_RUN` |
-| KNO-02 | Stage9–16 report ครบตาม owner, idempotent, conflict/quarantine ถูกต้อง | GKS + Genesis + Integration | `NOT_VERIFIED` |
+| KNO-01 | FR-110 envelope strict; versions/snapshot/stats/scope ครบ; external stage payload ถูกปฏิเสธ เหลือ aggregate counters ตาม D4 | Knowledge + Integration | delivered 2026-08-31; envelopes gain `outcome`/`failure`/`startedAt`/`finishedAt` 2026-09-07 (ADR-067 D2); unit tests green |
+| KNO-02 | Stage9–16 report ครบตาม owner, idempotent, conflict/quarantine ถูกต้อง | GKS + Genesis + Integration | **ครึ่ง zuri-ai delivered 2026-09-07 (ADR-067)** — `recordKnowledgeStageReport`/`recordKnowledgeStage17Decision` บน real DB + 4 routes: idempotent replay `UNCHANGED`, conflicting retry 409, Tier 1 stage id ปฏิเสธที่ envelope และ writer, cross-tenant key 403/404; ฝั่ง GKS/Genesis ส่งจริง `NOT_VERIFIED` |
 | KNO-03 | Stage17 5 dimensions; security critical blocks; only policy-approved verdict may publish | GKS + Genesis | `NOT_VERIFIED` |
 | KNO-03 / publication | atomic publish, immutable ID, correction creates new revision, failed gate has no visible publish | GKS/Genesis; Zuri observes | `NOT_VERIFIED` |
-| KNO-02 / finalization | run remains non-terminal until external evidence; final state and audit correlation consistent | Integration | current code intentionally partial |
+| KNO-02 / finalization | run remains non-terminal until external evidence; final state and audit correlation consistent | Integration | delivered 2026-09-07 (ADR-067 D3): `finishKnowledgeIngestionRun` derives terminal status from the ledger, refuses with the blocking list, audit actor `PIPELINE_REPORTER` under a key |
 | MSP-01 | API-010 returns opaque authorized set; API-009 uses returned ID; denied/malformed is fail-closed | MSP + Agent | local injected tests exist; this turn `NOT_RUN`; production `NOT_VERIFIED` |
 | MSP-02 | tenant/workspace/project/revocation/no-bypass trace is reproducible and sanitized | MSP + GKS + Edge | `NOT_VERIFIED` |
 | SOT-01 | submit/decide/export cursor is tenant-bound, replay-safe, audited, and apply receipt is reconciled | Integration + data-plane owner | local code present; live apply `NOT_VERIFIED` |
@@ -172,7 +172,7 @@ Exit is blocked until all required rows have owner, versioned evidence, sanitize
 | Decision | Recommendation for review | Why it remains open |
 |---|---|---|
 | D1: FR-110 evidence placement | Reuse existing ledger ตาม ADR-050 D4; ทบทวน strict DPL-KNOWLEDGE envelope และ snapshot read contract โดยปฏิเสธ Stage9–16 payload | ต้องกำหนดขนาด/validation/read semantics; ไม่ใช่การเลือก authority หรือ ledger ใหม่ |
-| D2: external reporter auth | Use a dedicated tenant/business-scoped service identity, separate from human operator sessions; exact mechanism requires security approval | Current pipeline writer requires operator viewer; no production reporter contract is verified |
+| D2: external reporter auth | **ตัดสินแล้ว 2026-09-07 โดยเจ้าของ (ADR-067 D1):** reuse FR-102 `SotDataPlaneKey` — ผูก Tenant, ไม่ใช่ operator; `recordPipelineEvent` ถือกฎเองว่า key เขียนได้เฉพาะ stage 9–17 / gate / finish บน knowledge run ของ Tenant ตัวเอง | ปิดฝั่ง zuri-ai; production reporter ยังไม่มีใครส่งจริง (GKS ledger-reporting ADR accepted "before any code exists") |
 | D3: Stage17 vocabulary | Keep Stage17 result in evidence; keep FR071 gate status and FR129 catalog approval vocabulary separate | Overloading `APPROVED` would conflate automated quality with human publication approval |
 | D4: publication implementation handoff | Authority ตัดสินแล้ว: GKS/Genesis performs atomic publication; Zuri records snapshot identity and decision only | ยังต้องระบุ executor implementation owner และ rollback/revision proof; ไม่เลือก authority ใหม่ |
 | D5: SoT batch semantics | Decide all-or-nothing versus explicit partial submit result before changing `submitSotDecisions` | Current service loops per item and can leave a partial batch |
@@ -193,6 +193,7 @@ Handoff packet ต้องส่งให้เจ้าของ MSP/GKS/Genes
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-07 | candidate | D2 decided by the owner (ADR-067); KNO-01 envelopes extended; the zuri-ai half of KNO-02 (receiver, Stage 17 writer, derived finalization, job read, routes) delivered and proven; KNO-03, MSP-*, SOT-01, EVD-01 unchanged | working-tree | Claude Fable 5.1 |
 | 0.1.0b | 2026-08-31 | candidate | Initial reviewable C-3/HIGH knowledge/MSP/GKS/SoT plan; R5 stop before implementation | 424f5fab525d20fdf1180fabee4c8cf9d16dd994 | ATHER |
 
 **Review gate:** โปรด review และอนุมัติข้อเสนอเอกสาร/decision points ก่อนสร้าง code หรือปรับ registry; หลัง approval ให้ parent เป็นผู้กำหนด implementation slice และ governance pass ถัดไป

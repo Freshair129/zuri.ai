@@ -9,6 +9,8 @@ import { knowledgeIngestionRunInput } from '@/modules/knowledge/ingestion-job'
 
 // @req FR-109 — an ingestion job is registered on the FR-071 ledger under
 // BR-021's ingestion identity, so re-ingesting an artifact is a no-op.
+// The §5 job-state projection over the same ledger is proven in
+// tests/unit/knowledge-ingestion-job-state.test.js.
 // @spec SDD-067, SDD-066, SDD-057, BR-021, SEC-021, ADR-050 D4
 // @tested tests/unit/knowledge-ingestion-job.test.js
 

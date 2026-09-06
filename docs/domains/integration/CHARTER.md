@@ -180,8 +180,24 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   `ingestKnowledgeDocument` (FR-109), the persistence half of knowledge
   ingestion: calls the knowledge domain's pure `runKnowledgeIngestionStages`
   (FR-118) and `knowledgeIngestionRunInput`, then writes their result onto
-  this ledger. The only file in this lane that imports from
-  `src/modules/knowledge/`, and it imports pure functions only.
+  this ledger. Since ADR-067 (2026-09-07) also the receiver for the nine
+  stages Tier 1 does not execute — `recordKnowledgeStageReport`,
+  `recordKnowledgeStage17Decision`, `finishKnowledgeIngestionRun` and
+  `readKnowledgeIngestionJob`, fronted by
+  `src/app/api/pipelines/knowledge/[executionRunId]/{,stages,gate,finish}` —
+  which validate FR-110's envelopes, resolve the step this ledger
+  materialised, and write through `recordPipelineEvent` like everything else.
+  The only file in this lane that imports from `src/modules/knowledge/`, and
+  it imports pure functions only (`knowledgeJobState`, `knowledgeRunOutcome`
+  included).
+- **The one non-operator writer this ledger admits is the FR-102 data-plane
+  key, and what it may write is held in `recordPipelineEvent`**
+  (`requireLedgerWriterForRun`, ADR-067 D1), not in the receiver that calls
+  it: step, gate and finish events onto a `DPL-KNOWLEDGE-INGEST-V1` run of the
+  key's own Tenant, naming an external stage id or the quality gate — never a
+  Tier 1 stage, never a record event, never a run creation or replay, never a
+  run of another definition. Audit rows under a key carry
+  `actorType: PIPELINE_REPORTER` and the key's id.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.

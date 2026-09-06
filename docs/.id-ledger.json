@@ -581,6 +581,7 @@
     "ADR-062",
     "ADR-063",
     "ADR-064",
+    "ADR-067",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7143,6 +7144,19 @@
       "history": [
         {
           "anchor": "sales tasks are a crm activity record not a project task",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-067": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
+      "status": "current",
+      "statement_digest": "9591e0dfa9879ce1c0e474f73f748492d8cd047245be54de6092b63bdd3a67a5",
+      "history": [
+        {
+          "anchor": "the knowledge ingestion reporter",
           "since": "2026-09-06",
           "reason": "declared"
         }
