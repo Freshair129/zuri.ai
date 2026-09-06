@@ -10070,7 +10070,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "07bae331",
+      "hash": "ef2fe1af",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10196,7 +10196,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "fa023565",
+      "hash": "e7d28eb1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10232,7 +10232,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "d09091cd",
+      "hash": "386f2c3d",
       "status": "current",
       "annotations": {
         "@req": [
