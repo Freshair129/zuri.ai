@@ -25,12 +25,7 @@ test.afterEach(async () => {
 // @spec ADR-060 D3, D11
 // @tested tests/e2e/fr151-line-oa-rich-menu-console.spec.js
 
-// Quarantined 2026-09-07: same reason as fr149-line-server-console.spec.js —
-// this test's first step creates an account through the same two-step
-// Connection→Account form that commit b6277061 collapsed into a single-step
-// form with entirely different field names, so it never reaches its own
-// rich-menu assertions. See that file's comment for the full history.
-test.skip('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
+test('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
@@ -43,14 +38,8 @@ test.skip('authoring a rich menu persists it and freezing waits on the image the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
   await page.goto('/line-oa?tab=edge-connection')
-  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
-  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
-  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
-  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
-  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
-  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
-  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')
@@ -99,5 +88,5 @@ test.skip('authoring a rich menu persists it and freezing waits on the image the
   for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
     await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
   }
-  await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
+  await expect(card.getByText(/ส่งขึ้น LINE: ต้อง Freeze ฉบับร่างก่อน/).first()).toBeVisible()
 })

@@ -17,19 +17,7 @@ test.afterEach(async () => {
 // @spec ADR-061, SEC-016
 // @tested tests/e2e/fr149-line-server-console.spec.js
 
-// Quarantined 2026-09-07: the LINE OA connection form is under active,
-// same-day redesign upstream — three "feat(line-oa)" commits landed within
-// about an hour (8696b022 unify into Studio tabs, 2a1b6a81 move sub-nav into
-// a sidebar, b6277061 collapse the two-step Connection→Account form into one
-// single-step form with entirely different field names: `displayName`,
-// `basicId`, `channelId`, `channelSecret`, `channelAccessToken` replacing
-// `name`/`destination`/`secretRef`/`connectionId`/`code`). This test's
-// locators (`ชื่อ Connection`, `Bot user ID / destination`, `ชื่ออ้างอิง
-// Secret`, two-step submit) describe a form that no longer exists as of
-// b6277061. Given the pace of change, rewriting this against today's shape
-// would likely be invalidated by the next commit rather than fixed for good
-// — rewrite once the redesign stabilizes instead of chasing each revision.
-test.skip('LINE account onboarding persists and activation requires an explicit handoff', async ({ page }) => {
+test('LINE account onboarding persists and activation requires an explicit handoff', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
@@ -41,18 +29,12 @@ test.skip('LINE account onboarding persists and activation requires an explicit 
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
-  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
-  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
-  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
-  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
-  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
-  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
-  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
   const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
-  await expect(panel.getByRole('button', { name: 'เปิด Server transport', exact: true })).toBeDisabled()
+  await expect(panel.getByRole('button', { name: 'ปิด Server transport', exact: true })).toBeVisible()
   await panel.getByLabel('ประมวลผลคำตอบ', { exact: true }).selectOption('EDGE')
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
   await panel.getByRole('button', { name: 'บันทึกการประมวลผล', exact: true }).click()
