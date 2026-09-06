@@ -6,9 +6,11 @@ import React, { useState } from "react";
 import LineStudioDashboard from "./LineStudioDashboard";
 import LineStudioProjects from "./LineStudioProjects";
 import LineStudioDesignHub from "./LineStudioDesignHub";
+import LineStudioLiveCrm from "./LineStudioLiveCrm";
+import LineStudioEdgeConnection from "./LineStudioEdgeConnection";
 import LineStudioTemplates from "./LineStudioTemplates";
 import LineStudioTeam from "./LineStudioTeam";
-import { MOCK_STUDIO_PROJECTS } from "./mockStudioData";
+import { useScope } from "@/context/ScopeContext";
 import {
   LayoutDashboard,
   Layers,
@@ -21,19 +23,27 @@ import {
   Sparkles,
   Bot,
   ChevronRight,
-  SlidersHorizontal
+  SlidersHorizontal,
+  MessageSquare,
+  Cpu,
+  Server
 } from "lucide-react";
 
-export default function LineStudioShell() {
-  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' | 'projects' | 'design-studio' | 'templates' | 'team' | 'settings'
-  const [selectedProject, setSelectedProject] = useState(MOCK_STUDIO_PROJECTS[1]); // Default to Whocalled
+export default function LineStudioShell({ initialTab = "dashboard" }) {
+  const scope = useScope();
+  const business = scope?.shell?.activeBusiness;
+
+  const [activeTab, setActiveTab] = useState(initialTab); // 'dashboard' | 'projects' | 'design-studio' | 'live-crm' | 'edge-connection' | 'templates' | 'team' | 'settings'
+  const [selectedProject, setSelectedProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const navTabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "projects", label: "โปรเจค", icon: Layers, badge: "14" },
+    { id: "projects", label: "โปรเจค & บัญชี", icon: Layers },
     { id: "design-studio", label: "Design Studio", icon: Bot, isProjectScoped: true },
-    { id: "templates", label: "Templates", icon: Bookmark, badge: "5" },
+    { id: "live-crm", label: "Live CRM & แชทสด", icon: MessageSquare },
+    { id: "edge-connection", label: "Edge & การเชื่อมต่อ", icon: Cpu },
+    { id: "templates", label: "Templates", icon: Bookmark },
     { id: "team", label: "ทีม", icon: Users },
     { id: "settings", label: "Settings", icon: Settings }
   ];
@@ -135,6 +145,14 @@ export default function LineStudioShell() {
             project={selectedProject}
             onBackToProjects={() => setActiveTab("projects")}
           />
+        )}
+
+        {activeTab === "live-crm" && (
+          <LineStudioLiveCrm />
+        )}
+
+        {activeTab === "edge-connection" && (
+          <LineStudioEdgeConnection />
         )}
 
         {activeTab === "templates" && (

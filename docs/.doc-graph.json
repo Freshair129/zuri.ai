@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2152,
-    "total_edges": 8475,
+    "total_nodes": 2155,
+    "total_edges": 8501,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 250,
       "model": 110,
       "requirement": 320,
-      "test": 507,
-      "code_file": 626
+      "test": 508,
+      "code_file": 628
     },
     "coverage": {
       "requirements": 320,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (150/150)",
       "rules_anchored_in_code": "96% (131/136)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 626,
+      "annotated_code_files": 628,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -704,14 +704,19 @@
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
-      "hash": "f0ac054f",
+      "hash": "1f6d4f4a",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-149"
+          "FR-146",
+          "FR-149",
+          "FR-151",
+          "FR-152",
+          "FR-153"
         ],
         "@spec": [
-          "SEC-001"
+          "SEC-001",
+          "SDD-060"
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
@@ -9454,7 +9459,7 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "9a4e59da",
+      "hash": "6cf02ed5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9473,7 +9478,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "60180308",
+      "hash": "07bae331",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9502,6 +9507,26 @@
         "@spec": [
           "SDD-060",
           "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "hash": "7b737ecd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SDD-060"
         ]
       }
     },
@@ -9543,7 +9568,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
-      "hash": "a94cee03",
+      "hash": "55b6a93a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9557,15 +9582,35 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "hash": "080b3099",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-093",
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-050",
+          "SDD-060"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "477807a7",
+      "hash": "fa023565",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
-          "FR-151"
+          "FR-151",
+          "FR-003"
         ],
         "@spec": [
           "SDD-060",
@@ -9577,7 +9622,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
-      "hash": "5ff8fbeb",
+      "hash": "1064366a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9595,7 +9640,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "196bb4c7",
+      "hash": "b34d39f4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9614,7 +9659,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
-      "hash": "d4cb960f",
+      "hash": "2dac055e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9649,7 +9694,7 @@
       "id": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
-      "hash": "42fc779c",
+      "hash": "1c94b388",
       "status": "current",
       "annotations": {
         "@req": [
@@ -21829,14 +21874,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "3abd6068",
+      "hash": "2ee571d7",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "7771c50f",
+      "hash": "8a4f5941",
       "status": "current"
     },
     {
@@ -25018,6 +25063,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/service-role-grant-baseline.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
+      "hash": "d86648c9",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/shell-mode.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/shell-mode.test.js",
@@ -26134,8 +26186,43 @@
     },
     {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
       "to": "req:FR-149",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -39090,6 +39177,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -39170,6 +39306,55 @@
       "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "to": "req:SDD-061",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:FR-003",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -56325,10 +56510,45 @@
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
@@ -83150,6 +83370,20 @@
     {
       "from": "test:tests/unit/server-line-worker-routes.test.js",
       "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
