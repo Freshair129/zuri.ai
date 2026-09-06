@@ -1,13 +1,13 @@
--- @req FR-160 — Supplier and PurchaseOrder (with PurchaseOrderLine): the buy
+-- @req FR-164 — Supplier and PurchaseOrder (with PurchaseOrderLine): the buy
 -- side of a Business — an approved supplier (code unique per Tenant, archived
 -- never deleted) and an order against it whose lines may name an Inventory SKU
 -- at the agreed unit cost in integer satang. Total, received and outstanding
 -- quantities are computed on read from the lines and the receipt lines.
--- @req FR-161 — GoodsReceipt and GoodsReceiptLine: what arrived against a SENT
+-- @req FR-165 — GoodsReceipt and GoodsReceiptLine: what arrived against a SENT
 -- order; a line naming a counted SKU posts RECEIPT rows into the Inventory
 -- ledger in the same transaction (reference PO:<code>/GRN:<code>). Never edited.
 -- @spec ADR-066; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
--- @tested tests/integration/fr160-procurement.test.js, tests/integration/fr161-goods-receipt.test.js
+-- @tested tests/integration/fr164-procurement.test.js, tests/integration/fr165-goods-receipt.test.js
 --
 -- Additive only: five new tables, their indexes, foreign keys, forced RLS and
 -- the same private-application-table grant shape every table in this schema
@@ -128,10 +128,10 @@ BEGIN
   END LOOP;
 END $$;
 
-COMMENT ON TABLE "Supplier" IS 'FR-160 — an approved supplier of a Business (procurement); code unique per Tenant is an attribute (BR-002); archived, never deleted.';
-COMMENT ON TABLE "PurchaseOrder" IS 'FR-160 — a purchase order against a Supplier (PO-YYYYMMDD-NNN); DRAFT → SENT → RECEIVED, CLOSED (short-close), CANCELLED; total and received quantities computed on read (ADR-066).';
-COMMENT ON TABLE "PurchaseOrderLine" IS 'FR-160 — one line of a purchase order; may name an Inventory SKU; qty × unitCostSatang.';
-COMMENT ON TABLE "GoodsReceipt" IS 'FR-161 — a goods receipt (GRN-YYYYMMDD-NNN) posted against a SENT purchase order; the stock effect is the Inventory ledger rows with reference PO:<code>/GRN:<code>; never edited.';
-COMMENT ON TABLE "GoodsReceiptLine" IS 'FR-161 — one received line against one purchase-order line: qty, optional lot code and expiry, optional serials as a JSON array.';
+COMMENT ON TABLE "Supplier" IS 'FR-164 — an approved supplier of a Business (procurement); code unique per Tenant is an attribute (BR-002); archived, never deleted.';
+COMMENT ON TABLE "PurchaseOrder" IS 'FR-164 — a purchase order against a Supplier (PO-YYYYMMDD-NNN); DRAFT → SENT → RECEIVED, CLOSED (short-close), CANCELLED; total and received quantities computed on read (ADR-066).';
+COMMENT ON TABLE "PurchaseOrderLine" IS 'FR-164 — one line of a purchase order; may name an Inventory SKU; qty × unitCostSatang.';
+COMMENT ON TABLE "GoodsReceipt" IS 'FR-165 — a goods receipt (GRN-YYYYMMDD-NNN) posted against a SENT purchase order; the stock effect is the Inventory ledger rows with reference PO:<code>/GRN:<code>; never edited.';
+COMMENT ON TABLE "GoodsReceiptLine" IS 'FR-165 — one received line against one purchase-order line: qty, optional lot code and expiry, optional serials as a JSON array.';
 
 COMMIT;

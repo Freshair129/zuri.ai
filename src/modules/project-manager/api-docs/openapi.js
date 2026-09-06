@@ -54,16 +54,16 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],
-  // @req FR-157 — sales tasks: the collection (list + create) and the item
+  // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
-  // @req FR-158, FR-159 — commerce: the order collection and item (cancel is
+  // @req FR-162, FR-163 — commerce: the order collection and item (cancel is
   // an action, never a DELETE), the order's payments (list + record), the
   // payment item (read + verify/reject action) and the revenue read model.
   ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],
   ['/api/commerce/orders/{id}/payments', ['GET', 'POST']], ['/api/commerce/payments/{id}', ['GET', 'PATCH']],
   ['/api/commerce/revenue', ['GET']],
-  // @req FR-160, FR-161 — procurement: suppliers (list + create; archive is
+  // @req FR-164, FR-165 — procurement: suppliers (list + create; archive is
   // an action, never a DELETE), purchase orders (list + create, read +
   // versioned action) and the goods receipts of one order (list + post —
   // never edited, so no PATCH).

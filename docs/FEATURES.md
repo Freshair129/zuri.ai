@@ -52,9 +52,9 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 | FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
-| FEAT-021 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-157 | building |
-| FEAT-022 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-158, FR-159 | building |
-| FEAT-023 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-160, FR-161 | building |
+| FEAT-022 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-161 | building |
+| FEAT-023 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-162, FR-163 | building |
+| FEAT-024 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-164, FR-165 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -80,11 +80,11 @@ Version diff 1.24.0b → 1.25.0b (2026-09-06): FEAT-020 is declared and building
 
 Version diff 1.25.0b → 1.26.0b (2026-09-06): FEAT-020 gains FR-156, the recipe / bill of materials at a batch size — the legacy product's "Culinary" recipes-per-class-size relabelled as the general BOM they are (one recipe per output SKU and batch size, fixed lines that do not scale, explosion and shortages against the ledger, an atomic build that issues components FEFO and receives the output). FR-155 gains FEFO consumption. The domain's display label is Warehouse. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion, production application of the migration.
 
-Version diff 1.26.0b → 1.27.0b (2026-09-06): FEAT-021 is declared and building — Sales Tasks, the legacy ERD's "Tasks" adapted on the owner's instruction into a CRM sales activity record (ADR-064) bundling FR-157: a Business-scoped follow-up owed to a customer with a generated `TSK-YYYYMMDD-NNN` code, links to the CRM Customer and Conversation through the tenant, an assignee with a covering Membership, a status machine and a due state computed on read. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync, production application of the migration.
+Version diff 1.26.0b → 1.27.0b (2026-09-06): FEAT-022 is declared and building — Sales Tasks, the legacy ERD's "Tasks" adapted on the owner's instruction into a CRM sales activity record (ADR-064) bundling FR-161: a Business-scoped follow-up owed to a customer with a generated `TSK-YYYYMMDD-NNN` code, links to the CRM Customer and Conversation through the tenant, an assignee with a covering Membership, a status machine and a due state computed on read. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync, production application of the migration.
 
-Version diff 1.27.0b → 1.28.0b (2026-09-07): FEAT-022 is declared and building — Commerce's first slice under ADR-065, bundling FR-158 (sales orders with lines, exact money, an origin that a Conversation makes CHAT, fulfilment through the Inventory contract) and FR-159 (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day). The `commerce` slot leaves `soon`. Not claimed: the offer / price catalogue, slip OCR, invoices and receipts, store credit, production application of the migration.
+Version diff 1.27.0b → 1.28.0b (2026-09-07): FEAT-023 is declared and building — Commerce's first slice under ADR-065, bundling FR-162 (sales orders with lines, exact money, an origin that a Conversation makes CHAT, fulfilment through the Inventory contract) and FR-163 (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day). The `commerce` slot leaves `soon`. Not claimed: the offer / price catalogue, slip OCR, invoices and receipts, store credit, production application of the migration.
 
-Version diff 1.28.0b → 1.29.0b (2026-09-07): FEAT-023 is declared and building — the Procurement lane under ADR-066, the "Procurement" module of the owner's SCM row (`docs/ERP-MODULE-MAP.md`), bundling FR-160 (suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, everything about quantities and money computed on read) and FR-161 (goods receipts posted line by line against a sent order, counted lines landing in the Inventory ledger with lot, expiry and serials, the order received by the receipt that completes it). The `procurement` slot is live. Not claimed: purchase requests and approvals, RFQs, returns and credit notes, supplier invoices, landed cost, production application of the migration.
+Version diff 1.28.0b → 1.29.0b (2026-09-07): FEAT-024 is declared and building — the Procurement lane under ADR-066, the "Procurement" module of the owner's SCM row (`docs/ERP-MODULE-MAP.md`), bundling FR-164 (suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, everything about quantities and money computed on read) and FR-165 (goods receipts posted line by line against a sent order, counted lines landing in the Inventory ledger with lot, expiry and serials, the order received by the receipt that completes it). The `procurement` slot is live. Not claimed: purchase requests and approvals, RFQs, returns and credit notes, supplier invoices, landed cost, production application of the migration.
 
 ## Readiness Dashboard presentation metadata
 
@@ -692,17 +692,17 @@ writing one sentence here, or the governance chain stops.
     "useCase": "ธุรกิจตั้งหมวดหมู่ สินค้าหลัก และ SKU ของตนเอง เลือกว่า SKU ไหนนับสต๊อก (ตามจำนวน / Lot / Serial) หรือไม่นับ (บริการ สั่งผลิต) รับเข้า จ่ายออก ปรับยอดลง ledger แล้วเห็นยอดคงเหลือและ SKU ที่ต่ำกว่า safety stock จากหน้า /inventory โดยตัวเลขคำนวณจาก ledger ทุกครั้ง"
   },
   {
-    "id": "FEAT-021",
+    "id": "FEAT-022",
     "primaryDomain": "crm",
     "useCase": "ทีมขายบันทึกงานติดตามลูกค้า (โทร ส่ง LINE นัดพบ เดโม ใบเสนอราคา) ผูกกับลูกค้าและบทสนทนาใน CRM มอบหมายให้สมาชิก เห็นว่างานไหนวันนี้หรือเกินกำหนดจากหน้า /customer/sales-tasks แล้วปิดงานพร้อมผลลัพธ์ โดยไม่ปนกับงานของ Development"
   },
   {
-    "id": "FEAT-022",
+    "id": "FEAT-023",
     "primaryDomain": "commerce",
     "useCase": "ทีมขายสร้างออเดอร์จากหน้า /commerce/orders (รายการที่ผูก SKU ในคลัง ราคาตอนขาย ผูกบทสนทนาแล้วรู้ว่ามาจากแชท) บันทึกสลิปที่ลูกค้าโอน ให้ผู้ตรวจยืนยัน แล้วเห็นยอดชำระ ยอดคงค้าง และรายได้ที่ตรวจสอบแล้วแยกตามที่มาบนหน้า /commerce โดยตัวเลขทั้งหมดคำนวณจากรายการและการชำระที่ตรวจสอบแล้วทุกครั้ง ปิดออเดอร์แล้วตัดสต๊อกผ่านคลังสินค้าได้"
   },
   {
-    "id": "FEAT-023",
+    "id": "FEAT-024",
     "primaryDomain": "procurement",
     "useCase": "ฝ่ายจัดซื้อสร้างผู้ขายจากหน้า /procurement ออกใบสั่งซื้อจากหน้า /procurement/purchase-orders (รายการที่ผูก SKU ในคลัง ต้นทุนที่ตกลง) ส่งให้ผู้ขาย แล้วบันทึกรับของทีละรายการเมื่อของมาถึง (Lot วันหมดอายุ Serial) โดยของที่นับสต๊อกเข้า ledger ของคลังทันทีและใบสั่งซื้อรับครบเองเมื่อทุกรายการมาครบ ยอดค้างรับและมูลค่าคำนวณจากใบรับของทุกครั้ง"
   }

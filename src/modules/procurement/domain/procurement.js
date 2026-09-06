@@ -2,12 +2,12 @@ import { z } from 'zod'
 import { PURCHASE_ORDER_ACTIONS, SUPPLIER_ACTIONS } from '@/lib/validation/enums'
 import { zInventoryCode } from '@/modules/inventory/domain/inventory'
 
-// @req FR-160 — the pure vocabulary and calculators of the buy side: the
+// @req FR-164 — the pure vocabulary and calculators of the buy side: the
 //   supplier contract, the purchase-order line and its cost (integer satang —
 //   the same money rule as Commerce, ADR-065 D2), the order's total, the
 //   status machine (DRAFT → SENT → RECEIVED; SENT → CLOSED as a short-close;
 //   DRAFT | SENT → CANCELLED), and the human codes `PO-YYYYMMDD-NNN`.
-// @req FR-161 — the receipt side: what each order line has received and what
+// @req FR-165 — the receipt side: what each order line has received and what
 //   is still outstanding (derived from the receipt lines, never a column),
 //   the order's `receiptState` NONE / PARTIAL / COMPLETE, the pure plan of a
 //   receipt against an order (a line must name an order line, may not exceed

@@ -12,12 +12,12 @@ attributes:
 
 # ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
 
-**Status:** Accepted. Implemented by FR-160 and FR-161 (FEAT-023) in the same change.
+**Status:** Accepted. Implemented by FR-164 and FR-165 (FEAT-024) in the same change.
 **Date:** 2026-09-07
 **Decided by:** Boss (instruction of 2026-09-07: "แก้เอกสารที่เกี่ยวข้อง แล้วทำ Procurement ต่อเลย", after naming the SCM row "Warehouse, Inventory, Procurement, Order Management")
 **Relates to:** [ADR-054](ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (D3, D4, D5),
 [ADR-065](ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (D2, D4), [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7),
-FR-154, FR-155, FR-160, FR-161, FEAT-020, FEAT-023, BR-001, BR-002, FR-061, FR-072, FR-076,
+FR-154, FR-155, FR-164, FR-165, FEAT-020, FEAT-024, BR-001, BR-002, FR-061, FR-072, FR-076,
 `docs/domains/procurement/CHARTER.md`, `docs/ERP-MODULE-MAP.md`,
 `docs/architecture/database-erd/full-schema.md` §20–§21.
 
@@ -25,7 +25,7 @@ FR-154, FR-155, FR-160, FR-161, FEAT-020, FEAT-023, BR-001, BR-002, FR-061, FR-0
 
 The owner's ERP taxonomy row "Supply Chain Management (SCM) — Warehouse, Inventory, Procurement,
 Order Management" named four modules. Three had a home: Inventory (FEAT-020) holds the goods and
-the ledger, Commerce (FEAT-022) holds the sell-side order, and Warehouse is Inventory's display
+the ledger, Commerce (FEAT-023) holds the sell-side order, and Warehouse is Inventory's display
 label with locations still deferred. Procurement had none. Four documents said where it would
 live and disagreed: the Market Intelligence charter attributed "approved Vendor and Procurement
 execution" to Commerce, the Asset Management charter called it a "future Procurement authority",

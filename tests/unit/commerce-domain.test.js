@@ -1,6 +1,6 @@
-// @req FR-158 — the pure rules of a sales order: exact money in satang, the
+// @req FR-162 — the pure rules of a sales order: exact money in satang, the
 //   line contract, totals, the status machine, the origin of a sale, the code.
-// @req FR-159 — the payment side: what verified money adds up to, the derived
+// @req FR-163 — the payment side: what verified money adds up to, the derived
 //   payment state, the payment status machine, and revenue counted from
 //   verified payments only by origin and day.
 // @spec ADR-065; BR-002
@@ -26,7 +26,7 @@ import {
   zRecordPayment,
 } from '@/modules/commerce/domain/commerce'
 
-describe('FR-158 money and order contracts', () => {
+describe('FR-162 money and order contracts', () => {
   it('baht with two decimals round-trips through integer satang exactly', () => {
     expect(toSatang(1490)).toBe(149000)
     expect(toSatang(0.1 + 0.2)).toBe(30)
@@ -86,7 +86,7 @@ describe('FR-158 money and order contracts', () => {
   })
 })
 
-describe('FR-159 payments and revenue', () => {
+describe('FR-163 payments and revenue', () => {
   const payments = [
     { kind: 'PAYMENT', status: 'VERIFIED', amountSatang: 100000 },
     { kind: 'PAYMENT', status: 'PENDING', amountSatang: 50000 },

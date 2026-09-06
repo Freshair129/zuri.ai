@@ -21,7 +21,7 @@ const { test } = require('@playwright/test')
 // sub-domain fails there instead of becoming the next flake.
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
-  // @req FR-158 — Commerce has pages now: the dashboard and the orders console.
+  // @req FR-162 — Commerce has pages now: the dashboard and the orders console.
   '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
   '/market',
   '/growth', '/growth/campaigns',
@@ -36,9 +36,9 @@ const ROUTES = [
   '/line-oa/rich-menus',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
-  // @req FR-157 — the CRM sales tasks page.
+  // @req FR-161 — the CRM sales tasks page.
   '/customer/sales-tasks',
-  // @req FR-160 — the Procurement dashboard and the purchase-orders console.
+  // @req FR-164 — the Procurement dashboard and the purchase-orders console.
   '/procurement', '/procurement/purchase-orders',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',

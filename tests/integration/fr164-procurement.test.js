@@ -1,10 +1,10 @@
-// @req FR-160 — suppliers and purchase orders against a real database: the
+// @req FR-164 — suppliers and purchase orders against a real database: the
 //   supplier with its code unique per Tenant, archived never deleted; the
 //   order with a generated code, lines that name same-Business SKUs at the
 //   agreed cost, totals computed on read, the authority ladder, UPDATE while
 //   DRAFT, SEND, CLOSE, CANCEL, version conflicts and audit.
 // @spec ADR-066; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr160-procurement.test.js
+// @tested tests/integration/fr164-procurement.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -18,7 +18,7 @@ const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'procurement', 'inventory']
 let tenantA, busA, busA2, busB, owner, buyer, member, noDomain, ownerB, box, service, foreignProduct, supplier, otherSupplier, foreignSupplier
 
-describe('FR-160 Supplier and PurchaseOrder', () => {
+describe('FR-164 Supplier and PurchaseOrder', () => {
   beforeAll(async () => {
     const pfA = await createPortfolio({ name: 'Buy Group A', code: 'PF-PO-A' })
     tenantA = await createTenant({ portfolioId: pfA.id, name: 'Buy Tenant A', code: 'TNT-PO-A' })
@@ -48,7 +48,7 @@ describe('FR-160 Supplier and PurchaseOrder', () => {
   const lines = () => [{ productId: box.id, qty: 10, unitCost: 12.5 }, { productId: service.id, qty: 2, unitCost: 30 }, { description: 'ค่าขนส่ง', qty: 1, unitCost: 100 }]
   const create = (over = {}, viewer = owner) => createPurchaseOrder({ businessId: busA.id, supplierId: supplier.id, lines: lines(), ...over }, { viewer, now: NOW })
 
-  it('AC-160.1 — a supplier is created with a code unique per Tenant, updated, archived and never deleted', async () => {
+  it('AC-164.1 — a supplier is created with a code unique per Tenant, updated, archived and never deleted', async () => {
     supplier = await createSupplier({ businessId: busA.id, code: 'SUP-001', name: 'บริษัท กล่องดี จำกัด', contactName: 'คุณเอ', phone: '02-000-0000', paymentTerms: 'เครดิต 30 วัน', leadTimeDays: 7 }, { viewer: buyer })
     expect(supplier).toMatchObject({ code: 'SUP-001', businessId: busA.id, tenantId: tenantA.id, status: 'ACTIVE', leadTimeDays: 7, purchaseOrders: 0, version: 1 })
     await expect(createSupplier({ businessId: busA.id, code: 'SUP-001', name: 'ซ้ำ' }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'SUPPLIER_CODE_TAKEN' })
@@ -69,7 +69,7 @@ describe('FR-160 Supplier and PurchaseOrder', () => {
     expect(await prisma.supplier.findUnique({ where: { id: spare.id }, select: { id: true } })).toBeTruthy()
   })
 
-  it('AC-160.2 — the authority ladder: the procurement domain gate, then OWNER or PROCUREMENT_BUYER writes; members read', async () => {
+  it('AC-164.2 — the authority ladder: the procurement domain gate, then OWNER or PROCUREMENT_BUYER writes; members read', async () => {
     await expect(getSupplier(supplier.id, { viewer: member })).resolves.toMatchObject({ id: supplier.id })
     await expect(createSupplier({ businessId: busA.id, code: 'SUP-M', name: 'x' }, { viewer: member })).rejects.toMatchObject({ status: 404, message: 'Business not found' })
     await expect(listSuppliers({ businessId: busA.id }, { viewer: noDomain })).rejects.toMatchObject({ status: 404 })
@@ -81,7 +81,7 @@ describe('FR-160 Supplier and PurchaseOrder', () => {
     await expect(getPurchaseOrder('no-such-order', { viewer: owner })).rejects.toMatchObject({ status: 404 })
   })
 
-  it('AC-160.3 — creates with a generated PO code, exact totals from the lines, the product lending its name; every reference stays inside the Business', async () => {
+  it('AC-164.3 — creates with a generated PO code, exact totals from the lines, the product lending its name; every reference stays inside the Business', async () => {
     const order = await create({ notes: 'ส่งภายในศุกร์', expectedAt: '2026-09-11T00:00:00Z' }, buyer)
     expect(order).toMatchObject({ code: 'PO-20260906-001', businessId: busA.id, tenantId: tenantA.id, status: 'DRAFT', currency: 'THB', receiptState: 'NONE', receiptCount: 0, version: 1, createdByPersonId: 'per-buyer' })
     expect(order.supplier).toMatchObject({ code: 'SUP-001', name: 'บริษัท กล่องดี จำกัด' })
@@ -102,7 +102,7 @@ describe('FR-160 Supplier and PurchaseOrder', () => {
     await expect(create({ supplierId: archived.id })).rejects.toMatchObject({ status: 409, message: 'SUPPLIER_ARCHIVED' })
   })
 
-  it('AC-160.4 — UPDATE replaces lines and supplier only while DRAFT; SEND locks them; CLOSE short-closes; a stale version conflicts', async () => {
+  it('AC-164.4 — UPDATE replaces lines and supplier only while DRAFT; SEND locks them; CLOSE short-closes; a stale version conflicts', async () => {
     const order = await create()
     const second = await createSupplier({ businessId: busA.id, code: 'SUP-002', name: 'ผู้ขายสอง' }, { viewer: owner })
     const updated = await applyPurchaseOrderAction(order.id, { action: 'UPDATE', version: 1, fields: { supplierId: second.id, lines: [{ description: 'ริบบิ้น', qty: 4, unitCost: 5 }], notes: 'แก้ไข' } }, { viewer: buyer, now: NOW })
@@ -127,7 +127,7 @@ describe('FR-160 Supplier and PurchaseOrder', () => {
     expect(JSON.parse(audit.payloadJson)).toMatchObject({ reason: 'ผู้ขายส่งไม่ได้', receiptState: 'NONE', version: 5 })
   })
 
-  it('AC-160.5 — CANCEL keeps the row; the list hides closed orders unless asked and summarises what is waited for', async () => {
+  it('AC-164.5 — CANCEL keeps the row; the list hides closed orders unless asked and summarises what is waited for', async () => {
     const business = await createBusiness({ tenantId: tenantA.id, name: 'ร้านสรุป', code: 'BUS-PO-SUM' })
     const boss = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: DOMAINS })
     const vendor = await createSupplier({ businessId: business.id, code: 'SUP-SUM', name: 'ผู้ขายสรุป' }, { viewer: boss })

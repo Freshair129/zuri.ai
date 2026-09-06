@@ -14,7 +14,7 @@ import {
 import { loadBusiness, notFound } from './commerce-authority'
 import { ORDER_SELECT, orderDto } from './sales-order-service'
 
-// @req FR-159 — the only writer of Payment: a rep records a payment or a
+// @req FR-163 — the only writer of Payment: a rep records a payment or a
 //   refund against an order (PENDING, with the method, the amount, an optional
 //   bank reference that is an attribute unique per Tenant — the legacy "prevents
 //   duplicate" rule kept, the key refused (BR-002) — and an optional slip that
@@ -25,7 +25,7 @@ import { ORDER_SELECT, orderDto } from './sales-order-service'
 //   payment cannot be recorded on a CANCELLED order; a refund can. Every write
 //   is one transaction with one audit row; nothing is deleted.
 // @spec ADR-065; ADR-054 D4; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr159-payment.test.js
+// @tested tests/integration/fr163-payment.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

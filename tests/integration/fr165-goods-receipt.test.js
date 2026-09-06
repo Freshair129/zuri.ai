@@ -1,4 +1,4 @@
-// @req FR-161 — goods receipts against a real database: posted only against a
+// @req FR-165 — goods receipts against a real database: posted only against a
 //   SENT order, line by line and never beyond what is outstanding; a counted
 //   SKU's line lands in the Inventory ledger with the PO/GRN reference (lots
 //   with expiry, serial units) and needs Inventory's authority on top of the
@@ -6,7 +6,7 @@
 //   received / outstanding quantities and receipt state follow on read; the
 //   receipt that completes every line makes the order RECEIVED; audit.
 // @spec ADR-066; ADR-054 D3/D4; BR-002; SEC-001; FR-072; FR-155
-// @tested tests/integration/fr161-goods-receipt.test.js
+// @tested tests/integration/fr165-goods-receipt.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -25,7 +25,7 @@ let business, owner, buyer, receiver, member, noDomain, supplier, box, lotted, s
 const b = () => business.id
 const onHand = async (code) => (await stockSummary({ businessId: b(), viewer: owner })).products.find((p) => p.code === code).onHand
 
-describe('FR-161 GoodsReceipt', () => {
+describe('FR-165 GoodsReceipt', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ name: 'GRN Group', code: 'PF-GRN' })
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'GRN Tenant', code: 'TNT-GRN' })
@@ -50,7 +50,7 @@ describe('FR-161 GoodsReceipt', () => {
   }
   const lineOf = (order, description) => order.lines.find((l) => l.description === description)
 
-  it('AC-161.1 — a receipt posts counted lines into the Inventory ledger with the PO/GRN reference, and needs Inventory authority for that half', async () => {
+  it('AC-165.1 — a receipt posts counted lines into the Inventory ledger with the PO/GRN reference, and needs Inventory authority for that half', async () => {
     const order = await sentOrder([{ productId: box.id, qty: 5, unitCost: 20 }, { productId: service.id, qty: 2, unitCost: 30 }, { description: 'ค่าขนส่ง', qty: 1, unitCost: 100 }])
     const boxLine = lineOf(order, 'Gift box')
     await expect(postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: boxLine.id, qty: 3 }] }, { viewer: buyer, now: NOW })).rejects.toMatchObject({ status: 403, message: 'PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY' })
@@ -78,7 +78,7 @@ describe('FR-161 GoodsReceipt', () => {
     await expect(applyPurchaseOrderAction(order.id, { action: 'CANCEL', version: 4 }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'PURCHASE_ORDER_HAS_RECEIPTS' })
   })
 
-  it('AC-161.2 — the refusals: not SENT, unknown line, over-receipt with the per-line list, lot data on an uncounted line, the ladder', async () => {
+  it('AC-165.2 — the refusals: not SENT, unknown line, over-receipt with the per-line list, lot data on an uncounted line, the ladder', async () => {
     const draft = await createPurchaseOrder({ businessId: b(), supplierId: supplier.id, lines: [{ productId: box.id, qty: 1, unitCost: 1 }] }, { viewer: owner, now: NOW })
     await expect(postGoodsReceipt(draft.id, { lines: [{ purchaseOrderLineId: draft.lines[0].id, qty: 1 }] }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'PURCHASE_ORDER_NOT_RECEIVABLE' })
 
@@ -97,7 +97,7 @@ describe('FR-161 GoodsReceipt', () => {
     expect((await getPurchaseOrder(order.id, { viewer: member })).receiptState).toBe('PARTIAL')
   })
 
-  it('AC-161.3 — the receipt that completes every line makes the order RECEIVED in the same transaction, and nothing more can be received', async () => {
+  it('AC-165.3 — the receipt that completes every line makes the order RECEIVED in the same transaction, and nothing more can be received', async () => {
     const order = await sentOrder([{ productId: box.id, qty: 2, unitCost: 20 }, { description: 'ค่าขนส่ง', qty: 1, unitCost: 50 }])
     const before = await onHand('BOX-GRN')
     const result = await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: lineOf(order, 'Gift box').id, qty: 2 }, { purchaseOrderLineId: lineOf(order, 'ค่าขนส่ง').id, qty: 1 }], receivedAt: '2026-09-06T08:00:00Z' }, { viewer: receiver, now: NOW })
@@ -110,7 +110,7 @@ describe('FR-161 GoodsReceipt', () => {
     await expect(applyPurchaseOrderAction(order.id, { action: 'CLOSE', version: 3 }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'PURCHASE_ORDER_STATUS_INVALID' })
   })
 
-  it('AC-161.4 — a LOT-tracked line needs its lot and may carry the expiry; a SERIAL-tracked line names one serial per unit', async () => {
+  it('AC-165.4 — a LOT-tracked line needs its lot and may carry the expiry; a SERIAL-tracked line names one serial per unit', async () => {
     const order = await sentOrder([{ productId: lotted.id, qty: 10, unitCost: 5 }, { productId: serial.id, qty: 2, unitCost: 900 }])
     const teaLine = lineOf(order, 'Tea')
     const gadgetLine = lineOf(order, 'Gadget')
@@ -136,7 +136,7 @@ describe('FR-161 GoodsReceipt', () => {
     expect(await onHand('GADGET-GRN')).toBe(2)
   })
 
-  it('AC-161.5 — the receipts of an order are listed with their lines; the ladder applies to reading them too', async () => {
+  it('AC-165.5 — the receipts of an order are listed with their lines; the ladder applies to reading them too', async () => {
     const order = await sentOrder([{ description: 'ค่าออกแบบ', qty: 3, unitCost: 10 }])
     await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }], notes: 'งวดแรก' }, { viewer: buyer, now: NOW })
     await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 2 }] }, { viewer: buyer, now: NOW })

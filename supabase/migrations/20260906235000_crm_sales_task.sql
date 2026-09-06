@@ -1,9 +1,9 @@
--- @req FR-157 — SalesTask: a follow-up a salesperson owes a customer (call,
+-- @req FR-161 — SalesTask: a follow-up a salesperson owes a customer (call,
 -- LINE message, email, meeting, demo, quote), Business-scoped, with an optional
 -- Customer and Conversation of the same Tenant and an optional assignee Person.
 -- Not a project-manager WorkItem (ADR-064).
 -- @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001
--- @tested tests/integration/fr157-sales-task.test.js
+-- @tested tests/integration/fr161-sales-task.test.js
 --
 -- Additive only: one new table, its indexes, foreign keys, forced RLS and the
 -- same private-application-table grant shape every table in this schema
@@ -69,6 +69,6 @@ END $$;
 REVOKE ALL ON TABLE "SalesTask" FROM public, anon, authenticated, service_role;
 
 COMMENT ON TABLE "SalesTask" IS
-  'FR-157 — a sales follow-up owed to a customer (crm): Business-scoped, optional Customer/Conversation of the same Tenant, optional assignee; OPEN → IN_PROGRESS → DONE | CANCELLED; not a project-manager WorkItem (ADR-064).';
+  'FR-161 — a sales follow-up owed to a customer (crm): Business-scoped, optional Customer/Conversation of the same Tenant, optional assignee; OPEN → IN_PROGRESS → DONE | CANCELLED; not a project-manager WorkItem (ADR-064).';
 
 COMMIT;

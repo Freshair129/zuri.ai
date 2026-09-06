@@ -111,9 +111,9 @@ describe('OpenAPI document', () => {
       // (GET), the ledger (GET, POST) and the stock summary (GET).
       // FR-156 adds recipes: the collection (GET, POST), the item (GET, PATCH)
       // and the atomic build (POST) — three paths, five operations.
-      // FR-157 adds sales tasks: the collection (GET, POST) and the item
+      // FR-161 adds sales tasks: the collection (GET, POST) and the item
       // (GET, PATCH) — two paths, four operations.
-      // FR-158/FR-159 add commerce: orders (GET, POST), the order item (GET,
+      // FR-162/FR-163 add commerce: orders (GET, POST), the order item (GET,
       // PATCH), its payments (GET, POST), the payment item (GET, PATCH) and
       // the revenue summary (GET) — five paths, nine operations.
       pathCount: 182,

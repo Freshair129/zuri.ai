@@ -59,7 +59,7 @@ domain identities used by FR-070.
 | `DOM-ASSET-MANAGEMENT` | `assets` | Asset Management | physical asset identity, intake, custody, location and allocation |
 | `DOM-LINE-OA-STUDIO` | `line-oa` | LINE OA Studio | design, publication and operation of LINE Official Accounts, several per Business (ADR-060 — reserved; no runtime wiring yet) |
 | `DOM-INVENTORY` | `inventory` | Warehouse | catalogue identity, the stock ledger (lots, serial units, FEFO) and recipes / BOM (FR-154..156; labelled Warehouse because a Project's Inventory tab shares the screen) |
-| `DOM-PROCUREMENT` | `procurement` | Procurement | suppliers, purchase orders and goods receipts that post into the Warehouse ledger (FR-160, FR-161, ADR-066) |
+| `DOM-PROCUREMENT` | `procurement` | Procurement | suppliers, purchase orders and goods receipts that post into the Warehouse ledger (FR-164, FR-165, ADR-066) |
 | `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
 | `DOM-PLATFORM` | `platform` | Platform | configuration, identity, audit and system capabilities |
 

@@ -2,7 +2,7 @@ import { handle, queryParams } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { createSalesTask, listSalesTasks } from '@/modules/crm/sales-task-service'
 
-// @req FR-157 — sales tasks of one Business: the follow-ups a salesperson
+// @req FR-161 — sales tasks of one Business: the follow-ups a salesperson
 //   owes customers. GET lists open ones (closed on request) with the due
 //   state recomputed against today and the dashboard summary; filters:
 //   `status`, `assigneePersonId` (or `me`), `customerId`, `conversationId`,
@@ -11,7 +11,7 @@ import { createSalesTask, listSalesTasks } from '@/modules/crm/sales-task-servic
 //   without it gets the FR-072 404. `businessId` is a selector the service
 //   validates against the trusted viewer, never the scope.
 // @spec ADR-064; BR-001; SEC-001; BR-012
-// @tested tests/unit/sales-task-routes.test.js, tests/integration/fr157-sales-task.test.js
+// @tested tests/unit/sales-task-routes.test.js, tests/integration/fr161-sales-task.test.js
 
 export const dynamic = 'force-dynamic'
 

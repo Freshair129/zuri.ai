@@ -107,18 +107,18 @@ the Business Home slot is excluded from this count.
 
 ### 3.2b Commerce domain
 
-The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-158,
-FR-159, ADR-065). Every money figure on both pages comes from the server's
+The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-162,
+FR-163, ADR-065). Every money figure on both pages comes from the server's
 read — totals from lines, paid from verified payments — never from the page.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-159 / ADR-065 |
-| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-158, FR-159 / ADR-065 |
+| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-163 / ADR-065 |
+| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-162, FR-163 / ADR-065 |
 
 ### 3.2c Procurement domain
 
-The `procurement` domain key landed live on 2026-09-07 (FR-160, FR-161,
+The `procurement` domain key landed live on 2026-09-07 (FR-164, FR-165,
 ADR-066) — the buy side beside Commerce's sell side, meeting it only in the
 Warehouse ledger. Every quantity and money figure on both pages comes from
 the server's read — totals from lines, received and outstanding from the
@@ -126,8 +126,8 @@ receipt lines — never from the page.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/procurement` | Procurement Dashboard | BusinessShell → Procurement / Dashboard | open purchase orders, awaiting delivery, partially received, outstanding value; the supplier list with archive; create-supplier form | Business and `procurement` domain visibility to read; suppliers need OWNER or `PROCUREMENT_BUYER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/page.jsx`, FR-160 / ADR-066 |
-| `/procurement/purchase-orders` | Purchase Orders console | BusinessShell → Procurement / Purchase Orders | order list with total, receipt state and status; send / close / cancel; per-order lines (ordered, received, outstanding), receipts, and the receipt form (quantity per line, lot and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked one, delivery-note number); create form with a supplier and lines that may name an inventory SKU at the agreed cost | Business and `procurement` domain visibility to read; orders and receipts need OWNER or `PROCUREMENT_BUYER`; the ledger half of a receipt needs OWNER or `INVENTORY_MANAGER` too; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/purchase-orders/page.jsx`, FR-160, FR-161 / ADR-066 |
+| `/procurement` | Procurement Dashboard | BusinessShell → Procurement / Dashboard | open purchase orders, awaiting delivery, partially received, outstanding value; the supplier list with archive; create-supplier form | Business and `procurement` domain visibility to read; suppliers need OWNER or `PROCUREMENT_BUYER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/page.jsx`, FR-164 / ADR-066 |
+| `/procurement/purchase-orders` | Purchase Orders console | BusinessShell → Procurement / Purchase Orders | order list with total, receipt state and status; send / close / cancel; per-order lines (ordered, received, outstanding), receipts, and the receipt form (quantity per line, lot and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked one, delivery-note number); create form with a supplier and lines that may name an inventory SKU at the agreed cost | Business and `procurement` domain visibility to read; orders and receipts need OWNER or `PROCUREMENT_BUYER`; the ledger half of a receipt needs OWNER or `INVENTORY_MANAGER` too; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/purchase-orders/page.jsx`, FR-164, FR-165 / ADR-066 |
 
 ### 3.3 CRM domain
 
@@ -142,7 +142,7 @@ page can issue a write.
 |---|---|---|---|---|---|
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
-| `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-157 / ADR-064 |
+| `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-161 / ADR-064 |
 
 ### 3.4 Market Intelligence domain
 
@@ -257,8 +257,8 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 2 | Dashboard and Rich Menu (FR-146, FR-151) — the slot stopped being reserved when its console landed |
 | Warehouse (`inventory`) navigation entries | 1 | Dashboard (FR-154, FR-155) |
-| Commerce navigation entries | 2 | Dashboard and Orders (FR-158, FR-159) |
-| Procurement navigation entries | 2 | Dashboard and Purchase Orders (FR-160, FR-161) |
+| Commerce navigation entries | 2 | Dashboard and Orders (FR-162, FR-163) |
+| Procurement navigation entries | 2 | Dashboard and Purchase Orders (FR-164, FR-165) |
 | Platform navigation entries | 9 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
@@ -320,7 +320,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.6.0b | 2026-09-07 | beta | Registered the live `procurement` domain (FR-160, FR-161, ADR-066) with its Dashboard and Purchase Orders console; reconciled the marker to 66 page routes, 12 operational domains and 37 sub-domain entries, and the §4 table to the live registry (it had stopped at 10 domains / 30 entries while Inventory, Commerce, Sales Tasks and the LINE OA pages landed) | working-tree | Claude Fable 5.1 |
+| 1.6.0b | 2026-09-07 | beta | Registered the live `procurement` domain (FR-164, FR-165, ADR-066) with its Dashboard and Purchase Orders console; reconciled the marker to 66 page routes, 12 operational domains and 37 sub-domain entries, and the §4 table to the live registry (it had stopped at 10 domains / 30 entries while Inventory, Commerce, Sales Tasks and the LINE OA pages landed) | working-tree | Claude Fable 5.1 |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
 | 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |

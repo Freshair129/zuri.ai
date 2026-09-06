@@ -1,11 +1,11 @@
-// @req FR-158 — sales orders against a real database: the generated code,
+// @req FR-162 — sales orders against a real database: the generated code,
 //   lines with exact money and computed totals, the Customer and Conversation
 //   reached only through the Business's tenant (the Conversation makes the
 //   sale CHAT), the authority ladder, UPDATE while DRAFT, CONFIRM, COMPLETE
 //   with stock issued through the Inventory ledger (or refused whole),
 //   CANCEL, version conflicts and audit.
 // @spec ADR-065; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr158-sales-order.test.js
+// @tested tests/integration/fr162-sales-order.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -20,7 +20,7 @@ const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'commerce', 'customer', 'inventory']
 let tenantA, busA, busA2, tenantB, busB, owner, rep, repWithStock, member, noDomain, box, card, gadget, foreignProduct, convA, customerA, customerB
 
-describe('FR-158 SalesOrder', () => {
+describe('FR-162 SalesOrder', () => {
   beforeAll(async () => {
     const pfA = await createPortfolio({ name: 'Order Group A', code: 'PF-ORD-A' })
     tenantA = await createTenant({ portfolioId: pfA.id, name: 'Order Tenant A', code: 'TNT-ORD-A' })
@@ -56,7 +56,7 @@ describe('FR-158 SalesOrder', () => {
   const lines = () => [{ productId: box.id, qty: 2, unitPrice: 745, discount: 45 }, { description: 'ค่าจัดส่ง', qty: 1, unitPrice: 100 }]
   const create = (over = {}, viewer = owner) => createOrder({ businessId: busA.id, lines: lines(), ...over }, { viewer, now: NOW })
 
-  it('AC-158.1 — creates with a generated ORD code, exact totals from the lines, and the product lending its name', async () => {
+  it('AC-162.1 — creates with a generated ORD code, exact totals from the lines, and the product lending its name', async () => {
     const order = await create({ discount: 50, notes: 'ส่งวันศุกร์' }, rep)
     expect(order).toMatchObject({ code: 'ORD-20260906-001', businessId: busA.id, tenantId: tenantA.id, origin: 'WALK_IN', status: 'DRAFT', currency: 'THB', attributed: false, version: 1, createdByPersonId: 'per-rep' })
     expect(order.lines.map((l) => [l.description, l.qty, l.unitPrice, l.discount, l.lineTotal])).toEqual([['Gift box', 2, 745, 45, 1445], ['ค่าจัดส่ง', 1, 100, 0, 100]])
@@ -67,7 +67,7 @@ describe('FR-158 SalesOrder', () => {
     expect(audits.map((a) => a.action)).toEqual(['SALES_ORDER_CREATED'])
   })
 
-  it('AC-158.2 — a Conversation makes the sale CHAT and supplies its Customer; every reference stays inside the tenant', async () => {
+  it('AC-162.2 — a Conversation makes the sale CHAT and supplies its Customer; every reference stays inside the tenant', async () => {
     const chat = await create({ conversationId: convA, origin: 'ONLINE' })
     expect(chat).toMatchObject({ origin: 'CHAT', attributed: true, customerId: customerA })
     expect(chat.customer).toMatchObject({ displayName: 'ลูกค้า เอ' })
@@ -77,7 +77,7 @@ describe('FR-158 SalesOrder', () => {
     await expect(create({ lines: [{ productId: foreignProduct.id, qty: 1, unitPrice: 1 }] })).rejects.toMatchObject({ status: 422, message: 'PRODUCT_NOT_FOUND' })
   })
 
-  it('AC-158.3 — the authority ladder: the commerce domain gate, then OWNER or SALES_REP writes; members read', async () => {
+  it('AC-162.3 — the authority ladder: the commerce domain gate, then OWNER or SALES_REP writes; members read', async () => {
     await expect(listOrders({ businessId: busA.id }, { viewer: member })).resolves.toMatchObject({ businessId: busA.id })
     await expect(create({}, member)).rejects.toMatchObject({ status: 404, message: 'Business not found' })
     await expect(listOrders({ businessId: busA.id }, { viewer: noDomain })).rejects.toMatchObject({ status: 404 })
@@ -88,7 +88,7 @@ describe('FR-158 SalesOrder', () => {
     await expect(applyOrderAction(order.id, { action: 'CONFIRM', version: 1 }, { viewer: member })).rejects.toMatchObject({ status: 404 })
   })
 
-  it('AC-158.4 — UPDATE replaces lines only while DRAFT; CONFIRM locks them; a stale version conflicts', async () => {
+  it('AC-162.4 — UPDATE replaces lines only while DRAFT; CONFIRM locks them; a stale version conflicts', async () => {
     const order = await create()
     const updated = await applyOrderAction(order.id, { action: 'UPDATE', version: 1, fields: { lines: [{ description: 'บริการห่อ', qty: 3, unitPrice: 20 }], discount: 0, notes: 'แก้ไข' } }, { viewer: owner, now: NOW })
     expect(updated).toMatchObject({ total: 60, notes: 'แก้ไข', version: 2 })
@@ -104,7 +104,7 @@ describe('FR-158 SalesOrder', () => {
     await expect(applyOrderAction(order.id, { action: 'COMPLETE', version: 4 }, { viewer: owner, now: NOW })).resolves.toMatchObject({ status: 'COMPLETED', stockIssuedAt: null })
   })
 
-  it('AC-158.5 — COMPLETE with issueStock takes every counted line from the Inventory ledger, or nothing', async () => {
+  it('AC-162.5 — COMPLETE with issueStock takes every counted line from the Inventory ledger, or nothing', async () => {
     const order = await create({ lines: [{ productId: box.id, qty: 2, unitPrice: 745 }, { productId: card.id, qty: 2, unitPrice: 30 }, { description: 'ค่าจัดส่ง', qty: 1, unitPrice: 100 }] }, rep)
     await applyOrderAction(order.id, { action: 'CONFIRM', version: 1 }, { viewer: rep, now: NOW })
     await expect(applyOrderAction(order.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: rep, now: NOW })).rejects.toMatchObject({ status: 403, message: 'COMMERCE_STOCK_ISSUE_REQUIRES_INVENTORY_AUTHORITY' })
@@ -130,7 +130,7 @@ describe('FR-158 SalesOrder', () => {
     await expect(applyOrderAction(serial.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 422, message: 'COMMERCE_SERIAL_LINE_UNSUPPORTED' })
   })
 
-  it('AC-158.6 — CANCEL keeps the row; the list hides closed orders unless asked and summarises open work', async () => {
+  it('AC-162.6 — CANCEL keeps the row; the list hides closed orders unless asked and summarises open work', async () => {
     const business = await createBusiness({ tenantId: tenantA.id, name: 'ร้านสรุป', code: 'BUS-ORD-SUM' })
     const boss = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: DOMAINS })
     const mk = (title) => createOrder({ businessId: business.id, lines: [{ description: title, qty: 1, unitPrice: 100 }] }, { viewer: boss, now: NOW })

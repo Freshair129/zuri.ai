@@ -18,14 +18,14 @@ describe('command palette route index', () => {
     expect(routePaths).toContain('/workspaces')
     expect(routePaths).toContain('/profile')
     // @req FR-091 — `customer` stopped being a reserved slot on 2026-08-20 and has
-    // real pages, so the palette must now find it. @req FR-158 — `commerce`
+    // real pages, so the palette must now find it. @req FR-162 — `commerce`
     // followed on 2026-09-06 (orders and payments). The two below are still
     // reserved: they have a nav entry and nothing behind it.
     expect(routePaths).toContain('/customer')
     expect(routePaths).toContain('/customer/conversations')
     expect(routePaths).toContain('/commerce')
     expect(routePaths).toContain('/commerce/orders')
-    // @req FR-160 — `procurement` landed live on 2026-09-07 with both pages.
+    // @req FR-164 — `procurement` landed live on 2026-09-07 with both pages.
     expect(routePaths).toContain('/procurement')
     expect(routePaths).toContain('/procurement/purchase-orders')
     expect(routePaths).not.toContain('/growth')

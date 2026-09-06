@@ -108,7 +108,7 @@ A `Product` is created with a `stockPolicy` that never changes afterwards:
 | Concept | Authority | Inventory behavior |
 |---|---|---|
 | Catalogue *offers*, gift tiers, recipient segments, price tiers, corporate clients and their orders (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient`, `ORDERED` in the owner's ontology) | future Commerce lane | Inventory holds the goods an offer is made of; the offer, its price and who bought it are Commerce's. See [ONTOLOGY.md](ONTOLOGY.md) |
-| Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-160 / FR-161) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference; the PO and supplier stay Procurement's, and Procurement's role never widens this lane's write authority |
+| Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference; the PO and supplier stay Procurement's, and Procurement's role never widens this lane's write authority |
 | Physical company assets (equipment the Business owns and depreciates) | Asset Management | a different question — "what do we own" versus "what do we hold to sell or use up" |
 | Costing, valuation, COGS, journal posting | future Finance | `baseCost` is a catalogue attribute, not a valuation |
 | Warehouse locations / bins | not modelled in this slice | a later FR may add a location to a movement |

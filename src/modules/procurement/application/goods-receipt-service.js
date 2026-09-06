@@ -13,7 +13,7 @@ import {
 import { loadBusiness, notFound } from './procurement-authority'
 import { PO_SELECT, RECEIPT_SELECT, purchaseOrderDto, receiptDto } from './purchase-order-service'
 
-// @req FR-161 — the only writer of GoodsReceipt: post what arrived against a
+// @req FR-165 — the only writer of GoodsReceipt: post what arrived against a
 //   SENT purchase order. Every receipt line names one order line of that
 //   order and may not receive more than the line still has outstanding
 //   (refused whole with the per-line list). A line whose order line names a
@@ -31,7 +31,7 @@ import { PO_SELECT, RECEIPT_SELECT, purchaseOrderDto, receiptDto } from './purch
 //   Inventory ADJUSTMENT. Generated `GRN-YYYYMMDD-NNN`; one audit row for
 //   the receipt (and one for the order when it completes).
 // @spec ADR-066; ADR-054 D3/D4; BR-002; SEC-001; FR-072; FR-155
-// @tested tests/integration/fr161-goods-receipt.test.js
+// @tested tests/integration/fr165-goods-receipt.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

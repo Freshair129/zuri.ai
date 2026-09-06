@@ -16,7 +16,7 @@ import {
   zSalesTaskListQuery,
 } from './sales-task-domain'
 
-// @req FR-157 — the only writer of SalesTask, the crm charter's fifth narrow
+// @req FR-161 — the only writer of SalesTask, the crm charter's fifth narrow
 //   writer: create a follow-up owed to a customer, list and read them with
 //   their due state recomputed against today, and apply the versioned
 //   actions — UPDATE the fields, ASSIGN a member, START, COMPLETE with an
@@ -31,7 +31,7 @@ import {
 //   The human code `TSK-YYYYMMDD-NNN` is generated per Business per day.
 //   Every write is one transaction, bumps `version` and appends one audit row.
 // @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-061; FR-072
-// @tested tests/integration/fr157-sales-task.test.js
+// @tested tests/integration/fr161-sales-task.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

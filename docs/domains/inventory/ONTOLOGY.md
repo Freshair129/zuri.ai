@@ -61,7 +61,7 @@ Commerce questions. Inventory owns the goods an offer is made of and how many
 exist; Commerce will reference `ProductMaster` / `Product` by internal id and
 never write to them. That lane was chartered on 2026-09-07
 ([`docs/domains/commerce/CHARTER.md`](../commerce/CHARTER.md), ADR-065) with its first
-slice — sales orders and payments (FR-158, FR-159): a `SalesOrderLine` names an
+slice — sales orders and payments (FR-162, FR-163): a `SalesOrderLine` names an
 Inventory `Product` by internal id with a price given at the time of sale, exactly as
 this page predicted, and the Inventory rows did not change for it. The offer layer
 above (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient` and their
@@ -95,7 +95,7 @@ instruction was to **take the label off**: a recipe for 10 seats and one for
 | `CourseMenu` (Product → Recipe) | `ProductRecipe.productId` (the output SKU) | an UNTRACKED output (a course, a service) consumes components and produces nothing to stock |
 | `StockDeductionLog` (ADR-038 flow) | `StockMovement` rows written by `POST /api/inventory/recipes/[id]/build` (reference `RECIPE:<code>`) | atomic: every component or none |
 | `Package` / `PackageCourse` / `PackageGift` / price tiers | Commerce (deferred) | a bundle (FR-154) holds the goods; the offer holds the price |
-| `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` | Procurement (`docs/domains/procurement/CHARTER.md`, FR-160 / FR-161 since 2026-09-07 — `Supplier`, `PurchaseOrder` and `GoodsReceipt` exist; requests and market prices are still deferred inside that lane) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference |
+| `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165 since 2026-09-07 — `Supplier`, `PurchaseOrder` and `GoodsReceipt` exist; requests and market prices are still deferred inside that lane) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference |
 | `Enrollment`, `CourseSchedule`, `ClassAttendance`, `Certificate` | Operations / Commerce (deferred) | scheduling and attendance are not stock |
 
 What did not survive the border, and why: `Ingredient.currentStock` (a stored

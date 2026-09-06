@@ -3,11 +3,11 @@ import { GOODS_RECEIPT_POST_PERMISSION, hasPermission, PURCHASE_ORDER_WRITE_PERM
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { PROCUREMENT_DOMAIN_KEY } from '../domain/procurement'
 
-// @req FR-160 — the authorization ladder of the Procurement lane: view needs
+// @req FR-164 — the authorization ladder of the Procurement lane: view needs
 //   Business visibility plus the `procurement` domain (FR-061); keeping
 //   suppliers and purchase orders needs Business OWNER or the
 //   PROCUREMENT_BUYER binding (`procurement.po.write`).
-// @req FR-161 — posting a goods receipt needs Business OWNER or the buyer's
+// @req FR-165 — posting a goods receipt needs Business OWNER or the buyer's
 //   `procurement.receipt.post`; the stock rows it writes need Inventory's own
 //   write authority on top, checked by the receipt service through Inventory's
 //   exported `mayManage` — a buyer's binding never widens the ledger (ADR-066
@@ -15,7 +15,7 @@ import { PROCUREMENT_DOMAIN_KEY } from '../domain/procurement'
 //   (FR-072). `businessId` is a selector the service validates against the
 //   trusted viewer, never the scope.
 // @spec ADR-066; SEC-001; BR-020; SEC-018
-// @tested tests/integration/fr160-procurement.test.js, tests/integration/fr161-goods-receipt.test.js
+// @tested tests/integration/fr164-procurement.test.js, tests/integration/fr165-goods-receipt.test.js
 
 export function notFound() {
   const error = new Error('Business not found')

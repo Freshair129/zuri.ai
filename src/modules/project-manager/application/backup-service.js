@@ -134,16 +134,16 @@ const SNAPSHOT_MODELS = [
   // which the model never persists in the first place.
   'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
-  // @req FR-157 — a sales task hangs off Business, Person (assignee) and
+  // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.
   'salesTask',
-  // @req FR-158, FR-159 — an order hangs off Business, Customer and
+  // @req FR-162, FR-163 — an order hangs off Business, Customer and
   // Conversation, its lines off the order and Product, a payment off the order
   // and the slip FileAsset — all restored above this line, so these restore
   // here and delete in the reverse. Money and slip references, no secret.
   'salesOrder', 'salesOrderLine', 'payment',
-  // @req FR-160, FR-161 — a supplier hangs off Tenant and Business, a purchase
+  // @req FR-164, FR-165 — a supplier hangs off Tenant and Business, a purchase
   // order off the supplier, its lines off the order and Product, a goods
   // receipt off the order and its lines off the receipt and the order lines —
   // parents first, so these restore here and delete in the reverse. Contact

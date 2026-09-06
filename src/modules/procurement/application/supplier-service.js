@@ -3,7 +3,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { SUPPLIER_ENTITY, zCreateSupplier, zSupplierAction, zSupplierListQuery } from '../domain/procurement'
 import { loadBusiness, notFound } from './procurement-authority'
 
-// @req FR-160 — the only writer of Supplier: create one for the Business with
+// @req FR-164 — the only writer of Supplier: create one for the Business with
 //   a human `code` unique per Tenant (an attribute, BR-002 — the internal id
 //   is the key), the contact and terms as plain attributes; UPDATE the fields
 //   and ARCHIVE (the row stays; an archived supplier takes no new order).
@@ -11,7 +11,7 @@ import { loadBusiness, notFound } from './procurement-authority'
 //   write; the procurement domain gate then OWNER or PROCUREMENT_BUYER, every
 //   refusal of scope the FR-072 404.
 // @spec ADR-066; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr160-procurement.test.js
+// @tested tests/integration/fr164-procurement.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

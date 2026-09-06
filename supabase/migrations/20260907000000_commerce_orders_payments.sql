@@ -1,12 +1,12 @@
--- @req FR-158 — SalesOrder and SalesOrderLine: what a Business sold — lines
+-- @req FR-162 — SalesOrder and SalesOrderLine: what a Business sold — lines
 -- that may name an inventory SKU, an optional Customer and the Conversation the
 -- sale came from (chat-first attribution), a status machine, money as integer
 -- satang. Totals, paid, balance and payment state are computed on read.
--- @req FR-159 — Payment: a payment or refund against an order, PENDING until a
+-- @req FR-163 — Payment: a payment or refund against an order, PENDING until a
 -- verifier confirms the slip; bankReference is an attribute unique per Tenant
 -- (BR-002); the slip image is a FileAsset of the same Business.
 -- @spec ADR-065; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
--- @tested tests/integration/fr158-sales-order.test.js, tests/integration/fr159-payment.test.js
+-- @tested tests/integration/fr162-sales-order.test.js, tests/integration/fr163-payment.test.js
 --
 -- Additive only: three new tables, their indexes, foreign keys, forced RLS and
 -- the same private-application-table grant shape every table in this schema
@@ -107,8 +107,8 @@ BEGIN
   END LOOP;
 END $$;
 
-COMMENT ON TABLE "SalesOrder" IS 'FR-158 — a sales order (order_id): Business-scoped, optional Customer/Conversation of the same Tenant, money in satang; totals and payment state computed on read (ADR-065).';
-COMMENT ON TABLE "SalesOrderLine" IS 'FR-158 — one line of a sales order; may name an inventory SKU; qty × unitPriceSatang − discountSatang.';
-COMMENT ON TABLE "Payment" IS 'FR-159 — a payment or refund against an order, PENDING until verified; bankReference unique per Tenant is an attribute (BR-002); the slip is a FileAsset.';
+COMMENT ON TABLE "SalesOrder" IS 'FR-162 — a sales order (order_id): Business-scoped, optional Customer/Conversation of the same Tenant, money in satang; totals and payment state computed on read (ADR-065).';
+COMMENT ON TABLE "SalesOrderLine" IS 'FR-162 — one line of a sales order; may name an inventory SKU; qty × unitPriceSatang − discountSatang.';
+COMMENT ON TABLE "Payment" IS 'FR-163 — a payment or refund against an order, PENDING until verified; bankReference unique per Tenant is an attribute (BR-002); the slip is a FileAsset.';
 
 COMMIT;

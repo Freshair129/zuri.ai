@@ -1,4 +1,4 @@
-// @req FR-160, FR-161 — what the procurement routes and persistence are, in
+// @req FR-164, FR-165 — what the procurement routes and persistence are, in
 //   source terms: every handler resolves a browser viewer, stays thin and is
 //   inventoried for OpenAPI; the five models are in both schemas with no
 //   stored total or received quantity, snapshotted after everything they
@@ -24,7 +24,7 @@ const ROUTES = {
 }
 const MODELS = ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine']
 
-describe('FR-160 / FR-161 procurement route and persistence contract', () => {
+describe('FR-164 / FR-165 procurement route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
     for (const [file, methods] of Object.entries(ROUTES)) {
       const source = read(file)
@@ -32,7 +32,7 @@ describe('FR-160 / FR-161 procurement route and persistence contract', () => {
         expect(new RegExp(`export async function ${method}\\b`).test(source), `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-16[01]/)
+      expect(source).toMatch(/@req FR-16[45]/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })

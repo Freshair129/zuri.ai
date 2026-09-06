@@ -2822,8 +2822,8 @@ model ProductRecipeLine {
   @@index([componentProductId])
 }
 
-// ── CRM sales task — FR-157 ─────────────────────────────────────────────────
-// @req FR-157 — a sales task is a follow-up a salesperson owes a customer: a
+// ── CRM sales task — FR-161 ─────────────────────────────────────────────────
+// @req FR-161 — a sales task is a follow-up a salesperson owes a customer: a
 //   call, a LINE message, a meeting, a demo, a quote — Business-scoped, with an
 //   optional Customer and Conversation of the same Tenant (BR-001 CRM sharing)
 //   and an optional assignee Person. It is deliberately NOT a project-manager
@@ -2831,7 +2831,7 @@ model ProductRecipeLine {
 //   product's "PROJECT" task kind stays with project-manager, its "URGENT"
 //   status is a priority here, and its Notion id would be an ExternalRef.
 // @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001
-// @tested tests/integration/fr157-sales-task.test.js
+// @tested tests/integration/fr161-sales-task.test.js
 
 model SalesTask {
   id                  String    @id @default(uuid())
@@ -2874,18 +2874,18 @@ model SalesTask {
   @@index([conversationId])
 }
 
-// ── Commerce — FR-158 sales orders, FR-159 payments ─────────────────────────
-// @req FR-158 — a sales order (order_id) is what a Business sold: lines that
+// ── Commerce — FR-162 sales orders, FR-163 payments ─────────────────────────
+// @req FR-162 — a sales order (order_id) is what a Business sold: lines that
 //   may name an inventory SKU, an optional Customer and the Conversation the
 //   sale came from (chat-first attribution), a status machine, and money kept
 //   as integer satang. Totals, paid, balance and payment state are computed
 //   on read from the lines and the verified payments — never stored.
-// @req FR-159 — a payment (or refund) against an order, PENDING until a
+// @req FR-163 — a payment (or refund) against an order, PENDING until a
 //   verifier confirms the slip; the bank reference is an attribute unique per
 //   Tenant (BR-002), the slip image is a FileAsset of the same Business.
 // @spec ADR-065; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
-// @tested tests/integration/fr158-sales-order.test.js,
-//   tests/integration/fr159-payment.test.js
+// @tested tests/integration/fr162-sales-order.test.js,
+//   tests/integration/fr163-payment.test.js
 
 model SalesOrder {
   id                String    @id @default(uuid())
@@ -2974,13 +2974,13 @@ model Payment {
   @@index([businessId, status, paidAt])
 }
 
-// ── Procurement — FR-160 suppliers & purchase orders, FR-161 goods receipts ──
-// @req FR-160 — the buy side (ADR-066): a Supplier of the Business (code
+// ── Procurement — FR-164 suppliers & purchase orders, FR-165 goods receipts ──
+// @req FR-164 — the buy side (ADR-066): a Supplier of the Business (code
 //   unique per Tenant, archived never deleted) and a PurchaseOrder against it
 //   with lines that may name an Inventory SKU at the agreed unit cost (integer
 //   satang). No stored total or received quantity: both are computed on read
 //   from the lines and the receipt lines.
-// @req FR-161 — a GoodsReceipt posts what arrived against a SENT order; each
+// @req FR-165 — a GoodsReceipt posts what arrived against a SENT order; each
 //   of its lines names one order line, and a line naming a counted SKU writes
 //   RECEIPT rows into the Inventory ledger in the same transaction with
 //   `PO:<code>/GRN:<code>` as the reference. A receipt is never edited.

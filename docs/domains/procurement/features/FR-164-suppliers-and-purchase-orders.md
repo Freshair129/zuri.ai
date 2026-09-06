@@ -1,16 +1,16 @@
 ---
 domain: procurement
-feature: FR-160
+feature: FR-164
 module: procurement
 source: legacy-prior-art
-bundle: FEAT-023
+bundle: FEAT-024
 requirements:
-  - FR-160
+  - FR-164
 version: "0.1.0"
 status: building
 ---
 
-# FR-160 — Suppliers and purchase orders (po_id)
+# FR-164 — Suppliers and purchase orders (po_id)
 
 ## Intent
 
@@ -44,7 +44,7 @@ receipt lines.
 
 **"Partially received" is a state, not a status.** DRAFT → SENT is the
 buyer's; RECEIVED is set only by the receipt that completes every line
-(FR-161); CLOSE is the explicit short-close of a SENT order with lines
+(FR-165); CLOSE is the explicit short-close of a SENT order with lines
 outstanding; CANCEL is possible only while nothing was received.
 
 **Same write discipline.** Generated `PO-YYYYMMDD-NNN`, lines and supplier
@@ -57,7 +57,7 @@ action, nothing deleted; the procurement domain gate then OWNER or
 
 - `Supplier`, `PurchaseOrder`, `PurchaseOrderLine` in both schemas; migration
   `20260907010000_procurement` in both trees (**not applied**), shared with
-  FR-161.
+  FR-165.
 - `src/modules/procurement/domain/procurement.js` (money, contracts, totals,
   receipt state, status machine, codes); `application/supplier-service.js`
   and `application/purchase-order-service.js` — the only writers.
@@ -66,9 +66,9 @@ action, nothing deleted; the procurement domain gate then OWNER or
   the `procurement` slot (`Truck`) after Warehouse; the `/procurement`
   dashboard (suppliers, what is on order) and the `/procurement/purchase-orders`
   console; `PROCUREMENT_BUYER` role.
-- Tests: `tests/integration/fr160-procurement.test.js` (AC-160.1–.5),
+- Tests: `tests/integration/fr164-procurement.test.js` (AC-164.1–.5),
   `tests/unit/procurement-domain.test.js`, `tests/unit/procurement-routes.test.js`,
-  `tests/e2e/fr160-procurement.spec.js` (shared with FR-161).
+  `tests/e2e/fr164-procurement.spec.js` (shared with FR-165).
 
 ## Not in this slice
 

@@ -1,16 +1,16 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 
-// @req FR-160 — the owner creates a supplier on the Procurement dashboard, a
+// @req FR-164 — the owner creates a supplier on the Procurement dashboard, a
 //   purchase order against it on the real console (one line naming a counted
 //   SKU, one free-text line) and sends it.
-// @req FR-161 — posts two goods receipts against it, sees the order go from
+// @req FR-165 — posts two goods receipts against it, sees the order go from
 //   partially received to received, and sees the Warehouse's on-hand for the
 //   SKU rise by exactly what was received — recomputed from the ledger.
 // @spec ADR-066; SEC-001
-// @tested tests/e2e/fr160-procurement.spec.js
+// @tested tests/e2e/fr164-procurement.spec.js
 
-test('FR-160/FR-161 — a supplier, a purchase order and two receipts on the Procurement pages, landing in the Warehouse', async ({ page }) => {
+test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Procurement pages, landing in the Warehouse', async ({ page }) => {
   test.setTimeout(120000)
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
@@ -100,7 +100,7 @@ test('FR-160/FR-161 — a supplier, a purchase order and two receipts on the Pro
   await page.getByRole('button', { name: 'ทั้งหมด', exact: true }).click()
   await expect(row()).toContainText('รับของครบแล้ว')
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
-  await page.screenshot({ path: 'output/playwright/fr160-procurement.png', fullPage: true })
+  await page.screenshot({ path: 'output/playwright/fr164-procurement.png', fullPage: true })
 
   // The Warehouse counts what the two receipts posted, recomputed from the ledger.
   await bar.getByRole('link', { name: 'Warehouse' }).click()

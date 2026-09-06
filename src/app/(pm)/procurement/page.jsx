@@ -7,14 +7,14 @@ import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { SUPPLIER_ACTIONS } from '@/lib/validation/enums'
 
-// @req FR-160 — the Procurement dashboard: what is on order (open purchase
+// @req FR-164 — the Procurement dashboard: what is on order (open purchase
 //   orders, awaiting delivery, partially received, the outstanding value —
 //   every number computed by the server on this load from the lines and the
 //   receipt lines) and the Business's suppliers: list, create, archive.
-// @req FR-161 — the entry to the purchase-orders console where receipts are posted.
+// @req FR-165 — the entry to the purchase-orders console where receipts are posted.
 // @spec ADR-066; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
-// @tested tests/e2e/fr160-procurement.spec.js, tests/unit/procurement-routes.test.js
+// @tested tests/e2e/fr164-procurement.spec.js, tests/unit/procurement-routes.test.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -99,7 +99,7 @@ export default function ProcurementDashboardPage() {
 
   return <div>
     <PageHeader
-      eyebrow="Procurement · FEAT-023"
+      eyebrow="Procurement · FEAT-024"
       title="จัดซื้อและผู้ขาย"
       subtitle={`ใบสั่งซื้อที่เปิดอยู่ ของที่รอรับ และผู้ขายของธุรกิจ — ตัวเลขคำนวณจากรายการและใบรับของทุกครั้ง${business ? ` · ${business.name}` : ''}`}
       actions={<>

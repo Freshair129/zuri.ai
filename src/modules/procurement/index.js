@@ -1,4 +1,4 @@
-// @req FR-160, FR-161 — the Procurement module's stable exports: the pure
+// @req FR-164, FR-165 — the Procurement module's stable exports: the pure
 //   vocabulary and calculators, the authority ladder, the supplier writer, the
 //   purchase-order writer and the goods-receipt writer. Other lanes import
 //   from here, never from a file inside `application/` directly.

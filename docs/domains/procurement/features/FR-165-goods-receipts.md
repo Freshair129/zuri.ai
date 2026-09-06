@@ -1,16 +1,16 @@
 ---
 domain: procurement
-feature: FR-161
+feature: FR-165
 module: procurement
 source: legacy-prior-art
-bundle: FEAT-023
+bundle: FEAT-024
 requirements:
-  - FR-161
+  - FR-165
 version: "0.1.0"
 status: building
 ---
 
-# FR-161 — Goods receipts into the stock ledger (grn_id)
+# FR-165 — Goods receipts into the stock ledger (grn_id)
 
 ## Intent
 
@@ -59,13 +59,13 @@ a return.
 ## Delivered (local, 2026-09-07)
 
 - `GoodsReceipt`, `GoodsReceiptLine` in both schemas; migration shared with
-  FR-160 (**not applied**).
+  FR-164 (**not applied**).
 - `application/goods-receipt-service.js` — the only writer; the receipt plan
   and reference in `domain/procurement.js`.
 - `GET/POST /api/procurement/purchase-orders/[id]/receipts`; the receipt
   panel of the `/procurement/purchase-orders` console.
-- Tests: `tests/integration/fr161-goods-receipt.test.js` (AC-161.1–.5),
-  calculators in the unit suite, the e2e spec shared with FR-160 (the
+- Tests: `tests/integration/fr165-goods-receipt.test.js` (AC-165.1–.5),
+  calculators in the unit suite, the e2e spec shared with FR-164 (the
   Warehouse's on-hand rises by what the receipts posted).
 
 ## Not in this slice

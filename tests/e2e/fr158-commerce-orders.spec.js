@@ -1,14 +1,14 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 
-// @req FR-158 — the owner creates a sales order on the real Commerce page,
+// @req FR-162 — the owner creates a sales order on the real Commerce page,
 //   confirms it and completes it.
-// @req FR-159 — records a payment against it, verifies it, and sees the order
+// @req FR-163 — records a payment against it, verifies it, and sees the order
 //   turn PAID and the dashboard count the verified money.
 // @spec ADR-065; SEC-001
-// @tested tests/e2e/fr158-commerce-orders.spec.js
+// @tested tests/e2e/fr162-commerce-orders.spec.js
 
-test('FR-158/FR-159 — an order is created, paid, verified and completed on the Commerce pages', async ({ page }) => {
+test('FR-162/FR-163 — an order is created, paid, verified and completed on the Commerce pages', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
@@ -64,5 +64,5 @@ test('FR-158/FR-159 — an order is created, paid, verified and completed on the
   await page.getByRole('button', { name: 'วันนี้', exact: true }).click()
   await expect(page.getByText('รายได้ที่ตรวจสอบแล้ว (สุทธิ)')).toBeVisible()
   await expect(page.getByText(/฿1,000\.00/).first()).toBeVisible()
-  await page.screenshot({ path: 'output/playwright/fr158-commerce-orders.png', fullPage: true })
+  await page.screenshot({ path: 'output/playwright/fr162-commerce-orders.png', fullPage: true })
 })

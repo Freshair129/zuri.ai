@@ -6,15 +6,15 @@ import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { PAYMENT_KINDS, PAYMENT_METHODS, SALES_ORDER_ACTIONS, SALES_ORDER_ORIGINS } from '@/lib/validation/enums'
 
-// @req FR-158 — the orders console: create a sales order (lines that may name
+// @req FR-162 — the orders console: create a sales order (lines that may name
 //   an inventory SKU, a conversation, a customer), confirm it, complete it
 //   (optionally issuing stock through the Inventory ledger), cancel it; every
 //   money figure comes from the server's read, never from the page.
-// @req FR-159 — record a payment or refund on an order (PENDING) and verify or
+// @req FR-163 — record a payment or refund on an order (PENDING) and verify or
 //   reject it; the order's paid / balance / payment state follow.
 // @spec ADR-065; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
-// @tested tests/e2e/fr158-commerce-orders.spec.js, tests/unit/commerce-routes.test.js
+// @tested tests/e2e/fr162-commerce-orders.spec.js, tests/unit/commerce-routes.test.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -142,7 +142,7 @@ export default function CommerceOrdersPage() {
 
   return <div>
     <PageHeader
-      eyebrow="Commerce · FEAT-022"
+      eyebrow="Commerce · FEAT-023"
       title="ออเดอร์ (Orders)"
       subtitle={`สร้างออเดอร์ รับชำระ ตรวจสลิป — ยอดชำระและยอดคงค้างคำนวณจากการชำระที่ตรวจสอบแล้ว${business ? ` · ${business.name}` : ''}`}
       actions={<button type="button" className="btn" onClick={() => refresh().catch((err) => setError(err.message))} disabled={busy}><RefreshCw size={15} /> โหลดใหม่</button>}

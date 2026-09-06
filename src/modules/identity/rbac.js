@@ -14,16 +14,16 @@ export const ROLE_LINE_OA_PUBLISHER = 'LINE_OA_PUBLISHER'
 // that may write catalogue identity and stock movements. A Business OWNER
 // holds the same capability implicitly and needs no binding.
 export const ROLE_INVENTORY_MANAGER = 'INVENTORY_MANAGER'
-// @req FR-157 — the sales representative: the Business-scoped role that may
+// @req FR-161 — the sales representative: the Business-scoped role that may
 // write sales tasks (follow-ups owed to customers) in the crm lane. A Business
 // OWNER holds the same capability implicitly and needs no binding.
 export const ROLE_SALES_REP = 'SALES_REP'
-// @req FR-159 — the payment verifier: the Business-scoped role that confirms
+// @req FR-163 — the payment verifier: the Business-scoped role that confirms
 // or rejects a payment slip (commerce). A SALES_REP records payments; only a
 // verifier or the Business OWNER turns PENDING into VERIFIED, because verified
 // payments are what revenue is counted from (ADR-065).
 export const ROLE_PAYMENT_VERIFIER = 'PAYMENT_VERIFIER'
-// @req FR-160, FR-161 — the procurement buyer: the Business-scoped role that
+// @req FR-164, FR-165 — the procurement buyer: the Business-scoped role that
 // keeps suppliers and purchase orders and posts goods receipts. Posting a
 // receipt writes RECEIPT rows into the Inventory ledger, and that half needs
 // Inventory's own write authority (OWNER or INVENTORY_MANAGER) — a buyer's
@@ -73,7 +73,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_SALES_REP]: Object.freeze([
     'crm.read',
     SALES_TASK_WRITE_PERMISSION,
-    // @req FR-158 — a rep also writes the orders they close and records the
+    // @req FR-162 — a rep also writes the orders they close and records the
     // payments customers send; verifying those payments is a different hat.
     'commerce.read',
     ORDER_WRITE_PERMISSION,

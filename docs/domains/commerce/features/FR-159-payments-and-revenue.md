@@ -1,16 +1,16 @@
 ---
 domain: commerce
-feature: FR-159
+feature: FR-163
 module: commerce
 source: legacy-prior-art
-bundle: FEAT-022
+bundle: FEAT-023
 requirements:
-  - FR-159
+  - FR-163
 version: "0.1.0"
 status: building
 ---
 
-# FR-159 — Payments, verification and revenue (payment_id)
+# FR-163 — Payments, verification and revenue (payment_id)
 
 ## Intent
 
@@ -49,14 +49,14 @@ kept exactly; the Ad model that would consume it is still Marketing's future.
 
 ## Delivered (local, 2026-09-07)
 
-- `Payment` in both schemas (migration shared with FR-158, **not applied**).
+- `Payment` in both schemas (migration shared with FR-162, **not applied**).
 - `application/payment-service.js` — the only writer: record, verify, reject;
   `application/revenue-read-model.js` — read-only.
 - `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH
   /api/commerce/payments/[id]`, `GET /api/commerce/revenue`; the `/commerce`
   dashboard (verified net, by origin, by day, pending, order counts) and the
   payment panel of the orders console; `PAYMENT_VERIFIER` role.
-- Tests: `tests/integration/fr159-payment.test.js` (AC-159.1–.4), the
+- Tests: `tests/integration/fr163-payment.test.js` (AC-163.1–.4), the
   calculators in `tests/unit/commerce-domain.test.js`, the e2e spec.
 
 ## Not in this slice

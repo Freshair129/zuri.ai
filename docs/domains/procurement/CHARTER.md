@@ -57,19 +57,19 @@ Architecture decision: [ADR-066](../../decisions/ADR-066-PROCUREMENT-LANE-SUPPLI
 
 - `Supplier` — `code` unique per Tenant (an attribute, BR-002), name, tax id,
   contact, payment terms, lead time; ACTIVE until archived, never deleted
-  (FR-160).
+  (FR-164).
 - `PurchaseOrder` (`po_id`) — `code` `PO-YYYYMMDD-NNN` unique per Tenant,
   against one ACTIVE `Supplier` of the same Business; DRAFT → SENT →
   RECEIVED (set by the receipt that completes every line), SENT → CLOSED (a
   short-close with lines outstanding), DRAFT or SENT → CANCELLED (only while
-  nothing was received); money as integer satang (FR-160).
+  nothing was received); money as integer satang (FR-164).
 - `PurchaseOrderLine` — a line that may name an Inventory `Product` (SKU) at
-  the unit cost agreed for this purchase, or a free-text item (FR-160).
+  the unit cost agreed for this purchase, or a free-text item (FR-164).
 - `GoodsReceipt` (`grn_id`) — `code` `GRN-YYYYMMDD-NNN`, posted against a SENT
   order with the supplier's delivery-note number as an attribute; never
-  edited (FR-161).
+  edited (FR-165).
 - `GoodsReceiptLine` — one received quantity against one order line, with the
-  lot code, expiry and serials it carried into the ledger (FR-161).
+  lot code, expiry and serials it carried into the ledger (FR-165).
 
 **Never stored:** an order's total, received value, outstanding value, a
 line's received or outstanding quantity, or the order's `receiptState`
@@ -131,9 +131,9 @@ FR-072 `404 Business not found`.
 src/modules/procurement/
 ├── domain/procurement.js                       money, contracts, totals, receipt state, status machine, receipt plan
 ├── application/procurement-authority.js        the view / po / receipt ladder, FR-072 refusals
-├── application/supplier-service.js             the only writer of suppliers (FR-160)
-├── application/purchase-order-service.js       the only writer of orders and lines (FR-160)
-├── application/goods-receipt-service.js        the only writer of receipts; posts into the Inventory ledger (FR-161)
+├── application/supplier-service.js             the only writer of suppliers (FR-164)
+├── application/purchase-order-service.js       the only writer of orders and lines (FR-164)
+├── application/goods-receipt-service.js        the only writer of receipts; posts into the Inventory ledger (FR-165)
 └── index.js                                    stable module exports
 ```
 
@@ -144,7 +144,7 @@ contract (Inventory's `appendMovement`, `mayManage`) or a read projection.
 
 ## Delivery state
 
-FR-160 and FR-161 are implemented locally with both migrations written
+FR-164 and FR-165 are implemented locally with both migrations written
 (`20260907010000_procurement`) and the production SQL **not applied** (an
 owner-instructed operator step, ADR-057). Not in this slice: purchase
 requests and approvals, RFQs and quotes, purchase returns and credit notes,
@@ -153,8 +153,8 @@ supplier invoices and payables, landed cost.
 ## References
 
 - [ADR-066](../../decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
-- [FR-160 suppliers and purchase orders](features/FR-160-suppliers-and-purchase-orders.md)
-- [FR-161 goods receipts](features/FR-161-goods-receipts.md)
+- [FR-164 suppliers and purchase orders](features/FR-164-suppliers-and-purchase-orders.md)
+- [FR-165 goods receipts](features/FR-165-goods-receipts.md)
 - [ERP module map](../../ERP-MODULE-MAP.md) — where this lane sits in the owner's SCM row
 - [Inventory charter](../inventory/CHARTER.md) — the ledger a receipt posts into
 

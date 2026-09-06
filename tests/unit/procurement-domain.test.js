@@ -1,7 +1,7 @@
-// @req FR-160 — the pure rules of the buy side: exact money in satang, the
+// @req FR-164 — the pure rules of the buy side: exact money in satang, the
 //   supplier and purchase-order contracts, the order's totals, the status
 //   machine and the codes.
-// @req FR-161 — the receipt side: what each line has received and what is
+// @req FR-165 — the receipt side: what each line has received and what is
 //   outstanding, the derived receipt state, the pure plan of a receipt against
 //   an order (unknown line, over-receipt, completion) and the ledger reference.
 // @spec ADR-066; BR-002
@@ -29,7 +29,7 @@ import {
   zSupplierAction,
 } from '@/modules/procurement/domain/procurement'
 
-describe('FR-160 supplier and purchase-order contracts', () => {
+describe('FR-164 supplier and purchase-order contracts', () => {
   it('money is exact in satang, the same rule Commerce follows', () => {
     expect(toSatang(1490)).toBe(149000)
     expect(toSatang(0.1 + 0.2)).toBe(30)
@@ -88,7 +88,7 @@ describe('FR-160 supplier and purchase-order contracts', () => {
   })
 })
 
-describe('FR-161 receipt state and the receipt plan', () => {
+describe('FR-165 receipt state and the receipt plan', () => {
   const lines = [
     { id: 'a', description: 'กล่อง', qty: 10, unitCostSatang: 2000, receiptLines: [{ qty: 4 }] },
     { id: 'b', description: 'ค่าขนส่ง', qty: 1, unitCostSatang: 10000, receiptLines: [] },

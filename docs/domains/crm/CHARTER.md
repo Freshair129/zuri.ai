@@ -99,7 +99,7 @@ turn flows through before any agent work happens.
   historical data through LINE.
 
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
-  — the sales task writer and readers (FR-157, ADR-064). A fifth narrow writer:
+  — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
   demo, quote), Business-scoped, optionally linked to a Customer and a
   Conversation reached through the Business's tenant only (the BR-001 bound the
@@ -140,5 +140,5 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
-| 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-157, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
+| 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

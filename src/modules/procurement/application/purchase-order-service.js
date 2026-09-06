@@ -18,7 +18,7 @@ import {
 } from '../domain/procurement'
 import { loadBusiness, notFound } from './procurement-authority'
 
-// @req FR-160 — the only writer of PurchaseOrder and its lines: create an
+// @req FR-164 — the only writer of PurchaseOrder and its lines: create an
 //   order against an ACTIVE Supplier of the same Business with lines that may
 //   name an inventory SKU of the same Business (the unit cost is always given
 //   — the agreed price of this purchase, not Inventory's catalogue cost), a
@@ -30,7 +30,7 @@ import { loadBusiness, notFound } from './procurement-authority'
 //   from the lines and their receipt lines — never stored. Every write is
 //   one transaction with one audit row; nothing is deleted.
 // @spec ADR-066; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr160-procurement.test.js
+// @tested tests/integration/fr164-procurement.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

@@ -7,13 +7,13 @@ import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { SALES_ORDER_ORIGINS } from '@/lib/validation/enums'
 
-// @req FR-159 — the Commerce dashboard: revenue counted from verified
+// @req FR-163 — the Commerce dashboard: revenue counted from verified
 //   payments only (net of verified refunds), by origin and by day in the
 //   Business's calendar, pending money beside it, open and completed order
 //   counts — all recomputed by the server on every load.
-// @req FR-158 — the entry to the orders console.
+// @req FR-162 — the entry to the orders console.
 // @spec ADR-065; SEC-001
-// @tested tests/e2e/fr158-commerce-orders.spec.js, tests/unit/commerce-routes.test.js
+// @tested tests/e2e/fr162-commerce-orders.spec.js, tests/unit/commerce-routes.test.js
 
 async function api(url) {
   const response = await fetch(url)
@@ -51,7 +51,7 @@ export default function CommerceDashboardPage() {
 
   return <div>
     <PageHeader
-      eyebrow="Commerce · FEAT-022"
+      eyebrow="Commerce · FEAT-023"
       title="ยอดขายและการชำระเงิน"
       subtitle={`รายได้นับจากการชำระที่ตรวจสอบแล้วเท่านั้น แยกตามที่มา${business ? ` · ${business.name}` : ''}`}
       actions={<>

@@ -1,4 +1,4 @@
--- @req FR-160, FR-161 — Supplier, PurchaseOrder, PurchaseOrderLine, GoodsReceipt and GoodsReceiptLine (procurement).
+-- @req FR-164, FR-165 — Supplier, PurchaseOrder, PurchaseOrderLine, GoodsReceipt and GoodsReceiptLine (procurement).
 -- Twin of supabase/migrations/20260907010000_procurement.sql.
 -- @spec ADR-066; BR-001; BR-002; SEC-001
 -- Additive: five new tables, their indexes and foreign keys; nothing existing changes.

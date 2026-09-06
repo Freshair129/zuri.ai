@@ -7,12 +7,12 @@ import {
   SALES_ORDER_ORIGINS,
 } from '@/lib/validation/enums'
 
-// @req FR-158 — the pure vocabulary and calculators of a sales order: money
+// @req FR-162 — the pure vocabulary and calculators of a sales order: money
 //   as integer satang (a baht input with at most two decimals is exact), the
 //   line and order totals, the status machine (DRAFT → CONFIRMED → COMPLETED,
 //   DRAFT | CONFIRMED → CANCELLED), the origin of a sale (CHAT when it came
 //   from a Conversation), and the human code `ORD-YYYYMMDD-NNN`.
-// @req FR-159 — the payment side: what verified payments and refunds add up
+// @req FR-163 — the payment side: what verified payments and refunds add up
 //   to, the payment state an order shows (UNPAID / PARTIAL / PAID / OVERPAID
 //   / REFUNDED — derived, never stored), the code `PAY-YYYYMMDD-NNN`, and the
 //   revenue summary counted from verified payments only, by origin and by

@@ -1,4 +1,4 @@
-// @req FR-158, FR-159 — the Commerce module's stable exports: the pure
+// @req FR-162, FR-163 — the Commerce module's stable exports: the pure
 //   vocabulary and calculators, the authority ladder, the sales order writer,
 //   the payment writer and the revenue read model. Other lanes import from
 //   here, never from a file inside `application/` directly.

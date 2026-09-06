@@ -6,16 +6,16 @@ import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { PURCHASE_ORDER_ACTIONS } from '@/lib/validation/enums'
 
-// @req FR-160 — the purchase-orders console: create an order against a
+// @req FR-164 — the purchase-orders console: create an order against a
 //   supplier (lines that may name an inventory SKU at the agreed cost), send
 //   it, short-close it, cancel it; every money figure and every received /
 //   outstanding quantity comes from the server's read, never from the page.
-// @req FR-161 — post a goods receipt against a sent order, line by line (a
+// @req FR-165 — post a goods receipt against a sent order, line by line (a
 //   lot code and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked
 //   one), and see the order's receipt state and the Warehouse's on-hand follow.
 // @spec ADR-066; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
-// @tested tests/e2e/fr160-procurement.spec.js, tests/unit/procurement-routes.test.js
+// @tested tests/e2e/fr164-procurement.spec.js, tests/unit/procurement-routes.test.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -142,7 +142,7 @@ export default function PurchaseOrdersPage() {
 
   return <div>
     <PageHeader
-      eyebrow="Procurement · FEAT-023"
+      eyebrow="Procurement · FEAT-024"
       title="ใบสั่งซื้อ (Purchase Orders)"
       subtitle={`สั่งซื้อจากผู้ขาย รับของเข้าคลัง — ยอดที่รับแล้วและค้างรับคำนวณจากใบรับของทุกครั้ง${business ? ` · ${business.name}` : ''}`}
       actions={<button type="button" className="btn" onClick={() => refresh().catch((err) => setError(err.message))} disabled={busy}><RefreshCw size={15} /> โหลดใหม่</button>}
