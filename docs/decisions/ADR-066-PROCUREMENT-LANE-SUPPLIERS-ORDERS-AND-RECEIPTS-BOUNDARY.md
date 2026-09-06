@@ -19,7 +19,7 @@ attributes:
 [ADR-065](ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (D2, D4), [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7),
 FR-154, FR-155, FR-164, FR-165, FEAT-020, FEAT-024, BR-001, BR-002, FR-061, FR-072, FR-076,
 `docs/domains/procurement/CHARTER.md`, `docs/ERP-MODULE-MAP.md`,
-`docs/architecture/database-erd/full-schema.md` §20–§21.
+`docs/architecture/database-erd/full-schema.md` §21–§22.
 
 ## Context
 
@@ -57,7 +57,7 @@ other. The four documents above now say so, in the same change.
 | `PurchaseOrderV2` with `POItem` | `PurchaseOrder` with `PurchaseOrderLine` rows, `productId?` → Inventory `Product` | a line can be received against, costed and queried; "V2" is not a name |
 | stored received / outstanding quantities and totals | **computed on read** from the lines and the receipt lines; `receiptState` NONE / PARTIAL / COMPLETE derived | the progress rule — a stored number is the one the page disagrees with |
 | `float` cost | **integer satang** `unitCostSatang`, baht in the API | the ADR-065 D2 money rule, unchanged |
-| "partially received" as a status | not a status: `receiptState` on the DTO; `RECEIVED` is set only by the receipt that completes every line, `CLOSED` is the explicit short-close | a status that a later receipt would have to keep in step with a computed number is two sources of truth |
+| "partially received" as a status | not a status: `receiptState` on the DTO; `RECEIVED` is set only by the receipt that completes every line, `SHORT_CLOSED` is the explicit short-close | a status that a later receipt would have to keep in step with a computed number is two sources of truth |
 | `GRN…` as its own stock table | `GoodsReceipt` + `GoodsReceiptLine` as the **record**; the stock effect is Inventory's `StockMovement` rows with reference `PO:<code>/GRN:<code>` | one ledger (FR-155); the receipt says what was delivered, the ledger says what is held |
 | `POReturn`, `CreditNote`, `Advance` | **not modelled** | each is its own FR; a wrong receipt is corrected by an Inventory ADJUSTMENT today |
 | `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` (ONTOLOGY.md) | **deferred inside this lane** | a purchase order is created directly in this slice |
@@ -107,6 +107,6 @@ is its own FR, in this lane or its neighbour.
 - The Procurement slot is live: `/procurement` (suppliers and what is on order) and
   `/procurement/purchase-orders` (orders, receipts).
 - `docs/ERP-MODULE-MAP.md` records the owner's SCM row with each module's lane and state.
-- ERD §20 gains the Procurement section; the legacy-mapping row "Phase 5 shared/procurement"
+- ERD §21 gains the Procurement section; the legacy-mapping row "Phase 5 shared/procurement"
   moves from *target* to *built, corrected*.
 - Five tables and one migration; production SQL not applied (ADR-057).

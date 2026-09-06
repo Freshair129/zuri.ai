@@ -36,12 +36,12 @@ Three stages had already been passing a `provenance` object between them:
   `DPS-KI-PARSE` catalog row already fixes — is set. That lane is still open;
   the field is named in the catalog and in §7's diagram, and no module writes
   it yet.
-- **[FR-112](./FR-112-structural-knowledge-chunking.md)** (chunking) takes
+- **[FR-112](FR-112-structural-knowledge-chunking.md)** (chunking) takes
   `provenance` as a parameter of `chunkDocument` and writes it onto every chunk
   **verbatim** — its own comment says so: "carried verbatim from the caller.
   This function never derives them … provenance is captured at Stage 3, both
   upstream of here."
-- **[FR-113](./FR-113-entity-candidate-extraction.md)** (extraction) copies
+- **[FR-113](FR-113-entity-candidate-extraction.md)** (extraction) copies
   `chunk.provenance` and `record.provenance` onto each candidate, again
   verbatim.
 
@@ -60,7 +60,7 @@ Three properties are deliberate:
 
 - **No defaults on any of the ten.** `undefined`, `null` and `''` are each
   refused by field name. A default here is the same mistake
-  [FR-111](./FR-111-knowledge-sensitivity-lattice.md) refuses for
+  [FR-111](FR-111-knowledge-sensitivity-lattice.md) refuses for
   classification: a fact asserted about an artifact nobody looked at.
 - **An empty `provenance` object is refused as loudly as an absent one.** The
   failure mode this stage exists against is not a missing field; it is a field
@@ -73,7 +73,7 @@ Three properties are deliberate:
 
 ## Carries identifiers it does not mint
 
-The boundary with **[FR-071](./FR-071-supabase-data-pipeline-monitor-and-replay.md)**
+The boundary with **[FR-071](FR-071-supabase-data-pipeline-monitor-and-replay.md)**
 is the one place this requirement could quietly grow into another's subject, so
 state it plainly.
 
@@ -214,21 +214,21 @@ Each criterion is checked when a test in
   question.
 - **It does not publish anything.** `assertPublishable` is the check a publisher
   must pass, not the publisher. Nothing here writes, snapshots or promotes; the
-  publication contract is [FR-110](./FR-110-published-knowledge-snapshot-contract.md)'s.
+  publication contract is [FR-110](FR-110-published-knowledge-snapshot-contract.md)'s.
 - **Not parsing, chunking or extraction.** The objects this validates come from
   Stages 2, 7 and 8.
-- **Not classification.** `scope` is [FR-111](./FR-111-knowledge-sensitivity-lattice.md)'s;
+- **Not classification.** `scope` is [FR-111](FR-111-knowledge-sensitivity-lattice.md)'s;
   provenance says where an object came from, not who may read it.
 
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](./FR-109-knowledge-ingestion-stage-catalog.md) — the catalog Stage 3 belongs to
-- [FR-071 — Supabase data pipeline monitor and replay](./FR-071-supabase-data-pipeline-monitor-and-replay.md) — the execution ledger whose identifiers this consumes and never mints
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md) — the publisher this check stands in front of
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md) — the no-defaults argument, applied to classification
-- [FR-112 — Structural knowledge chunking with parent-child lineage](./FR-112-structural-knowledge-chunking.md) — carries `provenance` verbatim; the middle link of the chain
-- [FR-113 — Entity candidate extraction](./FR-113-entity-candidate-extraction.md) — copies `provenance` onto every candidate
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](FR-109-knowledge-ingestion-stage-catalog.md) — the catalog Stage 3 belongs to
+- [FR-071 — Supabase data pipeline monitor and replay](FR-071-supabase-data-pipeline-monitor-and-replay.md) — the execution ledger whose identifiers this consumes and never mints
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md) — the publisher this check stands in front of
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md) — the no-defaults argument, applied to classification
+- [FR-112 — Structural knowledge chunking with parent-child lineage](FR-112-structural-knowledge-chunking.md) — carries `provenance` verbatim; the middle link of the chain
+- [FR-113 — Entity candidate extraction](FR-113-entity-candidate-extraction.md) — copies `provenance` onto every candidate
 - [PRD-SDD v1.0 — FR-116, SDD-064, FR-071, SDD-042](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 3 in Tier 1 and names FR-071 / SDD-042 as the existing piece
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §8 (Stage 3) is the source requirement: the ten fields, the chain diagram and the invariant

@@ -1,0 +1,21 @@
+# Requires an @req annotation. This repository currently has none, so no edge of this type can be projected without inference, which the contract model forbids.
+contract_id: edge:code_file_implements_requirement
+contract_version: 1.0.0
+predicate: implements
+from_type: [code_file]
+to_type: [requirement]
+labels:
+  forward: implements
+  inverse: implements (query only)
+payload_schema: {}
+cardinality: 0..*
+semantic_hash: sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552
+status: active
+provenance:
+  actor_type: agent
+  actor_id: claude-opus-5
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-05T08:55:21Z
+  source_ref: OWNER-2026-09-05-registry-bootstrap
+  approval_ref: OWNER-2026-09-05-registry-bootstrap

@@ -47,8 +47,8 @@ Lost Reply response is UNKNOWN, not permission to Push again. A retry-key 409 co
 
 ## Source and validation anchors
 
-- [Implementation or wire contract](../../../../src/platform/integrations/providers/line/server-line-transport.js)
-- [Server verification anchor](../../../../tests/unit/platform/server-line-transport.test.js)
+- [Implementation or wire contract](../../../../apps/server/src/platform/integrations/providers/line/server-line-transport.js)
+- [Server verification anchor](../../../../apps/server/tests/unit/platform/server-line-transport.test.js)
 - [Shared map, explicit rollout gates and repository evidence](../../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 
 These anchors identify available coverage; this phase note does not assert that an external device, production database or real LINE delivery has been verified.

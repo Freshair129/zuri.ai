@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "documentationRoot": "docs",
+  "applications": {
+    "server": { "root": "apps/server", "node": "22", "lockfile": "apps/server/package-lock.json" },
+    "edge": { "root": "apps/edge", "node": "24", "lockfile": "apps/edge/package-lock.json" }
+  },
+  "publication": "build-only"
+}

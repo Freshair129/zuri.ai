@@ -1,0 +1,18 @@
+{
+  "version": "v1",
+  "groups": [
+    { "id": "smart_tech", "name_th": "Smart Tech & Gadgets", "name_en": "Smart Tech & Gadgets", "order": 1 },
+    { "id": "care_wellness", "name_th": "Care & Wellness", "name_en": "Care & Wellness", "order": 2 },
+    { "id": "office", "name_th": "Smart Work & Office", "name_en": "Smart Work & Office Stationery", "order": 3 },
+    { "id": "home_travel", "name_th": "Home & Travel Lifestyle", "name_en": "Home & Travel Lifestyle", "order": 4 }
+  ],
+  "typeToGroup": {
+    "power_bank": "smart_tech", "usb_flash_drive": "smart_tech", "charger": "smart_tech", "speaker": "smart_tech", "earbuds": "smart_tech",
+    "earphone": "smart_tech", "headset": "smart_tech", "mouse": "smart_tech", "keyboard": "smart_tech", "smart_bracelet": "smart_tech", "car_accessory": "smart_tech",
+    "neck_massager": "care_wellness", "massage_gun": "care_wellness", "massage_comb": "care_wellness", "hair_dryer": "care_wellness",
+    "humidifier": "care_wellness", "fan": "care_wellness", "glove": "care_wellness", "towel": "care_wellness", "nail_clipper": "care_wellness",
+    "notebook": "office", "notebook_refill": "office", "pen": "office", "bookmark": "office", "name_card_holder": "office",
+    "briefcase": "office", "key_chain": "office", "lighter": "office",
+    "drinkware": "home_travel", "coffee_maker": "home_travel", "umbrella": "home_travel", "bag": "home_travel"
+  }
+}

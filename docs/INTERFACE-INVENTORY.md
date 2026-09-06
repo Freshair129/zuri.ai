@@ -1,7 +1,7 @@
 ---
-version: "1.0.0b"
+version: "1.10.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-08-18T00:00:00+07:00,ATHER"
+last_update: "2026-09-06T22:02:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.6.0b |
+| **Version** | 1.13.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-07 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=66; operational_domain_keys=12; operational_subdomain_entries=37; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=76; operational_domain_keys=12; operational_subdomain_entries=39; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -143,6 +143,7 @@ page can issue a write.
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
 | `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-161 / ADR-064 |
+| `/customer/line-crm` | LineCRM-MCP workspace | BusinessShell → CRM / LineCRM | 12-module CRM workspace for dashboard, live chat, members, loyalty, campaigns, multi-OA, rich menu, automation, AI/MCP, member portal, audit log and settings | ready, empty, loading, forbidden, tab/query state | implemented; `src/app/(pm)/customer/line-crm/page.jsx`, `src/modules/line-crm/LineCrmShell.jsx`, FR-091, SDD-050 |
 
 ### 3.4 Market Intelligence domain
 
@@ -152,7 +153,7 @@ page can issue a write.
 
 ### 3.5 People and Platform domains
 
-The operational registry has nine domain keys. Platform currently exposes eight
+The operational registry has eleven domain keys. Platform currently exposes nine
 page routes from nine navigation entries because its Dashboard and Settings entries share
 `/settings`; one route is one interface row here.
 
@@ -234,12 +235,50 @@ not new global domains or new persistence aggregates.
 ### 3.9 Platform Control surface
 
 Platform Control is an installation-operator-only operational surface. It is not
-one of the nine operational Business domains (§4), is not configured in `DOMAINS`,
+one of the ten operational Business domains (§4), is not configured in `DOMAINS`,
 and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
+
+### Marketing Strategy first slice
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-159; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-159, FR-158; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+
+The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
+is a design inventory. These two native routes implement its Strategy slice;
+Campaigns and Content are the native slices described below; other Marketing screens remain planned, and automated team/provider activation
+is not implied by human review and channel intent fields.
+
+### Marketing Campaign slice (locally verified beta)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/campaigns` | MKT-UI-006 | Scoped list/board, search and phase filter | Growth visibility, bounded results, loading/empty/error | FR-160 |
+| `/growth/campaigns/new` | MKT-UI-076 | New initiative plus versioned Strategy brief | Active Business owner; validation and atomic save | FR-160 |
+| `/growth/campaigns/[initiativeId]` | MKT-UI-007–011 | Brief, Plan, Timeline, Results, Decisions in one URL tab bar | Exact Business/initiative; receipt-bound PM data; absent metrics unavailable; owner writes with CAS | FR-160 |
+
+[Campaign contract](domains/marketing/features/FR-160-campaign-initiatives.md) and [local phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md).
+Version diff: adds three native route shapes covering seven approved interfaces;
+provider measurements and automated Team refinement remain separately tracked.
+
+### Marketing Content and Creative slice (locally verified beta)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/content` | MKT-UI-016/017/018 | Briefs, Production and Library in one URL tab bar; real PM task projection and current approved outputs | Growth visibility; loading/empty/error/truncated; rights and source readiness | FR-157 |
+| `/growth/content/new` | MKT-UI-077 | Creative intent, channel and format, declared rights, optional source file and production task | Business owner; validated scoped choices; incomplete/unavailable references | FR-157 |
+| `/growth/content/briefs/[briefId]` | MKT-UI-058 | Immutable versions, independent review, exact approval/rejection/revocation and archive | Exact Business; owner writes with CAS; stale/hash mismatch and archive conflicts | FR-157 |
+| `/growth/content/assets/[assetId]` | MKT-UI-059 | One immutable output version, source/rights/review evidence and current usability | Scoped read; historical, expired, revoked and unavailable source states | FR-157 |
+
+[Content contract](domains/marketing/features/FR-157-content-creative.md) and
+[phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md).
+The asset route uses a Content revision id. Source files and production tasks retain
+their owning Files/PM identities. Human review does not activate Team agents or publishing.
 
 ## 4. Runtime registry reconciliation
 
@@ -251,11 +290,12 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source `DOMAINS` entries | 13 | `business-home` plus twelve operational domains |
 | Operational domain keys | 12 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `procurement`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 38 | includes Business Home Dashboard |
-| Operational sub-domain entries | 37 | excludes Business Home Dashboard |
+| Source sub-domain entries | 40 | includes Business Home Dashboard |
+| Operational sub-domain entries | 39 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 2 | Dashboard and Rich Menu (FR-146, FR-151) — the slot stopped being reserved when its console landed |
+| Marketing (`growth`) navigation entries | 4 | Dashboard, Strategy, Campaigns and Content & Creative (FR-157..160) |
 | Warehouse (`inventory`) navigation entries | 1 | Dashboard (FR-154, FR-155) |
 | Commerce navigation entries | 2 | Dashboard and Orders (FR-162, FR-163) |
 | Procurement navigation entries | 2 | Dashboard and Purchase Orders (FR-164, FR-165) |
@@ -302,8 +342,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 55 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 9 operational domains, 29 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 70 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 11 operational domains, 35 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -320,7 +360,12 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.6.0b | 2026-09-07 | beta | Registered the live `procurement` domain (FR-164, FR-165, ADR-066) with its Dashboard and Purchase Orders console; reconciled the marker to 66 page routes, 12 operational domains and 37 sub-domain entries, and the §4 table to the live registry (it had stopped at 10 domains / 30 entries while Inventory, Commerce, Sales Tasks and the LINE OA pages landed) | working-tree | Claude Fable 5.1 |
+| 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
+| 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
+| 1.11.0b | 2026-09-07 | candidate | Registered the CRM Sales Tasks page (`/customer/sales-tasks`, FR-161, ADR-064) and reconciled the marker to 72 page routes and 36 operational sub-domain entries | working-tree | Claude Fable 5.1 |
+| 1.12.0b | 2026-09-07 | candidate | Registered the Commerce Dashboard and Orders console (§3.2b, `/commerce`, `/commerce/orders`, FR-162, FR-163, ADR-065); marker reconciled to 74 page routes and 37 operational sub-domain entries | working-tree | Claude Fable 5.1 |
+| 1.13.0b | 2026-09-07 | candidate | Registered the live `procurement` domain (FR-164, FR-165, ADR-066) with its Dashboard and Purchase Orders console; reconciled the marker to 76 page routes, 12 operational domains and 39 operational sub-domain entries, and the §4 table to the live registry | working-tree | Claude Fable 5.1 |
+| 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
 | 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |
@@ -338,3 +383,9 @@ The current route evidence is:
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
+
+Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
+
+Version diff 1.7.0b → 1.8.0b: Content adds four route shapes and one navigation entry; six interfaces remain bounded by the FR-157 phase evidence.
+
+Version diff 1.8.0b → 1.9.0b: preserve Warehouse and Marketing in the Server monorepo; enumerate 70 page routes, 11 operational domains and 35 navigation entries.

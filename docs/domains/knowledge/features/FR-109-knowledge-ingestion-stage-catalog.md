@@ -467,10 +467,10 @@ changing FR-118's contract, which this slice does not do.
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-071 — Supabase data pipeline monitor and replay](./FR-071-supabase-data-pipeline-monitor-and-replay.md)
-- [FR-047 — LINE business-knowledge pilot](./FR-047-line-business-knowledge-pilot.md)
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md)
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md)
+- [FR-071 — Supabase data pipeline monitor and replay](FR-071-supabase-data-pipeline-monitor-and-replay.md)
+- [FR-047 — LINE business-knowledge pilot](FR-047-line-business-knowledge-pilot.md)
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md)
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md)
 - [PRD-SDD v1.0 — FR-109, SDD-057, SDD-058, NFR-020, BR-021, BR-022, SEC-021](../../../PRD-SDD-v1.0.md)
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
 - [ADR-046 — SoT pipeline interim serving and pulled decisions](../../../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md)

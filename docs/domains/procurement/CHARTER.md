@@ -60,7 +60,7 @@ Architecture decision: [ADR-066](../../decisions/ADR-066-PROCUREMENT-LANE-SUPPLI
   (FR-164).
 - `PurchaseOrder` (`po_id`) — `code` `PO-YYYYMMDD-NNN` unique per Tenant,
   against one ACTIVE `Supplier` of the same Business; DRAFT → SENT →
-  RECEIVED (set by the receipt that completes every line), SENT → CLOSED (a
+  RECEIVED (set by the receipt that completes every line), SENT → SHORT_CLOSED (a
   short-close with lines outstanding), DRAFT or SENT → CANCELLED (only while
   nothing was received); money as integer satang (FR-164).
 - `PurchaseOrderLine` — a line that may name an Inventory `Product` (SKU) at
@@ -117,7 +117,7 @@ FR-072 `404 Business not found`.
   transaction, or the receipt does not exist; an uncounted SKU or a free-text
   line touches no ledger and refuses lot or serial data.
 - The receipt that completes every line makes the order RECEIVED in the same
-  transaction; a RECEIVED, CLOSED or CANCELLED order receives nothing more.
+  transaction; a RECEIVED, SHORT_CLOSED or CANCELLED order receives nothing more.
 - CANCEL is refused once a receipt exists (the stock already moved); CLOSE is
   the short-close for an order that will not be completed.
 - Every write is one transaction that bumps `version` where the row has one

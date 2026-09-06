@@ -48,7 +48,7 @@ free-text or uncounted lines needs no Inventory authority.
 
 **Completion is the receipt's side effect.** The receipt that completes every
 line makes the order RECEIVED in the same transaction (audited on the order
-too); a RECEIVED, CLOSED or CANCELLED order receives nothing more; the order's
+too); a RECEIVED, SHORT_CLOSED or CANCELLED order receives nothing more; the order's
 `version` moves with each receipt so a stale caller conflicts; CANCEL is
 refused once a receipt exists.
 

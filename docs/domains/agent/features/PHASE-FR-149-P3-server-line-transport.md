@@ -47,8 +47,8 @@ Do not widen the knowledge read policy or silently substitute an external model 
 
 ## Source and validation anchors
 
-- [Implementation or wire contract](../../../../src/modules/agent/server-line-answer.js)
-- [Server verification anchor](../../../../tests/unit/server-line-answer.test.js)
+- [Implementation or wire contract](../../../../apps/server/src/modules/agent/server-line-answer.js)
+- [Server verification anchor](../../../../apps/server/tests/unit/server-line-answer.test.js)
 - [Shared map, explicit rollout gates and repository evidence](../../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 
 These anchors identify available coverage; this phase note does not assert that an external device, production database or real LINE delivery has been verified.

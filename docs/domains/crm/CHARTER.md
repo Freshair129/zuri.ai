@@ -13,7 +13,9 @@ relations:
   - type: relates_to
     target: ZAI:FR-149-P5
 domain: crm
-module: src/modules/crm
+modules:
+  - crm
+  - line-crm
 owns_models:
   - Person
   - Customer

@@ -1,0 +1,19 @@
+{
+  "bindingId": "84ed2c90-ab44-46f3-9618-1f24df0744b9",
+  "destination": "U-smartgift-destination",
+  "events": [
+    {
+      "webhookEventId": "evt-binding-v1",
+      "type": "message",
+      "source": {
+        "type": "user",
+        "userId": "Ufixture-user"
+      },
+      "message": {
+        "id": "msg-binding-v1",
+        "type": "text",
+        "text": "มีสินค้ารหัส USB-001 ไหม"
+      }
+    }
+  ]
+}

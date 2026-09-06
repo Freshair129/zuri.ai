@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zuri Edge Device — Control Center & Configuration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F8FA;
+      --card: #FFFFFF;
+      --border: #EFF1F3;
+      --border-strong: #E2E8F0;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --brand: #E8820C;
+      --brand-hover: #F09420;
+      --brand-surface: #FFF8F0;
+      --brand-tint: #FDE8D0;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --danger: #EF4444;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'IBM Plex Sans Thai', 'Manrope', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--brand);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px rgba(232, 130, 12, 0.25);
+    }
+    .title h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .title p {
+      margin: 0.15rem 0 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--success-bg);
+      color: #047857;
+      border: 1px solid #A7F3D0;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0 0 1.25rem;
+    }
+    .field {
+      margin-bottom: 1.1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .input {
+      width: 100%;
+      background: #FAFAFA;
+      border: 1px solid var(--border-strong);
+      border-radius: 0.6rem;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: inherit;
+      transition: all 0.15s;
+    }
+    .input:focus {
+      outline: none;
+      border-color: var(--brand);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px var(--brand-tint);
+    }
+    .input-mono {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--brand);
+      color: white;
+      border: none;
+      border-radius: 0.65rem;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      width: 100%;
+    }
+    .btn:hover {
+      background: var(--brand-hover);
+    }
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+    }
+    .btn-secondary:hover {
+      background: #F1F5F9;
+    }
+    .info-box {
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-tint);
+      border-radius: 0.75rem;
+      padding: 0.85rem;
+      font-size: 0.75rem;
+      color: #7C2D12;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: #F1F5F9;
+      color: #334155;
+    }
+    .meta-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .meta-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .meta-list li:last-child {
+      border-bottom: none;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      transition: all 0.15s;
+    }
+    .nav-link:hover {
+      border-color: var(--brand);
+      background: var(--brand-surface);
+      transform: translateY(-1px);
+    }
+    .mode-tab {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .mode-btn {
+      padding: 0.65rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 0.75rem;
+      background: #FAFAFA;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--brand-surface);
+      border-color: var(--brand);
+      color: var(--brand);
+      box-shadow: 0 2px 8px rgba(232, 130, 12, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="logo-group">
+      <div class="logo-badge">Z</div>
+      <div class="title">
+        <h1>Zuri Edge Device — Control Center</h1>
+        <p>Local Zero-Trust Intelligence Hub &amp; GenesisBlock Knowledge Graph Manager</p>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      <span id="runtimeStatus">Active · Port 8787</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Main Content Column -->
+    <div>
+      <!-- 🎙️ ZURI LIVE COMMAND CONSOLE & MONITOR -->
+      <div class="card" style="border: 2px solid var(--brand); background: var(--brand-surface);">
+        <h2 class="card-title" style="color: var(--brand); font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <span>🎙️ Live Command Console (Zuri Dispatcher)</span>
+          <span style="font-size: 0.7rem; font-weight: normal; background: var(--brand-tint); color: #7C2D12; padding: 0.2rem 0.5rem; border-radius: 4px;">Tone Transformer Active</span>
+        </h2>
+        <p class="card-subtitle" style="color: #7C2D12; opacity: 0.85; margin-bottom: 1rem;">พิมพ์คำสั่งภาษาคนหรือกดพูดด้วยเสียง ระบบจะแปลเป็นคำพูดซูริและ Push เข้ากลุ่ม LINE ทันที</p>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="field" style="margin-bottom: 0;">
+            <label for="dispatchTarget" style="color: #7C2D12;">🎯 เลือกกลุ่มเป้าหมายหรือลูกค้า (Target Channel)</label>
+            <select id="dispatchTarget" class="input font-semibold" style="border-color: var(--brand-tint); background: #FFFFFF;">
+              <option value="">กำลังโหลดช่องทางการติดต่อ...</option>
+            </select>
+          </div>
+          
+          <div class="field" style="margin-bottom: 0;">
+            <label for="commandText" style="color: #7C2D12; display: flex; justify-content: space-between; align-items: center;">
+              <span>📝 คำสั่งที่ต้องการสั่ง Zuri</span>
+              <button type="button" id="voiceBtn" class="btn-secondary" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem; border-color: var(--brand);">
+                🎙️ กดพูดด้วยเสียง (Speech)
+              </button>
+            </label>
+            <textarea id="commandText" class="input" rows="3" style="border-color: var(--brand-tint); background: #FFFFFF; font-family: inherit; font-size: 0.85rem;" placeholder="เช่น 'บอกกลุ่มทีมน้องว่าปรับปรุงระบบคำนวณราคาเสร็จแล้วจ้า'"></textarea>
+          </div>
+        </div>
+
+        <div id="tonePreviewBox" style="display: none; background: #FFFFFF; border: 1px dashed var(--brand); border-radius: 0.75rem; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--text);">
+          <div style="font-weight: 700; color: var(--brand); margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>✨ ข้อความซูริหลังแปลงโทน (Tone Preview)</span>
+            <span style="font-size: 0.7rem; font-weight: normal; background: #FFF1F2; color: #E11D48; padding: 0.1rem 0.4rem; border-radius: 4px;">รออนุมัติ</span>
+          </div>
+          <p id="tonePreviewText" style="margin: 0; white-space: pre-wrap; font-style: italic;"></p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <button type="button" id="previewBtn" class="btn btn-secondary" style="border-color: var(--brand); color: var(--brand); font-weight: 600;">✨ ทดลองแปลงโทนซูริ (Preview)</button>
+          <button type="button" id="dispatchBtn" class="btn" style="box-shadow: 0 4px 10px rgba(232, 130, 12, 0.2);">🚀 อนุมัติและยิงข้อความดิสแพตช์</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">🧠 Local Intelligence &amp; Model Engine</h2>
+        <p class="card-subtitle">เลือกรูปแบบการประมวลผลสมองกล (Local Ollama หรือ Subscription Plan Bridge)</p>
+
+        <!-- Mode Selector Tabs -->
+        <div class="mode-tab">
+          <div id="tabPlan" class="mode-btn active" onclick="switchEngineMode('HEADLESS_PLAN')">
+            ⚡ 1. Subscription Plan (Codex CLI / Luna)
+          </div>
+          <div id="tabOllama" class="mode-btn" onclick="switchEngineMode('OLLAMA_LOCAL')">
+            🖥️ 2. Pure Local (Ollama Models)
+          </div>
+        </div>
+
+        <form id="configForm">
+          <!-- Mode 1: Subscription Plan Details -->
+          <div id="planSection" class="space-y-3">
+            <div class="field">
+              <label for="planModelDropdown">เลือกโมเดลจาก Subscription Plan (Codex / Headless)</label>
+              <select id="planModelDropdown" class="input font-semibold" onchange="syncModelSelection(this.value)">
+                <option value="gpt-5.6-luna">gpt-5.6-luna (Codex Luna 5.6 - แนะนำ)</option>
+                <option value="claude-3-7-sonnet">claude-3-7-sonnet (Claude Code Session)</option>
+                <option value="claude-3-5-sonnet">claude-3-5-sonnet (Claude Code Session)</option>
+                <option value="gpt-4o">gpt-4o (Codex Standard)</option>
+                <option value="o3-mini">o3-mini (High Reasoning)</option>
+              </select>
+            </div>
+            <div class="info-box">
+              ⚡ <b>Zero Token Cost Policy:</b> ใช้โควต้าจาก Session Subscription รายเดือนที่คุณล็อกอินไว้บนเครื่อง (Codex CLI) โดยไม่มีค่า API Token เพิ่มเติม
+            </div>
+          </div>
+
+          <!-- Mode 2: Ollama Local Models Details -->
+          <div id="ollamaSection" style="display: none;">
+            <div class="field">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="margin: 0;" for="ollamaModelDropdown">เลือก Local Model ที่ติดตั้งในเครื่อง (จาก `ollama list`)</label>
+                <button type="button" class="btn-secondary" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 6px;" onclick="fetchOllamaModels()">🔄 รีเฟรชรายชื่อโมเดล</button>
+              </div>
+              <select id="ollamaModelDropdown" class="input input-mono" onchange="syncModelSelection(this.value)">
+                <option value="">กำลังโหลดโมเดลจาก Ollama...</option>
+              </select>
+            </div>
+            <div class="info-box" style="background: #F0FDF4; border-color: #BBF7D0; color: #166534;">
+              🖥️ <b>100% Offline &amp; Private:</b> โมเดลทำงานบน GPU/CPU ภายในเครื่องของคุณโดยตรง ปลอดภัย 100% ไม่ต้องใช้อินเทอร์เน็ต
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div class="field">
+              <label for="activeModelDisplay">Active Model Name</label>
+              <input type="text" id="activeModelDisplay" class="input input-mono" value="gpt-5.6-luna" readonly style="background: #ECEFF1;" />
+            </div>
+            <div class="field">
+              <label for="activePersona">Active Persona (.agents/)</label>
+              <select id="activePersona" class="input">
+                <option value="zuri-01">zuri-01 (SmartGift Sales Assistant)</option>
+                <option value="default">default (General Assistant)</option>
+              </select>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <h2 class="card-title" style="margin: 0;">🔐 Cloud Pairing Tokens (Zero-Trust Security)</h2>
+            <label class="btn-secondary" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 6px; cursor: pointer;">
+              📂 นำเข้า Pairing .json
+              <input type="file" accept=".json" style="display: none;" onchange="importPairingJson(event)" />
+            </label>
+          </div>
+          <p class="card-subtitle">นำรหัสจาก Zuri Cloud Console มาใส่ที่นี่ หรือกดปุ่มนำเข้าไฟล์ .json ด้านบน</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="field">
+              <label for="edgeDeviceId">Zuri Device ID</label>
+              <input type="text" id="edgeDeviceId" class="input input-mono" placeholder="DEV-SMARTGIFT-PRIMARY" required />
+            </div>
+            <div class="field">
+              <label for="edgeDeviceToken">Zuri Edge Token (Public Key)</label>
+              <input type="text" id="edgeDeviceToken" class="input input-mono" placeholder="tok_edge_..." required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="edgeDeviceSecret">Zuri Edge Secret (Private Signing Key)</label>
+            <input type="password" id="edgeDeviceSecret" class="input input-mono" placeholder="sec_edge_..." required />
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+          <h2 class="card-title">📲 LINE Messaging API &amp; Webhook Credentials</h2>
+          <p class="card-subtitle">ความลับเหล่านี้จะถูกเก็บรักษาไว้เฉพาะบน Local Hard Disk เครื่องนี้เท่านั้น (No Cloud Leak)</p>
+
+          <div class="field">
+            <label for="lineSecret">LINE Channel Secret</label>
+            <input type="password" id="lineSecret" class="input input-mono" placeholder="เช่น f2a1db2e501a5f09075378df64fdd59a" required />
+          </div>
+
+          <div class="field">
+            <label for="lineAccessToken">LINE Channel Access Token (Long-Lived)</label>
+            <input type="password" id="lineAccessToken" class="input input-mono" placeholder="tFvkQCW0kqv/bHpxz0rvgnWrBxW5gVuG..." required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="field">
+              <label for="lineGroupTeam">ทีมงาน Group ID (Team Alias)</label>
+              <input type="text" id="lineGroupTeam" class="input input-mono" placeholder="Cc7cfa4c501da9b430abc5ec09a8894ea" />
+            </div>
+            <div class="field">
+              <label for="lineGroupTest">ทดสอบ Group ID (Test Alias)</label>
+              <input type="text" id="lineGroupTest" class="input input-mono" placeholder="C423a5c290822a200bf061623aeb2c713" />
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+          <h2 class="card-title">💾 Disk Storage &amp; History Archive</h2>
+          <p class="card-subtitle">ตั้งค่าตำแหน่งจัดเก็บประวัติการแชทลูกค้าลงใน Local Hard Disk และรอบเวลาหมุนเวียนลบ</p>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+            <div class="field">
+              <label for="historyRoot">ตำแหน่งจัดเก็บบนเครื่อง (History Root Directory)</label>
+              <input type="text" id="historyRoot" class="input input-mono" placeholder="state/line-history" />
+            </div>
+            <div class="field">
+              <label for="retentionDays">ระยะเวลาเก็บ (วัน)</label>
+              <input type="number" id="retentionDays" class="input input-mono" value="90" />
+            </div>
+          </div>
+
+          <div class="info-box" style="background: #F8FAFC; border-color: #E2E8F0; color: #334155;">
+            📂 <b>โครงสร้าง Partitioning:</b> <code>state/line-history/{business}/{YYYY-MM-DD}.jsonl</code> (จัดเก็บแยกวันและทำ Deduplication อัตโนมัติ)
+          </div>
+
+          <button type="submit" class="btn" id="saveBtn">💾 บันทึกการตั้งค่าลง .env ทันที</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sidebar Quick Actions & Info -->
+    <div>
+      <div class="card">
+        <h3 class="card-title">🔗 Quick Portals</h3>
+        <p class="card-subtitle">เครื่องมือตรวจสอบและเปิดดูข้อมูล</p>
+
+        <a href="/graph" target="_blank" class="nav-link">
+          <span>🌐 Live Graph Viewer</span>
+          <span style="font-size: 0.8rem;">↗</span>
+        </a>
+        <a href="/api/graph" target="_blank" class="nav-link">
+          <span>📊 Graph API (JSON)</span>
+          <span style="font-size: 0.8rem;">↗</span>
+        </a>
+        <a id="cloudConsoleLink" href="#" target="_blank" class="nav-link" style="display: none;">
+          <span>☁️ Zuri Cloud Console</span>
+          <span style="font-size: 0.8rem;">↗</span>
+        </a>
+        <p id="cloudConsoleUnset" class="card-subtitle" style="margin: 0.5rem 0 0;">
+          ☁️ ยังไม่ได้ตั้งค่า Cloud Console (ตั้งค่า ZURI_CLOUD_CONSOLE_URL ใน .env — ที่อยู่นี้เป็นรายเครื่องตั้งแต่ ADR-058)
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">🛡️ Security &amp; Pairing</h3>
+        <p class="card-subtitle">สถานะการจับคู่กับ Cloud Console</p>
+
+        <ul class="meta-list">
+          <li>
+            <span style="color: var(--text-muted);">Device ID:</span>
+            <span class="tag" id="pairingDeviceId">—</span>
+          </li>
+          <li>
+            <span style="color: var(--text-muted);">Pairing Status:</span>
+            <span id="pairingStatus" style="font-weight: 700;">—</span>
+          </li>
+          <li>
+            <span style="color: var(--text-muted);">RAG Engine:</span>
+            <span style="font-weight: 600;">GenesisBlock DB</span>
+          </li>
+          <li>
+            <span style="color: var(--text-muted);">Local Port:</span>
+            <span class="tag">8787</span>
+          </li>
+        </ul>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--brand);">
+        <h3 class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <span>💬 Live Chat &amp; RAG Monitor</span>
+          <button type="button" class="btn-secondary" style="width: auto; padding: 0.15rem 0.5rem; font-size: 0.65rem; border-radius: 4px;" onclick="loadLiveLogs()">🔄 โหลดใหม่</button>
+        </h3>
+        <p class="card-subtitle">ข้อความล่าสุดที่ผู้ใช้ทักคุยกับซูริหรือยิง RAG เข้ามา</p>
+
+        <div id="liveLogsContainer" style="max-height: 250px; overflow-y: auto; font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; background: #FAFAFA;">
+          <div style="color: var(--text-muted); text-align: center; padding: 1rem 0;">กำลังโหลดบันทึกการคุย...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentEngineMode = 'HEADLESS_PLAN';
+
+  function switchEngineMode(mode) {
+    currentEngineMode = mode;
+    const tabPlan = document.getElementById('tabPlan');
+    const tabOllama = document.getElementById('tabOllama');
+    const planSection = document.getElementById('planSection');
+    const ollamaSection = document.getElementById('ollamaSection');
+
+    if (mode === 'HEADLESS_PLAN') {
+      tabPlan.classList.add('active');
+      tabOllama.classList.remove('active');
+      planSection.style.display = 'block';
+      ollamaSection.style.display = 'none';
+      syncModelSelection(document.getElementById('planModelDropdown').value);
+    } else {
+      tabPlan.classList.remove('active');
+      tabOllama.classList.add('active');
+      planSection.style.display = 'none';
+      ollamaSection.style.display = 'block';
+      syncModelSelection(document.getElementById('ollamaModelDropdown').value);
+    }
+  }
+
+  function syncModelSelection(val) {
+    if (val) {
+      document.getElementById('activeModelDisplay').value = val;
+    }
+  }
+
+  async function fetchOllamaModels() {
+    const dropdown = document.getElementById('ollamaModelDropdown');
+    dropdown.innerHTML = '<option value="">กำลังดึงข้อมูลจาก ollama list...</option>';
+    try {
+      const res = await fetch('/api/ollama/models');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.models && data.models.length > 0) {
+          dropdown.innerHTML = '';
+          data.models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            dropdown.appendChild(opt);
+          });
+          if (currentEngineMode === 'OLLAMA_LOCAL') {
+            syncModelSelection(dropdown.value);
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Ollama list error', e);
+    }
+    dropdown.innerHTML = '<option value="qwen3.5:9b">qwen3.5:9b (Default Local)</option><option value="lfm2.5:8b">lfm2.5:8b</option>';
+  }
+
+  function importPairingJson(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        if (json.deviceId) document.getElementById('edgeDeviceId').value = json.deviceId;
+        if (json.token) document.getElementById('edgeDeviceToken').value = json.token;
+        if (json.secret) document.getElementById('edgeDeviceSecret').value = json.secret;
+        alert(`✅ นำเข้าข้อมูล Pairing เรียบร้อยแล้ว:\n- Device ID: ${json.deviceId}\n- Token: ${json.token.slice(0, 16)}...`);
+      } catch (err) {
+        alert('❌ ไฟล์ JSON ไม่ถูกต้อง: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // 🎙️ --- Zuri Dispatcher GUI Logic ---
+  const dispatchTarget = document.getElementById('dispatchTarget');
+  const commandText = document.getElementById('commandText');
+  const voiceBtn = document.getElementById('voiceBtn');
+  const previewBtn = document.getElementById('previewBtn');
+  const dispatchBtn = document.getElementById('dispatchBtn');
+  const tonePreviewBox = document.getElementById('tonePreviewBox');
+  const tonePreviewText = document.getElementById('tonePreviewText');
+
+  let activeChannelsList = { groups: [], users: [] };
+  let transformedZuriMessage = '';
+
+  async function loadDispatchChannels() {
+    try {
+      const res = await fetch('/api/monitor/channels');
+      if (res.ok) {
+        const data = await res.json();
+        activeChannelsList = data;
+        dispatchTarget.innerHTML = '';
+
+        if (data.groups.length === 0 && data.users.length === 0) {
+          dispatchTarget.innerHTML = '<option value="">❌ ไม่พบกลุ่มหรือแชทส่วนตัวที่ใช้งาน</option>';
+          return;
+        }
+
+        // Add groups
+        if (data.groups.length > 0) {
+          const optGroup = document.createElement('optgroup');
+          optGroup.label = '👥 LINE Groups';
+          data.groups.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = `${g.name} (${g.alias})`;
+            optGroup.appendChild(opt);
+          });
+          dispatchTarget.appendChild(optGroup);
+        }
+
+        // Add users
+        if (data.users.length > 0) {
+          const optUser = document.createElement('optgroup');
+          optUser.label = '👤 1:1 Direct Users (Approved)';
+          data.users.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id; // hash id lookup on server
+            opt.textContent = `${u.displayName} (${u.role})`;
+            optUser.appendChild(opt);
+          });
+          dispatchTarget.appendChild(optUser);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load dispatch targets:', err);
+      dispatchTarget.innerHTML = '<option value="">❌ โหลดเป้าหมายล้มเหลว</option>';
+    }
+  }
+
+  // 🎙️ HTML5 Web Speech API integration
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'th-TH';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    voiceBtn.addEventListener('click', () => {
+      voiceBtn.disabled = true;
+      voiceBtn.textContent = '🔴 กำลังฟังเสียง (พูดได้เลย)...';
+      voiceBtn.style.background = '#FEE2E2';
+      voiceBtn.style.color = '#EF4444';
+      voiceBtn.style.borderColor = '#EF4444';
+      recognition.start();
+    });
+
+    recognition.onresult = (event) => {
+      const speechToText = event.results[0][0].transcript;
+      commandText.value = (commandText.value + ' ' + speechToText).trim();
+    };
+
+    recognition.onend = () => {
+      voiceBtn.disabled = false;
+      voiceBtn.textContent = '🎙️ กดพูดด้วยเสียง (Speech)';
+      voiceBtn.style.background = '';
+      voiceBtn.style.color = '';
+      voiceBtn.style.borderColor = '';
+    };
+
+    recognition.onerror = (e) => {
+      console.error('Speech recognition error:', e);
+      alert('เกิดข้อผิดพลาดในการฟังเสียง: ' + e.error);
+    };
+  } else {
+    voiceBtn.style.display = 'none'; // Hide if browser not supported
+  }
+
+  // Preview / Transform tone logic
+  previewBtn.addEventListener('click', async () => {
+    const target = dispatchTarget.value;
+    const rawCommand = commandText.value.trim();
+    if (!target || !rawCommand) {
+      alert('กรุณาเลือกช่องทางเป้าหมายและกรอกคำสั่งเสียง/พิมพ์คำสั่งก่อนค่ะ');
+      return;
+    }
+
+    previewBtn.disabled = true;
+    previewBtn.textContent = '✨ กำลังแปลงโทนซูริ...';
+    tonePreviewBox.style.display = 'none';
+
+    try {
+      // We simulate dispatcher with temporary text translation
+      // To run model check without pushing, we use standard fetch dispatch API with preview option (or run local LLM prompt)
+      // Since dispatch is POST, we run a prompt on server, we get text
+      const prompt = `[คำสั่งด่วนจาก Boss/Owner]: ให้ซูริแจ้งผู้ใช้ในกลุ่มแชท/ลูกค้าตามข้อความนี้:\n"${rawCommand}"\n\nจงเปลี่ยนคำสั่งข้างต้นให้กลายเป็นประกาศหรือคำตอบที่ส่งจาก "ซูริ" โดยใช้โทนเสียงที่สุภาพ อบอุ่น นอบน้อม และเป็นมิตร ห้ามเกริ่นอธิบายตัวคุณเอง ห้ามพ่นขั้นตอนการทำงาน ให้เขียนคำตอบของซูริที่จะส่งให้ลูกค้าตรง ๆ เท่านั้น`;
+      
+      const configRes = await fetch('/api/config');
+      const configData = await configRes.json();
+
+      // We call the server answer endpoint via internal direct query for instant preview!
+      // Send raw payload
+      const previewRes = await fetch('/api/command/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target, rawCommand: `[PREVIEW_ONLY_DO_NOT_SEND]: ${rawCommand}` }) // We will detect PREVIEW key or process directly
+      });
+
+      if (previewRes.ok) {
+        const result = await previewRes.json();
+        transformedZuriMessage = result.text;
+        tonePreviewText.textContent = transformedZuriMessage;
+        tonePreviewBox.style.display = 'block';
+      } else {
+        const error = await previewRes.json();
+        alert('แปลงโทนไม่สำเร็จ: ' + (error.error || 'Unknown error'));
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      previewBtn.disabled = false;
+      previewBtn.textContent = '✨ ทดลองแปลงโทนซูริ (Preview)';
+    }
+  });
+
+  // Approved & Dispatch logic
+  dispatchBtn.addEventListener('click', async () => {
+    const target = dispatchTarget.value;
+    const rawCommand = commandText.value.trim();
+    if (!target || !rawCommand) {
+      alert('กรุณากรอกข้อมูลและเป้าหมายให้ครบถ้วนก่อนส่งค่ะ');
+      return;
+    }
+
+    dispatchBtn.disabled = true;
+    dispatchBtn.textContent = '🚀 กำลังส่งไปยัง LINE...';
+
+    try {
+      const res = await fetch('/api/command/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target, rawCommand })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        alert(`✅ ส่งคำสั่งดิสแพตช์ผ่าน LINE สำเร็จเรียบร้อยแล้ว!\n\nข้อความที่ส่ง:\n"${result.text}"`);
+        commandText.value = '';
+        tonePreviewBox.style.display = 'none';
+      } else {
+        const error = await res.json();
+        alert('❌ ไม่สามารถยิงข้อความได้: ' + (error.error || 'Server error'));
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      dispatchBtn.disabled = false;
+      dispatchBtn.textContent = '🚀 อนุมัติและยิงข้อความดิสแพตช์';
+    }
+  });
+
+  async function loadConfig() {
+    await fetchOllamaModels();
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.deviceId) document.getElementById('edgeDeviceId').value = data.deviceId;
+        if (data.deviceToken) document.getElementById('edgeDeviceToken').value = data.deviceToken;
+        if (data.deviceSecret) document.getElementById('edgeDeviceSecret').value = data.deviceSecret;
+        if (data.lineChannelSecret) document.getElementById('lineSecret').value = data.lineChannelSecret;
+        if (data.lineChannelAccessToken) document.getElementById('lineAccessToken').value = data.lineChannelAccessToken;
+        if (data.historyRoot) document.getElementById('historyRoot').value = data.historyRoot;
+        if (data.retentionDays) document.getElementById('retentionDays').value = data.retentionDays;
+        if (data.lineGroupTeam) document.getElementById('lineGroupTeam').value = data.lineGroupTeam;
+        if (data.lineGroupTest) document.getElementById('lineGroupTest').value = data.lineGroupTest;
+        if (data.activePersona) document.getElementById('activePersona').value = data.activePersona;
+
+        // The panel above used to print a hardcoded device id next to a hardcoded "Paired".
+        const pairId = document.getElementById('pairingDeviceId');
+        const pairStatus = document.getElementById('pairingStatus');
+        if (pairId) pairId.textContent = data.deviceId || '—';
+        if (pairStatus) {
+          const paired = Boolean(data.pairing && data.pairing.configured);
+          pairStatus.textContent = paired ? '● Paired' : '○ Not paired';
+          pairStatus.style.color = paired ? 'var(--success)' : 'var(--text-muted)';
+          pairStatus.title = paired
+            ? 'A device credential and a cloud address are both configured.'
+            : 'Set ZURI_EDGE_DEVICE_KEY and ZURI_CLOUD_BASE_URL to pair this device.';
+        }
+
+        const cloudLink = document.getElementById('cloudConsoleLink');
+        const cloudUnset = document.getElementById('cloudConsoleUnset');
+        if (data.cloudConsoleUrl) {
+          cloudLink.href = data.cloudConsoleUrl;
+          cloudLink.style.display = '';
+          cloudUnset.style.display = 'none';
+        } else {
+          cloudLink.style.display = 'none';
+          cloudUnset.style.display = '';
+        }
+
+        if (data.engineMode === 'OLLAMA_LOCAL') {
+          switchEngineMode('OLLAMA_LOCAL');
+          if (data.modelName) {
+            document.getElementById('ollamaModelDropdown').value = data.modelName;
+            document.getElementById('activeModelDisplay').value = data.modelName;
+          }
+        } else {
+          switchEngineMode('HEADLESS_PLAN');
+          if (data.modelName) {
+            document.getElementById('planModelDropdown').value = data.modelName;
+            document.getElementById('activeModelDisplay').value = data.modelName;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load current config', e);
+    }
+  }
+
+  document.getElementById('configForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'กำลังบันทึก...';
+
+    const payload = {
+      deviceId: document.getElementById('edgeDeviceId').value.trim(),
+      deviceToken: document.getElementById('edgeDeviceToken').value.trim(),
+      deviceSecret: document.getElementById('edgeDeviceSecret').value.trim(),
+      engineMode: currentEngineMode,
+      modelName: document.getElementById('activeModelDisplay').value.trim(),
+      lineChannelSecret: document.getElementById('lineSecret').value.trim(),
+      lineChannelAccessToken: document.getElementById('lineAccessToken').value.trim(),
+      lineGroupTeam: document.getElementById('lineGroupTeam').value.trim(),
+      lineGroupTest: document.getElementById('lineGroupTest').value.trim(),
+      historyRoot: document.getElementById('historyRoot').value.trim(),
+      retentionDays: document.getElementById('retentionDays').value.trim(),
+      activePersona: document.getElementById('activePersona').value,
+    };
+
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        /*
+         * Say what the save actually did.
+         *
+         * This used to alert "saved" whatever happened, which is true of the file and says nothing
+         * about the device — and it hid a real case: a token rotation where the field still held
+         * the old value wrote the same bytes back and looked exactly like success. The response
+         * already names what the running process picked up and what it could not; showing it is
+         * the difference between a confirmation and a reassurance.
+         */
+        const applied = await res.json().catch(() => ({}));
+        const reloaded = applied.reloaded || [];
+        const needsRestart = applied.requiresRestart || [];
+        const lines = ['✅ บันทึกลง .env แล้ว'];
+        if (reloaded.length) {
+          lines.push('', 'มีผลทันที (ไม่ต้องรีสตาร์ท):', ...reloaded.map((f) => '  • ' + f));
+        }
+        if (needsRestart.length) {
+          lines.push('', '⚠️ ต้องรีสตาร์ทก่อนจึงจะมีผล:', ...needsRestart.map((f) => '  • ' + f));
+        }
+        if (!reloaded.length && !needsRestart.length) {
+          lines.push('', 'ℹ️ ไม่มีค่าใดเปลี่ยนแปลง — ที่บันทึกลงไปเหมือนเดิมทุกช่อง');
+        }
+        alert(lines.join(String.fromCharCode(10)));
+        await loadDispatchChannels(); // Reload targets since groups changed
+      } else if (res.status === 401) {
+        alert('🔒 เซสชันหมดอายุ — กรุณาเข้าสู่ระบบใหม่');
+        location.reload();
+      } else {
+        alert('❌ ไม่สามารถบันทึกได้ (HTTP ' + res.status + ')');
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = '💾 บันทึกการตั้งค่าลง .env ทันที';
+    }
+  });
+
+  // 💬 --- Live Logs Monitor Script ---
+  const liveLogsContainer = document.getElementById('liveLogsContainer');
+
+  async function loadLiveLogs() {
+    try {
+      const res = await fetch('/api/monitor/logs');
+      if (res.ok) {
+        const data = await res.json();
+        liveLogsContainer.innerHTML = '';
+        
+        if (!data.logs || data.logs.length === 0) {
+          liveLogsContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 1rem 0;">📭 ยังไม่มีประวัติการคุยกับลูกค้า</div>';
+          return;
+        }
+
+        data.logs.forEach(log => {
+          const logDiv = document.createElement('div');
+          logDiv.style.borderBottom = '1px solid var(--border)';
+          logDiv.style.paddingBottom = '0.35rem';
+          logDiv.style.marginBottom = '0.35rem';
+          
+          const timeFormatted = new Date(log.time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+          const threadTag = log.correlationId
+            ? `<span style="font-size: 0.65rem; background: var(--brand-tint); color: #7C2D12; padding: 0.1rem 0.35rem; border-radius: 4px; font-family: monospace;">🧵 ${log.correlationId.slice(0, 12)}...</span>`
+            : '';
+          
+          logDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
+              <span style="font-weight: 700; color: var(--brand); font-size: 0.75rem;">👤 ${log.sender}</span>
+              <span style="color: var(--text-muted); font-size: 0.65rem;">🕒 ${timeFormatted}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.1rem;">
+              <span>📍 Channel ID: ${log.target}</span>
+              ${threadTag}
+            </div>
+            <div style="color: var(--text); background: #FFFFFF; border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem 0.4rem; white-space: pre-wrap; word-break: break-word;">${log.text}</div>
+          `;
+          liveLogsContainer.appendChild(logDiv);
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to fetch live logs:', e);
+      liveLogsContainer.innerHTML = '<div style="color: #EF4444; text-align: center; padding: 1rem 0;">❌ โหลดบันทึกแชทล้มเหลว</div>';
+    }
+  }
+
+  loadConfig();
+  loadDispatchChannels();
+  loadLiveLogs();
+
+  // Auto-poll logs every 5 seconds for live monitor feed
+  setInterval(loadLiveLogs, 5000);
+</script>
+
+</body>
+</html>

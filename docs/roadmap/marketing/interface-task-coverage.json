@@ -1,0 +1,812 @@
+{
+  "baseline": {
+    "commit": "494a3666",
+    "designVersion": "1.1.0b",
+    "navigationVersion": "0.2.0b",
+    "mockupVersion": "0.1.0b",
+    "approval": "User approved design on 2026-09-06",
+    "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+  },
+  "coverage": [
+    {
+      "interfaceId": "MKT-UI-001",
+      "title": "Marketing dashboard",
+      "designKey": "dashboard/overview",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "partial: native plan dashboard; provider performance unavailable"
+    },
+    {
+      "interfaceId": "MKT-UI-002",
+      "title": "Situation & opportunity",
+      "designKey": "strategy/situation",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "partial: native read-only Business Strategy projection"
+    },
+    {
+      "interfaceId": "MKT-UI-003",
+      "title": "Objectives & success measures",
+      "designKey": "strategy/objectives",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "partial: native Business goals projection; Marketing goal binding pending"
+    },
+    {
+      "interfaceId": "MKT-UI-004",
+      "title": "Marketing plans",
+      "designKey": "strategy/plans",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "partial: native immutable Strategy plans, review, decision and PM handoff"
+    },
+    {
+      "interfaceId": "MKT-UI-005",
+      "title": "Budget scenarios",
+      "designKey": "strategy/scenarios",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "partial: explicit unavailable scenarios; saved revision comparison only"
+    },
+    {
+      "interfaceId": "MKT-UI-006",
+      "title": "All campaigns",
+      "designKey": "campaigns/list",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-007",
+      "title": "Campaign brief",
+      "designKey": "campaigns/brief",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-008",
+      "title": "Campaign execution plan",
+      "designKey": "campaigns/plan",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-009",
+      "title": "Campaign timeline",
+      "designKey": "campaigns/timeline",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-010",
+      "title": "Campaign results",
+      "designKey": "campaigns/results",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: explicit unavailable Results until approved measurement source exists"
+    },
+    {
+      "interfaceId": "MKT-UI-011",
+      "title": "Campaign decisions",
+      "designKey": "campaigns/decisions",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-012",
+      "title": "Paid media performance",
+      "designKey": "paid-media/performance",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-013",
+      "title": "Ad campaigns",
+      "designKey": "paid-media/campaigns",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-014",
+      "title": "Creative effectiveness",
+      "designKey": "paid-media/creatives",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-015",
+      "title": "Paid media experiments",
+      "designKey": "paid-media/experiments",
+      "implementationTaskCode": "MKT-W3-EXPERIMENTS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-016",
+      "title": "Creative briefs",
+      "designKey": "content/briefs",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-017",
+      "title": "Production pipeline",
+      "designKey": "content/production",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-018",
+      "title": "Approved creative library",
+      "designKey": "content/library",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-019",
+      "title": "Owned social posts",
+      "designKey": "social/posts",
+      "implementationTaskCode": "MKT-W3-SOCIAL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-020",
+      "title": "Social content calendar",
+      "designKey": "social/calendar",
+      "implementationTaskCode": "MKT-W3-SOCIAL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-021",
+      "title": "Instagram organic insights",
+      "designKey": "social/insights",
+      "implementationTaskCode": "MKT-W2-SOCIAL-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-022",
+      "title": "Community handoffs",
+      "designKey": "social/handoffs",
+      "implementationTaskCode": "MKT-W3-SOCIAL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-023",
+      "title": "Creator & partner directory",
+      "designKey": "partners/partners",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-024",
+      "title": "Partnership programs",
+      "designKey": "partners/programs",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-025",
+      "title": "Partner deliverables",
+      "designKey": "partners/deliverables",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-026",
+      "title": "Partnership performance",
+      "designKey": "partners/performance",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-027",
+      "title": "Live marketing schedule",
+      "designKey": "live/list",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-028",
+      "title": "Live brief",
+      "designKey": "live/brief",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-029",
+      "title": "Live rundown",
+      "designKey": "live/rundown",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-030",
+      "title": "Live readiness",
+      "designKey": "live/readiness",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-031",
+      "title": "Live results",
+      "designKey": "live/results",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-032",
+      "title": "Landing-page inventory",
+      "designKey": "website/pages",
+      "implementationTaskCode": "MKT-W3-WEBSITE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-033",
+      "title": "Conversion journey hypotheses",
+      "designKey": "website/journeys",
+      "implementationTaskCode": "MKT-W3-WEBSITE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-034",
+      "title": "Website & CRO experiments",
+      "designKey": "website/experiments",
+      "implementationTaskCode": "MKT-W3-EXPERIMENTS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-035",
+      "title": "Organic search performance",
+      "designKey": "seo/performance",
+      "implementationTaskCode": "MKT-W2-SEO-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-036",
+      "title": "Search opportunities",
+      "designKey": "seo/opportunities",
+      "implementationTaskCode": "MKT-W2-SEO-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-037",
+      "title": "Technical SEO findings",
+      "designKey": "seo/technical",
+      "implementationTaskCode": "MKT-W3-SEO-WORK",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-038",
+      "title": "SEO workplan",
+      "designKey": "seo/workplan",
+      "implementationTaskCode": "MKT-W3-SEO-WORK",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-039",
+      "title": "Marketing measurement overview",
+      "designKey": "analytics/overview",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-040",
+      "title": "Website acquisition",
+      "designKey": "analytics/acquisition",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-041",
+      "title": "Funnel evidence",
+      "designKey": "analytics/funnels",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-042",
+      "title": "Attribution & revenue",
+      "designKey": "analytics/attribution",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-043",
+      "title": "Source health & data quality",
+      "designKey": "analytics/data-quality",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-044",
+      "title": "Marketing intake",
+      "designKey": "operations/intake",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-045",
+      "title": "Delivery calendar",
+      "designKey": "operations/calendar",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-046",
+      "title": "Approval inbox",
+      "designKey": "operations/approvals",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-047",
+      "title": "Cross-domain handoffs",
+      "designKey": "operations/handoffs",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-048",
+      "title": "Marketing team",
+      "designKey": "team/team",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-049",
+      "title": "Refinement runs",
+      "designKey": "team/runs",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-050",
+      "title": "Review workspace",
+      "designKey": "team/reviews",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-051",
+      "title": "Decision ledger",
+      "designKey": "team/decisions",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-052",
+      "title": "Learning candidates",
+      "designKey": "team/learnings",
+      "implementationTaskCode": "MKT-W3-DEBRIEF",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-053",
+      "title": "September growth plan · v2",
+      "designKey": "strategy/plan-detail",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-054",
+      "title": "Autumn · Discovery",
+      "designKey": "paid-media/campaign-detail",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-055",
+      "title": "Gift explorers · Ad set",
+      "designKey": "paid-media/adset-detail",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-056",
+      "title": "Gift in motion · Ad",
+      "designKey": "paid-media/ad-detail",
+      "implementationTaskCode": "MKT-W2-PAID-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-057",
+      "title": "Gift in motion · Effectiveness",
+      "designKey": "paid-media/creative-detail",
+      "implementationTaskCode": "MKT-W3-CREATIVE-ANALYSIS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-058",
+      "title": "Autumn gift story · Creative brief",
+      "designKey": "content/brief-detail",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-059",
+      "title": "Autumn gift story · Asset v3",
+      "designKey": "content/asset-detail",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-060",
+      "title": "A gift with a story · Post",
+      "designKey": "social/post-detail",
+      "implementationTaskCode": "MKT-W3-SOCIAL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-061",
+      "title": "Nicha Creates · Partner",
+      "designKey": "partners/partner-detail",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-062",
+      "title": "Autumn creator stories · Program",
+      "designKey": "partners/program-detail",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-063",
+      "title": "Gift story video 01 · Deliverable",
+      "designKey": "partners/deliverable-detail",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-064",
+      "title": "Autumn gift landing page",
+      "designKey": "website/page-detail",
+      "implementationTaskCode": "MKT-W3-WEBSITE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-065",
+      "title": "Delivery-date clarity · Experiment",
+      "designKey": "website/experiment-detail",
+      "implementationTaskCode": "MKT-W3-EXPERIMENTS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-066",
+      "title": "Canonical mismatch · SEO finding",
+      "designKey": "seo/issue-detail",
+      "implementationTaskCode": "MKT-W3-SEO-WORK",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-067",
+      "title": "Corporate welcome gifts · Opportunity",
+      "designKey": "seo/opportunity-detail",
+      "implementationTaskCode": "MKT-W2-SEO-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-068",
+      "title": "GA4 acquisition report · Evidence",
+      "designKey": "analytics/report-detail",
+      "implementationTaskCode": "MKT-W2-ANALYTICS-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-069",
+      "title": "Autumn landing refresh · Intake",
+      "designKey": "operations/intake-detail",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-070",
+      "title": "Verify autumn offer stock · Handoff",
+      "designKey": "operations/handoff-detail",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-071",
+      "title": "September channel plan · MKR-021",
+      "designKey": "team/run-detail",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-072",
+      "title": "Review September plan · v1 → v2",
+      "designKey": "team/review-detail",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-073",
+      "title": "Channel plan approval · Decision",
+      "designKey": "team/decision-detail",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-074",
+      "title": "Context matters · Learning candidate",
+      "designKey": "team/learning-detail",
+      "implementationTaskCode": "MKT-W3-DEBRIEF",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-075",
+      "title": "New marketing plan",
+      "designKey": "strategy/new",
+      "implementationTaskCode": "MKT-W1-STRATEGY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-076",
+      "title": "New campaign brief",
+      "designKey": "campaigns/new",
+      "implementationTaskCode": "MKT-W1-CAMPAIGNS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-077",
+      "title": "New creative brief",
+      "designKey": "content/new",
+      "implementationTaskCode": "MKT-W1-CONTENT",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "native verified: Content and Creative slice; see PHASE-CONTENT-2026-09-06.md"
+    },
+    {
+      "interfaceId": "MKT-UI-078",
+      "title": "Draft Instagram post",
+      "designKey": "social/new",
+      "implementationTaskCode": "MKT-W3-SOCIAL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-079",
+      "title": "New partnership brief",
+      "designKey": "partners/new",
+      "implementationTaskCode": "MKT-W3-PARTNERS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-080",
+      "title": "Plan a live session",
+      "designKey": "live/new",
+      "implementationTaskCode": "MKT-W3-LIVE",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-081",
+      "title": "New marketing experiment",
+      "designKey": "website/experiment-new",
+      "implementationTaskCode": "MKT-W3-EXPERIMENTS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-082",
+      "title": "Submit marketing intake",
+      "designKey": "operations/new",
+      "implementationTaskCode": "MKT-W1-OPERATIONS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-083",
+      "title": "Configure refinement run",
+      "designKey": "team/new",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-084",
+      "title": "Approve exact version",
+      "designKey": "team/approve",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-085",
+      "title": "Request changes",
+      "designKey": "team/request-changes",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-086",
+      "title": "Reject proposal",
+      "designKey": "team/reject",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-087",
+      "title": "Pause refinement",
+      "designKey": "team/pause",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-088",
+      "title": "Cancel refinement",
+      "designKey": "team/cancel",
+      "implementationTaskCode": "MKT-W1-TEAM-UI",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-089",
+      "title": "Review external action",
+      "designKey": "team/action-review",
+      "implementationTaskCode": "MKT-W4-POLICY",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-090",
+      "title": "Review learning promotion",
+      "designKey": "team/promotion",
+      "implementationTaskCode": "MKT-W4-GKS",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-091",
+      "title": "Loading source data",
+      "designKey": "dashboard/state-loading",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-092",
+      "title": "No marketing data yet",
+      "designKey": "dashboard/state-empty",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-093",
+      "title": "Some source partitions are missing",
+      "designKey": "dashboard/state-partial",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-094",
+      "title": "Source data is out of date",
+      "designKey": "dashboard/state-stale",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-095",
+      "title": "Acquisition failed",
+      "designKey": "dashboard/state-error",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-096",
+      "title": "You do not have access",
+      "designKey": "dashboard/state-forbidden",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-097",
+      "title": "Capability is unavailable",
+      "designKey": "dashboard/state-unavailable",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-098",
+      "title": "This version has changed",
+      "designKey": "dashboard/state-conflict",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-099",
+      "title": "Required dependency is unavailable",
+      "designKey": "dashboard/state-blocked",
+      "implementationTaskCode": "MKT-W1-SHELL",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    },
+    {
+      "interfaceId": "MKT-UI-100",
+      "title": "External outcome is unknown",
+      "designKey": "dashboard/state-unknown",
+      "implementationTaskCode": "MKT-W4-UNKNOWN",
+      "mockupStatus": "verified design only",
+      "implementationStatus": "not started"
+    }
+  ]
+}

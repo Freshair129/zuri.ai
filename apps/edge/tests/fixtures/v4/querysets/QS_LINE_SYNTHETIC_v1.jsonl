@@ -1,0 +1,6 @@
+{"id":"SYN-LINE-1","text":"แก้วน้ำหรือสมุด ไม่ใช่แก้ว งบ 200 บาท","expected":{"kind":"type","id":"notebook"},"exclude":["drinkware"],"qty":null,"budget":200,"group":"office","intent":"find"}
+{"id":"SYN-LINE-2","text":"แก้วน้ำหรือสมุด ขอของขวัญ ไม่ใช่แก้ว งบ 200 บาท","expected":{"kind":"type","id":"notebook"},"exclude":["drinkware"],"qty":null,"budget":200,"group":"office","intent":"find"}
+{"id":"SYN-LINE-3","text":"แก้วน้ำหรือสมุด เลือกสินค้า ไม่ใช่แก้ว งบ 200 บาท","expected":{"kind":"type","id":"notebook"},"exclude":["drinkware"],"qty":null,"budget":200,"group":"office","intent":"find"}
+{"id":"SYN-LINE-4","text":"แก้วน้ำหรือสมุด ช่วยหา ไม่ใช่แก้ว งบ 200 บาท","expected":{"kind":"type","id":"notebook"},"exclude":["drinkware"],"qty":null,"budget":200,"group":"office","intent":"find"}
+{"id":"SYN-LINE-5","text":"แก้วน้ำมีกี่สี","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"color"}
+{"id":"SYN-LINE-6","text":"แก้วน้ำมีตัวไหนบ้าง","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"find"}

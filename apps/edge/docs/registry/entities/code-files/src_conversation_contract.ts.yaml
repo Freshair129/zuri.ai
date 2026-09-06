@@ -1,0 +1,12 @@
+entity_id: code:src/conversation/contract.ts
+entity_type: code_file
+canonical_path: src/conversation/contract.ts
+status: active
+introduced_by:
+  actor_type: agent
+  actor_id: RWANG
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-06T06:50:17.942Z
+  source_ref: c3c71cc2397c0963e2f626fa0ca7aeb691f91e61
+  approval_ref: OWNER-2026-09-06-approved-codex-containment

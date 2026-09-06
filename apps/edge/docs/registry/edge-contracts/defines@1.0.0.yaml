@@ -1,0 +1,21 @@
+# A governing document is where a requirement is stated.
+contract_id: edge:document_defines_requirement
+contract_version: 1.0.0
+predicate: defines
+from_type: [document]
+to_type: [requirement]
+labels:
+  forward: defines
+  inverse: defines (query only)
+payload_schema: {}
+cardinality: 0..*
+semantic_hash: sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d
+status: active
+provenance:
+  actor_type: agent
+  actor_id: claude-opus-5
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-05T08:55:21Z
+  source_ref: OWNER-2026-09-05-registry-bootstrap
+  approval_ref: OWNER-2026-09-05-registry-bootstrap

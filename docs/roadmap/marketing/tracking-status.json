@@ -1,0 +1,225 @@
+{
+  "version": "0.6.2b",
+  "status": "Strategy first slice, Campaign and Content verified locally on the integrated monorepo; Operations planned; SmartGift instance and Workspace unresolved; not imported",
+  "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
+  "initialPlannedProgressPercent": 5,
+  "progressMeaning": "Initial 5% is the design preparation snapshot. Campaign and Content bounded tasks are locally DONE with evidence; full Wave 1 remains open. Actual PM percentage is unverified because no server import occurred.",
+  "counts": {
+    "workstreams": 5,
+    "items": 47,
+    "milestones": 5,
+    "gates": 5,
+    "dependencies": 158,
+    "interfaces": 100
+  },
+  "validation": {
+    "interfaceCoverage": "100/100",
+    "dependencyGraph": "acyclic",
+    "targetVerified": false,
+    "serverDryRun": false,
+    "committed": false,
+    "strictJsonSchema": "PASS",
+    "localVocabulary": "PASS",
+    "parallelReview": {
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "max",
+      "agents": 3,
+      "result": "review complete; task references enriched; metadata enforcement caveat recorded"
+    }
+  },
+  "localImplementation": {
+    "slice": "FR-159 / FR-158 Strategy revision, decision and PM handoff",
+    "status": "first Strategy slice locally verified; broader tasks remain in progress",
+    "baselineCommit": "5044ba25",
+    "foundationCommit": "89147247",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "agents": 3,
+    "productionMigrationApplied": false,
+    "fullWave1Complete": false,
+    "phaseReport": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
+    "fullTest": {
+      "passed": 3872,
+      "skipped": 14,
+      "failed": 0
+    },
+    "existingBrowserRegression": {
+      "passed": 99,
+      "skipped": 4,
+      "flaky": 0
+    },
+    "marketingBrowser": {
+      "passed": 6,
+      "skipped": 0,
+      "flaky": 0,
+      "finalSidebarCheck": "PASS"
+    },
+    "integrationBaseCommit": "ecbe27e0",
+    "build": "PASS",
+    "planValidation": "PASS: 47 tasks, 158 acyclic dependencies, 100 interface mappings",
+    "visualReview": "PASS: desktop 1440x1000; mobile 390x844 with scroll-to-submit and keyboard tabs",
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    }
+  },
+  "requestedTarget": {
+    "businessName": "SmartGift",
+    "source": "User specified SmartGift in this task",
+    "instanceUrl": null,
+    "workspaceId": null,
+    "verified": false
+  },
+  "campaignImplementation": {
+    "requirement": "FR-160",
+    "spec": "SDD-087",
+    "status": "locally verified",
+    "foundationCommit": "f125ff1f",
+    "baseCommit": "a7b5d9ed",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "agents": 3,
+    "baselineTests": {
+      "passed": 3897,
+      "skipped": 14,
+      "failed": 0
+    },
+    "productionMigrationApplied": false,
+    "applicationCommit": "e44d482b",
+    "schemaCommit": "1fd2e75e",
+    "phaseReport": "docs/roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md",
+    "fullTest": {
+      "passed": 3930,
+      "skipped": 14,
+      "failed": 0,
+      "note": "Full schema-integrated run before final bounded UI navigation correction; 16 relevant unit tests passed afterward"
+    },
+    "finalUiTests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "fullBrowser": {
+      "passed": 106,
+      "skipped": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "build": "PASS",
+    "visualReview": "PASS: desktop 1440px, mobile 390px, no horizontal overflow, Campaign detail keyboard tabs and no page errors",
+    "fullWave1Complete": false,
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    },
+    "planValidation": "PASS: 47 tasks, 158 acyclic dependencies, 100 unique interface mappings"
+  },
+  "localTaskCounts": {
+    "DONE": 5,
+    "IN_PROGRESS": 7,
+    "PLANNED": 35
+  },
+  "contentImplementation": {
+    "requirement": "FR-157",
+    "spec": "SDD-088",
+    "status": "locally verified",
+    "baseCommit": "b2656bcb",
+    "foundationCommit": "5ab8bf6a",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "agents": 3,
+    "phaseReport": "docs/roadmap/marketing/PHASE-CONTENT-2026-09-06.md",
+    "productionMigrationApplied": false,
+    "fullWave1Complete": false,
+    "foundationTests": {
+      "passed": 3933,
+      "skipped": 14,
+      "failed": 0
+    },
+    "foundationChecks": {
+      "backupAndMigrationPolicy": 4,
+      "navigationAndWarmup": 5,
+      "existingMigrationRowsPreserved": 6,
+      "addedTables": 4,
+      "foreignKeyViolations": 0
+    },
+    "applicationCommit": "57483225",
+    "coreCorrectionCommit": "a760e520",
+    "fullTest": {
+      "passed": 3971,
+      "skipped": 14,
+      "failed": 0,
+      "note": "Full core-integrated run; final bounded UI corrections subsequently passed 16 relevant tests"
+    },
+    "finalUiTests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "existingBrowser": {
+      "passed": 106,
+      "skipped": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "contentBrowser": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "flaky": 0,
+      "note": "Warmup plus two authenticated lifecycle/mobile tests on integrated root port3148; independently passed on3117"
+    },
+    "uniqueBrowserPasses": 108,
+    "build": "PASS",
+    "visualReview": "PASS: desktop1280x720 and mobile390x844 screenshots reviewed; real source/rights/PM, revision/history, review/approve/revoke, page links, keyboard focus, no horizontal overflow or page errors",
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    },
+    "planValidation": "PASS: strict schema;47 tasks,158 unchanged acyclic dependencies,100 unique interface mappings;task codes/weights unchanged"
+  },
+  "monorepoIntegration": {
+    "status": "locally verified",
+    "baseCommit": "5ab5df9f",
+    "phaseReport": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
+    "serverRoot": "apps/server",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "fullTest": {
+      "passed": 4009,
+      "skipped": 14,
+      "failed": 0
+    },
+    "serverBuild": "PASS",
+    "edgeBuild": "PASS",
+    "edgeTypecheck": "PASS",
+    "edgeTest": {
+      "passed": 913,
+      "skipped": 3,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 109,
+      "skipped": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "modelCount": 110,
+    "pageRoutes": 70,
+    "apiPaths": 179,
+    "apiOperations": 243,
+    "operationsTaskStatus": "PLANNED",
+    "productionMigrationApplied": false,
+    "serverPlanImported": false,
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    }
+  }
+}
