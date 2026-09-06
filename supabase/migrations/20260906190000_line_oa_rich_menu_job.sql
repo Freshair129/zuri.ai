@@ -15,9 +15,19 @@
 -- existing is altered, renamed, dropped or rewritten. Idempotent: safe to run
 -- more than once.
 --
--- NOT APPLIED to production by this change. Applying is an owner-instructed
--- operator step (ADR-057) for the deploy-role session: dry run in a
--- rolled-back transaction, then apply and record the version.
+-- Renamed 2026-09-06 from 20260906180000_line_oa_rich_menu_job.sql: that
+-- timestamp collided with 20260906180000_line_conversation_job_rls_policy.sql
+-- (two PRs picked the same minute), and `version` is the primary key of
+-- supabase_migrations.schema_migrations, so both could never be recorded
+-- under it. The DDL below (verbatim, unchanged) was already dry-run and
+-- applied to production under the old filename — table, indexes and policy
+-- exist — but its version was deliberately left unrecorded pending this
+-- rename. Matching prisma/migrations/20260906190000_line_oa_rich_menu_job
+-- renamed the same way, same reason.
+--
+-- Applying the DDL was an owner-instructed operator step (ADR-057) for the
+-- deploy-role session, already done; recording the version under this
+-- filename's timestamp is the remaining step.
 
 BEGIN;
 

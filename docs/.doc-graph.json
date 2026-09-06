@@ -55,39 +55,14 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "domain:integration",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
-    "added": [
       "doc:FR-152-line-oa-rich-menu-publish-jobs",
-      "route:api:/api/line-oa/rich-menu-worker",
-      "route:api:/api/line-oa/rich-menus/[id]/jobs",
-      "model:LineOaRichMenuJob",
-      "req:FR-152",
-      "test:tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
-      "test:tests/unit/line-oa-rich-menu-jobs-routes.test.js",
-      "test:tests/unit/line-oa-rich-menu-publish.test.js",
-      "test:tests/unit/platform/server-line-rich-menu-transport.test.js",
-      "code:src/app/api/line-oa/rich-menu-worker/route.js",
-      "code:src/app/api/line-oa/rich-menus/[id]/jobs/route.js",
-      "code:src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
-      "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
-      "code:src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
-      "code:src/platform/integrations/providers/line/server-line-rich-menu-transport.js"
+      "doc:SRS",
+      "test:tests/unit/line-oa-rich-menu-jobs-routes.test.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4927,7 +4902,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "08c88794",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8284,7 +8259,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "a2ff6620",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -8352,7 +8327,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "6325afd6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10312,7 +10287,7 @@
       "version": "1.38.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "4804401a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10366,7 +10341,7 @@
       "version": "1.19.0b",
       "doc_status": "Draft",
       "hash": "859ccf9c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -10584,7 +10559,7 @@
       "version": "1.22.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "9f453ce6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11390,8 +11365,8 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
       "title": "FR-152 — rich menu publish jobs, server-owned",
-      "hash": "0464500f",
-      "status": "current"
+      "hash": "2f3ec600",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -11747,7 +11722,7 @@
       "version": "1.155.0b",
       "doc_status": "Draft",
       "hash": "cad91565",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11791,7 +11766,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "20e5077e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12184,7 +12159,7 @@
         "integration"
       ],
       "hash": "2401793e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -12224,7 +12199,7 @@
         "line-oa-studio"
       ],
       "hash": "f8364217",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -18814,7 +18789,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "cb224829",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -20248,8 +20223,8 @@
       "id": "test:tests/unit/line-oa-rich-menu-jobs-routes.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-rich-menu-jobs-routes.test.js",
-      "hash": "c33c6a09",
-      "status": "current"
+      "hash": "6c2814c8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-oa-rich-menu-publish.test.js",

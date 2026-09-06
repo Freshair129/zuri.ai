@@ -78,9 +78,13 @@ untouched.
 ## Delivered (local, 2026-09-06)
 
 - `prisma/schema.prisma` + generated Postgres schema: `LineOaRichMenuJob`;
-  migrations `prisma/migrations/20260906180000_line_oa_rich_menu_job` and
-  `supabase/migrations/20260906180000_line_oa_rich_menu_job.sql` (forced RLS,
-  private grants, **not applied**) in the same change.
+  migrations `prisma/migrations/20260906190000_line_oa_rich_menu_job` and
+  `supabase/migrations/20260906190000_line_oa_rich_menu_job.sql` (forced RLS,
+  private grants) in the same change. Originally timestamped `20260906180000`;
+  renamed the same day after it collided with
+  `20260906180000_line_conversation_job_rls_policy.sql` under
+  `schema_migrations`'s primary key. DDL applied to production under the old
+  filename before the rename; the version is recorded under this one.
 - `src/platform/integrations/providers/line/server-line-rich-menu-transport.js`
   — the Integration lane's port.
 - `src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js` — the LINE

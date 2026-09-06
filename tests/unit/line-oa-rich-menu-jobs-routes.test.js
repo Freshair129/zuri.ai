@@ -59,7 +59,12 @@ describe('FR-152 rich menu job routes and persistence contract', () => {
     const sql = read(`supabase/migrations/${production}`)
     expect(sql).toContain('CREATE TABLE IF NOT EXISTS "LineOaRichMenuJob"')
     expect(sql).toContain('ALTER TABLE "LineOaRichMenuJob" FORCE ROW LEVEL SECURITY')
-    expect(sql).toMatch(/NOT APPLIED/)
+    // 2026-09-06: the file was renamed (20260906180000 → 20260906190000) after
+    // its original timestamp collided with another migration's under
+    // schema_migrations's version primary key. By the time of the rename the
+    // DDL had already been applied to production under the old filename, so
+    // the file no longer claims to be unapplied — it says so, honestly.
+    expect(sql).toMatch(/applied to production/i)
     expect(sql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
   })
 })
