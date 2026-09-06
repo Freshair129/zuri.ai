@@ -54,15 +54,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "code:src/app/(pm)/line-oa/projects/page.jsx",
-      "code:src/config/domains.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -829,7 +821,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
       "hash": "4dee4be0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -5824,7 +5816,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "4ba164f5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -9736,7 +9728,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "hash": "18abb83c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9753,7 +9745,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
       "hash": "6997dcb0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9862,7 +9854,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "hash": "8f40e9ac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9898,7 +9890,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "hash": "1ffa77ec",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9935,7 +9927,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "hash": "9e4a8803",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
