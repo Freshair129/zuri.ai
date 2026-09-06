@@ -4,13 +4,13 @@
   "scanned": {
     "docs": 272,
     "routes": 131,
-    "test_files": 437
+    "test_files": 438
   },
   "summary": {
-    "critical": 0,
-    "warning": 0,
-    "info": 25,
-    "overall": "PASS"
+    "critical": 1,
+    "warning": 1,
+    "info": 26,
+    "overall": "CRITICAL"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -257,7 +257,18 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "W23",
+      "severity": "warning",
+      "check": "untracked-docs",
+      "title": "1 document(s) under docs/ are untracked and invisible to every other check",
+      "details": "docs/.schema-migration-baseline.json",
+      "files": [
+        "docs/.schema-migration-baseline.json"
+      ],
+      "action": "git add them if they belong to the repository, or delete them if they do not. Adding them to .gitignore is NOT the third option: an ignored file is hidden from this check too, which is strictly worse than an untracked one. This check CANNOT fire in CI — a CI checkout has no untracked files by construction, so it passes there regardless of what sits in any working tree. A green governance run on a pull request is not evidence that this class is clean. It is closed by running npm run govern locally, and by nothing else."
+    },
+    {
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 272 document(s)",
@@ -268,7 +279,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I25",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -280,13 +291,36 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I25",
+      "id": "I26",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 49 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
+    },
+    {
+      "id": "C27",
+      "severity": "critical",
+      "check": "schema-migration-drift",
+      "title": "1 column(s) declared in the production schema are created by no migration",
+      "details": "RawExternalRecord.artifactId",
+      "files": [
+        "prisma/schema.postgres.prisma",
+        "supabase/migrations"
+      ],
+      "action": "Write an idempotent migration under supabase/migrations/ that creates the column (ALTER TABLE ... ADD COLUMN IF NOT EXISTS, or CREATE TABLE IF NOT EXISTS for a new model) — never widen .schema-migration-baseline.json to silence this. Production is migrated only from that directory; a column that exists only in the schema fails every query that selects it"
+    },
+    {
+      "id": "I28",
+      "severity": "info",
+      "check": "schema-migration-drift",
+      "title": "33 declared column(s) have no migration (accepted debt)",
+      "details": "baseline: docs/.schema-migration-baseline.json; tables: PersonCredential, PasswordResetToken, Workstream, PlanImportReceipt",
+      "files": [
+        "docs/.schema-migration-baseline.json"
+      ],
+      "action": "Write their migrations as their lanes are revisited; the baseline may only shrink"
     }
   ]
 }

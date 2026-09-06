@@ -321,6 +321,17 @@ preflight CRITICAL.
   advisory. Never report a number a page would disagree with.
 - **Every write goes through a service** in `application/`, which records an audit
   event. Route handlers stay thin.
+- **A new model or column ships its Supabase migration in the same change.** The
+  dev database is SQLite under `prisma db push`, so a field with no migration works
+  locally and passes every test; production is migrated only from
+  `supabase/migrations/` and does not have it. Preflight `schema-migration-drift`
+  compares the generated `prisma/schema.postgres.prisma` (never `prisma/schema.prisma`
+  — a check on the dev schema would fire on every normal change) against every
+  `CREATE TABLE` / `ADD COLUMN` in that directory and is CRITICAL on a declared
+  column no migration creates. `docs/.schema-migration-baseline.json` is the accepted
+  debt and may only shrink. Applying a migration is a separate owner-instructed
+  operator step (ADR-057); the change that writes the file never claims it
+  (`docs/DB-MIGRATION-NOTES.md` §Migration discipline).
 - **Every intake surface converges on one envelope** → validate → semantic check →
   read-only dry run → preview → single transaction → audit (BR-009, SDD-009). New
   surfaces add a converter, never a second write path.

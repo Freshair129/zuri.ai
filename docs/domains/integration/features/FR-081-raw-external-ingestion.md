@@ -3,7 +3,7 @@ domain: integration
 feature: FR-081
 module: integration
 source: v2-native
-version: "0.1.0"
+version: "0.1.1"
 status: beta
 ---
 
@@ -181,3 +181,18 @@ alongside the existing `expiresAt`: the token pair describes an OAuth grant held
 by the provider, while `expiresAt` remains the secret-manager reference expiry
 FR-079 fails closed on. They are separate because rotating an access token does
 not invalidate the reference.
+
+## Migration lineage — `artifactId` (2026-09-06)
+
+`RawExternalRecord` is this lane's model, and a column another requirement adds
+to it is still this lane's column to migrate. FR-109 AC-109.3 added
+`artifactId` (nullable, indexed) on 2026-08-29 through `prisma db push` with no
+migration in either tree; production Supabase — migrated only from
+`supabase/migrations/` — never received it, and `GET /api/backup/export`, which
+snapshots this model, failed there until the gap was read on 2026-09-05.
+`supabase/migrations/20260906090000_raw_external_record_artifact_id.sql` is the
+idempotent repair (**not applied** by the change that wrote it; owner-instructed
+operator step, ADR-057), `prisma/migrations/20260906090000_raw_external_record_artifact_id/`
+its SQLite twin, and preflight `schema-migration-drift` now fails any declared
+column with no migration. Full account:
+`.brain/rca/2026-09-06-a-schema-column-with-no-migration.md`.

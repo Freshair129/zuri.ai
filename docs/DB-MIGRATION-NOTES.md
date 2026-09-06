@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.6 |
+| **Version** | 1.0.7 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-21 |
+| **Last Updated** | 2026-09-06 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -36,6 +36,50 @@ the same relation and index, so export/import preserves both UUID references.
    - `POST /api/backup/import {confirm:true}` on the Postgres instance
    (snapshot format is provider-agnostic).
 5. Re-run the full test suite; integration tests are provider-independent.
+
+## Migration discipline — production columns come from `supabase/migrations/` only
+
+Three files describe the schema and they are not interchangeable:
+
+| File | What it is | How it reaches a database |
+|---|---|---|
+| `prisma/schema.prisma` | the canonical model; SQLite for dev and test | `prisma db push` — the file IS the migration locally, so a field with no migration file is normal here |
+| `prisma/schema.postgres.prisma` | GENERATED from the canonical model (`npm run db:pg:schema`); what production is supposed to match | never applied directly |
+| `supabase/migrations/*.sql` | the production lineage | applied by an operator on the owner's instruction (ADR-057), dry run first |
+
+So a column that exists in the schema but in no Supabase migration is a column
+production does not have, and every Prisma query that selects it — including
+`GET /api/backup/export`, which selects every column of every snapshot model —
+fails there while every local test passes. That happened with
+`RawExternalRecord.artifactId` from 2026-08-29 to 2026-09-05
+(`.brain/rca/2026-09-06-a-schema-column-with-no-migration.md`).
+
+**The rule:** a change that adds a model or a column to `prisma/schema.prisma`
+ships, in the same change, an idempotent migration under `supabase/migrations/`
+(`CREATE TABLE IF NOT EXISTS` / `ALTER TABLE … ADD COLUMN IF NOT EXISTS`, header
+comments with `@req`/`@spec`, and the "NOT APPLIED" note naming the operator
+step) and a `prisma/migrations/` twin for local history. Applying is a separate,
+owner-instructed step and is never claimed by the change that writes the file.
+
+**The guard:** preflight `schema-migration-drift` (Check 18,
+`scripts/schema-migration-drift.mjs`) parses the columns every model declares in
+`prisma/schema.postgres.prisma` and every `CREATE TABLE` / `ALTER TABLE … ADD
+COLUMN` across `supabase/migrations/*.sql` — comment-stripped, string literals
+blanked, `IF NOT EXISTS` and quoting tolerated, DDL inside `DO $ … $` blocks
+included — and raises a CRITICAL for any declared column no migration creates.
+It is a static diff and touches no database, so CI runs it on every pull
+request. It deliberately anchors on the generated Postgres schema and not on
+`prisma/schema.prisma`: a check on the dev schema would fire on every ordinary
+`db push` change and be muted within a week. Presence only — types, defaults
+and indexes are out of its scope.
+
+**The baseline:** `docs/.schema-migration-baseline.json` lists the drift that
+existed on 2026-09-06 when the check landed (33 columns: `PersonCredential` and
+`PasswordResetToken`, which exist on production but were created outside the
+lineage; `PlanImportReceipt` and eight `Workstream` execution-contract columns,
+which shipped with a `prisma/migrations/` file only and are unverified on
+production) with the reason and the repayment for each group. It may only
+shrink; preflight reports an entry that gains a migration so it can be removed.
 
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 
