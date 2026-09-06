@@ -26,7 +26,7 @@ last_update: "2026-09-06T13:29:04+07:00,RWANG"
 
 ```text
 ┌───────────────────────────────────────────────┐
-│                Zuri v2 Lab                    │
+│                Zuri - ai                    │
 │                                               │
 │  App Shell                                    │
 │  ├─ Zuri Heritage Navigation                 │

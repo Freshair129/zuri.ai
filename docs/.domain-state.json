@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T13:59:23.603Z",
+  "generatedAt": "2026-09-06T14:04:21.383Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1217,7 +1217,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "checks": {
@@ -1765,14 +1765,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "checks": {
@@ -3270,14 +3270,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "checks": {
@@ -5177,14 +5177,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-155",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -5221,6 +5221,7 @@
         "tests/unit/asset-management-navigation.test.js",
         "tests/unit/customer-import-review-service.test.js",
         "tests/unit/domain-navigation.test.js",
+        "tests/unit/domain-state.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",

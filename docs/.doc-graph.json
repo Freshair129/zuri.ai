@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1979,
-    "total_edges": 7668,
+    "total_edges": 7670,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -55,12 +55,9 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-154-inventory-catalogue-identity",
-      "code:src/app/(pm)/inventory/page.jsx"
+      "test:tests/unit/domain-state.test.js"
     ],
-    "added": [
-      "test:tests/e2e/fr154-inventory-dashboard.spec.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -479,7 +476,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/inventory/page.jsx",
       "hash": "400e0398",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
@@ -11231,7 +11228,7 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "ad873073",
+      "hash": "10bf9a6e",
       "status": "current"
     },
     {
@@ -12459,7 +12456,7 @@
       "path": "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
       "title": "FR-154 — Inventory catalogue identity (คลังสินค้า)",
       "hash": "8eccd9a0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-155-inventory-stock-ledger",
@@ -21146,8 +21143,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "dcfc0b61",
-      "status": "current"
+      "hash": "c26f44ff",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -64337,6 +64334,20 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
