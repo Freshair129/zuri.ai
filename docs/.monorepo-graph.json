@@ -14316,7 +14316,7 @@
       "version": "1.10.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "935dadfc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
