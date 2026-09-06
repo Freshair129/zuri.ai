@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1859,
-    "total_edges": 7090,
+    "total_nodes": 1883,
+    "total_edges": 7210,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 35,
       "feature": 19,
-      "route": 204,
+      "route": 211,
       "model": 87,
       "requirement": 309,
-      "test": 463,
-      "code_file": 503
+      "test": 468,
+      "code_file": 515
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 503,
+      "annotated_code_files": 515,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -57,7 +57,6 @@
     "changed": [
       "doc:A-api-spec",
       "doc:README",
-      "domain:asset-management",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
@@ -65,24 +64,34 @@
       "doc:INTERFACE-INVENTORY",
       "test:tests/integration/openapi-docs.test.js",
       "code:src/config/domains.js",
+      "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "code:src/modules/project-manager/api-docs/openapi.js"
     ],
     "added": [
-      "doc:DATA-PIPELINE",
-      "route:page:/assets/register",
-      "route:page:/line-oa/rich-menus",
-      "route:api:/api/assets/register",
-      "route:api:/api/assets/register/[id]",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "test:tests/unit/asset-register-routes.test.js",
-      "test:tests/unit/asset-register-service.test.js",
-      "test:tests/unit/line-oa-rich-menu-console.test.js",
-      "code:src/app/(pm)/assets/register/page.jsx",
-      "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
-      "code:src/app/api/assets/register/route.js",
-      "code:src/app/api/assets/register/[id]/route.js",
-      "code:src/modules/asset-management/application/asset-register-service.js",
-      "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx"
+      "route:page:/assets/scanner",
+      "route:api:/api/assets/lookup",
+      "route:api:/api/assets/register/[id]/allocate",
+      "route:api:/api/assets/register/[id]/relocate",
+      "route:api:/api/assets/register/[id]/responsibility",
+      "route:api:/api/assets/register/[id]/return",
+      "route:api:/api/assets/register/[id]/verify",
+      "test:tests/unit/asset-lifecycle-routes.test.js",
+      "test:tests/unit/asset-lifecycle-service.test.js",
+      "test:tests/unit/asset-lookup-routes.test.js",
+      "test:tests/unit/asset-lookup-service.test.js",
+      "test:tests/unit/asset-scanner-ui.test.js",
+      "code:src/app/(pm)/assets/scanner/page.jsx",
+      "code:src/app/api/assets/lookup/route.js",
+      "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "code:src/app/api/assets/register/[id]/return/route.js",
+      "code:src/app/api/assets/register/[id]/verify/route.js",
+      "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "code:src/modules/asset-management/components/AssetTagModal.jsx"
     ],
     "removed": []
   },
@@ -325,6 +334,27 @@
         ],
         "@tested": [
           "tests/unit/asset-management-navigation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/assets/scanner/page.jsx",
+      "hash": "4c66a2e0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-scanner-ui.test.js"
         ]
       }
     },
@@ -1544,6 +1574,116 @@
       }
     },
     {
+      "id": "code:src/app/api/assets/lookup/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/lookup/route.js",
+      "hash": "e1fa9ef2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-lookup-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/allocate/route.js",
+      "hash": "4beba680",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-lifecycle-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/relocate/route.js",
+      "hash": "02fd639f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-lifecycle-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/responsibility/route.js",
+      "hash": "23b47474",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-lifecycle-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/return/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/return/route.js",
+      "hash": "6e7c7ae6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-lifecycle-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/assets/register/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/assets/register/[id]/route.js",
@@ -1562,6 +1702,28 @@
         ],
         "@tested": [
           "tests/unit/asset-register-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/verify/route.js",
+      "hash": "9ca0526a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-lookup-routes.test.js"
         ]
       }
     },
@@ -4686,7 +4848,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "6ea5495e",
+      "hash": "aa1337ac",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -5778,6 +5940,48 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-lifecycle-service.js",
+      "hash": "b1eb07d7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-lifecycle-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-lookup-service.js",
+      "hash": "cc0d00b6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-lookup-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-register-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-register-service.js",
@@ -5846,7 +6050,30 @@
       "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
-      "hash": "9118f05d",
+      "hash": "94380846",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-service.test.js",
+          "tests/unit/asset-lifecycle-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "hash": "393abfae",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5856,10 +6083,55 @@
         "@spec": [
           "SDD-078",
           "SDD-080",
+          "BR-023",
           "SEC-023"
         ],
         "@tested": [
-          "tests/unit/asset-register-service.test.js"
+          "tests/unit/asset-scanner-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetTagLabel.jsx",
+      "hash": "6d913065",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-scanner-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetTagModal.jsx",
+      "hash": "febbc236",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-scanner-ui.test.js"
         ]
       }
     },
@@ -8405,7 +8677,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "2c609b62",
+      "hash": "9ad5a0ba",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -10431,9 +10703,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.39.0b",
+      "version": "1.40.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "e8d51227",
+      "hash": "4a06636b",
       "status": "changed"
     },
     {
@@ -11576,7 +11848,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "7c555fe6",
+      "hash": "4486f11f",
       "status": "changed"
     },
     {
@@ -12216,7 +12488,7 @@
         "asset-management"
       ],
       "hash": "ed7b2311",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:crm",
@@ -16233,6 +16505,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/lookup",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/lookup",
+      "path": "src/app/api/assets/lookup/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/assets/register",
       "type": "route",
       "kind": "api",
@@ -16246,6 +16526,46 @@
       "kind": "api",
       "route": "/api/assets/register/[id]",
       "path": "src/app/api/assets/register/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/allocate",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/allocate",
+      "path": "src/app/api/assets/register/[id]/allocate/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/relocate",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/relocate",
+      "path": "src/app/api/assets/register/[id]/relocate/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/responsibility",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/responsibility",
+      "path": "src/app/api/assets/register/[id]/responsibility/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/return",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/return",
+      "path": "src/app/api/assets/register/[id]/return/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/verify",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/verify",
+      "path": "src/app/api/assets/register/[id]/verify/route.js",
       "status": "current"
     },
     {
@@ -17310,6 +17630,14 @@
       "kind": "page",
       "route": "/assets/register",
       "path": "src/app/(pm)/assets/register/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/assets/scanner",
+      "type": "route",
+      "kind": "page",
+      "route": "/assets/scanner",
+      "path": "src/app/(pm)/assets/scanner/page.jsx",
       "status": "current"
     },
     {
@@ -18990,7 +19318,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "cf4a6dca",
+      "hash": "2aff15fc",
       "status": "changed"
     },
     {
@@ -19288,6 +19616,34 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-lifecycle-routes.test.js",
+      "hash": "d8909364",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-lifecycle-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-lifecycle-service.test.js",
+      "hash": "6e409134",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-lookup-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-lookup-routes.test.js",
+      "hash": "fcb239fa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-lookup-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-lookup-service.test.js",
+      "hash": "c34b92f8",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/asset-management-api-ui-contract.test.js",
@@ -19348,6 +19704,13 @@
       "type": "test",
       "path": "tests/unit/asset-register-service.test.js",
       "hash": "de4c4bd2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-scanner-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-scanner-ui.test.js",
+      "hash": "84faf68a",
       "status": "current"
     },
     {
@@ -21908,6 +22271,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/audit/page.jsx",
       "to": "req:FR-014",
       "type": "implements",
@@ -23532,6 +23930,216 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/lookup/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/return/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/assets/register/[id]/route.js",
       "to": "req:FR-133",
       "type": "implements",
@@ -23569,6 +24177,48 @@
     {
       "from": "code:src/app/api/assets/register/[id]/route.js",
       "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30014,6 +30664,76 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/application/asset-register-service.js",
       "to": "req:BR-023",
       "type": "follows",
@@ -30134,6 +30854,13 @@
     },
     {
       "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "to": "req:FR-133",
       "type": "implements",
       "status": "current",
@@ -30162,6 +30889,132 @@
     },
     {
       "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetTagModal.jsx",
       "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
@@ -41858,6 +42711,48 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/assets/lookup",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/allocate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/relocate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/responsibility",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/return",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/verify",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/assets/register/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -42783,6 +43678,13 @@
     },
     {
       "from": "route:page:/assets/register",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/assets/scanner",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -56397,6 +57299,237 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/allocate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/relocate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/responsibility/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/return/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-routes.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-lifecycle-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lifecycle-service.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "code:src/app/api/assets/lookup/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/verify/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
       "to": "code:src/app/(pm)/assets/page.jsx",
       "type": "tests",
@@ -57049,6 +58182,76 @@
     },
     {
       "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "code:src/app/(pm)/assets/scanner/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "code:src/modules/asset-management/components/AssetScannerWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "code:src/modules/asset-management/components/AssetTagLabel.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "code:src/modules/asset-management/components/AssetTagModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-scanner-ui.test.js",
       "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
