@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1810,
+    "total_nodes": 1811,
     "total_edges": 6642,
     "dangling_edges": 0,
     "node_types": {
-      "document": 159,
       "appendix": 4,
+      "document": 159,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -16,7 +16,7 @@
       "route": 196,
       "model": 84,
       "requirement": 307,
-      "test": 448,
+      "test": 449,
       "code_file": 487
     },
     "coverage": {
@@ -55,17 +55,86 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
       "doc:README",
-      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "domain:agent",
       "doc:CONTEXT-MAP",
+      "domain:crm",
+      "domain:integration",
+      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
-      "test:tests/e2e/fr149-line-server-console.spec.js",
-      "test:tests/integration/line-server-backup.test.js",
+      "test:tests/integration/fr146-line-oa-account.test.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/line-oa-account-domain.test.js",
+      "test:tests/unit/line-oa-account-routes.test.js",
+      "test:tests/unit/scope-external-ids-migration.test.js",
+      "code:src/app/api/agent/line-delivery/route.js",
+      "code:src/app/api/agent/line-webhook/route.js",
+      "code:src/config/domains.js",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/agent/grounded-business-answer.js",
+      "code:src/modules/agent/phase1-runtime.js",
+      "code:src/modules/crm/conversation-read-model.js",
+      "code:src/modules/crm/line-ingest-service.js",
+      "code:src/modules/crm/reply-record-service.js",
+      "code:src/modules/identity/channel-identity.js",
+      "code:src/modules/identity/erase-principal.js",
+      "code:src/modules/identity/resolve-line-identity.js",
+      "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
       "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "feat:FEAT-019",
+      "route:page:/line-oa",
+      "route:api:/api/edge/conversation-jobs/claim",
+      "route:api:/api/edge/conversation-jobs/[id]/complete",
+      "route:api:/api/edge/conversation-jobs/[id]/fail",
+      "route:api:/api/line-oa/accounts/[id]/jobs",
+      "route:api:/api/line-oa/accounts/[id]/webhook",
+      "route:api:/api/line-oa/connections",
+      "route:api:/api/line-oa/jobs/[id]/acknowledge-unknown",
+      "route:api:/api/line-oa/worker",
+      "model:LineConversationJob",
+      "req:FR-148",
+      "req:FR-149",
+      "req:FR-150",
+      "test:tests/e2e/fr149-line-server-console.spec.js",
+      "test:tests/integration/fr149-line-server-configuration.test.js",
+      "test:tests/integration/line-account-isolation.test.js",
+      "test:tests/integration/line-server-backup.test.js",
+      "test:tests/integration/server-line-jobs.test.js",
+      "test:tests/integration/server-line-webhook.test.js",
+      "test:tests/unit/conversation-channel-account-migration.test.js",
+      "test:tests/unit/legacy-line-transport-ownership.test.js",
+      "test:tests/unit/platform/server-line-transport.test.js",
+      "test:tests/unit/server-line-answer.test.js",
+      "test:tests/unit/server-line-worker-routes.test.js",
+      "code:src/app/(pm)/line-oa/page.jsx",
+      "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "code:src/app/api/line-oa/connections/route.js",
+      "code:src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "code:src/app/api/line-oa/worker/route.js",
+      "code:src/modules/agent/legacy-line-transport-ownership.js",
+      "code:src/modules/agent/server-line-answer.js",
+      "code:src/modules/integration/application/line-server-provisioning-service.js",
+      "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "code:src/modules/line-oa-studio/application/server-line-runtime.js",
+      "code:src/platform/integrations/providers/line/server-line-transport.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -1228,7 +1297,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-delivery/route.js",
       "hash": "b0a2e947",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -1253,7 +1322,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "93ad0da4",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -4511,7 +4580,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "0f369963",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -4830,7 +4899,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "1083f095",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -5031,7 +5100,7 @@
       "type": "code_file",
       "path": "src/modules/agent/grounded-business-answer.js",
       "hash": "52a9a27a",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-049",
@@ -5316,7 +5385,7 @@
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
       "hash": "53d38cdc",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-047",
@@ -5937,7 +6006,7 @@
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
       "hash": "ebe18622",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-148",
@@ -6040,7 +6109,7 @@
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
       "hash": "944b2c3c",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-023",
@@ -6065,7 +6134,7 @@
       "type": "code_file",
       "path": "src/modules/crm/reply-record-service.js",
       "hash": "99307e29",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-148",
@@ -6183,7 +6252,7 @@
       "type": "code_file",
       "path": "src/modules/identity/channel-identity.js",
       "hash": "43a720e5",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-097"
@@ -6285,7 +6354,7 @@
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
       "hash": "2e873de4",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-022",
@@ -6653,7 +6722,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
       "hash": "b30e5067",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-148",
@@ -7634,7 +7703,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-account-service.js",
       "hash": "f95ad70d",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -7673,7 +7742,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
       "hash": "18a445d7",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -8102,7 +8171,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "99801c65",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -10113,7 +10182,7 @@
       "version": "1.38.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "17bd0f61",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10164,10 +10233,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.16.0b",
+      "version": "1.18.0b",
       "doc_status": "Draft",
-      "hash": "b97e50b6",
-      "status": "current"
+      "hash": "7069735b",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -10294,9 +10363,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.6",
+      "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "80dc1e06",
+      "hash": "01919c10",
       "status": "current"
     },
     {
@@ -10385,7 +10454,7 @@
       "version": "1.21.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "6dd52646",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10819,7 +10888,7 @@
       "type": "document",
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
-      "hash": "90693e8f",
+      "hash": "94a68bbd",
       "status": "current"
     },
     {
@@ -10959,7 +11028,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "4ff597bb",
+      "hash": "6c4010bf",
       "status": "current"
     },
     {
@@ -11224,7 +11293,7 @@
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "a2d0b9f4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -11521,10 +11590,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.152.0b",
+      "version": "1.154.0b",
       "doc_status": "Draft",
-      "hash": "98e27368",
-      "status": "current"
+      "hash": "42e8986b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -11567,7 +11636,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "d5cbf879",
+      "hash": "0fdda4d5",
       "status": "changed"
     },
     {
@@ -11828,7 +11897,7 @@
         "agent"
       ],
       "hash": "6a379d2e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:asset-management",
@@ -11879,7 +11948,7 @@
         "crm"
       ],
       "hash": "c1364a9a",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -11961,7 +12030,7 @@
         "integration"
       ],
       "hash": "a7f5c7b1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -11998,7 +12067,7 @@
         "line-oa-studio"
       ],
       "hash": "ec25093c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:market-intelligence",
@@ -17779,7 +17848,7 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "6b2f0324",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -17898,7 +17967,7 @@
       "type": "test",
       "path": "tests/e2e/fr149-line-server-console.spec.js",
       "hash": "3abd6068",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -18276,7 +18345,7 @@
       "type": "test",
       "path": "tests/integration/fr146-line-oa-account.test.js",
       "hash": "46c9c08d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/fr149-line-server-configuration.test.js",
@@ -18451,7 +18520,7 @@
       "type": "test",
       "path": "tests/integration/line-server-backup.test.js",
       "hash": "79d3f675",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
@@ -18507,7 +18576,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "5a87d9a2",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -19900,14 +19969,14 @@
       "type": "test",
       "path": "tests/unit/line-oa-account-domain.test.js",
       "hash": "542bd02a",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-oa-account-routes.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-account-routes.test.js",
       "hash": "af98b0a0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-oa-account-schema-contract.test.js",
@@ -20631,11 +20700,18 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/schema-migration-drift.test.js",
+      "type": "test",
+      "path": "tests/unit/schema-migration-drift.test.js",
+      "hash": "6793e2da",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/scope-external-ids-migration.test.js",
       "type": "test",
       "path": "tests/unit/scope-external-ids-migration.test.js",
       "hash": "0429e1d2",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/scope-view-context.test.js",

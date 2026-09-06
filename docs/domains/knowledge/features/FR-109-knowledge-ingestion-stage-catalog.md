@@ -3,7 +3,7 @@ domain: knowledge
 feature: FR-109
 module: knowledge
 source: v2-native
-version: "0.2.0b"
+version: "0.2.1b"
 status: "partial"
 ---
 
@@ -250,6 +250,20 @@ raw stored payload, inside the same tenant/connection scope every other read
 on that repository enforces. No new model — this is FR-081's own model,
 FR-109 only added the column it was missing (SDD-057, ADR-050 D4 still holds:
 the knowledge domain's `owns_models` stays empty).
+
+What that column did not have, from 2026-08-29 to 2026-09-06, was a migration.
+"Proven against the real database" was the real *local* database, pushed from
+the schema; production Supabase is migrated only from `supabase/migrations/`
+and no file there created `artifactId`, so every production query that selected
+the column — `GET /api/backup/export` first — failed for seven days while every
+check here stayed green. The migration now exists
+(`supabase/migrations/20260906090000_raw_external_record_artifact_id.sql`,
+idempotent, **not applied**: an owner-instructed operator step, ADR-057) with a
+SQLite twin, and preflight `schema-migration-drift` compares the generated
+Postgres schema against the migration lineage so the shape cannot recur
+silently. `.brain/rca/2026-09-06-a-schema-column-with-no-migration.md` has the
+account; the lesson for this note is that AC-109.3's "proven" was a claim about
+one database.
 
 - [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and

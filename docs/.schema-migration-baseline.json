@@ -1,0 +1,7 @@
+{
+  "version": "1.1.0",
+  "purpose": "Columns that prisma/schema.postgres.prisma declares and no file under supabase/migrations/ creates. Recorded as accepted debt on 2026-09-06 with 33 entries (PersonCredential, PasswordResetToken, PlanImportReceipt, eight Workstream columns) when preflight schema-migration-drift was introduced, and repaid to zero the same day by 20260906120000_record_pre_lineage_tables_and_columns.sql after the deploy-role session verified production already had every one of them. This list may only shrink: preflight raises a CRITICAL for any declared column not created by a migration and not listed here. Never add an entry to silence a new column — write the migration instead. See .brain/rca/2026-09-06-a-schema-column-with-no-migration.md",
+  "recorded_at": "2026-09-06",
+  "columns": [],
+  "repaid_at": "2026-09-06"
+}

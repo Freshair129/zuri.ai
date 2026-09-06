@@ -4,13 +4,13 @@
   "scanned": {
     "docs": 273,
     "routes": 139,
-    "test_files": 448
+    "test_files": 449
   },
   "summary": {
     "critical": 0,
-    "warning": 1,
-    "info": 25,
-    "overall": "WARN"
+    "warning": 0,
+    "info": 26,
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -63,28 +63,6 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "EXECUTION-MODES.md",
-      "files": [
-        "docs/EXECUTION-MODES.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I6",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "TRACE.md",
-      "files": [
-        "docs/TRACE.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I7",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
         "docs/domains/agent/CHARTER.md"
@@ -92,7 +70,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I8",
+      "id": "I6",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -103,7 +81,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I9",
+      "id": "I7",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -114,7 +92,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I10",
+      "id": "I8",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -125,7 +103,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I9",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -136,7 +114,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I12",
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -147,7 +125,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -158,7 +136,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I14",
+      "id": "I12",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -169,7 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I15",
+      "id": "I13",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -180,7 +158,18 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I16",
+      "id": "I14",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "EXECUTION-MODES.md",
+      "files": [
+        "docs/EXECUTION-MODES.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I15",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -191,18 +180,18 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "W17",
-      "severity": "warning",
-      "check": "cross-reference",
-      "title": "Broken link → ../../reference/GoVibe/WIREFRAME-A2-ROADMAP-BOARD.md",
-      "details": "in ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
+      "id": "I16",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "TRACE.md",
       "files": [
-        "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md"
+        "docs/TRACE.md"
       ],
-      "action": "Fix the path or remove the link"
+      "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I18",
+      "id": "I17",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -213,7 +202,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I19",
+      "id": "I18",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -224,7 +213,7 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I19",
       "severity": "info",
       "check": "id-stability",
       "title": "485 id(s) pinned across 10 families",
@@ -235,7 +224,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I21",
+      "id": "I20",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -246,7 +235,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -257,7 +246,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -268,7 +257,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I24",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 273 document(s)",
@@ -279,7 +268,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I25",
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -291,11 +280,20 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I26",
+      "id": "I25",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 52 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
+      "files": [],
+      "action": "No action — recorded so this check's reach is visible rather than assumed"
+    },
+    {
+      "id": "I26",
+      "severity": "info",
+      "check": "schema-migration-drift",
+      "title": "schema-migration drift checked: 1105 column(s) across 84 model(s) against 39 migration(s)",
+      "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     }

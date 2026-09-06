@@ -60,6 +60,49 @@ failure this section exists to prevent. If you are not certain which directory
 is this machine's primary checkout, `git worktree list` names it; if another
 session might be relying on it staying still, say so before refreshing it.
 
+**Before deleting a shared resource, check who is *in* it — not whether it is
+tidy.** This generalises the sentence above, which was written about the primary
+checkout and therefore got applied to nothing else. It covers every resource
+another session can be inside: a worktree, a container, a volume, a `.vhdx`. On
+2026-09-06 a worktree was removed after three checks that were all true and all
+beside the point — merged into `origin/main`, `git status` clean, no
+`node_modules` junction — while nine live processes were running `gh run watch`
+inside it; the same session had already deleted Docker's live data disk that
+morning after reading its absence from the WSL distro registry (which lists
+**OS** disks only) as proof it was an orphan
+([RCA](.brain/rca/2026-09-06-deleted-two-resources-that-were-in-use.md)). Merge
+status and cleanliness answer "is unsaved work stored here?"; deletion safety
+depends on "is anyone using this right now?". Ask the process table, and prefer
+asking a person over inferring:
+
+```powershell
+# The probe must exclude its own ancestry, or it always finds itself: the path
+# you are searching for is in the command line of the shell running the search.
+# The naive one-liner reported four occupants of an empty worktree on the day
+# this rule shipped — and a check that always says "occupied" is a check that
+# gets ignored.
+$procs = Get-CimInstance Win32_Process
+$mine  = @($PID); $cur = $procs | Where-Object ProcessId -eq $PID
+while ($cur -and $cur.ParentProcessId -and $mine -notcontains $cur.ParentProcessId) {
+  $mine += $cur.ParentProcessId
+  $cur   = $procs | Where-Object ProcessId -eq $cur.ParentProcessId
+}
+$procs | Where-Object { $_.CommandLine -like '*<path>*' -and $mine -notcontains $_.ProcessId } |
+  Select-Object ProcessId, CreationDate, CommandLine
+```
+
+Read the result as a floor, not a total: it sees a process only while the path
+is still in its command line, so a session that `cd`-ed in earlier and is now
+running a bare `npm test` does not appear. Zero hits means "no evidence anyone
+is inside", which is weaker than "nobody is inside" — when the resource belongs
+to another lane, ask.
+
+A live disk image **refuses an exclusive open and accepts a shared read** —
+exclusive-open success is not proof of disuse. And `git worktree remove` can
+half-succeed: it deletes the files, fails the final directory removal, and still
+drops the admin entry, so `git worktree list` shows the clean end state over a
+stripped directory. Look at the directory, not only the listing.
+
 **A worktree isolates git, not Docker.** `docker-compose.yml` pins
 `name: zuri-ai` explicitly (not the directory basename), so `docker compose
 up`/`build` run from *any* worktree of this repo resolve to the **same**
@@ -321,6 +364,17 @@ preflight CRITICAL.
   advisory. Never report a number a page would disagree with.
 - **Every write goes through a service** in `application/`, which records an audit
   event. Route handlers stay thin.
+- **A new model or column ships its Supabase migration in the same change.** The
+  dev database is SQLite under `prisma db push`, so a field with no migration works
+  locally and passes every test; production is migrated only from
+  `supabase/migrations/` and does not have it. Preflight `schema-migration-drift`
+  compares the generated `prisma/schema.postgres.prisma` (never `prisma/schema.prisma`
+  — a check on the dev schema would fire on every normal change) against every
+  `CREATE TABLE` / `ADD COLUMN` in that directory and is CRITICAL on a declared
+  column no migration creates. `docs/.schema-migration-baseline.json` is the accepted
+  debt and may only shrink. Applying a migration is a separate owner-instructed
+  operator step (ADR-057); the change that writes the file never claims it
+  (`docs/DB-MIGRATION-NOTES.md` §Migration discipline).
 - **Every intake surface converges on one envelope** → validate → semantic check →
   read-only dry run → preview → single transaction → audit (BR-009, SDD-009). New
   surfaces add a converter, never a second write path.

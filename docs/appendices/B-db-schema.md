@@ -2,11 +2,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.16.0b |
+| **Version** | 1.18.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-04 |
+| **Last Updated** | 2026-09-06 |
 
-Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
+Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
+Production ตรงกับ `prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
 roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · JSON เก็บเป็น string
 
@@ -105,6 +106,21 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 Version diff 1.13.0b → 1.14.0b (2026-09-02): added the nine Asset Management
 foundation models and snapshot-coverage contract. The additive local migration and
 SQLite/Postgres schema parity are verified artifacts; no production deployment is claimed.
+
+Version diff 1.15.0b → 1.16.0b (2026-09-06): no model changes. `RawExternalRecord.artifactId`
+(FR-109 AC-109.3, in the schema since 2026-08-29) gained the Supabase migration it never had —
+`20260906090000_raw_external_record_artifact_id.sql`, idempotent, **not applied** — plus its
+SQLite twin, and preflight `schema-migration-drift` now compares the generated Postgres schema
+against `supabase/migrations/*.sql` so a declared column with no migration is a CRITICAL. The 33
+pre-existing gaps (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream`
+columns) sit in the shrink-only `docs/.schema-migration-baseline.json` with their reasons.
+
+Version diff 1.16.0b → 1.17.0b (2026-09-06): no model changes. The deploy session applied the
+`artifactId` migration and verified production already had every baseline column, so
+`20260906120000_record_pre_lineage_tables_and_columns.sql` records the two auth tables,
+`PlanImportReceipt` and the eight `Workstream` columns in the lineage (all `IF NOT EXISTS`,
+no-op on production) and the baseline is empty. `PersonCredential` / `PasswordResetToken`
+also gained their SQLite migration twin.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

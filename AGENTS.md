@@ -491,6 +491,24 @@ modes it forbids:
 2. letting an earlier hypothesis survive after newer repository evidence
    contradicts it — the last enumeration wins, not the first guess.
 
+**The same rule applies to "nobody is using this" before you delete something
+shared.** A resource another session can be inside — a worktree, a container, a
+volume, a `.vhdx` — is never proven idle by its tidiness. Merge status, a clean
+`git status` and an empty junction list all describe *stored* state; deletion
+safety is a claim about the *present*, and only the process table can answer it
+(`Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*<path>*' }`
+— **minus the probe's own ancestry**, or it always finds itself; CLAUDE.md
+carries the corrected form, and its result is a floor rather than a total,
+because a process that entered the directory earlier no longer names it).
+On 2026-09-06 all three static checks passed on a worktree that nine live
+processes were working in, and the morning's other deletion took a live Docker
+data disk on the strength of a registry that lists OS disks only. Both were the
+failure mode above — absence of a signal read as absence of a user — applied to
+resources instead of documents. Prefer asking the other session over inferring;
+where an equivalent enumeration does not exist, say the claim is unverified
+rather than asserting it
+([RCA](.brain/rca/2026-09-06-deleted-two-resources-that-were-in-use.md)).
+
 ### 22. Knowledge & Retrieval Architecture: Four-Tier Cognitive Stack
 
 Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
