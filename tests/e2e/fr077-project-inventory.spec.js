@@ -52,10 +52,14 @@ test.describe('FR-077 Project Inventory', () => {
 
   test('limit=1 exposes partial/truncated metadata instead of silently shortening the response', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolution = await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')
+    expect(resolution.ok(), `Project fixture resolution returned HTTP ${resolution.status()}`).toBe(true)
+    const resolved = await resolution.json()
+    expect(typeof resolved.id, 'Project fixture resolution must provide an id').toBe('string')
+    expect(resolved.id.length, 'Project fixture id must not be empty').toBeGreaterThan(0)
 
     const response = await api(page.request).get(`/api/projects/${resolved.id}/inventory?limit=1`)
-    expect(response.ok()).toBe(true)
+    expect(response.ok(), `Inventory limit=1 returned HTTP ${response.status()}`).toBe(true)
     const body = await response.json()
     expect(body.sections.work.workstreams.status).toBe('PARTIAL')
     expect(body.sections.work.workstreams.truncated).toBe(true)

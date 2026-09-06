@@ -2278,8 +2278,8 @@ Source: [Zuri V2 — Product Definition](PRODUCT.md)
 Backlinks:
 
 - [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md) (references)
-- [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md) (references)
 - [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md) (references)
+- [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md) (references)
 - [ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) (supersedes)
 
 ## Phase 1: Minimum LINE OA Business Knowledge Answer

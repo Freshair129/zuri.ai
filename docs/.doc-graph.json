@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1927,
+    "total_nodes": 1928,
     "total_edges": 7482,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 178,
+      "document": 179,
       "adr": 62,
       "domain": 10,
       "roadmap": 37,
@@ -58,7 +58,8 @@
       "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
       "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "doc:docker-ngrok",
-      "doc:PLAN-ZURI-MONOREPO-MIGRATION"
+      "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "test:tests/e2e/fr077-project-inventory.spec.js"
     ],
     "added": [
       "test:tests/unit/docker-publication-containment.test.js"
@@ -11094,6 +11095,19 @@
       }
     },
     {
+      "id": "doc:docs/domains/identity/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/domains/identity/SYSTEM-DIAGRAM.md",
+      "title": "Identity Domain — System Diagram & Architecture Specification",
+      "hash": "0f73075f",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/domains/identity/SYSTEM-DIAGRAM.md"
+      }
+    },
+    {
       "id": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "type": "document",
       "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
@@ -11156,6 +11170,21 @@
         "repository": "Freshair129/zuri.ai",
         "previous_id": "doc:README",
         "source_path": "docs/roadmap/line-oa-business-agent/README.md"
+      }
+    },
+    {
+      "id": "doc:docs/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/SYSTEM-DIAGRAM.md",
+      "title": "System Diagram — zuri-ai ทั้งระบบ",
+      "version": "1.0.0",
+      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
+      "hash": "e5b570d1",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/SYSTEM-DIAGRAM.md"
       }
     },
     {
@@ -12591,16 +12620,6 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "01a84952",
-      "status": "current"
-    },
-    {
-      "id": "doc:SYSTEM-DIAGRAM",
-      "type": "document",
-      "path": "docs/SYSTEM-DIAGRAM.md",
-      "title": "System Diagram — zuri-ai ทั้งระบบ",
-      "version": "1.0.0",
-      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
-      "hash": "e5b570d1",
       "status": "current"
     },
     {
@@ -19041,8 +19060,8 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "37fb96e3",
-      "status": "current"
+      "hash": "8f4b0fb2",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
@@ -38682,6 +38701,27 @@
       "status": "current"
     },
     {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -40875,27 +40915,6 @@
     {
       "from": "doc:SITEMAP-DOMAIN-NAV",
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE-DIAGRAMS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:PRODUCT",
       "type": "references",
       "source": "markdown",
       "status": "current"
