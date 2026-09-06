@@ -1,7 +1,7 @@
 -- @req FR-152 — LineOaRichMenuJob, the server-owned rich menu publish ledger
 -- (ADR-061 D1/D6/D7): PUBLISH a frozen version, SET_DEFAULT or SET_ALIAS a
 -- published one; claimed with compare-and-set and a lease; an ambiguous
--- create ends UNKNOWN. Twin of supabase/migrations/20260906180000_line_oa_rich_menu_job.sql.
+-- create ends UNKNOWN. Twin of supabase/migrations/20260906183000_line_oa_rich_menu_job.sql.
 -- @spec ADR-061 D1, D6, D7; SEC-001; BR-002
 -- Additive: one new table, its indexes and foreign keys; nothing existing changes.
 

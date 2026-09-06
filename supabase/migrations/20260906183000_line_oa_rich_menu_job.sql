@@ -15,6 +15,13 @@
 -- existing is altered, renamed, dropped or rewritten. Idempotent: safe to run
 -- more than once.
 --
+-- Renamed from 20260906180000_line_oa_rich_menu_job.sql on 2026-09-06: that
+-- timestamp was already taken by 20260906180000_line_conversation_job_rls_policy.sql
+-- (PR #242), and a ledger keyed on the timestamp cannot hold two versions with
+-- the same key. The DDL below was applied to production under the old name on
+-- 2026-09-06 (table, indexes, RLS verified) but its version was deliberately
+-- not recorded because of the collision; recording it happens under this name.
+--
 -- NOT APPLIED to production by this change. Applying is an owner-instructed
 -- operator step (ADR-057) for the deploy-role session: dry run in a
 -- rolled-back transaction, then apply and record the version.
