@@ -114,17 +114,16 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
               จัดการระบบสนทนาอัตโนมัติ (Flow Designer), ออกแบบ Flex Messages, Rich Menus, LIFF Apps และเชื่อมต่อกับ Edge Device
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => onNavigate("edge-connection")}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-all shadow-sm flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2"
             >
-              <Cpu className="w-4 h-4 text-emerald-500" />
-              <span>Edge & การเชื่อมต่อ</span>
+              <span>💬 + เชื่อมต่อ LINE OA</span>
             </button>
             <button
               onClick={() => onNavigate("projects")}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-sm font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-xs font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center gap-2"
             >
               <span>จัดการโปรเจคทั้งหมด</span>
               <ArrowRight className="w-4 h-4" />
