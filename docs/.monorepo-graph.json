@@ -11554,7 +11554,7 @@
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
       "hash": "86a03984",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:EXECUTION-MODES",
@@ -19731,15 +19731,15 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "3abd6068",
-      "status": "current"
+      "hash": "d78d5e3e",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "7771c50f",
-      "status": "current"
+      "hash": "f9f4478f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",

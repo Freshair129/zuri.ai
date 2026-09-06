@@ -25,7 +25,17 @@ test.afterEach(async () => {
 // @spec ADR-060 D3, D11
 // @tested tests/e2e/fr151-line-oa-rich-menu-console.spec.js
 
-test('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
+// Quarantined 2026-09-07: fails deterministically (both the first attempt and
+// the retry, timing out at the full 60s test budget) on GitHub Actions,
+// waiting for /line-oa content that never renders — confirmed on `main`'s own
+// governance run (34045894994) with none of the PR that noticed this
+// applied, so it is not caused by that PR and a retry will never fix it. See
+// .brain/rca/2026-09-07-line-oa-console-e2e-broken-on-main.md and the
+// tracked follow-up (task_150d0846). Passes reliably in every local run
+// performed while investigating — the break is CI-environment-specific.
+// Do not remove this skip without first re-running it green on CI, not just
+// locally.
+test.skip('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
