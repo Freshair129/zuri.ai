@@ -32,7 +32,7 @@ describe('FR-162 / FR-163 commerce route and persistence contract', () => {
         expect(new RegExp(`export async function ${method}\\b`).test(source), `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-15[89]/)
+      expect(source).toMatch(/@req FR-16[23]/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })

@@ -105,6 +105,10 @@ describe('OpenAPI document', () => {
       // /api/assets/register/{id}/dispose (GET, POST).
       // FR-153 adds the LIFF app registry collection and item: two paths, four
       // operations.
+      // Marketing FR-159 Strategy and FR-158 PM handoff add three paths and five
+      // operations.
+      // Campaign FR-160 adds two paths and four operations.
+      // FR-157 adds four Content paths and six scoped operations.
       // FR-154/FR-155 add the Inventory domain: eleven paths and twenty
       // operations — six catalogue collections (GET, POST each), the product
       // item (GET, PATCH), lots (GET, POST), the read-only serial-unit list
@@ -116,8 +120,8 @@ describe('OpenAPI document', () => {
       // FR-162/FR-163 add commerce: orders (GET, POST), the order item (GET,
       // PATCH), its payments (GET, POST), the payment item (GET, PATCH) and
       // the revenue summary (GET) — five paths, nine operations.
-      pathCount: 177,
-      operationCount: 241,
+      pathCount: 186,
+      operationCount: 256,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

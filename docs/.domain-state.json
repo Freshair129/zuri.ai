@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T17:07:27.150Z",
+  "generatedAt": "2026-09-06T17:28:39.287Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -36,12 +36,12 @@
   },
   "overall": {
     "status": "partial",
-    "domainCount": 12,
-    "featureCount": 119,
+    "domainCount": 13,
+    "featureCount": 120,
     "readyFeatureCount": 99,
-    "requirementCount": 159,
-    "verifiedRequirementCount": 149,
-    "progressPercent": 93.7,
+    "requirementCount": 163,
+    "verifiedRequirementCount": 153,
+    "progressPercent": 93.9,
     "gapCount": 22,
     "gaps": [
       {
@@ -346,7 +346,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -416,7 +416,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-150",
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -601,28 +601,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 31
+          "testCount": 34
         },
         {
           "id": "FR-134",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 25
+          "testCount": 27
         },
         {
           "id": "FR-136",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-137",
@@ -683,7 +683,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -807,18 +807,18 @@
       "status": "verified",
       "requirements": [
         {
-          "id": "FR-158",
+          "id": "FR-162",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 24
         },
         {
-          "id": "FR-159",
+          "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 18
+          "testCount": 21
         }
       ],
       "checks": {
@@ -844,7 +844,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -909,8 +909,8 @@
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/commerce/CHARTER.md",
-        "docs/domains/commerce/features/FR-158-sales-orders.md",
-        "docs/domains/commerce/features/FR-159-payments-and-revenue.md",
+        "docs/domains/commerce/features/FR-162-sales-orders.md",
+        "docs/domains/commerce/features/FR-163-payments-and-revenue.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -929,7 +929,7 @@
         "featureNotes": 2
       },
       "featureIds": [
-        "FEAT-022"
+        "FEAT-023"
       ],
       "featureCount": 1,
       "readyFeatureCount": 0,
@@ -964,14 +964,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-091",
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-093",
@@ -999,14 +999,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-147",
@@ -1027,28 +1027,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 13
         },
         {
-          "id": "FR-157",
+          "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1122,7 +1122,7 @@
         "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
         "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
         "docs/domains/crm/features/FR-148-account-scoped-conversations.md",
-        "docs/domains/crm/features/FR-157-sales-tasks.md",
+        "docs/domains/crm/features/FR-161-sales-tasks.md",
         "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
         "prisma/schema.prisma",
@@ -1145,7 +1145,7 @@
         "FEAT-006",
         "FEAT-009",
         "FEAT-014",
-        "FEAT-021",
+        "FEAT-022",
         "FR-023",
         "FR-103"
       ],
@@ -1245,7 +1245,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-074",
@@ -1259,7 +1259,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-076",
@@ -1273,7 +1273,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-094",
@@ -1287,7 +1287,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-096",
@@ -1315,7 +1315,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-103",
@@ -1336,14 +1336,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 23
         },
         {
           "id": "FR-107",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-120",
@@ -1371,7 +1371,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-144",
@@ -1385,7 +1385,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-148",
@@ -1399,28 +1399,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 20
         },
         {
-          "id": "FR-157",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 17
-        },
-        {
-          "id": "FR-158",
+          "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
           "testCount": 20
         },
         {
-          "id": "FR-159",
+          "id": "FR-162",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 24
+        },
+        {
+          "id": "FR-163",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 21
         }
       ],
       "checks": {
@@ -1446,7 +1446,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -1673,14 +1673,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-099",
@@ -1694,7 +1694,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-101",
@@ -1708,7 +1708,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-109",
@@ -1764,7 +1764,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-142",
@@ -1785,21 +1785,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "checks": {
@@ -1825,7 +1825,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -1972,21 +1972,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 17
+          "testCount": 20
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-156",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 11
         }
       ],
       "checks": {
@@ -2012,7 +2012,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2398,14 +2398,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-150",
@@ -2419,21 +2419,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "checks": {
@@ -2459,7 +2459,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2587,7 +2587,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 20,
-          "testCount": 30
+          "testCount": 32
         }
       ],
       "checks": {
@@ -2613,7 +2613,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2703,6 +2703,156 @@
       "readyFeatureCount": 1,
       "progressPercent": 100
     },
+    "marketing": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-157",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 18,
+          "testCount": 21
+        },
+        {
+          "id": "FR-158",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 12
+        },
+        {
+          "id": "FR-159",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 16,
+          "testCount": 25
+        },
+        {
+          "id": "FR-160",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 18,
+          "testCount": 22
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "unknown",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 9,
+            "inventoried": 9,
+            "missing": 0
+          }
+        },
+        "httpApi": {
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 9,
+            "inventoried": 9,
+            "openApiPaths": 186,
+            "missingFromOpenApi": 0
+          }
+        },
+        "mcp": {
+          "status": "verified",
+          "evidence": [
+            "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
+            "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/project-manager-mcp.test.js"
+          ],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "verified",
+          "evidence": [
+            "contracts/plan-envelope.schema.json"
+          ],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 10,
+            "present": 10
+          }
+        },
+        "authorization": {
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 7,
+            "guardedMutations": 7,
+            "reads": 8,
+            "unguardedReads": 0
+          }
+        },
+        "tests": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "contracts/plan-envelope.schema.json",
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
+        "docs/domains/marketing/CHARTER.md",
+        "docs/domains/marketing/features/FR-157-content-creative.md",
+        "docs/domains/marketing/features/FR-159-strategy-plans.md",
+        "docs/domains/marketing/features/FR-160-campaign-initiatives.md",
+        "prisma/schema.prisma",
+        "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
+        "tests/unit/project-manager-mcp.test.js"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 18,
+        "apiRoutes": 9,
+        "pageRoutes": 9,
+        "ownedModels": 10,
+        "featureNotes": 3
+      },
+      "featureIds": [
+        "FEAT-021"
+      ],
+      "featureCount": 1,
+      "readyFeatureCount": 0,
+      "progressPercent": 100
+    },
     "platform-control": {
       "status": "partial",
       "requirements": [
@@ -2718,14 +2868,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-105",
@@ -2765,7 +2915,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2942,7 +3092,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-014",
@@ -3054,7 +3204,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-040",
@@ -3075,7 +3225,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-043",
@@ -3096,7 +3246,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 30
+          "testCount": 33
         },
         {
           "id": "FR-046",
@@ -3131,7 +3281,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-061",
@@ -3173,14 +3323,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-068",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-069",
@@ -3229,7 +3379,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-077",
@@ -3243,14 +3393,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-082",
@@ -3264,7 +3414,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-087",
@@ -3285,49 +3435,49 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-090",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-091",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-100",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-102",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-103",
@@ -3355,14 +3505,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 21
+          "testCount": 23
         },
         {
           "id": "FR-107",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-108",
@@ -3383,49 +3533,49 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-124",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-127",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-133",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 31
+          "testCount": 34
         },
         {
           "id": "FR-134",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 25
+          "testCount": 27
         },
         {
           "id": "FR-136",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-137",
@@ -3467,14 +3617,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-150",
@@ -3488,63 +3638,91 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-154",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 20
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-156",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-157",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 17
+          "codeCount": 3,
+          "testCount": 21
         },
         {
           "id": "FR-158",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 20
+          "codeCount": 2,
+          "testCount": 12
         },
         {
           "id": "FR-159",
           "declared": "n/a",
           "status": "verified",
+          "codeCount": 4,
+          "testCount": 25
+        },
+        {
+          "id": "FR-160",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 22
+        },
+        {
+          "id": "FR-161",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 20
+        },
+        {
+          "id": "FR-162",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 24
+        },
+        {
+          "id": "FR-163",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 21
         }
       ],
       "checks": {
@@ -3579,7 +3757,7 @@
           "details": {
             "routes": 107,
             "inventoried": 107,
-            "openApiPaths": 177,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -3834,7 +4012,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 30
+          "testCount": 33
         },
         {
           "id": "FR-058",
@@ -3888,6 +4066,8 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr151-line-oa-rich-menu.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
@@ -3907,6 +4087,7 @@
         "apps/server/tests/unit/fr058-file-manager-views-model.test.js",
         "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/project-file-service.test.js"
       ]
     },
@@ -3943,7 +4124,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -3985,6 +4166,7 @@
         "apps/server/tests/unit/fr124-product-readiness-read-model.test.js",
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/overview-split.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
@@ -4017,7 +4199,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-069",
@@ -4048,6 +4230,7 @@
         "apps/server/src/modules/project-manager/import/plan-schema.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/tests/e2e/fr040-project-work.spec.js",
+        "apps/server/tests/e2e/marketing-campaigns.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/external-ref-import.test.js",
         "apps/server/tests/integration/import-target-authorization.test.js",
@@ -4059,6 +4242,7 @@
         "apps/server/tests/unit/contract-plan-artifacts.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/human-plan-builder.test.js",
+        "apps/server/tests/unit/marketing-campaign-ui.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
@@ -4222,7 +4406,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 23
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -4240,6 +4424,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/unit/application-identity-bootstrap-migration.test.js",
         "apps/server/tests/unit/application-schema-migration.test.js",
         "apps/server/tests/unit/customer-data-contract.test.js",
@@ -4345,7 +4531,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-087",
@@ -4366,7 +4552,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -4396,6 +4582,8 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr089-team-scope.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/projects-dashboard.test.js",
@@ -4407,6 +4595,7 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/project-status-options.test.js",
@@ -4445,7 +4634,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-093",
@@ -4495,6 +4684,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]
     },
@@ -4538,7 +4728,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-096",
@@ -4607,6 +4797,8 @@
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/auth-service.test.js",
@@ -4665,7 +4857,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-101",
@@ -4692,6 +4884,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/sot-decisions-route.test.js",
         "apps/server/tests/unit/api-access-key-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -4873,7 +5067,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-128",
@@ -4890,6 +5084,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
       ]
@@ -4924,28 +5120,28 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 31
+          "testCount": 34
         },
         {
           "id": "FR-134",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-135",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 25
+          "testCount": 27
         },
         {
           "id": "FR-136",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 16
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -4987,6 +5183,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-depreciation.test.js",
@@ -5013,6 +5211,7 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/unit/platform/knowledge-ingestion-catalog.test.js",
@@ -5219,7 +5418,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 22
+          "testCount": 25
         },
         {
           "id": "FR-147",
@@ -5233,21 +5432,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -5307,6 +5506,8 @@
         "apps/server/tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
         "apps/server/tests/integration/fr153-line-oa-liff-app.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -5331,6 +5532,7 @@
         "apps/server/tests/unit/line-oa-rich-menu-publish.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-schema-contract.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js"
@@ -5375,7 +5577,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-150",
@@ -5430,6 +5632,8 @@
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-webhook.test.js",
@@ -5479,21 +5683,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 17
+          "testCount": 20
         },
         {
           "id": "FR-155",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-156",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -5531,6 +5735,8 @@
         "apps/server/tests/integration/fr155-inventory-stock.test.js",
         "apps/server/tests/integration/fr156-inventory-recipe.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
@@ -5540,16 +5746,170 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
-        "apps/server/tests/unit/inventory-routes.test.js"
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js"
       ]
     },
     {
       "id": "FEAT-021",
+      "title": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-157",
+        "FR-158",
+        "FR-159",
+        "FR-160"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt.",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-021 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-157",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 21,
+          "testCount": 21
+        },
+        {
+          "id": "FR-158",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 12
+        },
+        {
+          "id": "FR-159",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 20,
+          "testCount": 25
+        },
+        {
+          "id": "FR-160",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 20,
+          "testCount": 22
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+        "apps/server/src/app/(pm)/growth/campaigns/new/page.jsx",
+        "apps/server/src/app/(pm)/growth/campaigns/page.jsx",
+        "apps/server/src/app/(pm)/growth/content/assets/[assetId]/page.jsx",
+        "apps/server/src/app/(pm)/growth/content/briefs/[briefId]/page.jsx",
+        "apps/server/src/app/(pm)/growth/content/new/page.jsx",
+        "apps/server/src/app/(pm)/growth/content/page.jsx",
+        "apps/server/src/app/(pm)/growth/page.jsx",
+        "apps/server/src/app/(pm)/growth/strategy/page.jsx",
+        "apps/server/src/app/api/growth/campaigns/[id]/route.js",
+        "apps/server/src/app/api/growth/campaigns/route.js",
+        "apps/server/src/app/api/growth/content/assets/[id]/route.js",
+        "apps/server/src/app/api/growth/content/briefs/[id]/route.js",
+        "apps/server/src/app/api/growth/content/references/route.js",
+        "apps/server/src/app/api/growth/content/route.js",
+        "apps/server/src/app/api/growth/plans/[id]/handoff/route.js",
+        "apps/server/src/app/api/growth/plans/[id]/route.js",
+        "apps/server/src/app/api/growth/plans/route.js",
+        "apps/server/src/components/layouts/Sidebar.jsx",
+        "apps/server/src/config/domains.js",
+        "apps/server/src/modules/marketing/application/marketing-authority.js",
+        "apps/server/src/modules/marketing/application/marketing-campaign-execution.js",
+        "apps/server/src/modules/marketing/application/marketing-campaign-service.js",
+        "apps/server/src/modules/marketing/application/marketing-content-references.js",
+        "apps/server/src/modules/marketing/application/marketing-content-service.js",
+        "apps/server/src/modules/marketing/application/marketing-plan-service.js",
+        "apps/server/src/modules/marketing/application/marketing-pm-handoff-service.js",
+        "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
+        "apps/server/src/modules/marketing/components/MarketingState.jsx",
+        "apps/server/src/modules/marketing/components/MarketingTabs.jsx",
+        "apps/server/src/modules/marketing/components/PlanForm.jsx",
+        "apps/server/src/modules/marketing/components/PlanHandoff.jsx",
+        "apps/server/src/modules/marketing/components/PlanReviewDecision.jsx",
+        "apps/server/src/modules/marketing/components/PlanVersionHistory.jsx",
+        "apps/server/src/modules/marketing/components/StrategyWorkspace.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignForm.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/campaign-contract.js",
+        "apps/server/src/modules/marketing/components/content/ContentAssetDetail.jsx",
+        "apps/server/src/modules/marketing/components/content/ContentBriefDetail.jsx",
+        "apps/server/src/modules/marketing/components/content/ContentBriefForm.jsx",
+        "apps/server/src/modules/marketing/components/content/ContentCollection.jsx",
+        "apps/server/src/modules/marketing/components/content/ContentVersionHistory.jsx",
+        "apps/server/src/modules/marketing/components/content/content-contract.js",
+        "apps/server/src/modules/marketing/components/marketing-contract.js",
+        "apps/server/src/modules/marketing/domain/marketing-campaign-contract.js",
+        "apps/server/src/modules/marketing/domain/marketing-content-contract.js",
+        "apps/server/src/modules/marketing/domain/marketing-plan-contract.js",
+        "apps/server/src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+        "apps/server/src/modules/marketing/infrastructure/marketing-content-repository.js",
+        "apps/server/src/modules/marketing/infrastructure/marketing-plan-repository.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/marketing-campaigns.spec.js",
+        "apps/server/tests/e2e/marketing-content.spec.js",
+        "apps/server/tests/e2e/marketing-strategy.spec.js",
+        "apps/server/tests/e2e/navigation-reachability.spec.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-campaign-execution.test.js",
+        "apps/server/tests/integration/marketing-campaign.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/marketing-content-references.test.js",
+        "apps/server/tests/integration/marketing-content.test.js",
+        "apps/server/tests/integration/marketing-plan.test.js",
+        "apps/server/tests/integration/marketing-pm-handoff.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/command-palette-index.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-campaign-ui.test.js",
+        "apps/server/tests/unit/marketing-content-ui.test.js",
+        "apps/server/tests/unit/marketing-migration-policy.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/marketing-strategy-ui.test.js",
+        "apps/server/tests/unit/marketing/marketing-authority.test.js",
+        "apps/server/tests/unit/marketing/marketing-campaign-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-campaign-route.test.js",
+        "apps/server/tests/unit/marketing/marketing-content-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-content-references-route.test.js",
+        "apps/server/tests/unit/marketing/marketing-content-route.test.js",
+        "apps/server/tests/unit/marketing/marketing-plan-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-plan-route.test.js",
+        "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-022",
       "title": "Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
-        "FR-157"
+        "FR-161"
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
@@ -5562,15 +5922,15 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-021 registry status is building"
+        "FEAT-022 registry status is building"
       ],
       "requirements": [
         {
-          "id": "FR-157",
+          "id": "FR-161",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 17
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -5584,12 +5944,14 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
-        "apps/server/tests/e2e/fr157-sales-tasks.spec.js",
+        "apps/server/tests/e2e/fr161-sales-tasks.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
-        "apps/server/tests/integration/fr157-sales-task.test.js",
+        "apps/server/tests/integration/fr161-sales-task.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
@@ -5598,18 +5960,19 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/sales-task-domain.test.js",
         "apps/server/tests/unit/sales-task-routes.test.js"
       ]
     },
     {
-      "id": "FEAT-022",
+      "id": "FEAT-023",
       "title": "Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
-        "FR-158",
-        "FR-159"
+        "FR-162",
+        "FR-163"
       ],
       "primaryDomain": "commerce",
       "contributorDomains": [
@@ -5622,22 +5985,22 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-022 registry status is building"
+        "FEAT-023 registry status is building"
       ],
       "requirements": [
         {
-          "id": "FR-158",
+          "id": "FR-162",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 20
+          "testCount": 24
         },
         {
-          "id": "FR-159",
+          "id": "FR-163",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 18
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -5659,13 +6022,16 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
-        "apps/server/tests/e2e/fr158-commerce-orders.spec.js",
+        "apps/server/tests/e2e/fr162-commerce-orders.spec.js",
+        "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
-        "apps/server/tests/integration/fr158-sales-order.test.js",
-        "apps/server/tests/integration/fr159-payment.test.js",
+        "apps/server/tests/integration/fr162-sales-order.test.js",
+        "apps/server/tests/integration/fr163-payment.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
@@ -5677,7 +6043,8 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-        "apps/server/tests/unit/inventory-routes.test.js"
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js"
       ]
     },
     {
@@ -6246,7 +6613,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -6258,6 +6625,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
       ]
@@ -7243,7 +7612,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -7263,6 +7632,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -7348,7 +7718,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -7370,6 +7740,7 @@
         "apps/server/tests/unit/fr060-business-home-read-model.test.js",
         "apps/server/tests/unit/fr060-business-home-visibility.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/overview-split.test.js",
         "apps/server/tests/unit/people-directory.test.js",
         "apps/server/tests/unit/people-route.test.js",
@@ -8192,7 +8563,7 @@
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
-        "apps/server/tests/integration/fr157-sales-task.test.js",
+        "apps/server/tests/integration/fr161-sales-task.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -8454,7 +8825,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -8472,6 +8843,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -8631,9 +9004,9 @@
         "apps/server/tests/integration/fr154-inventory-catalog.test.js",
         "apps/server/tests/integration/fr155-inventory-stock.test.js",
         "apps/server/tests/integration/fr156-inventory-recipe.test.js",
-        "apps/server/tests/integration/fr157-sales-task.test.js",
-        "apps/server/tests/integration/fr158-sales-order.test.js",
-        "apps/server/tests/integration/fr159-payment.test.js",
+        "apps/server/tests/integration/fr161-sales-task.test.js",
+        "apps/server/tests/integration/fr162-sales-order.test.js",
+        "apps/server/tests/integration/fr163-payment.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -8773,7 +9146,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 28
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -8799,6 +9172,8 @@
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/platform-grant-revoke.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -8891,7 +9266,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 20
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -8917,6 +9292,8 @@
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/market-intelligence-translation-run.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/server-line-webhook.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -8952,7 +9329,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -8961,6 +9338,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
       ]
     },
@@ -8989,7 +9368,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 30
+          "testCount": 32
         }
       ],
       "evidence": [
@@ -9024,6 +9403,8 @@
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/market-intelligence-persistence.test.js",
         "apps/server/tests/integration/market-intelligence-translation-run.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/integration/marketplace-listing-adapter.test.js",
@@ -9074,7 +9455,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -9086,6 +9467,8 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/sot-decisions-route.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/mint-sot-data-plane-key-cli.test.js",
@@ -9259,7 +9642,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 21
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -9284,6 +9667,8 @@
         "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
         "apps/server/tests/integration/import-target-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
@@ -9323,7 +9708,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -9334,6 +9719,8 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/platform-grant-revoke.test.js",
         "apps/server/tests/unit/bootstrap-operator-cli.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -9752,7 +10139,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 15
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -9775,6 +10162,8 @@
         "apps/server/tests/integration/fr123-plugin-auth-reaper.test.js",
         "apps/server/tests/integration/fr123-plugin-consent-gate.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr123-plugin-auth-migration.test.js",
@@ -9808,7 +10197,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -9826,7 +10215,8 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr124-product-readiness-read-model.test.js",
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
-        "apps/server/tests/unit/inventory-routes.test.js"
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js"
       ]
     },
     {

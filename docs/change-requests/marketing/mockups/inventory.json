@@ -1,0 +1,4464 @@
+{
+  "version": "0.1.0b",
+  "notice": "Design prototype · ข้อมูลตัวอย่างทั้งหมด · ไม่มีการเชื่อมต่อหรือส่งคำสั่งจริง",
+  "counts": {
+    "page": 3,
+    "tab": 40,
+    "detail-tab": 9,
+    "detail": 22,
+    "form": 9,
+    "dialog": 7,
+    "state": 10
+  },
+  "interfaces": [
+    {
+      "id": "MKT-UI-001",
+      "key": "dashboard/overview",
+      "section": "dashboard",
+      "title": "Marketing dashboard",
+      "layout": "dashboard",
+      "description": "ภาพรวมแผนการตลาด ผลลัพธ์ และสิ่งที่ทีมต้องตัดสินใจวันนี้",
+      "kind": "page",
+      "tab": null,
+      "route": "/growth",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Media spend",
+          "value": "฿42,800",
+          "note": "01–06 Sep · THB"
+        },
+        {
+          "label": "Active initiatives",
+          "value": "4",
+          "note": "2 require attention"
+        },
+        {
+          "label": "Creative ready",
+          "value": "12 / 18",
+          "note": "6 in production"
+        },
+        {
+          "label": "Decisions waiting",
+          "value": "3",
+          "note": "Oldest: 2 hours"
+        }
+      ],
+      "primary": [
+        "Review decisions",
+        "team/reviews"
+      ],
+      "columns": [
+        "Campaign",
+        "Channels",
+        "Owner",
+        "Stage",
+        "Window",
+        "Budget"
+      ],
+      "rows": [
+        [
+          "Autumn Gift Edit",
+          "Meta · TikTok · Instagram",
+          "Mali",
+          "Executing",
+          "01–30 Sep",
+          "฿120,000"
+        ],
+        [
+          "Corporate Gifting 2026",
+          "SEO · Website · Partners",
+          "Narin",
+          "Review",
+          "15 Sep–31 Oct",
+          "฿80,000"
+        ],
+        [
+          "Weekend Live — Gift Stories",
+          "Live · Instagram",
+          "Pim",
+          "Planning",
+          "12 Sep",
+          "฿18,000"
+        ],
+        [
+          "Always-on Discovery",
+          "Meta · SEO",
+          "Krit",
+          "Measuring",
+          "01–30 Sep",
+          "฿45,000"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-001",
+      "screenshot": "mockups/screenshots/MKT-UI-001.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-002",
+      "key": "strategy/situation",
+      "section": "strategy",
+      "title": "Situation & opportunity",
+      "layout": "situation",
+      "description": "เริ่มจากหลักฐานที่เรารู้ และแยกสิ่งที่ยังเป็นสมมติฐาน",
+      "kind": "tab",
+      "tab": "Situation",
+      "route": "/growth/strategy?tab=situation",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Analytics snapshots + Market Intelligence + approved brand facts",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Start refinement",
+        "team/new"
+      ],
+      "cards": [
+        [
+          "Demand signal",
+          "Gift set discovery is increasing",
+          "Search Console · observed example"
+        ],
+        [
+          "Creative signal",
+          "Product-in-use videos attract stronger engagement",
+          "Meta / TikTok · separate definitions"
+        ],
+        [
+          "Customer question",
+          "Buyers want delivery dates before requesting a quote",
+          "CRM summary · no personal data"
+        ],
+        [
+          "Constraint",
+          "September creative capacity is 6 videos",
+          "PM capacity · confirmed example"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-002",
+      "screenshot": "mockups/screenshots/MKT-UI-002.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-003",
+      "key": "strategy/objectives",
+      "section": "strategy",
+      "title": "Objectives & success measures",
+      "layout": "goals",
+      "description": "เชื่อมเป้าหมาย Marketing กับ BusinessGoal และหลักฐานการวัดผล",
+      "kind": "tab",
+      "tab": "Objectives",
+      "route": "/growth/strategy?tab=objectives",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Add objective",
+        "strategy/new"
+      ],
+      "columns": [
+        "Objective",
+        "Owner",
+        "Metric definition",
+        "Target",
+        "Evidence"
+      ],
+      "rows": [
+        [
+          "Qualified corporate enquiries",
+          "Narin",
+          "CRM-qualified leads",
+          "80",
+          "CRM dependency"
+        ],
+        [
+          "Improve landing-page engagement",
+          "Pim",
+          "GA4 engagement rate",
+          "+8 pp",
+          "GA4 report"
+        ],
+        [
+          "Grow organic discovery",
+          "Krit",
+          "GSC non-brand clicks",
+          "+15%",
+          "28-day window"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-003",
+      "screenshot": "mockups/screenshots/MKT-UI-003.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-004",
+      "key": "strategy/plans",
+      "section": "strategy",
+      "title": "Marketing plans",
+      "layout": "table",
+      "description": "แผนที่มีเป้าหมาย งบ ขอบเขต และเวอร์ชันตรวจสอบได้",
+      "kind": "tab",
+      "tab": "Plans",
+      "route": "/growth/strategy?tab=plans",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New plan",
+        "strategy/new"
+      ],
+      "rowTarget": "strategy/plan-detail",
+      "columns": [
+        "Plan",
+        "Version",
+        "Owner",
+        "Status",
+        "Channels",
+        "Updated"
+      ],
+      "rows": [
+        [
+          "September growth plan",
+          "v2",
+          "Mali",
+          "Human review",
+          "Meta · TikTok · SEO",
+          "Today, 10:40"
+        ],
+        [
+          "Holiday gifting strategy",
+          "v1",
+          "Narin",
+          "Draft",
+          "Content · Partners",
+          "Yesterday"
+        ],
+        [
+          "Organic content roadmap",
+          "v3",
+          "Pim",
+          "Approved",
+          "Instagram · SEO",
+          "04 Sep"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-004",
+      "screenshot": "mockups/screenshots/MKT-UI-004.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-005",
+      "key": "strategy/scenarios",
+      "section": "strategy",
+      "title": "Budget scenarios",
+      "layout": "scenario",
+      "description": "เปรียบเทียบข้อเสนอการจัดสรรงบก่อนตัดสินใจ ไม่ใช่การใช้งบจริง",
+      "kind": "tab",
+      "tab": "Scenarios",
+      "route": "/growth/strategy?tab=scenarios",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing scenario assumptions + comparable source evidence",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Send for review",
+        "team/review-detail"
+      ],
+      "stats": [
+        {
+          "label": "Proposed ceiling",
+          "value": "฿120,000",
+          "note": "Plan budget, not spend"
+        },
+        {
+          "label": "Selected scenario",
+          "value": "Balanced",
+          "note": "Draft v2"
+        },
+        {
+          "label": "Evidence window",
+          "value": "28 days",
+          "note": "Not a forecast guarantee"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-005",
+      "screenshot": "mockups/screenshots/MKT-UI-005.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-006",
+      "key": "campaigns/list",
+      "section": "campaigns",
+      "title": "All campaigns",
+      "layout": "table",
+      "description": "หนึ่ง initiative เชื่อมทุกช่องทาง โดยงานดำเนินการอยู่ใน Project Manager",
+      "kind": "page",
+      "tab": null,
+      "route": "/growth/campaigns",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New campaign",
+        "campaigns/new"
+      ],
+      "rowTarget": "campaigns/brief",
+      "viewToggle": [
+        "List",
+        "Board"
+      ],
+      "columns": [
+        "Campaign",
+        "Channels",
+        "Owner",
+        "Stage",
+        "Window",
+        "Budget"
+      ],
+      "rows": [
+        [
+          "Autumn Gift Edit",
+          "Meta · TikTok · Instagram",
+          "Mali",
+          "Executing",
+          "01–30 Sep",
+          "฿120,000"
+        ],
+        [
+          "Corporate Gifting 2026",
+          "SEO · Website · Partners",
+          "Narin",
+          "Review",
+          "15 Sep–31 Oct",
+          "฿80,000"
+        ],
+        [
+          "Weekend Live — Gift Stories",
+          "Live · Instagram",
+          "Pim",
+          "Planning",
+          "12 Sep",
+          "฿18,000"
+        ],
+        [
+          "Always-on Discovery",
+          "Meta · SEO",
+          "Krit",
+          "Measuring",
+          "01–30 Sep",
+          "฿45,000"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-006",
+      "screenshot": "mockups/screenshots/MKT-UI-006.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-007",
+      "key": "campaigns/brief",
+      "section": "campaigns",
+      "title": "Campaign brief",
+      "layout": "brief",
+      "description": "เป้าหมาย กลุ่มเป้าหมาย ข้อเสนอ และเงื่อนไขของ Autumn Gift Edit",
+      "kind": "detail-tab",
+      "tab": "brief",
+      "route": "/growth/campaigns/[initiativeId]?tab=brief",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Plan",
+        "Timeline",
+        "Results",
+        "Decisions"
+      ],
+      "context": "Autumn Gift Edit",
+      "back": "campaigns/list",
+      "primary": [
+        "Open refinement",
+        "team/run-detail"
+      ],
+      "rowTarget": "team/decision-detail",
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "Observed fixture"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "All clicks · sample"
+        },
+        {
+          "label": "Provider actions",
+          "value": "168",
+          "note": "Not deduplicated customers"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-007",
+      "screenshot": "mockups/screenshots/MKT-UI-007.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-008",
+      "key": "campaigns/plan",
+      "section": "campaigns",
+      "title": "Campaign execution plan",
+      "layout": "board",
+      "description": "งานแต่ละช่องทางใช้ WorkItem เดียวกับ PM",
+      "kind": "detail-tab",
+      "tab": "Plan",
+      "route": "/growth/campaigns/[initiativeId]?tab=plan",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Plan",
+        "Timeline",
+        "Results",
+        "Decisions"
+      ],
+      "context": "Autumn Gift Edit",
+      "back": "campaigns/list",
+      "primary": [
+        "Open refinement",
+        "team/run-detail"
+      ],
+      "rowTarget": "team/decision-detail",
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "Observed fixture"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "All clicks · sample"
+        },
+        {
+          "label": "Provider actions",
+          "value": "168",
+          "note": "Not deduplicated customers"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-008",
+      "screenshot": "mockups/screenshots/MKT-UI-008.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-009",
+      "key": "campaigns/timeline",
+      "section": "campaigns",
+      "title": "Campaign timeline",
+      "layout": "timeline",
+      "description": "มอง dependencies และกำหนดส่งก่อนเปิดแคมเปญ",
+      "kind": "detail-tab",
+      "tab": "timeline",
+      "route": "/growth/campaigns/[initiativeId]?tab=timeline",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Plan",
+        "Timeline",
+        "Results",
+        "Decisions"
+      ],
+      "context": "Autumn Gift Edit",
+      "back": "campaigns/list",
+      "primary": [
+        "Open refinement",
+        "team/run-detail"
+      ],
+      "rowTarget": "team/decision-detail",
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "Observed fixture"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "All clicks · sample"
+        },
+        {
+          "label": "Provider actions",
+          "value": "168",
+          "note": "Not deduplicated customers"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-009",
+      "screenshot": "mockups/screenshots/MKT-UI-009.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-010",
+      "key": "campaigns/results",
+      "section": "campaigns",
+      "title": "Campaign results",
+      "layout": "analysis",
+      "description": "ผลลัพธ์ตาม source และ measurement window ที่อนุมัติ",
+      "kind": "detail-tab",
+      "tab": "results",
+      "route": "/growth/campaigns/[initiativeId]?tab=results",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Plan",
+        "Timeline",
+        "Results",
+        "Decisions"
+      ],
+      "context": "Autumn Gift Edit",
+      "back": "campaigns/list",
+      "primary": [
+        "Open refinement",
+        "team/run-detail"
+      ],
+      "rowTarget": "team/decision-detail",
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "Observed fixture"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "All clicks · sample"
+        },
+        {
+          "label": "Provider actions",
+          "value": "168",
+          "note": "Not deduplicated customers"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-010",
+      "screenshot": "mockups/screenshots/MKT-UI-010.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-011",
+      "key": "campaigns/decisions",
+      "section": "campaigns",
+      "title": "Campaign decisions",
+      "layout": "table",
+      "description": "บันทึกการตัดสินใจพร้อมเวอร์ชัน ผู้อนุมัติ และเหตุผล",
+      "kind": "detail-tab",
+      "tab": "decisions",
+      "route": "/growth/campaigns/[initiativeId]?tab=decisions",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Plan",
+        "Timeline",
+        "Results",
+        "Decisions"
+      ],
+      "context": "Autumn Gift Edit",
+      "back": "campaigns/list",
+      "primary": [
+        "Open refinement",
+        "team/run-detail"
+      ],
+      "rowTarget": "team/decision-detail",
+      "columns": [
+        "Decision",
+        "Version",
+        "Owner",
+        "Result",
+        "Evidence"
+      ],
+      "rows": [
+        [
+          "Use product-in-use creative",
+          "v2",
+          "Mali",
+          "Approved",
+          "Review MKR-021"
+        ],
+        [
+          "Increase TikTok allocation",
+          "v2",
+          "Mali",
+          "Needs changes",
+          "Measurement mismatch"
+        ],
+        [
+          "Confirm launch readiness",
+          "v1",
+          "Pim",
+          "Pending",
+          "Live readiness"
+        ]
+      ],
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "Observed fixture"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "All clicks · sample"
+        },
+        {
+          "label": "Provider actions",
+          "value": "168",
+          "note": "Not deduplicated customers"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-011",
+      "screenshot": "mockups/screenshots/MKT-UI-011.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-012",
+      "key": "paid-media/performance",
+      "section": "paid-media",
+      "title": "Paid media performance",
+      "layout": "analysis",
+      "description": "เทียบ Meta และ TikTok ด้วยนิยามตัวเลขที่เข้ากันได้",
+      "kind": "tab",
+      "tab": "Performance",
+      "route": "/growth/paid-media?tab=performance",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Meta/TikTok translated ad facts via Integration",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "providerFilter": true,
+      "primary": [
+        "Inspect campaign",
+        "paid-media/campaign-detail"
+      ],
+      "stats": [
+        {
+          "label": "Spend",
+          "value": "฿42,800",
+          "note": "THB · same window"
+        },
+        {
+          "label": "Impressions",
+          "value": "284,600",
+          "note": "Ad-level totals"
+        },
+        {
+          "label": "Clicks",
+          "value": "3,420",
+          "note": "Comparable all-click metric"
+        },
+        {
+          "label": "CPC",
+          "value": "฿12.51",
+          "note": "Spend ÷ clicks"
+        }
+      ],
+      "columns": [
+        "Provider / account",
+        "Spend",
+        "Impressions",
+        "Clicks",
+        "CPC",
+        "Coverage"
+      ],
+      "rows": [
+        [
+          "Meta · SG Core",
+          "฿26,200",
+          "172,400",
+          "2,180",
+          "฿12.02",
+          "Complete"
+        ],
+        [
+          "TikTok · SG Studio",
+          "฿16,600",
+          "112,200",
+          "1,240",
+          "฿13.39",
+          "Complete"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-012",
+      "screenshot": "mockups/screenshots/MKT-UI-012.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-013",
+      "key": "paid-media/campaigns",
+      "section": "paid-media",
+      "title": "Ad campaigns",
+      "layout": "table",
+      "description": "Campaign ของ provider แยกจาก business initiative",
+      "kind": "tab",
+      "tab": "Campaigns",
+      "route": "/growth/paid-media?tab=campaigns",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Meta campaign / TikTok campaign mappings",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "providerFilter": true,
+      "rowTarget": "paid-media/campaign-detail",
+      "columns": [
+        "Ad campaign",
+        "Provider",
+        "Initiative",
+        "Status",
+        "Spend",
+        "Result definition"
+      ],
+      "rows": [
+        [
+          "Autumn · Discovery",
+          "Meta",
+          "Autumn Gift Edit",
+          "Active",
+          "฿18,600",
+          "Landing page views"
+        ],
+        [
+          "Gift stories · Video",
+          "TikTok",
+          "Autumn Gift Edit",
+          "Active",
+          "฿16,600",
+          "Video engagement"
+        ],
+        [
+          "Corporate enquiry",
+          "Meta",
+          "Corporate Gifting",
+          "Paused",
+          "฿7,600",
+          "Provider leads"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-013",
+      "screenshot": "mockups/screenshots/MKT-UI-013.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-014",
+      "key": "paid-media/creatives",
+      "section": "paid-media",
+      "title": "Creative effectiveness",
+      "layout": "cards",
+      "description": "ดูการใช้งาน creative ในโฆษณา พร้อมนิยามและ source evidence",
+      "kind": "tab",
+      "tab": "Creatives",
+      "route": "/growth/paid-media?tab=creatives",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Paid creative associations + Files versions",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "providerFilter": true,
+      "rowTarget": "paid-media/creative-detail",
+      "cards": [
+        [
+          "Gift in motion",
+          "Video · 15 sec",
+          "Meta · v3"
+        ],
+        [
+          "A thoughtful welcome",
+          "Static · 1:1",
+          "Meta · v2"
+        ],
+        [
+          "Pack an autumn story",
+          "Video · 20 sec",
+          "TikTok · v1"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-014",
+      "screenshot": "mockups/screenshots/MKT-UI-014.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-015",
+      "key": "paid-media/experiments",
+      "section": "paid-media",
+      "title": "Paid media experiments",
+      "layout": "table",
+      "description": "สมมติฐาน วิธีเปรียบเทียบ และเกณฑ์ตัดสินใจก่อนเรียกผู้ชนะ",
+      "kind": "tab",
+      "tab": "Experiments",
+      "route": "/growth/paid-media?tab=experiments",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New experiment",
+        "website/experiment-new"
+      ],
+      "rowTarget": "website/experiment-detail",
+      "columns": [
+        "Experiment",
+        "Hypothesis",
+        "Owner",
+        "Stage",
+        "Window",
+        "Decision"
+      ],
+      "rows": [
+        [
+          "Product video vs studio shot",
+          "Context improves qualified engagement",
+          "Krit",
+          "Running",
+          "14 days",
+          "Wait for evidence"
+        ],
+        [
+          "Opening hook A/B",
+          "First 3 seconds improve view-through",
+          "Pim",
+          "Review",
+          "7 days",
+          "Needs review"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-015",
+      "screenshot": "mockups/screenshots/MKT-UI-015.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-016",
+      "key": "content/briefs",
+      "section": "content",
+      "title": "Creative briefs",
+      "layout": "table",
+      "description": "ทุกชิ้นงานเริ่มจาก objective, audience, message และ acceptance",
+      "kind": "tab",
+      "tab": "Briefs",
+      "route": "/growth/content?tab=briefs",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New brief",
+        "content/new"
+      ],
+      "rowTarget": "content/brief-detail",
+      "columns": [
+        "Brief",
+        "Initiative",
+        "Format",
+        "Owner",
+        "Due",
+        "Stage"
+      ],
+      "rows": [
+        [
+          "Autumn gift story",
+          "Autumn Gift Edit",
+          "Video / Reel",
+          "Pim",
+          "09 Sep",
+          "Ready for production"
+        ],
+        [
+          "Corporate welcome kit",
+          "Corporate Gifting",
+          "Carousel",
+          "Mali",
+          "11 Sep",
+          "In review"
+        ],
+        [
+          "Delivery promise explainer",
+          "Always-on Discovery",
+          "Landing copy",
+          "Narin",
+          "14 Sep",
+          "Draft"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-016",
+      "screenshot": "mockups/screenshots/MKT-UI-016.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-017",
+      "key": "content/production",
+      "section": "content",
+      "title": "Production pipeline",
+      "layout": "board",
+      "description": "Creative · Footage · Editor · Art Director · Designer ทำงานใน pipeline เดียว",
+      "kind": "tab",
+      "tab": "Production",
+      "route": "/growth/content?tab=production",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "PM WorkItems + creative version references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "content/asset-detail",
+      "primary": [
+        "Open brief",
+        "content/brief-detail"
+      ],
+      "viewToggle": [
+        "Board",
+        "List"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-017",
+      "screenshot": "mockups/screenshots/MKT-UI-017.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-018",
+      "key": "content/library",
+      "section": "content",
+      "title": "Approved creative library",
+      "layout": "cards",
+      "description": "ไฟล์ที่มีเวอร์ชัน สิทธิ์การใช้ และการตรวจรับครบ",
+      "kind": "tab",
+      "tab": "Library",
+      "route": "/growth/content?tab=library",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Files owner + approved creative references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "content/asset-detail",
+      "cards": [
+        [
+          "The autumn edit",
+          "Approved · video v3",
+          "Usage through 30 Sep"
+        ],
+        [
+          "A thoughtful welcome",
+          "Approved · design v2",
+          "Owned creative"
+        ],
+        [
+          "Corporate gift guide",
+          "In review · copy v4",
+          "Product claims pending"
+        ],
+        [
+          "Warm first impressions",
+          "Approved · photo v2",
+          "Model release on file"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-018",
+      "screenshot": "mockups/screenshots/MKT-UI-018.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-019",
+      "key": "social/posts",
+      "section": "social",
+      "title": "Owned social posts",
+      "layout": "cards",
+      "description": "Instagram organic และ publishing intent แยกจากโฆษณา",
+      "kind": "tab",
+      "tab": "Posts",
+      "route": "/growth/social?tab=posts",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Instagram owned media + approved content versions",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Draft post",
+        "social/new"
+      ],
+      "rowTarget": "social/post-detail",
+      "cards": [
+        [
+          "A gift with a story",
+          "Instagram Reel · 09 Sep",
+          "Ready for handoff"
+        ],
+        [
+          "What goes into a welcome kit?",
+          "Instagram Carousel · 11 Sep",
+          "Draft"
+        ],
+        [
+          "Meet us this Saturday",
+          "Instagram Story · 12 Sep",
+          "In review"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-019",
+      "screenshot": "mockups/screenshots/MKT-UI-019.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-020",
+      "key": "social/calendar",
+      "section": "social",
+      "title": "Social content calendar",
+      "layout": "calendar",
+      "description": "ปฏิทิน content ที่ผูกเวอร์ชันและเจ้าของงาน",
+      "kind": "tab",
+      "tab": "Calendar",
+      "route": "/growth/social?tab=calendar",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Social publishing intents + PM dates",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "social/post-detail",
+      "mockup": "mockups/index.html#MKT-UI-020",
+      "screenshot": "mockups/screenshots/MKT-UI-020.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-021",
+      "key": "social/insights",
+      "section": "social",
+      "title": "Instagram organic insights",
+      "layout": "analysis",
+      "description": "ผลของ owned media ไม่รวม paid reach ที่ถูกนับจาก Meta Ads",
+      "kind": "tab",
+      "tab": "Insights",
+      "route": "/growth/social?tab=insights",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Instagram professional account/media insights",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Media published",
+          "value": "8",
+          "note": "Owned-account example"
+        },
+        {
+          "label": "Interactions",
+          "value": "1,284",
+          "note": "Metric definition retained"
+        },
+        {
+          "label": "Profile activity",
+          "value": "420",
+          "note": "Provider reported"
+        },
+        {
+          "label": "Reach",
+          "value": "—",
+          "note": "Do not sum media reach"
+        }
+      ],
+      "columns": [
+        "Media",
+        "Format",
+        "Interactions",
+        "Account",
+        "Evidence"
+      ],
+      "rows": [
+        [
+          "A gift with a story",
+          "Reel",
+          "624",
+          "SG Studio",
+          "Complete"
+        ],
+        [
+          "Inside the welcome kit",
+          "Carousel",
+          "412",
+          "SG Studio",
+          "Complete"
+        ],
+        [
+          "Saturday live invitation",
+          "Story",
+          "248",
+          "SG Studio",
+          "Partial"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-021",
+      "screenshot": "mockups/screenshots/MKT-UI-021.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-022",
+      "key": "social/handoffs",
+      "section": "social",
+      "title": "Community handoffs",
+      "layout": "table",
+      "description": "ส่งบทสนทนาไป CRM ด้วย reference แทนสร้าง Inbox อีกชุด",
+      "kind": "tab",
+      "tab": "Handoffs",
+      "route": "/growth/social?tab=handoffs",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "CRM-authorized handoff projection",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "operations/handoff-detail",
+      "columns": [
+        "Handoff",
+        "Reason",
+        "Destination",
+        "Owner",
+        "Status"
+      ],
+      "rows": [
+        [
+          "Product availability question",
+          "Stock confirmation",
+          "Commerce",
+          "Narin",
+          "Waiting"
+        ],
+        [
+          "Delivery-date enquiry",
+          "Customer follow-up",
+          "CRM",
+          "Pim",
+          "Accepted"
+        ],
+        [
+          "Creator collaboration",
+          "Partnership brief",
+          "Partnerships",
+          "Mali",
+          "Ready"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-022",
+      "screenshot": "mockups/screenshots/MKT-UI-022.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-023",
+      "key": "partners/partners",
+      "section": "partners",
+      "title": "Creator & partner directory",
+      "layout": "cards",
+      "description": "Affiliate และ Influencer ใช้ common partner core และ program type ต่างกัน",
+      "kind": "tab",
+      "tab": "Partners",
+      "route": "/growth/partners?tab=partners",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Add partner brief",
+        "partners/new"
+      ],
+      "rowTarget": "partners/partner-detail",
+      "cards": [
+        [
+          "Nicha Creates",
+          "Influencer · Lifestyle",
+          "Shortlisted · example identity"
+        ],
+        [
+          "Everyday Desk",
+          "Affiliate · Work & living",
+          "Active program"
+        ],
+        [
+          "Little Good Things",
+          "Influencer · Gifting",
+          "Rights review"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-023",
+      "screenshot": "mockups/screenshots/MKT-UI-023.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-024",
+      "key": "partners/programs",
+      "section": "partners",
+      "title": "Partnership programs",
+      "layout": "table",
+      "description": "ขอบเขต deliverables, rights และวิธีวัดผลของแต่ละโปรแกรม",
+      "kind": "tab",
+      "tab": "Programs",
+      "route": "/growth/partners?tab=programs",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "partners/program-detail",
+      "columns": [
+        "Program",
+        "Type",
+        "Partners",
+        "Deliverables",
+        "Stage"
+      ],
+      "rows": [
+        [
+          "Autumn creator stories",
+          "Influencer",
+          "3",
+          "6 videos",
+          "In review"
+        ],
+        [
+          "Gift guide referrals",
+          "Affiliate",
+          "8",
+          "Tracked links",
+          "Active"
+        ],
+        [
+          "Weekend host collaboration",
+          "Influencer",
+          "1",
+          "Live appearance",
+          "Planning"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-024",
+      "screenshot": "mockups/screenshots/MKT-UI-024.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-025",
+      "key": "partners/deliverables",
+      "section": "partners",
+      "title": "Partner deliverables",
+      "layout": "table",
+      "description": "ตรวจรับผลงานและสิทธิ์ก่อนนำไปใช้ต่อ",
+      "kind": "tab",
+      "tab": "Deliverables",
+      "route": "/growth/partners?tab=deliverables",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "partners/deliverable-detail",
+      "columns": [
+        "Deliverable",
+        "Partner",
+        "Due",
+        "Rights",
+        "Status"
+      ],
+      "rows": [
+        [
+          "Gift story video 01",
+          "Nicha Creates",
+          "10 Sep",
+          "30-day organic",
+          "In review"
+        ],
+        [
+          "Referral guide",
+          "Everyday Desk",
+          "12 Sep",
+          "Approved terms",
+          "Ready"
+        ],
+        [
+          "Behind the scenes",
+          "Little Good Things",
+          "15 Sep",
+          "Pending evidence",
+          "Blocked"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-025",
+      "screenshot": "mockups/screenshots/MKT-UI-025.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-026",
+      "key": "partners/performance",
+      "section": "partners",
+      "title": "Partnership performance",
+      "layout": "analysis",
+      "description": "แยก verified outcomes จาก provider-reported engagement และ settlement",
+      "kind": "tab",
+      "tab": "Performance",
+      "route": "/growth/partners?tab=performance",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Active programs",
+          "value": "2",
+          "note": "Sample programs"
+        },
+        {
+          "label": "Verified deliverables",
+          "value": "7 / 10",
+          "note": "Acceptance evidence"
+        },
+        {
+          "label": "Tracked referrals",
+          "value": "126",
+          "note": "Attribution evidence"
+        },
+        {
+          "label": "Commission paid",
+          "value": "—",
+          "note": "Finance-owned dependency"
+        }
+      ],
+      "columns": [
+        "Program",
+        "Verified items",
+        "Engagement",
+        "Referrals",
+        "Revenue"
+      ],
+      "rows": [
+        [
+          "Creator stories",
+          "4 / 6",
+          "1,850",
+          "42",
+          "Unavailable"
+        ],
+        [
+          "Gift guide referrals",
+          "3 / 4",
+          "620",
+          "84",
+          "Unavailable"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-026",
+      "screenshot": "mockups/screenshots/MKT-UI-026.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-027",
+      "key": "live/list",
+      "section": "live",
+      "title": "Live marketing schedule",
+      "layout": "calendar",
+      "description": "วาง Live brief, rehearsal, host และความพร้อมก่อนวันจริง",
+      "kind": "page",
+      "tab": null,
+      "route": "/growth/live",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Plan a live",
+        "live/new"
+      ],
+      "rowTarget": "live/brief",
+      "viewToggle": [
+        "Calendar",
+        "List"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-027",
+      "screenshot": "mockups/screenshots/MKT-UI-027.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-028",
+      "key": "live/brief",
+      "section": "live",
+      "title": "Live brief",
+      "layout": "brief",
+      "description": "Objective, audience, offer และ crew ของ Live",
+      "kind": "detail-tab",
+      "tab": "Brief",
+      "route": "/growth/live/[liveId]?tab=brief",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Rundown",
+        "Readiness",
+        "Results"
+      ],
+      "context": "Weekend Live — Gift Stories",
+      "back": "live/list",
+      "primary": [
+        "Review readiness",
+        "live/readiness"
+      ],
+      "stats": [
+        {
+          "label": "Live duration",
+          "value": "45 min",
+          "note": "Execution receipt"
+        },
+        {
+          "label": "Reported viewers",
+          "value": "840",
+          "note": "Platform-reported"
+        },
+        {
+          "label": "Confirmed orders",
+          "value": "—",
+          "note": "Commerce dependency"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-028",
+      "screenshot": "mockups/screenshots/MKT-UI-028.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-029",
+      "key": "live/rundown",
+      "section": "live",
+      "title": "Live rundown",
+      "layout": "rundown",
+      "description": "ลำดับช่วงเวลา สคริปต์ สินค้าที่นำเสนอ และ cue",
+      "kind": "detail-tab",
+      "tab": "Rundown",
+      "route": "/growth/live/[liveId]?tab=rundown",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Rundown",
+        "Readiness",
+        "Results"
+      ],
+      "context": "Weekend Live — Gift Stories",
+      "back": "live/list",
+      "primary": [
+        "Review readiness",
+        "live/readiness"
+      ],
+      "stats": [
+        {
+          "label": "Live duration",
+          "value": "45 min",
+          "note": "Execution receipt"
+        },
+        {
+          "label": "Reported viewers",
+          "value": "840",
+          "note": "Platform-reported"
+        },
+        {
+          "label": "Confirmed orders",
+          "value": "—",
+          "note": "Commerce dependency"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-029",
+      "screenshot": "mockups/screenshots/MKT-UI-029.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-030",
+      "key": "live/readiness",
+      "section": "live",
+      "title": "Live readiness",
+      "layout": "checklist",
+      "description": "ยืนยัน host, footage, offer, stock และ reviewer",
+      "kind": "detail-tab",
+      "tab": "Readiness",
+      "route": "/growth/live/[liveId]?tab=readiness",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Rundown",
+        "Readiness",
+        "Results"
+      ],
+      "context": "Weekend Live — Gift Stories",
+      "back": "live/list",
+      "primary": [
+        "Review readiness",
+        "live/readiness"
+      ],
+      "stats": [
+        {
+          "label": "Live duration",
+          "value": "45 min",
+          "note": "Execution receipt"
+        },
+        {
+          "label": "Reported viewers",
+          "value": "840",
+          "note": "Platform-reported"
+        },
+        {
+          "label": "Confirmed orders",
+          "value": "—",
+          "note": "Commerce dependency"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-030",
+      "screenshot": "mockups/screenshots/MKT-UI-030.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-031",
+      "key": "live/results",
+      "section": "live",
+      "title": "Live results",
+      "layout": "analysis",
+      "description": "ผลการ Live พร้อม manual/provider receipt ที่ติดป้าย",
+      "kind": "detail-tab",
+      "tab": "Results",
+      "route": "/growth/live/[liveId]?tab=results",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "detailTabs": [
+        "Brief",
+        "Rundown",
+        "Readiness",
+        "Results"
+      ],
+      "context": "Weekend Live — Gift Stories",
+      "back": "live/list",
+      "primary": [
+        "Review readiness",
+        "live/readiness"
+      ],
+      "stats": [
+        {
+          "label": "Live duration",
+          "value": "45 min",
+          "note": "Execution receipt"
+        },
+        {
+          "label": "Reported viewers",
+          "value": "840",
+          "note": "Platform-reported"
+        },
+        {
+          "label": "Confirmed orders",
+          "value": "—",
+          "note": "Commerce dependency"
+        }
+      ],
+      "mockup": "mockups/index.html#MKT-UI-031",
+      "screenshot": "mockups/screenshots/MKT-UI-031.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-032",
+      "key": "website/pages",
+      "section": "website",
+      "title": "Landing-page inventory",
+      "layout": "table",
+      "description": "Page intent, content version และ measurement association",
+      "kind": "tab",
+      "tab": "Pages",
+      "route": "/growth/website?tab=pages",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Website page references + GA4/GSC + PM handoffs",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "website/page-detail",
+      "columns": [
+        "Page",
+        "Purpose",
+        "Owner",
+        "GA4 mapping",
+        "SEO issue",
+        "Status"
+      ],
+      "rows": [
+        [
+          "/gifts/autumn",
+          "Campaign landing",
+          "Pim",
+          "Verified",
+          "1 open",
+          "Live"
+        ],
+        [
+          "/corporate-gifts",
+          "Qualified enquiry",
+          "Narin",
+          "Verified",
+          "2 open",
+          "In review"
+        ],
+        [
+          "/delivery",
+          "Answer shipping questions",
+          "Krit",
+          "Pending",
+          "0 open",
+          "Draft"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-032",
+      "screenshot": "mockups/screenshots/MKT-UI-032.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-033",
+      "key": "website/journeys",
+      "section": "website",
+      "title": "Conversion journey hypotheses",
+      "layout": "funnel",
+      "description": "เปรียบเทียบ journey intent กับ evidence ที่ตอบ sequence ได้จริง",
+      "kind": "tab",
+      "tab": "Journeys",
+      "route": "/growth/website?tab=journeys",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "GA4 authorized reports + declared journey definition",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Create experiment",
+        "website/experiment-new"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-033",
+      "screenshot": "mockups/screenshots/MKT-UI-033.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-034",
+      "key": "website/experiments",
+      "section": "website",
+      "title": "Website & CRO experiments",
+      "layout": "table",
+      "description": "shared experiment core เดียวกับ Paid Media แต่กรองตาม website scope",
+      "kind": "tab",
+      "tab": "Experiments",
+      "route": "/growth/website?tab=experiments",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "website/experiment-detail",
+      "primary": [
+        "New experiment",
+        "website/experiment-new"
+      ],
+      "columns": [
+        "Experiment",
+        "Page",
+        "Primary metric",
+        "Guardrail",
+        "Stage"
+      ],
+      "rows": [
+        [
+          "Delivery-date clarity",
+          "/gifts/autumn",
+          "Qualified form completion",
+          "No drop in engagement",
+          "Review"
+        ],
+        [
+          "Shorter enquiry form",
+          "/corporate-gifts",
+          "Form completion",
+          "Lead quality",
+          "Planned"
+        ],
+        [
+          "Offer placement",
+          "/gifts/autumn",
+          "CTA engagement",
+          "Page performance",
+          "Inconclusive"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-034",
+      "screenshot": "mockups/screenshots/MKT-UI-034.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-035",
+      "key": "seo/performance",
+      "section": "seo",
+      "title": "Organic search performance",
+      "layout": "analysis",
+      "description": "Search Console query/page performance พร้อม coverage caveat",
+      "kind": "tab",
+      "tab": "Performance",
+      "route": "/growth/seo?tab=performance",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Search Console property-scoped Search Analytics",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Search clicks",
+          "value": "4,260",
+          "note": "Search Console sample"
+        },
+        {
+          "label": "Impressions",
+          "value": "92,400",
+          "note": "Property report"
+        },
+        {
+          "label": "CTR",
+          "value": "4.61%",
+          "note": "Recomputed ratio"
+        },
+        {
+          "label": "Avg. position",
+          "value": "12.8",
+          "note": "Not a guaranteed rank"
+        }
+      ],
+      "columns": [
+        "Query / page",
+        "Clicks",
+        "Impressions",
+        "CTR",
+        "Position"
+      ],
+      "rows": [
+        [
+          "corporate gift ideas",
+          "1,280",
+          "28,400",
+          "4.51%",
+          "10.4"
+        ],
+        [
+          "welcome gift set",
+          "920",
+          "18,600",
+          "4.95%",
+          "11.8"
+        ],
+        [
+          "/gifts/autumn",
+          "2,060",
+          "45,400",
+          "4.54%",
+          "14.8"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-035",
+      "screenshot": "mockups/screenshots/MKT-UI-035.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-036",
+      "key": "seo/opportunities",
+      "section": "seo",
+      "title": "Search opportunities",
+      "layout": "table",
+      "description": "Intent cluster → target page → content brief ที่มี evidence",
+      "kind": "tab",
+      "tab": "Opportunities",
+      "route": "/growth/seo?tab=opportunities",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "seo/opportunity-detail",
+      "columns": [
+        "Opportunity",
+        "Intent",
+        "Target page",
+        "Evidence",
+        "Priority"
+      ],
+      "rows": [
+        [
+          "Corporate welcome gifts",
+          "Commercial research",
+          "/corporate-gifts",
+          "GSC + market signal",
+          "High"
+        ],
+        [
+          "Gift delivery timing",
+          "Information",
+          "/delivery",
+          "CRM + GSC",
+          "High"
+        ],
+        [
+          "Sustainable gift wrapping",
+          "Inspiration",
+          "/gifts/autumn",
+          "GSC query sample",
+          "Medium"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-036",
+      "screenshot": "mockups/screenshots/MKT-UI-036.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-037",
+      "key": "seo/technical",
+      "section": "seo",
+      "title": "Technical SEO findings",
+      "layout": "table",
+      "description": "แยก inspected evidence ออกจากสมมติฐานและสถานะการแก้ไข",
+      "kind": "tab",
+      "tab": "Technical",
+      "route": "/growth/seo?tab=technical",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "seo/issue-detail",
+      "columns": [
+        "Finding",
+        "URL",
+        "Method",
+        "Observed",
+        "Severity",
+        "Status"
+      ],
+      "rows": [
+        [
+          "Canonical mismatch",
+          "/gifts/autumn",
+          "Owned-page inspection",
+          "05 Sep",
+          "High",
+          "Triaged"
+        ],
+        [
+          "Sitemap update pending",
+          "/corporate-gifts",
+          "Sitemap evidence",
+          "06 Sep",
+          "Medium",
+          "Planned"
+        ],
+        [
+          "Indexed version behind live",
+          "/delivery",
+          "URL Inspection",
+          "04 Sep",
+          "Info",
+          "Monitoring"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-037",
+      "screenshot": "mockups/screenshots/MKT-UI-037.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-038",
+      "key": "seo/workplan",
+      "section": "seo",
+      "title": "SEO workplan",
+      "layout": "board",
+      "description": "Prioritized work ใช้ PM WorkItem และ verification evidence",
+      "kind": "tab",
+      "tab": "Workplan",
+      "route": "/growth/seo?tab=workplan",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "PM WorkItems + SEO finding associations",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Inspect finding",
+        "seo/issue-detail"
+      ],
+      "rowTarget": "seo/issue-detail",
+      "mockup": "mockups/index.html#MKT-UI-038",
+      "screenshot": "mockups/screenshots/MKT-UI-038.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-039",
+      "key": "analytics/overview",
+      "section": "analytics",
+      "title": "Marketing measurement overview",
+      "layout": "analysis",
+      "description": "มุมมองรวมที่ไม่บวกผลลัพธ์คนละนิยามเข้าด้วยกัน",
+      "kind": "tab",
+      "tab": "Overview",
+      "route": "/growth/analytics?tab=overview",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Paid media spend",
+          "value": "฿42,800",
+          "note": "Meta + TikTok · THB"
+        },
+        {
+          "label": "GA4 sessions",
+          "value": "8,640",
+          "note": "Property definition"
+        },
+        {
+          "label": "GSC clicks",
+          "value": "4,260",
+          "note": "Not GA4 sessions"
+        },
+        {
+          "label": "Confirmed revenue",
+          "value": "—",
+          "note": "Commerce unavailable"
+        }
+      ],
+      "columns": [
+        "Measure",
+        "Source",
+        "Definition",
+        "Value",
+        "Comparable?"
+      ],
+      "rows": [
+        [
+          "Media clicks",
+          "Meta / TikTok",
+          "All-click aggregate",
+          "3,420",
+          "At approved common grain"
+        ],
+        [
+          "Website sessions",
+          "GA4",
+          "Property reporting identity",
+          "8,640",
+          "Separate measure"
+        ],
+        [
+          "Search clicks",
+          "Search Console",
+          "Search result click",
+          "4,260",
+          "Separate measure"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-039",
+      "screenshot": "mockups/screenshots/MKT-UI-039.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-040",
+      "key": "analytics/acquisition",
+      "section": "analytics",
+      "title": "Website acquisition",
+      "layout": "analysis",
+      "description": "GA4 property reports ที่ preserve reporting identity และ quality flags",
+      "kind": "tab",
+      "tab": "Acquisition",
+      "route": "/growth/analytics?tab=acquisition",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "GA4 Data API report + metadata",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "stats": [
+        {
+          "label": "Sessions",
+          "value": "8,640",
+          "note": "Property report"
+        },
+        {
+          "label": "Engaged sessions",
+          "value": "5,430",
+          "note": "GA4 definition"
+        },
+        {
+          "label": "Engagement rate",
+          "value": "62.8%",
+          "note": "Report ratio"
+        },
+        {
+          "label": "Key events",
+          "value": "146",
+          "note": "Not unique customers"
+        }
+      ],
+      "columns": [
+        "Session channel",
+        "Sessions",
+        "Engaged sessions",
+        "Key events",
+        "Source"
+      ],
+      "rows": [
+        [
+          "Organic Search",
+          "3,840",
+          "2,640",
+          "64",
+          "GA4"
+        ],
+        [
+          "Paid Social",
+          "2,720",
+          "1,540",
+          "48",
+          "GA4"
+        ],
+        [
+          "Direct",
+          "1,280",
+          "820",
+          "24",
+          "GA4"
+        ],
+        [
+          "Referral",
+          "800",
+          "430",
+          "10",
+          "GA4"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-040",
+      "screenshot": "mockups/screenshots/MKT-UI-040.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-041",
+      "key": "analytics/funnels",
+      "section": "analytics",
+      "title": "Funnel evidence",
+      "layout": "funnel",
+      "description": "ต้องมี sequence-capable data contract ก่อนเรียกกราฟนี้ว่า user-level funnel",
+      "kind": "tab",
+      "tab": "Funnels",
+      "route": "/growth/analytics?tab=funnels",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "GA4 compatible funnel contract; demo sequence only",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-041",
+      "screenshot": "mockups/screenshots/MKT-UI-041.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-042",
+      "key": "analytics/attribution",
+      "section": "analytics",
+      "title": "Attribution & revenue",
+      "layout": "attribution",
+      "description": "Provider-reported, GA4 และ Commerce-confirmed แสดงแยกกัน",
+      "kind": "tab",
+      "tab": "Attribution",
+      "route": "/growth/analytics?tab=attribution",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Provider insights + GA4 + planned CRM/Commerce read contract",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-042",
+      "screenshot": "mockups/screenshots/MKT-UI-042.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-043",
+      "key": "analytics/data-quality",
+      "section": "analytics",
+      "title": "Source health & data quality",
+      "layout": "quality",
+      "description": "Freshness, completeness, restriction และ account mapping ก่อนเชื่อผลลัพธ์",
+      "kind": "tab",
+      "tab": "Data Quality",
+      "route": "/growth/analytics?tab=data-quality",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Integration source receipts + quality metadata",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "analytics/report-detail",
+      "mockup": "mockups/index.html#MKT-UI-043",
+      "screenshot": "mockups/screenshots/MKT-UI-043.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-044",
+      "key": "operations/intake",
+      "section": "operations",
+      "title": "Marketing intake",
+      "layout": "table",
+      "description": "รวมคำขอและความพร้อมก่อนแตกแผน โดยไม่สร้าง Task อีกระบบ",
+      "kind": "tab",
+      "tab": "Intake",
+      "route": "/growth/operations?tab=intake",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New intake",
+        "operations/new"
+      ],
+      "rowTarget": "operations/intake-detail",
+      "columns": [
+        "Request",
+        "Requester",
+        "Capability",
+        "Priority",
+        "Owner",
+        "Status"
+      ],
+      "rows": [
+        [
+          "Autumn landing refresh",
+          "Mali",
+          "Website & CRO",
+          "High",
+          "Pim",
+          "Triaged"
+        ],
+        [
+          "Creator video rights",
+          "Narin",
+          "Partnerships",
+          "High",
+          "Mali",
+          "Waiting"
+        ],
+        [
+          "Next-month search brief",
+          "Krit",
+          "SEO",
+          "Medium",
+          "Narin",
+          "New"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-044",
+      "screenshot": "mockups/screenshots/MKT-UI-044.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-045",
+      "key": "operations/calendar",
+      "section": "operations",
+      "title": "Delivery calendar",
+      "layout": "calendar",
+      "description": "กำหนดส่ง Content, Campaigns, Live และ SEO จาก PM records เดียวกัน",
+      "kind": "tab",
+      "tab": "Calendar",
+      "route": "/growth/operations?tab=calendar",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "PM schedule projection",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "operations/intake-detail",
+      "mockup": "mockups/index.html#MKT-UI-045",
+      "screenshot": "mockups/screenshots/MKT-UI-045.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-046",
+      "key": "operations/approvals",
+      "section": "operations",
+      "title": "Approval inbox",
+      "layout": "table",
+      "description": "คนที่มีสิทธิ์ตรวจเวอร์ชันและขอบเขตก่อนอนุมัติ",
+      "kind": "tab",
+      "tab": "Approvals",
+      "route": "/growth/operations?tab=approvals",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "team/review-detail",
+      "columns": [
+        "Approval",
+        "Type",
+        "Version",
+        "Requested by",
+        "Age",
+        "Gate"
+      ],
+      "rows": [
+        [
+          "September channel plan",
+          "Internal plan",
+          "v2",
+          "Coordinator",
+          "2 hours",
+          "Human review"
+        ],
+        [
+          "Autumn video final",
+          "Creative rights",
+          "v3",
+          "Editor",
+          "45 min",
+          "Brand review"
+        ],
+        [
+          "Budget allocation change",
+          "Spend proposal",
+          "v2",
+          "Paid specialist",
+          "20 min",
+          "Action approval"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-046",
+      "screenshot": "mockups/screenshots/MKT-UI-046.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-047",
+      "key": "operations/handoffs",
+      "section": "operations",
+      "title": "Cross-domain handoffs",
+      "layout": "table",
+      "description": "รับทราบคำขอผ่าน owner contract พร้อม receipt",
+      "kind": "tab",
+      "tab": "Handoffs",
+      "route": "/growth/operations?tab=handoffs",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "operations/handoff-detail",
+      "columns": [
+        "Handoff",
+        "Owner domain",
+        "Reference",
+        "Requested",
+        "Status"
+      ],
+      "rows": [
+        [
+          "Verify autumn offer stock",
+          "Commerce",
+          "Offer O-014",
+          "Today",
+          "Waiting"
+        ],
+        [
+          "Confirm delivery response",
+          "CRM",
+          "Conversation reference",
+          "Today",
+          "Accepted"
+        ],
+        [
+          "Publish approved landing copy",
+          "Website owner",
+          "WorkItem WI-118",
+          "Yesterday",
+          "Needs evidence"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-047",
+      "screenshot": "mockups/screenshots/MKT-UI-047.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-048",
+      "key": "team/team",
+      "section": "team",
+      "title": "Marketing team",
+      "layout": "team",
+      "description": "คนรับผิดชอบการตัดสินใจ ผู้เชี่ยวชาญเสนอ และ reviewer ตรวจหลักฐาน",
+      "kind": "tab",
+      "tab": "Team",
+      "route": "/growth/team?tab=team",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Team grouping + typed agent role config; not authority",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "Configure refinement",
+        "team/new"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-048",
+      "screenshot": "mockups/screenshots/MKT-UI-048.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-049",
+      "key": "team/runs",
+      "section": "team",
+      "title": "Refinement runs",
+      "layout": "table",
+      "description": "ติดตามงานจริงจาก run/step receipts ไม่ใช้ animation แทนสถานะ",
+      "kind": "tab",
+      "tab": "Runs",
+      "route": "/growth/team?tab=runs",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Agreed MSP/Agent run control projection",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "primary": [
+        "New refinement run",
+        "team/new"
+      ],
+      "rowTarget": "team/run-detail",
+      "columns": [
+        "Run",
+        "Brief",
+        "Round",
+        "Owner",
+        "Status",
+        "Model cost"
+      ],
+      "rows": [
+        [
+          "MKR-021",
+          "September channel plan",
+          "2 / 3",
+          "Mali",
+          "Human review",
+          "฿38.40 / ฿100"
+        ],
+        [
+          "MKR-020",
+          "Organic search brief",
+          "1 / 3",
+          "Krit",
+          "Reviewing",
+          "฿21.80 / ฿80"
+        ],
+        [
+          "MKR-019",
+          "Creative debrief",
+          "3 / 3",
+          "Pim",
+          "Closed",
+          "฿46.20 / ฿100"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-049",
+      "screenshot": "mockups/screenshots/MKT-UI-049.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-050",
+      "key": "team/reviews",
+      "section": "team",
+      "title": "Review workspace",
+      "layout": "review",
+      "description": "ทบทวนหลักฐาน ขอบเขต ความเป็นไปได้ และสิ่งที่ยังขัดแย้ง",
+      "kind": "tab",
+      "tab": "Reviews",
+      "route": "/growth/team?tab=reviews",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "team/review-detail",
+      "primary": [
+        "Compare v1 → v2",
+        "team/review-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-050",
+      "screenshot": "mockups/screenshots/MKT-UI-050.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-051",
+      "key": "team/decisions",
+      "section": "team",
+      "title": "Decision ledger",
+      "layout": "table",
+      "description": "การอนุมัติผูก artifact hash/version และมีผู้รับผิดชอบ",
+      "kind": "tab",
+      "tab": "Decisions",
+      "route": "/growth/team?tab=decisions",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "team/decision-detail",
+      "columns": [
+        "Decision",
+        "Artifact",
+        "Scope",
+        "Approver",
+        "Status",
+        "When"
+      ],
+      "rows": [
+        [
+          "Channel plan v2",
+          "MKR-021 / hash b72f",
+          "Internal PM handoff",
+          "Mali",
+          "Pending",
+          "Today"
+        ],
+        [
+          "Creative brief v3",
+          "BR-018 / hash c10a",
+          "Production brief",
+          "Pim",
+          "Approved",
+          "05 Sep"
+        ],
+        [
+          "Learning promotion",
+          "LRN-009 / hash d62f",
+          "GKS candidate",
+          "Krit",
+          "Changes requested",
+          "04 Sep"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-051",
+      "screenshot": "mockups/screenshots/MKT-UI-051.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-052",
+      "key": "team/learnings",
+      "section": "team",
+      "title": "Learning candidates",
+      "layout": "cards",
+      "description": "สิ่งที่เรียนรู้มี evidence, limitation และขอบเขตก่อน promote ไป GKS",
+      "kind": "tab",
+      "tab": "Learnings",
+      "route": "/growth/team?tab=learnings",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "rowTarget": "team/learning-detail",
+      "cards": [
+        [
+          "Context matters in creative",
+          "Evidence: 2 experiments",
+          "Candidate · not canonical"
+        ],
+        [
+          "Delivery detail removes friction",
+          "Evidence: CRO test",
+          "Needs another window"
+        ],
+        [
+          "Short opening hooks",
+          "Evidence: TikTok report",
+          "Channel-specific · review"
+        ]
+      ],
+      "mockup": "mockups/index.html#MKT-UI-052",
+      "screenshot": "mockups/screenshots/MKT-UI-052.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-053",
+      "key": "strategy/plan-detail",
+      "section": "strategy",
+      "title": "September growth plan · v2",
+      "layout": "brief",
+      "description": "Approved objective references, assumptions, channel allocation and evidence",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/strategy/plans/[planId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "strategy/plans",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-053",
+      "screenshot": "mockups/screenshots/MKT-UI-053.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-054",
+      "key": "paid-media/campaign-detail",
+      "section": "paid-media",
+      "title": "Autumn · Discovery",
+      "layout": "ad-detail",
+      "description": "Meta ad campaign hierarchy with distinct adCampaignId",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/paid-media/campaigns/[adCampaignId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "paid-media/campaigns",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-054",
+      "screenshot": "mockups/screenshots/MKT-UI-054.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-055",
+      "key": "paid-media/adset-detail",
+      "section": "paid-media",
+      "title": "Gift explorers · Ad set",
+      "layout": "ad-detail",
+      "description": "Audience reference, parent account, ads and metric grain",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/paid-media/ad-groups/[adGroupId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "paid-media/campaign-detail",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-055",
+      "screenshot": "mockups/screenshots/MKT-UI-055.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-056",
+      "key": "paid-media/ad-detail",
+      "section": "paid-media",
+      "title": "Gift in motion · Ad",
+      "layout": "ad-detail",
+      "description": "Ad creative version, daily metrics, placement evidence",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/paid-media/ads/[adId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "paid-media/adset-detail",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-056",
+      "screenshot": "mockups/screenshots/MKT-UI-056.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-057",
+      "key": "paid-media/creative-detail",
+      "section": "paid-media",
+      "title": "Gift in motion · Effectiveness",
+      "layout": "analysis",
+      "description": "Creative usage and results retain provider attribution definitions",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/paid-media/creatives/[creativeId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "paid-media/creatives",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-057",
+      "screenshot": "mockups/screenshots/MKT-UI-057.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-058",
+      "key": "content/brief-detail",
+      "section": "content",
+      "title": "Autumn gift story · Creative brief",
+      "layout": "brief",
+      "description": "Objective, audience, claims, shot list and acceptance criteria",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/content/briefs/[briefId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "content/briefs",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-058",
+      "screenshot": "mockups/screenshots/MKT-UI-058.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-059",
+      "key": "content/asset-detail",
+      "section": "content",
+      "title": "Autumn gift story · Asset v3",
+      "layout": "asset",
+      "description": "Version history, source file, rights and review evidence",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/content/assets/[assetId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "content/library",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-059",
+      "screenshot": "mockups/screenshots/MKT-UI-059.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-060",
+      "key": "social/post-detail",
+      "section": "social",
+      "title": "A gift with a story · Post",
+      "layout": "post",
+      "description": "Approved content version, Instagram preview and publication receipt",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/social/posts/[postId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "social/posts",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-060",
+      "screenshot": "mockups/screenshots/MKT-UI-060.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-061",
+      "key": "partners/partner-detail",
+      "section": "partners",
+      "title": "Nicha Creates · Partner",
+      "layout": "partner",
+      "description": "Program references, contact handoff, rights and agreed deliverables",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/partners/[partnerId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "partners/partners",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-061",
+      "screenshot": "mockups/screenshots/MKT-UI-061.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-062",
+      "key": "partners/program-detail",
+      "section": "partners",
+      "title": "Autumn creator stories · Program",
+      "layout": "brief",
+      "description": "Scope, deliverables and measurement policy by program type",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/partners/programs/[programId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "partners/programs",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-062",
+      "screenshot": "mockups/screenshots/MKT-UI-062.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-063",
+      "key": "partners/deliverable-detail",
+      "section": "partners",
+      "title": "Gift story video 01 · Deliverable",
+      "layout": "asset",
+      "description": "Version, usage rights, reviewer evidence and acceptance",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/partners/deliverables/[deliverableId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "partners/deliverables",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-063",
+      "screenshot": "mockups/screenshots/MKT-UI-063.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-064",
+      "key": "website/page-detail",
+      "section": "website",
+      "title": "Autumn gift landing page",
+      "layout": "page",
+      "description": "Page intent, approved copy, GA4/GSC mapping and website-owner handoff",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/website/pages/[pageId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "website/pages",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-064",
+      "screenshot": "mockups/screenshots/MKT-UI-064.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-065",
+      "key": "website/experiment-detail",
+      "section": "website",
+      "title": "Delivery-date clarity · Experiment",
+      "layout": "experiment",
+      "description": "Hypothesis, treatment, control, window, guardrails and outcome",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/website/experiments/[experimentId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "website/experiments",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-065",
+      "screenshot": "mockups/screenshots/MKT-UI-065.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-066",
+      "key": "seo/issue-detail",
+      "section": "seo",
+      "title": "Canonical mismatch · SEO finding",
+      "layout": "issue",
+      "description": "URL, evidence time/method, recommendation and verification criteria",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/seo/issues/[issueId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "seo/technical",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-066",
+      "screenshot": "mockups/screenshots/MKT-UI-066.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-067",
+      "key": "seo/opportunity-detail",
+      "section": "seo",
+      "title": "Corporate welcome gifts · Opportunity",
+      "layout": "brief",
+      "description": "Query cluster, target page, source coverage and proposed content brief",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/seo/opportunities/[opportunityId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "seo/opportunities",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-067",
+      "screenshot": "mockups/screenshots/MKT-UI-067.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-068",
+      "key": "analytics/report-detail",
+      "section": "analytics",
+      "title": "GA4 acquisition report · Evidence",
+      "layout": "report",
+      "description": "Frozen query definition, report quality, source receipt and lineage",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/analytics/reports/[reportId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "analytics/data-quality",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-068",
+      "screenshot": "mockups/screenshots/MKT-UI-068.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-069",
+      "key": "operations/intake-detail",
+      "section": "operations",
+      "title": "Autumn landing refresh · Intake",
+      "layout": "brief",
+      "description": "Objective, owner, dependencies and PM work reference",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/operations/intake/[intakeId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "operations/intake",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-069",
+      "screenshot": "mockups/screenshots/MKT-UI-069.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-070",
+      "key": "operations/handoff-detail",
+      "section": "operations",
+      "title": "Verify autumn offer stock · Handoff",
+      "layout": "handoff",
+      "description": "Owner-domain request, scope, status and receipt; no Marketing stock write",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/operations/handoffs/[handoffId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "operations/handoffs",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-070",
+      "screenshot": "mockups/screenshots/MKT-UI-070.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-071",
+      "key": "team/run-detail",
+      "section": "team",
+      "title": "September channel plan · MKR-021",
+      "layout": "run",
+      "description": "Brief, roles, steps, budget, evidence, version diff and outcome",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "team/runs",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-071",
+      "screenshot": "mockups/screenshots/MKT-UI-071.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-072",
+      "key": "team/review-detail",
+      "section": "team",
+      "title": "Review September plan · v1 → v2",
+      "layout": "diff",
+      "description": "Independent review and version-specific human decision",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/team/reviews/[reviewId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "team/reviews",
+      "primary": [
+        "Approve this version",
+        "team/approve"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-072",
+      "screenshot": "mockups/screenshots/MKT-UI-072.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-073",
+      "key": "team/decision-detail",
+      "section": "team",
+      "title": "Channel plan approval · Decision",
+      "layout": "decision",
+      "description": "Exact target/hash/version, approver, scope and immutable receipt",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/team/decisions/[decisionId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "team/decisions",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-073",
+      "screenshot": "mockups/screenshots/MKT-UI-073.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-074",
+      "key": "team/learning-detail",
+      "section": "team",
+      "title": "Context matters · Learning candidate",
+      "layout": "learning",
+      "description": "Observation, evidence, limits, scope, expiry and GKS promotion review",
+      "kind": "detail",
+      "tab": null,
+      "route": "/growth/team/learnings/[learningId]",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "stale",
+        "error",
+        "forbidden"
+      ],
+      "back": "team/learnings",
+      "primary": [
+        "Review with team",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-074",
+      "screenshot": "mockups/screenshots/MKT-UI-074.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-075",
+      "key": "strategy/new",
+      "section": "strategy",
+      "title": "New marketing plan",
+      "layout": "form",
+      "description": "Objective, evidence window and proposed channel mix",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/strategy/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "strategy/plan-detail",
+      "next": "strategy/plan-detail",
+      "fields": [
+        "Plan name",
+        "Business objective",
+        "Audience reference",
+        "Budget ceiling (THB)",
+        "Evidence window",
+        "Human owner"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "strategy/plan-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-075",
+      "screenshot": "mockups/screenshots/MKT-UI-075.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-076",
+      "key": "campaigns/new",
+      "section": "campaigns",
+      "title": "New campaign brief",
+      "layout": "form",
+      "description": "Create a business initiative before provider campaigns",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/campaigns/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "campaigns/brief",
+      "next": "campaigns/brief",
+      "fields": [
+        "Campaign name",
+        "Objective",
+        "Audience reference",
+        "Start date",
+        "End date",
+        "Budget ceiling (THB)"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "campaigns/brief"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-076",
+      "screenshot": "mockups/screenshots/MKT-UI-076.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-077",
+      "key": "content/new",
+      "section": "content",
+      "title": "New creative brief",
+      "layout": "form",
+      "description": "Capture a measurable brief, not a task without context",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/content/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "content/brief-detail",
+      "next": "content/brief-detail",
+      "fields": [
+        "Brief title",
+        "Initiative",
+        "Format",
+        "Primary message",
+        "Evidence reference",
+        "Owner"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "content/brief-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-077",
+      "screenshot": "mockups/screenshots/MKT-UI-077.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-078",
+      "key": "social/new",
+      "section": "social",
+      "title": "Draft Instagram post",
+      "layout": "form",
+      "description": "Associate one approved creative version and intended schedule",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/social/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "social/post-detail",
+      "next": "social/post-detail",
+      "fields": [
+        "Post title",
+        "Instagram account",
+        "Creative version",
+        "Caption",
+        "Planned date",
+        "Reviewer"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "social/post-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-078",
+      "screenshot": "mockups/screenshots/MKT-UI-078.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-079",
+      "key": "partners/new",
+      "section": "partners",
+      "title": "New partnership brief",
+      "layout": "form",
+      "description": "Separate program intent from CRM contact and commercial authority",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/partners/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "partners/program-detail",
+      "next": "partners/program-detail",
+      "fields": [
+        "Program title",
+        "Program type",
+        "Partner reference",
+        "Deliverables",
+        "Rights required",
+        "Measurement window"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "partners/program-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-079",
+      "screenshot": "mockups/screenshots/MKT-UI-079.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-080",
+      "key": "live/new",
+      "section": "live",
+      "title": "Plan a live session",
+      "layout": "form",
+      "description": "Confirm host, audience, offer and readiness dependencies",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/live/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "live/brief",
+      "next": "live/brief",
+      "fields": [
+        "Session title",
+        "Channel reference",
+        "Live date",
+        "Host",
+        "Offer reference",
+        "Readiness owner"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "live/brief"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-080",
+      "screenshot": "mockups/screenshots/MKT-UI-080.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-081",
+      "key": "website/experiment-new",
+      "section": "website",
+      "title": "New marketing experiment",
+      "layout": "form",
+      "description": "Predefine evidence and decision rules before launch",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/website/experiments/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "website/experiment-detail",
+      "next": "website/experiment-detail",
+      "fields": [
+        "Experiment name",
+        "Hypothesis",
+        "Target page or ad reference",
+        "Primary metric",
+        "Observation window",
+        "Guardrail"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "website/experiment-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-081",
+      "screenshot": "mockups/screenshots/MKT-UI-081.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-082",
+      "key": "operations/new",
+      "section": "operations",
+      "title": "Submit marketing intake",
+      "layout": "form",
+      "description": "Route requested work to the right capability owner",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/operations/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "operations/intake-detail",
+      "next": "operations/intake-detail",
+      "fields": [
+        "Request title",
+        "Capability",
+        "Business objective",
+        "Required date",
+        "Evidence reference",
+        "Responsible owner"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "operations/intake-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-082",
+      "screenshot": "mockups/screenshots/MKT-UI-082.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-083",
+      "key": "team/new",
+      "section": "team",
+      "title": "Configure refinement run",
+      "layout": "form",
+      "description": "Finite budgets, allowed roles and an independent reviewer",
+      "kind": "form",
+      "tab": null,
+      "route": "/growth/team/new",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "draft",
+        "invalid",
+        "ready",
+        "conflict",
+        "saved"
+      ],
+      "back": "team/run-detail",
+      "next": "team/run-detail",
+      "fields": [
+        "Run title",
+        "Objective",
+        "Evidence snapshot",
+        "Human owner",
+        "Model cost cap (THB)",
+        "Time limit (minutes)"
+      ],
+      "primary": [
+        "Save draft & preview",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-083",
+      "screenshot": "mockups/screenshots/MKT-UI-083.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-084",
+      "key": "team/approve",
+      "section": "team",
+      "title": "Approve exact version",
+      "layout": "dialog",
+      "description": "Approve the reviewed artifact and internal handoff only",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=approve",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/decision-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/decision-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-084",
+      "screenshot": "mockups/screenshots/MKT-UI-084.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-085",
+      "key": "team/request-changes",
+      "section": "team",
+      "title": "Request changes",
+      "layout": "dialog",
+      "description": "Attach specific findings to this version; no silent edits",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=request-changes",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/run-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-085",
+      "screenshot": "mockups/screenshots/MKT-UI-085.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-086",
+      "key": "team/reject",
+      "section": "team",
+      "title": "Reject proposal",
+      "layout": "dialog",
+      "description": "Record a reason and prevent downstream execution",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=reject",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/decision-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/decision-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-086",
+      "screenshot": "mockups/screenshots/MKT-UI-086.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-087",
+      "key": "team/pause",
+      "section": "team",
+      "title": "Pause refinement",
+      "layout": "dialog",
+      "description": "Stop new dispatch, preserve receipts and remaining budget",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=pause",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/run-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-087",
+      "screenshot": "mockups/screenshots/MKT-UI-087.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-088",
+      "key": "team/cancel",
+      "section": "team",
+      "title": "Cancel refinement",
+      "layout": "dialog",
+      "description": "Fence pending work; an external call already sent cannot be recalled",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=cancel",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/run-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/run-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-088",
+      "screenshot": "mockups/screenshots/MKT-UI-088.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-089",
+      "key": "team/action-review",
+      "section": "team",
+      "title": "Review external action",
+      "layout": "dialog",
+      "description": "Exact account, target, creative version, amount and expiry",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=action-review",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/decision-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/decision-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-089",
+      "screenshot": "mockups/screenshots/MKT-UI-089.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-090",
+      "key": "team/promotion",
+      "section": "team",
+      "title": "Review learning promotion",
+      "layout": "dialog",
+      "description": "Only a scoped, evidence-backed lesson enters GKS review",
+      "kind": "dialog",
+      "tab": null,
+      "route": "/growth/team/runs/[runId]?dialog=promotion",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "ready",
+        "invalid",
+        "stale-approval",
+        "forbidden"
+      ],
+      "back": "team/review-detail",
+      "next": "team/learning-detail",
+      "primary": [
+        "Confirm in mockup",
+        "team/learning-detail"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-090",
+      "screenshot": "mockups/screenshots/MKT-UI-090.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-091",
+      "key": "dashboard/state-loading",
+      "section": "dashboard",
+      "title": "Loading source data",
+      "layout": "state",
+      "description": "Reusable loading state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=loading",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "loading"
+      ],
+      "state": "loading",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-091",
+      "screenshot": "mockups/screenshots/MKT-UI-091.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-092",
+      "key": "dashboard/state-empty",
+      "section": "dashboard",
+      "title": "No marketing data yet",
+      "layout": "state",
+      "description": "Reusable empty state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=empty",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "empty"
+      ],
+      "state": "empty",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-092",
+      "screenshot": "mockups/screenshots/MKT-UI-092.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-093",
+      "key": "dashboard/state-partial",
+      "section": "dashboard",
+      "title": "Some source partitions are missing",
+      "layout": "state",
+      "description": "Reusable partial state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=partial",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "partial"
+      ],
+      "state": "partial",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-093",
+      "screenshot": "mockups/screenshots/MKT-UI-093.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-094",
+      "key": "dashboard/state-stale",
+      "section": "dashboard",
+      "title": "Source data is out of date",
+      "layout": "state",
+      "description": "Reusable stale state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=stale",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "stale"
+      ],
+      "state": "stale",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-094",
+      "screenshot": "mockups/screenshots/MKT-UI-094.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-095",
+      "key": "dashboard/state-error",
+      "section": "dashboard",
+      "title": "Acquisition failed",
+      "layout": "state",
+      "description": "Reusable error state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=error",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "error"
+      ],
+      "state": "error",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-095",
+      "screenshot": "mockups/screenshots/MKT-UI-095.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-096",
+      "key": "dashboard/state-forbidden",
+      "section": "dashboard",
+      "title": "You do not have access",
+      "layout": "state",
+      "description": "Reusable forbidden state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=forbidden",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "forbidden"
+      ],
+      "state": "forbidden",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-096",
+      "screenshot": "mockups/screenshots/MKT-UI-096.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-097",
+      "key": "dashboard/state-unavailable",
+      "section": "dashboard",
+      "title": "Capability is unavailable",
+      "layout": "state",
+      "description": "Reusable unavailable state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=unavailable",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "unavailable"
+      ],
+      "state": "unavailable",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-097",
+      "screenshot": "mockups/screenshots/MKT-UI-097.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-098",
+      "key": "dashboard/state-conflict",
+      "section": "dashboard",
+      "title": "This version has changed",
+      "layout": "state",
+      "description": "Reusable conflict state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=conflict",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "conflict"
+      ],
+      "state": "conflict",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-098",
+      "screenshot": "mockups/screenshots/MKT-UI-098.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-099",
+      "key": "dashboard/state-blocked",
+      "section": "dashboard",
+      "title": "Required dependency is unavailable",
+      "layout": "state",
+      "description": "Reusable blocked state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=blocked",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "blocked"
+      ],
+      "state": "blocked",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-099",
+      "screenshot": "mockups/screenshots/MKT-UI-099.jpg",
+      "status": "candidate mockup; not implemented"
+    },
+    {
+      "id": "MKT-UI-100",
+      "key": "dashboard/state-unknown",
+      "section": "dashboard",
+      "title": "External outcome is unknown",
+      "layout": "state",
+      "description": "Reusable unknown state with scope-safe content and an explicit next action",
+      "kind": "state",
+      "tab": null,
+      "route": "/growth?previewState=unknown",
+      "owner": "Marketing",
+      "readAccess": "Business visibility + growth read",
+      "actionAccess": "Owner-validated capability for the exact Business and target",
+      "source": "Marketing projection + scoped owner references",
+      "states": [
+        "unknown"
+      ],
+      "state": "unknown",
+      "back": "dashboard/overview",
+      "primary": [
+        "Return to dashboard",
+        "dashboard/overview"
+      ],
+      "mockup": "mockups/index.html#MKT-UI-100",
+      "screenshot": "mockups/screenshots/MKT-UI-100.jpg",
+      "status": "candidate mockup; not implemented"
+    }
+  ]
+}

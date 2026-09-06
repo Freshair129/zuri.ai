@@ -24,7 +24,8 @@ const ROUTES = [
   // @req FR-162 — Commerce has pages now: the dashboard and the orders console.
   '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
   '/market',
-  '/growth', '/growth/campaigns',
+  '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
+  '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',

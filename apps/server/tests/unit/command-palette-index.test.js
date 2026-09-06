@@ -19,13 +19,15 @@ describe('command palette route index', () => {
     expect(routePaths).toContain('/profile')
     // @req FR-091 — `customer` stopped being a reserved slot on 2026-08-20 and has
     // real pages, so the palette must now find it. @req FR-162 — `commerce`
-    // followed on 2026-09-06 (orders and payments). The two below are still
+    // followed on 2026-09-06 (orders and payments). Operations below is still
     // reserved: they have a nav entry and nothing behind it.
     expect(routePaths).toContain('/customer')
     expect(routePaths).toContain('/customer/conversations')
     expect(routePaths).toContain('/commerce')
     expect(routePaths).toContain('/commerce/orders')
-    expect(routePaths).not.toContain('/growth')
+    // FR-159 activates Growth Dashboard and Strategy; Operations stays reserved.
+    expect(routePaths).toContain('/growth')
+    expect(routePaths).toContain('/growth/strategy')
     expect(routePaths).not.toContain('/operations')
     expect(routePaths.filter((path) => path === '/settings')).toHaveLength(1)
   })
@@ -36,5 +38,7 @@ describe('command palette route index', () => {
     expect(paths(['projects'])).toContain('/workspaces')
     expect(paths(['projects'])).not.toContain('/people')
     expect(paths(['projects'])).not.toContain('/profile')
+    expect(paths(['projects'])).not.toContain('/growth/strategy')
+    expect(paths(['growth'])).toContain('/growth/strategy')
   })
 })

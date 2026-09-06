@@ -138,20 +138,24 @@ test.describe('navigation reachability', () => {
   //
   // @req FR-162 — this probe used to type "Commerce" and expect no match; the
   // Commerce slot is delivered now, so the palette must find it instead.
-  test('search never offers a reserved domain that has no page, and finds a delivered one', async ({ page }) => {
+  test('search never offers a reserved domain that has no page, and finds the delivered ones', async ({ page }) => {
     await chooseBusiness(page)
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
-    // A reserved domain whose word matches nothing else: no result at all.
-    await input.fill('Campaigns')
-    await expect(page.getByText(/No matches for/i)).toBeVisible()
     // "Operations" also names an execution view, so the word finds a result;
     // the proof is that the reserved slot's own entry is never among them.
     await input.fill('Operations')
     await expect(page.getByRole('button', { name: /Operations view/ })).toBeVisible()
     await expect(page.getByRole('button', { name: /Operations · Dashboard/ })).toHaveCount(0)
-    // The delivered Commerce slot is offered and opens.
+    // @req FR-160 — Campaigns is delivered (Marketing) and must be reachable by search.
+    await input.fill('Campaigns')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/growth\/campaigns$/)
+    await expect(page.getByRole('heading', { name: 'Campaigns', exact: true })).toBeVisible()
+    // The delivered Commerce slot is offered and opens too.
+    await page.goto('/overview')
+    await page.getByRole('button', { name: /Open command palette/i }).click()
     await input.fill('Commerce · Orders')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/commerce\/orders$/)
