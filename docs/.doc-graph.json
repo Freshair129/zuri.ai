@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1908,
-    "total_edges": 7411,
+    "total_nodes": 1913,
+    "total_edges": 7438,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 37,
       "feature": 19,
-      "route": 213,
+      "route": 214,
       "model": 87,
       "requirement": 309,
-      "test": 471,
-      "code_file": 519
+      "test": 473,
+      "code_file": 521
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 519,
+      "annotated_code_files": 521,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,15 +55,12 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:INTERFACE-INVENTORY",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "test:tests/unit/line-oa-rich-menu-console.test.js",
-      "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
+      "doc:SRS"
     ],
     "added": [],
     "removed": []
@@ -521,7 +518,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
       "hash": "46f1c3ac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-151"
@@ -1607,6 +1604,28 @@
         ],
         "@tested": [
           "tests/unit/asset-maintenance-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/dispose/route.js",
+      "hash": "ac429ad4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-disposal-routes.test.js"
         ]
       }
     },
@@ -5875,6 +5894,28 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-disposal-service.js",
+      "hash": "03a283ab",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-disposal-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-evidence-service.js",
@@ -6107,7 +6148,7 @@
       "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
-      "hash": "4f3b0b20",
+      "hash": "ac3671a0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8734,7 +8775,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "4a9254c5",
+      "hash": "744ef4a7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10760,10 +10801,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.41.0b",
+      "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "fafa269b",
-      "status": "current"
+      "hash": "62f959f9",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11930,7 +11971,7 @@
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "207864d8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -16722,6 +16763,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/register/[id]/dispose",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/dispose",
+      "path": "src/app/api/assets/register/[id]/dispose/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/assets/register/[id]/maintenance",
       "type": "route",
       "kind": "api",
@@ -18897,7 +18946,7 @@
       "type": "test",
       "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "7771c50f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -19519,7 +19568,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "54bdc8a1",
+      "hash": "9ee70a29",
       "status": "current"
     },
     {
@@ -19765,6 +19814,20 @@
       "type": "test",
       "path": "tests/unit/asset-depreciation.test.js",
       "hash": "62b77c27",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-disposal-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-disposal-routes.test.js",
+      "hash": "dc08eda7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-disposal-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-disposal-service.test.js",
+      "hash": "00c8e1f0",
       "status": "current"
     },
     {
@@ -21011,7 +21074,7 @@
       "type": "test",
       "path": "tests/unit/line-oa-rich-menu-console.test.js",
       "hash": "1c9858df",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-oa-rich-menu-domain.test.js",
@@ -24259,6 +24322,48 @@
     {
       "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
       "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30832,6 +30937,48 @@
     {
       "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
       "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -44089,6 +44236,13 @@
     },
     {
       "from": "route:api:/api/assets/register/[id]/depreciation",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/dispose",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -58265,6 +58419,104 @@
     {
       "from": "test:tests/unit/asset-depreciation.test.js",
       "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
