@@ -166,7 +166,10 @@ function domainCodeIds(domain, nodes, edges) {
   return new Set(
     nodes
       .filter((node) => node.type === 'code_file')
-      .filter((node) => modulePrefixes.some((prefix) => node.path.startsWith(prefix)) || ownedRoutePaths.has(node.path) || ownsCodePath(node.path))
+      .filter((node) => {
+        const sourcePath = node.path.replace(/^apps\/server\//, '')
+        return modulePrefixes.some((prefix) => sourcePath.startsWith(prefix)) || ownedRoutePaths.has(node.path) || ownsCodePath(sourcePath)
+      })
       .map((node) => node.id),
   )
 }

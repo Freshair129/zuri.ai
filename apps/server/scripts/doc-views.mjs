@@ -6,6 +6,8 @@
 // @spec docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md
 // @tested tests/unit/doc-views.test.js
 
+const sourcePath = value => value?.replace(/^apps\/server\//, '')
+
 const banner = (title, tagline) => `# ${title}
 
 | Field | Value |
@@ -27,7 +29,7 @@ export function domainMap(nodes, edges) {
     const api = routes.filter((r) => r.from.startsWith('route:api:')).length
     const pages = routes.filter((r) => r.from.startsWith('route:page:')).length
     const codeInLane = nodes.filter(
-      (n) => n.type === 'code_file' && (d.modules || []).some((m) => n.path.startsWith(`src/modules/${m}/`)),
+      (n) => n.type === 'code_file' && (d.modules || []).some((m) => sourcePath(n.path).startsWith(`src/modules/${m}/`)),
     )
     const frs = new Set()
     for (const c of codeInLane)
@@ -69,7 +71,7 @@ export function traceView(nodes, edges) {
       }
     }
   }
-  const routeByPath = new Map(nodes.filter((n) => n.type === 'route').map((n) => [n.path, n]))
+  const routeByPath = new Map(nodes.filter((n) => n.type === 'route').map((n) => [sourcePath(n.path), n]))
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const frs = nodes
     .filter((n) => n.type === 'requirement' && n.family === 'FR')

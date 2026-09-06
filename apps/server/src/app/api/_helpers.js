@@ -31,7 +31,11 @@ export async function handle(fn) {
     const notFound = /not found/i.test(message)
     const denied = /denied|not allowed|cycle|must|cannot|requires|unknown/i.test(message)
     const status = Number(err?.status) || (notFound ? 404 : denied ? 400 : 500)
-    return NextResponse.json({ error: message }, { status })
+    // A refusal may carry a structured list the caller needs to act on (FR-156:
+    // which components a recipe build is short of). Passed through only when
+    // the service set it deliberately as an array; never the raw error object.
+    const details = Array.isArray(err?.details) ? err.details : undefined
+    return NextResponse.json(details ? { error: message, details } : { error: message }, { status })
   }
 }
 

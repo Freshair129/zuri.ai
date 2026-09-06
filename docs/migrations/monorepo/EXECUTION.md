@@ -25,7 +25,7 @@ database migration, provider call or joint release occurs in this source migrati
 ## Provenance and rollback
 
 [The manifest](source-manifest.json) accounts for every tracked Server file at
-`57d816b2` and Edge file at `13422da`. The latter is the approved synthetic-fixture
+`61ca8af9` and Edge file at `13422da`. The latter is the approved synthetic-fixture
 preparation based on Edge `a470a458`. Original Edge history stays in its private
 repository. Original worktrees, device configuration and running containers are
 unchanged. Revert this source commit before any release to restore the prior layout;
@@ -94,7 +94,7 @@ skips and no flaky result. Hosted CI must verify the reconciled revision, includ
 Node 22 Server, Node 24 Edge, full E2E and the app-specific Docker build, before merge.
 Both Compose profiles validate without production configuration.
 
-Graph reconciliation preserves all 1,923 current Server source IDs and all 272
+Graph reconciliation preserves all 1,986 current Server source IDs and all 272
 original Edge IDs, with zero lost source edges. Three authored Server nodes and 21
 additionally discovered Edge documents are explicitly accounted for. Metadata,
 wikilinks and cross-app aliases resolve with zero findings; preflight has zero
@@ -104,6 +104,11 @@ The first hosted run exposed a pre-existing `grep -q`/`pipefail` change-filter
 defect on large diffs: E2E was incorrectly skipped. The replacement classifier
 consumes the complete list and fails toward running E2E. A successful skipped
 result from that run is not accepted as E2E evidence.
+
+PR-263 Warehouse changes were reconciled into `apps/server`, including its
+Prisma/Supabase migrations and FR-154/155/156 tests. Relocated graph consumer
+regressions now retain domain requirement ownership and API surface joins;
+18 focused projection tests passed. Hosted CI must verify this final combined head.
 
 ## Version diff / CHANGELOG
 

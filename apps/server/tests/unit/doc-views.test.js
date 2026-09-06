@@ -69,3 +69,12 @@ describe('traceView', () => {
     expect(fr023).not.toContain('**Feature:**')
   })
 })
+
+
+describe('relocated graph paths', () => {
+  it('retains lane requirements and API surface joins with immutable source IDs', () => {
+    const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
+    expect(domainMap(relocated, edges)).toEqual(domainMap(nodes, edges))
+    expect(traceView(relocated, edges)).toEqual(traceView(nodes, edges))
+  })
+})

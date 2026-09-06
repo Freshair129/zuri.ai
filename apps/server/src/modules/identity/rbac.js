@@ -10,6 +10,10 @@ export const ROLE_ASSET_REVIEWER = 'ASSET_REVIEWER'
 // confirmed on 2026-09-05. Business-scoped like every role here; a Business
 // OWNER holds the same capability implicitly and needs no binding.
 export const ROLE_LINE_OA_PUBLISHER = 'LINE_OA_PUBLISHER'
+// @req FR-154 — the Inventory manager (คลังสินค้า): the Business-scoped role
+// that may write catalogue identity and stock movements. A Business OWNER
+// holds the same capability implicitly and needs no binding.
+export const ROLE_INVENTORY_MANAGER = 'INVENTORY_MANAGER'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
 export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
@@ -17,6 +21,7 @@ export const CUSTOMER_REVIEW_DECIDE_PERMISSION = 'customer.import.review.decide'
 export const ASSET_INTAKE_WRITE_PERMISSION = 'asset.intake.write'
 export const ASSET_EVIDENCE_REVIEW_PERMISSION = 'asset.evidence.review'
 export const LINE_OA_PUBLISH_PERMISSION = 'line-oa.account.publish'
+export const INVENTORY_MANAGE_PERMISSION = 'inventory.catalog.write'
 
 export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PRODUCT_OWNER]: Object.freeze([
@@ -40,6 +45,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_LINE_OA_PUBLISHER]: Object.freeze([
     'line-oa.read',
     LINE_OA_PUBLISH_PERMISSION,
+  ]),
+  [ROLE_INVENTORY_MANAGER]: Object.freeze([
+    'inventory.read',
+    INVENTORY_MANAGE_PERMISSION,
   ]),
 })
 

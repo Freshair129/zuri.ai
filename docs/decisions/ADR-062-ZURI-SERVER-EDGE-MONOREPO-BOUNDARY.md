@@ -88,7 +88,7 @@ a rollback after importing private Edge material.
 
 ## Approved snapshot implementation
 
-The isolated migration uses Server `57d816b2` and synthetic Edge `13422da`.
+The isolated migration uses Server `61ca8af9` and synthetic Edge `13422da`.
 See [execution evidence](../migrations/monorepo/EXECUTION.md) and
 [per-file provenance](../migrations/monorepo/source-manifest.json).
 Source moves preserve app working directories and independent lockfiles. Server

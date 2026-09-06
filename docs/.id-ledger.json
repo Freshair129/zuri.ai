@@ -264,6 +264,9 @@
     "FR-151",
     "FR-152",
     "FR-153",
+    "FR-154",
+    "FR-155",
+    "FR-156",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -415,6 +418,7 @@
     "FEAT-017",
     "FEAT-018",
     "FEAT-019",
+    "FEAT-020",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -2914,6 +2918,47 @@
         }
       ]
     },
+    "FR-154": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "63ca31211444f4e5d1e14e7e1231db9d586323a7293f46b41f91cf21bf47099b",
+      "history": [
+        {
+          "anchor": "inventory catalogue identity คล งส นค า",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-155": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1c4805ddc93af8fbd495970bec423252fdc66cd9b91c9c8b34927fb7b2a3395f",
+      "history": [
+        {
+          "anchor": "inventory stock ledger",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-06",
+      "statement_digest_reason": "FR-155 keeps its subject (the Inventory stock ledger) and gains the FEFO sentence: an issue of a LOT-tracked SKU that names no lot is consumed first-expired-first-out across OPEN lots, and an issue that names a lot may not exceed that lot's on-hand"
+    },
+    "FR-156": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d70121110dec0f7533a93f41ec0bc6dcc3193777e7176c8f6363e06c4cad010a",
+      "history": [
+        {
+          "anchor": "inventory recipe bill of materials at a batch size",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4900,6 +4945,19 @@
       "history": [
         {
           "anchor": "server line with optional edge",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-020": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "c72c38cf8645cd8bb264f6640372c8be29b7f7da8b6beae254a289c5915b3586",
+      "history": [
+        {
+          "anchor": "inventory คล งส นค า",
           "since": "2026-09-06",
           "reason": "declared"
         }

@@ -1,6 +1,6 @@
 {
   "strategy": "reviewed snapshot; original private Edge history retained",
-  "server_commit": "57d816b289aaed1bee767ec4a5c115882964878b",
+  "server_commit": "61ca8af95e9b1ced6277198d7e452822243ab3af",
   "edge_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
   "server": [
     {
@@ -1631,7 +1631,7 @@
       "source_path": "docs/.doc-graph.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "07161c64486d57c7827d45e07aa27ec170a18b03",
+      "blob": "85bc257f902f36d984da3622ba1a4fad5d2eb741",
       "target_path": "docs/.doc-graph.json",
       "disposition": "retained-at-root"
     },
@@ -1639,7 +1639,7 @@
       "source_path": "docs/.domain-state.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "5b5689f401f39986dcbd0084f8d3ba22123d2676",
+      "blob": "0c1eb80bab0fce9e59ce49bd504379d7ddf4f9f4",
       "target_path": "docs/.domain-state.json",
       "disposition": "retained-at-root"
     },
@@ -1655,7 +1655,7 @@
       "source_path": "docs/.id-ledger.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "79028ef885d01b2f129c24abacb7f64ef99bdc07",
+      "blob": "2ed6853a905bc3ef28bcb4028341dda334a947b5",
       "target_path": "docs/.id-ledger.json",
       "disposition": "retained-at-root"
     },
@@ -1663,7 +1663,7 @@
       "source_path": "docs/.preflight-report.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "756e7d25b61d212209dd2310722593bb856fb339",
+      "blob": "d0d48acb4b5383acbe0870aaeea5bf403bb1fefc",
       "target_path": "docs/.preflight-report.json",
       "disposition": "retained-at-root"
     },
@@ -1759,7 +1759,7 @@
       "source_path": "docs/DOCUMENT-LINKS.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "184a9e59f86a31490e88376230e6b77b782ec395",
+      "blob": "487053d23fb2034ea88d8b0a7b71e9823f702cbe",
       "target_path": "docs/DOCUMENT-LINKS.md",
       "disposition": "retained-at-root"
     },
@@ -1767,7 +1767,7 @@
       "source_path": "docs/DOMAIN-MAP.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "8b02baf1c5ce90427d5a09e81de2fbd02d588e0d",
+      "blob": "830affb7cd08fefc720d25f2642ae9b5172d35f5",
       "target_path": "docs/DOMAIN-MAP.md",
       "disposition": "retained-at-root"
     },
@@ -1791,7 +1791,7 @@
       "source_path": "docs/FEATURE-MAP.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "a06c321fe43d5b8a4ac2deb8334095c8d9cfce2a",
+      "blob": "853cb551bf8a51577e4881063fa21e2077396c18",
       "target_path": "docs/FEATURE-MAP.md",
       "disposition": "retained-at-root"
     },
@@ -1799,7 +1799,7 @@
       "source_path": "docs/FEATURES.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "dc912c191829cd534ff4535be4155c3952ed5a74",
+      "blob": "55ceddd003cd9d12315ea3e089515012b529a446",
       "target_path": "docs/FEATURES.md",
       "disposition": "retained-at-root"
     },
@@ -1831,7 +1831,7 @@
       "source_path": "docs/INTERFACE-INVENTORY.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "a28cc063788d6d962dc4fc70ad85135fdcb8266e",
+      "blob": "56c22c39eb3abaa6cd9b87ceb3b589f12d752791",
       "target_path": "docs/INTERFACE-INVENTORY.md",
       "disposition": "retained-at-root"
     },
@@ -1847,7 +1847,7 @@
       "source_path": "docs/PRD-SDD-v1.0.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "b4c2951cece162997dcaa01bf4fbc024db466184",
+      "blob": "0ff8f213789477db8b930c3bd9e6b1e1975b949f",
       "target_path": "docs/PRD-SDD-v1.0.md",
       "disposition": "retained-at-root"
     },
@@ -1887,7 +1887,7 @@
       "source_path": "docs/TRACE.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "07cd775cf9258f415d8542c39252f05741420383",
+      "blob": "f451272154e253b04ff5bdf3f493a0d36c9a181f",
       "target_path": "docs/TRACE.md",
       "disposition": "retained-at-root"
     },
@@ -1903,7 +1903,7 @@
       "source_path": "docs/appendices/A-api-spec.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "e33aa0182953516da9eec8828a733d499aeb5453",
+      "blob": "e4e58324facb86af827a337046651ba3591e800e",
       "target_path": "docs/appendices/A-api-spec.md",
       "disposition": "retained-at-root"
     },
@@ -1911,7 +1911,7 @@
       "source_path": "docs/appendices/B-db-schema.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "404467a219a632f6e4f4ec750ff2266a109f8490",
+      "blob": "e1b7f1699c6d57d972e1c348c2b47d8eec6a849d",
       "target_path": "docs/appendices/B-db-schema.md",
       "disposition": "retained-at-root"
     },
@@ -1919,7 +1919,7 @@
       "source_path": "docs/appendices/D-traceability.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "f59c8c337bb3931a925a97c6ff6816c098164e2f",
+      "blob": "11b4200720cfd01f0404d679cf43b8f4a8f46558",
       "target_path": "docs/appendices/D-traceability.md",
       "disposition": "retained-at-root"
     },
@@ -1943,7 +1943,7 @@
       "source_path": "docs/architecture/database-erd/full-schema.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "e2dac61c332f31db5907f648b9ab80efeddcf384",
+      "blob": "c94032580a7879882450f3639e34f59188edfac4",
       "target_path": "docs/architecture/database-erd/full-schema.md",
       "disposition": "retained-at-root"
     },
@@ -3660,6 +3660,46 @@
       "disposition": "retained-at-root"
     },
     {
+      "source_path": "docs/domains/inventory/CHARTER.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "cb98ad187b9bb34a534f67b56e34ee20a1212a8d",
+      "target_path": "docs/domains/inventory/CHARTER.md",
+      "disposition": "retained-at-root"
+    },
+    {
+      "source_path": "docs/domains/inventory/ONTOLOGY.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c180accd88e4a3f10efa4ffc11910c3f81903de5",
+      "target_path": "docs/domains/inventory/ONTOLOGY.md",
+      "disposition": "retained-at-root"
+    },
+    {
+      "source_path": "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "aae48a204de890eeaf8f1824a62c4c786114430c",
+      "target_path": "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
+      "disposition": "retained-at-root"
+    },
+    {
+      "source_path": "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "69f5a0386304fe955f32957b2f2116dab89bfc05",
+      "target_path": "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
+      "disposition": "retained-at-root"
+    },
+    {
+      "source_path": "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e70c18442673c787d7802fd12d34e1f586bc6ccb",
+      "target_path": "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+      "disposition": "retained-at-root"
+    },
+    {
       "source_path": "docs/domains/knowledge/CHARTER.md",
       "mode": "100644",
       "kind": "blob",
@@ -4431,7 +4471,7 @@
       "source_path": "docs/roadmap/ROADMAP.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "a1710687f2c60a8f6be49bc0ae943fae54990513",
+      "blob": "146ef1bcbce81253d15a16ef79eb22bef1d12694",
       "target_path": "docs/roadmap/ROADMAP.md",
       "disposition": "retained-at-root"
     },
@@ -5044,6 +5084,30 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "prisma/migrations/20260906230000_inventory_domain/body.sql",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "target_path": "apps/server/prisma/migrations/20260906230000_inventory_domain/body.sql",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "prisma/migrations/20260906230000_inventory_domain/migration.sql",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "6054bd33ee6e28619d264df95a115936a6e130e7",
+      "target_path": "apps/server/prisma/migrations/20260906230000_inventory_domain/migration.sql",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "prisma/migrations/20260906233000_inventory_recipe/migration.sql",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "74be3ca1a7b39dfebd398d03b61ff2929f1eee1b",
+      "target_path": "apps/server/prisma/migrations/20260906233000_inventory_recipe/migration.sql",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "prisma/postgres/0001_init.sql",
       "mode": "100644",
       "kind": "blob",
@@ -5063,7 +5127,7 @@
       "source_path": "prisma/schema.postgres.prisma",
       "mode": "100644",
       "kind": "blob",
-      "blob": "5811af91c64d986c5b3955b76c7fbe59a931fb11",
+      "blob": "0f300bcb9fe2b1c70fea73f2cffdd4702d132014",
       "target_path": "apps/server/prisma/schema.postgres.prisma",
       "disposition": "relocated"
     },
@@ -5071,7 +5135,7 @@
       "source_path": "prisma/schema.prisma",
       "mode": "100644",
       "kind": "blob",
-      "blob": "7d19ee09b26a1b1475e7e44710a1225b5bfd6b66",
+      "blob": "447646e8470b8e0b2e74b80fcebd26167d4a7612",
       "target_path": "apps/server/prisma/schema.prisma",
       "disposition": "relocated"
     },
@@ -6332,6 +6396,14 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "src/app/(pm)/inventory/page.jsx",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "f05e6bdb8df240642b139928d5bd31c93db29424",
+      "target_path": "apps/server/src/app/(pm)/inventory/page.jsx",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "src/app/(pm)/layout.jsx",
       "mode": "100644",
       "kind": "blob",
@@ -6655,7 +6727,7 @@
       "source_path": "src/app/api/_helpers.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "c532a0aafec02de6ba707ea4a1de1be9295baa12",
+      "blob": "edf18ed435919f3ddf89ae759e8e6b080064f8e6",
       "target_path": "apps/server/src/app/api/_helpers.js",
       "disposition": "relocated"
     },
@@ -7265,6 +7337,118 @@
       "kind": "blob",
       "blob": "8064f2b72909551ab6de735c2c13b85b0bf5d633",
       "target_path": "apps/server/src/app/api/ingest/documents/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/bundles/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "011187c003822b7007594c9a5067a7f2127b710f",
+      "target_path": "apps/server/src/app/api/inventory/bundles/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/categories/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "5501eaf73af494988e8bfdf143ddfbeca948debb",
+      "target_path": "apps/server/src/app/api/inventory/categories/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/factories/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b846e471c39ac0f6c94a7708f5de8e476bccebb7",
+      "target_path": "apps/server/src/app/api/inventory/factories/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/families/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "63f45ba6e2fa49eb8b4ec34da10f00d399a0dd90",
+      "target_path": "apps/server/src/app/api/inventory/families/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/lots/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "aa3fccb9b6aa5c44d798fd51947e3e6e394d0a9f",
+      "target_path": "apps/server/src/app/api/inventory/lots/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/product-masters/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "30152b8b57540be013e68f1a2ebf171dbc20cb5c",
+      "target_path": "apps/server/src/app/api/inventory/product-masters/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/products/[id]/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "31f57002abb80c226ca66a9759434b78d387826a",
+      "target_path": "apps/server/src/app/api/inventory/products/[id]/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/products/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e4f783e2f921481aac64063bf825a31b4ff6ba85",
+      "target_path": "apps/server/src/app/api/inventory/products/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/recipes/[id]/build/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ab7329fe810822d5bbbe959a56df7feb7e6ff355",
+      "target_path": "apps/server/src/app/api/inventory/recipes/[id]/build/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/recipes/[id]/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "fa715432eb5e0a82a1ab2429e2cdd58a9f7f3134",
+      "target_path": "apps/server/src/app/api/inventory/recipes/[id]/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/recipes/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e6138d90da5f435f2ac56cd35f6511ddc421abef",
+      "target_path": "apps/server/src/app/api/inventory/recipes/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/serial-units/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b5853d5f5bcc6b591882f8351f64b6e35ff2a9b3",
+      "target_path": "apps/server/src/app/api/inventory/serial-units/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/stock-movements/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b8170826477dcb2cb054d89ef2069a1e64cbce68",
+      "target_path": "apps/server/src/app/api/inventory/stock-movements/route.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/app/api/inventory/stock/route.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "04ccf30d03be1347cec1b2d1061bcc85780df488",
+      "target_path": "apps/server/src/app/api/inventory/stock/route.js",
       "disposition": "relocated"
     },
     {
@@ -8087,7 +8271,7 @@
       "source_path": "src/config/domains.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "62969195a28e5c5f469a4392f0c2e7826bb972a1",
+      "blob": "fe465a23306f7c8e6e1b76a38bd7ae966a6864dc",
       "target_path": "apps/server/src/config/domains.js",
       "disposition": "relocated"
     },
@@ -8215,7 +8399,7 @@
       "source_path": "src/lib/validation/enums.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "53c4bd68778353a257965d470710058b14eb6dbe",
+      "blob": "948973158c10c67df44165aa0cee72ef471d3059",
       "target_path": "apps/server/src/lib/validation/enums.js",
       "disposition": "relocated"
     },
@@ -8991,7 +9175,7 @@
       "source_path": "src/modules/identity/rbac.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "ec690b56fb9fde5573916f68b8add4407d0adb4b",
+      "blob": "29122c9c77b4ac69adc2db37d5bd7975decf44f6",
       "target_path": "apps/server/src/modules/identity/rbac.js",
       "disposition": "relocated"
     },
@@ -9169,6 +9353,54 @@
       "kind": "blob",
       "blob": "22c9ddddea6cc55cabe302f7dba0f008c3905867",
       "target_path": "apps/server/src/modules/integration/application/sot-plan.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/application/inventory-authority.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "35fb25b0d11879582846ecb6686c3bfa3416dbd8",
+      "target_path": "apps/server/src/modules/inventory/application/inventory-authority.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/application/inventory-catalog-service.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "006eff3618e8c708e8f7cc4049be8a6a67392a39",
+      "target_path": "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/application/inventory-recipe-service.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "aed839fa50a88eb9879863cab505c0c61d47a80b",
+      "target_path": "apps/server/src/modules/inventory/application/inventory-recipe-service.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/application/inventory-stock-service.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "3f86ac2e44cf845b4ba51d5092b03f4f13ebfd0e",
+      "target_path": "apps/server/src/modules/inventory/application/inventory-stock-service.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/domain/inventory.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "871471fee80b335a7e3abe64a885ea80922ae39c",
+      "target_path": "apps/server/src/modules/inventory/domain/inventory.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "src/modules/inventory/index.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "72a4af1b6da0b3428e1e952a71d0131aafcdcb9c",
+      "target_path": "apps/server/src/modules/inventory/index.js",
       "disposition": "relocated"
     },
     {
@@ -9655,7 +9887,7 @@
       "source_path": "src/modules/project-manager/api-docs/openapi.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "3338d2f31a72864794c786018ce1a4c11dc89e09",
+      "blob": "6fe0837115095f99f4b387430facb45ad525d8e4",
       "target_path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "disposition": "relocated"
     },
@@ -9679,7 +9911,7 @@
       "source_path": "src/modules/project-manager/application/backup-service.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "bea6c4eee51a6a51c3bef1420812333e9a53f2f8",
+      "blob": "2817614a13b4ea575eded098db09164c391285d6",
       "target_path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "disposition": "relocated"
     },
@@ -10828,6 +11060,22 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "supabase/migrations/20260906230000_inventory_domain.sql",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "32758531cf43c8b686837a86054753ef8f73d4b8",
+      "target_path": "apps/server/supabase/migrations/20260906230000_inventory_domain.sql",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "supabase/migrations/20260906233000_inventory_recipe.sql",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a36c36902c038738185b93e4584220062a3a477a",
+      "target_path": "apps/server/supabase/migrations/20260906233000_inventory_recipe.sql",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "supabase/tests/business_knowledge_import_verification.sql",
       "mode": "100644",
       "kind": "blob",
@@ -11036,6 +11284,14 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "tests/e2e/fr154-inventory-dashboard.spec.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "9c50760ab8cfadf0f75ec8e1288507be602a95d2",
+      "target_path": "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "tests/e2e/global-setup.js",
       "mode": "100644",
       "kind": "blob",
@@ -11071,7 +11327,7 @@
       "source_path": "tests/e2e/warmup.setup.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "584c9cb0c4b59d529b7b840c089ff9fbeadf58b7",
+      "blob": "b6e75955572172f892c87b407bff50eb48ac0571",
       "target_path": "apps/server/tests/e2e/warmup.setup.js",
       "disposition": "relocated"
     },
@@ -11612,6 +11868,30 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "tests/integration/fr154-inventory-catalog.test.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "35ddc461e31633071297472496fcfbdb0ee64475",
+      "target_path": "apps/server/tests/integration/fr154-inventory-catalog.test.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "tests/integration/fr155-inventory-stock.test.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "04c9156ace5ad849eb1bea98674e17f54a9e7757",
+      "target_path": "apps/server/tests/integration/fr155-inventory-stock.test.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "tests/integration/fr156-inventory-recipe.test.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "c6fff03c01c5c9aea5e156ee78141f981fc3dd3d",
+      "target_path": "apps/server/tests/integration/fr156-inventory-recipe.test.js",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "tests/integration/iam-authorization.test.js",
       "mode": "100644",
       "kind": "blob",
@@ -11855,7 +12135,7 @@
       "source_path": "tests/integration/openapi-docs.test.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "b5cc14727eb1575f162bf0708ecaba484e33a94d",
+      "blob": "c7a8bbac3d5397f26fe84b1e136507bf9bb6ab7d",
       "target_path": "apps/server/tests/integration/openapi-docs.test.js",
       "disposition": "relocated"
     },
@@ -12807,7 +13087,7 @@
       "source_path": "tests/unit/domain-state.test.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "e3f99f0042ed056b3a889ef5ec52a1d578d052d8",
+      "blob": "98f186edb7d226151b3f9412db7813ded92c4970",
       "target_path": "apps/server/tests/unit/domain-state.test.js",
       "disposition": "relocated"
     },
@@ -13425,6 +13705,22 @@
       "kind": "blob",
       "blob": "d9949dd19344c3ee17a1fb6eb745ed522c83b6b8",
       "target_path": "apps/server/tests/unit/integrations-page-claims.test.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "tests/unit/inventory-domain.test.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "34eed24c8fc325f04c9d17c116177bb8eb9d4538",
+      "target_path": "apps/server/tests/unit/inventory-domain.test.js",
+      "disposition": "relocated"
+    },
+    {
+      "source_path": "tests/unit/inventory-routes.test.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a157ca5338dadb38aae1530847e11815b6beb1be",
+      "target_path": "apps/server/tests/unit/inventory-routes.test.js",
       "disposition": "relocated"
     },
     {
@@ -19729,18 +20025,25 @@
     "scope": "Imported Edge current snapshot only; pattern scan is not complete secret clearance"
   },
   "initial_server_commit": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
-  "upstream_reconciliation": {
-    "from": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
-    "to": "57d816b289aaed1bee767ec4a5c115882964878b",
-    "reason": "ADR-063 merged concurrently; preserve its explicit retirements",
-    "removed_source_paths": [
-      "src/modules/knowledge/gbdb-rag-service.js",
-      "src/modules/knowledge/genesisblockdb-sink.js",
-      "src/modules/knowledge/smartgift-rag-pipeline.js",
-      "tests/integration/knowledge-genesis-sink.test.js",
-      "tests/unit/gbdb-rag-service.test.js",
-      "tests/unit/smartgift-rag-pipeline.test.js"
-    ]
-  },
-  "generated_edge_template": "apps/edge/.env.example contains names only; original template values remain held"
+  "generated_edge_template": "apps/edge/.env.example contains names only; original template values remain held",
+  "upstream_reconciliations": [
+    {
+      "from": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
+      "to": "57d816b289aaed1bee767ec4a5c115882964878b",
+      "reason": "ADR-063 merged concurrently; preserve its explicit retirements",
+      "removed_source_paths": [
+        "src/modules/knowledge/gbdb-rag-service.js",
+        "src/modules/knowledge/genesisblockdb-sink.js",
+        "src/modules/knowledge/smartgift-rag-pipeline.js",
+        "tests/integration/knowledge-genesis-sink.test.js",
+        "tests/unit/gbdb-rag-service.test.js",
+        "tests/unit/smartgift-rag-pipeline.test.js"
+      ]
+    },
+    {
+      "from": "57d816b289aaed1bee767ec4a5c115882964878b",
+      "to": "61ca8af95e9b1ced6277198d7e452822243ab3af",
+      "reason": "Preserve concurrently merged PR-263 Warehouse domain and FR-154/155/156"
+    }
+  ]
 }

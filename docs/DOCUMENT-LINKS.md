@@ -471,6 +471,7 @@ Source: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent 
 
 Backlinks:
 
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
 - [ADR-026 — Agent Topology for the Visual Office](decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
 - [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (references)
@@ -1631,6 +1632,49 @@ Backlinks:
 - [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
 - [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md) (relates)
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
+
+## Domain — inventory
+
+Source: [Domain — inventory](domains/inventory/CHARTER.md)
+
+- references: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
+- references: [FR-155 — Inventory stock ledger (lot · serial · movement)](domains/inventory/features/FR-155-inventory-stock-ledger.md)
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+- references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+
+## FR-154 — Inventory catalogue identity (คลังสินค้า)
+
+Source: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
+
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
+Backlinks:
+
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
+
+## FR-155 — Inventory stock ledger (lot · serial · movement)
+
+Source: [FR-155 — Inventory stock ledger (lot · serial · movement)](domains/inventory/features/FR-155-inventory-stock-ledger.md)
+
+Backlinks:
+
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
+
+## FR-156 — Recipe / bill of materials at a batch size (recipe_id)
+
+Source: [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md)
+
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
+## Inventory ontology (reference)
+
+Source: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
+Backlinks:
+
+- [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md) (references)
+- [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md) (references)
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Domain — knowledge
 

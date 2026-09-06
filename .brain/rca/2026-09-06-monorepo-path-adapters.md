@@ -29,3 +29,17 @@ attributes:
   hashbang is required. No tests or gate thresholds were removed.
 
 Version diff: new relocation RCA, 0.1.0b.
+
+## Graph consumer path assumptions
+
+- Symptom: the relocated Domain Map lost FR-in-lane entries and Trace lost API
+  surfaces even though the graph retained the original nodes and edges.
+- Evidence: Domain Map merge diff against PR-263 showed empty lanes; doc-views
+  matched `src/modules/` and joined source IDs against prefixed route paths.
+  domain-state used the same unprefixed ownership comparison.
+- Root cause: the scanner correctly published `apps/server/` file locations,
+  but these consumers compared them to canonical source-relative ownership rules.
+- Why missed: graph accounting checked identity and edges, while view fixtures
+  only supplied the original flat paths.
+- Prevention: normalize the Server location prefix for ownership and ID joins;
+  exercise identical graph identities with both flat and relocated file paths.

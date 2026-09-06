@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=60; operational_domain_keys=10; operational_subdomain_entries=32; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=61; operational_domain_keys=11; operational_subdomain_entries=33; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -162,6 +162,16 @@ is operational.
 | `/assets/receiving` | Asset Receiving & Evidence Review | BusinessShell → Asset Management / Receiving | upload verified private evidence, create canonical draft, invoke OCR/Vision candidate, human accept, download/import/export Asset workbook | Business plus `assets` grant and owner/receiver/reviewer capability; idle, uploading, draft, candidate, review, error, `READY_FOR_REGISTRATION` | implemented beta; `src/app/(pm)/assets/receiving/page.jsx`, FR-137..139 / ADR-056 |
 | `/assets/register` | Asset Register Workspace | BusinessShell → Asset Management / Register | searchable asset master register, category/status/branch filters, serial/tag drawer, manual registration promote action | Business plus `assets` grant; empty, loading, error, ready, drawer active | implemented beta; `src/app/(pm)/assets/register/page.jsx`, FR-133, FR-135 / ADR-055 |
 | `/assets/scanner` | Mobile Stocktake & QR Scanner | BusinessShell → Asset Management / Scanner | camera QR barcode video scanner, fast asset lookup, custodian/location check, on-site physical stocktake verification | Business plus `assets` grant; camera permission, scanning, result active, audit submitted | implemented beta; `src/app/(pm)/assets/scanner/page.jsx`, FR-133, FR-135 / ADR-055 |
+
+### 3.6b Inventory domain (คลังสินค้า)
+
+One guarded, Business-scoped dashboard (FR-154, FR-155). Every number it shows
+is recomputed by the server from the stock ledger on the same request; an
+uncounted product shows "—", never a zero.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/inventory` | Warehouse Dashboard (domain `inventory`; labelled Warehouse because a Project's own Inventory tab, FR-077, shares the screen) | BusinessShell → Warehouse / Dashboard | KPIs (SKUs, counted, uncounted, below safety stock), the per-SKU table with stock policy, tracking mode and recomputed on-hand; console forms that create a category, a product master and a SKU (counted / uncounted, NONE / LOT / SERIAL) and append one ledger movement (receipt, issue, adjustment with lot code or serial numbers) | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy | implemented; `src/app/(pm)/inventory/page.jsx`, FR-154, FR-155 / `docs/domains/inventory/CHARTER.md` |
 
 ### 3.7 Workspace compatibility surfaces
 

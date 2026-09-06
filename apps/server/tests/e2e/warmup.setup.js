@@ -33,6 +33,8 @@ const ROUTES = [
   // tolerated its 404; that stopped being true when the console landed.
   '/line-oa',
   '/line-oa/rich-menus',
+  // @req FR-154 — the Inventory dashboard.
+  '/inventory',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]
