@@ -91,5 +91,10 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
     await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
   }
-  await expect(card.getByText(/ส่งขึ้น LINE: ต้อง Freeze ฉบับร่างก่อน/).first()).toBeVisible()
+  // The blocker the service reports first is the account's, not the draft's:
+  // this account has not enabled Server transport, because creating one no
+  // longer does it on the operator's behalf (FR-149). main asserts the freeze
+  // blocker here instead, which is only what you see once the account is
+  // already live.
+  await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
 })

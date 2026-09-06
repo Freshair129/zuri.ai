@@ -15010,7 +15010,7 @@
       "version": "1.12.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "f03b6871",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -22991,8 +22991,8 @@
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "66bf1f46",
-      "status": "current"
+      "hash": "d210cda2",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
