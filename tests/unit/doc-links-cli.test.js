@@ -21,14 +21,28 @@ it('CLI rejects missing targets and a stale backlink view without indexing gener
     cpSync(path.join(root, 'src/config/domains.js'), path.join(fixture, 'src/config/domains.js'))
     writeFileSync(path.join(fixture, 'docs/LINK-PHASE.md'), '---\nid: ZAI:FIXTURE-DOC-LINK-PHASE\nrelations: []\n---\n# Phase\n')
     writeFileSync(path.join(fixture, 'docs/LEGACY-WIKI.md'), '# Legacy wiki\n\n**Relates to:** [[ZAI:FIXTURE-DOC-LINK-PHASE]]\n')
+    for (const name of ['identity-a', 'identity-b']) {
+      mkdirSync(path.join(fixture, 'docs', name))
+      writeFileSync(path.join(fixture, 'docs', name, 'FIXTURE-SRS.md'), `# ${name}\n`)
+    }
+    writeFileSync(path.join(fixture, 'docs/identity-a/LINK.md'), '# Link\n\n**Relates to:** [other](../identity-b/FIXTURE-SRS.md)\n\n[own](FIXTURE-SRS.md)\n')
     const run = (script, args = []) => spawnSync(process.execPath, [path.join(fixture, 'scripts', script), ...args], { cwd: fixture, encoding: 'utf8', timeout: 60000 })
     const graph = run('doc-graph.mjs')
     expect(graph.status, graph.stderr).toBe(0)
     const graphData = JSON.parse(readFileSync(path.join(fixture, 'docs/.doc-graph.json'), 'utf8'))
+    expect(new Set(graphData.nodes.map(n => n.id)).size).toBe(graphData.nodes.length)
+    expect(graphData.edges).toContainEqual(expect.objectContaining({ from: 'doc:LINK', to: 'doc:docs/identity-b/FIXTURE-SRS', type: 'relates' }))
+    expect(graphData.edges).toContainEqual(expect.objectContaining({ from: 'doc:LINK', to: 'doc:docs/identity-a/FIXTURE-SRS', type: 'references' }))
     expect(graphData.edges.filter(e => e.from === 'doc:LEGACY-WIKI')).toEqual([
       { from: 'doc:LEGACY-WIKI', to: 'doc:LINK-PHASE', type: 'relates', source: 'wikilink', status: 'current' },
     ])
     expect(run('doc-graph.mjs', ['--check']).status).toBe(0)
+    const ambiguousPath = path.join(fixture, 'docs/AMBIGUOUS-FIXTURE.md')
+    writeFileSync(ambiguousPath, '# Ambiguous\n\n[[doc:FIXTURE-SRS]]\n')
+    const ambiguous = run('doc-graph.mjs')
+    expect(ambiguous.status).toBe(1)
+    expect(ambiguous.stderr).toContain('Ambiguous link target: doc:FIXTURE-SRS')
+    rmSync(ambiguousPath)
     writeFileSync(path.join(fixture, 'docs/DOCUMENT-LINKS.md'), '# stale view\n')
     const stale = run('doc-graph.mjs', ['--check'])
     expect(stale.status).toBe(1)

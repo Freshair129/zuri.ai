@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1913,
-    "total_edges": 7438,
+    "total_nodes": 1914,
+    "total_edges": 7445,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 214,
       "model": 87,
       "requirement": 309,
-      "test": 473,
+      "test": 474,
       "code_file": 521
     },
     "coverage": {
@@ -55,12 +55,7 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:README",
-      "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:GOVERNANCE-LINK-METADATA"
     ],
     "added": [],
     "removed": []
@@ -10804,7 +10799,7 @@
       "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "62f959f9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10858,30 +10853,6 @@
       "version": "1.19.0b",
       "doc_status": "Draft",
       "hash": "859ccf9c",
-      "status": "current"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/asset-management/CONTEXT-MAP.md",
-      "title": "Asset Management context map",
-      "hash": "5b5e4cbd",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
-      "title": "Context map — LINE OA Studio",
-      "hash": "bcfd30d0",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
-      "title": "Context map — Market Intelligence",
-      "hash": "8ae199b0",
       "status": "current"
     },
     {
@@ -11005,6 +10976,110 @@
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "570c3551",
       "status": "current"
+    },
+    {
+      "id": "doc:docs/change-requests/README",
+      "type": "document",
+      "path": "docs/change-requests/README.md",
+      "title": "`docs/change-requests/` — intake, not governance",
+      "hash": "dc4d3ed8",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:README",
+        "source_path": "docs/change-requests/README.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/asset-management/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/asset-management/CONTEXT-MAP.md",
+      "title": "Asset Management context map",
+      "hash": "5b5e4cbd",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/asset-management/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/asset-management/SRS",
+      "type": "document",
+      "path": "docs/domains/asset-management/SRS.md",
+      "title": "SRS — Asset Management domain",
+      "hash": "0081661e",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/asset-management/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
+      "title": "Context map — LINE OA Studio",
+      "hash": "bcfd30d0",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/line-oa-studio/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/SRS.md",
+      "title": "SRS — LINE OA Studio domain",
+      "hash": "80ce05cb",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/line-oa-studio/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/market-intelligence/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
+      "title": "Context map — Market Intelligence",
+      "hash": "8ae199b0",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/market-intelligence/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/market-intelligence/SRS",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/SRS.md",
+      "title": "SRS — Market Intelligence Domain",
+      "hash": "8a5ef02c",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/market-intelligence/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/roadmap/line-oa-business-agent/README",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/README.md",
+      "title": "Implementation Plan: LINE OA Business Agent",
+      "hash": "58b958ec",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:README",
+        "source_path": "docs/roadmap/line-oa-business-agent/README.md"
+      }
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -11940,8 +12015,8 @@
       "type": "document",
       "path": "docs/GOVERNANCE-LINK-METADATA.md",
       "title": "Document link metadata",
-      "hash": "4c363d60",
-      "status": "current"
+      "hash": "5994df64",
+      "status": "changed"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -12390,22 +12465,6 @@
       "status": "current"
     },
     {
-      "id": "doc:README",
-      "type": "document",
-      "path": "docs/change-requests/README.md",
-      "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "dc4d3ed8",
-      "status": "changed"
-    },
-    {
-      "id": "doc:README",
-      "type": "roadmap",
-      "path": "docs/roadmap/line-oa-business-agent/README.md",
-      "title": "Implementation Plan: LINE OA Business Agent",
-      "hash": "58b958ec",
-      "status": "current"
-    },
-    {
       "id": "doc:ROADMAP",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
@@ -12447,30 +12506,6 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "01a84952",
-      "status": "current"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/asset-management/SRS.md",
-      "title": "SRS — Asset Management domain",
-      "hash": "0081661e",
-      "status": "changed"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/line-oa-studio/SRS.md",
-      "title": "SRS — LINE OA Studio domain",
-      "hash": "80ce05cb",
-      "status": "changed"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/market-intelligence/SRS.md",
-      "title": "SRS — Market Intelligence Domain",
-      "hash": "8a5ef02c",
       "status": "current"
     },
     {
@@ -20321,10 +20356,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/doc-identities.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-identities.test.js",
+      "hash": "76a914ac",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/doc-links-cli.test.js",
       "type": "test",
       "path": "tests/unit/doc-links-cli.test.js",
-      "hash": "0230ea93",
+      "hash": "ebb01d46",
       "status": "current"
     },
     {
@@ -38320,29 +38362,99 @@
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "feat:FEAT-019",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:docker-ngrok",
-      "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-03-IDENTITY-PERMISSION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40504,55 +40616,6 @@
       "status": "current"
     },
     {
-      "from": "doc:README",
-      "to": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-03-IDENTITY-PERMISSION",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
       "from": "doc:ROADMAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
@@ -40592,27 +40655,6 @@
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "type": "references",
       "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
-      "type": "relates",
-      "source": "metadata",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "feat:FEAT-019",
-      "type": "relates",
-      "source": "metadata",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
-      "type": "relates",
-      "source": "metadata",
       "status": "current"
     },
     {
@@ -40709,6 +40751,20 @@
     {
       "from": "domain:asset-management",
       "to": "doc:DATA-PIPELINE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:docs/domains/asset-management/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:docs/domains/asset-management/SRS",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40816,6 +40872,20 @@
       "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -47691,6 +47761,20 @@
       "type": "supersedes",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
@@ -62031,6 +62115,13 @@
     {
       "from": "test:tests/unit/design-system.test.js",
       "to": "req:SDD-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-identities.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
