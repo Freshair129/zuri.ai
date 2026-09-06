@@ -14,6 +14,10 @@ export const ROLE_LINE_OA_PUBLISHER = 'LINE_OA_PUBLISHER'
 // that may write catalogue identity and stock movements. A Business OWNER
 // holds the same capability implicitly and needs no binding.
 export const ROLE_INVENTORY_MANAGER = 'INVENTORY_MANAGER'
+// @req FR-157 — the sales representative: the Business-scoped role that may
+// write sales tasks (follow-ups owed to customers) in the crm lane. A Business
+// OWNER holds the same capability implicitly and needs no binding.
+export const ROLE_SALES_REP = 'SALES_REP'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
 export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
@@ -22,6 +26,7 @@ export const ASSET_INTAKE_WRITE_PERMISSION = 'asset.intake.write'
 export const ASSET_EVIDENCE_REVIEW_PERMISSION = 'asset.evidence.review'
 export const LINE_OA_PUBLISH_PERMISSION = 'line-oa.account.publish'
 export const INVENTORY_MANAGE_PERMISSION = 'inventory.catalog.write'
+export const SALES_TASK_WRITE_PERMISSION = 'crm.sales-task.write'
 
 export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PRODUCT_OWNER]: Object.freeze([
@@ -49,6 +54,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_INVENTORY_MANAGER]: Object.freeze([
     'inventory.read',
     INVENTORY_MANAGE_PERMISSION,
+  ]),
+  [ROLE_SALES_REP]: Object.freeze([
+    'crm.read',
+    SALES_TASK_WRITE_PERMISSION,
   ]),
 })
 

@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1986,
-    "total_edges": 7714,
+    "total_nodes": 2003,
+    "total_edges": 7781,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 183,
-      "adr": 63,
+      "document": 184,
+      "adr": 64,
       "domain": 11,
       "roadmap": 37,
-      "feature": 20,
-      "route": 231,
-      "model": 100,
-      "requirement": 313,
-      "test": 481,
-      "code_file": 543
+      "feature": 21,
+      "route": 234,
+      "model": 101,
+      "requirement": 314,
+      "test": 485,
+      "code_file": 548
     },
     "coverage": {
-      "requirements": 313,
-      "fr_with_code": "100% (146/146)",
-      "fr_with_tests": "100% (146/146)",
+      "requirements": 314,
+      "fr_with_code": "100% (147/147)",
+      "fr_with_tests": "100% (147/147)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 543,
+      "annotated_code_files": 548,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,87 +54,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:full-schema",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/domain-state.test.js",
-      "code:src/config/domains.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/identity/rbac.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
-    "added": [
-      "domain:inventory",
-      "doc:FR-154-inventory-catalogue-identity",
-      "doc:FR-155-inventory-stock-ledger",
-      "doc:FR-156-inventory-recipe-bill-of-materials",
-      "doc:ONTOLOGY",
-      "feat:FEAT-020",
-      "route:page:/inventory",
-      "route:api:/api/inventory/bundles",
-      "route:api:/api/inventory/categories",
-      "route:api:/api/inventory/factories",
-      "route:api:/api/inventory/families",
-      "route:api:/api/inventory/lots",
-      "route:api:/api/inventory/product-masters",
-      "route:api:/api/inventory/products",
-      "route:api:/api/inventory/products/[id]",
-      "route:api:/api/inventory/recipes",
-      "route:api:/api/inventory/recipes/[id]/build",
-      "route:api:/api/inventory/recipes/[id]",
-      "route:api:/api/inventory/serial-units",
-      "route:api:/api/inventory/stock",
-      "route:api:/api/inventory/stock-movements",
-      "model:InventoryCategory",
-      "model:ProductFamily",
-      "model:Factory",
-      "model:ProductMaster",
-      "model:Product",
-      "model:ProductLot",
-      "model:SerialUnit",
-      "model:ProductBundle",
-      "model:ProductBundleItem",
-      "model:StockMovement",
-      "model:ProductRecipe",
-      "model:ProductRecipeLine",
-      "req:FR-154",
-      "req:FR-155",
-      "req:FR-156",
-      "test:tests/e2e/fr154-inventory-dashboard.spec.js",
-      "test:tests/integration/fr154-inventory-catalog.test.js",
-      "test:tests/integration/fr155-inventory-stock.test.js",
-      "test:tests/integration/fr156-inventory-recipe.test.js",
-      "test:tests/unit/inventory-domain.test.js",
-      "test:tests/unit/inventory-routes.test.js",
-      "code:src/app/(pm)/inventory/page.jsx",
-      "code:src/app/api/inventory/bundles/route.js",
-      "code:src/app/api/inventory/categories/route.js",
-      "code:src/app/api/inventory/factories/route.js",
-      "code:src/app/api/inventory/families/route.js",
-      "code:src/app/api/inventory/lots/route.js",
-      "code:src/app/api/inventory/product-masters/route.js",
-      "code:src/app/api/inventory/products/route.js",
-      "code:src/app/api/inventory/products/[id]/route.js",
-      "code:src/app/api/inventory/recipes/route.js",
-      "code:src/app/api/inventory/recipes/[id]/build/route.js",
-      "code:src/app/api/inventory/recipes/[id]/route.js",
-      "code:src/app/api/inventory/serial-units/route.js",
-      "code:src/app/api/inventory/stock/route.js",
-      "code:src/app/api/inventory/stock-movements/route.js",
-      "code:src/modules/inventory/application/inventory-authority.js",
-      "code:src/modules/inventory/application/inventory-catalog-service.js",
-      "code:src/modules/inventory/application/inventory-recipe-service.js",
-      "code:src/modules/inventory/application/inventory-stock-service.js",
-      "code:src/modules/inventory/domain/inventory.js",
-      "code:src/modules/inventory/index.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -484,6 +405,25 @@
         "@tested": [
           "tests/unit/fr091-inbox-ui-contract.test.js",
           "tests/e2e/fr091-conversation-inbox.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/customer/sales-tasks/page.jsx",
+      "hash": "5a1b09ee",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-157"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/e2e/fr157-sales-tasks.spec.js",
+          "tests/unit/sales-task-routes.test.js"
         ]
       }
     },
@@ -2328,6 +2268,48 @@
         ],
         "@tested": [
           "tests/integration/crm-customer-erasure.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/sales-tasks/[id]/route.js",
+      "hash": "d0b7d077",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-157"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-routes.test.js",
+          "tests/integration/fr157-sales-task.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/sales-tasks/route.js",
+      "hash": "fb2f7d34",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-157"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-routes.test.js",
+          "tests/integration/fr157-sales-task.test.js"
         ]
       }
     },
@@ -5302,8 +5284,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "0de1745b",
-      "status": "changed",
+      "hash": "b8ef6964",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5311,6 +5293,7 @@
           "FR-039",
           "FR-060",
           "FR-091",
+          "FR-157",
           "FR-086",
           "FR-133",
           "FR-146",
@@ -5624,8 +5607,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "e1fa4a75",
-      "status": "changed",
+      "hash": "58206807",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7097,6 +7080,43 @@
       }
     },
     {
+      "id": "code:src/modules/crm/sales-task-domain.js",
+      "type": "code_file",
+      "path": "src/modules/crm/sales-task-domain.js",
+      "hash": "807470b3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-157"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/sales-task-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/sales-task-service.js",
+      "hash": "deb12d80",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-157"
+        ],
+        "@spec": [
+          "BR-001",
+          "BR-002",
+          "SEC-001",
+          "FR-061",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr157-sales-task.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/agent-tool-authorizer.js",
       "type": "code_file",
       "path": "src/modules/identity/agent-tool-authorizer.js",
@@ -7627,14 +7647,15 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
-      "hash": "04df3468",
-      "status": "changed",
+      "hash": "1b86b076",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
           "FR-078",
           "FR-146",
-          "FR-154"
+          "FR-154",
+          "FR-157"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -9300,8 +9321,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "414c19b2",
-      "status": "changed",
+      "hash": "bd54a191",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -9314,6 +9335,7 @@
           "FR-155",
           "FR-156",
           "FR-022",
+          "FR-157",
           "FR-092",
           "FR-106",
           "FR-038",
@@ -9371,8 +9393,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "fb9d6e00",
-      "status": "changed",
+      "hash": "8fde7707",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -9398,6 +9420,7 @@
           "FR-100",
           "FR-102",
           "FR-106",
+          "FR-157",
           "FR-127",
           "FR-133",
           "FR-134",
@@ -11333,10 +11356,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.44.0b",
+      "version": "1.45.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f87f8cad",
-      "status": "changed"
+      "hash": "c7034901",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11387,10 +11410,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.22.0b",
+      "version": "1.23.0b",
       "doc_status": "Draft",
-      "hash": "2d18728c",
-      "status": "changed"
+      "hash": "a53d4773",
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11721,10 +11744,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.26.0b",
+      "version": "1.27.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "d8a75d45",
-      "status": "changed"
+      "hash": "ce1d12da",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12590,12 +12613,20 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-157-sales-tasks",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-157-sales-tasks.md",
+      "title": "FR-157 — Sales tasks (งานขาย)",
+      "hash": "c97517e7",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "3dd0f9e2",
-      "status": "changed"
+      "hash": "a9a52e09",
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -12642,8 +12673,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "573d314f",
-      "status": "changed"
+      "hash": "876147db",
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -13044,10 +13075,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.159.0b",
+      "version": "1.160.0b",
       "doc_status": "Draft",
-      "hash": "d0d6cc09",
-      "status": "changed"
+      "hash": "f658e19f",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13074,8 +13105,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "78cc892c",
-      "status": "changed"
+      "hash": "6aedecc9",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -13352,14 +13383,15 @@
         "CustomerImportReviewDecision",
         "Conversation",
         "Message",
-        "ConversationAnalysis"
+        "ConversationAnalysis",
+        "SalesTask"
       ],
       "owns_routes": [],
       "owns_code": [],
       "modules": [
         "crm"
       ],
-      "hash": "6a2cc86e",
+      "hash": "16a9cd53",
       "status": "current"
     },
     {
@@ -13752,6 +13784,13 @@
       "id": "feat:FEAT-020",
       "type": "feature",
       "label": "Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`)",
+      "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-021",
+      "type": "feature",
+      "label": "Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064)",
       "declared": "building",
       "status": "current"
     },
@@ -14177,6 +14216,11 @@
     },
     {
       "id": "model:RoleBinding",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:SalesTask",
       "type": "model",
       "status": "current"
     },
@@ -16066,6 +16110,16 @@
       "row_text": "Inventory recipe / bill of materials at a batch size — `ProductRecipe` (`recipe_id`: `code` unique per Tenant, one row per output SKU and `batchSize` — \"the recipe for 10 seats\" and \"for 20 seats\" are two rows on one product, exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets — with `yieldQty`, `unit`, `notes`, ACTIVE / ARCHIVED, `version`) and `ProductRecipeLine` (a same-Business component SKU with `qty` per batch, optional `unit`, `fixed` for a line that does not scale with the quantity built, such as tooling; a component appears once and is never the output). Pure calculators pick the recipe for a quantity (the largest batch size that fits, else the smallest), explode it (scaled lines multiply by `quantity / batchSize`, fixed lines do not, the output yield follows the batch), compare with on-hand recomputed from the ledger (a fractional requirement is issued as the next whole unit; an uncounted component never blocks) and state the maximum buildable quantity. `GET /api/inventory/recipes/[id]?quantity=` returns that explosion; `POST …/build` is one transaction that issues every counted component through the FR-155 ledger (FEFO for lots) and receives the output SKU when it is counted — refused whole with `INVENTORY_RECIPE_SHORTAGE` and a per-component list when any component is short, and refused when a component or the output is SERIAL-tracked or a LOT-tracked output has no `outputLotCode`. `UPDATE` replaces the fields and, when given, the whole line set; `ARCHIVE` keeps the row; both compare-and-swap on `version`; manager authority, FR-072 refusals, one audit row per write. A bundle (FR-154) is the special case \"a kit at batch size 1\"; offers and price tiers stay in Commerce. 🟠 implemented locally 2026-09-06 — two models (both schemas, additive migration `20260906233000_inventory_recipe`; production SQL **not applied**), the only writer `inventory-recipe-service.js`, `GET/POST /api/inventory/recipes`, `GET/PATCH /api/inventory/recipes/[id]`, `POST /api/inventory/recipes/[id]/build`, snapshot coverage; one integration suite (AC-156.1–.5), calculators in the unit suite. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion "
     },
     {
+      "id": "req:FR-157",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235000_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-157.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -17754,6 +17808,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/crm/sales-tasks",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/sales-tasks",
+      "path": "src/app/api/crm/sales-tasks/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/sales-tasks/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/sales-tasks/[id]",
+      "path": "src/app/api/crm/sales-tasks/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/dependencies",
       "type": "route",
       "kind": "api",
@@ -18834,6 +18904,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/customer/sales-tasks",
+      "type": "route",
+      "kind": "page",
+      "route": "/customer/sales-tasks",
+      "path": "src/app/(pm)/customer/sales-tasks/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/dependencies",
       "type": "route",
       "kind": "page",
@@ -19742,6 +19820,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "type": "adr",
+      "path": "docs/decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md",
+      "title": "ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task",
+      "hash": "2777394e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -19872,6 +19958,13 @@
       "type": "test",
       "path": "tests/e2e/fr154-inventory-dashboard.spec.js",
       "hash": "0e28d593",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr157-sales-tasks.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr157-sales-tasks.spec.js",
+      "hash": "9fb0e82b",
       "status": "current"
     },
     {
@@ -20302,6 +20395,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr157-sales-task.test.js",
+      "type": "test",
+      "path": "tests/integration/fr157-sales-task.test.js",
+      "hash": "ab421bd1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -20515,8 +20615,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "46991e19",
-      "status": "changed"
+      "hash": "18f4bee8",
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -21321,7 +21421,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "c26f44ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -22822,6 +22922,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/sales-task-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/sales-task-domain.test.js",
+      "hash": "777aa746",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sales-task-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/sales-task-routes.test.js",
+      "hash": "9406a387",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/schema-migration-drift.test.js",
       "type": "test",
       "path": "tests/unit/schema-migration-drift.test.js",
@@ -23708,6 +23822,20 @@
     {
       "from": "code:src/app/(pm)/customer/page.jsx",
       "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -26438,6 +26566,62 @@
     {
       "from": "code:src/app/api/crm/customers/[customerId]/erasure/route.js",
       "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30882,6 +31066,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -33653,6 +33844,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/sales-task-domain.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/agent-tool-authorizer.js",
       "to": "req:BR-020",
       "type": "follows",
@@ -34390,6 +34630,13 @@
     {
       "from": "code:src/modules/identity/rbac.js",
       "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-157",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36502,6 +36749,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -36742,6 +36996,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-157",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -41234,6 +41495,13 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-157-sales-tasks",
+      "to": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -43026,6 +43294,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-021",
+      "to": "req:FR-157",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -43616,6 +43891,13 @@
     {
       "from": "model:RoleBinding",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:SalesTask",
+      "to": "domain:crm",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -45028,6 +45310,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-157",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -46288,6 +46577,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/crm/sales-tasks/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/sales-tasks",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/dependencies/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -47213,6 +47516,13 @@
     },
     {
       "from": "route:page:/customer/conversations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/customer/sales-tasks",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -49928,6 +50238,20 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "to": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -50210,6 +50534,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -51091,6 +51422,27 @@
     },
     {
       "from": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr157-sales-tasks.spec.js",
+      "to": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr157-sales-tasks.spec.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr157-sales-tasks.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -52799,6 +53151,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -53136,6 +53495,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -55466,6 +55832,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -56600,6 +56973,76 @@
     },
     {
       "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "code:src/modules/crm/sales-task-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr157-sales-task.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -58049,6 +58492,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -58484,6 +58934,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -62179,6 +62636,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -64362,6 +64826,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "code:src/modules/crm/customer-import-review-store.js",
       "type": "tests",
@@ -64728,6 +65199,13 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -65462,6 +65940,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -65771,6 +66256,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -67549,6 +68041,13 @@
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -69372,6 +69871,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
@@ -75396,6 +75902,83 @@
     {
       "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-domain.test.js",
+      "to": "code:src/modules/crm/sales-task-domain.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-domain.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

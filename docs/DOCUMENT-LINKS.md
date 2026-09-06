@@ -449,6 +449,7 @@ Backlinks:
 - [Zuri V2 — Product Definition](PRODUCT.md) (references)
 - [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md) (references)
 - [ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces](decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md) (references)
+- [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (references)
 - [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) (relates)
 - [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) (relates)
 - [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) (relates)
@@ -1013,6 +1014,7 @@ Source: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligen
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
+- [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (relates)
 
 ## ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle
 
@@ -1165,6 +1167,17 @@ Source: [ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and G
 - relates: [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md)
 - relates: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 - relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+## ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task
+
+Source: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md)
+
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
+
+Backlinks:
+
+- [FR-157 — Sales tasks (งานขาย)](domains/crm/features/FR-157-sales-tasks.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -1399,6 +1412,12 @@ Backlinks:
 - [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## FR-157 — Sales tasks (งานขาย)
+
+Source: [FR-157 — Sales tasks (งานขาย)](domains/crm/features/FR-157-sales-tasks.md)
+
+- references: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md)
 
 ## FR-148-P2 — Account-scoped CRM conversations
 

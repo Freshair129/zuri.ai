@@ -35,6 +35,8 @@ const ROUTES = [
   '/line-oa/rich-menus',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
+  // @req FR-157 — the CRM sales tasks page.
+  '/customer/sales-tasks',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

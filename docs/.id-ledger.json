@@ -267,6 +267,7 @@
     "FR-154",
     "FR-155",
     "FR-156",
+    "FR-157",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -419,6 +420,7 @@
     "FEAT-018",
     "FEAT-019",
     "FEAT-020",
+    "FEAT-021",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -570,6 +572,7 @@
     "ADR-061",
     "ADR-062",
     "ADR-063",
+    "ADR-064",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2959,6 +2962,19 @@
         }
       ]
     },
+    "FR-157": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a4561663c99470bab6c483e378e6c14793e9e81819e1698086fd44d42e08f8ee",
+      "history": [
+        {
+          "anchor": "sales tasks crm",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4963,6 +4979,19 @@
         }
       ]
     },
+    "FEAT-021": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "0ba768b191b1b8cd28fae95299b41c4136d9b1c9b04dc993e89ce9eba48d9739",
+      "history": [
+        {
+          "anchor": "sales tasks งานขาย",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -6931,6 +6960,19 @@
       "history": [
         {
           "anchor": "retire tier 1 genesisblockdb direct clients",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-064": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md",
+      "status": "current",
+      "statement_digest": "41386a57fda658bff075e30f114b055615c9cacd7bd23f2728a63ef2153c1f70",
+      "history": [
+        {
+          "anchor": "sales tasks are a crm activity record not a project task",
           "since": "2026-09-06",
           "reason": "declared"
         }
