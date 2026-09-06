@@ -1,4 +1,17 @@
 ---
+version: "0.1.0b"
+status: active
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+id: ZAI:DOMAIN-CRM
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+  - type: relates_to
+    target: ZAI:FR-148-P2
+  - type: relates_to
+    target: ZAI:FR-149-P5
 domain: crm
 module: src/modules/crm
 owns_models:
@@ -105,3 +118,13 @@ lane designs these tables elsewhere.
 ## Account-aware transport (ADR-061)
 
 FR-148 adds account-scoped Conversation identity and transaction-capable inbound/accepted outbound contracts. Legacy rows stay LEGACY:LINE. The server job ledger calls CRM; it never writes Message directly. Provider acceptance is not delivery or reading.
+
+## FEAT-019 execution handoffs
+
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
+
+## CHANGELOG
+
+| Version | Date | Summary | Agent |
+|---|---|---|---|
+| 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

@@ -1,8 +1,16 @@
 ---
+id: ZAI:ROADMAP
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-062
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.36.0"
+version: "2.37.0b"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -373,3 +381,9 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > FR-100/102/103/106/107 เป็น ✅ หลัง migration ทั้ง 6 apply บน live; FR-105 มี
 > deployment evidence (`zuri-ai-woad.vercel.app`); FR-108/112 ✅; FR-109 ✅ (6/13 AC) และ FR-111 ✅ ตั้งแต่ 2026-08-27..29 ส่วน
 > **FR-110 ยัง 🔜 ตัวเดียว**; ค้าง 🟠 เดียวคือ FR-097 (provider evidence)
+
+## FEAT-019 phase documentation — 2026-09-06
+
+[FR-148 / FR-149 / FR-150 domain phase map](PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
+
+Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.

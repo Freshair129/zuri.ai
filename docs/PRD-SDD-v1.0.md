@@ -1,3 +1,15 @@
+---
+id: ZAI:PRD-SDD
+version: "1.156.0b"
+status: draft
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+---
+
 # Zuri V2 — Project Manager Module: PRD & SDD
 
 > **Scope of this document: the Project Manager module of Zuri V2**, not the whole
@@ -7,7 +19,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.155.0b |
+| **Version** | 1.156.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -622,3 +634,9 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 
 ไม่มี model lifecycle/model cards ใน repo นี้ (ไม่มีการ train/host โมเดล) — จะเพิ่ม
 เมื่อ Zuri.Ai ฝัง agent จริงในเฟสถัดไป
+
+## FEAT-019 phase documentation — 2026-09-06
+
+[FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
+
+Version diff 1.154.0b → 1.155.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
