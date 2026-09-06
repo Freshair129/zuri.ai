@@ -19,6 +19,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
   ['/api/growth/campaigns', ['GET', 'POST']], ['/api/growth/campaigns/{id}', ['GET', 'PATCH']],
+  // @req FR-161 — one Operations aggregate, audited Intake mutations and
+  // read-only handoff detail.
+  ['/api/growth/operations', ['GET', 'POST']], ['/api/growth/operations/intake/{intakeId}', ['GET', 'PATCH']],
+  ['/api/growth/operations/handoffs/{handoffId}', ['GET']],
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],

@@ -41,8 +41,8 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // One submit provisions the connection and the account together now (see
   // FR-149's spec): the display name names both, so the cleanup above still
   // finds the connection by it.
-  await page.getByLabel(/ชื่อบัญชี LINE OA/).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที' }).click()
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')
@@ -91,5 +91,5 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
     await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
   }
-  await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
+  await expect(card.getByText(/ส่งขึ้น LINE: ต้อง Freeze ฉบับร่างก่อน/).first()).toBeVisible()
 })

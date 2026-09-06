@@ -1,7 +1,7 @@
 ---
-version: "1.10.0b"
+version: "1.12.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-06T22:02:00+07:00,RWANG"
+last_update: "2026-09-07T03:20:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=82; operational_domain_keys=11; operational_subdomain_entries=45; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=86; operational_domain_keys=11; operational_subdomain_entries=46; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -267,6 +267,17 @@ provider measurements and automated Team refinement remain separately tracked.
 The asset route uses a Content revision id. Source files and production tasks retain
 their owning Files/PM identities. Human review does not activate Team agents or publishing.
 
+### Marketing Operations slice (locally verified beta)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/operations` | MKT-UI-044–047 | Intake, Calendar, Approvals and Handoffs in one URL tab bar over one aggregate DTO | Growth visibility; source state is explicit; PM/owner projections stay read-only | FR-162 |
+| `/growth/operations/new` | MKT-UI-082 | Business-scoped Intake request form with capability, objective, required date, evidence and owner reference | Business owner; strict validation, audit and CAS on later edits | FR-162 |
+| `/growth/operations/intake/[intakeId]` | MKT-UI-069 | Intake detail, edit and archive with exact Business identity guard | Owner writes with expectedVersion; stale and archived states remain visible | FR-162 |
+| `/growth/operations/handoffs/[handoffId]` | MKT-UI-070 | Validated owner receipt and PM roadmap detail | Read-only; unavailable/partial owner evidence is distinct | FR-162 |
+
+[Operations contract](domains/marketing/features/FR-162-operations-coordination.md). Calendar reads the PM roadmap owner port; Marketing does not create duplicate work, conversations, stock or provider actions.
+
 ## 4. Runtime registry reconciliation
 
 The source registry has a shell slot plus operational domains. Counts are stated
@@ -345,6 +356,7 @@ The current route evidence is:
 |---|---|---|---|---|---|
 | 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
 | 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
+| 1.12.0b | 2026-09-07 | candidate | Registered LINE OA Integrations & AI (`/line-oa/integrations`) from main and reconciled the marker to 84 page routes and 45 operational sub-domain entries | working-tree | RWANG |
 | 1.11.0b | 2026-09-07 | candidate | Registered the CRM Sales Tasks page (`/customer/sales-tasks`, FR-161, ADR-064) and reconciled the marker to 72 page routes and 36 operational sub-domain entries | working-tree | Claude Fable 5.1 |
 | 1.12.0b | 2026-09-07 | candidate | Registered the Commerce Dashboard and Orders console (§3.2b, `/commerce`, `/commerce/orders`, FR-166, FR-163, ADR-065); marker reconciled to 74 page routes and 37 operational sub-domain entries | working-tree | Claude Fable 5.1 |
 | 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
@@ -369,7 +381,7 @@ The current route evidence is:
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
 | `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
 | `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
-| `/line-oa/integrations` | Integrations & AI hub — the Platform integrations surface (FR-080) reached from LINE Studio | Business visibility; the underlying page keeps its own owner checks | Renders `/platform/integrations`, so connection metadata and write-only secret provisioning follow SDD-044 unchanged. |
+| `/line-oa/integrations` | Integrations & AI | Business visibility | Provider integrations, AI capability readiness and connection metadata for the LINE OA workspace. |
 | `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
 | `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
 | `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |

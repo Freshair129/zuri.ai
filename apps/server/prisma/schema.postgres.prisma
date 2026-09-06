@@ -85,6 +85,7 @@ model Tenant {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
   salesOrders               SalesOrder[]
   payments                  Payment[]
@@ -180,6 +181,7 @@ model Business {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
   salesOrders               SalesOrder[]
   payments                  Payment[]
@@ -2734,6 +2736,34 @@ model MarketingContentDecision {
   review MarketingContentReview? @relation(fields: [reviewId], references: [id])
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
+}
+
+// @req FR-162 — Business-scoped Marketing Operations intake request; Marketing
+// is the only writer and PM/CRM/Commerce/provider records remain projections.
+// @spec SDD-089, SEC-001, SEC-003
+// @tested tests/integration/marketing-operations.test.js
+model MarketingOperationsIntake {
+  id                  String   @id @default(uuid())
+  tenantId            String
+  businessId          String
+  title               String
+  capability          String
+  objective           String
+  requiredAt          DateTime?
+  evidenceReference   String?
+  responsibleOwnerId  String?
+  status              String   @default("NEW")
+  version             Int      @default(1)
+  createdBy           String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@index([tenantId, businessId, status])
+  @@index([businessId, requiredAt])
 }
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),

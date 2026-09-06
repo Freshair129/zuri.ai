@@ -243,6 +243,17 @@ its Conversation.
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
 
+## Marketing Operations (FR-162, SDD-089)
+
+`MarketingOperationsIntake { tenantId, businessId, title, capability, objective,
+requiredAt?, evidenceReference?, responsibleOwnerId?, status, version, createdBy,
+createdAt, updatedAt, deletedAt? }` is the Business-scoped Marketing request record.
+Marketing is its only writer; the backup snapshot restores it after Marketing
+content evidence. Calendar, approvals and handoffs remain projections of PM,
+Marketing review/decision and owner receipt rows, so no duplicate task,
+conversation or stock model is introduced. Production DDL is an additive,
+configuration-gated artifact until an owner applies it.
+
 The FR-078 historical backfill uses a separate private `zuri_core` target boundary
 (`person`, `customer`, `customer_import_batch`, `customer_import_provenance`,
 `customer_import_review_case`, `customer_import_review_decision`) so

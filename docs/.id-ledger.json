@@ -385,6 +385,7 @@
     "SDD-086",
     "SDD-087",
     "SDD-088",
+    "SDD-089",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3086,25 +3087,15 @@
     "FR-162": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "677eea73e454e2845568821a5c3692f4bcb85f46b957e7e327b0b99116c87272",
+      "status": "current",
+      "statement_digest": "095881026bd7cb4179d8e71e4de4eb13d40b62a0674b325ac8ca88016599fe84",
       "history": [
         {
-          "anchor": "sales orders commerce",
+          "anchor": "marketing operations coordination",
           "since": "2026-09-06",
           "reason": "declared"
-        },
-        {
-          "anchor": "sales orders commerce",
-          "since": "2026-09-06",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-166. PR #273 merged FR-162 into main as Marketing Operations coordination while this branch was open; the later declaration renumbers, so the Commerce sales-order requirement becomes FR-166",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.163.1b"
         }
-      ],
-      "retired_to": "FR-166",
-      "retired_at": "2026-09-06",
-      "reason": "PR #273 merged FR-162 into main as Marketing Operations coordination while this branch was open; the later declaration renumbers, so the Commerce sales-order requirement becomes FR-166",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.163.1b"
+      ]
     },
     "FR-163": {
       "family": "FR",
@@ -4578,6 +4569,19 @@
         }
       ]
     },
+    "SDD-089": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d4dfe1b1edb2891fc451dbdaf73793ed3bc43e1db0831efcc42dcbf911ce67f",
+      "history": [
+        {
+          "anchor": "marketing operations is one business scoped composition",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5194,14 +5198,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "7e0f0ca9c9559d917bc8cce8a560ec646cc7e3b6214fd201f3b65ab06638c548",
+      "statement_digest": "8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445",
       "history": [
         {
           "anchor": "marketing planning and accountable execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-06",
+      "statement_digest_reason": "Reconcile the published CRM Sales Tasks feature with Marketing Operations retained under FR-162."
     },
     "FEAT-022": {
       "family": "FEAT",
