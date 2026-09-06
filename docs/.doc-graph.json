@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1825,
+    "total_nodes": 1826,
     "total_edges": 6688,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 160,
+      "document": 161,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -55,36 +55,13 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "doc:SRS"
     ],
     "added": [
-      "doc:FR-151-line-oa-rich-menu",
-      "route:api:/api/line-oa/rich-menus",
-      "route:api:/api/line-oa/rich-menus/[id]",
-      "model:LineOaRichMenu",
-      "model:LineOaRichMenuVersion",
-      "req:FR-151",
-      "test:tests/integration/fr151-line-oa-rich-menu.test.js",
-      "test:tests/unit/line-oa-rich-menu-domain.test.js",
-      "test:tests/unit/line-oa-rich-menu-routes.test.js",
-      "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
-      "code:src/app/api/line-oa/rich-menus/route.js",
-      "code:src/app/api/line-oa/rich-menus/[id]/route.js",
-      "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
-      "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js"
+      "doc:CR-017-MARKETING-ADS-ANALYTICS"
     ],
     "removed": []
   },
@@ -4888,7 +4865,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "72c1ca1b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8200,7 +8177,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "6173db6a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -8268,7 +8245,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "2a6f2f51",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10212,7 +10189,7 @@
       "version": "1.38.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "dc2746fe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10266,7 +10243,7 @@
       "version": "1.18.0b",
       "doc_status": "Draft",
       "hash": "5d1b96c4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -10389,6 +10366,16 @@
       "status": "current"
     },
     {
+      "id": "doc:CR-017-MARKETING-ADS-ANALYTICS",
+      "type": "document",
+      "path": "docs/change-requests/CR-017-MARKETING-ADS-ANALYTICS.md",
+      "title": "CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai",
+      "version": "0.1.0b",
+      "doc_status": "Candidate — รอ Boss อนุมัติเอกสารก่อน implementation",
+      "hash": "54100e58",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -10484,7 +10471,7 @@
       "version": "1.21.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "ce58520a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11631,7 +11618,7 @@
       "version": "1.154.0b",
       "doc_status": "Draft",
       "hash": "438966a4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11675,7 +11662,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "0a0aedb2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12107,7 +12094,7 @@
         "line-oa-studio"
       ],
       "hash": "fab4f844",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -18659,7 +18646,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "2c77beb6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
