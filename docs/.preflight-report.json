@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 277,
-    "routes": 143,
-    "test_files": 461
+    "docs": 279,
+    "routes": 153,
+    "test_files": 471
   },
   "summary": {
     "critical": 0,
@@ -271,7 +271,7 @@
       "id": "I24",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 277 document(s)",
+      "title": "table integrity checked in 279 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -294,7 +294,7 @@
       "id": "I26",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 54 file(s) that write audit events",
+      "title": "audit entityType checked in 59 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
