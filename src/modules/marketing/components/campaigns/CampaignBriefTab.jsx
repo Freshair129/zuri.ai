@@ -9,7 +9,7 @@
 import { Card, SectionTitle, StatusPill } from '@/components/ui'
 import { InlineNotice } from '../MarketingState'
 import { PlanVersionHistory } from '../PlanVersionHistory'
-import { campaignBudget, campaignChannelLabel, campaignCurrentBrief, campaignIsMutable, campaignPhase } from './campaign-contract'
+import { campaignBudget, campaignChannelLabel, campaignCurrentBrief, campaignIsMutable, campaignPhase, campaignPlanIsArchived } from './campaign-contract'
 import CampaignForm from './CampaignForm'
 
 function BriefRead({ campaign }) {
@@ -39,10 +39,11 @@ function BriefRead({ campaign }) {
 
 export default function CampaignBriefTab({ campaign, busy, onRevise }) {
   const mutable = campaignIsMutable(campaign)
+  const planArchived = campaignPlanIsArchived(campaign)
   if (!campaign?.plan) return <InlineNotice tone="error">The linked Strategy plan is unavailable for this Campaign.</InlineNotice>
   return (
     <div>
-      {mutable ? <CampaignForm plan={campaign.plan} busy={busy} onSubmit={onRevise} /> : <InlineNotice>{campaign.status === 'CLOSED' || campaign.status === 'CANCELLED' ? 'Closed and cancelled Campaigns are read-only.' : 'This Campaign is read-only for the current Business grant.'}</InlineNotice>}
+      {mutable && !planArchived ? <CampaignForm plan={campaign.plan} busy={busy} onSubmit={onRevise} /> : <InlineNotice>{planArchived ? 'The linked Strategy plan is archived. Campaign revisions are disabled; close or cancel remains available while this initiative is open.' : campaign.status === 'CLOSED' || campaign.status === 'CANCELLED' ? 'Closed and cancelled Campaigns are read-only.' : 'This Campaign is read-only for the current Business grant.'}</InlineNotice>}
       <BriefRead campaign={campaign} />
     </div>
   )

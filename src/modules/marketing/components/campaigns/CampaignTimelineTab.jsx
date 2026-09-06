@@ -7,7 +7,7 @@
 
 import { Card, EmptyState, SectionTitle, StatusPill } from '@/components/ui'
 import { UnavailableState } from '../MarketingState'
-import { campaignExecutionReady } from './campaign-contract'
+import { campaignExecutionReceipt, campaignExecutionReady } from './campaign-contract'
 
 function dateLabel(value) {
   if (!value) return 'Date unavailable'
@@ -28,11 +28,13 @@ export default function CampaignTimelineTab({ campaign }) {
   const execution = campaign?.execution
   if (!campaignExecutionReady(campaign)) return <UnavailableState title="Campaign timeline unavailable" hint="A timeline becomes available after this Campaign is bound to a persisted PM handoff receipt." />
   const roadmap = execution.roadmap
+  const receipt = campaignExecutionReceipt(campaign)
   const rows = scheduleRows(roadmap)
   return (
     <div className="space-y-4" data-testid="marketing-campaign-timeline">
       <Card>
         <SectionTitle caption="PM execution dates are separate from the Campaign brief calendar">Execution schedule</SectionTitle>
+        <p className="mb-3 text-[10px] text-muted">Live PM view from receipt revision {receipt?.revision || 'unavailable'} · {receipt?.isCurrentRevision ? 'current brief' : 'current brief is newer; this receipt is historical'}. The Project roadmap may include later handoff work.</p>
         {rows.length === 0 ? <EmptyState title="No PM dates recorded" hint="The selected receipt has no scheduled Project, execution plan, container or work item dates." /> : <div className="overflow-x-auto"><table className="w-full min-w-[38rem] border-collapse text-xs"><thead><tr className="border-b border-[var(--border)] text-left text-[10px] text-muted"><th className="p-2">Work</th><th className="p-2">Kind</th><th className="p-2">Start</th><th className="p-2">Target</th><th className="p-2">Status</th></tr></thead><tbody>{rows.map((row) => <tr key={row.id} className="border-b border-[var(--border)] last:border-0"><td className="p-2 font-semibold">{row.label}</td><td className="p-2 text-muted">{row.kind}</td><td className="p-2 text-muted">{dateLabel(row.startAt)}</td><td className="p-2 text-muted">{dateLabel(row.targetAt)}</td><td className="p-2"><StatusPill status={row.status} /></td></tr>)}</tbody></table></div>}
       </Card>
       <div className="grid gap-4 lg:grid-cols-2">

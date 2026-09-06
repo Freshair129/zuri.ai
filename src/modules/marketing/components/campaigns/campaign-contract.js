@@ -31,6 +31,11 @@ export function campaignIsMutable(campaign) {
   return campaign?.canWrite === true && !['CLOSED', 'CANCELLED'].includes(String(campaign?.status || '').toUpperCase())
 }
 
+export function campaignPlanIsArchived(campaign) {
+  const status = String(campaignPlan(campaign)?.status || '').toUpperCase()
+  return status === 'ARCHIVED' || campaignPlan(campaign)?.archived === true
+}
+
 export function campaignPlan(campaign) {
   return campaign?.plan || null
 }
@@ -52,6 +57,18 @@ export function campaignSelectedHandoff(campaign) {
 
 export function campaignExecutionReady(campaign) {
   return campaign?.execution?.status === 'READY' && Boolean(campaign.execution.roadmap)
+}
+
+export function campaignExecutionReceipt(campaign) {
+  const handoff = campaign?.execution?.handoff
+  if (!handoff) return null
+  const version = (campaignPlan(campaign)?.versions || []).find((item) => item.id === handoff.planVersionId)
+  return {
+    revision: version?.revision || handoff.revision || 'unavailable',
+    isCurrentRevision: handoff.isCurrentRevision !== false,
+    workspaceId: handoff.workspaceId || null,
+    projectId: handoff.projectId || null,
+  }
 }
 
 export function campaignChannelLabel(value) {

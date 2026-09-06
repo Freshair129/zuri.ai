@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react'
 import { Card, Field, SectionTitle, StatusPill } from '@/components/ui'
 import { InlineNotice, UnavailableState } from '../MarketingState'
 import { strategyTabHref } from '../marketing-contract'
-import { campaignHandoffs, campaignIsMutable, formatMarketingDate } from './campaign-contract'
+import { campaignHandoffs, campaignIsMutable, campaignPlanIsArchived, formatMarketingDate } from './campaign-contract'
 
 function planVersion(plan, planVersionId) {
   return (plan?.versions || []).find((version) => version.id === planVersionId) || null
@@ -41,6 +41,7 @@ export default function CampaignDecisionsTab({ campaign, busy, onBindHandoff, on
   const handoffs = campaignHandoffs(campaign)
   const plan = campaign?.plan
   const mutable = campaignIsMutable(campaign)
+  const planArchived = campaignPlanIsArchived(campaign)
 
   useEffect(() => {
     setSelectedHandoffId(campaign?.handoffId || '')
@@ -62,9 +63,10 @@ export default function CampaignDecisionsTab({ campaign, busy, onBindHandoff, on
       <Card>
         <SectionTitle caption="A Campaign uses an explicit persisted receipt; changing it never silently selects the latest handoff">PM receipt selection</SectionTitle>
         {handoffs.length === 0 ? <UnavailableState title="No persisted PM receipt" hint="Approve and commit a Strategy handoff before binding PM execution to this Campaign." /> : <>
-           <Field label="Execution receipt" hint="Receipt selection is versioned and Business-scoped."><select className="input" value={selectedHandoffId} onChange={(event) => setSelectedHandoffId(event.target.value)} disabled={busy || !mutable} aria-label="Execution receipt"><option value="">Choose a persisted receipt</option>{handoffs.map((handoff) => <option key={handoff.id} value={handoff.id}>{revisionLabel(plan, handoff.planVersionId, handoff.revision)} · {targetLabel(handoff)} · {formatMarketingDate(handoff.createdAt)}</option>)}</select></Field>
-          {!mutable && <InlineNotice>Receipt selection is read-only for this Campaign or Business grant.</InlineNotice>}
-          {mutable && <button type="button" className="btn btn-primary text-[11px]" disabled={busy || !selectedHandoffId || selectedHandoffId === campaign.handoffId} onClick={() => onBindHandoff(selectedHandoffId)}>Bind selected receipt</button>}
+           <Field label="Execution receipt" hint="Receipt selection is versioned and Business-scoped."><select className="input" value={selectedHandoffId} onChange={(event) => setSelectedHandoffId(event.target.value)} disabled={busy || !mutable || planArchived} aria-label="Execution receipt"><option value="">Choose a persisted receipt</option>{handoffs.map((handoff) => <option key={handoff.id} value={handoff.id}>{revisionLabel(plan, handoff.planVersionId, handoff.revision)} · {targetLabel(handoff)} · {formatMarketingDate(handoff.createdAt)}</option>)}</select></Field>
+          {planArchived && <InlineNotice>Receipt binding is disabled because the linked Strategy plan is archived. Close or cancel remains available while this initiative is open.</InlineNotice>}
+          {!mutable && !planArchived && <InlineNotice>Receipt selection is read-only for this Campaign or Business grant.</InlineNotice>}
+          {mutable && !planArchived && <button type="button" className="btn btn-primary text-[11px]" disabled={busy || !selectedHandoffId || selectedHandoffId === campaign.handoffId} onClick={() => onBindHandoff(selectedHandoffId)}>Bind selected receipt</button>}
           {campaign.execution?.status === 'READY' && <p className="mt-2 text-[10px] text-muted">Bound execution: {campaign.execution.handoff?.revision ? `revision ${campaign.execution.handoff.revision}` : 'saved receipt'} · PM roadmap is read from that exact receipt.</p>}
         </>}
       </Card>
