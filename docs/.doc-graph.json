@@ -59,9 +59,7 @@
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PHASE-STRATEGY-2026-09-06"
+      "doc:SRS"
     ],
     "added": [],
     "removed": []
@@ -12338,7 +12336,7 @@
       "version": "1.6.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "66697604",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12576,7 +12574,7 @@
       "path": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
       "title": "Marketing Strategy — implementation phase report",
       "hash": "a8ad6b1b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",

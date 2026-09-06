@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0b",
-  "status": "Strategy first slice implemented locally; full delivery in progress; PM target unresolved; not imported",
+  "version": "0.4.1b",
+  "status": "Strategy first slice implemented locally; requested Business SmartGift; instance and Workspace unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
   "progressMeaning": "Initial weighted design completion is 5%; implementation has started but no full Wave 1 completion is claimed. Actual PM percentage remains unverified.",
@@ -64,5 +64,12 @@
       "warnings": 0,
       "baselineInfo": 23
     }
+  },
+  "requestedTarget": {
+    "businessName": "SmartGift",
+    "source": "User specified SmartGift in this task",
+    "instanceUrl": null,
+    "workspaceId": null,
+    "verified": false
   }
 }
