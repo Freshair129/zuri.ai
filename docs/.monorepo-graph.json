@@ -805,7 +805,7 @@
       "id": "code:src/app/(pm)/line-oa/projects/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
-      "hash": "df912b63",
+      "hash": "4dee4be0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6048,7 +6048,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "8cd718eb",
+      "hash": "a681bee4",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -10086,7 +10086,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "b4fb78a9",
+      "hash": "18abb83c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10103,7 +10103,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
-      "hash": "9e66ca94",
+      "hash": "6997dcb0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10212,13 +10212,13 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "44b77579",
+      "hash": "8f40e9ac",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
           "FR-151",
-          "FR-003"
+          "FR-080"
         ],
         "@spec": [
           "SDD-060",
@@ -10248,7 +10248,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "48c79823",
+      "hash": "1ffa77ec",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10285,7 +10285,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
-      "hash": "97c8861c",
+      "hash": "9e4a8803",
       "status": "current",
       "annotations": {
         "@req": [
@@ -44820,7 +44820,7 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "to": "req:FR-003",
+      "to": "req:FR-080",
       "type": "implements",
       "status": "current",
       "source": "annotation"
