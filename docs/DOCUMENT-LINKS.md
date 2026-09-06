@@ -1087,6 +1087,7 @@ Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-acco
 Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
 
 ## ADR-061 — Server-owned LINE and optional Edge execution
@@ -1125,6 +1126,7 @@ Backlinks:
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
@@ -1347,6 +1349,7 @@ Source: [Domain — crm](domains/crm/CHARTER.md)
 Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md) (relates)
 
 ## FR-078 — Customer data backfill contract
 
@@ -1437,6 +1440,13 @@ Backlinks:
 - [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
 - [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
+
+## LineCRM-MCP UI Specification & Architecture Guide
+
+Source: [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md)
+
+- relates: [Domain — crm](domains/crm/CHARTER.md)
+- relates: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 
 ## Domain — identity
 
@@ -1954,6 +1964,8 @@ Source: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 Backlinks:
 
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
+- [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md) (relates)
 
 ## Context map — LINE OA Studio
 
@@ -2098,6 +2110,14 @@ Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+
+## UI Specification: LINE Studio Enterprise Suite
+
+Source: [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md)
+
+- relates: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
+- relates: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## FR-092 — Market translation core
 

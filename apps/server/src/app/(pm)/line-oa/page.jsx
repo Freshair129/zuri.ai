@@ -1,9 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { RefreshCw, MessageCircle } from 'lucide-react'
+import { RefreshCw, MessageCircle, Sparkles, Terminal, Sliders } from 'lucide-react'
 import { Card, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
+import { LineStudioShell } from '@/modules/line-oa-studio/ui'
 
 // @req FR-149 — configure server-owned LINE accounts and inspect persistent delivery jobs.
 // @spec ADR-061, SEC-001
@@ -68,19 +69,23 @@ function Account({ account, onAction, busy }) {
 }
 
 export default function LineOaPage() {
+  const [viewMode, setViewMode] = useState('studio') // 'studio' | 'transport_console'
   const scope = useScope()
-  const business = scope.shell.activeBusiness
+  const business = scope?.shell?.activeBusiness
   const [accounts, setAccounts] = useState([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [connectionId, setConnectionId] = useState('')
+
   const refresh = useCallback(async () => {
     if (!business?.id) { setAccounts([]); return }
     const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`)
     setAccounts(result.accounts)
   }, [business?.id])
+
   useEffect(() => { setAccounts([]); setConnectionId(''); setMessage(''); setError(''); refresh().catch(err => setError(err.message)) }, [refresh])
+
   async function run(task) { setBusy(true); setError(''); setMessage(''); try { await task(); await refresh() } catch (err) { setError(err.message) } finally { setBusy(false) } }
   async function action(account, data) { await run(() => api(`/api/line-oa/accounts/${account.id}`, 'PATCH', { ...data, version: account.version })) }
   async function provision(event) {
@@ -94,17 +99,56 @@ export default function LineOaPage() {
     event.preventDefault(); const form = new FormData(event.currentTarget)
     await run(async () => { await api('/api/line-oa/accounts', 'POST', { businessId: business.id, integrationConnectionId: connectionId, code: form.get('code'), displayName: form.get('displayName'), ...(form.get('basicId') ? { basicId: form.get('basicId') } : {}) }); setMessage('เชื่อมบัญชีแล้ว เตรียม credentials และเปิด Server transport เมื่อพร้อม') })
   }
-  return <div>
-    <PageHeader eyebrow="LINE OA Studio" title="บัญชี LINE และการตอบข้อความ" subtitle={business ? business.name : 'เลือก Business ก่อนจัดการบัญชี'} actions={<button className="btn" disabled={busy || !business} onClick={() => run(refresh)}><RefreshCw size={15} />รีเฟรช</button>} />
-    {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-    {message && <p role="status" className="mb-4 rounded-lg bg-[var(--brand-surface)] p-3 text-sm">{message}</p>}
-    {business && <>
-      <div className="mb-4 grid gap-4 xl:grid-cols-2">{accounts.map(account => <Account key={`${business.id}-${account.id}`} account={account} onAction={action} busy={busy} />)}</div>
-      {accounts.length === 0 && !error && <Card className="mb-4"><MessageCircle size={20} /><p className="mt-2 text-sm">ยังไม่มีบัญชี LINE OA สำหรับ Business นี้</p></Card>}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card><SectionTitle>1. เตรียม Connection — เฉพาะเจ้าของ Business</SectionTitle><p className="mb-3 text-xs text-muted">ผู้ดูแล deployment จัดเก็บ channel secret และ access token ใน secret mount แล้วระบุชื่ออ้างอิงที่นี่</p><form onSubmit={provision}><fieldset disabled={busy} className="grid gap-3"><Field label="ชื่อ Connection" name="name" required maxLength={200} /><Field label="Bot user ID / destination" name="destination" placeholder="U… (32 hex characters)" required pattern="U[0-9a-fA-F]{32}" /><Field label="ชื่ออ้างอิง Secret" name="secretRef" placeholder="deployment-secret:line-main" required pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" /><button className="btn" type="submit">สร้าง Connection</button></fieldset></form></Card>
-        <Card><SectionTitle>2. เชื่อมบัญชี LINE OA</SectionTitle><form onSubmit={connect}><fieldset disabled={busy} className="grid gap-3"><Field label="Connection ID" value={connectionId} onChange={e => setConnectionId(e.target.value)} required /><Field label="รหัสบัญชี" name="code" placeholder="oa-main" required minLength={3} pattern="[a-z0-9]+(-[a-z0-9]+)*" /><Field label="ชื่อแสดง" name="displayName" required /><Field label="LINE basic ID (ถ้ามี)" name="basicId" placeholder="@yourshop" /><button className="btn btn-primary" type="submit">เชื่อมบัญชี</button></fieldset></form></Card>
+
+  return (
+    <div className="space-y-4">
+      {/* Top View Mode Switcher */}
+      <div className="flex items-center justify-between px-2 py-1">
+        <div className="flex items-center p-1 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-xs font-thai">
+          <button
+            onClick={() => setViewMode('studio')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-semibold transition-all ${
+              viewMode === 'studio'
+                ? 'bg-brand-amber text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>LINE Studio Enterprise</span>
+          </button>
+          <button
+            onClick={() => setViewMode('transport_console')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-semibold transition-all ${
+              viewMode === 'transport_console'
+                ? 'bg-slate-850 text-white shadow-xs dark:bg-slate-700'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Server Transport & Job Console (FR-149)</span>
+          </button>
+        </div>
       </div>
-    </>}
-  </div>
+
+      {viewMode === 'studio' ? (
+        <div className="-mx-6 -my-4 h-[calc(100vh-100px)]">
+          <LineStudioShell />
+        </div>
+      ) : (
+        <div className="p-4 space-y-4">
+          <PageHeader eyebrow="LINE OA Studio" title="บัญชี LINE และการตอบข้อความ" subtitle={business ? business.name : 'เลือก Business ก่อนจัดการบัญชี'} actions={<button className="btn" disabled={busy || !business} onClick={() => run(refresh)}><RefreshCw size={15} />รีเฟรช</button>} />
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+          {message && <p role="status" className="mb-4 rounded-lg bg-[var(--brand-surface)] p-3 text-sm">{message}</p>}
+          {business && <>
+            <div className="mb-4 grid gap-4 xl:grid-cols-2">{accounts.map(account => <Account key={`${business.id}-${account.id}`} account={account} onAction={action} busy={busy} />)}</div>
+            {accounts.length === 0 && !error && <Card className="mb-4"><MessageCircle size={20} /><p className="mt-2 text-sm">ยังไม่มีบัญชี LINE OA สำหรับ Business นี้</p></Card>}
+            <div className="grid gap-4 xl:grid-cols-2">
+              <Card><SectionTitle>1. เตรียม Connection — เฉพาะเจ้าของ Business</SectionTitle><p className="mb-3 text-xs text-muted">ผู้ดูแล deployment จัดเก็บ channel secret และ access token ใน secret mount แล้วระบุชื่ออ้างอิงที่นี่</p><form onSubmit={provision}><fieldset disabled={busy} className="grid gap-3"><Field label="ชื่อ Connection" name="name" required maxLength={200} /><Field label="Bot user ID / destination" name="destination" placeholder="U… (32 hex characters)" required pattern="U[0-9a-fA-F]{32}" /><Field label="ชื่ออ้างอิง Secret" name="secretRef" placeholder="deployment-secret:line-main" required pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" /><button className="btn" type="submit">สร้าง Connection</button></fieldset></form></Card>
+              <Card><SectionTitle>2. เชื่อมบัญชี LINE OA</SectionTitle><form onSubmit={connect}><fieldset disabled={busy} className="grid gap-3"><Field label="Connection ID" value={connectionId} onChange={e => setConnectionId(e.target.value)} required /><Field label="รหัสบัญชี" name="code" placeholder="oa-main" required minLength={3} pattern="[a-z0-9]+(-[a-z0-9]+)*" /><Field label="ชื่อแสดง" name="displayName" required /><Field label="LINE basic ID (ถ้ามี)" name="basicId" placeholder="@yourshop" /><button className="btn btn-primary" type="submit">เชื่อมบัญชี</button></fieldset></form></Card>
+            </div>
+          </>}
+        </div>
+      )}
+    </div>
+  )
 }
