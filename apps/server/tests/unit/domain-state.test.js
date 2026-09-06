@@ -51,7 +51,7 @@ describe('domain state projection', () => {
     // TRACE and D-traceability, and .domain-state.json is not in that list.
     // `inventory` joined on 2026-09-06 (FR-154/FR-155, DOM-INVENTORY).
     expect(Object.keys(state.domains).sort()).toEqual([
-      'agent', 'asset-management', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'platform-control', 'project-manager',
+      'agent', 'asset-management', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'project-manager',
     ])
   })
 

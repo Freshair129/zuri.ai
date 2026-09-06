@@ -2,6 +2,8 @@
 // @spec ADR-061
 // @tested tests/integration/line-server-backup.test.js
 // @req FR-013 - snapshot export/import with preview and confirmation.
+// @req FR-157 — Content roots, immutable versions, reviews and decisions restore in FK order.
+// @tested tests/integration/marketing-content-backup.test.js
 // @req FR-123 - plugin auth material is installation security state, not
 // business data; restore revokes it instead of exporting or restoring it.
 // @req FR-078 - customer import batches, review cases, decisions and provenance
@@ -106,6 +108,10 @@ const SNAPSHOT_MODELS = [
   // restores after all three. Operational state only (stage, status, the
   // external richMenuId); it holds no token, so it is exported whole.
   'lineOaRichMenuJob',
+  // @req FR-159, FR-158, FR-160 — preserve Marketing evidence after its PM and scope parents.
+  // @tested tests/integration/marketing-backup.test.js
+  'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
+  'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
   // @req FR-154, FR-155 — the Inventory domain hangs off Tenant and Business
   // (top of this list). Catalogue parents first — category, family and factory
   // before the master that references them, the master before its products,

@@ -60,11 +60,15 @@ export const DOMAINS = [
     ],
   },
   {
-    key: 'growth', label: 'Marketing', icon: Megaphone, soon: true,
+    // @req FR-159, FR-160 — expose the functional Strategy and Campaign slices under the existing growth grant.
+    // @tested tests/unit/marketing-navigation.test.js
+    key: 'growth', label: 'Marketing', icon: Megaphone, soon: false,
     sub: [
-      { label: 'Dashboard', path: '/growth', icon: LayoutDashboard },
-      // Campaign belongs to marketing (HubSpot-style), NOT the Projects/WBS domain.
-      { label: 'Campaigns', path: '/growth/campaigns', icon: Target },
+      { label: 'Dashboard', path: '/growth', icon: LayoutDashboard, exact: true },
+      { label: 'Strategy', path: '/growth/strategy', icon: Target },
+      { label: 'Campaigns', path: '/growth/campaigns', icon: Megaphone },
+      // @req FR-157 — Content owns creative intent; Files/PM remain referenced owners.
+      { label: 'Content & Creative', path: '/growth/content', icon: FolderOpen },
     ],
   },
   {
