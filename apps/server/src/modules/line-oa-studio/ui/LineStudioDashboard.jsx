@@ -58,15 +58,45 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
     fetchData();
   }, [business?.id]);
 
+  const [activatingId, setActivatingId] = useState(null);
+  const [actionError, setActionError] = useState("");
+
+  const handleActivateServer = async (item, e) => {
+    e?.stopPropagation?.();
+    setActivatingId(item.id);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/line-oa/accounts/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ENABLE_SERVER",
+          legacyQuiesced: true,
+          version: item.version || 1
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.issues?.join(" · ") || "ไม่สามารถเปิด Server ได้");
+      await fetchData();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setActivatingId(null);
+    }
+  };
+
   // Combined Directory of Projects & LINE Accounts
   const combinedDirectory = [
     ...accounts.map(acc => ({
       id: acc.id,
+      raw: acc,
+      version: acc.version,
+      serverEnabled: acc.serverEnabled,
       name: acc.displayName || acc.code,
       thaiName: acc.displayName || acc.code,
-      slug: acc.code,
-      status: acc.status === "CONNECTED" ? "active" : "draft",
-      statusLabel: acc.status === "CONNECTED" ? "ออนไลน์" : "พร้อมเชื่อมต่อ",
+      slug: acc.basicId || acc.code,
+      status: (acc.serverEnabled || acc.status === "CONNECTED") ? "active" : "draft",
+      statusLabel: (acc.serverEnabled || acc.status === "CONNECTED") ? "ออนไลน์ (LIVE)" : "พร้อมเปิด Server (Draft)",
       category: "line-oa",
       icon: "💬",
       followers: acc.health?.followers || 0,
@@ -111,22 +141,22 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
               ศูนย์บัญชาการ LINE OA & Design Studio
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
-              จัดการระบบสนทนาอัตโนมัติ (Flow Designer), ออกแบบ Flex Messages, Rich Menus, LIFF Apps และเชื่อมต่อกับ Edge Device
+              จัดการระบบสนทนาอัตโนมัติ (Flow Designer), ออกแบบ Flex Messages, Rich Menus, LIFF Apps และเปิดใช้งาน Server Transport
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => onNavigate("edge-connection")}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2"
-            >
-              <span>💬 + เชื่อมต่อ LINE OA</span>
-            </button>
             <button
               onClick={() => onNavigate("projects")}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-xs font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center gap-2"
             >
               <span>จัดการโปรเจคทั้งหมด</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onNavigate("edge-connection")}
+              className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-all flex items-center gap-2"
+            >
+              <span>⚙️ ตั้งค่า Server & Edge</span>
             </button>
           </div>
         </div>
@@ -286,13 +316,25 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
                       <span className="text-[11px] font-mono text-slate-400">{item.slug}</span>
                     </div>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    item.status === "active"
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                  }`}>
-                    {item.statusLabel}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {item.category === "line-oa" && !item.serverEnabled && (
+                      <button
+                        onClick={(e) => handleActivateServer(item, e)}
+                        disabled={activatingId === item.id}
+                        className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-[10px] font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-1 transition-all"
+                        title="เปิดใช้งาน Server Transport ทันที"
+                      >
+                        <span>{activatingId === item.id ? "กำลังเปิด..." : "⚡ เปิด Server ทันที"}</span>
+                      </button>
+                    )}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      item.status === "active"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                    }`}>
+                      {item.statusLabel}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800/80">
