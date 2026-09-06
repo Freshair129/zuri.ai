@@ -142,11 +142,29 @@ things change instead:
    saying how is the rule that was already present and already missed:
 
    ```powershell
-   # Who is inside this directory right now?
-   Get-CimInstance Win32_Process |
-     Where-Object { $_.CommandLine -like '*<path fragment>*' } |
+   # Who is inside this directory right now? The probe must exclude its own
+   # ancestry: the path it searches for is in the command line of the shell
+   # running the search, so the naive form always finds itself.
+   $procs = Get-CimInstance Win32_Process
+   $mine  = @($PID); $cur = $procs | Where-Object ProcessId -eq $PID
+   while ($cur -and $cur.ParentProcessId -and $mine -notcontains $cur.ParentProcessId) {
+     $mine += $cur.ParentProcessId
+     $cur   = $procs | Where-Object ProcessId -eq $cur.ParentProcessId
+   }
+   $procs | Where-Object { $_.CommandLine -like '*<path fragment>*' -and $mine -notcontains $_.ProcessId } |
      Select-Object ProcessId, CreationDate, CommandLine
    ```
+
+   **This correction is itself part of the record.** The first version of this
+   RCA shipped the naive one-liner, and the first thing it was used on — the
+   author's own worktree, empty and already merged — came back with four
+   occupants, all of them the probe's own shell chain. A check that always says
+   "occupied" is a check that gets ignored, which is the same way the rule this
+   RCA generalises had already been neutralised: present, correct, and never
+   applied. Read a zero as "no evidence anyone is inside", not as "nobody is
+   inside" — a session that entered the directory earlier and is now running a
+   bare command no longer carries the path in its command line. Where the
+   resource belongs to another lane, ask a person.
 
    ```powershell
    # Is this file live? A mounted disk image refuses an exclusive open and

@@ -76,9 +76,26 @@ depends on "is anyone using this right now?". Ask the process table, and prefer
 asking a person over inferring:
 
 ```powershell
-Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*<path>*' } |
+# The probe must exclude its own ancestry, or it always finds itself: the path
+# you are searching for is in the command line of the shell running the search.
+# The naive one-liner reported four occupants of an empty worktree on the day
+# this rule shipped — and a check that always says "occupied" is a check that
+# gets ignored.
+$procs = Get-CimInstance Win32_Process
+$mine  = @($PID); $cur = $procs | Where-Object ProcessId -eq $PID
+while ($cur -and $cur.ParentProcessId -and $mine -notcontains $cur.ParentProcessId) {
+  $mine += $cur.ParentProcessId
+  $cur   = $procs | Where-Object ProcessId -eq $cur.ParentProcessId
+}
+$procs | Where-Object { $_.CommandLine -like '*<path>*' -and $mine -notcontains $_.ProcessId } |
   Select-Object ProcessId, CreationDate, CommandLine
 ```
+
+Read the result as a floor, not a total: it sees a process only while the path
+is still in its command line, so a session that `cd`-ed in earlier and is now
+running a bare `npm test` does not appear. Zero hits means "no evidence anyone
+is inside", which is weaker than "nobody is inside" — when the resource belongs
+to another lane, ask.
 
 A live disk image **refuses an exclusive open and accepts a shared read** —
 exclusive-open success is not proof of disuse. And `git worktree remove` can
