@@ -17,6 +17,7 @@ import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
+import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1421,6 +1422,68 @@ const AUDIT_ENTITY_SHAPE = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/
   } else {
     add('info', 'audit-entity-type', `audit entityType checked in ${sourceFiles.filter((f) => /\brecordAudit\b/.test(read(f))).length} file(s) that write audit events`,
       'every value is SCREAMING_SNAKE_CASE', [], 'No action — recorded so this check\'s reach is visible rather than assumed')
+  }
+}
+
+// ---- Check 18: every production column has a migration (ratchet) ---------
+// `RawExternalRecord.artifactId` sat in the schema for seven days with an
+// index, a repository read, a unit suite and a real-database integration test,
+// and no migration in either tree. The dev database is SQLite under `prisma db
+// push`, so the column existed locally and every test passed; production
+// Supabase is migrated only from supabase/migrations/*.sql, and no file there
+// created it, so `GET /api/backup/export` — which selects every column of every
+// snapshot model — failed on production from 2026-08-29 until someone read the
+// error on 2026-09-05 (.brain/rca/2026-09-06-a-schema-column-with-no-migration.md).
+//
+// The anchor is deliberate and the wrong one is tempting. This does NOT compare
+// prisma/schema.prisma to anything: that is the SQLite dev schema, its workflow
+// is `db push`, and a field appearing there with no migration is the normal
+// case — a check on it fires on every ordinary change and is muted within a
+// week. It compares prisma/schema.postgres.prisma (generated; what production is
+// supposed to match) against what supabase/migrations/*.sql actually create.
+// Static, comment-stripped, no database, so it runs in CI. Presence only —
+// types, defaults and indexes are out of scope on purpose (see the module).
+//
+// The baseline is the drift that already existed on the day the check landed
+// (three whole models and eight Workstream columns) and may only shrink.
+const SCHEMA_MIGRATION_BASELINE = path.join(SPEC_PACK, '.schema-migration-baseline.json')
+{
+  const postgresSchema = path.join(ROOT, 'prisma', 'schema.postgres.prisma')
+  const migrationsDir = path.join(ROOT, 'supabase', 'migrations')
+  if (!existsSync(postgresSchema) || !existsSync(migrationsDir)) {
+    add('critical', 'schema-migration-drift', 'could not compare the production schema to its migrations',
+      `${rel(postgresSchema)} or ${rel(migrationsDir)} is missing`, [rel(postgresSchema), rel(migrationsDir)],
+      'Regenerate the Postgres schema with `npm run db:pg:schema`; the migrations directory is the production lineage and must exist')
+  } else {
+    const migrations = readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort()
+      .map((name) => ({ name, sql: read(path.join(migrationsDir, name)) }))
+    const baseline = existsSync(SCHEMA_MIGRATION_BASELINE) ? JSON.parse(read(SCHEMA_MIGRATION_BASELINE)).columns || [] : []
+    const drift = evaluateSchemaMigrationDrift({ schemaText: read(postgresSchema), migrations, baseline })
+    if (drift.introduced.length) {
+      add('critical', 'schema-migration-drift',
+        `${drift.introduced.length} column(s) declared in the production schema are created by no migration`,
+        drift.introduced.map((m) => m.key).join(', '), [rel(postgresSchema), rel(migrationsDir)],
+        'Write an idempotent migration under supabase/migrations/ that creates the column (ALTER TABLE ... ADD COLUMN IF NOT EXISTS, ' +
+        'or CREATE TABLE IF NOT EXISTS for a new model) — never widen .schema-migration-baseline.json to silence this. ' +
+        'Production is migrated only from that directory; a column that exists only in the schema fails every query that selects it')
+    }
+    if (drift.repaid.length) {
+      add('info', 'schema-migration-drift', `${drift.repaid.length} baseline column(s) now have a migration`,
+        drift.repaid.join(', '), [rel(SCHEMA_MIGRATION_BASELINE)],
+        'Remove them from .schema-migration-baseline.json so the ratchet keeps its ground')
+    }
+    if (drift.accepted.length) {
+      add('info', 'schema-migration-drift', `${drift.accepted.length} declared column(s) have no migration (accepted debt)`,
+        `baseline: ${rel(SCHEMA_MIGRATION_BASELINE)}; tables: ${[...new Set(drift.accepted.map((k) => k.split('.')[0]))].join(', ')}`,
+        [rel(SCHEMA_MIGRATION_BASELINE)],
+        'Write their migrations as their lanes are revisited; the baseline may only shrink')
+    }
+    if (!drift.introduced.length) {
+      add('info', 'schema-migration-drift',
+        `schema-migration drift checked: ${drift.checked.columns} column(s) across ${drift.checked.models} model(s) against ${drift.checked.migrations} migration(s)`,
+        'every declared column outside the baseline is created by a migration', [],
+        'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
   }
 }
 

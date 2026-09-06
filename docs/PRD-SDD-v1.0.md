@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.151.0b |
+| **Version** | 1.152.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-05 |
+| **Last Updated** | 2026-09-06 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
@@ -184,6 +184,7 @@
 | 1.149.0b | 2026-09-05 | Claude Fable 5.1 | Declared **FR-146** — the LINE OA Studio account aggregate `LineOaAccount` — as the first Phase 1 slice of **ADR-060** (D14), bundled as **FEAT-018** (LINE OA Studio — Accounts). Declaration only: the statement fixes identity, cardinality, `transportMode` EDGE / CLOUD, the status machine, authority and the no-credential / no-activation boundary; no model, route, migration or code ships in this revision, and the `line-oa-studio` charter's `owns_models` stays empty until the model lands in the same change that claims it |
 | 1.150.0b | 2026-09-05 | Claude Fable 5.1 | Status cell only, statement unchanged: **FR-146** moves from declared to implemented locally — `LineOaAccount` model (both schemas, additive migrations; production SQL not applied), the only writer, two routes, the `LINE_OA_PUBLISHER` role, the reserved `line-oa` domain slot and the integration lane's `readLineOaConnectionHealth` contract, with one integration suite and three unit suites. The agent binding reader is not wired, so LIVE is unreachable and health reports the binding as UNKNOWN; pages, jobs and quota follow in later slices |
 | 1.151.0b | 2026-09-05 | Claude Fable 5.1 | Declared and implemented **FR-147** — the LINE binding status read contract in the agent lane, bundled into **FEAT-018** — and wired it as FR-146's default `bindingStatus` port, so an account's `effectiveStatus` can now reach LIVE. The contract is deliberately narrow: the `zuri_line_smartgift_ro` policy shows only ACTIVE, in-window rows, so it reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN and never claims PENDING or INACTIVE it cannot see. FR-146's status cell records the change; no route, model or migration is added |
+| 1.152.0b | 2026-09-06 | Claude Fable 5.1 | Statements unchanged. Under **FR-109** / **FR-081**: the `RawExternalRecord.artifactId` column AC-109.3 added on 2026-08-29 had no migration in either tree — the dev database is SQLite under `prisma db push`, so it existed locally and every test passed, while production Supabase, migrated only from `supabase/migrations/`, lacked it and `GET /api/backup/export` failed there for seven days. Added the idempotent Supabase migration `20260906090000_raw_external_record_artifact_id.sql` (**not applied**; owner-instructed operator step, ADR-057) and its SQLite twin, and a new preflight guard `schema-migration-drift` (Check 18) that compares the generated `prisma/schema.postgres.prisma` against every `CREATE TABLE` / `ALTER TABLE … ADD COLUMN` in `supabase/migrations/*.sql` — comment-stripped, static, CI-safe — with a shrink-only baseline of the 33 pre-existing gaps (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream` columns) and a unit test that removes the repairing migration to prove the check fires. RCA: `.brain/rca/2026-09-06-a-schema-column-with-no-migration.md` |
 
 ## Referenced Standards
 
