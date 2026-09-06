@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — Operations URLs preserve one scoped tab row and point to the
+// @req FR-162 — Operations URLs preserve one scoped tab row and point to the
 // aggregate/detail routes without inventing a second navigation layer.
 // @spec SDD-089
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

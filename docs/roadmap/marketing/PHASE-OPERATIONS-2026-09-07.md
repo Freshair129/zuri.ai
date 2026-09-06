@@ -3,7 +3,7 @@ phase: marketing-operations
 status: locally-verified
 date: 2026-09-07
 owner: RWANG
-scope: "MKT-W1-OPERATIONS; FR-161; MKT-UI-044, MKT-UI-045, MKT-UI-046, MKT-UI-047, MKT-UI-069, MKT-UI-070, MKT-UI-082"
+scope: "MKT-W1-OPERATIONS; FR-162; MKT-UI-044, MKT-UI-045, MKT-UI-046, MKT-UI-047, MKT-UI-069, MKT-UI-070, MKT-UI-082"
 version: "0.1.0b"
 created_at: "2026-09-07T09:40:00+07:00,RWANG"
 last_update: "2026-09-07T09:40:00+07:00,RWANG"

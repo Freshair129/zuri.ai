@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — Handoff detail renders only the validated receipt projection
+// @req FR-162 — Handoff detail renders only the validated receipt projection
 // returned for the active Business.
 // @spec SDD-089, FR-158, SEC-001
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

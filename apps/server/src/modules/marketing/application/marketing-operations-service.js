@@ -13,7 +13,7 @@ import {
   zMarketingOperationsCreateInput,
 } from '../domain/marketing-operations-contract'
 
-// @req FR-161 — compose one Business-scoped Operations aggregate and keep
+// @req FR-162 — compose one Business-scoped Operations aggregate and keep
 // intake mutations in the Marketing owner service. Calendar and handoff data
 // are bounded projections from owner ports; no second work system is written.
 // @spec SDD-089, FR-158, FR-159, FR-157, SEC-001, SEC-003

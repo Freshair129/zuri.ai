@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { OPERATIONS_TABS, operationsCollectionPath, intakePagePath, handoffPagePath } from '@/modules/marketing/components/operations/operations-contract'
 
-// @req FR-161 — Operations interface inventory is backed by one collection,
+// @req FR-162 — Operations interface inventory is backed by one collection,
 // one Intake form/detail and one handoff detail route.
 // @spec SDD-089
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

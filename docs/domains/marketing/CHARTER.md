@@ -49,7 +49,7 @@ server contract and functional UI exist. The first slice activates Dashboard and
 Strategy, described in [the strategy contract](features/FR-159-strategy-plans.md).
 Campaign implementation follows [the initiative contract](features/FR-160-campaign-initiatives.md),
 adding one scoped association while preserving Strategy evidence and PM execution ownership.
-Operations follows [the coordination contract](features/FR-161-operations-coordination.md):
+Operations follows [the coordination contract](features/FR-162-operations-coordination.md):
 Marketing owns intake requests and composes approval, PM schedule and validated handoff
 receipts without creating a second work or stock system.
 

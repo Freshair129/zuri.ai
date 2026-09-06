@@ -1,16 +1,16 @@
 ---
-feature: FR-161
+feature: FR-162
 module: marketing
 source: v2-native
 domain: marketing
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-07T09:40:00+07:00,RWANG"
 last_update: "2026-09-07T09:40:00+07:00,RWANG"
 status: beta
 superseded_by: null
 ---
 
-# FR-161 — Marketing Operations coordination
+# FR-162 — Marketing Operations coordination
 
 ## Purpose
 

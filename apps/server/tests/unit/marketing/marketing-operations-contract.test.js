@@ -5,7 +5,7 @@ import {
   zMarketingOperationsCreateInput,
 } from '@/modules/marketing/domain/marketing-operations-contract'
 
-// @req FR-161 — strict Operations intake contract rejects forged scope and
+// @req FR-162 — strict Operations intake contract rejects forged scope and
 // unknown mutation fields before the owner service runs.
 // @spec SDD-089, SEC-001
 // @tested tests/unit/marketing/marketing-operations-contract.test.js

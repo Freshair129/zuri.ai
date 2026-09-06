@@ -272,6 +272,7 @@
     "FR-159",
     "FR-160",
     "FR-161",
+    "FR-162",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3065,6 +3066,27 @@
       ]
     },
     "FR-161": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "burnt",
+      "statement_digest": "095881026bd7cb4179d8e71e4de4eb13d40b62a0674b325ac8ca88016599fe84",
+      "history": [
+        {
+          "anchor": "marketing operations coordination",
+          "since": "2026-09-06",
+          "reason": "declared"
+        },
+        {
+          "anchor": "marketing operations coordination",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-162. Published main allocated FR-161 to CRM Sales Tasks; move Marketing Operations to FR-162 to preserve the pinned subject."
+        }
+      ],
+      "retired_to": "FR-162",
+      "retired_at": "2026-09-06",
+      "reason": "Published main allocated FR-161 to CRM Sales Tasks; move Marketing Operations to FR-162 to preserve the pinned subject."
+    },
+    "FR-162": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",

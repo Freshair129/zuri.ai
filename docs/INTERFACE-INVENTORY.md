@@ -259,12 +259,12 @@ their owning Files/PM identities. Human review does not activate Team agents or 
 
 | Route | Interface | Native behavior | Authority and states | Trace |
 |---|---|---|---|---|
-| `/growth/operations` | MKT-UI-044–047 | Intake, Calendar, Approvals and Handoffs in one URL tab bar over one aggregate DTO | Growth visibility; source state is explicit; PM/owner projections stay read-only | FR-161 |
-| `/growth/operations/new` | MKT-UI-082 | Business-scoped Intake request form with capability, objective, required date, evidence and owner reference | Business owner; strict validation, audit and CAS on later edits | FR-161 |
-| `/growth/operations/intake/[intakeId]` | MKT-UI-069 | Intake detail, edit and archive with exact Business identity guard | Owner writes with expectedVersion; stale and archived states remain visible | FR-161 |
-| `/growth/operations/handoffs/[handoffId]` | MKT-UI-070 | Validated owner receipt and PM roadmap detail | Read-only; unavailable/partial owner evidence is distinct | FR-161 |
+| `/growth/operations` | MKT-UI-044–047 | Intake, Calendar, Approvals and Handoffs in one URL tab bar over one aggregate DTO | Growth visibility; source state is explicit; PM/owner projections stay read-only | FR-162 |
+| `/growth/operations/new` | MKT-UI-082 | Business-scoped Intake request form with capability, objective, required date, evidence and owner reference | Business owner; strict validation, audit and CAS on later edits | FR-162 |
+| `/growth/operations/intake/[intakeId]` | MKT-UI-069 | Intake detail, edit and archive with exact Business identity guard | Owner writes with expectedVersion; stale and archived states remain visible | FR-162 |
+| `/growth/operations/handoffs/[handoffId]` | MKT-UI-070 | Validated owner receipt and PM roadmap detail | Read-only; unavailable/partial owner evidence is distinct | FR-162 |
 
-[Operations contract](domains/marketing/features/FR-161-operations-coordination.md). Calendar reads the PM roadmap owner port; Marketing does not create duplicate work, conversations, stock or provider actions.
+[Operations contract](domains/marketing/features/FR-162-operations-coordination.md). Calendar reads the PM roadmap owner port; Marketing does not create duplicate work, conversations, stock or provider actions.
 
 ## 4. Runtime registry reconciliation
 

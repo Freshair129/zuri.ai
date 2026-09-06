@@ -2719,7 +2719,7 @@ model MarketingContentDecision {
   @@index([briefId, createdAt])
 }
 
-// @req FR-161 — Business-scoped Marketing Operations intake request; Marketing
+// @req FR-162 — Business-scoped Marketing Operations intake request; Marketing
 // is the only writer and PM/CRM/Commerce/provider records remain projections.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/integration/marketing-operations.test.js

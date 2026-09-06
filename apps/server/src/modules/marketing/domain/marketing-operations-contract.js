@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// @req FR-161 — the Operations surface accepts a bounded intake payload and
+// @req FR-162 — the Operations surface accepts a bounded intake payload and
 // versioned mutations; source projections never accept arbitrary client data.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-contract.test.js

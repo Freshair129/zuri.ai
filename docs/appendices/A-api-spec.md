@@ -677,7 +677,7 @@ approved source remain unavailable. Campaign addition: two paths, four operation
 | GET | `/api/growth/content/assets/[id]` | Immutable ContentVersion identity, source/rights/review and current usability; never a FileAsset primary-key alias. |
 | GET | `/api/growth/content/references` | Sanitized bounded owner-authorized Files, Projects and selected Project WorkItems. |
 
-## Marketing Operations coordination (FR-161)
+## Marketing Operations coordination (FR-162)
 
 | Method | Path | Contract |
 |---|---|---|
@@ -685,7 +685,7 @@ approved source remain unavailable. Campaign addition: two paths, four operation
 | GET / PATCH | `/api/growth/operations/intake/[intakeId]` | Exact Business-scoped Intake detail; PATCH updates or archives through expected-version CAS and one AuditEvent. |
 | GET | `/api/growth/operations/handoffs/[handoffId]` | Read-only validated owner receipt and PM roadmap projection; invalid or unavailable source remains explicit. |
 
-[Operations contract](../domains/marketing/features/FR-161-operations-coordination.md). The aggregate is bounded and source-aware; it does not create PM tasks, CRM conversations, Commerce stock or provider actions.
+[Operations contract](../domains/marketing/features/FR-162-operations-coordination.md). The aggregate is bounded and source-aware; it does not create PM tasks, CRM conversations, Commerce stock or provider actions.
 
 [Contract](../domains/marketing/features/FR-157-content-creative.md). Hidden scope 404,
 stale/archived/changed evidence 409, validation 400. No binary locator, provider

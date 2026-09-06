@@ -6,7 +6,7 @@ import {
   listMarketingOperations,
 } from '@/modules/marketing/application/marketing-operations-service'
 
-// @req FR-161 — one Business-scoped Operations aggregate and the Intake create
+// @req FR-162 — one Business-scoped Operations aggregate and the Intake create
 // path; Calendar, Approvals and Handoffs remain owner projections.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-route.test.js,

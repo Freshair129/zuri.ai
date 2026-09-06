@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — new Intake captures only Marketing-owned request fields and
+// @req FR-162 — new Intake captures only Marketing-owned request fields and
 // leaves PM/CRM/Commerce/provider writes to their owner contracts.
 // @spec SDD-089, SEC-001
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

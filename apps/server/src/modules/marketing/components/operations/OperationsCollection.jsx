@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — one Operations collection renders Intake, Calendar, Approvals
+// @req FR-162 — one Operations collection renders Intake, Calendar, Approvals
 // and Handoffs from a single aggregate response with explicit source states.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

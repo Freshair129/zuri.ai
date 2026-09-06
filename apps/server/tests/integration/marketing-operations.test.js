@@ -12,7 +12,7 @@ import {
   updateMarketingOperationsIntake,
 } from '@/modules/marketing/application/marketing-operations-service'
 
-// @req FR-161 — real Operations persistence proves Business/Tenant scope,
+// @req FR-162 — real Operations persistence proves Business/Tenant scope,
 // audited CAS intake writes, bounded aggregate state and validated owner
 // projections without duplicate PM records.
 // @spec SDD-089, FR-158, SEC-001, SEC-003
@@ -46,7 +46,7 @@ function memberViewer(businessId) {
   })
 }
 
-describe('Marketing Operations coordination (FR-161)', () => {
+describe('Marketing Operations coordination (FR-162)', () => {
   let business
   let tenant
   let workspace

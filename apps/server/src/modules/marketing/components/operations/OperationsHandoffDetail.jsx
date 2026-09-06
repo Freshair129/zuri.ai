@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — Handoff detail renders an authorized receipt and PM roadmap
+// @req FR-162 — Handoff detail renders an authorized receipt and PM roadmap
 // projection, with unavailable source evidence visible as a distinct state.
 // @spec SDD-089, FR-158, SEC-001
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

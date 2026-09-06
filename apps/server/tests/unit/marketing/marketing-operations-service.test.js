@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { sectionFor, operationsPagePath } from '@/modules/marketing/components/operations/operations-contract'
 
-// @req FR-161 — UI helpers preserve explicit unavailable source state and
+// @req FR-162 — UI helpers preserve explicit unavailable source state and
 // addressable tab URLs.
 // @spec SDD-089
 // @tested tests/unit/marketing/marketing-operations-service.test.js

@@ -3,7 +3,7 @@ import { handle, queryParams } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { getMarketingOperationsHandoff } from '@/modules/marketing/application/marketing-operations-service'
 
-// @req FR-161 — Handoff detail exposes only a validated owner receipt and
+// @req FR-162 — Handoff detail exposes only a validated owner receipt and
 // PM-owned roadmap projection; Marketing cannot acknowledge or rewrite it.
 // @spec SDD-089, FR-158, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-route.test.js,

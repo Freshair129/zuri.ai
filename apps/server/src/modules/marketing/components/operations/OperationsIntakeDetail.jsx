@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — Intake detail guards response identity, preserves optimistic
+// @req FR-162 — Intake detail guards response identity, preserves optimistic
 // version writes and archives through the Marketing owner service.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

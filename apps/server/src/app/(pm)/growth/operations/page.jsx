@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-161 — Operations collection is rooted in the active Business shell
+// @req FR-162 — Operations collection is rooted in the active Business shell
 // and preserves the selected tab in the URL.
 // @spec SDD-089, SEC-001
 // @tested tests/unit/marketing/marketing-operations-ui.test.js

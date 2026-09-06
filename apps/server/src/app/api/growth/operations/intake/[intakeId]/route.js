@@ -7,7 +7,7 @@ import {
 } from '@/modules/marketing/application/marketing-operations-service'
 import { zMarketingOperationsActionInput } from '@/modules/marketing/domain/marketing-operations-contract'
 
-// @req FR-161 — Intake detail revalidates both the requested UUID and the
+// @req FR-162 — Intake detail revalidates both the requested UUID and the
 // active Business scope before returning or mutating the row.
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-operations-route.test.js,

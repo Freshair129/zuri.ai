@@ -230,7 +230,7 @@ its Conversation.
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
 
-## Marketing Operations (FR-161, SDD-089)
+## Marketing Operations (FR-162, SDD-089)
 
 `MarketingOperationsIntake { tenantId, businessId, title, capability, objective,
 requiredAt?, evidenceReference?, responsibleOwnerId?, status, version, createdBy,

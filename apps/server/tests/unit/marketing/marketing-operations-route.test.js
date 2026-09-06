@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../../factories/viewer'
 
-// @req FR-161 — Operations handlers resolve the trusted viewer and delegate
+// @req FR-162 — Operations handlers resolve the trusted viewer and delegate
 // all scope, source and mutation checks to the application service.
 // @spec SDD-089, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-operations-route.test.js

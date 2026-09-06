@@ -232,7 +232,7 @@ weights, dependencies, approved scope or the unresolved SmartGift server intake.
 
 ## Operations continuation — 2026-09-07
 
-The next approved slice is [Marketing Operations](../domains/marketing/features/FR-161-operations-coordination.md),
+The next approved slice is [Marketing Operations](../domains/marketing/features/FR-162-operations-coordination.md),
 tracked in [phase evidence](marketing/PHASE-OPERATIONS-2026-09-07.md). The slice adds one Business-scoped
 composition boundary for Intake, Calendar, Approvals and Handoffs. MKT-W1-OPERATIONS is locally DONE after
 CAS-protected Intake writes, audited state changes, PM-owned roadmap projection and validated handoff receipts.

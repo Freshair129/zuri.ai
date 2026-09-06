@@ -52,7 +52,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 | FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
-| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157, FR-161 | building |
+| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157, FR-162 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -78,7 +78,7 @@ Version diff 1.24.0b → 1.25.0b (2026-09-06): FEAT-020 is declared and building
 
 Version diff 1.25.0b → 1.26.0b (2026-09-06): FEAT-020 gains FR-156, the recipe / bill of materials at a batch size — the legacy product's "Culinary" recipes-per-class-size relabelled as the general BOM they are (one recipe per output SKU and batch size, fixed lines that do not scale, explosion and shortages against the ledger, an atomic build that issues components FEFO and receives the output). FR-155 gains FEFO consumption. The domain's display label is Warehouse. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion, production application of the migration.
 
-Version diff 1.26.0b → 1.27.0b (2026-09-07): FEAT-021 gains FR-161 Marketing Operations coordination — Business-scoped intake with audited CAS writes and one aggregate over Marketing approvals, protected PM schedule and validated handoff receipts. No duplicate PM, CRM, Commerce or provider write path is introduced.
+Version diff 1.26.0b → 1.27.0b (2026-09-07): FEAT-021 gains FR-162 Marketing Operations coordination — Business-scoped intake with audited CAS writes and one aggregate over Marketing approvals, protected PM schedule and validated handoff receipts. No duplicate PM, CRM, Commerce or provider write path is introduced.
 
 ## Readiness Dashboard presentation metadata
 
