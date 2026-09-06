@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1914,
-    "total_edges": 7445,
+    "total_nodes": 1915,
+    "total_edges": 7447,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 214,
       "model": 87,
       "requirement": 309,
-      "test": 474,
+      "test": 475,
       "code_file": 521
     },
     "coverage": {
@@ -55,7 +55,10 @@
   },
   "drift": {
     "changed": [
-      "doc:GOVERNANCE-LINK-METADATA"
+      "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "doc:docker-ngrok",
+      "doc:PLAN-ZURI-MONOREPO-MIGRATION"
     ],
     "added": [],
     "removed": []
@@ -10974,8 +10977,8 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "570c3551",
-      "status": "current"
+      "hash": "1dbc41bf",
+      "status": "changed"
     },
     {
       "id": "doc:docs/change-requests/README",
@@ -12016,7 +12019,7 @@
       "path": "docs/GOVERNANCE-LINK-METADATA.md",
       "title": "Document link metadata",
       "hash": "5994df64",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -12431,8 +12434,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Candidate monorepo migration gates",
-      "hash": "c025af6c",
-      "status": "current"
+      "hash": "8440ee7d",
+      "status": "changed"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -18822,8 +18825,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
-      "hash": "6ecbdc31",
-      "status": "current"
+      "hash": "40b2bce8",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
@@ -18854,8 +18857,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
-      "hash": "cadb6152",
-      "status": "current"
+      "hash": "04a6029e",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -20381,6 +20384,13 @@
       "type": "test",
       "path": "tests/unit/doc-views.test.js",
       "hash": "d9f3a2a9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/docker-publication-containment.test.js",
+      "type": "test",
+      "path": "tests/unit/docker-publication-containment.test.js",
+      "hash": "855a57bf",
       "status": "current"
     },
     {
@@ -38369,6 +38379,13 @@
       "status": "current"
     },
     {
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
@@ -47751,6 +47768,13 @@
     {
       "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
       "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "references",
       "source": "markdown",
       "status": "current"
