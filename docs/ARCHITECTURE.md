@@ -7,9 +7,9 @@ relations:
     target: ZAI:ADR-062
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
-last_update: "2026-09-06T13:29:04+07:00,RWANG"
+last_update: "2026-09-06T15:40:00+07:00,CLAUDE"
 ---
 
 # Architecture
@@ -26,32 +26,32 @@ last_update: "2026-09-06T13:29:04+07:00,RWANG"
 
 ```text
 ┌───────────────────────────────────────────────┐
-│                Zuri - ai                    │
+│                    zuri-ai                    │
 │                                               │
 │  App Shell                                    │
-│  ├─ Zuri Heritage Navigation                 │
-│  ├─ Scope Selector                           │
-│  └─ Module Registry                          │
+│  ├─ Zuri Heritage Navigation                  │
+│  ├─ Scope Selector                            │
+│  └─ Module Registry                           │
 │                                               │
-│  Project Manager Module                      │
-│  ├─ Universal Views                          │
-│  ├─ 7 Execution Views                        │
-│  ├─ Plan Import                              │
-│  ├─ Progress Engine                          │
-│  └─ Audit                                    │
+│  Project Manager Module                       │
+│  ├─ Universal Views                           │
+│  ├─ 7 Execution Views                         │
+│  ├─ Plan Import                               │
+│  ├─ Progress Engine                           │
+│  └─ Audit                                     │
 │                                               │
-│  Application Services                        │
-│  ├─ ProjectService                           │
-│  ├─ WorkstreamService                        │
-│  ├─ DependencyService                        │
-│  ├─ ProgressService                          │
-│  └─ PlanImportService                        │
+│  Application Services                         │
+│  ├─ ProjectService                            │
+│  ├─ WorkstreamService                         │
+│  ├─ DependencyService                         │
+│  ├─ ProgressService                           │
+│  └─ PlanImportService                         │
 │                                               │
-│  Repository Ports                            │
+│  Repository Ports                             │
 │        ↓                                      │
-│  Prisma Local Adapter                        │
+│  Prisma Local Adapter                         │
 │        ↓                                      │
-│  SQLite                                      │
+│  SQLite                                       │
 └───────────────────────────────────────────────┘
 ```
 

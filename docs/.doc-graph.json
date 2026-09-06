@@ -54,7 +54,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:ARCHITECTURE"
+    ],
     "added": [],
     "removed": []
   },
@@ -10876,8 +10878,8 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "10bf9a6e",
-      "status": "current"
+      "hash": "6b951152",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
