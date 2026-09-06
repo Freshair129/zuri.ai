@@ -19,6 +19,12 @@ The PM handoff adapter passes an operation marker for both preview and commit,
 so a visible growth member could not preview an approved plan even though the
 preview performs no persistence. Commit must remain owner-only.
 
+This is the Marketing evidence helper, not permission to preview a PM import.
+PM's real `authorizeImportTarget` requires Business ownership for its dry-run
+too. Root's adapter regression now uses both real services: a member may read
+the approved Marketing DTO, but receives an invalid PM preview and cannot commit.
+The PM authority was preserved; no viewer is promoted or fabricated.
+
 ## Evidence
 
 - `getApprovedMarketingPlanForHandoff` called `assertMarketingWriteAccess`

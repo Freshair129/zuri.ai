@@ -3,9 +3,9 @@ feature: FR-153
 module: marketing
 domain: marketing
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
-last_update: "2026-09-06T18:35:00+07:00,RWANG"
+last_update: "2026-09-06T19:15:00+07:00,RWANG"
 status: beta
 superseded_by: null
 ---
@@ -68,7 +68,7 @@ clears the old scope's data and pending drafts before the new response can rende
 
 | Endpoint | Input / result |
 |---|---|
-| GET `/api/growth/plans?businessId=...` | `{plans, canWrite}` |
+| GET `/api/growth/plans?businessId=...` | `{plans, canWrite, truncated}`; at most 100 recent summaries |
 | POST `/api/growth/plans` | `{businessId,title,payload}` creates first revision |
 | GET `/api/growth/plans/[id]?businessId=...` | Plan, currentVersion, versions, reviews, decisions, handoffs and canWrite |
 | PATCH `/api/growth/plans/[id]` | `{businessId,expectedVersion,action,...}`; revise, review, decide or archive |
@@ -90,7 +90,11 @@ The canonical binding is
 DOM-MARKETING with TD-PROJECT-MANAGER as execution owner. The version timestamp
 and revision/Workspace-scoped idempotency key make retries deterministic.
 
-Preview is read-only and returns the actual PM diff plus a server payload hash.
+Preview is read-only, but it must pass PM's existing import-target authorization.
+That policy currently requires ownership of the target Business even for a dry-run.
+Marketing visibility permits plan/history reads; it cannot grant PM import authority.
+Preview returns the actual PM diff plus a server payload hash. Commit also requires
+Business ownership. A refused preview displays the owner's boundary explicitly.
 Commit must name that hash, recheck live scope, approval, expiry and expectedVersion,
 then call PM commitPlan with the same transaction client. PM writes, Marketing
 receipt association, concurrency change and audit commit together or all roll back.
@@ -118,3 +122,4 @@ server import.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | beta | Derive the first persistent slice and acceptance gates from approved scope | See git history | RWANG |
+| 0.1.1b | 2026-09-06 | beta | Clarify bounded list output and read-only preview versus commit authority | See git history | RWANG |

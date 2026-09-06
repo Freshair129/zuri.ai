@@ -23,8 +23,11 @@ handoff row and loaded revision.
 
 - Historical replay ran before the live approval reader and only called
   `assertDomainVisible`.
-- A receipt could therefore be selected by `planId`, `workspaceId` and
-  `expectedVersion` for a viewer with no `visibleBusinessIds` entry.
+- Receipt lookup could therefore run by `planId`, `workspaceId` and
+  `expectedVersion` for a viewer with no `visibleBusinessIds` entry. PM's real
+  target authorization still refused that viewer; the missing Marketing check
+  made its own boundary depend on the downstream adapter. The regression uses
+  an injected PM adapter to prove refusal before that adapter is consulted.
 - The branch verified the envelope hash but did not require row and receipt
   `planVersionId`, `payloadHash`, and `envelopeHash` to agree.
 - It also did not recompute the immutable revision hash from `payloadJson`.

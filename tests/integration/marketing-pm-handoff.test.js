@@ -190,13 +190,18 @@ describe('Marketing PM handoff', () => {
     expect(envelope.generatedAt).toBe(fx.version.createdAt.toISOString())
   })
 
-  it('allows visible-only users to preview but requires Business ownership to commit', async () => {
+  it('preserves PM import authority for preview and commit through the real services', async () => {
     const fx = await fixture()
-    const service = serviceFor(fx)
+    const service = createMarketingPmHandoffService({ db: prisma, now: () => new Date('2026-09-06T12:00:00.000Z') })
+    const owner = viewerFor(fx.business.id)
+    const ownerPreview = await service.preview(await inputFor(fx), { viewer: owner })
+    expect(ownerPreview.valid).toBe(true)
     const visible = viewerFor(fx.business.id, { owner: false })
     const preview = await service.preview(await inputFor(fx, 'preview', visible), { viewer: visible })
-    expect(preview.valid).toBe(true)
-    await expect(service.commit(await inputFor(fx, 'commit', visible, preview.previewHash), { viewer: visible })).rejects.toMatchObject({ status: 404 })
+    expect(preview.valid).toBe(false)
+    expect(preview.errors).toEqual(expect.arrayContaining([expect.stringContaining('Target workspace not found')]))
+    await expect(service.commit(await inputFor(fx, 'commit', visible, ownerPreview.previewHash), { viewer: visible })).rejects.toMatchObject({ status: 404 })
+    expect(await prisma.marketingHandoff.count({ where: { planId: fx.plan.id } })).toBe(0)
   })
 
   it('rejects a stale expectedVersion before PM preview or mutation', async () => {
@@ -207,6 +212,21 @@ describe('Marketing PM handoff', () => {
       service.preview({ ...(await inputFor(fx)), expectedVersion: fx.plan.version - 1 }, { viewer: viewerFor(fx.business.id) }),
     ).rejects.toMatchObject({ code: 'MARKETING_PLAN_VERSION_STALE' })
     expect(dryRun.calls).toBe(0)
+  })
+
+  it('refuses persisted replay outside Business visibility before asking PM', async () => {
+    const fx = await fixture()
+    const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
+    const project = await prisma.project.create({ data: { code: projectCode, businessId: fx.business.id, workspaceId: fx.workspace.id, name: fx.plan.title, type: 'MARKETING_PLAN' } })
+    const dryRun = fx.makeDryRun()
+    const service = serviceFor(fx, { dryRun, commit: async () => ({ committed: true, projectId: project.id, projectCode }) })
+    const owner = viewerFor(fx.business.id)
+    const preview = await service.preview(await inputFor(fx), { viewer: owner })
+    await service.commit(await inputFor(fx, 'commit', owner, preview.previewHash), { viewer: owner })
+    const callsBefore = dryRun.calls
+    const hidden = makeViewer({ role: 'MEMBER', principal: { id: 'hidden-marketing-viewer' }, visibleBusinessIds: [], ownedBusinessIds: [], visibleDomains: ['growth'] })
+    await expect(service.preview(await inputFor(fx), { viewer: hidden })).rejects.toMatchObject({ status: 404 })
+    expect(dryRun.calls).toBe(callsBefore)
   })
 
   it('rejects caller-supplied tenant or actor scope fields', async () => {
@@ -230,6 +250,7 @@ describe('Marketing PM handoff', () => {
 
   it('rolls back Marketing receipt and audit when PM commit fails', async () => {
     const fx = await fixture()
+    const auditCountBefore = await prisma.auditEvent.count({ where: { action: 'MARKETING_PM_HANDOFF_COMMITTED' } })
     const dryRun = fx.makeDryRun()
     const service = serviceFor(fx, {
       dryRun,
@@ -241,7 +262,7 @@ describe('Marketing PM handoff', () => {
     const preview = await service.preview(await inputFor(fx), { viewer })
     await expect(service.commit(await inputFor(fx, 'commit', viewer, preview.previewHash), { viewer })).rejects.toThrow('simulated PM failure')
     expect(await prisma.marketingHandoff.count({ where: { planId: fx.plan.id } })).toBe(0)
-    expect(await prisma.auditEvent.count({ where: { action: 'MARKETING_PM_HANDOFF_COMMITTED' } })).toBe(0)
+    expect(await prisma.auditEvent.count({ where: { action: 'MARKETING_PM_HANDOFF_COMMITTED' } })).toBe(auditCountBefore)
   })
 
   it('rolls back the real PM import, CAS and receipt when Marketing audit fails', async () => {

@@ -55,7 +55,7 @@ export async function resolveMarketingScope({ db, viewer, businessId, write = fa
     throw marketingNotFound()
   }
 
-  // `growth` is a reserved domain key in the current shell registry. The
+  // `growth` is the stable Marketing domain key in the shell registry. The
   // server gate is intentionally evaluated for every request; a URL is never
   // a grant and a previously opened Business cannot carry authority forward.
   assertDomainVisible(viewer, requestedBusinessId, 'growth')

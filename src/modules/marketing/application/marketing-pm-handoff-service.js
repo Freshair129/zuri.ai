@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { commitPlan, dryRunPlan } from '@/modules/project-manager/import/plan-import-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
@@ -412,6 +412,9 @@ function withoutContext(result) {
 }
 
 async function prepare(input, { viewer, db, readApprovedPlan, dryRun, now, operation }) {
+  if (!seesBusiness(viewer, input.businessId)) {
+    throw serviceError(404, 'Marketing plan not found', 'MARKETING_PLAN_NOT_FOUND')
+  }
   assertDomainVisible(viewer, input.businessId, 'growth')
   const historical = await findHistoricalHandoff(db, input)
   if (historical) {
