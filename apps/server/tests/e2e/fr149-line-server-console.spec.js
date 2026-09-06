@@ -21,7 +21,11 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
-  await page.goto('/line-oa')
+  // FR-149's console is a tab of LINE Studio Enterprise now
+  // (LineStudioEdgeConnection). `/line-oa` reads `?tab=` straight into the
+  // shell's initial tab, so the URL selects it — and survives the reload below,
+  // which a click on a tab control would not.
+  await page.goto('/line-oa?tab=edge-connection')
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
@@ -33,9 +37,9 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
   await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
   await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
-  await expect(page.getByRole('heading', { name: tag, exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
-  const panel = page.getByRole('heading', { name: tag, exact: true }).locator('xpath=../../..')
+  const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
   await expect(panel.getByRole('button', { name: 'เปิด Server transport', exact: true })).toBeDisabled()
   await panel.getByLabel('ประมวลผลคำตอบ', { exact: true }).selectOption('EDGE')
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
@@ -43,8 +47,8 @@ test('LINE account onboarding persists and activation requires an explicit hando
   expect((await saved).ok()).toBe(true)
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
   await page.reload()
-  await expect(page.getByRole('heading', { name: tag, exact: true })).toBeVisible()
-  const restored = page.getByRole('heading', { name: tag, exact: true }).locator('xpath=../../..')
+  await expect(page.getByRole('heading', { name: tag })).toBeVisible()
+  const restored = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
   await expect(restored.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveValue('EDGE')
   await restored.getByRole('button', { name: 'ดูสถานะข้อความ', exact: true }).click()
   await expect(restored.getByText('ยังไม่มีข้อความในคิว', { exact: true })).toBeVisible()
