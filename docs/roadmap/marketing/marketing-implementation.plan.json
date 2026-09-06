@@ -201,7 +201,7 @@
               "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
               "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": []
@@ -227,7 +227,7 @@
               "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
               "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": []
@@ -253,7 +253,7 @@
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
               "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": [
@@ -290,7 +290,7 @@
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
               "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": [
@@ -432,7 +432,7 @@
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": []
@@ -478,7 +478,7 @@
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": []
@@ -503,7 +503,7 @@
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
               "docs/domains/marketing/CHARTER.md",
-              "docs/domains/marketing/features/FR-153-strategy-plans.md"
+              "docs/domains/marketing/features/FR-155-strategy-plans.md"
             ],
             "implementationStatus": "Strategy first slice implemented with local verification; full task acceptance remains open",
             "interfaceIds": []

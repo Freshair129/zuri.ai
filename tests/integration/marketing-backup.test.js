@@ -1,4 +1,4 @@
-// @req FR-153, FR-154 — restore preserves immutable planning evidence and PM receipt references.
+// @req FR-155, FR-154 — restore preserves immutable planning evidence and PM receipt references.
 // @spec SDD-086, BR-008
 import { describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'

@@ -102,7 +102,7 @@ describe('OpenAPI document', () => {
       // /api/assets/register/{id}/verify (POST),
       // /api/assets/register/{id}/depreciation (GET), and
       // /api/assets/register/{id}/maintenance (GET, POST).
-      // FR-153/154 add three Strategy paths and five operations.
+      // FR-155/154 add three Strategy paths and five operations.
       pathCount: 156,
       operationCount: 202,
     })

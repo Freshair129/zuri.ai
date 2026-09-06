@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-153 — Strategy is a Business-scoped native UI for Situation,
+// @req FR-155 — Strategy is a Business-scoped native UI for Situation,
 // Objectives, Plans, and honest version comparisons.
 // @req FR-154 — a reviewed revision can be previewed and committed through the
 // same-Business Project Manager handoff contract.

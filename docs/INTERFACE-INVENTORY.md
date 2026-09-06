@@ -210,8 +210,8 @@ and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-153; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
-| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-153, FR-154; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-155; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-155, FR-154; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 is a design inventory. These two native routes implement its Strategy slice;

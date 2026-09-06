@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-153 — owners can create and revise a validated Marketing plan.
+// @req FR-155 — owners can create and revise a validated Marketing plan.
 // @spec SDD-086 — plan fields describe intent; KPI_ATTAINMENT needs PM metric
 // targets and observations and is never inferred from successMetric prose.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js

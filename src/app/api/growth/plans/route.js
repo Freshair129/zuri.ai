@@ -7,7 +7,7 @@ import {
 } from '@/modules/marketing/application/marketing-plan-service'
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 
-// @req FR-153 — expose the Business-scoped Strategy plan collection through
+// @req FR-155 — expose the Business-scoped Strategy plan collection through
 // one authenticated route and the Marketing application service.
 // @spec SDD-086, BR-001, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-plan-route.test.js,

@@ -21,7 +21,7 @@ import {
 } from '@/modules/marketing/domain/marketing-plan-contract'
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 
-// @req FR-153 — persist the Marketing Strategy lifecycle through one scoped
+// @req FR-155 — persist the Marketing Strategy lifecycle through one scoped
 // service, with immutable revisions, independent review, exact decisions,
 // expiry/revocation and audit in the same transaction.
 // @spec SDD-086, BR-001, SEC-001, SEC-003

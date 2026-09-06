@@ -265,6 +265,7 @@
     "FR-152",
     "FR-153",
     "FR-154",
+    "FR-155",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2906,15 +2907,23 @@
     "FR-153": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "burnt",
       "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
       "history": [
         {
           "anchor": "marketing strategy revision and decision",
           "since": "2026-09-06",
           "reason": "declared"
+        },
+        {
+          "anchor": "marketing strategy revision and decision",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-155. Main published FR-153 for LINE LIFF in 81070de0; this unpublished Marketing branch moves its Strategy requirement to FR-155."
         }
-      ]
+      ],
+      "retired_to": "FR-155",
+      "retired_at": "2026-09-06",
+      "reason": "Main published FR-153 for LINE LIFF in 81070de0; this unpublished Marketing branch moves its Strategy requirement to FR-155."
     },
     "FR-154": {
       "family": "FR",
@@ -2924,6 +2933,19 @@
       "history": [
         {
           "anchor": "marketing execution handoff",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-155": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
+      "history": [
+        {
+          "anchor": "marketing strategy revision and decision",
           "since": "2026-09-06",
           "reason": "declared"
         }

@@ -7,13 +7,13 @@ superseded_by: null
 attributes:
   domain: marketing
   doc_type: phase-report
-  scope: "FR-153 / FR-154 first Strategy slice"
+  scope: "FR-155 / FR-154 first Strategy slice"
 ---
 
 # Marketing Strategy — implementation phase report
 
 The approved [Marketing design](../../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
-now has its first native Strategy implementation. This report covers FR-153 and
+now has its first native Strategy implementation. This report covers FR-155 and
 FR-154 only. It does not close the whole Wave 1 or all 100 planned interfaces.
 Complexity C-3; change risk HIGH: new storage and cross-domain authority.
 

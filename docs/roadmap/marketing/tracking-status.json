@@ -28,7 +28,7 @@
     }
   },
   "localImplementation": {
-    "slice": "FR-153 / FR-154 Strategy revision, decision and PM handoff",
+    "slice": "FR-155 / FR-154 Strategy revision, decision and PM handoff",
     "status": "first Strategy slice locally verified; broader tasks remain in progress",
     "baselineCommit": "5044ba25",
     "foundationCommit": "89147247",

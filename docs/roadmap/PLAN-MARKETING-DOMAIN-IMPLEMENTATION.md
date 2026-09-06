@@ -72,7 +72,7 @@ A missing external dependency remains visible and prevents a false complete resu
 
 ## Current implementation — 2026-09-06
 
-The user authorized execution after the parallel review. Three GPT-5.6 Luna max lanes implement the Strategy data/API, PM handoff and native UI, with root integration owning schema, permissions and governance. [Native charter](../domains/marketing/CHARTER.md) and [first-slice contract](../domains/marketing/features/FR-153-strategy-plans.md) declare FR-153, FR-154, SDD-086 and FEAT-020. Seven relevant items in the import envelope are IN_PROGRESS; the tables below retain their labelled initial state. Full Wave 1 and the 100-interface implementation are not complete. The server intake flags remain false until a target instance/session/Workspace is verified.
+The user authorized execution after the parallel review. Three GPT-5.6 Luna max lanes implement the Strategy data/API, PM handoff and native UI, with root integration owning schema, permissions and governance. [Native charter](../domains/marketing/CHARTER.md) and [first-slice contract](../domains/marketing/features/FR-155-strategy-plans.md) declare FR-155, FR-154, SDD-086 and FEAT-020. Seven relevant items in the import envelope are IN_PROGRESS; the tables below retain their labelled initial state. Full Wave 1 and the 100-interface implementation are not complete. The server intake flags remain false until a target instance/session/Workspace is verified.
 
 The [Strategy phase report](marketing/PHASE-STRATEGY-2026-09-06.md) records delivered behavior, verification, architecture review and remaining gates. Task metadata links to this partial delivery evidence without changing full-task completion or inventing server progress.
 

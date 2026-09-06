@@ -2439,7 +2439,7 @@ model LineConversationJob {
   @@index([tenantId, businessId, status])
 }
 
-// @req FR-153 — Business-scoped strategy identity and immutable evidence.
+// @req FR-155 — Business-scoped strategy identity and immutable evidence.
 // @spec SDD-086, SEC-001, SEC-003
 // @tested tests/integration/marketing-plan.test.js
 model MarketingPlan {
@@ -2467,7 +2467,7 @@ model MarketingPlan {
   @@index([tenantId, businessId, status])
 }
 
-// @req FR-153 — canonical content and its hash are append-only.
+// @req FR-155 — canonical content and its hash are append-only.
 model MarketingPlanVersion {
   id          String   @id @default(uuid())
   planId      String
@@ -2485,7 +2485,7 @@ model MarketingPlanVersion {
   @@unique([planId, revision])
 }
 
-// @req FR-153 — independent reviewer evidence binds the exact artifact.
+// @req FR-155 — independent reviewer evidence binds the exact artifact.
 model MarketingReview {
   id            String   @id @default(uuid())
   planId        String
@@ -2503,7 +2503,7 @@ model MarketingReview {
   @@index([planId, createdAt])
 }
 
-// @req FR-153 — decisions and revocations append, never overwrite approval history.
+// @req FR-155 — decisions and revocations append, never overwrite approval history.
 model MarketingDecision {
   id            String    @id @default(uuid())
   planId        String

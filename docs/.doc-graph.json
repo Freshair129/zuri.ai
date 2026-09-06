@@ -55,14 +55,61 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:SRS",
+      "domain:marketing",
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:PHASE-STRATEGY-2026-09-06",
+      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "doc:ROADMAP",
+      "doc:SITEMAP-DOMAIN-NAV",
+      "test:tests/e2e/marketing-strategy.spec.js",
+      "test:tests/integration/marketing-backup.test.js",
+      "test:tests/integration/marketing-plan.test.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/command-palette-index.test.js",
+      "test:tests/unit/marketing/marketing-authority.test.js",
+      "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "test:tests/unit/marketing-migration-policy.test.js",
+      "test:tests/unit/marketing-navigation.test.js",
+      "test:tests/unit/marketing-strategy-ui.test.js",
+      "code:src/app/(pm)/growth/page.jsx",
+      "code:src/app/(pm)/growth/strategy/page.jsx",
+      "code:src/app/api/growth/plans/route.js",
+      "code:src/app/api/growth/plans/[id]/route.js",
+      "code:src/components/layouts/Sidebar.jsx",
+      "code:src/config/domains.js",
+      "code:src/modules/marketing/application/marketing-authority.js",
+      "code:src/modules/marketing/application/marketing-plan-service.js",
+      "code:src/modules/marketing/components/marketing-contract.js",
+      "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "code:src/modules/marketing/components/MarketingState.jsx",
+      "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "code:src/modules/marketing/components/PlanForm.jsx",
+      "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
-    "removed": []
+    "added": [
+      "doc:FR-155-strategy-plans",
+      "req:FR-155"
+    ],
+    "removed": [
+      "doc:FR-153-strategy-plans",
+      "req:FR-153"
+    ]
   },
   "nodes": [
     {
@@ -479,11 +526,11 @@
       "id": "code:src/app/(pm)/growth/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/growth/page.jsx",
-      "hash": "116442f4",
-      "status": "current",
+      "hash": "0144c7dd",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -498,11 +545,11 @@
       "id": "code:src/app/(pm)/growth/strategy/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/growth/strategy/page.jsx",
-      "hash": "0f15e536",
-      "status": "current",
+      "hash": "44a21750",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153",
+          "FR-155",
           "FR-154"
         ],
         "@spec": [
@@ -2745,11 +2792,11 @@
       "id": "code:src/app/api/growth/plans/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/growth/plans/[id]/route.js",
-      "hash": "9b6384f6",
-      "status": "current",
+      "hash": "1597e0bb",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -2766,11 +2813,11 @@
       "id": "code:src/app/api/growth/plans/route.js",
       "type": "code_file",
       "path": "src/app/api/growth/plans/route.js",
-      "hash": "0beb64cc",
-      "status": "current",
+      "hash": "446bf5ad",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -4893,12 +4940,12 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "268c9120",
-      "status": "current",
+      "hash": "d2dd2f90",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-039",
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-018"
@@ -4961,8 +5008,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "478608f3",
-      "status": "current",
+      "hash": "3859e132",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -4970,7 +5017,7 @@
           "FR-039",
           "FR-060",
           "FR-091",
-          "FR-153",
+          "FR-155",
           "FR-086",
           "FR-133",
           "FR-146",
@@ -8761,11 +8808,11 @@
       "id": "code:src/modules/marketing/application/marketing-authority.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-authority.js",
-      "hash": "7b08ec3a",
-      "status": "current",
+      "hash": "2f3c8379",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -8782,11 +8829,11 @@
       "id": "code:src/modules/marketing/application/marketing-plan-service.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-plan-service.js",
-      "hash": "18fee3af",
-      "status": "current",
+      "hash": "b6c00d0d",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -8824,11 +8871,11 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/components/marketing-contract.js",
-      "hash": "7eaf76a9",
-      "status": "current",
+      "hash": "2e9cd098",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153",
+          "FR-155",
           "FR-154"
         ],
         "@spec": [
@@ -8843,11 +8890,11 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "8b4812b4",
-      "status": "current",
+      "hash": "b1836ec6",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8862,11 +8909,11 @@
       "id": "code:src/modules/marketing/components/MarketingState.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/MarketingState.jsx",
-      "hash": "e6e2dad2",
-      "status": "current",
+      "hash": "20d5556e",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8880,11 +8927,11 @@
       "id": "code:src/modules/marketing/components/MarketingTabs.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/MarketingTabs.jsx",
-      "hash": "81ded584",
-      "status": "current",
+      "hash": "d395a473",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8898,11 +8945,11 @@
       "id": "code:src/modules/marketing/components/PlanForm.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanForm.jsx",
-      "hash": "45c5b6f0",
-      "status": "current",
+      "hash": "ccdadbbf",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8936,11 +8983,11 @@
       "id": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanReviewDecision.jsx",
-      "hash": "f47346c6",
-      "status": "current",
+      "hash": "60ddd2c7",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8955,11 +9002,11 @@
       "id": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanVersionHistory.jsx",
-      "hash": "3d94e2fa",
-      "status": "current",
+      "hash": "69c6a556",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086"
@@ -8973,11 +9020,11 @@
       "id": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/StrategyWorkspace.jsx",
-      "hash": "7587e071",
-      "status": "current",
+      "hash": "703bfc28",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153",
+          "FR-155",
           "FR-154"
         ],
         "@spec": [
@@ -8993,11 +9040,11 @@
       "id": "code:src/modules/marketing/domain/marketing-plan-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/domain/marketing-plan-contract.js",
-      "hash": "c365bd0d",
-      "status": "current",
+      "hash": "c4e13b3c",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -9013,11 +9060,11 @@
       "id": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
       "type": "code_file",
       "path": "src/modules/marketing/infrastructure/marketing-plan-repository.js",
-      "hash": "332aa97b",
-      "status": "current",
+      "hash": "cbe7312d",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-153"
+          "FR-155"
         ],
         "@spec": [
           "SDD-086",
@@ -9107,12 +9154,12 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "25079497",
-      "status": "current",
+      "hash": "985bc54b",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
-          "FR-153",
+          "FR-155",
           "FR-154",
           "FR-149",
           "FR-150",
@@ -9177,8 +9224,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "0e0056fc",
-      "status": "current",
+      "hash": "a09de6fa",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -9197,7 +9244,7 @@
           "FR-089",
           "FR-151",
           "FR-152",
-          "FR-153",
+          "FR-155",
           "FR-154",
           "FR-100",
           "FR-102",
@@ -11140,8 +11187,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "011805fc",
-      "status": "current"
+      "hash": "2c96395f",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11194,8 +11241,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.20.0b",
       "doc_status": "Draft",
-      "hash": "5faadac0",
-      "status": "current"
+      "hash": "4096eb51",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -11440,8 +11487,8 @@
       "title": "Features (FEAT registry)",
       "version": "1.24.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "fe25d700",
-      "status": "current"
+      "hash": "d2b49edc",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12275,11 +12322,11 @@
       "status": "current"
     },
     {
-      "id": "doc:FR-153-strategy-plans",
+      "id": "doc:FR-155-strategy-plans",
       "type": "document",
-      "path": "docs/domains/marketing/features/FR-153-strategy-plans.md",
+      "path": "docs/domains/marketing/features/FR-155-strategy-plans.md",
       "title": "Marketing Strategy: draft to accountable execution",
-      "hash": "3860ef36",
+      "hash": "d58fa311",
       "status": "current"
     },
     {
@@ -12335,8 +12382,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.6.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "66697604",
-      "status": "current"
+      "hash": "d8b952c5",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12573,8 +12620,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
       "title": "Marketing Strategy — implementation phase report",
-      "hash": "a8ad6b1b",
-      "status": "current"
+      "hash": "7e1f3571",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
@@ -12721,8 +12768,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "9db21466",
-      "status": "current"
+      "hash": "a694e810",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -12805,8 +12852,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.157.0b",
       "doc_status": "Draft",
-      "hash": "908f3659",
-      "status": "current"
+      "hash": "5ae3a8da",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -12849,8 +12896,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "04264be0",
-      "status": "current"
+      "hash": "8d17f514",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12885,8 +12932,8 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.8.0b",
       "doc_status": "Accepted",
-      "hash": "820b5c77",
-      "status": "current"
+      "hash": "79361163",
+      "status": "changed"
     },
     {
       "id": "doc:SRS",
@@ -13334,8 +13381,8 @@
       "modules": [
         "marketing"
       ],
-      "hash": "df37c74c",
-      "status": "current"
+      "hash": "2b22fec7",
+      "status": "changed"
     },
     {
       "id": "domain:platform-control",
@@ -15785,16 +15832,6 @@
       "row_text": "LINE OA rich menu publish jobs, server-owned — `LineOaRichMenuJob`, the durable ledger through which a frozen `LineOaRichMenuVersion` (FR-151) reaches LINE under ADR-061's server-owned transport: a publisher queues one job per menu (`PUBLISH` the newest FROZEN version; `SET_DEFAULT` or `SET_ALIAS` a PUBLISHED one that carries an external `richMenuId`) on an account that is CONNECTED, CLOUD and `serverEnabled`, with the menu's `version` as the compare-and-swap and at most one open job per menu; the server worker (`POST /api/line-oa/rich-menu-worker`, same bearer and bounded-tick contract as FR-149's worker, ticked by the same supervised script) claims the oldest due job with compare-and-set and a bounded lease, fences on the account's status, transport mode, server flag and `transportEpoch` before any external call, resolves the account credential per attempt through the Integration lane's secret mount, and walks the job's stages through the Integration-owned rich menu port (create → upload image → done; or apply). Acceptance is the provider's HTTP acceptance, never a delivery claim: on it the version becomes PUBLISHED with its `richMenuId` and the previously PUBLISHED version RETIRED, or the account's single default moves, or the alias is set. Idempotency decides ambiguity — an unconfirmed create (timeout, unreadable id) ends `UNKNOWN`, visible to a publisher who acknowledges it and never retried because a second create would duplicate the menu; an unconfirmed or 5xx upload, default or alias returns to QUEUED with exponential backoff and reuses the persisted id; a 4xx is FAILED with the id kept for cleanup; an expired lease is UNKNOWN. `LIFF` actions have no URL until the LIFF registry exists and are refused at queue time. No token is stored on the job, returned by any route, or written to an audit row. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migrations; production SQL **not applied**), the Integration rich menu port, the only writer and worker `line-oa-rich-menu-jobs.js`, `GET/POST/PATCH /api/line-oa/rich-menus/[id]/jobs`, the worker route and script tick, snapshot coverage; one integration suite (AC-152.1–.7), three unit suites. Not exercised against LINE; activation needs FR-149's credential mount and worker deployment "
     },
     {
-      "id": "req:FR-153",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state. 🟠 implementation in progress from approved CR-018 "
-    },
-    {
       "id": "req:FR-154",
       "type": "requirement",
       "family": "FR",
@@ -15803,6 +15840,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Marketing execution handoff — an exact approved Strategy revision generates a deterministic PlanEnvelope for a same-Business Workspace, previews the PM diff, then commits through the existing authorized PM importer with the reviewed hash, concurrency guard, audit and Marketing receipt in one transaction. Replays reconcile one receipt per revision/Workspace; revocation, expiry, stale content and scope mismatches prevent new execution. Action delivery progress never claims marketing KPI attainment. 🟠 implementation in progress from approved CR-018 "
+    },
+    {
+      "id": "req:FR-155",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state. 🟠 implementation in progress from approved CR-018 "
     },
     {
       "id": "req:NFR-001",
@@ -16882,7 +16929,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Marketing planning evidence is immutable and execution is owner-delegated: a Business-scoped repository stores canonical version hashes, independent reviews and append-only expiring decisions; expected-version transactions bind audit to every mutation. Handoff revalidates scope and exact approval, passes the same transaction client to PM PlanEnvelope intake and stores only its accepted execution references. Providers, binary files, goals and agent control remain with their existing owners. FR-153; FR-154; SEC-001; SEC-003; BR-007; ADR-025 "
+      "row_text": "Marketing planning evidence is immutable and execution is owner-delegated: a Business-scoped repository stores canonical version hashes, independent reviews and append-only expiring decisions; expected-version transactions bind audit to every mutation. Handoff revalidates scope and exact approval, passes the same transaction client to PM PlanEnvelope intake and stores only its accepted execution references. Providers, binary files, goals and agent control remain with their existing owners. FR-155; FR-154; SEC-001; SEC-003; BR-007; ADR-025 "
     },
     {
       "id": "req:SEC-001",
@@ -19508,8 +19555,8 @@
       "id": "test:tests/e2e/marketing-strategy.spec.js",
       "type": "test",
       "path": "tests/e2e/marketing-strategy.spec.js",
-      "hash": "eea5df9a",
-      "status": "current"
+      "hash": "e1a261b3",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -20124,15 +20171,15 @@
       "id": "test:tests/integration/marketing-backup.test.js",
       "type": "test",
       "path": "tests/integration/marketing-backup.test.js",
-      "hash": "a69947bd",
-      "status": "current"
+      "hash": "40475606",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/marketing-plan.test.js",
       "type": "test",
       "path": "tests/integration/marketing-plan.test.js",
-      "hash": "a781411a",
-      "status": "current"
+      "hash": "f75361eb",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/marketing-pm-handoff.test.js",
@@ -20152,8 +20199,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "6ac2f437",
-      "status": "current"
+      "hash": "f5d8ceda",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -20684,8 +20731,8 @@
       "id": "test:tests/unit/command-palette-index.test.js",
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
-      "hash": "573c21b9",
-      "status": "current"
+      "hash": "09bc724f",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/connection-health.test.js",
@@ -21839,43 +21886,43 @@
       "id": "test:tests/unit/marketing-migration-policy.test.js",
       "type": "test",
       "path": "tests/unit/marketing-migration-policy.test.js",
-      "hash": "8fb91cf8",
-      "status": "current"
+      "hash": "8e0aa5bf",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing-navigation.test.js",
       "type": "test",
       "path": "tests/unit/marketing-navigation.test.js",
-      "hash": "3c2709ed",
-      "status": "current"
+      "hash": "519784fb",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "tests/unit/marketing-strategy-ui.test.js",
-      "hash": "d17b36c8",
-      "status": "current"
+      "hash": "dc465d62",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
       "type": "test",
       "path": "tests/unit/marketing/marketing-authority.test.js",
-      "hash": "d66a4bc2",
-      "status": "current"
+      "hash": "4b9d8da4",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-plan-contract.test.js",
       "type": "test",
       "path": "tests/unit/marketing/marketing-plan-contract.test.js",
-      "hash": "fe9e50ae",
-      "status": "current"
+      "hash": "8a0334e2",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-plan-route.test.js",
       "type": "test",
       "path": "tests/unit/marketing/marketing-plan-route.test.js",
-      "hash": "7d0c8e3c",
-      "status": "current"
+      "hash": "10f7df21",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/migration-version-uniqueness.test.js",
@@ -23393,7 +23440,7 @@
     },
     {
       "from": "code:src/app/(pm)/growth/page.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -23407,14 +23454,14 @@
     },
     {
       "from": "code:src/app/(pm)/growth/strategy/page.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/growth/strategy/page.jsx",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -26816,7 +26863,7 @@
     },
     {
       "from": "code:src/app/api/growth/plans/[id]/route.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -26851,7 +26898,7 @@
     },
     {
       "from": "code:src/app/api/growth/plans/route.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -29994,7 +30041,7 @@
     },
     {
       "from": "code:src/components/layouts/Sidebar.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -30176,7 +30223,7 @@
     },
     {
       "from": "code:src/config/domains.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35433,7 +35480,7 @@
     },
     {
       "from": "code:src/modules/marketing/application/marketing-authority.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35468,7 +35515,7 @@
     },
     {
       "from": "code:src/modules/marketing/application/marketing-plan-service.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35531,14 +35578,14 @@
     },
     {
       "from": "code:src/modules/marketing/components/marketing-contract.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/marketing/components/marketing-contract.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35552,7 +35599,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35566,7 +35613,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingState.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35580,7 +35627,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingTabs.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35594,7 +35641,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/PlanForm.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35622,7 +35669,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35636,7 +35683,7 @@
     },
     {
       "from": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35650,14 +35697,14 @@
     },
     {
       "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35678,7 +35725,7 @@
     },
     {
       "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35706,7 +35753,7 @@
     },
     {
       "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35895,14 +35942,14 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36126,14 +36173,14 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -39255,7 +39302,7 @@
     },
     {
       "from": "doc:A-api-spec",
-      "to": "doc:FR-153-strategy-plans",
+      "to": "doc:FR-155-strategy-plans",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -39339,7 +39386,7 @@
     },
     {
       "from": "doc:B-db-schema",
-      "to": "doc:FR-153-strategy-plans",
+      "to": "doc:FR-155-strategy-plans",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40661,14 +40708,14 @@
       "status": "current"
     },
     {
-      "from": "doc:FR-153-strategy-plans",
+      "from": "doc:FR-155-strategy-plans",
       "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
       "type": "references",
       "source": "markdown",
       "status": "current"
     },
     {
-      "from": "doc:FR-153-strategy-plans",
+      "from": "doc:FR-155-strategy-plans",
       "to": "doc:PARALLEL-REVIEW-2026-09-06",
       "type": "references",
       "source": "markdown",
@@ -41502,7 +41549,7 @@
     },
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
-      "to": "doc:FR-153-strategy-plans",
+      "to": "doc:FR-155-strategy-plans",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -42342,7 +42389,7 @@
     },
     {
       "from": "domain:marketing",
-      "to": "doc:FR-153-strategy-plans",
+      "to": "doc:FR-155-strategy-plans",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -42769,14 +42816,14 @@
     },
     {
       "from": "feat:FEAT-020",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
     },
     {
       "from": "feat:FEAT-020",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -44700,14 +44747,14 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-153",
+      "from": "req:FR-154",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-154",
+      "from": "req:FR-155",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -49748,7 +49795,7 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -50665,14 +50712,14 @@
     },
     {
       "from": "test:tests/e2e/marketing-strategy.spec.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/marketing-strategy.spec.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -52359,14 +52406,14 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/backup.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -52688,14 +52735,14 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -54998,14 +55045,14 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -57301,14 +57348,14 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -57665,14 +57712,14 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -57721,7 +57768,7 @@
     },
     {
       "from": "test:tests/integration/marketing-plan.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -58043,17 +58090,17 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:FR-153",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -61620,7 +61667,7 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -63174,7 +63221,7 @@
     },
     {
       "from": "test:tests/unit/command-palette-index.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -64161,7 +64208,7 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -64868,7 +64915,7 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -65155,14 +65202,14 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -70412,14 +70459,14 @@
     },
     {
       "from": "test:tests/unit/marketing-migration-policy.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/marketing-migration-policy.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -70510,7 +70557,7 @@
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -70629,14 +70676,14 @@
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
-      "to": "req:FR-154",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -70664,7 +70711,7 @@
     },
     {
       "from": "test:tests/unit/marketing/marketing-authority.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -70713,7 +70760,7 @@
     },
     {
       "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -70755,7 +70802,7 @@
     },
     {
       "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -75158,7 +75205,7 @@
     },
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
-      "to": "req:FR-153",
+      "to": "req:FR-155",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

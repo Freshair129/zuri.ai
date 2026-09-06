@@ -22,7 +22,7 @@ describe('command palette route index', () => {
     expect(routePaths).toContain('/customer')
     expect(routePaths).toContain('/customer/conversations')
     expect(routePaths).not.toContain('/commerce')
-    // FR-153 activates Growth Dashboard and Strategy; other slots stay reserved.
+    // FR-155 activates Growth Dashboard and Strategy; other slots stay reserved.
     expect(routePaths).toContain('/growth')
     expect(routePaths).toContain('/growth/strategy')
     expect(routePaths).not.toContain('/operations')

@@ -1,4 +1,4 @@
-// @req FR-153, FR-154 — browser smoke for URL state, plan CRUD controls, and
+// @req FR-155, FR-154 — browser smoke for URL state, plan CRUD controls, and
 // the reviewed revision handoff surface once the Marketing API is enabled.
 // @spec SDD-086
 // @tested tests/e2e/marketing-strategy.spec.js

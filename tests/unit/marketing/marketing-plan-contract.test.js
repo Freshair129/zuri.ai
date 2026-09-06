@@ -6,7 +6,7 @@ import {
   zMarketingPlanPayload,
 } from '@/modules/marketing/domain/marketing-plan-contract'
 
-// @req FR-153 — the strict Strategy payload and title-bound hash are stable
+// @req FR-155 — the strict Strategy payload and title-bound hash are stable
 // before any persistence adapter is involved.
 // @spec SDD-086, BR-007
 // @tested tests/unit/marketing/marketing-plan-contract.test.js

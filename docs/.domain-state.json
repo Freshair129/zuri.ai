@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T12:34:36.573Z",
+  "generatedAt": "2026-09-06T12:39:21.068Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2325,18 +2325,18 @@
       "status": "partial",
       "requirements": [
         {
-          "id": "FR-153",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 16,
-          "testCount": 21
-        },
-        {
           "id": "FR-154",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
           "testCount": 11
+        },
+        {
+          "id": "FR-155",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 16,
+          "testCount": 21
         }
       ],
       "checks": {
@@ -2429,7 +2429,7 @@
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/marketing/CHARTER.md",
-        "docs/domains/marketing/features/FR-153-strategy-plans.md",
+        "docs/domains/marketing/features/FR-155-strategy-plans.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -3246,18 +3246,18 @@
           "testCount": 13
         },
         {
-          "id": "FR-153",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 4,
-          "testCount": 21
-        },
-        {
           "id": "FR-154",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
           "testCount": 11
+        },
+        {
+          "id": "FR-155",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 21
         }
       ],
       "checks": {
@@ -5124,8 +5124,8 @@
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
-        "FR-153",
-        "FR-154"
+        "FR-154",
+        "FR-155"
       ],
       "primaryDomain": "marketing",
       "contributorDomains": [
@@ -5141,18 +5141,18 @@
       ],
       "requirements": [
         {
-          "id": "FR-153",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 21
-        },
-        {
           "id": "FR-154",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
           "testCount": 11
+        },
+        {
+          "id": "FR-155",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 20,
+          "testCount": 21
         }
       ],
       "evidence": [

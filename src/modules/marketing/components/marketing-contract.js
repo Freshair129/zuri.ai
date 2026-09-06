@@ -1,4 +1,4 @@
-// @req FR-153 — Marketing Strategy uses one explicit, immutable revision
+// @req FR-155 — Marketing Strategy uses one explicit, immutable revision
 // contract for forms, review controls, and URL state.
 // @req FR-154 — the handoff UI binds the selected revision to the PM preview.
 // @spec SDD-086 — the browser treats planning intent as distinct from measured

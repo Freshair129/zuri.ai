@@ -1,4 +1,4 @@
-// @req FR-153 — Marketing routes use the existing Business-specific growth grant.
+// @req FR-155 — Marketing routes use the existing Business-specific growth grant.
 // @spec SDD-086, SEC-001
 import { describe, expect, it } from 'vitest'
 import { DOMAINS, domainForPath } from '@/config/domains'

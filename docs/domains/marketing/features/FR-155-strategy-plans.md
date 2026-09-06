@@ -1,5 +1,5 @@
 ---
-feature: FR-153
+feature: FR-155
 module: marketing
 domain: marketing
 source: v2-native
