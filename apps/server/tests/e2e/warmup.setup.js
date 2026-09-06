@@ -49,8 +49,9 @@ const ROUTES = [
   '/line-oa/rich-menus',
   // main 2a1b6a81 gave LINE OA Studio a seven-entry sidebar without listing the
   // routes here; tests/unit/e2e-warmup.test.js compares this list to the registry.
+  // main c41502b9 added the eighth, Integrations & AI, the same way.
   '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection',
-  '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
+  '/line-oa/integrations', '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
   // @req FR-161 — the CRM sales tasks page.
