@@ -1,3 +1,14 @@
+-- RENUMBERED 2026-09-06 from 20260906180000, which 20260906180000_line_conversation_job_rls_policy
+-- already held and had already been applied and receipted on production. The
+-- collision is invisible to git — two files, different names — and fatal to any
+-- tool keyed on version: `supabase db push` reads 20260906180000 as applied and
+-- skips whichever file it did not run. This file's DDL WAS applied to production
+-- on 2026-09-06 (all three LineOaRichMenu* tables exist, with the full security
+-- block and 22 columns on the job table), but its receipt could not be written
+-- under a version another migration owned, so the lineage did not name it.
+-- Applying this renumbered file is therefore a no-op that records what is
+-- already true — every statement is IF NOT EXISTS or guarded.
+--
 -- @req FR-152 — LineOaRichMenuJob: the server-owned rich menu publish ledger
 -- of LINE OA Studio (ADR-061 D1, D6, D7). One row per unit of work against
 -- LINE — PUBLISH a frozen LineOaRichMenuVersion (create the menu, upload the

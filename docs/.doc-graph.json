@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1847,
-    "total_edges": 7039,
+    "total_nodes": 1848,
+    "total_edges": 7040,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 201,
       "model": 87,
       "requirement": 309,
-      "test": 461,
+      "test": 462,
       "code_file": 498
     },
     "coverage": {
@@ -56,17 +56,13 @@
   "drift": {
     "changed": [
       "doc:README",
+      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:INTERFACE-INVENTORY",
-      "code:src/config/domains.js"
+      "doc:SRS"
     ],
     "added": [
-      "route:page:/line-oa/rich-menus",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "test:tests/unit/line-oa-rich-menu-console.test.js",
-      "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
+      "test:tests/unit/migration-version-uniqueness.test.js"
     ],
     "removed": []
   },
@@ -4606,7 +4602,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "6ea5495e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -10493,8 +10489,8 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "9869c1e3",
-      "status": "current"
+      "hash": "a3b2bbe4",
+      "status": "changed"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11445,7 +11441,7 @@
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "73d7655b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -20444,6 +20440,13 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/translate-raw-record.test.js",
       "hash": "3c96ef1c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/migration-version-uniqueness.test.js",
+      "type": "test",
+      "path": "tests/unit/migration-version-uniqueness.test.js",
+      "hash": "b92775b7",
       "status": "current"
     },
     {
@@ -64827,6 +64830,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/migration-version-uniqueness.test.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/mint-api-access-key-cli.test.js",
