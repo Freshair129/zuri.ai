@@ -259,7 +259,14 @@ describe('domain state projection', () => {
 
 it('retains requirement membership when code paths move under apps/server', () => {
   const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
-  const before = buildDomainState({ nodes, edges })
-  const after = buildDomainState({ nodes: relocated, edges })
+  // Both builds are stamped with the same instant on purpose. `buildDomainState`
+  // defaults `generatedAt` to `new Date()`, so two calls straddling a
+  // millisecond produced states that differed only in that field — and the
+  // comparison below is over the whole JSON, so the test failed for the clock
+  // rather than for the relocation it exists to check. It did exactly that on
+  // PR #268 (…38.567Z against …38.568Z) while passing on the same tree locally.
+  const generatedAt = '2026-09-07T00:00:00.000Z'
+  const before = buildDomainState({ nodes, edges, generatedAt })
+  const after = buildDomainState({ nodes: relocated, edges, generatedAt })
   expect(JSON.stringify(after).replaceAll('apps/server/', '')).toEqual(JSON.stringify(before))
 })
