@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T07:05:03.696Z",
+  "generatedAt": "2026-09-06T07:11:46.965Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -863,7 +863,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 12
         }
       ],
       "checks": {
@@ -1203,7 +1203,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 12
         }
       ],
       "checks": {
@@ -4824,7 +4824,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-149",
@@ -4889,7 +4889,6 @@
         "tests/integration/server-line-webhook.test.js",
         "tests/unit/conversation-channel-account-migration.test.js",
         "tests/unit/conversation-read-model.test.js",
-        "tests/unit/doc-links-cli.test.js",
         "tests/unit/doc-links.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/grounded-business-answer.test.js",

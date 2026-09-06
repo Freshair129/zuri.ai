@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1859,
-    "total_edges": 7188,
+    "total_edges": 7187,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -59,8 +59,7 @@
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0"
+      "test:tests/unit/doc-links-cli.test.js"
     ],
     "added": [],
     "removed": []
@@ -10559,7 +10558,7 @@
       "version": "1.23.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "d5b9a2bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11842,7 +11841,7 @@
       "version": "1.156.0b",
       "doc_status": "Draft",
       "hash": "39f14aa3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -19595,8 +19594,8 @@
       "id": "test:tests/unit/doc-links-cli.test.js",
       "type": "test",
       "path": "tests/unit/doc-links-cli.test.js",
-      "hash": "45cbe51e",
-      "status": "current"
+      "hash": "0230ea93",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-links.test.js",
@@ -59566,13 +59565,6 @@
     {
       "from": "test:tests/unit/design-system.test.js",
       "to": "req:SDD-010",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/doc-links-cli.test.js",
-      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
