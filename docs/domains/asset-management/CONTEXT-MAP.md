@@ -1,5 +1,5 @@
 ---
-version: "1.1.0b"
+version: "1.2.0b"
 status: beta
 domain: asset-management
 ---
@@ -11,19 +11,21 @@ domain: asset-management
 ```text
                     trusted viewer / scope / audit
                       Platform + Identity
-                              │
-                              ▼
+                               │
+                               ▼
 Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered Asset
                   FileAsset ref ▲       │                    │
-                                │       │ typed refs         ├── responsibility history ─► Person
+                                │       │ typed refs         ├── responsibility history ─► Person (Handover)
                                 │       ├───────────────────► PR / PO / GRN (Procurement)
                                 │       ├───────────────────► payment / book (Finance)
                                 │       ├───────────────────► lot / expiry
-                                │       └───────────────────► Project allocation
-                                │                                  │
-                         existing content                           ▼
-                         storage authority                Project Inventory
-                                                          read projection only
+                                │       ├───────────────────► Project allocation ──► Project Inventory (read-only)
+                                │       ├───────────────────► Maintenance tickets & Service logs
+                                │       ├───────────────────► Stocktake campaign & Variance matrix
+                                │       └───────────────────► Disposal requests & Destruction proof
+                                │
+                         existing content
+                         storage authority
 ```
 
 ## Contracts
@@ -33,7 +35,7 @@ Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered
 | Platform/Identity | Asset | trusted viewer, Business visibility, `AuditEvent` | Platform owns identity; Asset calls it |
 | File management | Asset | `FileAsset.id`, MIME, hash, active state | file authority owns bytes; Asset owns evidence role/review |
 | Procurement | Asset | typed PR/PO/line/GRN/invoice refs | Procurement → Asset; reference-only while provider absent |
-| People/Identity | Asset | Person/Membership lookup | People → Asset; Asset owns temporal role interval |
+| People/Identity | Asset | Person/Membership lookup & Handover ack | People → Asset; Asset owns temporal role interval & handover |
 | Business hierarchy | Asset | Branch lookup | hierarchy → Asset; Asset owns physical location detail/history |
 | Project Manager | Asset | future `ProjectAssetRequest` | PM requests; Asset decides/allocates |
 | Asset | Project Manager | `AssetProjectAllocation` read projection | Asset → Project Inventory; no mutation from read model |
@@ -42,6 +44,7 @@ Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered
 | zuri-cli LINE transport | Asset | trusted uploaded artifact reference | transport fetches bytes; zuri-ai never receives LINE secret/token |
 | Private object port / Supabase adapter | File management | opaque managed-blob reference and authorized bytes | provider stores bytes; FileAsset owns metadata; no public URL |
 | OpenAI extraction adapter | Asset | strict candidate fields with provider provenance | provider proposes; Asset reviewer decides |
+| Edge Device (zuri-edge-device) | Asset | pull-based `AssetExtractionJob` lease & candidate result | device pulls job via `EdgeDeviceCredential`; posts candidate back |
 | Excel / Google Sheet snapshot | Asset | canonical row adapter and envelope preview | intake convenience only; never source of truth |
 
 ## Anti-corruption rules
@@ -56,6 +59,8 @@ Web · API · Sheet · Agent · LINE ──► Asset Intake ──► Registered
 5. `FileAsset` remains content identity. `RegisteredAsset` remains physical identity.
 6. An object-storage key, signed URL, provider response ID, spreadsheet ID or LINE
    message ID is transport/provenance only and never an Asset, evidence or Business key.
+7. QR Code / Barcode labels carry an unprivileged lookup URI or token; possession of a label
+   never bypasses session authentication or Business scope authorization.
 
 ## Change protocol
 
@@ -67,5 +72,6 @@ that implements an existing one-way contract does not transfer ownership.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0b | 2026-09-06 | beta | Refined contracts with Edge extraction, Handover protocol, Stocktake and Maintenance | working-tree | Gemini (Antigravity) |
 | 1.1.0b | 2026-09-02 | beta | Added private object, candidate extraction, Sheet snapshot and trusted LINE execution contracts without moving authority | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | accepted | Fixed providers, consumers, direction and anti-corruption rules for Asset integrations | working-tree | Codex |
