@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zuri · Marketing design review</title>
+  <meta name="description" content="Candidate Marketing interface mockups. All data and actions are simulated.">
+  <link rel="stylesheet" href="assets/fonts.css"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="review-bar" aria-label="Design review tools">
+    <span class="review-brand">DESIGN REVIEW <b>Marketing</b></span>
+    <button id="previous" aria-label="Previous mockup">←</button>
+    <select id="screen-picker" aria-label="Select interface mockup"></select>
+    <button id="next" aria-label="Next mockup">→</button>
+    <button id="inventory-toggle">Interface inventory</button>
+    <span class="review-count" id="review-count"></span>
+  </div>
+  <header class="topbar">
+    <button id="menu-toggle" class="icon-button" aria-label="Toggle navigation"><i data-lucide="menu"></i></button>
+    <a class="brand" href="#MKT-UI-001"><span class="brand-symbol"><i data-lucide="sparkles"></i></span>zuri<span class="brand-ai">.ai</span></a>
+    <span class="top-divider"></span><div class="scope"><small>Business workspace</small><select id="business-picker" aria-label="Business example"><option value="smartgift">SmartGift Studio · Demo</option><option value="second">Second Business · Empty demo</option></select></div>
+    <div class="top-actions"><span class="prototype-label">PROTOTYPE · ข้อมูลตัวอย่าง</span><span class="locale">TH <b>/ EN</b></span><span class="avatar avatar-dark" aria-label="Mali demo user">ML</span></div>
+  </header>
+  <nav class="domain-bar" aria-label="Business domains">
+    <button data-owner="Business Home"><i data-lucide="house"></i>Business Home</button><button data-owner="Commerce"><i data-lucide="shopping-cart"></i>Commerce</button><button data-owner="CRM"><i data-lucide="users"></i>CRM</button><button data-owner="Market Intelligence"><i data-lucide="trending-up"></i>Market Intelligence</button><button class="active" id="marketing-domain"><i data-lucide="megaphone"></i>Marketing</button><button data-owner="Project Manager"><i data-lucide="briefcase-business"></i>Development</button><button data-owner="Integration"><i data-lucide="settings-2"></i>Platform</button>
+  </nav>
+  <div class="app-layout"><aside id="sidebar" aria-label="Marketing subdomains"></aside><main id="main" aria-live="polite"></main></div>
+  <div id="dialog-root"></div><div id="toast" role="status" hidden></div>
+  <script src="assets/lucide.min.js"></script><script src="catalog.js"></script><script src="app.js"></script>
+</body></html>

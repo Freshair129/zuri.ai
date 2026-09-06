@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-06T13:00:16+07:00,RWANG,9cb60a763c7a450f456f54b813a7e6bba7853d6c"
-last_update: "2026-09-06T13:00:16+07:00,RWANG"
+last_update: "2026-09-06T13:44:15+07:00,RWANG"
 status: candidate
 superseded_by: null
 attributes:
@@ -16,7 +16,7 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
+| **Version** | 0.2.0b |
 | **Status** | Candidate; all new paths/tabs are proposed, not live routes |
 | Parent | [Marketing Domain Design](../CR-018-MARKETING-DOMAIN-DESIGN.md) |
 
@@ -173,8 +173,15 @@ Team tab แสดงสมาชิก/บทบาท/availability ไม่�
 - Data Quality เห็น source health ไม่ได้ให้สิทธิ์แก้ secret; Reviews เห็น draft ไม่ได้ให้สิทธิ์อนุมัติ spend
 - Marketing Dashboard ไม่มี local tab bar; Campaigns/Live collection ไม่มีแท็บเกินจำเป็นตาม matrix
 
+## 6. Interface inventory and complete mockups
+
+[Interface Inventory](MARKETING-INTERFACE-INVENTORY.md) enumerates 100 candidate screens: 3 collection pages, 40 capability tabs, 9 record tabs, 22 detail views, 9 forms, 7 decision dialogs and 10 reusable state previews.
+
+[Open the interactive mockup](mockups/index.html) to inspect every ID from the review selector. [QA evidence](MARKETING-MOCKUP-QA.md) separates prototype checks from production acceptance. These artifacts expand the review detail without adding product routes or global requirement IDs.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Define 11 subdomain entries plus two shared surfaces, exact tab placement, filters, wireframes and journeys | See git history | RWANG |
+| 0.2.0b | 2026-09-06 | candidate | Add exhaustive interface inventory and navigable mockups with desktop/mobile evidence; capability topology unchanged | See git history | RWANG |

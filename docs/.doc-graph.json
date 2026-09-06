@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1830,
-    "total_edges": 6695,
+    "total_nodes": 1832,
+    "total_edges": 6702,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 165,
+      "document": 167,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -56,6 +56,7 @@
   "drift": {
     "changed": [
       "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "doc:MARKETING-NAVIGATION-VIEWS",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
@@ -10379,9 +10380,9 @@
       "type": "document",
       "path": "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
       "title": "CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement",
-      "version": "1.0.0b",
+      "version": "1.1.0b",
       "doc_status": "Candidate — domain documentation for review; no implementation approval",
-      "hash": "a6c66c1a",
+      "hash": "cbeb56f5",
       "status": "changed"
     },
     {
@@ -11366,14 +11367,34 @@
       "status": "current"
     },
     {
+      "id": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "document",
+      "path": "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+      "title": "Marketing — Interface Inventory & Mockup Coverage",
+      "version": "0.1.0b",
+      "doc_status": "Candidate design; none of these new interfaces is claimed implemented",
+      "hash": "d4e640da",
+      "status": "current"
+    },
+    {
+      "id": "doc:MARKETING-MOCKUP-QA",
+      "type": "document",
+      "path": "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md",
+      "title": "Marketing — Mockup QA & Review Guide",
+      "version": "0.1.0b",
+      "doc_status": "Candidate design, verified as a standalone prototype",
+      "hash": "6a4c646c",
+      "status": "current"
+    },
+    {
       "id": "doc:MARKETING-NAVIGATION-VIEWS",
       "type": "document",
       "path": "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
       "title": "Marketing — Navigation & Views",
-      "version": "0.1.0b",
+      "version": "0.2.0b",
       "doc_status": "Candidate; all new paths/tabs are proposed, not live routes",
-      "hash": "08c58281",
-      "status": "current"
+      "hash": "81de5d80",
+      "status": "changed"
     },
     {
       "id": "doc:MARKETING-TEAM-REFINEMENT",
@@ -36269,6 +36290,55 @@
     {
       "from": "doc:MARKETING-CHANNEL-CONTRACTS",
       "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-INTERFACE-INVENTORY",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-INTERFACE-INVENTORY",
+      "to": "doc:MARKETING-CHANNEL-CONTRACTS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-INTERFACE-INVENTORY",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-INTERFACE-INVENTORY",
+      "to": "doc:MARKETING-TEAM-REFINEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-MOCKUP-QA",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-MOCKUP-QA",
+      "to": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-MOCKUP-QA",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
       "type": "relates",
       "status": "current",
       "source": "control-block"

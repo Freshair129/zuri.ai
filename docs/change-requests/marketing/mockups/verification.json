@@ -1,0 +1,1381 @@
+{
+  "checkedAt": "2026-09-06T06:47:33.073Z",
+  "scope": "Standalone design prototype only",
+  "browser": "152.0.7977.77",
+  "viewports": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "counts": {
+    "interfaces": 100,
+    "desktopScreenshots": 100,
+    "mobileScreenshots": 13,
+    "contactSheets": 13,
+    "interactionChecks": 13
+  },
+  "errors": [],
+  "failures": [],
+  "checks": [
+    {
+      "name": "List-to-board toggle",
+      "pass": true
+    },
+    {
+      "name": "Provider filter limits paid rows",
+      "pass": true
+    },
+    {
+      "name": "Search empty result",
+      "pass": true
+    },
+    {
+      "name": "Scenario allocation recalculates",
+      "pass": true
+    },
+    {
+      "name": "Required form validation",
+      "pass": true
+    },
+    {
+      "name": "Valid draft opens preview",
+      "pass": true
+    },
+    {
+      "name": "Approval requires reason and exact-version acknowledgement",
+      "pass": true
+    },
+    {
+      "name": "Decision receipt is explicitly simulated",
+      "pass": true
+    },
+    {
+      "name": "Business switch displays independent empty scope",
+      "pass": true
+    },
+    {
+      "name": "Business switch clears local draft and decision",
+      "pass": true
+    },
+    {
+      "name": "Inventory lookup reaches shared states",
+      "pass": true
+    },
+    {
+      "name": "Forbidden body excludes account evidence",
+      "pass": true
+    },
+    {
+      "name": "Unknown outcome offers receipt reconciliation, no retry",
+      "pass": true
+    }
+  ],
+  "screens": [
+    {
+      "id": "MKT-UI-001",
+      "key": "dashboard/overview",
+      "desktop": {
+        "title": "Marketing dashboard",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Marketing dashboard"
+      }
+    },
+    {
+      "id": "MKT-UI-002",
+      "key": "strategy/situation",
+      "desktop": {
+        "title": "Situation & opportunity",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Situation & opportunity"
+      }
+    },
+    {
+      "id": "MKT-UI-003",
+      "key": "strategy/objectives",
+      "desktop": {
+        "title": "Objectives & success measures",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Objectives & success measures"
+      }
+    },
+    {
+      "id": "MKT-UI-004",
+      "key": "strategy/plans",
+      "desktop": {
+        "title": "Marketing plans",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Marketing plans"
+      }
+    },
+    {
+      "id": "MKT-UI-005",
+      "key": "strategy/scenarios",
+      "desktop": {
+        "title": "Budget scenarios",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Budget scenarios"
+      }
+    },
+    {
+      "id": "MKT-UI-006",
+      "key": "campaigns/list",
+      "desktop": {
+        "title": "All campaigns",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "All campaigns"
+      }
+    },
+    {
+      "id": "MKT-UI-007",
+      "key": "campaigns/brief",
+      "desktop": {
+        "title": "Campaign brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Campaign brief"
+      }
+    },
+    {
+      "id": "MKT-UI-008",
+      "key": "campaigns/plan",
+      "desktop": {
+        "title": "Campaign execution plan",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Campaign execution plan"
+      }
+    },
+    {
+      "id": "MKT-UI-009",
+      "key": "campaigns/timeline",
+      "desktop": {
+        "title": "Campaign timeline",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Campaign timeline"
+      }
+    },
+    {
+      "id": "MKT-UI-010",
+      "key": "campaigns/results",
+      "desktop": {
+        "title": "Campaign results",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Campaign results"
+      }
+    },
+    {
+      "id": "MKT-UI-011",
+      "key": "campaigns/decisions",
+      "desktop": {
+        "title": "Campaign decisions",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Campaign decisions"
+      }
+    },
+    {
+      "id": "MKT-UI-012",
+      "key": "paid-media/performance",
+      "desktop": {
+        "title": "Paid media performance",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Paid media performance"
+      }
+    },
+    {
+      "id": "MKT-UI-013",
+      "key": "paid-media/campaigns",
+      "desktop": {
+        "title": "Ad campaigns",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Ad campaigns"
+      }
+    },
+    {
+      "id": "MKT-UI-014",
+      "key": "paid-media/creatives",
+      "desktop": {
+        "title": "Creative effectiveness",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Creative effectiveness"
+      }
+    },
+    {
+      "id": "MKT-UI-015",
+      "key": "paid-media/experiments",
+      "desktop": {
+        "title": "Paid media experiments",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Paid media experiments"
+      }
+    },
+    {
+      "id": "MKT-UI-016",
+      "key": "content/briefs",
+      "desktop": {
+        "title": "Creative briefs",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Creative briefs"
+      }
+    },
+    {
+      "id": "MKT-UI-017",
+      "key": "content/production",
+      "desktop": {
+        "title": "Production pipeline",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Production pipeline"
+      }
+    },
+    {
+      "id": "MKT-UI-018",
+      "key": "content/library",
+      "desktop": {
+        "title": "Approved creative library",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Approved creative library"
+      }
+    },
+    {
+      "id": "MKT-UI-019",
+      "key": "social/posts",
+      "desktop": {
+        "title": "Owned social posts",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Owned social posts"
+      }
+    },
+    {
+      "id": "MKT-UI-020",
+      "key": "social/calendar",
+      "desktop": {
+        "title": "Social content calendar",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Social content calendar"
+      }
+    },
+    {
+      "id": "MKT-UI-021",
+      "key": "social/insights",
+      "desktop": {
+        "title": "Instagram organic insights",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Instagram organic insights"
+      }
+    },
+    {
+      "id": "MKT-UI-022",
+      "key": "social/handoffs",
+      "desktop": {
+        "title": "Community handoffs",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Community handoffs"
+      }
+    },
+    {
+      "id": "MKT-UI-023",
+      "key": "partners/partners",
+      "desktop": {
+        "title": "Creator & partner directory",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Creator & partner directory"
+      }
+    },
+    {
+      "id": "MKT-UI-024",
+      "key": "partners/programs",
+      "desktop": {
+        "title": "Partnership programs",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Partnership programs"
+      }
+    },
+    {
+      "id": "MKT-UI-025",
+      "key": "partners/deliverables",
+      "desktop": {
+        "title": "Partner deliverables",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Partner deliverables"
+      }
+    },
+    {
+      "id": "MKT-UI-026",
+      "key": "partners/performance",
+      "desktop": {
+        "title": "Partnership performance",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Partnership performance"
+      }
+    },
+    {
+      "id": "MKT-UI-027",
+      "key": "live/list",
+      "desktop": {
+        "title": "Live marketing schedule",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Live marketing schedule"
+      }
+    },
+    {
+      "id": "MKT-UI-028",
+      "key": "live/brief",
+      "desktop": {
+        "title": "Live brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Live brief"
+      }
+    },
+    {
+      "id": "MKT-UI-029",
+      "key": "live/rundown",
+      "desktop": {
+        "title": "Live rundown",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Live rundown"
+      }
+    },
+    {
+      "id": "MKT-UI-030",
+      "key": "live/readiness",
+      "desktop": {
+        "title": "Live readiness",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Live readiness"
+      }
+    },
+    {
+      "id": "MKT-UI-031",
+      "key": "live/results",
+      "desktop": {
+        "title": "Live results",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Live results"
+      }
+    },
+    {
+      "id": "MKT-UI-032",
+      "key": "website/pages",
+      "desktop": {
+        "title": "Landing-page inventory",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Landing-page inventory"
+      }
+    },
+    {
+      "id": "MKT-UI-033",
+      "key": "website/journeys",
+      "desktop": {
+        "title": "Conversion journey hypotheses",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Conversion journey hypotheses"
+      }
+    },
+    {
+      "id": "MKT-UI-034",
+      "key": "website/experiments",
+      "desktop": {
+        "title": "Website & CRO experiments",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Website & CRO experiments"
+      }
+    },
+    {
+      "id": "MKT-UI-035",
+      "key": "seo/performance",
+      "desktop": {
+        "title": "Organic search performance",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Organic search performance"
+      }
+    },
+    {
+      "id": "MKT-UI-036",
+      "key": "seo/opportunities",
+      "desktop": {
+        "title": "Search opportunities",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Search opportunities"
+      }
+    },
+    {
+      "id": "MKT-UI-037",
+      "key": "seo/technical",
+      "desktop": {
+        "title": "Technical SEO findings",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Technical SEO findings"
+      }
+    },
+    {
+      "id": "MKT-UI-038",
+      "key": "seo/workplan",
+      "desktop": {
+        "title": "SEO workplan",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "SEO workplan"
+      }
+    },
+    {
+      "id": "MKT-UI-039",
+      "key": "analytics/overview",
+      "desktop": {
+        "title": "Marketing measurement overview",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Marketing measurement overview"
+      }
+    },
+    {
+      "id": "MKT-UI-040",
+      "key": "analytics/acquisition",
+      "desktop": {
+        "title": "Website acquisition",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Website acquisition"
+      }
+    },
+    {
+      "id": "MKT-UI-041",
+      "key": "analytics/funnels",
+      "desktop": {
+        "title": "Funnel evidence",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Funnel evidence"
+      }
+    },
+    {
+      "id": "MKT-UI-042",
+      "key": "analytics/attribution",
+      "desktop": {
+        "title": "Attribution & revenue",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Attribution & revenue"
+      }
+    },
+    {
+      "id": "MKT-UI-043",
+      "key": "analytics/data-quality",
+      "desktop": {
+        "title": "Source health & data quality",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Source health & data quality"
+      }
+    },
+    {
+      "id": "MKT-UI-044",
+      "key": "operations/intake",
+      "desktop": {
+        "title": "Marketing intake",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Marketing intake"
+      }
+    },
+    {
+      "id": "MKT-UI-045",
+      "key": "operations/calendar",
+      "desktop": {
+        "title": "Delivery calendar",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Delivery calendar"
+      }
+    },
+    {
+      "id": "MKT-UI-046",
+      "key": "operations/approvals",
+      "desktop": {
+        "title": "Approval inbox",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Approval inbox"
+      }
+    },
+    {
+      "id": "MKT-UI-047",
+      "key": "operations/handoffs",
+      "desktop": {
+        "title": "Cross-domain handoffs",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Cross-domain handoffs"
+      }
+    },
+    {
+      "id": "MKT-UI-048",
+      "key": "team/team",
+      "desktop": {
+        "title": "Marketing team",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Marketing team"
+      }
+    },
+    {
+      "id": "MKT-UI-049",
+      "key": "team/runs",
+      "desktop": {
+        "title": "Refinement runs",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Refinement runs"
+      }
+    },
+    {
+      "id": "MKT-UI-050",
+      "key": "team/reviews",
+      "desktop": {
+        "title": "Review workspace",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Review workspace"
+      }
+    },
+    {
+      "id": "MKT-UI-051",
+      "key": "team/decisions",
+      "desktop": {
+        "title": "Decision ledger",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Decision ledger"
+      }
+    },
+    {
+      "id": "MKT-UI-052",
+      "key": "team/learnings",
+      "desktop": {
+        "title": "Learning candidates",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Learning candidates"
+      }
+    },
+    {
+      "id": "MKT-UI-053",
+      "key": "strategy/plan-detail",
+      "desktop": {
+        "title": "September growth plan · v2",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "September growth plan · v2"
+      }
+    },
+    {
+      "id": "MKT-UI-054",
+      "key": "paid-media/campaign-detail",
+      "desktop": {
+        "title": "Autumn · Discovery",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn · Discovery"
+      }
+    },
+    {
+      "id": "MKT-UI-055",
+      "key": "paid-media/adset-detail",
+      "desktop": {
+        "title": "Gift explorers · Ad set",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Gift explorers · Ad set"
+      }
+    },
+    {
+      "id": "MKT-UI-056",
+      "key": "paid-media/ad-detail",
+      "desktop": {
+        "title": "Gift in motion · Ad",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Gift in motion · Ad"
+      }
+    },
+    {
+      "id": "MKT-UI-057",
+      "key": "paid-media/creative-detail",
+      "desktop": {
+        "title": "Gift in motion · Effectiveness",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Gift in motion · Effectiveness"
+      }
+    },
+    {
+      "id": "MKT-UI-058",
+      "key": "content/brief-detail",
+      "desktop": {
+        "title": "Autumn gift story · Creative brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn gift story · Creative brief"
+      }
+    },
+    {
+      "id": "MKT-UI-059",
+      "key": "content/asset-detail",
+      "desktop": {
+        "title": "Autumn gift story · Asset v3",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn gift story · Asset v3"
+      }
+    },
+    {
+      "id": "MKT-UI-060",
+      "key": "social/post-detail",
+      "desktop": {
+        "title": "A gift with a story · Post",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "A gift with a story · Post"
+      }
+    },
+    {
+      "id": "MKT-UI-061",
+      "key": "partners/partner-detail",
+      "desktop": {
+        "title": "Nicha Creates · Partner",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Nicha Creates · Partner"
+      }
+    },
+    {
+      "id": "MKT-UI-062",
+      "key": "partners/program-detail",
+      "desktop": {
+        "title": "Autumn creator stories · Program",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn creator stories · Program"
+      }
+    },
+    {
+      "id": "MKT-UI-063",
+      "key": "partners/deliverable-detail",
+      "desktop": {
+        "title": "Gift story video 01 · Deliverable",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Gift story video 01 · Deliverable"
+      }
+    },
+    {
+      "id": "MKT-UI-064",
+      "key": "website/page-detail",
+      "desktop": {
+        "title": "Autumn gift landing page",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn gift landing page"
+      }
+    },
+    {
+      "id": "MKT-UI-065",
+      "key": "website/experiment-detail",
+      "desktop": {
+        "title": "Delivery-date clarity · Experiment",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Delivery-date clarity · Experiment"
+      }
+    },
+    {
+      "id": "MKT-UI-066",
+      "key": "seo/issue-detail",
+      "desktop": {
+        "title": "Canonical mismatch · SEO finding",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Canonical mismatch · SEO finding"
+      }
+    },
+    {
+      "id": "MKT-UI-067",
+      "key": "seo/opportunity-detail",
+      "desktop": {
+        "title": "Corporate welcome gifts · Opportunity",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Corporate welcome gifts · Opportunity"
+      }
+    },
+    {
+      "id": "MKT-UI-068",
+      "key": "analytics/report-detail",
+      "desktop": {
+        "title": "GA4 acquisition report · Evidence",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "GA4 acquisition report · Evidence"
+      }
+    },
+    {
+      "id": "MKT-UI-069",
+      "key": "operations/intake-detail",
+      "desktop": {
+        "title": "Autumn landing refresh · Intake",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Autumn landing refresh · Intake"
+      }
+    },
+    {
+      "id": "MKT-UI-070",
+      "key": "operations/handoff-detail",
+      "desktop": {
+        "title": "Verify autumn offer stock · Handoff",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Verify autumn offer stock · Handoff"
+      }
+    },
+    {
+      "id": "MKT-UI-071",
+      "key": "team/run-detail",
+      "desktop": {
+        "title": "September channel plan · MKR-021",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "September channel plan · MKR-021"
+      }
+    },
+    {
+      "id": "MKT-UI-072",
+      "key": "team/review-detail",
+      "desktop": {
+        "title": "Review September plan · v1 → v2",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Review September plan · v1 → v2"
+      }
+    },
+    {
+      "id": "MKT-UI-073",
+      "key": "team/decision-detail",
+      "desktop": {
+        "title": "Channel plan approval · Decision",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Channel plan approval · Decision"
+      }
+    },
+    {
+      "id": "MKT-UI-074",
+      "key": "team/learning-detail",
+      "desktop": {
+        "title": "Context matters · Learning candidate",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Context matters · Learning candidate"
+      }
+    },
+    {
+      "id": "MKT-UI-075",
+      "key": "strategy/new",
+      "desktop": {
+        "title": "New marketing plan",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "New marketing plan"
+      }
+    },
+    {
+      "id": "MKT-UI-076",
+      "key": "campaigns/new",
+      "desktop": {
+        "title": "New campaign brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "New campaign brief"
+      }
+    },
+    {
+      "id": "MKT-UI-077",
+      "key": "content/new",
+      "desktop": {
+        "title": "New creative brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "New creative brief"
+      }
+    },
+    {
+      "id": "MKT-UI-078",
+      "key": "social/new",
+      "desktop": {
+        "title": "Draft Instagram post",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Draft Instagram post"
+      }
+    },
+    {
+      "id": "MKT-UI-079",
+      "key": "partners/new",
+      "desktop": {
+        "title": "New partnership brief",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "New partnership brief"
+      }
+    },
+    {
+      "id": "MKT-UI-080",
+      "key": "live/new",
+      "desktop": {
+        "title": "Plan a live session",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Plan a live session"
+      }
+    },
+    {
+      "id": "MKT-UI-081",
+      "key": "website/experiment-new",
+      "desktop": {
+        "title": "New marketing experiment",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "New marketing experiment"
+      }
+    },
+    {
+      "id": "MKT-UI-082",
+      "key": "operations/new",
+      "desktop": {
+        "title": "Submit marketing intake",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Submit marketing intake"
+      }
+    },
+    {
+      "id": "MKT-UI-083",
+      "key": "team/new",
+      "desktop": {
+        "title": "Configure refinement run",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Configure refinement run"
+      }
+    },
+    {
+      "id": "MKT-UI-084",
+      "key": "team/approve",
+      "desktop": {
+        "title": "Approve exact version",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Approve exact version"
+      }
+    },
+    {
+      "id": "MKT-UI-085",
+      "key": "team/request-changes",
+      "desktop": {
+        "title": "Request changes",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Request changes"
+      }
+    },
+    {
+      "id": "MKT-UI-086",
+      "key": "team/reject",
+      "desktop": {
+        "title": "Reject proposal",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Reject proposal"
+      }
+    },
+    {
+      "id": "MKT-UI-087",
+      "key": "team/pause",
+      "desktop": {
+        "title": "Pause refinement",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Pause refinement"
+      }
+    },
+    {
+      "id": "MKT-UI-088",
+      "key": "team/cancel",
+      "desktop": {
+        "title": "Cancel refinement",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Cancel refinement"
+      }
+    },
+    {
+      "id": "MKT-UI-089",
+      "key": "team/action-review",
+      "desktop": {
+        "title": "Review external action",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Review external action"
+      }
+    },
+    {
+      "id": "MKT-UI-090",
+      "key": "team/promotion",
+      "desktop": {
+        "title": "Review learning promotion",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Review learning promotion"
+      }
+    },
+    {
+      "id": "MKT-UI-091",
+      "key": "dashboard/state-loading",
+      "desktop": {
+        "title": "Loading source data",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Loading source data"
+      }
+    },
+    {
+      "id": "MKT-UI-092",
+      "key": "dashboard/state-empty",
+      "desktop": {
+        "title": "No marketing data yet",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "No marketing data yet"
+      }
+    },
+    {
+      "id": "MKT-UI-093",
+      "key": "dashboard/state-partial",
+      "desktop": {
+        "title": "Some source partitions are missing",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Some source partitions are missing"
+      }
+    },
+    {
+      "id": "MKT-UI-094",
+      "key": "dashboard/state-stale",
+      "desktop": {
+        "title": "Source data is out of date",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Source data is out of date"
+      }
+    },
+    {
+      "id": "MKT-UI-095",
+      "key": "dashboard/state-error",
+      "desktop": {
+        "title": "Acquisition failed",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Acquisition failed"
+      }
+    },
+    {
+      "id": "MKT-UI-096",
+      "key": "dashboard/state-forbidden",
+      "desktop": {
+        "title": "You do not have access",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "You do not have access"
+      }
+    },
+    {
+      "id": "MKT-UI-097",
+      "key": "dashboard/state-unavailable",
+      "desktop": {
+        "title": "Capability is unavailable",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Capability is unavailable"
+      }
+    },
+    {
+      "id": "MKT-UI-098",
+      "key": "dashboard/state-conflict",
+      "desktop": {
+        "title": "This version has changed",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "This version has changed"
+      }
+    },
+    {
+      "id": "MKT-UI-099",
+      "key": "dashboard/state-blocked",
+      "desktop": {
+        "title": "Required dependency is unavailable",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "Required dependency is unavailable"
+      }
+    },
+    {
+      "id": "MKT-UI-100",
+      "key": "dashboard/state-unknown",
+      "desktop": {
+        "title": "External outcome is unknown",
+        "overflow": false,
+        "brokenLinks": []
+      },
+      "mobile": {
+        "overflow": false,
+        "title": "External outcome is unknown"
+      }
+    }
+  ],
+  "pass": true
+}

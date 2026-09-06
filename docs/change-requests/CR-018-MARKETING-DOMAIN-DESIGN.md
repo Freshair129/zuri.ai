@@ -1,7 +1,7 @@
 ---
-version: "1.0.0b"
+version: "1.1.0b"
 created_at: "2026-09-06T13:00:16+07:00,RWANG,9cb60a763c7a450f456f54b813a7e6bba7853d6c"
-last_update: "2026-09-06T13:00:16+07:00,RWANG"
+last_update: "2026-09-06T13:44:15+07:00,RWANG"
 status: candidate
 superseded_by: null
 attributes:
@@ -17,7 +17,7 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0b |
+| **Version** | 1.1.0b |
 | **Status** | Candidate — domain documentation for review; no implementation approval |
 | Complexity / risk | C-3 / HIGH for implementation: cross-domain contracts, provider credentials, spend/publishing authority and multi-agent runtime |
 | Identity | Existing `DOM-MARKETING` · route/RBAC key `growth` · base `/growth` |
@@ -234,8 +234,16 @@ Live connector, production Postgres/migration และ external action canary �
 
 **Please review and approve this documentation. I will generate the code once approved.**
 
+### Interface review package — 1.1.0b
+
+- [Full interface inventory](marketing/MARKETING-INTERFACE-INVENTORY.md): 100 explicitly enumerated screens with candidate route, source/owner, action, state and screenshot.
+- [Interactive mockups](marketing/mockups/index.html): all 13 sidebar entries, every tab, record, form, decision dialog and shared-state preview.
+- [Mockup QA](marketing/MARKETING-MOCKUP-QA.md): desktop/mobile coverage, interaction checks and exact limitations. Mockup scripts live only in the documentation review package.
+- This revision adds reviewable interfaces to the existing 11-subdomain design. It does not approve implementation or modify production routes, storage, provider access or runtime agents.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0b | 2026-09-06 | candidate | Replace Ads-only scope with complete Marketing domain, channel/view topology and runtime team refinement; prior draft retained as superseded | See git history; baseline 9cb60a7 | RWANG |
+| 1.1.0b | 2026-09-06 | candidate | Add 100-screen interface inventory and standalone mockup package with traceable screenshots and QA; domain scope unchanged | See git history | RWANG |
