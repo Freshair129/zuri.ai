@@ -10,6 +10,7 @@ import {
   CAMPAIGN_TABS,
   campaignMutationBody,
   campaignTabHref,
+  growthCampaignPagePath,
   growthCampaignPath,
 } from '@/modules/marketing/components/campaigns/campaign-contract'
 import {
@@ -54,6 +55,7 @@ describe('FR-156 Campaign UI contracts', () => {
     expect(CAMPAIGN_TABS.map((item) => item.key)).toEqual(['brief', 'plan', 'timeline', 'results', 'decisions'])
     expect(campaignTabHref('/growth/campaigns/initiative-1', 'timeline')).toBe('/growth/campaigns/initiative-1?tab=timeline')
     expect(growthCampaignPath('initiative-1', 'business-1')).toBe('/api/growth/campaigns/initiative-1?businessId=business-1')
+    expect(growthCampaignPagePath('initiative-1')).toBe('/growth/campaigns/initiative-1?tab=brief')
     expect(collection).toContain('marketing-campaign-board')
     expect(collection).toContain('aria-pressed={view === value}')
   })

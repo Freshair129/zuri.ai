@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { Card, DataTable, EmptyState, PageHeader, StatusPill, TruncationNotice } from '@/components/ui'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 import { MarketingDataState, ScopeNotice, UnavailableState } from '../MarketingState'
-import { CAMPAIGN_PHASES, campaignBudget, campaignChannelLabel, campaignDateWindow, campaignPhase, growthCampaignPath, growthCampaignsPath } from './campaign-contract'
+import { CAMPAIGN_PHASES, campaignBudget, campaignChannelLabel, campaignDateWindow, campaignPhase, growthCampaignPagePath, growthCampaignsPath } from './campaign-contract'
 
 function campaignRows(data) {
   return Array.isArray(data?.campaigns) ? data.campaigns : []
@@ -33,7 +33,7 @@ function listColumns() {
     {
       key: 'title',
       label: 'Campaign',
-      render: (campaign) => <Link className="font-semibold underline-offset-2 hover:underline" href={growthCampaignPath(campaign.id, campaign.businessId)}>{campaign.title || 'Untitled campaign'}</Link>,
+      render: (campaign) => <Link className="font-semibold underline-offset-2 hover:underline" href={growthCampaignPagePath(campaign.id)}>{campaign.title || 'Untitled campaign'}</Link>,
     },
     { key: 'channels', label: 'Channels', render: (campaign) => (campaign.channels || []).map(campaignChannelLabel).join(' · ') || 'Channels unavailable' },
     { key: 'phase', label: 'Phase', render: (campaign) => <StatusPill status={campaignPhase(campaign)} /> },
@@ -52,7 +52,7 @@ function Board({ campaigns }) {
             <div className="mb-2 flex items-center justify-between gap-2 px-1"><h2 id={`campaign-phase-${phase}`} className="text-[11px] font-bold">{phase}</h2><span className="text-[10px] text-muted">{rows.length}</span></div>
             <div className="space-y-2">
               {rows.map((campaign) => (
-                <Link key={campaign.id} href={growthCampaignPath(campaign.id, campaign.businessId)} className="block rounded-lg border border-[var(--border)] bg-[var(--surface-card)] p-2 hover:bg-[var(--brand-surface)]">
+                <Link key={campaign.id} href={growthCampaignPagePath(campaign.id)} className="block rounded-lg border border-[var(--border)] bg-[var(--surface-card)] p-2 hover:bg-[var(--brand-surface)]">
                   <p className="truncate text-xs font-semibold">{campaign.title || 'Untitled campaign'}</p>
                   <p className="mt-1 text-[10px] text-muted">{campaignDateWindow(campaign)}</p>
                   <p className="mt-1 text-[10px] text-muted">{campaignBudget(campaign)}</p>

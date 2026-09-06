@@ -10,12 +10,13 @@ import {
   campaignTabHref,
   currentPlanVersion,
   formatMarketingDate,
+  growthCampaignPagePath,
   growthCampaignPath,
   growthCampaignsPath,
   normalizeCampaignBrief,
 } from '../marketing-contract'
 
-export { CAMPAIGN_TABS, campaignTabHref, currentPlanVersion, formatMarketingDate, growthCampaignPath, growthCampaignsPath }
+export { CAMPAIGN_TABS, campaignTabHref, currentPlanVersion, formatMarketingDate, growthCampaignPagePath, growthCampaignPath, growthCampaignsPath }
 
 export const CAMPAIGN_PHASES = ['DRAFT', 'APPROVED', 'EXECUTING', 'CLOSED', 'CANCELLED']
 

@@ -48,6 +48,10 @@ export function growthCampaignPath(initiativeId, businessId) {
   return `${GROWTH_CAMPAIGNS_PATH}/${encodeURIComponent(initiativeId)}?businessId=${encodeURIComponent(businessId || '')}`
 }
 
+export function growthCampaignPagePath(initiativeId, tab = 'brief') {
+  return `/growth/campaigns/${encodeURIComponent(initiativeId)}?tab=${encodeURIComponent(tab)}`
+}
+
 export function campaignTabHref(pathname, tab, initiativeId) {
   const params = new URLSearchParams()
   params.set('tab', tab)
