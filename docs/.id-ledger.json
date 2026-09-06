@@ -4807,14 +4807,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "43f2b2585315007d6e81c3b2e1db4cd3cc1dc313192d320157d8e13c0e7f3e53",
+      "statement_digest": "b09db891d2a0ffab8f2ea8cf111cc37e03625a639f784f3ff9c4684458b2fbb7",
       "history": [
         {
           "anchor": "line oa studio",
           "since": "2026-09-05",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-06",
+      "statement_digest_reason": "FEAT-018 statement extended to name the rich menu designer as FR-148 joins the bundle; the feature's subject (LINE OA Studio accounts command center) is unchanged"
     },
     "RSK-001": {
       "family": "RSK",
