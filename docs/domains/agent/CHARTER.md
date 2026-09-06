@@ -1,4 +1,17 @@
 ---
+version: "0.1.0b"
+status: active
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+id: ZAI:DOMAIN-AGENT
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+  - type: relates_to
+    target: ZAI:FR-149-P3
+  - type: relates_to
+    target: ZAI:FR-150-P2
 domain: agent
 module: src/modules/agent
 owns_models: []
@@ -26,8 +39,9 @@ a database superuser.
   tenantId/businessId is rejected before any turn work (FR-052, SEC-010).
 - Never executes anything arriving in a plan/envelope — plans are data
   (BR-007, SEC-002).
-- Replies flow back to the sole LINE transport owner (zuri-cli, BR-011); this
-  domain never consumes a replyToken itself (FR-050).
+- Legacy replies flow back to zuri-cli under BR-011/FR-050. Server-enabled
+  conversations return bounded text to the Studio worker, which invokes the
+  Integration-owned LINE port under ADR-061; Agent never owns sending.
 - MSP is episodic memory, GKS is canonical knowledge, ERP state is operational
   truth — never confused (spec §17–19); conversation content never becomes
   canonical knowledge without governance.
@@ -55,3 +69,13 @@ a database superuser.
 
 The former `docs/ai-system/` set lives here: intent pipeline, prompt registry,
 PDPA/ethics governance, model lifecycle.
+
+## FEAT-019 execution handoffs
+
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
+
+## CHANGELOG
+
+| Version | Date | Summary | Agent |
+|---|---|---|---|
+| 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

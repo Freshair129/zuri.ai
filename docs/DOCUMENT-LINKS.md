@@ -51,6 +51,10 @@ Backlinks:
 Source: [Architecture](ARCHITECTURE.md)
 
 - references: [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md)
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
 Backlinks:
 
@@ -453,6 +457,8 @@ Source: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Progr
 
 Backlinks:
 
+- [Architecture](ARCHITECTURE.md) (references)
+- [Zuri V2 — Product Definition](PRODUCT.md) (references)
 - [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md) (references)
 - [ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces](decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md) (references)
 - [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) (relates)
@@ -462,6 +468,7 @@ Backlinks:
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-048 — Platform Control is outside the Business Shell](decisions/ADR-048-PLATFORM-CONTROL-SHELL.md) (relates)
 - [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (relates)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 
 ## ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow
 
@@ -489,6 +496,7 @@ Backlinks:
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope](decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md) (relates)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (relates)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 
 ## ADR-026 — Agent Topology for the Visual Office
 
@@ -734,6 +742,7 @@ Backlinks:
 - [ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope](decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md) (relates)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (relates)
 - [ADR-051 — The primary checkout is not a working lane](decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md) (relates)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 
 ## ADR-040 — Codex-mediated SmartGift pipeline evidence bridge
 
@@ -771,6 +780,8 @@ Backlinks:
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) (relates)
 - [ADR-052 — Canonical Plugin Authorization-Code and Token Boundary](decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md) (relates)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 
 ## ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture
 
@@ -966,6 +977,7 @@ Backlinks:
 
 - [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 
 ## ADR-052 — Canonical Plugin Authorization-Code and Token Boundary
 
@@ -1053,6 +1065,7 @@ Backlinks:
 - [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
 
 ## ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts
 
@@ -1076,6 +1089,70 @@ Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-acco
 Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## ADR-061 — Server-owned LINE and optional Edge execution
+
+Source: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+- relates: [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md)
+- relates: [ADR-059 — Edge-executed evidence extraction (pull model)](decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md)
+- relates: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+
+Backlinks:
+
+- [Architecture](ARCHITECTURE.md) (relates)
+- [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md) (relates)
+- [Features (FEAT registry)](FEATURES.md) (relates)
+- [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (relates)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (relates)
+- [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
+- [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
+- [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (relates)
+- [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
+- [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
+- [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md) (relates)
+- [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
+- [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
+- [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
+- [Zuri V2 — Product Definition](PRODUCT.md) (relates)
+- [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
+- [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
+- [Domain — crm](domains/crm/CHARTER.md) (relates)
+- [Domain — integration](domains/integration/CHARTER.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
+
+## ADR-062 — Candidate Server/Edge monorepo with independent releases
+
+Source: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+- references: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+- relates: feat:FEAT-019
+- relates: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+- relates: [ADR-039 — Requirement ids are pinned by subject anchor](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+- relates: [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md)
+- relates: [ADR-051 — The primary checkout is not a working lane](decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [Zuri V2 — Product Definition](PRODUCT.md) (references)
+- [Architecture](ARCHITECTURE.md) (relates)
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
+- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -1086,6 +1163,11 @@ Source: [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.
 ## Domain — agent
 
 Source: [Domain — agent](domains/agent/CHARTER.md)
+
+- relates: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+- relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 Backlinks:
 
@@ -1133,6 +1215,46 @@ Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
 
+## FR-149-P3 — Server-owned LINE conversation transport
+
+Source: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+- relates: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (relates)
+- [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
+
+## FR-150-P2 — Optional Edge conversation execution
+
+Source: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- relates: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
+- relates: [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
+- [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
+
 ## Domain — asset-management
 
 Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
@@ -1146,6 +1268,14 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 - references: [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md)
 - references: [ADR-056 — Asset Evidence Cloud and Extraction Boundary](decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md)
 - references: [ADR-059 — Edge-executed evidence extraction (pull model)](decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md)
+
+## Asset Management context map
+
+Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## FR-133..136 — Asset Management foundation
 
@@ -1174,6 +1304,11 @@ Backlinks:
 ## Domain — crm
 
 Source: [Domain — crm](domains/crm/CHARTER.md)
+
+- relates: [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md)
+- relates: [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 Backlinks:
 
@@ -1214,6 +1349,60 @@ Source: [FR-103 — SEC-005 PDPA consent attestation (MVP scope)](domains/crm/fe
 
 - references: [AI Ethics & Data Governance (PDPA)](domains/agent/ethics-governance.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
+
+## FR-148 — Account-scoped CRM conversations
+
+Source: [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md)
+- relates: [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-148](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (relates)
+- [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## FR-148-P2 — Account-scoped CRM conversations
+
+Source: [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md)
+- relates: [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-148](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (relates)
+- [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (relates)
+- [Domain — crm](domains/crm/CHARTER.md) (relates)
+
+## FR-149-P5 — Server-owned LINE conversation transport
+
+Source: [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
+- [Domain — crm](domains/crm/CHARTER.md) (relates)
 
 ## Domain — identity
 
@@ -1315,6 +1504,11 @@ Backlinks:
 
 Source: [Domain — integration](domains/integration/CHARTER.md)
 
+- relates: [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md)
+- relates: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
 Backlinks:
 
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
@@ -1366,6 +1560,44 @@ Source: [FR-130 — GitHub repository binding and read-only projection](domains/
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
+
+## FR-149-P1 — Server-owned LINE conversation transport
+
+Source: [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (relates)
+- [Domain — integration](domains/integration/CHARTER.md) (relates)
+
+## FR-149-P4 — Server-owned LINE conversation transport
+
+Source: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+- relates: [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
+- [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md) (relates)
+- [Domain — integration](domains/integration/CHARTER.md) (relates)
 
 ## Domain — knowledge
 
@@ -1633,10 +1865,158 @@ Source: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 - references: [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md)
 - references: [ADR-059 — Edge-executed evidence extraction (pull model)](decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md)
 - references: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+- relates: [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md)
+- relates: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+- relates: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
+- relates: [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 Backlinks:
 
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+
+## Context map — LINE OA Studio
+
+Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+## FR-149 — Server-owned LINE conversation transport
+
+Source: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md)
+- relates: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+- relates: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+- relates: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+- relates: [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
+- [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (relates)
+- [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
+- [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
+- [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md) (relates)
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## FR-150 — Optional Edge conversation execution
+
+Source: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
+- relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+- relates: [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
+- [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## FR-148-P1 — Account-scoped CRM conversations
+
+Source: [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md)
+- relates: [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-148](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (relates)
+- [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+
+## FR-149-P2 — Server-owned LINE conversation transport
+
+Source: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md)
+- relates: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
+- [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
+- [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+
+## FR-150-P1 — Optional Edge conversation execution
+
+Source: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+
+## FR-150-P3 — Optional Edge conversation execution
+
+Source: [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md)
+
+- references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+- relates: feat:FEAT-019
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
+- [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+
+## SRS — LINE OA Studio domain
+
+Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+## Context map — Market Intelligence
+
+Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## FR-092 — Market translation core
 
@@ -1645,6 +2025,14 @@ Source: [FR-092 — Market translation core](domains/market-intelligence/feature
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
+
+## SRS — Market Intelligence Domain
+
+Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## Domain — project-manager
 
@@ -1795,6 +2183,9 @@ Backlinks:
 
 Source: [Features (FEAT registry)](FEATURES.md)
 
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
@@ -1838,6 +2229,9 @@ Backlinks:
 
 Source: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
 Backlinks:
 
 - [FR-068 — Human-visible Project Execution Roadmap and identity references](domains/project-manager/features/FR-068-human-visible-execution-roadmap.md) (references)
@@ -1865,7 +2259,11 @@ Source: [Zuri V2 — Product Definition](PRODUCT.md)
 - references: [ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates](decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md)
 - references: [ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md)
 - references: [ADR-016 — SQLite authority and managed local file workspace](decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md)
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 - references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+- references: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 Backlinks:
 
@@ -1942,6 +2340,56 @@ Source: [Implementation Plan: LINE OA Business Agent](roadmap/line-oa-business-a
 - references: [Phase 5: GKS and GenesisBlockDB Semantic Memory](roadmap/line-oa-business-agent/PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY.md)
 - references: [Phase 6: LINE Group Assistant and Governed Actions](roadmap/line-oa-business-agent/PHASE-06-GROUP-ASSISTANT-ACTIONS.md)
 - references: [Phase 7: OmiChat Unified Inbox](roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md)
+
+## FEAT-019 — Domain-owned execution phases
+
+Source: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+
+- references: [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md)
+- references: [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md)
+- references: [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md)
+- references: [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md)
+- references: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
+- references: [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md)
+- references: [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md)
+- references: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
+- references: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+- references: [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md)
+- relates: [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md)
+- relates: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+Backlinks:
+
+- [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (references)
+- [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (references)
+- [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (references)
+- [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (references)
+- [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (references)
+- [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (references)
+- [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (references)
+- [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (references)
+- [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (references)
+- [FR-149-P5 — Server-owned LINE conversation transport](domains/crm/features/PHASE-FR-149-P5-server-line-transport.md) (references)
+- [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (references)
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (references)
+- [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (references)
+- [Architecture](ARCHITECTURE.md) (relates)
+- [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md) (relates)
+- [Features (FEAT registry)](FEATURES.md) (relates)
+- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
+- [Zuri V2 — Product Definition](PRODUCT.md) (relates)
+- [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
+- [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
+- [Domain — crm](domains/crm/CHARTER.md) (relates)
+- [Domain — integration](domains/integration/CHARTER.md) (relates)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+- [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
 
 ## Implementation Plan — FR-040 Project Work Views
 
@@ -2066,11 +2514,25 @@ Backlinks:
 
 - [FR-078 — Customer data backfill contract](domains/crm/features/FR-078-customer-data-backfill-contract.md) (references)
 
+## Candidate monorepo migration gates
+
+Source: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+Backlinks:
+
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (references)
+
 ## ROADMAP: zuri-ai — Live Delivery State
 
 Source: [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md)
 
 - references: [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md)
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
 Backlinks:
 

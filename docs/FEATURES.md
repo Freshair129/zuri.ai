@@ -1,8 +1,20 @@
+---
+id: ZAI:FEATURES
+version: "1.22.0b"
+status: active
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+---
+
 # Features (FEAT registry)
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.21.0b |
+| **Version** | 1.22.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -659,3 +671,9 @@ writing one sentence here, or the governance chain stops.
 ]
 ```
 <!-- readiness-metadata:end -->
+
+## FEAT-019 phase documentation — 2026-09-06
+
+[FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
+
+Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.

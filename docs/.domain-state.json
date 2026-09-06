@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T06:09:17.644Z",
+  "generatedAt": "2026-09-06T06:29:06.268Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -464,8 +464,10 @@
           ]
         },
         "jsonSchema": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "contracts/plan-envelope.schema.json"
+          ],
           "gaps": []
         },
         "database": {
@@ -501,6 +503,7 @@
         }
       },
       "evidence": [
+        "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/agent/CHARTER.md",
@@ -512,6 +515,8 @@
         "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
         "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
         "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
+        "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
+        "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -556,7 +561,7 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 8
+        "featureNotes": 10
       },
       "featureIds": [
         "FR-025",
@@ -930,6 +935,9 @@
         "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
         "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
         "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
+        "docs/domains/crm/features/FR-148-account-scoped-conversations.md",
+        "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
+        "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -943,7 +951,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 9,
-        "featureNotes": 5
+        "featureNotes": 8
       },
       "featureIds": [
         "FEAT-006",
@@ -1676,6 +1684,8 @@
         "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
         "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
         "docs/domains/integration/features/FR-130-github-repository-projection.md",
+        "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
+        "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1710,7 +1720,7 @@
         "apiRoutes": 7,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 9
+        "featureNotes": 11
       },
       "featureIds": [
         "FEAT-004",
@@ -2122,7 +2132,13 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/line-oa-studio/CHARTER.md",
         "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+        "docs/domains/line-oa-studio/features/FR-149-server-line-transport.md",
+        "docs/domains/line-oa-studio/features/FR-150-optional-edge-execution.md",
         "docs/domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md",
+        "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
+        "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
+        "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
+        "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -2144,7 +2160,7 @@
         "apiRoutes": 11,
         "pageRoutes": 1,
         "ownedModels": 4,
-        "featureNotes": 2
+        "featureNotes": 8
       },
       "featureIds": [
         "FEAT-018",

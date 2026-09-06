@@ -1,5 +1,13 @@
 ---
-version: "0.2.2"
+id: ZAI:LINE-OA-CONTEXT
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:FEAT-019
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+version: "0.3.0b"
 status: proposed
 domain: line-oa-studio
 doc_type: context-map
@@ -7,11 +15,14 @@ doc_type: context-map
 
 # Context map — LINE OA Studio
 
+> Current conversation boundary: ADR-061 amends earlier EDGE/CLOUD topology for server-enabled conversations. Studio owns account/job state, Integration owns LINE transport, CRM owns history and Agent supplies answer contracts. FEAT-019 / FR-148..150 are distinct from FEAT-018 rich-menu/account design. [Phase and rollout map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md). Edge PR #22 remains open at this audit; no production activation is asserted.
+
+
 This document records how LINE OA Studio collaborates with the authorities that
 already exist. It is about **ownership and contracts**, not deployment topology:
-every context below stays inside the Zuri modular monolith, and the one process
-outside it — the tenant's Zuri Edge Device, for EDGE-mode accounts — is a
-boundary this repository already has (BR-011, ADR-041, ADR-059).
+server contexts stay inside the Zuri modular monolith. The optional Edge
+executor is a separately released process; for server-enabled conversations it
+has no LINE send authority (ADR-061). BR-011 retains the explicit legacy path.
 
 ## System context
 
@@ -248,14 +259,17 @@ one-way contract does not transfer ownership.
 
 ## Deployment statement
 
-All contexts in this map are logical boundaries inside one application and one
-release, plus the already-existing transport owner process. No separate
+Server contexts in this map are logical boundaries in one application release;
+the optional Edge executor has its own release. ADR-061 governs server-owned
+conversation transport; older topology diagrams above describe retained legacy
+or proposed Studio design capabilities. No separate
 database, network service or hosted "studio" origin is implied.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | base 4c0cbe3 | RWANG |
 | 0.2.2 | 2026-09-05 | proposed | CRM relationship: one receipt path per send — FR-093 for reply-turn sends by the transport owner, the job result for Studio-initiated sends | working-tree | Claude Code |
 | 0.2.1 | 2026-09-05 | proposed | Added the Studio-owned scheduler's fire/expire events to the vocabulary candidates; no new neighbour, the scheduler stays inside the Studio | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Split the transport relationship by account mode after the owner's answer: EDGE device (pull model, published-config pull) vs CLOUD worker over the integration lane's Vault-resolved LINE port; one owner at a time | working-tree | Claude Code |

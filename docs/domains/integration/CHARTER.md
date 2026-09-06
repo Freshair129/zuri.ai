@@ -1,4 +1,17 @@
 ---
+version: "0.1.0b"
+status: active
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+id: ZAI:DOMAIN-INTEGRATION
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+  - type: relates_to
+    target: ZAI:FR-149-P1
+  - type: relates_to
+    target: ZAI:FR-149-P4
 domain: integration
 module: src/modules/integration
 owns_routes:
@@ -181,3 +194,13 @@ without making UI state an activation authority. Candidate FR-125 adds a
 Business-scoped FlowAccount data-source adapter over FR-081 and invokes the
 deferred write-only provisioner boundary without exposing raw credential material
 or publishing raw provider records into an owner domain.
+
+## FEAT-019 execution handoffs
+
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
+
+## CHANGELOG
+
+| Version | Date | Summary | Agent |
+|---|---|---|---|
+| 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

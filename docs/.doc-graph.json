@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1828,
-    "total_edges": 6993,
+    "total_nodes": 1844,
+    "total_edges": 7152,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 161,
-      "adr": 61,
+      "document": 174,
+      "adr": 62,
       "domain": 10,
-      "roadmap": 35,
+      "roadmap": 37,
       "feature": 19,
       "route": 198,
       "model": 86,
@@ -55,10 +55,21 @@
   },
   "drift": {
     "changed": [
+      "doc:ARCHITECTURE",
       "doc:README",
+      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "domain:agent",
       "doc:CONTEXT-MAP",
+      "domain:crm",
+      "domain:integration",
+      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "doc:SRS",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "doc:PRODUCT",
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -10194,8 +10205,8 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "c433b608",
-      "status": "current"
+      "hash": "ad873073",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -10256,7 +10267,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
       "title": "Context map — LINE OA Studio",
-      "hash": "8663bb64",
+      "hash": "3427fa5e",
       "status": "changed"
     },
     {
@@ -10456,10 +10467,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.21.0b",
+      "version": "1.22.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "ce58520a",
-      "status": "current"
+      "hash": "14b53da6",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11253,6 +11264,30 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-148-account-scoped-conversations",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-148-account-scoped-conversations.md",
+      "title": "FR-148 — Account-scoped CRM conversations",
+      "hash": "ac4ecf3b",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-149-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-149-server-line-transport.md",
+      "title": "FR-149 — Server-owned LINE conversation transport",
+      "hash": "cc0180b3",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-150-optional-edge-execution",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-150-optional-edge-execution.md",
+      "title": "FR-150 — Optional Edge conversation execution",
+      "hash": "43330d7f",
+      "status": "current"
+    },
+    {
       "id": "doc:FR-151-line-oa-rich-menu",
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md",
@@ -11409,6 +11444,86 @@
       "status": "current"
     },
     {
+      "id": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
+      "title": "FR-148-P1 — Account-scoped CRM conversations",
+      "hash": "9758d177",
+      "status": "changed"
+    },
+    {
+      "id": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "type": "document",
+      "path": "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
+      "title": "FR-148-P2 — Account-scoped CRM conversations",
+      "hash": "b3b1b15b",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-149-P1-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
+      "title": "FR-149-P1 — Server-owned LINE conversation transport",
+      "hash": "61de4a5f",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
+      "title": "FR-149-P2 — Server-owned LINE conversation transport",
+      "hash": "97e2d398",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
+      "title": "FR-149-P3 — Server-owned LINE conversation transport",
+      "hash": "2ca155cc",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
+      "title": "FR-149-P4 — Server-owned LINE conversation transport",
+      "hash": "56538a03",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-149-P5-server-line-transport",
+      "type": "document",
+      "path": "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
+      "title": "FR-149-P5 — Server-owned LINE conversation transport",
+      "hash": "84b357e0",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
+      "title": "FR-150-P1 — Optional Edge conversation execution",
+      "hash": "b0675b0a",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "document",
+      "path": "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
+      "title": "FR-150-P2 — Optional Edge conversation execution",
+      "hash": "fe7fe5d1",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
+      "title": "FR-150-P3 — Optional Edge conversation execution",
+      "hash": "4984cdbd",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES.md",
@@ -11422,6 +11537,14 @@
       "path": "docs/roadmap/PLAN-ASSET-MANAGEMENT-4-PHASES.md",
       "title": "Asset Management — Four-phase implementation plan",
       "hash": "72675686",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md",
+      "title": "FEAT-019 — Domain-owned execution phases",
+      "hash": "b059ced0",
       "status": "current"
     },
     {
@@ -11607,24 +11730,32 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
+      "title": "Candidate monorepo migration gates",
+      "hash": "c025af6c",
+      "status": "current"
+    },
+    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.154.0b",
+      "version": "1.155.0b",
       "doc_status": "Draft",
-      "hash": "438966a4",
-      "status": "current"
+      "hash": "1237f241",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
       "type": "document",
       "path": "docs/PRODUCT.md",
       "title": "Zuri V2 — Product Definition",
-      "version": "1.1.0",
+      "version": "1.2.0b",
       "doc_status": "Draft",
-      "hash": "850b32aa",
-      "status": "current"
+      "hash": "a34f3775",
+      "status": "changed"
     },
     {
       "id": "doc:prompt-engineering",
@@ -11657,8 +11788,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "0a0aedb2",
-      "status": "current"
+      "hash": "ab2ca252",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11701,7 +11832,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/SRS.md",
       "title": "SRS — LINE OA Studio domain",
-      "hash": "1c725c1f",
+      "hash": "cf514ab2",
       "status": "changed"
     },
     {
@@ -11917,8 +12048,8 @@
       "modules": [
         "agent"
       ],
-      "hash": "6a379d2e",
-      "status": "current"
+      "hash": "cf8d008a",
+      "status": "changed"
     },
     {
       "id": "domain:asset-management",
@@ -11968,8 +12099,8 @@
       "modules": [
         "crm"
       ],
-      "hash": "c1364a9a",
-      "status": "current"
+      "hash": "6a2cc86e",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -12050,8 +12181,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "a7f5c7b1",
-      "status": "current"
+      "hash": "b4664063",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -12089,8 +12220,8 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "fab4f844",
-      "status": "current"
+      "hash": "796e0b20",
+      "status": "changed"
     },
     {
       "id": "domain:market-intelligence",
@@ -17906,7 +18037,15 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "6b2f0324",
+      "hash": "d8ec34ff",
+      "status": "changed"
+    },
+    {
+      "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
+      "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
+      "hash": "fafebec5",
       "status": "current"
     },
     {
@@ -36259,6 +36398,55 @@
       "status": "current"
     },
     {
+      "from": "doc:ARCHITECTURE",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:CONTEXT-MAP",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:CONTEXT-MAP",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:CONTEXT-MAP",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:docker-ngrok",
       "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
       "type": "references",
@@ -36284,6 +36472,20 @@
       "to": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FEATURES",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FEATURES",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -37253,6 +37455,160 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "req:FR-148",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-148-account-scoped-conversations",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PHASE-FR-149-P1-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PHASE-FR-149-P5-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-149-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-150-optional-edge-execution",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -37320,6 +37676,566 @@
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "doc:FR-148-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "req:FR-148",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "doc:FR-148-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "req:FR-148",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P1-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "doc:PHASE-FR-149-P1-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P2-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P3-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "doc:PHASE-FR-149-P5-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P4-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-149-P5-server-line-transport",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:FR-148-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-149-P1-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-149-P5-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -37603,6 +38519,41 @@
       "status": "current"
     },
     {
+      "from": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:PRODUCT",
       "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
       "type": "references",
@@ -37632,7 +38583,28 @@
     },
     {
       "from": "doc:PRODUCT",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
       "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -37688,9 +38660,30 @@
     },
     {
       "from": "doc:ROADMAP",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
       "to": "doc:PLAN-PENDING-PARALLEL-20260831",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -37705,6 +38698,27 @@
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SRS",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:SRS",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:SRS",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -37754,6 +38768,34 @@
       "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
+      "to": "doc:PHASE-FR-149-P3-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -37820,6 +38862,97 @@
       "status": "current"
     },
     {
+      "from": "domain:crm",
+      "to": "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:crm",
+      "to": "doc:PHASE-FR-149-P5-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:crm",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:crm",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:integration",
+      "to": "doc:PHASE-FR-149-P1-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:integration",
+      "to": "doc:PHASE-FR-149-P4-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:integration",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:integration",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:PHASE-FR-149-P2-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "domain:line-oa-studio",
       "to": "domain:agent",
       "type": "references",
@@ -37866,6 +38999,13 @@
       "to": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -44614,6 +45754,118 @@
       "to": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "doc:FR-148-account-scoped-conversations",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "to": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {

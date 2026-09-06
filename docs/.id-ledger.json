@@ -562,6 +562,7 @@
     "ADR-059",
     "ADR-060",
     "ADR-061",
+    "ADR-062",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -6817,6 +6818,19 @@
       "history": [
         {
           "anchor": "server owned line and optional edge execution",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-062": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "18d08bcb7271fa877fada12f16ebf554311b7b7578e5c87815b15570e2b8a08b",
+      "history": [
+        {
+          "anchor": "candidate server edge monorepo with independent releases",
           "since": "2026-09-06",
           "reason": "declared"
         }
