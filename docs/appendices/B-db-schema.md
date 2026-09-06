@@ -173,7 +173,7 @@ in the same change; the Supabase SQL is written and **not applied**.
 Version diff 1.22.0b → 1.23.0b (2026-09-06): reconciled the ten Marketing persistence models present in the combined SQLite schema — five Strategy evidence models, one Campaign association model, and four Content evidence models. This documentation update adds no migration.
 
 Version diff 1.23.0b → 1.24.0b (2026-09-07): added `SalesTask` (FR-161, ADR-064 — the legacy Tasks section as a
-CRM sales activity record) with one additive migration in each tree (`20260906235000_crm_sales_task`) in the
+CRM sales activity record) with one additive migration in each tree (`20260906235500_crm_sales_task`) in the
 same change; the Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
