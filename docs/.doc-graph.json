@@ -54,87 +54,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:full-schema",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/domain-state.test.js",
-      "code:src/config/domains.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/identity/rbac.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
-    "added": [
-      "domain:inventory",
-      "doc:FR-154-inventory-catalogue-identity",
-      "doc:FR-155-inventory-stock-ledger",
-      "doc:FR-156-inventory-recipe-bill-of-materials",
-      "doc:ONTOLOGY",
-      "feat:FEAT-020",
-      "route:page:/inventory",
-      "route:api:/api/inventory/bundles",
-      "route:api:/api/inventory/categories",
-      "route:api:/api/inventory/factories",
-      "route:api:/api/inventory/families",
-      "route:api:/api/inventory/lots",
-      "route:api:/api/inventory/product-masters",
-      "route:api:/api/inventory/products",
-      "route:api:/api/inventory/products/[id]",
-      "route:api:/api/inventory/recipes",
-      "route:api:/api/inventory/recipes/[id]/build",
-      "route:api:/api/inventory/recipes/[id]",
-      "route:api:/api/inventory/serial-units",
-      "route:api:/api/inventory/stock",
-      "route:api:/api/inventory/stock-movements",
-      "model:InventoryCategory",
-      "model:ProductFamily",
-      "model:Factory",
-      "model:ProductMaster",
-      "model:Product",
-      "model:ProductLot",
-      "model:SerialUnit",
-      "model:ProductBundle",
-      "model:ProductBundleItem",
-      "model:StockMovement",
-      "model:ProductRecipe",
-      "model:ProductRecipeLine",
-      "req:FR-154",
-      "req:FR-155",
-      "req:FR-156",
-      "test:tests/e2e/fr154-inventory-dashboard.spec.js",
-      "test:tests/integration/fr154-inventory-catalog.test.js",
-      "test:tests/integration/fr155-inventory-stock.test.js",
-      "test:tests/integration/fr156-inventory-recipe.test.js",
-      "test:tests/unit/inventory-domain.test.js",
-      "test:tests/unit/inventory-routes.test.js",
-      "code:src/app/(pm)/inventory/page.jsx",
-      "code:src/app/api/inventory/bundles/route.js",
-      "code:src/app/api/inventory/categories/route.js",
-      "code:src/app/api/inventory/factories/route.js",
-      "code:src/app/api/inventory/families/route.js",
-      "code:src/app/api/inventory/lots/route.js",
-      "code:src/app/api/inventory/product-masters/route.js",
-      "code:src/app/api/inventory/products/route.js",
-      "code:src/app/api/inventory/products/[id]/route.js",
-      "code:src/app/api/inventory/recipes/route.js",
-      "code:src/app/api/inventory/recipes/[id]/build/route.js",
-      "code:src/app/api/inventory/recipes/[id]/route.js",
-      "code:src/app/api/inventory/serial-units/route.js",
-      "code:src/app/api/inventory/stock/route.js",
-      "code:src/app/api/inventory/stock-movements/route.js",
-      "code:src/modules/inventory/application/inventory-authority.js",
-      "code:src/modules/inventory/application/inventory-catalog-service.js",
-      "code:src/modules/inventory/application/inventory-recipe-service.js",
-      "code:src/modules/inventory/application/inventory-stock-service.js",
-      "code:src/modules/inventory/domain/inventory.js",
-      "code:src/modules/inventory/index.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5303,7 +5224,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "0de1745b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5625,7 +5546,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "e1fa4a75",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7628,7 +7549,7 @@
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
       "hash": "04df3468",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -9301,7 +9222,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "414c19b2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -9372,7 +9293,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "fb9d6e00",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -11336,7 +11257,7 @@
       "version": "1.44.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "f87f8cad",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11390,7 +11311,7 @@
       "version": "1.22.0b",
       "doc_status": "Draft",
       "hash": "2d18728c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11724,7 +11645,7 @@
       "version": "1.26.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "d8a75d45",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12595,7 +12516,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "3dd0f9e2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -12643,7 +12564,7 @@
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "573d314f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -13047,7 +12968,7 @@
       "version": "1.159.0b",
       "doc_status": "Draft",
       "hash": "d0d6cc09",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13075,7 +12996,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "78cc892c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -20516,7 +20437,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "46991e19",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -21321,7 +21242,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "c26f44ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
