@@ -7,14 +7,14 @@ relations:
     target: ZAI:ADR-062
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
-version: "0.2.0b"
+version: "0.2.1b"
 status: candidate
 last_update: "2026-09-06T15:40:00+07:00,CLAUDE"
 ---
 
 # Architecture
 
-> Current authority (2026-09-06): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs server-owned LINE and optional Edge computation. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+> Current authority (2026-09-06): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs server-owned LINE and optional Edge computation. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) governs the approved `apps/server` / `apps/edge` source layout; runtime and release boundaries remain independent.
 
 
 > The **three-layer** and **system** diagrams live in
@@ -200,3 +200,5 @@ Workstream relations remain queryable links rather than canonical folders. A loc
 runtime bridge may reveal a file in Explorer; ordinary hosted web routes may not
 launch an OS process. Detailed contracts and migration gates are in ADR-016,
 FR-045 and ZV2-CR-001.
+
+Version diff 0.2.0b → 0.2.1b: reflect approved monorepo source topology; preserve existing system diagrams.

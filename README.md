@@ -24,18 +24,34 @@ not a version of, and shares nothing with, the legacy zuri project.
 ## Planning import contracts
 
 Project Manager keeps one canonical per-Project intake contract:
-[`PlanEnvelope`](contracts/plan-envelope.schema.json). Human form, Excel,
+[`PlanEnvelope`](apps/server/contracts/plan-envelope.schema.json). Human form, Excel,
 Agent/API/MCP and pasted JSON all converge on the same validation → dry-run →
 confirm → commit path.
 
 For a self-contained programme artifact containing Business Roadmap/Horizons,
 Goals and multiple Projects, use
-[`ExecutionPlanBundle`](contracts/execution-plan-bundle.schema.json). The bundle
+[`ExecutionPlanBundle`](apps/server/contracts/execution-plan-bundle.schema.json). The bundle
 is an orchestration package above PlanEnvelope, not a replacement writer and not
 an alias for `WorkContainer`; see
 [ADR-049](docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md)
 and the
 [ExecutionPlanBundle design contract](docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md).
+
+## Monorepo layout and installation
+
+`apps/server` contains the web/API application; `apps/edge` contains the optional
+device runtime. Root `docs/` remains canonical. Both apps retain independent
+lockfiles, installation, build and release boundaries. See
+[snapshot execution](docs/migrations/monorepo/EXECUTION.md).
+
+```bash
+npm --prefix apps/server ci   # Node 22
+npm --prefix apps/edge ci     # Node 24; also needed for cross-app contract tests
+npm run edge:test
+npm run edge:typecheck
+npm run edge:build
+npm run govern
+```
 
 ## Toolchain
 
@@ -55,6 +71,7 @@ A change is not done until tests pass, the build is clean, and
 ## Deployment (Docker Compose + ngrok)
 
 ```bash
+cd apps/server
 cp .env.example .env   # fill DATABASE_URL, ZURI_SESSION_SECRET, NGROK_AUTHTOKEN, NGROK_DOMAIN
 docker compose up -d --build
 docker compose ps      # web healthy, ngrok running

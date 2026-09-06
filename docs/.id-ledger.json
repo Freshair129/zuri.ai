@@ -577,6 +577,7 @@
     "ADR-060",
     "ADR-061",
     "ADR-062",
+    "ADR-063",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2928,8 +2929,8 @@
     "FR-154": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "26e4a4eb95a48978f686abac1ab67caa32043e69d4e60f6f2c9450cc4aa23f98",
+      "status": "current",
+      "statement_digest": "63ca31211444f4e5d1e14e7e1231db9d586323a7293f46b41f91cf21bf47099b",
       "history": [
         {
           "anchor": "marketing execution handoff",
@@ -2940,17 +2941,24 @@
           "anchor": "marketing execution handoff",
           "since": "2026-09-06",
           "reason": "Abandoned before merge; this branch renumbered itself to FR-158. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory catalogue identity คล งส นค า",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
       ],
       "retired_to": "FR-158",
       "retired_at": "2026-09-06",
-      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FR-155": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
+      "status": "current",
+      "statement_digest": "1c4805ddc93af8fbd495970bec423252fdc66cd9b91c9c8b34927fb7b2a3395f",
       "history": [
         {
           "anchor": "marketing strategy revision and decision",
@@ -2961,17 +2969,24 @@
           "anchor": "marketing strategy revision and decision",
           "since": "2026-09-06",
           "reason": "Abandoned before merge; this branch renumbered itself to FR-159. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory stock ledger",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
       ],
       "retired_to": "FR-159",
       "retired_at": "2026-09-06",
-      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FR-156": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "2ca17fa6180b615ae2f046d24029288e939e473c27dbd18ac44e534ec14927a2",
+      "status": "current",
+      "statement_digest": "d70121110dec0f7533a93f41ec0bc6dcc3193777e7176c8f6363e06c4cad010a",
       "history": [
         {
           "anchor": "marketing campaign initiatives",
@@ -2982,11 +2997,18 @@
           "anchor": "marketing campaign initiatives",
           "since": "2026-09-06",
           "reason": "Abandoned before merge; this branch renumbered itself to FR-160. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory recipe bill of materials at a batch size",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
       ],
       "retired_to": "FR-160",
       "retired_at": "2026-09-06",
-      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FR-157": {
       "family": "FR",
@@ -5073,8 +5095,8 @@
     "FEAT-020": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
-      "status": "burnt",
-      "statement_digest": "7e0f0ca9c9559d917bc8cce8a560ec646cc7e3b6214fd201f3b65ab06638c548",
+      "status": "current",
+      "statement_digest": "c72c38cf8645cd8bb264f6640372c8be29b7f7da8b6beae254a289c5915b3586",
       "history": [
         {
           "anchor": "marketing planning and accountable execution",
@@ -5085,11 +5107,18 @@
           "anchor": "marketing planning and accountable execution",
           "since": "2026-09-06",
           "reason": "Abandoned before merge; this branch renumbered itself to FEAT-021. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory คล งส นค า",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
       ],
       "retired_to": "FEAT-021",
       "retired_at": "2026-09-06",
-      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FEAT-021": {
       "family": "FEAT",
@@ -7059,6 +7088,19 @@
       "history": [
         {
           "anchor": "candidate server edge monorepo with independent releases",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-063": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "status": "current",
+      "statement_digest": "d6ea7d0c67f1fe6354005628fa5dfafc7a6807ca4197a4adb74a9b22ff570282",
+      "history": [
+        {
+          "anchor": "retire tier 1 genesisblockdb direct clients",
           "since": "2026-09-06",
           "reason": "declared"
         }

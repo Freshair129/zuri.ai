@@ -39,3 +39,5 @@ _worktrees/
 .env*
 # The template stays tracked; every other .env* (.env, .env.docker, ...) is private.
 !.env.example
+
+apps/server/src/generated/

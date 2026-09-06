@@ -1,6 +1,6 @@
 {
-  "version": "0.6.1b",
-  "status": "Strategy first slice, Campaign and Content verified locally; SmartGift instance and Workspace unresolved; not imported",
+  "version": "0.6.2b",
+  "status": "Strategy first slice, Campaign and Content verified locally on the integrated monorepo; Operations planned; SmartGift instance and Workspace unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
   "progressMeaning": "Initial 5% is the design preparation snapshot. Campaign and Content bounded tasks are locally DONE with evidence; full Wave 1 remains open. Actual PM percentage is unverified because no server import occurred.",
@@ -181,5 +181,45 @@
       "baselineInfo": 23
     },
     "planValidation": "PASS: strict schema;47 tasks,158 unchanged acyclic dependencies,100 unique interface mappings;task codes/weights unchanged"
+  },
+  "monorepoIntegration": {
+    "status": "locally verified",
+    "baseCommit": "5ab5df9f",
+    "phaseReport": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
+    "serverRoot": "apps/server",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "fullTest": {
+      "passed": 4009,
+      "skipped": 14,
+      "failed": 0
+    },
+    "serverBuild": "PASS",
+    "edgeBuild": "PASS",
+    "edgeTypecheck": "PASS",
+    "edgeTest": {
+      "passed": 913,
+      "skipped": 3,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 109,
+      "skipped": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "modelCount": 110,
+    "pageRoutes": 70,
+    "apiPaths": 179,
+    "apiOperations": 243,
+    "operationsTaskStatus": "PLANNED",
+    "productionMigrationApplied": false,
+    "serverPlanImported": false,
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    }
   }
 }

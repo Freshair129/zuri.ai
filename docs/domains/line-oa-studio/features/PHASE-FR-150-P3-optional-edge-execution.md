@@ -45,8 +45,8 @@ Reject stale/revoked/mismatched completion. Policy changes cannot recall a promp
 
 ## Source and validation anchors
 
-- [Implementation or wire contract](../../../../src/modules/line-oa-studio/application/line-conversation-jobs.js)
-- [Server verification anchor](../../../../tests/integration/server-line-jobs.test.js)
+- [Implementation or wire contract](../../../../apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js)
+- [Server verification anchor](../../../../apps/server/tests/integration/server-line-jobs.test.js)
 - [Shared map, explicit rollout gates and repository evidence](../../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 
 These anchors identify available coverage; this phase note does not assert that an external device, production database or real LINE delivery has been verified.

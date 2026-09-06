@@ -1,5 +1,5 @@
 ---
-version: "1.8.0b"
+version: "1.9.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-06T22:02:00+07:00,RWANG"
 status: "candidate"
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.8.0b |
+| **Version** | 1.9.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=69; operational_domain_keys=10; operational_subdomain_entries=34; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=70; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -163,6 +163,16 @@ is operational.
 | `/assets/register` | Asset Register Workspace | BusinessShell → Asset Management / Register | searchable asset master register, category/status/branch filters, serial/tag drawer, manual registration promote action | Business plus `assets` grant; empty, loading, error, ready, drawer active | implemented beta; `src/app/(pm)/assets/register/page.jsx`, FR-133, FR-135 / ADR-055 |
 | `/assets/scanner` | Mobile Stocktake & QR Scanner | BusinessShell → Asset Management / Scanner | camera QR barcode video scanner, fast asset lookup, custodian/location check, on-site physical stocktake verification | Business plus `assets` grant; camera permission, scanning, result active, audit submitted | implemented beta; `src/app/(pm)/assets/scanner/page.jsx`, FR-133, FR-135 / ADR-055 |
 
+### 3.6b Inventory domain (คลังสินค้า)
+
+One guarded, Business-scoped dashboard (FR-154, FR-155). Every number it shows
+is recomputed by the server from the stock ledger on the same request; an
+uncounted product shows "—", never a zero.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/inventory` | Warehouse Dashboard (domain `inventory`; labelled Warehouse because a Project's own Inventory tab, FR-077, shares the screen) | BusinessShell → Warehouse / Dashboard | KPIs (SKUs, counted, uncounted, below safety stock), the per-SKU table with stock policy, tracking mode and recomputed on-hand; console forms that create a category, a product master and a SKU (counted / uncounted, NONE / LOT / SERIAL) and append one ledger movement (receipt, issue, adjustment with lot code or serial numbers) | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy | implemented; `src/app/(pm)/inventory/page.jsx`, FR-154, FR-155 / `docs/domains/inventory/CHARTER.md` |
+
 ### 3.7 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
@@ -251,11 +261,11 @@ explicitly so “domain count” cannot silently mix the two concepts:
 
 | Count | Current value | Source interpretation |
 |---|---:|---|
-| Source `DOMAINS` entries | 11 | `business-home` plus ten operational domains |
-| Operational domain keys | 10 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `platform` |
+| Source `DOMAINS` entries | 12 | `business-home` plus eleven operational domains |
+| Operational domain keys | 11 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 35 | includes Business Home Dashboard |
-| Operational sub-domain entries | 34 | excludes Business Home Dashboard |
+| Source sub-domain entries | 36 | includes Business Home Dashboard |
+| Operational sub-domain entries | 35 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Stocktake Scanner |
 | LINE OA Studio navigation entries | 2 | Dashboard and Rich Menu are mounted under the `line-oa` grant |
@@ -302,8 +312,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 69 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 10 operational domains, 34 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 70 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 11 operational domains, 35 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -320,6 +330,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
 | 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
@@ -342,3 +353,5 @@ The current route evidence is:
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
 
 Version diff 1.7.0b → 1.8.0b: Content adds four route shapes and one navigation entry; six interfaces remain bounded by the FR-157 phase evidence.
+
+Version diff 1.8.0b → 1.9.0b: preserve Warehouse and Marketing in the Server monorepo; enumerate 70 page routes, 11 operational domains and 35 navigation entries.

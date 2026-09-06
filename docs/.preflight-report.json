@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 314,
-    "routes": 165,
-    "test_files": 502
+    "docs": 321,
+    "routes": 179,
+    "test_files": 507
   },
   "summary": {
     "critical": 1,
     "warning": 0,
-    "info": 24,
+    "info": 23,
     "overall": "CRITICAL"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -160,15 +160,6 @@
     {
       "id": "I14",
       "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in FR numbering",
-      "details": "FR-154, FR-155, FR-156",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I15",
-      "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
       "details": "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES",
@@ -178,7 +169,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I16",
+      "id": "I15",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -189,29 +180,18 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "C17",
-      "severity": "critical",
-      "check": "id-stability",
-      "title": "3 recorded id move(s) are not justified",
-      "details": "FR-154: no declared_in \"<doc>#<version>\" pointing at the revision row that states this move · FR-155: no declared_in \"<doc>#<version>\" pointing at the revision row that states this move · FR-156: no declared_in \"<doc>#<version>\" pointing at the revision row that states this move",
-      "files": [
-        "docs/.id-ledger.json"
-      ],
-      "action": "A move that only a JSON file knows about is a move nobody reviewed. Give it a reason of at least 40 characters and — for the PRD registry — a version-history row that names the id and says what moved and why, then point declared_in at that row"
-    },
-    {
-      "id": "I18",
+      "id": "I16",
       "severity": "info",
       "check": "id-stability",
-      "title": "501 id(s) pinned across 10 families",
-      "details": "ADR 62 · BR 25 · FEAT 21 · FR 160 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 88 · SEC 25 · ZV2-CR 10 · roster 501",
+      "title": "502 id(s) pinned across 10 families",
+      "details": "ADR 63 · BR 25 · FEAT 21 · FR 160 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 88 · SEC 25 · ZV2-CR 10 · roster 502",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I19",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -222,7 +202,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -233,7 +213,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I21",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -244,10 +224,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 314 document(s)",
+      "title": "table integrity checked in 321 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -255,7 +235,18 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "C21",
+      "severity": "critical",
+      "check": "table-integrity",
+      "title": "1 table(s) in docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md are split in two by a blank line",
+      "details": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md:89 — blank line between two 6-cell rows (after \"| 0.1.0b | 2026-09-06 | under review | Record r…\")",
+      "files": [
+        "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md"
+      ],
+      "action": "Delete the blank line. A blank line ENDS a GFM table, so every row below it renders as literal pipe-delimited text — no other check in this repository can see that, because they all match rows with a line-anchored regex and none parses the table as a table"
+    },
+    {
+      "id": "I22",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -267,19 +258,19 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I24",
+      "id": "I23",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 65 file(s) that write audit events",
+      "title": "audit entityType checked in 68 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I25",
+      "id": "I24",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1277 column(s) across 98 model(s) against 46 migration(s)",
+      "title": "schema-migration drift checked: 1418 column(s) across 110 model(s) against 48 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

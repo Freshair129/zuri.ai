@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.credential.json
+*.credential.json
+*.log
+state/
+data/
+data/genesis_smartgift_store/
+data/*.sqlite*
+data/*.bin
+data/*.gseg
+data/*.gwal
+data/*.lock

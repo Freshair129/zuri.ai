@@ -1070,7 +1070,7 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/knowledge/genesisblockdb-sink.js
+  code: unavailable
   doc: docs/DOMAIN-MODEL.md
   test: unavailable
 definition_of_done:

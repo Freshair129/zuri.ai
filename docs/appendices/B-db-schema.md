@@ -2,26 +2,26 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.22.0b |
+| **Version** | 1.23.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
-Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
-Production ตรงกับ `prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
+Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
+Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
 roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · JSON เก็บเป็น string
 
 ทุก model ต้องอยู่ใน `SNAPSHOT_MODELS` (เรียงพ่อก่อนลูก) หรืออยู่ใน
 `SNAPSHOT_EXCLUDED_MODELS` พร้อมเหตุผลว่าทำไมกู้คืนไม่ได้ — ทั้งคู่อยู่ใน
-`src/modules/project-manager/application/backup-service.js` และ preflight
-(`snapshot-coverage`) ตรวจจาก `prisma/schema.prisma` โดยตรง model ที่ไม่อยู่ในลิสต์ไหนเลย
+`apps/server/src/modules/project-manager/application/backup-service.js` และ preflight
+(`snapshot-coverage`) ตรวจจาก `apps/server/prisma/schema.prisma` โดยตรง model ที่ไม่อยู่ในลิสต์ไหนเลย
 คือ CRITICAL เพราะ restore จะไม่ export ไม่ลบ และไม่คืนตารางนั้น
 
 `AuditEvent.entityType` เขียนเป็น SCREAMING_SNAKE_CASE เสมอ และ preflight
 (`audit-entity-type`) บังคับไว้ — ค่านี้เป็น **หมวดของสิ่งที่ถูกกระทำ** ไม่ใช่ชื่อ Prisma model
 (`SNAPSHOT`, `STEP_UP`, `AGENT_ACTION`, `PLUGIN_AUTH_MAINTENANCE` ไม่มี model รองรับเลย)
 จึงไม่สะกดตามชื่อ model. เหตุผลเต็มอยู่บน `recordAudit` ใน
-`src/modules/project-manager/application/audit.js` — โดยย่อคือ audit console กรองและแสดงผล
+`apps/server/src/modules/project-manager/application/audit.js` — โดยย่อคือ audit console กรองและแสดงผล
 ด้วยรูปแบบนี้ ดังนั้นค่าที่สะกดต่างออกไปจะกรองไม่เจอและแสดงดิบ ๆ
 
 ระวัง: อีกสี่ model มีคอลัมน์ชื่อ `entityType` เหมือนกัน (`RawExternalRecord`,
@@ -92,6 +92,28 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LineOaRichMenuVersion | richMenuId + versionNumber (unique), tenantId, businessId, lineOaAccountId, status, layout, chatBarText, selected, imageFileAssetId? → FileAsset (SetNull), imageWidth, imageHeight, areasJson, externalRichMenuId?, frozenAt?, publishedAt? | FR-151 — one numbered body: editable while DRAFT, immutable once FROZEN; PUBLISHED / RETIRED and `externalRichMenuId` are the transport lane's to write (BR-002: an attribute, never a key) |
 | LineOaRichMenuJob | tenantId, businessId, accountId, richMenuId, richMenuVersionId, kind, stage, status, transportEpoch, attempts, availableAt, expiresAt, claimantId?, leaseExpiresAt?, externalRichMenuId?, providerRequestId?, errorCode?, correlationId, version | FR-152 / ADR-061 — server-owned rich menu publish ledger: PUBLISH (CREATE → UPLOAD → DONE) / SET_DEFAULT / SET_ALIAS (APPLY); QUEUED → CLAIMED → ACCEPTED \| FAILED \| UNKNOWN \| CANCELLED; compare-and-set claims and a bounded lease; no token column — the worker resolves the credential per attempt |
 | LineOaLiffApp | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, description?, viewSize, endpointUrl, scopesJson, botPrompt, status, externalLiffId? (unique per account), archivedAt?, version | FR-153 / SRS LOS-RQ-070 — the LIFF app registry of one account: DRAFT until the LINE-issued liffId is recorded, then ACTIVE; a rich menu LIFF action resolves through an ACTIVE row to liff.line.me (BR-002: liffId is an attribute, never a key); no LINE call, no secret |
+| MarketingPlan | tenantId, businessId, code (unique per Business), title, status, currentRevision, version, createdBy, timestamps, deletedAt? | FR-159 — Business-scoped Strategy identity; revisions and approval evidence remain separate immutable records |
+| MarketingPlanVersion | planId → MarketingPlan, revision (unique per plan), payloadJson, payloadHash, createdBy, createdAt | FR-159 — immutable canonical title/payload evidence |
+| MarketingReview | planId, planVersionId, payloadHash, verdict, rationale, reviewerId, createdAt | FR-159 — independent review bound to the exact Strategy version |
+| MarketingDecision | planId, planVersionId, payloadHash, reviewId?, verdict, rationale, actorId, expiresAt?, createdAt | FR-159 — append-only approval, rejection, or revocation evidence |
+| MarketingHandoff | planId, planVersionId, workspaceId → Workspace, projectId → Project, payloadHash, envelopeHash, receiptJson, createdBy, createdAt | FR-158 — accepted PM receipt reference; Marketing stores no PM task or provider credential |
+| MarketingInitiative | tenantId, businessId, code, planId (unique), handoffId?, status, closureReason?, version, createdBy, timestamps, deletedAt? | FR-160 — distinct Campaign identity; PM Campaign remains a WorkContainer alias |
+| MarketingContentBrief | tenantId, businessId, code (unique per Business), title, status, currentRevision, version, createdBy, timestamps, deletedAt? | FR-157 — scoped creative brief root |
+| MarketingContentVersion | briefId → MarketingContentBrief, revision (unique per brief), payloadJson, payloadHash, createdBy, createdAt | FR-157 — immutable creative intent and owner references |
+| MarketingContentReview | briefId, contentVersionId, payloadHash, sequence (unique per brief), verdict, rationale, rightsConfirmed, brandConfirmed, reviewerId, createdAt | FR-157 — exact-version rights and brand review evidence |
+| MarketingContentDecision | briefId, contentVersionId, payloadHash, sequence (unique per brief), reviewId?, verdict, rationale, actorId, expiresAt?, createdAt | FR-157 — append-only content approval, rejection, or revocation evidence |
+| InventoryCategory | code (unique per tenant), tenantId, businessId, nameTh, nameEn, slug? (unique per business), vibe?, targetRecipient?, guardrail?, status, version | FR-154 — inventory category (`category_id`); the ontology's slug values are rows of one Business, not a system enum |
+| ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
+| Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
+| ProductMaster | code (unique per tenant), tenantId, businessId, categoryId → InventoryCategory, familyId? → ProductFamily (SetNull), factoryId? → Factory (SetNull), nameTh, nameEn, baseCost, specsJson, status, version | FR-154 — product master (`product_master`) |
+| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155) |
+| ProductBundle | code (unique per tenant), tenantId, businessId, name, description?, targetRecipients?, totalPrice?, status, version | FR-154 — bundle (`bundle_id`) |
+| ProductBundleItem | bundleId → ProductBundle (Cascade) + productId → Product (unique pair), qty | FR-154 — one SKU line of a bundle |
+| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
+| ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
+| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
+| SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
+| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
@@ -115,7 +137,7 @@ Version diff 1.15.0b → 1.16.0b (2026-09-06): no model changes. `RawExternalRec
 (FR-109 AC-109.3, in the schema since 2026-08-29) gained the Supabase migration it never had —
 `20260906090000_raw_external_record_artifact_id.sql`, idempotent, **not applied** — plus its
 SQLite twin, and preflight `schema-migration-drift` now compares the generated Postgres schema
-against `supabase/migrations/*.sql` so a declared column with no migration is a CRITICAL. The 33
+against `apps/server/supabase/migrations/*.sql` so a declared column with no migration is a CRITICAL. The 33
 pre-existing gaps (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream`
 columns) sit in the shrink-only `docs/.schema-migration-baseline.json` with their reasons.
 
@@ -137,6 +159,17 @@ version's `externalRichMenuId` is now written by this ledger on the provider's a
 
 Version diff 1.19.0b → 1.20.0b (2026-09-06): added `LineOaLiffApp` (FR-153) with additive migrations in
 both trees in the same change; the Supabase SQL is written and **not applied**.
+
+Version diff 1.20.0b → 1.21.0b (2026-09-06): added the Inventory domain's ten tables — `InventoryCategory`,
+`ProductFamily`, `Factory`, `ProductMaster`, `Product`, `ProductBundle`, `ProductBundleItem` (FR-154) and
+`ProductLot`, `SerialUnit`, `StockMovement` (FR-155) — with one additive migration in each tree
+(`20260906230000_inventory_domain`) in the same change; the Supabase SQL is written and **not applied**.
+`Product` deliberately has no on-hand column.
+
+Version diff 1.21.0b → 1.22.0b (2026-09-06): added `ProductRecipe` and `ProductRecipeLine` (FR-156 — the
+bill of materials at a batch size) with one additive migration in each tree (`20260906233000_inventory_recipe`)
+in the same change; the Supabase SQL is written and **not applied**.
+Version diff 1.22.0b → 1.23.0b (2026-09-06): reconciled the ten Marketing persistence models present in the combined SQLite schema — five Strategy evidence models, one Campaign association model, and four Content evidence models. This documentation update adds no migration.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
@@ -283,11 +316,11 @@ external secret-manager reference; raw credential material is never persisted in
 Prisma or returned to the browser.
 
 The generic Postgres artifact carries the additive connection tables and
-`prisma/postgres/0002_phase1_line_primary_connection.sql` adds the active-primary
+`apps/server/prisma/postgres/0002_phase1_line_primary_connection.sql` adds the active-primary
 unique index. Production Supabase uses the private-schema migration
-`supabase/migrations/20260818040000_phase1_line_runtime_connections.sql`, which
+`apps/server/supabase/migrations/20260818040000_phase1_line_runtime_connections.sql`, which
 adds forced RLS and read-only `zuri_line_smartgift_ro` grants. The follow-up
-`supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
+`apps/server/supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
 adds a private `SECURITY DEFINER` resolver for `supabase-vault:<uuid>` refs;
 `zuri_line_runtime` receives function execute only and no direct Vault view read.
 
@@ -315,7 +348,7 @@ Backup restores it after MarketingHandoff; deletion runs in the reverse order.
 Campaign date/offer/condition content lives inside immutable PlanVersion payloads,
 not mutable duplicate columns. [Contract](../domains/marketing/features/FR-160-campaign-initiatives.md).
 The additive SQLite and private PostgreSQL migrations introduce one table; no
-production migration is claimed. Schema change: five Marketing tables → six.
+production migration is claimed. Schema change: five Strategy tables → six Strategy/Campaign tables; Content adds four, for ten Marketing tables in the combined schema.
 
 ## Marketing Content evidence (FR-157)
 
