@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1922,
-    "total_edges": 7476,
+    "total_nodes": 1923,
+    "total_edges": 7478,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 216,
       "model": 88,
       "requirement": 310,
-      "test": 474,
+      "test": 475,
       "code_file": 522
     },
     "coverage": {
@@ -55,14 +55,23 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
       "domain:knowledge",
+      "doc:ROADMAP-zuri-ai-24w-program",
       "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "code:src/modules/knowledge/graph-query.js",
+      "code:src/modules/knowledge/index.js",
+      "code:src/modules/knowledge/sink.js",
       "code:src/modules/knowledge/smartgift-knowledge-catalog.js"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS"
+    ],
     "removed": [
+      "code:src/modules/knowledge/gbdb-rag-service.js",
+      "code:src/modules/knowledge/genesisblockdb-sink.js",
       "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "test:tests/integration/knowledge-genesis-sink.test.js",
+      "test:tests/unit/gbdb-rag-service.test.js",
       "test:tests/unit/smartgift-rag-pipeline.test.js"
     ]
   },
@@ -7815,7 +7824,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/graph-query.js",
       "hash": "4ea8efd0",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-024"
@@ -7830,7 +7839,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
       "hash": "9f383318",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-024",
@@ -8082,7 +8091,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/sink.js",
       "hash": "ad52bce9",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-024"
@@ -10836,7 +10845,7 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "ad873073",
+      "hash": "10bf9a6e",
       "status": "current"
     },
     {
@@ -11004,7 +11013,7 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "570c3551",
+      "hash": "1dbc41bf",
       "status": "current"
     },
     {
@@ -12497,7 +12506,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Candidate monorepo migration gates",
-      "hash": "c025af6c",
+      "hash": "8440ee7d",
       "status": "current"
     },
     {
@@ -12552,7 +12561,7 @@
       "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "title": "ROADMAP: Zuri AI — 24-Week Full System Delivery Program",
       "hash": "bb90a3f4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROUTES-SITEMAP",
@@ -18910,7 +18919,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
-      "hash": "6ecbdc31",
+      "hash": "40b2bce8",
       "status": "current"
     },
     {
@@ -18942,7 +18951,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
-      "hash": "cadb6152",
+      "hash": "04a6029e",
       "status": "current"
     },
     {
@@ -18951,7 +18960,7 @@
       "path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
       "title": "ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains",
       "hash": "37b137e0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -19020,7 +19029,7 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "37fb96e3",
+      "hash": "8f4b0fb2",
       "status": "current"
     },
     {
@@ -20477,6 +20486,13 @@
       "type": "test",
       "path": "tests/unit/doc-views.test.js",
       "hash": "d9f3a2a9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/docker-publication-containment.test.js",
+      "type": "test",
+      "path": "tests/unit/docker-publication-containment.test.js",
+      "hash": "855a57bf",
       "status": "current"
     },
     {
@@ -38500,6 +38516,13 @@
       "status": "current"
     },
     {
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
@@ -47917,6 +47940,13 @@
     {
       "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
       "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "references",
       "source": "markdown",
       "status": "current"
