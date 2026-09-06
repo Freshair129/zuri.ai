@@ -74,6 +74,9 @@ export const DOMAINS = [
       { label: 'Campaigns', path: '/growth/campaigns', icon: Megaphone },
       // @req FR-157 — Content owns creative intent; Files/PM remain referenced owners.
       { label: 'Content & Creative', path: '/growth/content', icon: FolderOpen },
+      // @req FR-161 — Operations composes Marketing intake, approvals and
+      // owner projections without opening a second work system.
+      { label: 'Operations', path: '/growth/operations', icon: ClipboardCheck },
     ],
   },
   {
