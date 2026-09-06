@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.16.0b |
+| **Version** | 1.17.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
@@ -114,6 +114,13 @@ SQLite twin, and preflight `schema-migration-drift` now compares the generated P
 against `supabase/migrations/*.sql` so a declared column with no migration is a CRITICAL. The 33
 pre-existing gaps (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream`
 columns) sit in the shrink-only `docs/.schema-migration-baseline.json` with their reasons.
+
+Version diff 1.16.0b → 1.17.0b (2026-09-06): no model changes. The deploy session applied the
+`artifactId` migration and verified production already had every baseline column, so
+`20260906120000_record_pre_lineage_tables_and_columns.sql` records the two auth tables,
+`PlanImportReceipt` and the eight `Workstream` columns in the lineage (all `IF NOT EXISTS`,
+no-op on production) and the baseline is empty. `PersonCredential` / `PasswordResetToken`
+also gained their SQLite migration twin.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

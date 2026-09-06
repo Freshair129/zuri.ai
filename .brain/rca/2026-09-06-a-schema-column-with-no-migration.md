@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-06T10:30:00+07:00,CLAUDE"
-last_update: "2026-09-06T10:30:00+07:00,CLAUDE"
+last_update: "2026-09-06T12:30:00+07:00,CLAUDE"
 status: "beta"
 superseded_by: null
 attributes:
@@ -105,12 +105,12 @@ migration creates:
 | `PlanImportReceipt` | all fourteen | 2026-08-19, be14e20 (PR #67) | shipped with a `prisma/migrations/` file only, one day after the Supabase application schema was dumped from `prisma/postgres/0001_init.sql` |
 | `Workstream` | eight execution-contract columns | 2026-08-19, be14e20 (PR #67) | same |
 
-The last two rows are the same shape as this RCA's defect and are
-**unverified on production**. `Workstream` is a snapshot model that sits after
-`RawExternalRecord` in `SNAPSHOT_MODELS`, so if production lacks those eight
-columns the export will fail on `Workstream.executionModeId` as soon as the
-`artifactId` migration is applied. That is the next thing for the deploy-role
-session to check, and it is stated here rather than assumed either way.
+The last two rows looked like the same shape as this RCA's defect and were
+written up as **unverified on production** when this RCA was first filed.
+The deploy-role session checked the same day (see Resolution): production has
+the `PlanImportReceipt` table and all eight `Workstream` columns, so those
+rows are the same case as the first two — real on production, absent from the
+lineage.
 
 The first two rows are the opposite case — real on production, absent from
 the lineage — and their repayment is a migration that *records* them with
@@ -151,15 +151,37 @@ shape the real migrations use, runs the rule against the real schema and the
 real migration directory, and then removes the repairing migration and asserts
 `RawExternalRecord.artifactId` comes back as the one introduced column.
 
-## What this change does not do
+## Resolution (2026-09-06, same day)
 
-It does not apply anything to production. The Supabase migration is
-idempotent and unapplied; applying it is an owner-instructed operator step
-(ADR-057) for the deploy-role session, with the dry-run-then-apply procedure
-in `docs/runbooks/line-oa-provider-merge.md` §4. It does not write migrations
-for the other four tables in the baseline; each needs its lane's owner to
-decide the DDL, and a baseline entry with its reason written down is the
-honest state until then.
+PR #233 (merge fd2d159) landed the `artifactId` migration, the guard and the
+33-entry baseline. The deploy-role session then, on the owner's instruction,
+applied `20260906090000_raw_external_record_artifact_id` to production (column
+and index present, version recorded in `supabase_migrations.schema_migrations`)
+and ran the read-only check this RCA asked for: `PlanImportReceipt` exists and
+`Workstream` carries all eight execution-contract columns. Unauthenticated,
+`GET /api/backup/export` now answers 401 rather than 500; the route reaches
+its auth gate instead of dying in Prisma.
+
+With every baseline entry known to exist on production, the repayment is a
+**recording** migration, not a repair:
+`supabase/migrations/20260906120000_record_pre_lineage_tables_and_columns.sql`
+creates the two auth tables, `PlanImportReceipt`, the eight `Workstream`
+columns and their indexes and foreign keys, every statement `IF NOT EXISTS` or
+guarded by constraint name, copied from the generated
+`prisma/postgres/0001_init.sql` so the shape matches Prisma's. On production
+it is a no-op; in the lineage it is the difference between a directory that
+describes the database and one that relies on memory. The baseline is empty
+(`repaid_at: 2026-09-06`) and stays a shrink-only file. The SQLite history
+gained the twin it lacked for the two auth tables
+(`prisma/migrations/20260906120000_add_person_credential_and_password_reset_token`).
+
+Recording the version on production is still an operator step (ADR-057); the
+change that writes the file does not claim it. Note what the deploy session's
+report got wrong, because it is the natural mistake: it suggested the baseline
+could shrink "with no DDL required" since production already had the columns.
+The guard compares the schema to the *migration files*, not to production —
+removing an entry without a file is a CRITICAL, by design, and the file is the
+point.
 
 ## The transferable lesson
 

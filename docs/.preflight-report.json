@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 27,
+    "info": 26,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -292,18 +292,7 @@
       "id": "I26",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "33 declared column(s) have no migration (accepted debt)",
-      "details": "baseline: docs/.schema-migration-baseline.json; tables: PersonCredential, PasswordResetToken, Workstream, PlanImportReceipt",
-      "files": [
-        "docs/.schema-migration-baseline.json"
-      ],
-      "action": "Write their migrations as their lanes are revisited; the baseline may only shrink"
-    },
-    {
-      "id": "I27",
-      "severity": "info",
-      "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1066 column(s) across 83 model(s) against 36 migration(s)",
+      "title": "schema-migration drift checked: 1066 column(s) across 83 model(s) against 37 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

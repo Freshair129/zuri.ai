@@ -55,10 +55,14 @@
   },
   "drift": {
     "changed": [
+      "doc:B-db-schema",
       "doc:README",
+      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:SRS",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -9843,10 +9847,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.16.0b",
+      "version": "1.17.0b",
       "doc_status": "Draft",
-      "hash": "ff756539",
-      "status": "current"
+      "hash": "e18bcb9b",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -9973,10 +9977,10 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.7",
+      "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "fcf299ba",
-      "status": "current"
+      "hash": "01919c10",
+      "status": "changed"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11200,10 +11204,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.152.0b",
+      "version": "1.153.0b",
       "doc_status": "Draft",
-      "hash": "2515d633",
-      "status": "current"
+      "hash": "f9b3424b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -11246,8 +11250,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "9ca663c1",
-      "status": "current"
+      "hash": "ea4273ed",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",

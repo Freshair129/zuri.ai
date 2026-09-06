@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.7 |
+| **Version** | 1.0.8 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
@@ -73,13 +73,17 @@ request. It deliberately anchors on the generated Postgres schema and not on
 `db push` change and be muted within a week. Presence only — types, defaults
 and indexes are out of its scope.
 
-**The baseline:** `docs/.schema-migration-baseline.json` lists the drift that
-existed on 2026-09-06 when the check landed (33 columns: `PersonCredential` and
-`PasswordResetToken`, which exist on production but were created outside the
-lineage; `PlanImportReceipt` and eight `Workstream` execution-contract columns,
-which shipped with a `prisma/migrations/` file only and are unverified on
-production) with the reason and the repayment for each group. It may only
-shrink; preflight reports an entry that gains a migration so it can be removed.
+**The baseline:** `docs/.schema-migration-baseline.json` listed the drift that
+existed on 2026-09-06 when the check landed — 33 columns across `PersonCredential`,
+`PasswordResetToken`, `PlanImportReceipt` and eight `Workstream` execution-contract
+columns, all of which the deploy-role session verified production already had,
+created outside the lineage. They were repaid to zero the same day by a
+**recording** migration (`20260906120000_record_pre_lineage_tables_and_columns.sql`:
+every statement `IF NOT EXISTS` or guarded, a no-op on production). The file
+stays and may only shrink; preflight reports an entry that gains a migration so
+it can be removed. A baseline entry is repaid by a migration file, never by
+checking that production happens to have the column — the guard reads files,
+not databases, and that is what makes it runnable in CI.
 
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 
