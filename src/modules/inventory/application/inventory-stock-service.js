@@ -4,6 +4,7 @@ import {
   PRODUCT_LOT_ENTITY,
   SERIAL_UNIT_ENTITY,
   STOCK_MOVEMENT_ENTITY,
+  allocateFefo,
   movementDelta,
   movementRule,
   serialStatusAfter,
@@ -17,12 +18,18 @@ import { loadBusiness } from './inventory-authority'
 //   never edited: RECEIPT adds, ISSUE removes, ADJUSTMENT corrects with its
 //   own sign. An UNTRACKED product is refused by code — it has no ledger. A
 //   LOT-tracked receipt names or creates its lot (and the lot's receivedQty
-//   follows); a SERIAL-tracked movement names exactly one serial per unit,
-//   creating the unit on receipt and moving it to ISSUED on issue, and an
-//   ISSUE of a serial that is not IN_STOCK is refused. An ISSUE that would
-//   take on-hand below zero is refused. On-hand is never stored: the summary
-//   recomputes it from the ledger on every read. Every write is one
-//   transaction with one audit row; manager authority throughout.
+//   follows); a LOT-tracked issue that names a lot may not exceed that lot's
+//   on-hand, and one that names no lot is consumed FEFO — first expiry, first
+//   out — across OPEN lots, one ledger row per lot touched, with any units
+//   that no lot holds (an adjustment without a lot) taken last. A
+//   SERIAL-tracked movement names exactly one serial per unit, creating the
+//   unit on receipt and moving it to ISSUED on issue, and an ISSUE of a serial
+//   that is not IN_STOCK is refused. An ISSUE that would take on-hand below
+//   zero is refused. On-hand is never stored: the summary recomputes it from
+//   the ledger on every read. Every write is one transaction with one audit
+//   row; manager authority throughout. `appendMovement` is the transaction-
+//   scoped core so a recipe build (FR-156) can issue several components and
+//   receive the output atomically.
 // @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072
 // @tested tests/integration/fr155-inventory-stock.test.js
 
@@ -44,6 +51,14 @@ async function loadProductForWrite(tx, viewer, businessId, productId) {
 async function onHandOf(tx, productId) {
   const agg = await tx.stockMovement.aggregate({ where: { productId }, _sum: { quantity: true } })
   return agg._sum.quantity ?? 0
+}
+
+/** On-hand per lot of one product, from the ledger; lot-less rows sum under `null`. */
+async function onHandByLot(tx, productId) {
+  const groups = await tx.stockMovement.groupBy({ by: ['lotId'], where: { productId }, _sum: { quantity: true } })
+  const map = new Map()
+  for (const g of groups) map.set(g.lotId ?? null, g._sum.quantity ?? 0)
+  return map
 }
 
 // ── Lot ─────────────────────────────────────────────────────────────────────
@@ -70,7 +85,11 @@ export async function createLot(input, { viewer, db = prisma } = {}) {
 
 export async function listLots({ businessId, productId, viewer, db = prisma } = {}) {
   const business = await loadBusiness(db, viewer, businessId)
-  return db.productLot.findMany({ where: { businessId: business.id, ...(productId ? { productId } : {}) }, orderBy: [{ createdAt: 'asc' }], select: LOT_SELECT })
+  const lots = await db.productLot.findMany({ where: { businessId: business.id, ...(productId ? { productId } : {}) }, orderBy: [{ createdAt: 'asc' }], select: LOT_SELECT })
+  if (!lots.length) return lots
+  const groups = await db.stockMovement.groupBy({ by: ['lotId'], where: { lotId: { in: lots.map((l) => l.id) } }, _sum: { quantity: true } })
+  const onHand = new Map(groups.map((g) => [g.lotId, g._sum.quantity ?? 0]))
+  return lots.map((lot) => ({ ...lot, onHand: onHand.get(lot.id) ?? 0 }))
 }
 
 export async function listSerialUnits({ businessId, productId, lotId, status, viewer, db = prisma } = {}) {
@@ -103,56 +122,83 @@ async function resolveLot(tx, business, product, data) {
 }
 
 /**
- * Append one movement. For a SERIAL product, one ledger row per serial (so a
- * unit's history is its own rows); otherwise one row with the whole quantity.
+ * The transaction-scoped core: append one movement (several rows for a
+ * serial product or a FEFO issue) inside the caller's transaction. `data` is
+ * an already-parsed `zRecordMovement` value.
  */
+export async function appendMovement(tx, data, { viewer } = {}) {
+  const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, data.productId)
+  const rule = movementRule(product, data)
+  if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' ? 409 : 422, rule.code)
+
+  const delta = movementDelta(data.kind, data.quantity)
+  const before = await onHandOf(tx, product.id)
+  if (before + delta < 0) throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+
+  const lot = await resolveLot(tx, business, product, data)
+  const occurredAt = data.occurredAt ?? new Date()
+  const base = { tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind, reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt }
+  const rows = []
+  const allocations = []
+
+  if (product.trackingMode === 'SERIAL') {
+    const nextStatus = serialStatusAfter(data.kind)
+    for (const serialNo of data.serialNos) {
+      let unit = await tx.serialUnit.findUnique({ where: { productId_serialNo: { productId: product.id, serialNo } }, select: SERIAL_SELECT })
+      if (data.kind === 'RECEIPT') {
+        if (unit && unit.status === 'IN_STOCK') throw failure(409, 'INVENTORY_SERIAL_ALREADY_IN_STOCK')
+        unit = unit
+          ? await tx.serialUnit.update({ where: { id: unit.id }, data: { status: nextStatus, lotId: lot?.id ?? unit.lotId, version: { increment: 1 } }, select: SERIAL_SELECT })
+          : await tx.serialUnit.create({ data: { serialNo, tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, status: nextStatus }, select: SERIAL_SELECT })
+      } else {
+        if (!unit || unit.status !== 'IN_STOCK') throw failure(409, 'INVENTORY_SERIAL_NOT_IN_STOCK')
+        unit = await tx.serialUnit.update({ where: { id: unit.id }, data: { status: nextStatus, version: { increment: 1 } }, select: SERIAL_SELECT })
+      }
+      const row = await tx.stockMovement.create({ data: { ...base, lotId: unit.lotId ?? base.lotId, serialUnitId: unit.id, quantity: movementDelta(data.kind, 1) }, select: MOVEMENT_SELECT })
+      await recordAudit(tx, { entityType: SERIAL_UNIT_ENTITY, entityId: unit.id, action: data.kind === 'RECEIPT' ? 'SERIAL_UNIT_RECEIVED' : 'SERIAL_UNIT_ISSUED', actorId: actor(viewer), payload: { businessId: business.id, productId: product.id, serialNo, status: unit.status, movementId: row.id } })
+      rows.push(row)
+    }
+  } else if (product.trackingMode === 'LOT' && data.kind === 'ISSUE') {
+    const byLot = await onHandByLot(tx, product.id)
+    if (lot) {
+      // An issue that names its lot may not take more than that lot holds.
+      if ((byLot.get(lot.id) ?? 0) < Math.abs(delta)) throw failure(409, 'INVENTORY_LOT_INSUFFICIENT_STOCK')
+      const row = await tx.stockMovement.create({ data: { ...base, quantity: delta }, select: MOVEMENT_SELECT })
+      rows.push(row)
+      allocations.push({ lotId: lot.id, qty: Math.abs(delta) })
+    } else {
+      // FEFO across open lots; whatever no lot holds (an adjustment without a lot) goes last.
+      const lots = await tx.productLot.findMany({ where: { productId: product.id, status: 'OPEN' }, select: { id: true, expiresAt: true, createdAt: true, status: true } })
+      const { allocations: picked, remainder } = allocateFefo(lots.map((l) => ({ ...l, onHand: byLot.get(l.id) ?? 0 })), Math.abs(delta))
+      if (remainder > (byLot.get(null) ?? 0)) throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+      for (const pick of picked) {
+        rows.push(await tx.stockMovement.create({ data: { ...base, lotId: pick.lotId, quantity: -pick.qty }, select: MOVEMENT_SELECT }))
+        allocations.push(pick)
+      }
+      if (remainder > 0) {
+        rows.push(await tx.stockMovement.create({ data: { ...base, lotId: null, quantity: -remainder }, select: MOVEMENT_SELECT }))
+        allocations.push({ lotId: null, qty: remainder })
+      }
+    }
+  } else {
+    rows.push(await tx.stockMovement.create({ data: { ...base, quantity: delta }, select: MOVEMENT_SELECT }))
+  }
+
+  if (lot && data.kind === 'RECEIPT') {
+    await tx.productLot.update({ where: { id: lot.id }, data: { receivedQty: { increment: Math.abs(delta) }, version: { increment: 1 } } })
+  }
+  const after = before + delta
+  await recordAudit(tx, {
+    entityType: STOCK_MOVEMENT_ENTITY, entityId: rows[0].id, action: `STOCK_${data.kind}_RECORDED`, actorId: actor(viewer),
+    payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null },
+  })
+  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows }
+}
+
+/** Append one movement in its own transaction. */
 export async function recordMovement(input, { viewer, db = prisma } = {}) {
   const data = zRecordMovement.parse(input)
-  return db.$transaction(async (tx) => {
-    const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, data.productId)
-    const rule = movementRule(product, data)
-    if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' ? 409 : 422, rule.code)
-
-    const delta = movementDelta(data.kind, data.quantity)
-    const before = await onHandOf(tx, product.id)
-    if (before + delta < 0) throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
-
-    const lot = await resolveLot(tx, business, product, data)
-    const occurredAt = data.occurredAt ?? new Date()
-    const base = { tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind, reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt }
-    const rows = []
-
-    if (product.trackingMode === 'SERIAL') {
-      const nextStatus = serialStatusAfter(data.kind)
-      for (const serialNo of data.serialNos) {
-        let unit = await tx.serialUnit.findUnique({ where: { productId_serialNo: { productId: product.id, serialNo } }, select: SERIAL_SELECT })
-        if (data.kind === 'RECEIPT') {
-          if (unit && unit.status === 'IN_STOCK') throw failure(409, 'INVENTORY_SERIAL_ALREADY_IN_STOCK')
-          unit = unit
-            ? await tx.serialUnit.update({ where: { id: unit.id }, data: { status: nextStatus, lotId: lot?.id ?? unit.lotId, version: { increment: 1 } }, select: SERIAL_SELECT })
-            : await tx.serialUnit.create({ data: { serialNo, tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, status: nextStatus }, select: SERIAL_SELECT })
-        } else {
-          if (!unit || unit.status !== 'IN_STOCK') throw failure(409, 'INVENTORY_SERIAL_NOT_IN_STOCK')
-          unit = await tx.serialUnit.update({ where: { id: unit.id }, data: { status: nextStatus, version: { increment: 1 } }, select: SERIAL_SELECT })
-        }
-        const row = await tx.stockMovement.create({ data: { ...base, lotId: unit.lotId ?? base.lotId, serialUnitId: unit.id, quantity: movementDelta(data.kind, 1) }, select: MOVEMENT_SELECT })
-        await recordAudit(tx, { entityType: SERIAL_UNIT_ENTITY, entityId: unit.id, action: data.kind === 'RECEIPT' ? 'SERIAL_UNIT_RECEIVED' : 'SERIAL_UNIT_ISSUED', actorId: actor(viewer), payload: { businessId: business.id, productId: product.id, serialNo, status: unit.status, movementId: row.id } })
-        rows.push(row)
-      }
-    } else {
-      rows.push(await tx.stockMovement.create({ data: { ...base, quantity: delta }, select: MOVEMENT_SELECT }))
-    }
-
-    if (lot && data.kind === 'RECEIPT') {
-      await tx.productLot.update({ where: { id: lot.id }, data: { receivedQty: { increment: Math.abs(delta) }, version: { increment: 1 } } })
-    }
-    const after = before + delta
-    await recordAudit(tx, {
-      entityType: STOCK_MOVEMENT_ENTITY, entityId: rows[0].id, action: `STOCK_${data.kind}_RECORDED`, actorId: actor(viewer),
-      payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null },
-    })
-    return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, movements: rows }
-  })
+  return db.$transaction((tx) => appendMovement(tx, data, { viewer }))
 }
 
 export async function listMovements({ businessId, productId, limit = 200, viewer, db = prisma } = {}) {

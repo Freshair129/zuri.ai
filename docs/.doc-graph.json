@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1979,
-    "total_edges": 7670,
+    "total_nodes": 1991,
+    "total_edges": 7718,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 182,
+      "document": 183,
       "adr": 62,
       "domain": 11,
       "roadmap": 37,
       "feature": 20,
-      "route": 228,
-      "model": 98,
-      "requirement": 312,
-      "test": 483,
-      "code_file": 542
+      "route": 231,
+      "model": 100,
+      "requirement": 313,
+      "test": 484,
+      "code_file": 546
     },
     "coverage": {
-      "requirements": 312,
-      "fr_with_code": "100% (145/145)",
-      "fr_with_tests": "100% (145/145)",
+      "requirements": 313,
+      "fr_with_code": "100% (146/146)",
+      "fr_with_tests": "100% (146/146)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 542,
+      "annotated_code_files": 546,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,9 +54,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/domain-state.test.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -3050,6 +3048,69 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/[id]/build/route.js",
+      "hash": "2ed60ec7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/[id]/route.js",
+      "hash": "37f72f75",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/recipes/route.js",
+      "type": "code_file",
+      "path": "src/app/api/inventory/recipes/route.js",
+      "hash": "0e630780",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js",
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/inventory/serial-units/route.js",
       "type": "code_file",
       "path": "src/app/api/inventory/serial-units/route.js",
@@ -5162,7 +5223,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "a5a4ebfd",
+      "hash": "0de1745b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5484,7 +5545,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "3d0eaa4c",
+      "hash": "e1fa4a75",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8003,10 +8064,30 @@
       }
     },
     {
+      "id": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "type": "code_file",
+      "path": "src/modules/inventory/application/inventory-recipe-service.js",
+      "hash": "dbe1c1f1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr156-inventory-recipe.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/inventory/application/inventory-stock-service.js",
       "type": "code_file",
       "path": "src/modules/inventory/application/inventory-stock-service.js",
-      "hash": "cce02465",
+      "hash": "0cddfe8f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8026,12 +8107,13 @@
       "id": "code:src/modules/inventory/domain/inventory.js",
       "type": "code_file",
       "path": "src/modules/inventory/domain/inventory.js",
-      "hash": "ffc10976",
+      "hash": "5b774145",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
-          "FR-155"
+          "FR-155",
+          "FR-156"
         ],
         "@spec": [
           "BR-002"
@@ -8045,7 +8127,7 @@
       "id": "code:src/modules/inventory/index.js",
       "type": "code_file",
       "path": "src/modules/inventory/index.js",
-      "hash": "a720c84a",
+      "hash": "58ea3632",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9187,7 +9269,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "6f7f5f40",
+      "hash": "414c19b2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9199,6 +9281,7 @@
           "FR-146",
           "FR-154",
           "FR-155",
+          "FR-156",
           "FR-022",
           "FR-092",
           "FR-106",
@@ -9257,7 +9340,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "599ef832",
+      "hash": "fb9d6e00",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9280,6 +9363,7 @@
           "FR-152",
           "FR-154",
           "FR-155",
+          "FR-156",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -11218,9 +11302,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.43.0b",
+      "version": "1.44.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f3b3b01f",
+      "hash": "f87f8cad",
       "status": "current"
     },
     {
@@ -11272,9 +11356,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.21.0b",
+      "version": "1.22.0b",
       "doc_status": "Draft",
-      "hash": "9285c0b2",
+      "hash": "2d18728c",
       "status": "current"
     },
     {
@@ -11606,9 +11690,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.25.0b",
+      "version": "1.26.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "fc6694c2",
+      "hash": "d8a75d45",
       "status": "current"
     },
     {
@@ -12467,11 +12551,19 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-156-inventory-recipe-bill-of-materials",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+      "title": "FR-156 — Recipe / bill of materials at a batch size (recipe_id)",
+      "hash": "368d2499",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "249d2b38",
+      "hash": "3dd0f9e2",
       "status": "current"
     },
     {
@@ -12519,7 +12611,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "315ade3e",
+      "hash": "573d314f",
       "status": "current"
     },
     {
@@ -12563,7 +12655,7 @@
       "type": "document",
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
-      "hash": "10a92f60",
+      "hash": "9d90769b",
       "status": "current"
     },
     {
@@ -12921,9 +13013,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.158.0b",
+      "version": "1.159.0b",
       "doc_status": "Draft",
-      "hash": "eb87e305",
+      "hash": "d0d6cc09",
       "status": "current"
     },
     {
@@ -12951,7 +13043,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ede8273d",
+      "hash": "78cc892c",
       "status": "current"
     },
     {
@@ -13334,6 +13426,8 @@
         "Product",
         "ProductBundle",
         "ProductBundleItem",
+        "ProductRecipe",
+        "ProductRecipeLine",
         "ProductLot",
         "SerialUnit",
         "StockMovement"
@@ -13348,7 +13442,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "6844ef66",
+      "hash": "cce76dca",
       "status": "current"
     },
     {
@@ -13997,6 +14091,16 @@
     },
     {
       "id": "model:ProductMaster",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductRecipe",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProductRecipeLine",
       "type": "model",
       "status": "current"
     },
@@ -15914,11 +16018,21 @@
       "id": "req:FR-155",
       "type": "requirement",
       "family": "FR",
-      "label": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload.",
+      "label": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. An ISSUE of a LOT-tracked SKU that names no lot is consumed **FEFO** — first expired, first out — across OPEN lots (unknown expiry last, whatever no lot holds last), one ledger row per lot touched and the allocation in the audit payload; an ISSUE that names a lot may not exceed that lot's on-hand (`INVENTORY_LOT_INSUFFICIENT_STOCK`); a lot listing reports each lot's on-hand from the ledger. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload. 🟠 implemented locally 2026-09-06 — three models (both schemas, migrations shared with FR-154; production SQL **not applied**), the only writer `inventory-stock-service.js`, `GET/POST /api/inventory/lots`, `GET /api/inventory/serial-units`, `GET/POST /api/inventory/stock-movements`, `GET /api/inventory/stock`, the dashboard's KPIs, on-hand table and movement form; one integration suite (AC-155.1–.5), calculators in the unit suite. Not claimed: warehouse locations, reservations, expiry alerts, stocktake campaigns, costing "
+      "row_text": "Inventory stock ledger — for a TRACKED product (FR-154), an append-only `StockMovement` (RECEIPT adds, ISSUE removes, ADJUSTMENT carries its own sign, with `reason`, `reference`, `actorId`, `occurredAt`); on-hand is the sum of a product's rows recomputed on every read and never stored on the product, a summary flags on-hand below `safetyStock`, and an UNTRACKED product is refused by code (`INVENTORY_PRODUCT_UNTRACKED`) and reports `null` on-hand, never zero. `ProductLot` (`lot_id`: `code` unique per product, optional factory, manufacture and expiry dates, `receivedQty`, OPEN / QUARANTINE / CLOSED) — a LOT-tracked receipt names a lot by id or creates it by code and the lot's `receivedQty` follows; a receipt into a CLOSED lot is refused. `SerialUnit` (`serial_id`: `serialNo` unique per product, IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED) — a SERIAL-tracked movement names exactly one serial per unit and writes one ledger row per unit; a unit is created IN_STOCK by its receipt, ISSUED by its issue, refused when received while IN_STOCK or issued while not, and ADJUSTMENT is not allowed on a serial product. A plain (NONE) product refuses a lot or a serial on the movement; an ISSUE that would take on-hand below zero is refused. Serial units are created only through the ledger (`GET`-only route); an explicit lot route exists for a dated batch before stock arrives. An ISSUE of a LOT-tracked SKU that names no lot is consumed **FEFO** — first expired, first out — across OPEN lots (unknown expiry last, whatever no lot holds last), one ledger row per lot touched and the allocation in the audit payload; an ISSUE that names a lot may not exceed that lot's on-hand (`INVENTORY_LOT_INSUFFICIENT_STOCK`); a lot listing reports each lot's on-hand from the ledger. Manager authority, FR-072 refusals, one transaction and one audit row per write with `onHandBefore` / `onHandAfter` in the payload. 🟠 implemented locally 2026-09-06 — three models (both schemas, migrations shared with FR-154; production SQL **not applied**), the only writer `inventory-stock-service.js`, `GET/POST /api/inventory/lots`, `GET /api/inventory/serial-units`, `GET/POST /api/inventory/stock-movements`, `GET /api/inventory/stock`, the dashboard's KPIs, on-hand table and movement form; one integration suite (AC-155.1–.5), calculators in the unit suite. Not claimed: warehouse locations, reservations, expiry alerts, stocktake campaigns, costing "
+    },
+    {
+      "id": "req:FR-156",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory recipe / bill of materials at a batch size — `ProductRecipe` (`recipe_id`: `code` unique per Tenant, one row per output SKU and `batchSize` — \"the recipe for 10 seats\" and \"for 20 seats\" are two rows on one product, exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets — with `yieldQty`, `unit`, `notes`, ACTIVE / ARCHIVED, `version`) and `ProductRecipeLine` (a same-Business component SKU with `qty` per batch, optional `unit`, `fixed` for a line that does not scale with the quantity built, such as tooling; a component appears once and is never the output). Pure calculators pick the recipe for a quantity (the largest batch size that fits, else the smallest), explode it (scaled lines multiply by `quantity / batchSize`, fixed lines do not, the output yield follows the batch), compare with on-hand recomputed from the ledger (a fractional requirement is issued as the next whole unit; an uncounted component never blocks) and state the maximum buildable quantity. `GET /api/inventory/recipes/[id]?quantity=` returns that explosion; `POST …/build` is one transaction that issues every counted component through the FR-155 ledger (FEFO for lots) and receives the output SKU when it is counted — refused whole with `INVENTORY_RECIPE_SHORTAGE` and a per-component list when any component is short, and refused when a component or the output is SERIAL-tracked or a LOT-tracked output has no `outputLotCode`. `UPDATE` replaces the fields and, when given, the whole line set; `ARCHIVE` keeps the row; both compare-and-swap on `version`; manager authority, FR-072 refusals, one audit row per write. A bundle (FR-154) is the special case \"a kit at batch size 1\"; offers and price tiers stay in Commerce.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory recipe / bill of materials at a batch size — `ProductRecipe` (`recipe_id`: `code` unique per Tenant, one row per output SKU and `batchSize` — \"the recipe for 10 seats\" and \"for 20 seats\" are two rows on one product, exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets — with `yieldQty`, `unit`, `notes`, ACTIVE / ARCHIVED, `version`) and `ProductRecipeLine` (a same-Business component SKU with `qty` per batch, optional `unit`, `fixed` for a line that does not scale with the quantity built, such as tooling; a component appears once and is never the output). Pure calculators pick the recipe for a quantity (the largest batch size that fits, else the smallest), explode it (scaled lines multiply by `quantity / batchSize`, fixed lines do not, the output yield follows the batch), compare with on-hand recomputed from the ledger (a fractional requirement is issued as the next whole unit; an uncounted component never blocks) and state the maximum buildable quantity. `GET /api/inventory/recipes/[id]?quantity=` returns that explosion; `POST …/build` is one transaction that issues every counted component through the FR-155 ledger (FEFO for lots) and receives the output SKU when it is counted — refused whole with `INVENTORY_RECIPE_SHORTAGE` and a per-component list when any component is short, and refused when a component or the output is SERIAL-tracked or a LOT-tracked output has no `outputLotCode`. `UPDATE` replaces the fields and, when given, the whole line set; `ARCHIVE` keeps the row; both compare-and-swap on `version`; manager authority, FR-072 refusals, one audit row per write. A bundle (FR-154) is the special case \"a kit at batch size 1\"; offers and price tiers stay in Commerce. 🟠 implemented locally 2026-09-06 — two models (both schemas, additive migration `20260906233000_inventory_recipe`; production SQL **not applied**), the only writer `inventory-recipe-service.js`, `GET/POST /api/inventory/recipes`, `GET/PATCH /api/inventory/recipes/[id]`, `POST /api/inventory/recipes/[id]/build`, snapshot coverage; one integration suite (AC-156.1–.5), calculators in the unit suite. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion "
     },
     {
       "id": "req:NFR-001",
@@ -17913,6 +18027,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/inventory/recipes",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes",
+      "path": "src/app/api/inventory/recipes/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/recipes/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes/[id]",
+      "path": "src/app/api/inventory/recipes/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/recipes/[id]/build",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/recipes/[id]/build",
+      "path": "src/app/api/inventory/recipes/[id]/build/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/inventory/serial-units",
       "type": "route",
       "kind": "api",
@@ -19694,7 +19832,7 @@
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
       "type": "test",
       "path": "tests/e2e/fr154-inventory-dashboard.spec.js",
-      "hash": "4c2f44b9",
+      "hash": "0e28d593",
       "status": "current"
     },
     {
@@ -20114,7 +20252,14 @@
       "id": "test:tests/integration/fr155-inventory-stock.test.js",
       "type": "test",
       "path": "tests/integration/fr155-inventory-stock.test.js",
-      "hash": "58f90c75",
+      "hash": "05d49946",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "type": "test",
+      "path": "tests/integration/fr156-inventory-recipe.test.js",
+      "hash": "2d4ffb48",
       "status": "current"
     },
     {
@@ -20338,7 +20483,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "0cb32f92",
+      "hash": "46991e19",
       "status": "current"
     },
     {
@@ -21144,7 +21289,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "c26f44ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -21696,14 +21841,14 @@
       "id": "test:tests/unit/inventory-domain.test.js",
       "type": "test",
       "path": "tests/unit/inventory-domain.test.js",
-      "hash": "899533b7",
+      "hash": "f361666a",
       "status": "current"
     },
     {
       "id": "test:tests/unit/inventory-routes.test.js",
       "type": "test",
       "path": "tests/unit/inventory-routes.test.js",
-      "hash": "e5bce1ec",
+      "hash": "e5e2ab37",
       "status": "current"
     },
     {
@@ -27520,6 +27665,90 @@
     },
     {
       "from": "code:src/app/api/inventory/products/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/recipes/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -34890,6 +35119,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/inventory/application/inventory-stock-service.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -34934,6 +35191,13 @@
     {
       "from": "code:src/modules/inventory/domain/inventory.js",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-156",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36248,6 +36512,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -36481,6 +36752,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-156",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40966,6 +41244,13 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-156-inventory-recipe-bill-of-materials",
+      "to": "doc:ONTOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -42751,6 +43036,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-156",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -43263,6 +43555,20 @@
     },
     {
       "from": "model:ProductMaster",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductRecipe",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProductRecipeLine",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -44726,6 +45032,13 @@
     },
     {
       "from": "req:FR-155",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-156",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -46252,6 +46565,27 @@
     },
     {
       "from": "route:api:/api/inventory/products",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes/[id]/build",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/recipes",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -52433,6 +52767,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -52763,6 +53104,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -55086,6 +55434,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -56157,6 +56512,69 @@
     },
     {
       "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/app/api/inventory/recipes/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr156-inventory-recipe.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -57613,6 +58031,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -58041,6 +58466,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -65306,6 +65738,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -68686,6 +69125,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/app/(pm)/inventory/page.jsx",
       "type": "tests",
@@ -68744,6 +69190,27 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/app/api/inventory/products/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/recipes/route.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -68834,6 +69301,13 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-086",
       "type": "verifies",
       "status": "current",
@@ -68877,6 +69351,13 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -113,4 +113,27 @@ describe('FR-155 Inventory stock ledger', () => {
     expect(summary.counts).toEqual({ products: 4, tracked: 3, untracked: 1, belowSafetyStock: 1 })
     await expect(stockSummary({ businessId: b(), viewer: makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [b()], visibleDomains: ['projects'] }) })).rejects.toMatchObject({ status: 404 })
   })
+
+  it('AC-155.6 — an issue that names no lot is consumed FEFO across open lots; one that names a lot may not exceed it', async () => {
+    // LOT-2026-09 holds 18 with no expiry; LOT-2026-10 expires 2027-10 and now receives 5.
+    const dated = (await listLots({ businessId: b(), productId: lotted.id, viewer: member })).find((l) => l.code === 'LOT-2026-10')
+    await recordMovement({ businessId: b(), productId: lotted.id, kind: 'RECEIPT', quantity: 5, lotId: dated.id }, { viewer: owner })
+    const fefo = await recordMovement({ businessId: b(), productId: lotted.id, kind: 'ISSUE', quantity: 20 }, { viewer: owner })
+    expect(fefo).toMatchObject({ onHandBefore: 23, onHandAfter: 3, lotId: null })
+    expect(fefo.movements).toHaveLength(2)
+    // The dated lot goes first (an unknown expiry sorts last), then the rest from the undated one.
+    expect(fefo.allocations.map((a) => a.qty)).toEqual([5, 15])
+    expect(fefo.allocations[0].lotId).toBe(dated.id)
+    const lots = Object.fromEntries((await listLots({ businessId: b(), productId: lotted.id, viewer: member })).map((l) => [l.code, l.onHand]))
+    expect(lots).toEqual({ 'LOT-2026-09': 3, 'LOT-2026-10': 0 })
+    // With 5 more in the dated lot the product holds 8, but the undated lot still holds 3:
+    // an issue that names that lot is refused by the lot, an unnamed one only by the total.
+    await recordMovement({ businessId: b(), productId: lotted.id, kind: 'RECEIPT', quantity: 5, lotId: dated.id }, { viewer: owner })
+    const undated = (await listLots({ businessId: b(), productId: lotted.id, viewer: member })).find((l) => l.code === 'LOT-2026-09')
+    await expect(recordMovement({ businessId: b(), productId: lotted.id, kind: 'ISSUE', quantity: 4, lotId: undated.id }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'INVENTORY_LOT_INSUFFICIENT_STOCK' })
+    await expect(recordMovement({ businessId: b(), productId: lotted.id, kind: 'ISSUE', quantity: 9 }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'INVENTORY_INSUFFICIENT_STOCK' })
+    await expect(recordMovement({ businessId: b(), productId: lotted.id, kind: 'ISSUE', quantity: 8 }, { viewer: owner })).resolves.toMatchObject({ onHandAfter: 0 })
+    const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'STOCK_MOVEMENT', entityId: fefo.movements[0].id } })
+    expect(JSON.parse(audit.payloadJson).allocations).toHaveLength(2)
+  })
 })

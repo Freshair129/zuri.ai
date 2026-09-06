@@ -27,8 +27,11 @@ const ROUTES = {
   'src/app/api/inventory/serial-units/route.js': ['GET'],
   'src/app/api/inventory/stock-movements/route.js': ['GET', 'POST'],
   'src/app/api/inventory/stock/route.js': ['GET'],
+  'src/app/api/inventory/recipes/route.js': ['GET', 'POST'],
+  'src/app/api/inventory/recipes/[id]/route.js': ['GET', 'PATCH'],
+  'src/app/api/inventory/recipes/[id]/build/route.js': ['POST'],
 }
-const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductLot', 'SerialUnit', 'StockMovement']
+const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement']
 
 describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
@@ -39,7 +42,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
         expect(declared, `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-15[45]/)
+      expect(source).toMatch(/@req FR-15[456]/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })
@@ -77,18 +80,21 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(at('product')).toBeLessThan(at('productBundleItem'))
     expect(at('productBundle')).toBeLessThan(at('productBundleItem'))
     expect(at('product')).toBeLessThan(at('productLot'))
+    expect(at('product')).toBeLessThan(at('productRecipe'))
+    expect(at('productRecipe')).toBeLessThan(at('productRecipeLine'))
     expect(at('productLot')).toBeLessThan(at('serialUnit'))
     expect(at('serialUnit')).toBeLessThan(at('stockMovement'))
     expect(at('business')).toBeLessThan(at('inventoryCategory'))
   })
 
   it('ships additive migrations for both databases', () => {
-    const local = fs.readdirSync(path.resolve(process.cwd(), 'prisma/migrations')).find((name) => name.includes('inventory_domain'))
-    expect(local).toBeTruthy()
-    const twin = read(`prisma/migrations/${local}/migration.sql`)
-    const production = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations')).find((name) => name.includes('inventory_domain'))
-    expect(production).toBeTruthy()
-    const sql = read(`supabase/migrations/${production}`)
+    // FR-154/155 landed as one migration, FR-156 as a second; together they create every model.
+    const locals = fs.readdirSync(path.resolve(process.cwd(), 'prisma/migrations')).filter((name) => /inventory_(domain|recipe)/.test(name))
+    expect(locals).toHaveLength(2)
+    const twin = locals.map((name) => read(`prisma/migrations/${name}/migration.sql`)).join('\n')
+    const productions = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations')).filter((name) => /inventory_(domain|recipe)/.test(name))
+    expect(productions).toHaveLength(2)
+    const sql = productions.map((name) => read(`supabase/migrations/${name}`)).join('\n')
     for (const model of MODELS) {
       expect(twin).toContain(`CREATE TABLE "${model}"`)
       expect(sql).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)

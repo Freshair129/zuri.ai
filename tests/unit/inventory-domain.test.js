@@ -8,16 +8,23 @@
 // @tested tests/unit/inventory-domain.test.js
 import { describe, expect, it } from 'vitest'
 import {
+  allocateFefo,
   bundleAvailability,
+  explodeRecipe,
   isBelowSafetyStock,
+  maxBuildableQuantity,
   movementDelta,
   movementRule,
+  pickRecipeForQuantity,
+  recipeRequirements,
   serialStatusAfter,
   stockOnHand,
   stockSummaryRow,
   zCreateBundle,
   zCreateProduct,
+  zCreateRecipe,
   zProductAction,
+  zRecipeAction,
   zRecordMovement,
 } from '@/modules/inventory/domain/inventory'
 
@@ -115,5 +122,67 @@ describe('FR-155 stock ledger calculators', () => {
     expect(serialStatusAfter('RECEIPT')).toBe('IN_STOCK')
     expect(serialStatusAfter('ISSUE')).toBe('ISSUED')
     expect(serialStatusAfter('ADJUSTMENT')).toBeNull()
+  })
+
+  it('FEFO takes from the earliest-expiring open lot first, unknown expiry last, and reports what no lot covers', () => {
+    const lots = [
+      { id: 'undated', status: 'OPEN', onHand: 10, expiresAt: null, createdAt: '2026-01-01' },
+      { id: 'late', status: 'OPEN', onHand: 5, expiresAt: '2027-01-01', createdAt: '2026-02-01' },
+      { id: 'soon', status: 'OPEN', onHand: 3, expiresAt: '2026-12-01', createdAt: '2026-03-01' },
+      { id: 'closed', status: 'CLOSED', onHand: 50, expiresAt: '2026-11-01', createdAt: '2026-03-01' },
+    ]
+    expect(allocateFefo(lots, 7)).toEqual({ allocations: [{ lotId: 'soon', qty: 3 }, { lotId: 'late', qty: 4 }], remainder: 0 })
+    expect(allocateFefo(lots, 20)).toEqual({ allocations: [{ lotId: 'soon', qty: 3 }, { lotId: 'late', qty: 5 }, { lotId: 'undated', qty: 10 }], remainder: 2 })
+    expect(allocateFefo([], 1)).toEqual({ allocations: [], remainder: 1 })
+  })
+})
+
+describe('FR-156 recipe / bill of materials calculators', () => {
+  const recipe = (over = {}) => ({ id: 'r10', productId: 'box', batchSize: 10, yieldQty: 10, status: 'ACTIVE', lines: [
+    { componentProductId: 'ribbon', qty: 5, fixed: false },
+    { componentProductId: 'crate', qty: 1, fixed: true },
+    { componentProductId: 'card', qty: 10, fixed: false },
+  ], ...over })
+
+  it('the contracts: a recipe needs a positive batch size and at least one distinct component; UPDATE needs fields', () => {
+    const base = { businessId: 'b', code: 'RCP-1', productId: 'box', name: 'Box', batchSize: 10, lines: [{ componentProductId: 'ribbon', qty: 5 }] }
+    expect(zCreateRecipe.parse(base).batchSize).toBe(10)
+    expect(() => zCreateRecipe.parse({ ...base, batchSize: 0 })).toThrow()
+    expect(() => zCreateRecipe.parse({ ...base, lines: [] })).toThrow()
+    expect(() => zCreateRecipe.parse({ ...base, lines: [{ componentProductId: 'a', qty: 1 }, { componentProductId: 'a', qty: 2 }] })).toThrow(/once/)
+    expect(() => zCreateRecipe.parse({ ...base, lines: [{ componentProductId: 'a', qty: -1 }] })).toThrow()
+    expect(() => zRecipeAction.parse({ action: 'UPDATE', version: 1 })).toThrow(/fields/)
+    expect(zRecipeAction.parse({ action: 'ARCHIVE', version: 2 }).version).toBe(2)
+  })
+
+  it('picks the largest batch size that fits, else the smallest, never an archived one', () => {
+    const r10 = recipe(), r50 = recipe({ id: 'r50', batchSize: 50 }), r100 = recipe({ id: 'r100', batchSize: 100, status: 'ARCHIVED' })
+    expect(pickRecipeForQuantity([r10, r50, r100], 60).id).toBe('r50')
+    expect(pickRecipeForQuantity([r10, r50, r100], 500).id).toBe('r50')
+    expect(pickRecipeForQuantity([r10, r50], 25).id).toBe('r10')
+    expect(pickRecipeForQuantity([r50], 3).id).toBe('r50')
+    expect(pickRecipeForQuantity([r100], 3)).toBeNull()
+    expect(pickRecipeForQuantity([], 3)).toBeNull()
+  })
+
+  it('explodes to a quantity: scaled lines multiply, a fixed line does not, and the output yield follows the batch', () => {
+    const exploded = explodeRecipe(recipe({ yieldQty: 12 }), 25)
+    expect(exploded).toMatchObject({ quantity: 25, factor: 2.5, producedQty: 30 })
+    expect(exploded.lines.map((l) => [l.componentProductId, l.required])).toEqual([['ribbon', 12.5], ['crate', 1], ['card', 25]])
+  })
+
+  it('requirements compare with on-hand: whole units are issued, uncounted components never block', () => {
+    const req = recipeRequirements(explodeRecipe(recipe(), 25), { ribbon: 12, crate: 1, card: null })
+    expect(req.lines.map((l) => [l.componentProductId, l.issueQty, l.onHand, l.shortage])).toEqual([['ribbon', 13, 12, 1], ['crate', 1, 1, 0], ['card', 25, null, 0]])
+    expect(req.canBuild).toBe(false)
+    expect(recipeRequirements(explodeRecipe(recipe(), 25), { ribbon: 13, crate: 1, card: null }).canBuild).toBe(true)
+  })
+
+  it('the maximum buildable quantity is the tightest scaled line, a fixed line allows the batch or nothing, uncounted lines never limit', () => {
+    expect(maxBuildableQuantity(recipe(), { ribbon: 20, crate: 1, card: null })).toBe(40)
+    expect(maxBuildableQuantity(recipe(), { ribbon: 20, crate: 0, card: null })).toBe(0)
+    expect(maxBuildableQuantity(recipe(), { ribbon: 3, crate: 1, card: null })).toBe(6)
+    expect(maxBuildableQuantity(recipe({ lines: [{ componentProductId: 'card', qty: 1 }] }), { card: null })).toBeNull()
+    expect(maxBuildableQuantity(recipe({ lines: [{ componentProductId: 'crate', qty: 1, fixed: true }] }), { crate: 3 })).toBeNull()
   })
 })

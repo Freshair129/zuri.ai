@@ -84,6 +84,7 @@ model Tenant {
   serialUnits               SerialUnit[]
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
+  productRecipes            ProductRecipe[]
 
   @@index([portfolioId])
 }
@@ -171,6 +172,7 @@ model Business {
   serialUnits               SerialUnit[]
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
+  productRecipes            ProductRecipe[]
 
   @@index([tenantId])
 }
@@ -2627,6 +2629,8 @@ model Product {
   serialUnits   SerialUnit[]
   bundleItems   ProductBundleItem[]
   movements     StockMovement[]
+  recipes       ProductRecipe[]
+  recipeLines   ProductRecipeLine[]
 
   @@unique([tenantId, code])
   @@index([businessId, status])
@@ -2743,4 +2747,57 @@ model StockMovement {
   @@index([businessId, occurredAt])
   @@index([lotId])
   @@index([serialUnitId])
+}
+
+// ── Inventory recipe / bill of materials — FR-156 ───────────────────────────
+// @req FR-156 — a recipe (recipe_id) is the bill of materials of one output SKU
+//   at one batch size: "the recipe for 10 seats" and "for 20 seats" are two
+//   rows on the same product, exactly as a gift box has a BOM at 10, 50, 100
+//   and 500 sets. Lines name component SKUs with a quantity per batch; a
+//   `fixed` line (tooling, one crate per batch) does not scale with quantity.
+//   A bundle (FR-154) is the special case "a kit at batch size 1".
+// @spec BR-002 (codes are attributes, never keys)
+// @tested tests/integration/fr156-inventory-recipe.test.js
+
+model ProductRecipe {
+  id         String    @id @default(uuid())
+  code       String
+  tenantId   String
+  businessId String
+  productId  String
+  name       String
+  batchSize  Int
+  yieldQty   Int
+  unit       String    @default("EA")
+  notes      String?
+  status     String    @default("ACTIVE")
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lines    ProductRecipeLine[]
+
+  @@unique([tenantId, code])
+  @@unique([productId, batchSize])
+  @@index([businessId, status])
+}
+
+model ProductRecipeLine {
+  id                 String  @id @default(uuid())
+  recipeId           String
+  componentProductId String
+  qty                Float
+  unit               String?
+  fixed              Boolean @default(false)
+  note               String?
+
+  recipe    ProductRecipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  component Product       @relation(fields: [componentProductId], references: [id])
+
+  @@unique([recipeId, componentProductId])
+  @@index([componentProductId])
 }

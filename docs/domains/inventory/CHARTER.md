@@ -11,6 +11,8 @@ owns_models:
   - Product
   - ProductBundle
   - ProductBundleItem
+  - ProductRecipe
+  - ProductRecipeLine
   - ProductLot
   - SerialUnit
   - StockMovement
@@ -21,9 +23,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-06T21:00:00+07:00"
+updated_at: "2026-09-06T23:30:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -70,6 +72,7 @@ Display label:    Warehouse (คลังสินค้า) — not "Inventory"
 | `bundle_id` | `ProductBundle` + `ProductBundleItem` | `code` unique per Tenant | a pack of SKUs with quantities; availability is derived from the ledger |
 | `lot_id` | `ProductLot` | `code` unique per product | a manufacturing batch with optional factory, dates and `receivedQty` |
 | `serial_id` | `SerialUnit` | `serialNo` unique per product | one physical unit with its custody status |
+| `recipe_id` (FR-156) | `ProductRecipe` + `ProductRecipeLine` | `code` unique per Tenant; one recipe per (output SKU, `batchSize`) | the bill of materials at a batch size — "for 10 seats" and "for 20 seats" are two rows, as a gift box has a BOM at 10 / 50 / 100 / 500 sets; lines are component SKUs with `qty` per batch, `fixed` lines do not scale |
 
 Every one of those is an **attribute** (BR-002): the primary key is always the
 internal UUID, and no external or human code is ever a foreign key.
@@ -94,7 +97,11 @@ A `Product` is created with a `stockPolicy` that never changes afterwards:
 
 - `InventoryCategory`, `ProductFamily`, `Factory`, `ProductMaster`, `Product`,
   `ProductBundle`, `ProductBundleItem` — catalogue identity (FR-154).
-- `ProductLot`, `SerialUnit`, `StockMovement` — the stock ledger (FR-155).
+- `ProductLot`, `SerialUnit`, `StockMovement` — the stock ledger (FR-155),
+  consumed FEFO for lot-tracked SKUs when an issue names no lot.
+- `ProductRecipe`, `ProductRecipeLine` — the bill of materials at a batch size
+  (FR-156): explosion, shortages against the ledger, and the atomic build that
+  issues components and receives the output.
 
 ## Explicitly not owned
 
@@ -140,7 +147,8 @@ src/modules/inventory/
 ├── domain/inventory.js                      vocabularies, Zod contracts, pure calculators
 ├── application/inventory-authority.js       the view / manage ladder, FR-072 refusals
 ├── application/inventory-catalog-service.js the only writer of catalogue rows (FR-154)
-├── application/inventory-stock-service.js   the only writer of the ledger (FR-155)
+├── application/inventory-stock-service.js   the only writer of the ledger (FR-155), FEFO, appendMovement
+├── application/inventory-recipe-service.js  the only writer of recipes; explode and build (FR-156)
 └── index.js                                 stable module exports
 ```
 
@@ -150,8 +158,10 @@ cross-domain work uses an explicit contract or read projection.
 
 ## Delivery state
 
-FR-154 and FR-155 are implemented locally with both migrations written and the
-production SQL **not applied** (an owner-instructed operator step, ADR-057).
+FR-154, FR-155 and FR-156 are implemented locally with both migrations
+(`20260906230000_inventory_domain`, `20260906233000_inventory_recipe`) written
+and the production SQL **not applied** (an owner-instructed operator step,
+ADR-057).
 Surfaces: the API family above and the `/inventory` console dashboard. Not in
 this slice: Excel/LINE intake converters for stock, warehouse locations,
 reservations, costing, and the graph projection of the ontology.
@@ -167,4 +177,5 @@ reservations, costing, and the graph projection of the ontology.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |

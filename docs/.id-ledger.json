@@ -266,6 +266,7 @@
     "FR-153",
     "FR-154",
     "FR-155",
+    "FR-156",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2933,10 +2934,25 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "740e92412bb868e23e956ac1ce325c637353361b111ff812c76ef7cbac0648b7",
+      "statement_digest": "1c4805ddc93af8fbd495970bec423252fdc66cd9b91c9c8b34927fb7b2a3395f",
       "history": [
         {
           "anchor": "inventory stock ledger",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-06",
+      "statement_digest_reason": "FR-155 keeps its subject (the Inventory stock ledger) and gains the FEFO sentence: an issue of a LOT-tracked SKU that names no lot is consumed first-expired-first-out across OPEN lots, and an issue that names a lot may not exceed that lot's on-hand"
+    },
+    "FR-156": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d70121110dec0f7533a93f41ec0bc6dcc3193777e7176c8f6363e06c4cad010a",
+      "history": [
+        {
+          "anchor": "inventory recipe bill of materials at a batch size",
           "since": "2026-09-06",
           "reason": "declared"
         }

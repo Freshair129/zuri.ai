@@ -68,3 +68,33 @@ The ontology's prefixes (`cat:`, `pm:`, `sku:`, …) are node ids for a graph
 view. Inventory does not write a graph; the Knowledge lane (GKS, ADR-042) may
 project these rows into one, keyed on the internal UUIDs, with the prefix as
 a label. The relational rows stay the source of truth.
+
+## The legacy "Culinary" module, relabelled (owner instruction, 2026-09-06)
+
+The legacy product's ERD (`Freshair129/zuri1.0`,
+`docs/architecture/database-erd/full-schema.md` v2.0.0 — the same file
+ADR-054 reads as prior art) carries an *industry/culinary* module: `Ingredient`
+with `IngredientLot` (FEFO), `Recipe` / `RecipeIngredient` / `RecipeEquipment`,
+`CourseMenu`, `StockDeductionLog`, and a recipe per class size. The owner's
+instruction was to **take the label off**: a recipe for 10 seats and one for
+20 seats is the same thing as a bundle's bill of materials at 10 / 50 / 100 /
+500 sets. So the concepts land in Inventory as general ones (FR-155, FR-156):
+
+| Legacy (culinary) | Inventory (general) | Note |
+|---|---|---|
+| `Ingredient` (`unit` g / ml / piece, `currentStock`, `minStock`) | `Product` — TRACKED, `unit`, `safetyStock` | `currentStock` is not stored: on-hand is the ledger's sum |
+| `IngredientLot` (`initialQty`, `remainingQty`, `expiresAt`, FEFO) | `ProductLot` (`receivedQty`, `expiresAt`) + per-lot on-hand from the ledger | FEFO is the ledger's rule for an unnamed-lot issue (FR-155) |
+| `Recipe` per class size | `ProductRecipe` per (output SKU, `batchSize`) | the "10 seats / 20 seats" separation is `batchSize` |
+| `RecipeIngredient` (`qtyPerPerson` × students) | `ProductRecipeLine` with `fixed = false` (scales by `quantity / batchSize`) | |
+| `RecipeEquipment` (`qtyRequired` per session) | `ProductRecipeLine` with `fixed = true` (does not scale) | |
+| `CourseMenu` (Product → Recipe) | `ProductRecipe.productId` (the output SKU) | an UNTRACKED output (a course, a service) consumes components and produces nothing to stock |
+| `StockDeductionLog` (ADR-038 flow) | `StockMovement` rows written by `POST /api/inventory/recipes/[id]/build` (reference `RECIPE:<code>`) | atomic: every component or none |
+| `Package` / `PackageCourse` / `PackageGift` / price tiers | Commerce (deferred) | a bundle (FR-154) holds the goods; the offer holds the price |
+| `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` | Procurement (deferred) | a movement's `reference` carries the PO / GRN string only |
+| `Enrollment`, `CourseSchedule`, `ClassAttendance`, `Certificate` | Operations / Commerce (deferred) | scheduling and attendance are not stock |
+
+What did not survive the border, and why: `Ingredient.currentStock` (a stored
+on-hand — refused, recomputed instead), `IngredientLot.remainingQty` (same),
+the per-person multiplication at deduction time (replaced by an explicit
+batch-size recipe, which also gives the gift-box tiers), and every legacy id
+as a key (BR-002).

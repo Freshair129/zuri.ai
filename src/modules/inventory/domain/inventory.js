@@ -3,6 +3,7 @@ import {
   INVENTORY_LOT_STATUSES,
   INVENTORY_MOVEMENT_KINDS,
   INVENTORY_PRODUCT_ACTIONS,
+  INVENTORY_RECIPE_ACTIONS,
   INVENTORY_SERIAL_STATUSES,
   INVENTORY_STOCK_POLICIES,
   INVENTORY_TRACKING_MODES,
@@ -263,3 +264,162 @@ export function serialStatusAfter(kind) {
 }
 
 export const INVENTORY_SERIAL_STATUS_SET = new Set(INVENTORY_SERIAL_STATUSES)
+
+// ── FR-156 — recipe / bill of materials at a batch size ─────────────────────
+// @req FR-156 — a recipe is the BOM of one output SKU at one `batchSize`:
+//   "the recipe for 10 seats" and "for 20 seats" are two rows on one product,
+//   exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets. Lines name
+//   component SKUs with a quantity per batch; a `fixed` line (tooling, one
+//   crate per batch) does not scale. The calculators here pick the recipe for
+//   a quantity, explode it, compare the requirements with on-hand, and say how
+//   many can be built — all pure, so a page and a build agree.
+// @tested tests/unit/inventory-domain.test.js
+
+export const PRODUCT_RECIPE_ENTITY = 'PRODUCT_RECIPE'
+
+export const zRecipeLine = z.object({
+  componentProductId: zId,
+  qty: z.number().finite().positive(),
+  unit: zOptionalText(20),
+  fixed: z.boolean().optional(),
+  note: zOptionalText(300),
+}).strict()
+
+export const zRecipeLines = z.array(zRecipeLine).min(1).max(200)
+  .refine((lines) => new Set(lines.map((l) => l.componentProductId)).size === lines.length, 'a component appears once per recipe')
+
+export const zCreateRecipe = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  productId: zId,
+  name: zText(200),
+  batchSize: z.number().int().positive(),
+  yieldQty: z.number().int().positive().optional(),
+  unit: zText(20).optional(),
+  notes: zOptionalText(2000),
+  lines: zRecipeLines,
+}).strict()
+
+export const zRecipeFields = z.object({
+  name: zText(200),
+  yieldQty: z.number().int().positive(),
+  unit: zText(20),
+  notes: zOptionalText(2000),
+  lines: zRecipeLines,
+}).strict()
+
+export const zRecipeAction = z.object({
+  action: z.enum(INVENTORY_RECIPE_ACTIONS),
+  version: z.number().int().positive(),
+  fields: zRecipeFields.partial().strict().optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.action === 'UPDATE' && (!value.fields || Object.keys(value.fields).length === 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'fields is required for UPDATE' })
+  }
+})
+
+export const zBuildRecipe = z.object({
+  businessId: zBusinessId,
+  quantity: z.number().int().positive(),
+  outputLotCode: zInventoryCode.nullable().optional(),
+  reason: zOptionalText(500),
+  reference: zOptionalText(200),
+  occurredAt: zDate.optional(),
+}).strict()
+
+const round4 = (n) => Math.round(n * 10000) / 10000
+
+/**
+ * The recipe to use for a quantity: the largest batch size that does not
+ * exceed it (a 60-set order uses the 50-set BOM, scaled), else the smallest
+ * one there is. Archived recipes never qualify. Null when none exist.
+ */
+export function pickRecipeForQuantity(recipes = [], quantity) {
+  const active = recipes.filter((r) => r && r.status !== 'ARCHIVED' && Number.isFinite(r.batchSize) && r.batchSize > 0)
+  if (!active.length) return null
+  const fitting = active.filter((r) => r.batchSize <= quantity).sort((a, b) => b.batchSize - a.batchSize)
+  if (fitting.length) return fitting[0]
+  return active.slice().sort((a, b) => a.batchSize - b.batchSize)[0]
+}
+
+/** Explode a recipe to the quantity to build: scaled lines multiply, fixed lines do not. */
+export function explodeRecipe(recipe, quantity) {
+  const factor = quantity / recipe.batchSize
+  return {
+    recipeId: recipe.id,
+    productId: recipe.productId,
+    batchSize: recipe.batchSize,
+    quantity,
+    factor: round4(factor),
+    producedQty: Math.round((quantity * (recipe.yieldQty ?? recipe.batchSize)) / recipe.batchSize),
+    lines: (recipe.lines || []).map((line) => ({
+      componentProductId: line.componentProductId,
+      qty: line.qty,
+      unit: line.unit ?? null,
+      fixed: Boolean(line.fixed),
+      required: line.fixed ? line.qty : round4(line.qty * factor),
+    })),
+  }
+}
+
+/**
+ * The explosion compared with on-hand. A counted component reports its
+ * shortage; an uncounted one (on-hand null) reports none and never blocks.
+ * The ledger counts whole units, so a fractional requirement is issued as the
+ * next whole one (`issueQty`).
+ */
+export function recipeRequirements(explosion, onHandByProductId = {}) {
+  const lines = explosion.lines.map((line) => {
+    const onHand = onHandByProductId[line.componentProductId]
+    const counted = onHand !== null && onHand !== undefined
+    const issueQty = Math.ceil(line.required - 1e-9)
+    const shortage = counted ? Math.max(0, issueQty - onHand) : 0
+    return { ...line, issueQty, onHand: counted ? onHand : null, shortage }
+  })
+  return { ...explosion, lines, canBuild: lines.every((l) => l.shortage === 0) }
+}
+
+/**
+ * How many units the current on-hand allows this recipe to build: the
+ * tightest scaled counted line limits proportionally, a fixed counted line
+ * allows the batch or nothing, and an uncounted line never limits. Null when
+ * no line is counted.
+ */
+export function maxBuildableQuantity(recipe, onHandByProductId = {}) {
+  let limit = null
+  for (const line of recipe.lines || []) {
+    const onHand = onHandByProductId[line.componentProductId]
+    if (onHand === null || onHand === undefined) continue
+    const allows = line.fixed
+      ? (onHand >= line.qty ? Number.POSITIVE_INFINITY : 0)
+      : Math.floor((onHand / line.qty) * recipe.batchSize)
+    limit = limit === null ? allows : Math.min(limit, allows)
+  }
+  if (limit === Number.POSITIVE_INFINITY) return null
+  return limit
+}
+
+/**
+ * FEFO — first expired, first out. Open lots ordered by expiry (unknown
+ * expiry last), then by age, and the quantity taken from each until covered.
+ * `remainder` is what no open lot could cover.
+ */
+export function allocateFefo(lots = [], quantity) {
+  const ordered = lots
+    .filter((lot) => lot && lot.status === 'OPEN' && lot.onHand > 0)
+    .sort((a, b) => {
+      const ea = a.expiresAt ? new Date(a.expiresAt).getTime() : Number.POSITIVE_INFINITY
+      const eb = b.expiresAt ? new Date(b.expiresAt).getTime() : Number.POSITIVE_INFINITY
+      if (ea !== eb) return ea - eb
+      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+    })
+  const allocations = []
+  let remainder = quantity
+  for (const lot of ordered) {
+    if (remainder <= 0) break
+    const take = Math.min(lot.onHand, remainder)
+    allocations.push({ lotId: lot.id, qty: take })
+    remainder -= take
+  }
+  return { allocations, remainder }
+}

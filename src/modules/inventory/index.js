@@ -23,6 +23,7 @@ export {
   listProducts,
 } from './application/inventory-catalog-service'
 export {
+  appendMovement,
   createLot,
   listLots,
   listMovements,
@@ -30,3 +31,10 @@ export {
   recordMovement,
   stockSummary,
 } from './application/inventory-stock-service'
+export {
+  applyRecipeAction,
+  buildRecipe,
+  createRecipe,
+  getRecipe,
+  listRecipes,
+} from './application/inventory-recipe-service'

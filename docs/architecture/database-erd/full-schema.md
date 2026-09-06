@@ -1,16 +1,18 @@
 ---
 title: "Database Schema — Full ERD Reference"
-version: "1.0.0"
-date: "2026-08-29"
+version: "2.0.0"
+date: "2026-09-06"
 status: DRAFT
-model_count: 67
+model_count: 100
 source: "prisma/schema.prisma"
-note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน"
+note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §19 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054"
 ---
 
 # Database Schema — Full ERD Reference
 
-> **67 models** — นับจาก `prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
+> **100 models** — นับจาก `prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
+> v2.0.0 ครอบคลุม 33 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §14–§18 — และ §19 คือ
+> สถานะของทุกหัวข้อใน ERD ของผลิตภัณฑ์เดิม (`Freshair129/zuri1.0`) ว่ายืม / เปลี่ยน label / เลื่อน / ปฏิเสธ
 > **Source of truth:** `prisma/schema.prisma` · Postgres cutover: `prisma/schema.postgres.prisma`
 > **Registry ย่อ:** [Appendix B](../../appendices/B-db-schema.md) · **Domain lanes:** [DOMAIN-MAP](../../DOMAIN-MAP.md)
 > **อ่านใน Obsidian / GitHub:** Mermaid diagrams render อัตโนมัติ
@@ -68,6 +70,27 @@ erDiagram
 
     PipelineRun ||--o{ PipelineStep : "staged as"
     PipelineStep ||--o{ PipelineRecordEvent : "records"
+
+    Conversation ||--o{ ConversationAnalysis : "analysed as"
+    Person ||--o{ PluginSession : "acts through plugin"
+    Business ||--o{ EdgeDeviceCredential : "authorizes device"
+
+    Business ||--o{ AssetIntake : "receives"
+    AssetIntake ||--o| RegisteredAsset : "promotes to"
+    RegisteredAsset ||--o{ AssetResponsibility : "accountable"
+    RegisteredAsset ||--o{ AssetProjectAllocation : "booked by Project"
+    AssetEvidence ||--o{ AssetExtractionJob : "extracted by device"
+
+    Business ||--o{ LineOaAccount : "runs"
+    IntegrationConnection ||--|| LineOaAccount : "LINE_OA connection"
+    LineOaAccount ||--o{ LineOaRichMenu : "designs"
+    LineOaAccount ||--o{ LineOaLiffApp : "registers"
+    LineOaAccount ||--o{ LineConversationJob : "answers through"
+
+    Business ||--o{ ProductMaster : "catalogues"
+    ProductMaster ||--o{ Product : "SKU"
+    Product ||--o{ StockMovement : "ledger"
+    Product ||--o{ ProductRecipe : "BOM at batch size"
 ```
 
 **สิ่งที่ diagram นี้ไม่ได้บอก:** `AuditEvent`, `Dependency` และ `ExternalRef` ไม่มี FK จริง
@@ -724,6 +747,20 @@ erDiagram
     Person ||--o{ Customer : "is principal of"
     Customer ||--o{ Conversation : "chats in"
     Conversation ||--o{ Message : "contains"
+    Conversation ||--o{ ConversationAnalysis : "analysed as"
+
+    ConversationAnalysis {
+        uuid     id             PK
+        uuid     conversationId FK  "→ Conversation.id — ไม่ใช่ externalThreadId (ADR-054 D4)"
+        datetime analyzedDate
+        datetime analyzedAt
+        string   contactType        "NEW_LEAD | RETURNING | SUPPORT"
+        string   state              "HOT | WARM | COLD | CLOSED_WON | CLOSED_LOST"
+        string   cta                "nullable"
+        string   tags               "JSON string"
+        string   summary
+        string   rawOutputJson      "private — ไม่ออกทาง read model"
+    }
 
     Customer {
         uuid     id                        PK
@@ -768,8 +805,10 @@ erDiagram
 | `Conversation.@@unique` | `[tenantId, channel, externalThreadId]` — **ไม่ใช่ global unique**: global จะทำให้ thread id ของ tenant หนึ่งไปชี้ conversation ของอีก tenant (BR-002, SEC-001) |
 | `Message.@@unique` | `[conversationId, externalMessageId]` — ไม่ denormalize `tenantId` ลงมา เพราะสำเนาความจริงชุดที่สองย่อม drift ได้; conversation ถูก scope ไว้แล้ว |
 | ใครสร้างแถว | `line-ingest-service` เท่านั้น — agent domain **consume** conversation ไม่ได้สร้างเอง |
+| `Conversation.channelAccountId` (FR-148) | identity ของ conversation รวม **บัญชีที่รับ** — unique `[tenantId, channel, channelAccountId, externalThreadId]`; แถวก่อน ADR-061 เป็น `LEGACY:LINE` โดยไม่เดา attribution |
+| `ConversationAnalysis` (FR-127) | รูปที่ยืมจาก legacy DSB (ADR-054 D2) — ผูก `Conversation.id` ไม่ใช่ thread id ภายนอก (D4), **derived และคำนวณใหม่ได้** (D6): ลบทิ้งปลอดภัยเสมอ, PDPA erasure ของ Customer พาแถวนี้ไปด้วย; ไม่มี `sourceAdId` จนกว่าจะมี Ad model |
 
-**Spec:** FR-023, FR-103 · SEC-005, BR-002, SEC-001
+**Spec:** FR-023, FR-103, FR-127, FR-148 · SEC-005, BR-002, SEC-001 · ADR-054, ADR-061
 
 ---
 
@@ -1114,7 +1153,643 @@ erDiagram
 
 ---
 
-## 14. Domain ownership map
+## 14. IDENTITY: plugin authorization & edge devices
+
+สี่ model ที่ identity ถือเพิ่มหลัง v1.0.0 ของเอกสารนี้ — ทั้งหมดคือ **credential ที่เก็บเฉพาะ digest**
+(`codeHash`, `tokenHash`, `keyHash`) ไม่มี raw secret ลง DB (SEC-014 pattern เดียวกับ `Session`)
+
+```mermaid
+erDiagram
+    PluginInstallation ||--o{ PluginAuthorizationCode : "issues"
+    PluginInstallation ||--o{ PluginSession : "opens"
+    Person ||--o{ PluginAuthorizationCode : "consents"
+    Person ||--o{ PluginSession : "acts as"
+    Tenant ||--o{ EdgeDeviceCredential : "scopes"
+    Business ||--o{ EdgeDeviceCredential : "authorizes"
+
+    PluginInstallation {
+        uuid     id             PK
+        string   installationId UK  "id ฝั่ง plugin host"
+        string   clientId
+        string   status             "ACTIVE"
+    }
+
+    PluginAuthorizationCode {
+        uuid     id                   PK
+        string   codeHash             UK  "SHA-256 ของ code — raw ไม่เก็บ"
+        string   clientId
+        string   redirectUri
+        string   codeChallenge            "PKCE"
+        string   codeChallengeMethod      "S256"
+        uuid     pluginInstallationId FK
+        uuid     personId             FK
+        datetime expiresAt
+        datetime consumedAt               "nullable — ใช้ได้ครั้งเดียว"
+        datetime revokedAt
+    }
+
+    PluginSession {
+        uuid     id                   PK
+        string   tokenHash            UK
+        string   clientId
+        uuid     pluginInstallationId FK
+        uuid     personId             FK
+        uuid     authorizationCodeId      "nullable scalar"
+        datetime expiresAt
+        datetime revokedAt
+        datetime lastUsedAt
+    }
+
+    EdgeDeviceCredential {
+        uuid     id           PK
+        uuid     tenantId     FK
+        uuid     businessId   FK
+        string   deviceId         "id ที่อุปกรณ์ประกาศ — attribute ไม่ใช่ key"
+        string   label
+        string   keyHash      UK
+        string   keyPrefix        "สำหรับแสดงผล"
+        string   status           "ACTIVE | REVOKED"
+        datetime lastUsedAt
+        datetime revokedAt
+        string   revokeReason
+        int      version
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| `PluginAuthorizationCode.consumedAt` | code ใช้ได้ครั้งเดียว — `POST /api/plugin/auth/token` เป็น operation เดียวที่ mint (ADR-052 D4) |
+| `EdgeDeviceCredential.keyHash` | อุปกรณ์ Zuri Edge ยื่น bearer มาแลกงาน (FR-143 extraction job, FR-150 conversation job) — cloud เก็บ hash เท่านั้น |
+| scope ของ edge device | ผูก **Business เดียว** — งานที่ claim ได้คือของ Business นั้นเท่านั้น (ADR-059 D2) และ credential นี้ **ไม่เคยเลือกเจ้าของ transport LINE** (ADR-061) |
+
+**Spec:** FR-123 (plugin auth, ADR-052) · FR-144 (edge device credential, ADR-059) · SEC-014, SEC-025
+
+---
+
+## 15. ASSET MANAGEMENT: intake, register & evidence
+
+Asset Management (`DOM-ASSET-MANAGEMENT`, ADR-055) ตอบว่า "หน่วยกายภาพนี้คืออะไร ใครพิสูจน์การรับเข้า"
+— คนละคำถามกับ Inventory (§18) ที่ตอบว่า "เรามีของขายกี่ชิ้น"
+
+```mermaid
+erDiagram
+    Business ||--o{ AssetIntake : "receives"
+    Business ||--o{ RegisteredAsset : "registers"
+    Business ||--o{ AssetLot : "controls expiry"
+    AssetIntake ||--o| RegisteredAsset : "promotes to"
+    AssetIntake ||--o{ AssetEvidence : "proved by"
+    AssetIntake ||--o{ AssetProcurementRef : "references"
+    AssetLot ||--o{ RegisteredAsset : "batches"
+    FileAsset ||--o{ AssetEvidence : "bytes of"
+
+    AssetIntake {
+        uuid     id                     PK
+        uuid     tenantId               FK
+        uuid     businessId             FK
+        string   intakeCode                 "unique ต่อ Business"
+        string   schemaVersion
+        string   sourceChannel              "WEB | REST_API | EXCEL | GOOGLE_SHEET | AGENT_MCP | LINE_OA | LIFF"
+        string   sourceCorrelationId        "unique ร่วมกับ channel — idempotent"
+        string   origin
+        string   status                     "DRAFT → … → READY_FOR_REGISTRATION"
+        string   payloadSha256
+        string   normalizedEnvelopeJson     "AssetIntakeEnvelope หลัง validate"
+        string   validationJson
+        uuid     pipelineRunId              "scalar → PipelineRun (integration)"
+        uuid     submittedByPersonId
+        uuid     approvedByPersonId
+        int      version
+        datetime deletedAt
+    }
+
+    RegisteredAsset {
+        uuid     id                PK
+        uuid     tenantId          FK
+        uuid     businessId        FK
+        uuid     intakeId          FK  "unique — หนึ่ง intake หนึ่ง asset"
+        uuid     lotId             FK  "nullable"
+        string   assetCode             "AST-YYYY-* unique ต่อ Business ไม่ recycle"
+        string   name
+        string   categoryCode
+        string   brand
+        string   model
+        string   serialNumber          "attribute — ไม่ใช่ key (BR-002)"
+        string   status                "ACTIVE | …"
+        string   condition             "GOOD | …"
+        string   acquisitionAmount     "string — เงินไม่เก็บเป็น float"
+        string   currency
+        datetime receivedOn
+        datetime registeredAt
+        int      version
+        datetime deletedAt
+    }
+
+    AssetEvidence {
+        uuid     id                 PK
+        uuid     intakeId           FK
+        uuid     registeredAssetId  FK  "nullable"
+        uuid     fileAssetId        FK  "bytes อยู่ที่ FileAsset — ไม่ซ้ำ"
+        string   role                   "ASSET_PHOTO | RECEIPT | INVOICE | PAYMENT_PROOF | …"
+        string   status
+        string   sha256
+        string   paymentReference
+        string   extractionJson         "candidate จาก OCR/Vision"
+        string   reviewJson             "การตัดสินใจของคน"
+        uuid     reviewedByPersonId
+        datetime reviewedAt
+    }
+
+    AssetProcurementRef {
+        uuid     id                PK
+        uuid     intakeId          FK
+        uuid     registeredAssetId FK  "nullable"
+        string   type                  "PR | PR_LINE | PO | PO_LINE | GRN | INVOICE | SUPPLIER"
+        string   system
+        string   value                 "id ฝั่งระบบจัดซื้อ — typed ref เท่านั้น"
+        string   lineValue
+        string   status                "UNRESOLVED | …"
+    }
+
+    AssetLot {
+        uuid     id             PK
+        uuid     tenantId       FK
+        uuid     businessId     FK
+        string   lotCode            "unique ต่อ Business"
+        datetime manufacturedOn
+        datetime expiresOn         "บังคับ — category ที่ควบคุมวันหมดอายุ"
+        string   status
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| `AssetIntake.@@unique([businessId, sourceChannel, sourceCorrelationId])` | ทุก surface ลงท่อเดียว (BR-009): ส่งซ้ำจาก channel เดิมได้ intake เดิม |
+| `RegisteredAsset.intakeId` unique | asset เกิดจาก intake ที่ผ่าน review เท่านั้น — OCR/Vision อนุมัติตัวเองไม่ได้ |
+| `AssetEvidence` ↔ `FileAsset` | reference เท่านั้น — ไม่ duplicate bytes/storage metadata (charter: "Explicitly not owned") |
+| `AssetProcurementRef.value` | PR/PO/GRN เป็น **typed reference** ไปยังระบบจัดซื้อที่ยังไม่มี — ไม่ใช่ FK |
+| `acquisitionAmount` เป็น string | เงินเก็บเป็น decimal string ไม่ใช่ float — คนละแนวกับ `Product.baseCost` ของ Inventory ที่เป็น float โดยตั้งใจ (ต้นทุน catalogue ไม่ใช่ valuation) |
+| `AssetLot` ≠ `ProductLot` | สอง lot คนละโดเมน: AssetLot คือ batch ของ **สินทรัพย์** ที่มีวันหมดอายุ; ProductLot (§18) คือ batch ของ **สินค้าคงคลัง** ที่ ledger นับ |
+
+**Spec:** FR-133, FR-137, FR-138, FR-139, FR-140 · ADR-055, ADR-056 · SDD-078..080, SEC-023, SEC-024
+
+---
+
+## 16. ASSET MANAGEMENT: lifecycle, depreciation & edge extraction
+
+```mermaid
+erDiagram
+    RegisteredAsset ||--o{ AssetResponsibility : "accountable / custodian / user"
+    RegisteredAsset ||--o{ AssetLocationHistory : "where it has been"
+    RegisteredAsset ||--o{ AssetProjectAllocation : "booked by"
+    RegisteredAsset ||--o{ AssetDepreciationCandidate : "previewed as"
+    AssetIntake ||--o{ AssetDepreciationCandidate : "previewed before registration"
+    Person ||--o{ AssetResponsibility : "holds"
+    Branch ||--o{ AssetLocationHistory : "beneath"
+    Project ||--o{ AssetProjectAllocation : "uses"
+    Workstream ||--o{ AssetProjectAllocation : "uses"
+    AssetEvidence ||--o{ AssetExtractionJob : "extracted by device"
+
+    AssetResponsibility {
+        uuid     id                PK
+        uuid     registeredAssetId FK
+        string   role                  "ACCOUNTABLE | CUSTODIAN | USER"
+        uuid     personId          FK
+        string   orgUnitSystem         "typed ref — ไม่มี org master"
+        string   orgUnitRef
+        datetime effectiveFrom
+        datetime effectiveTo          "null = ปัจจุบัน"
+        datetime acknowledgedAt
+    }
+
+    AssetLocationHistory {
+        uuid     id                PK
+        uuid     registeredAssetId FK
+        uuid     branchId          FK  "nullable"
+        string   locationCode
+        string   locationName
+        bool     isPrimary
+        datetime effectiveFrom
+        datetime effectiveTo
+    }
+
+    AssetProjectAllocation {
+        uuid     id                PK
+        uuid     registeredAssetId FK
+        uuid     projectId         FK
+        uuid     workstreamId      FK  "nullable"
+        float    quantity
+        bool     exclusive             "exclusive ซ้อนช่วงกันไม่ได้"
+        string   status
+        datetime effectiveFrom
+        datetime effectiveTo
+    }
+
+    AssetDepreciationCandidate {
+        uuid     id                 PK
+        uuid     intakeId           FK  "nullable"
+        uuid     registeredAssetId  FK  "nullable"
+        string   method                 "STRAIGHT_LINE"
+        string   acquisitionAmount
+        string   residualValue
+        string   currency
+        int      usefulLifeMonths
+        datetime startDate
+        string   calculationVersion
+        string   scheduleJson           "ตาราง preview — deterministic"
+        string   status                 "PREVIEW | …"
+        uuid     reviewedByPersonId
+    }
+
+    AssetExtractionJob {
+        uuid     id                PK
+        uuid     tenantId          FK
+        uuid     businessId        FK
+        uuid     evidenceId        FK
+        string   status                "QUEUED → CLAIMED → COMPLETED | FAILED | CANCELLED"
+        string   claimedByDeviceId     "deviceId ของ EdgeDeviceCredential"
+        datetime claimedAt
+        datetime leaseExpiresAt        "lease 10 นาที"
+        int      attempts
+        string   lastError
+        string   resultJson
+        string   provider
+        string   model
+        int      version
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| ประวัติแบบช่วงเวลา | responsibility / location / allocation **ปิดช่วงเดิมแล้วต่อช่วงใหม่** — ไม่เขียนทับ (charter invariant); `effectiveTo` null คือช่วงปัจจุบัน |
+| `AssetProjectAllocation` | Asset เป็นผู้เขียน; Project Manager อ่านเป็น read projection (Project Inventory, FR-077) — ownership ไม่ย้าย |
+| `AssetDepreciationCandidate` | **preview เท่านั้น** ไม่ใช่ accounting book — ไม่มี journal, ไม่มี posting (charter: Finance คือ authority) |
+| `AssetExtractionJob.claimedByDeviceId` | scalar ไม่ใช่ FK ไป `EdgeDeviceCredential` — job ผูกกับ *อุปกรณ์* ที่ credential แทน ไม่ใช่ credential แถวใดแถวหนึ่ง (revoke แล้ว mint ใหม่ได้โดย job ไม่ขาด) |
+
+**Spec:** FR-135, FR-136, FR-143, FR-144 · ADR-055, ADR-059 · SDD-085, SEC-025
+
+---
+
+## 17. LINE OA STUDIO: accounts, rich menus, LIFF & transport jobs
+
+LINE OA Studio (`DOM-LINE-OA-STUDIO`, ADR-060) — บัญชี LINE Official Account **หลายบัญชีต่อ Business**,
+โดย transport ที่รับ/ส่งข้อความเป็นของ server ตาม ADR-061
+
+```mermaid
+erDiagram
+    Business ||--o{ LineOaAccount : "runs"
+    IntegrationConnection ||--|| LineOaAccount : "1:1 LINE_OA connection"
+    LineOaAccount ||--o{ LineOaRichMenu : "designs"
+    LineOaRichMenu ||--o{ LineOaRichMenuVersion : "numbered bodies"
+    FileAsset ||--o{ LineOaRichMenuVersion : "image"
+    LineOaRichMenuVersion ||--o{ LineOaRichMenuJob : "published by"
+    LineOaAccount ||--o{ LineOaRichMenuJob : "fences by epoch"
+    LineOaAccount ||--o{ LineOaLiffApp : "registers"
+    LineOaAccount ||--o{ LineConversationJob : "answers through"
+    Message ||--|| LineConversationJob : "inbound → job"
+
+    LineOaAccount {
+        uuid     id                      PK
+        string   code                    UK  "unique ต่อ Tenant"
+        uuid     tenantId                FK
+        uuid     businessId              FK
+        uuid     integrationConnectionId FK  "unique"
+        string   bindingCode                 "unique ต่อ Tenant — อ่าน zuri_core.line_channel_binding"
+        string   displayName
+        string   basicId                     "@handle ของ LINE — attribute"
+        string   status                      "DRAFT | CONNECTED | PAUSED | ARCHIVED"
+        string   transportMode               "EDGE | CLOUD"
+        bool     serverEnabled               "ADR-061: server รับ webhook เอง"
+        string   executionMode               "SERVER | EDGE"
+        string   modelAccess                 "LOCAL_ONLY | EXTERNAL_MODEL_ALLOWED"
+        bool     allowDelayedPush
+        int      transportEpoch              "fence — สลับ transport เพิ่ม epoch"
+        bool     isDefaultForBusiness
+        string   botProfileJson
+        int      version
+    }
+
+    LineOaRichMenu {
+        uuid     id              PK
+        string   code            UK
+        uuid     lineOaAccountId FK
+        string   name
+        string   alias               "unique ต่อ account"
+        string   status              "DRAFT | READY | ARCHIVED"
+        bool     isDefault
+        int      version
+    }
+
+    LineOaRichMenuVersion {
+        uuid     id                 PK
+        uuid     richMenuId         FK
+        int      versionNumber          "unique ต่อ menu"
+        string   status                 "DRAFT | FROZEN | PUBLISHED | RETIRED"
+        string   layout                 "1x1 | 2x1 | 2x2 | 2x3 | 3x1 | 1x2"
+        string   chatBarText
+        bool     selected
+        uuid     imageFileAssetId   FK  "nullable"
+        int      imageWidth
+        int      imageHeight
+        string   areasJson              "tap areas + action ตาม allow-list"
+        string   externalRichMenuId     "richMenuId ที่ LINE ออก — เขียนโดย job"
+        datetime frozenAt
+        datetime publishedAt
+    }
+
+    LineOaRichMenuJob {
+        uuid     id                 PK
+        uuid     accountId          FK
+        uuid     richMenuId         FK
+        uuid     richMenuVersionId  FK
+        string   kind                   "PUBLISH | SET_DEFAULT | SET_ALIAS"
+        string   stage                  "CREATE | UPLOAD | APPLY | DONE"
+        string   status                 "QUEUED | CLAIMED | … | UNKNOWN"
+        int      transportEpoch
+        int      attempts
+        datetime availableAt
+        datetime expiresAt
+        string   claimantId
+        datetime leaseExpiresAt
+        string   externalRichMenuId
+        string   providerRequestId
+        string   errorCode
+        string   correlationId
+        int      version
+    }
+
+    LineOaLiffApp {
+        uuid     id              PK
+        string   code            UK
+        uuid     lineOaAccountId FK
+        string   name
+        string   viewSize            "COMPACT | TALL | FULL"
+        string   endpointUrl         "https เท่านั้น"
+        string   scopesJson          "profile | openid | email | chat_message.write"
+        string   botPrompt           "NONE | NORMAL | AGGRESSIVE"
+        string   status              "DRAFT | ACTIVE | ARCHIVED"
+        string   externalLiffId      "liffId ที่ LINE ออก — unique ต่อ account"
+        int      version
+    }
+
+    LineConversationJob {
+        uuid     id               PK
+        uuid     accountId        FK
+        uuid     inboundMessageId FK  "unique — หนึ่ง inbound หนึ่ง job"
+        string   eventId              "unique ร่วมกับ account"
+        string   channelAccountId     "= Conversation.channelAccountId"
+        int      transportEpoch
+        string   executionMode        "SERVER | EDGE"
+        string   modelAccess
+        string   recipientId
+        string   sourceUserId
+        string   sealedReplyToken     "sealed — เปิดได้ที่ server เท่านั้น"
+        datetime replyExpiresAt
+        string   status               "QUEUED | CLAIMED | … | UNKNOWN"
+        string   answerText
+        string   sendMethod           "REPLY | PUSH"
+        string   retryKey         UK
+        string   claimantId
+        datetime leaseExpiresAt
+        string   providerRequestId
+        string   providerMessageId
+        datetime acceptedAt
+        string   errorCode
+        string   correlationId
+        int      version
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| `LineOaAccount.integrationConnectionId` unique | บัญชีหนึ่ง = connection LINE_OA หนึ่ง; secret อยู่ที่ integration lane (`IntegrationCredential` / Vault) ไม่เคยอยู่ที่นี่ |
+| `transportEpoch` บน job | job ที่ถูก claim ด้วย epoch เก่าถูก **fence** เมื่อบัญชีสลับ transport — ไม่มี job สองเจ้าของ (ADR-061 D6) |
+| `externalRichMenuId` / `externalLiffId` | id ที่ LINE ออก — attribute ที่ transport/publisher บันทึก ไม่เคยเป็น key (BR-002) |
+| `LineConversationJob.inboundMessageId` unique | ข้อความเข้าหนึ่งข้อความสร้าง job ได้ครั้งเดียว; `retryKey` unique กันส่งซ้ำ; ตอบ UNKNOWN ต้องมีคน acknowledge |
+| `Conversation.channelAccountId` (FR-148) | identity ของ conversation รวม account ที่รับ — แถวเก่าเป็น `LEGACY:LINE` โดยไม่เดา |
+| ไม่มี model ของ Flex / Flow / Template / Dispatch | charter ประกาศเป็น *target*; แต่ละตัวมาพร้อม FR ของตัวเอง (ADR-060 D14) |
+
+**Spec:** FR-146, FR-147, FR-148, FR-149, FR-150, FR-151, FR-152, FR-153 · ADR-060, ADR-061
+
+---
+
+## 18. INVENTORY (Warehouse): catalogue, stock ledger & recipes
+
+Inventory (`DOM-INVENTORY`, ป้าย **Warehouse** — คลังสินค้า) ตอบ "เรามีสินค้าอะไร นับสต๊อกไหม เหลือกี่ชิ้น
+และของหนึ่งชุดทำจากอะไร" — ครบ id ทั้งเก้าที่ owner ขอ: `category_id` · `product_family` ·
+`factory_id` · `product_master` · `product_id` · `bundle_id` · `lot_id` · `serial_id` · `recipe_id`
+
+```mermaid
+erDiagram
+    Business ||--o{ InventoryCategory : "groups"
+    Business ||--o{ ProductFamily : "groups"
+    Business ||--o{ Factory : "sources from"
+    InventoryCategory ||--o{ ProductMaster : "IN_CATEGORY"
+    ProductFamily ||--o{ ProductMaster : "family of"
+    Factory ||--o{ ProductMaster : "default maker"
+    ProductMaster ||--o{ Product : "VARIANT_OF (SKU)"
+    Product ||--o{ ProductLot : "batched as"
+    Factory ||--o{ ProductLot : "made this batch"
+    Product ||--o{ SerialUnit : "unit of"
+    ProductLot ||--o{ SerialUnit : "in lot"
+    Product ||--o{ StockMovement : "ledger"
+    ProductLot ||--o{ StockMovement : "per lot"
+    SerialUnit ||--o{ StockMovement : "per unit"
+    ProductBundle ||--o{ ProductBundleItem : "packs"
+    Product ||--o{ ProductBundleItem : "packed in"
+    Product ||--o{ ProductRecipe : "output of"
+    ProductRecipe ||--o{ ProductRecipeLine : "BOM lines"
+    Product ||--o{ ProductRecipeLine : "component of"
+
+    InventoryCategory {
+        uuid     id              PK
+        string   code            UK  "unique ต่อ Tenant"
+        uuid     tenantId        FK
+        uuid     businessId      FK
+        string   nameTh
+        string   nameEn
+        string   slug                "kebab-case unique ต่อ Business — ค่า ontology เป็นแถว ไม่ใช่ enum"
+        string   vibe
+        string   targetRecipient
+        string   guardrail
+        string   status              "ACTIVE | ARCHIVED"
+        int      version
+    }
+
+    ProductFamily {
+        uuid     id          PK
+        string   code        UK
+        uuid     businessId  FK
+        string   name
+        string   description
+        string   status
+    }
+
+    Factory {
+        uuid     id          PK
+        string   code        UK
+        uuid     businessId  FK
+        string   name
+        string   country
+        string   contact
+        string   status
+    }
+
+    ProductMaster {
+        uuid     id          PK
+        string   code        UK
+        uuid     businessId  FK
+        uuid     categoryId  FK
+        uuid     familyId    FK  "nullable"
+        uuid     factoryId   FK  "nullable"
+        string   nameTh
+        string   nameEn
+        float    baseCost        "ต้นทุน catalogue — ไม่ใช่ valuation"
+        string   specsJson
+        string   status
+        int      version
+    }
+
+    Product {
+        uuid     id              PK
+        string   code            UK  "SKU — unique ต่อ Tenant"
+        uuid     businessId      FK
+        uuid     productMasterId FK
+        string   name
+        string   color
+        string   material
+        string   unit                "EA | g | ml | m | …"
+        string   stockPolicy         "TRACKED | UNTRACKED — กำหนดตอนสร้าง ไม่แก้"
+        string   trackingMode        "NONE | LOT | SERIAL — กำหนดตอนสร้าง ไม่แก้"
+        int      safetyStock
+        string   status              "ACTIVE | ARCHIVED"
+        datetime archivedAt
+        int      version
+    }
+
+    ProductBundle {
+        uuid     id               PK
+        string   code             UK
+        uuid     businessId       FK
+        string   name
+        int      targetRecipients
+        float    totalPrice
+        string   status
+        int      version
+    }
+
+    ProductBundleItem {
+        uuid     id        PK
+        uuid     bundleId  FK
+        uuid     productId FK  "unique ร่วมกับ bundle"
+        int      qty
+    }
+
+    ProductLot {
+        uuid     id             PK
+        string   code               "unique ต่อ product"
+        uuid     productId      FK
+        uuid     factoryId      FK  "nullable"
+        datetime manufacturedAt
+        datetime expiresAt         "FEFO: หมดอายุก่อน ตัดก่อน"
+        int      receivedQty       "ตาม receipt — on-hand ต่อ lot มาจาก ledger"
+        string   status            "OPEN | QUARANTINE | CLOSED"
+        int      version
+    }
+
+    SerialUnit {
+        uuid     id         PK
+        string   serialNo       "unique ต่อ product — attribute ไม่ใช่ key"
+        uuid     productId  FK
+        uuid     lotId      FK  "nullable"
+        string   status         "IN_STOCK | RESERVED | ISSUED | RETURNED | SCRAPPED"
+        int      version
+    }
+
+    StockMovement {
+        uuid     id           PK
+        uuid     businessId   FK
+        uuid     productId    FK
+        uuid     lotId        FK  "nullable"
+        uuid     serialUnitId FK  "nullable — SERIAL: หนึ่งแถวต่อหน่วย"
+        string   kind             "RECEIPT | ISSUE | ADJUSTMENT"
+        int      quantity         "มีเครื่องหมาย: + รับ − จ่าย"
+        string   reason
+        string   reference        "PO / GRN / RECIPE:<code> — string เท่านั้น"
+        uuid     actorId
+        datetime occurredAt
+    }
+
+    ProductRecipe {
+        uuid     id         PK
+        string   code       UK
+        uuid     businessId FK
+        uuid     productId  FK  "SKU ผลลัพธ์"
+        string   name
+        int      batchSize      "unique ร่วมกับ product — สูตร 10 ที่ / 20 ที่ = BOM 10 / 50 / 100 / 500 ชุด"
+        int      yieldQty       "ผลลัพธ์ต่อหนึ่ง batch"
+        string   unit
+        string   status         "ACTIVE | ARCHIVED"
+        int      version
+    }
+
+    ProductRecipeLine {
+        uuid     id                 PK
+        uuid     recipeId           FK
+        uuid     componentProductId FK  "unique ร่วมกับ recipe — ห้ามเป็นผลลัพธ์เอง"
+        float    qty                    "ต่อ batch"
+        string   unit
+        bool     fixed                  "true = ไม่ scale ตามจำนวน (เครื่องมือ ลัง)"
+        string   note
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| **ไม่มีคอลัมน์ on-hand** บน `Product` / `ProductLot` | on-hand = `SUM(StockMovement.quantity)` คำนวณทุกครั้งที่อ่าน — กฎเดียวกับ progress (§21.4): ตัวเลขที่เก็บไว้คือตัวเลขที่หน้าจอจะเถียงกันได้ |
+| `stockPolicy` / `trackingMode` แก้ไม่ได้ | ความหมายของทุกแถว ledger ขึ้นกับสองค่านี้ — เปลี่ยนนโยบายคือ archive แล้วสร้าง SKU ใหม่ |
+| UNTRACKED | ไม่มี ledger: `recordMovement` ปฏิเสธด้วย code, summary รายงาน `onHand = null` ไม่ใช่ 0 (ศูนย์อ่านว่า "นับแล้วว่าง") |
+| FEFO (FR-155) | ISSUE ของ LOT-tracked ที่ไม่ระบุ lot ตัดจาก OPEN lot ที่ `expiresAt` เร็วสุดก่อน (ไม่ทราบวันหมดอายุ = ท้ายสุด) หนึ่งแถวต่อ lot; ระบุ lot แล้วเกินที่ lot มีถูกปฏิเสธ |
+| SERIAL | หนึ่งแถว ledger ต่อหนึ่งหน่วย — ประวัติของหน่วยคือแถวของมันเอง; หน่วยเกิดจาก RECEIPT ออกด้วย ISSUE ไม่มี route สร้างตรง |
+| `ProductBundle` vs `ProductRecipe` | bundle = ชุดสินค้าที่ **batch size 1** (availability จาก ledger); recipe = BOM ที่ batch size ใด ๆ พร้อม explode / shortage / build แบบ atomic |
+| `reference` เป็น string | PO / GRN / ใบส่งของ เป็น typed string ไม่ใช่ FK — Procurement ยังไม่มี authority (charter: not owned) |
+| ontology ของ owner | `CatalogOffer` / `GiftTier` / `RecipientSegment` / `CorporateClient` และ edge `CONTAINS` / `INCLUDES_OFFER` / `ORDERED` เป็นของ **Commerce** (ยังไม่ charter) — ดู `docs/domains/inventory/ONTOLOGY.md` |
+
+**Spec:** FR-154, FR-155, FR-156 · FEAT-020 · BR-002, SEC-001 · `docs/domains/inventory/CHARTER.md`
+
+---
+
+## 19. Legacy ERD (zuri1.0) → zuri-ai: what was borrowed, relabelled, deferred, refused
+
+`Freshair129/zuri1.0` — `docs/architecture/database-erd/full-schema.md` v2.0.0 (17 models) — คือ ERD
+ของผลิตภัณฑ์เดิม ADR-024 D7 บอกว่าอ่านเป็น **prior art** ได้ แต่ไม่มีอะไรสืบทอดหรือย้ายมาจากมัน และ
+ADR-054 วางกติกาการยืม: ยึด scope ของ aggregate ที่มีอยู่ (D3), external id ไม่เป็น key (D4), บันทึกสิ่งที่
+ปฏิเสธเท่ากับสิ่งที่รับ (D5) ตารางนี้คือสถานะปัจจุบันของทุกหัวข้อในไฟล์นั้น
+
+| Legacy section (zuri1.0) | Legacy models | zuri-ai (2026-09-06) | สถานะ |
+|---|---|---|---|
+| 1. CORE: Multi-Tenant | `Tenant` (flat, `tenantSlug`, `plan`) | scope chain `Portfolio → Tenant → Business` (§1) | ✅ native — ไม่ยืม |
+| 2. CORE: Auth & Employee | `Employee` (roles[], passwordHash) | `Person` / `Membership` / `Session` / `RoleBinding` (§2) | ❌ refused (ADR-054 D5) |
+| 3. CORE: Customer CRM | `Customer`, `CustomerProfile`; phone-merge identity | `Customer` (§9) + `CustomerProfile` (FR-126, target); identity merge → identity domain (FR-094) | ✅ `CustomerProfile` adopted / ❌ phone-merge refused (D4.3) |
+| 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
+| 5. CORE: Orders & Payments | `Order`, `Transaction` (slip OCR, revenue split) | **Commerce lane — target**: `Order` / `Payment` keyed on UUID, slip OCR ผ่าน evidence pattern ของ Asset (§15) | 🔜 deferred (D5); ไม่มี model |
+| 6. CORE: Marketing & Ads | `Ad`, `AdDailyMetric` (`adId` เป็น FK) | **Marketing lane (`growth` slot) — target**: provider id ใน `ExternalRef` ไม่ใช่ key (D4.1); metric derived จาก `RawExternalRecord` (§11) | 🔜 deferred (D5); ไม่มี model |
+| 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT) | **`SalesTask` ใน crm — target** (คำสั่ง owner 2026-09-06: task ของ *sale* ผูก `Customer` / `Conversation` / assignee `Person`) — **ไม่ใช่** `WorkItem` ของ project-manager; ADR-054 D5 ปฏิเสธ `Task` ในฐานะ project task เท่านั้น | 🔜 target — ต้องมี FR ของตัวเอง; ไม่มี model |
+| 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
+| 9. CORE: Products & Catalog | `Product` (course \| food \| equipment \| package, `sku`, `barcode`) | `ProductMaster` + `Product` (SKU) ใน Inventory (§18); `barcode` = attribute ในอนาคต; course/package → Commerce offer | ✅ relabelled (FR-154) |
+| 10. INDUSTRY/CULINARY: Enrollment & Schedule | `Enrollment`, `CourseSchedule` | Operations / Commerce — target (ที่นั่ง = สิ่งที่ขาย ไม่ใช่สต๊อก) | 🔜 deferred (D5); ไม่มี model |
+| 11. INDUSTRY/CULINARY: Kitchen Ops | `Ingredient`, `IngredientLot` (FEFO); planned `Recipe`, `RecipeIngredient`, `RecipeEquipment`, `CourseMenu`, `StockDeductionLog` | **Inventory (§18)**: `Product` (TRACKED, unit g/ml) · `ProductLot` + FEFO · `ProductRecipe` ต่อ `batchSize` (สูตร 10 ที่ / 20 ที่) · `ProductRecipeLine` (`fixed` = equipment) · `StockMovement` (build) | ✅ relabelled (FR-155, FR-156) — ดู ONTOLOGY.md |
+| 12. SHARED: Audit | `AuditLog` (actor, action, target) | `AuditEvent` (§8) — append-only บนทุก service write | ✅ native — ไม่ยืม |
+| 13. Phase 5 shared/inventory | `Warehouse`, `WarehouseStock`, `StockMovement`, `StockCount`, `StockCountItem`, `ProductBarcode` | `StockMovement` มีแล้ว; warehouse location / stock count → FR ถัดไปของ Inventory | 🔜 partial |
+| 13. Phase 5 shared/procurement | `Supplier`, `PurchaseOrderV2`, `POItem`, `GRN…`, `POReturn`, `CreditNote`, `Advance` | Procurement lane — target; วันนี้ `AssetProcurementRef` (§15) และ `StockMovement.reference` ถือแค่ typed string | 🔜 deferred |
+| 13. Phase 6 industry/culinary packages & certificates | `Package…`, `Certificate`, `ClassAttendance` | Commerce / Operations — target | 🔜 deferred |
+
+**กติกาที่ใช้กับทุกแถว "target"** — ยังไม่มีอะไรใน `prisma/schema.prisma` จนกว่าจะมี FR ของตัวเอง ผ่าน
+ADR-054 D3/D4 (scope จาก aggregate ที่มี, external id เป็น attribute) และ charter ของเลนที่ถือ; แถวใน
+ตารางนี้จึงเป็น **ที่อยู่ในอนาคต** ไม่ใช่การอ้างว่ามีแล้ว
+
+---
+
+## 20. Domain ownership map
 
 preflight บังคับว่า model หนึ่งถูก claim ได้โดย charter เดียว — ตารางนี้อ่านจาก
 `docs/domains/<d>/CHARTER.md` frontmatter (`owns_models`)
@@ -1122,25 +1797,28 @@ preflight บังคับว่า model หนึ่งถูก claim ไ�
 | Domain | Models | จำนวน |
 |---|---|---|
 | **project-manager** | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt | 30 |
-| **identity** | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding, PersonCredential, PasswordResetToken, Session, ChannelIdentity, SotDataPlaneKey, WorkspaceMembership, WorkspaceInvite, ApiAccessKey, PlatformGrant | 13 |
-| **crm** | Person, Customer, CustomerImportBatch, CustomerImportProvenance, CustomerImportReviewCase, CustomerImportReviewDecision, Conversation, Message | 8 |
+| **identity** | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding, PersonCredential, PasswordResetToken, Session, ChannelIdentity, SotDataPlaneKey, WorkspaceMembership, WorkspaceInvite, ApiAccessKey, PlatformGrant, PluginInstallation, PluginAuthorizationCode, PluginSession, EdgeDeviceCredential | 17 |
+| **crm** | Person, Customer, CustomerImportBatch, CustomerImportProvenance, CustomerImportReviewCase, CustomerImportReviewDecision, Conversation, Message, ConversationAnalysis | 9 |
 | **integration** | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord, SotDecision, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision | 15 |
 | **market-intelligence** | MarketObservation | 1 |
+| **asset-management** | RegisteredAsset, AssetIntake, AssetEvidence, AssetProcurementRef, AssetLot, AssetResponsibility, AssetLocationHistory, AssetProjectAllocation, AssetDepreciationCandidate, AssetExtractionJob | 10 |
+| **line-oa-studio** | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineConversationJob | 6 |
+| **inventory** | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement | 12 |
 | **agent** | — (ไม่มีโดยตั้งใจ: state อยู่ใน production Postgres `zuri_core.*` + MSP vault) | 0 |
 | **knowledge** | — (ไม่มีโดยตั้งใจ: store คือ `zuri_core.business_knowledge` หลัง knowledge port) | 0 |
 | **platform-control** | — (ไม่มีโดยตั้งใจ: projection ที่ถอดออกได้ ไม่ถือ persistence model) | 0 |
-| | **รวม** | **67** |
+| | **รวม** | **100** |
 
-> **ครบพอดี:** 67 model ใน `prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
-> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §20)
+> **ครบพอดี:** 100 model ใน `prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
+> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §26)
 > Pipeline ทั้ง 6 ตัวอยู่ในเลน **integration** — `docs/domains/knowledge/CHARTER.md`
 > อ้างถึงมันในเนื้อความเพราะ knowledge *เรียกใช้* `createPipelineRun` ของเลนนั้น ไม่ได้เป็นเจ้าของ
 
 ---
 
-## 15. Key Data Flows
+## 21. Key Data Flows
 
-### 15.1 LINE turn → Conversation → Agent
+### 21.1 LINE turn → Conversation → Agent
 
 ```mermaid
 flowchart LR
@@ -1156,7 +1834,7 @@ flowchart LR
 ขอบเขต production มาจาก **binding ที่ server เป็นเจ้าของเท่านั้น** — `tenantId`/`businessId`
 ที่ client ส่งมาถูกปฏิเสธก่อนงาน turn ใด ๆ จะเริ่ม (FR-052, SEC-010)
 
-### 15.2 Intake convergence — ทุก surface ลงท่อเดียว
+### 21.2 Intake convergence — ทุก surface ลงท่อเดียว
 
 ```mermaid
 flowchart TD
@@ -1176,7 +1854,7 @@ flowchart TD
 surface ใหม่เพิ่ม **converter** ไม่เคยเพิ่ม write path ที่สอง (BR-009, SDD-009)
 และ **plan คือข้อมูล ไม่ใช่คำสั่ง** — ไม่มีอะไรใน envelope ถูก execute (BR-007, SEC-002)
 
-### 15.3 External ingestion → market observation
+### 21.3 External ingestion → market observation
 
 ```mermaid
 flowchart LR
@@ -1189,7 +1867,7 @@ flowchart LR
     E -->|retry| B
 ```
 
-### 15.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
+### 21.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
 
 ```mermaid
 flowchart TD
@@ -1207,7 +1885,7 @@ flowchart TD
 
 ---
 
-## 16. Index Strategy
+## 22. Index Strategy
 
 | Table | Index | Purpose |
 |---|---|---|
@@ -1232,10 +1910,27 @@ flowchart TD
 | `PipelineRecordEvent` | `idempotencyKey` UNIQUE · `(docId)` · `(picId)` · `(factId)` | ไล่รอย record เดียวข้าม stage |
 | `MarketObservation` | `lineageKey` UNIQUE · `(tenantId, businessId, observedAt)` | serialize replay + query ตามช่วงเวลา |
 | `AuditEvent` | `(entityType, entityId)` · `(occurredAt)` | "ใครทำอะไรกับแถวนี้" + timeline |
+| `AssetIntake` | `(businessId, sourceChannel, sourceCorrelationId)` UNIQUE · `(businessId, payloadSha256)` | intake ซ้ำจาก channel เดิม = แถวเดิม |
+| `RegisteredAsset` | `(businessId, assetCode)` UNIQUE · `(businessId, serialNumber)` | ค้นด้วย Asset ID / serial โดยไม่ให้เป็น key |
+| `AssetResponsibility` / `AssetLocationHistory` / `AssetProjectAllocation` | `(registeredAssetId, …, effectiveTo)` | "ช่วงปัจจุบัน" = `effectiveTo IS NULL` |
+| `AssetExtractionJob` | `(businessId, status, createdAt)` · `(evidenceId, status)` | อุปกรณ์ claim งานที่ QUEUED เก่าสุดของ Business ตัวเอง |
+| `EdgeDeviceCredential` | `keyHash` UNIQUE · `(businessId, deviceId)` | ตรวจ bearer ของอุปกรณ์ต่อ request |
+| `PluginAuthorizationCode` / `PluginSession` | `codeHash` / `tokenHash` UNIQUE · `(personId, expiresAt)` | แลก code / ตรวจ token + กวาดของหมดอายุ |
+| `LineOaAccount` | `(tenantId, code)` UNIQUE · `(tenantId, bindingCode)` UNIQUE · `integrationConnectionId` UNIQUE · `(businessId, status)` | บัญชีหนึ่ง connection หนึ่ง; อ่าน binding ด้วย code |
+| `LineOaRichMenuVersion` | `(richMenuId, versionNumber)` UNIQUE · `(lineOaAccountId, status)` | รุ่นที่ FROZEN ล่าสุดของ menu |
+| `LineOaRichMenuJob` / `LineConversationJob` | `(status, availableAt)` · `(accountId, status)` · `retryKey` UNIQUE | worker claim งานที่ถึงเวลาแล้ว; กันส่งซ้ำ |
+| `LineOaLiffApp` | `(tenantId, code)` UNIQUE · `(lineOaAccountId, externalLiffId)` UNIQUE | liffId หนึ่งต่อบัญชี — attribute ไม่ใช่ key |
+| `ConversationAnalysis` | `(conversationId, analyzedDate)` · `(analyzedDate)` · `(state)` | brief รายวัน + กรองตาม state |
+| `Product` / `ProductMaster` / `InventoryCategory` / `Factory` / `ProductFamily` / `ProductBundle` / `ProductRecipe` | `(tenantId, code)` UNIQUE · `(businessId, status)` | รหัสคนอ่านออก unique ต่อ Tenant; หน้า dashboard ต่อ Business |
+| `InventoryCategory` | `(businessId, slug)` UNIQUE | slug ของ ontology ต่อ Business |
+| `ProductLot` | `(productId, code)` UNIQUE · `(businessId, status)` | เลข lot unique ต่อ SKU; FEFO อ่าน OPEN lot แล้วเรียง `expiresAt` ใน memory |
+| `SerialUnit` | `(productId, serialNo)` UNIQUE · `(businessId, status)` | serial unique ต่อ SKU; รายการ IN_STOCK |
+| `StockMovement` | `(productId, occurredAt)` · `(businessId, occurredAt)` · `(lotId)` · `(serialUnitId)` | on-hand = SUM ต่อ product / ต่อ lot; ประวัติหน่วย |
+| `ProductRecipe` | `(productId, batchSize)` UNIQUE | หนึ่งสูตรต่อ (SKU ผลลัพธ์, batch size) |
 
 ---
 
-## 17. Naming Conventions
+## 23. Naming Conventions
 
 | Convention | Example | Rule |
 |---|---|---|
@@ -1256,7 +1951,7 @@ flowchart TD
 เป็นแหล่งความจริงที่ Excel dropdown, OpenAPI และ Zod validation อ่านร่วมกัน —
 อย่าคัดลอกรายการ enum ด้วยมือที่ไหนอีก
 
-### 17.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
+### 23.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
 
 `src/lib/validation/enums.js` — โดเมนธุรกิจหลัก:
 
@@ -1289,6 +1984,28 @@ flowchart TD
 | `Customer.lifecycleStage` | `CUSTOMER_LIFECYCLE` | LEAD · ACTIVE · DORMANT · LOST |
 | `Customer.consentStatus` | `CUSTOMER_CONSENT_STATUSES` | PENDING · GRANTED · DECLINED · GRANDFATHERED |
 | `ExternalIdentity.provider` | `IDENTITY_PROVIDERS` | LINE (ค่าเดียว) |
+| `AssetIntake.sourceChannel` | `ASSET_INTAKE_CHANNELS` | WEB · REST_API · EXCEL · GOOGLE_SHEET · AGENT_MCP · LINE_OA · LIFF |
+| `AssetEvidence.role` | `ASSET_EVIDENCE_ROLES` | ASSET_PHOTO · RECEIPT · INVOICE · PAYMENT_PROOF · DELIVERY · INSPECTION · WARRANTY · OTHER |
+| `AssetProcurementRef.type` | `ASSET_PROCUREMENT_REF_TYPES` | PR · PR_LINE · PO · PO_LINE · GRN · INVOICE · SUPPLIER |
+| `AssetResponsibility.role` | `ASSET_RESPONSIBILITY_ROLES` | ACCOUNTABLE · CUSTODIAN · USER |
+| `AssetDepreciationCandidate.method` | `ASSET_DEPRECIATION_METHODS` | STRAIGHT_LINE (ค่าเดียว) |
+| `LineOaAccount.status` | `LINE_OA_ACCOUNT_STATUSES` | DRAFT · CONNECTED · PAUSED · ARCHIVED (+ LIVE เป็น *effective* status ที่คำนวณจาก binding) |
+| `LineOaAccount.transportMode` | `LINE_OA_TRANSPORT_MODES` | EDGE · CLOUD |
+| `LineOaRichMenuVersion.layout` | `LINE_OA_RICH_MENU_LAYOUTS` | 1x1 · 2x1 · 2x2 · 2x3 · 3x1 · 1x2 |
+| `LineOaRichMenu.status` / `LineOaRichMenuVersion.status` | `LINE_OA_RICH_MENU_STATUSES` / `LINE_OA_RICH_MENU_VERSION_STATUSES` | DRAFT · READY · ARCHIVED / DRAFT · FROZEN · PUBLISHED · RETIRED |
+| `LineOaRichMenuJob.kind` / `.stage` | `LINE_OA_RICH_MENU_JOB_KINDS` / `LINE_OA_RICH_MENU_JOB_STAGES` | PUBLISH · SET_DEFAULT · SET_ALIAS / CREATE · UPLOAD · APPLY · DONE |
+| `LineOaLiffApp.viewSize` / `.botPrompt` | `LINE_OA_LIFF_VIEW_SIZES` / `LINE_OA_LIFF_BOT_PROMPTS` | COMPACT · TALL · FULL / NONE · NORMAL · AGGRESSIVE |
+| `Product.stockPolicy` | `INVENTORY_STOCK_POLICIES` | TRACKED · UNTRACKED |
+| `Product.trackingMode` | `INVENTORY_TRACKING_MODES` | NONE · LOT · SERIAL |
+| `ProductLot.status` | `INVENTORY_LOT_STATUSES` | OPEN · QUARANTINE · CLOSED |
+| `SerialUnit.status` | `INVENTORY_SERIAL_STATUSES` | IN_STOCK · RESERVED · ISSUED · RETURNED · SCRAPPED |
+| `StockMovement.kind` | `INVENTORY_MOVEMENT_KINDS` | RECEIPT · ISSUE · ADJUSTMENT |
+| (`PATCH` action) `Product` / `ProductRecipe` | `INVENTORY_PRODUCT_ACTIONS` / `INVENTORY_RECIPE_ACTIONS` | UPDATE · ARCHIVE |
+
+**status ของ job (`LineOaRichMenuJob`, `LineConversationJob`, `AssetExtractionJob`) และ status สองคำ
+(`ACTIVE · ARCHIVED` ของ catalogue Inventory, `DRAFT · ACTIVE · ARCHIVED` ของ LIFF) ไม่อยู่ใน `enums.js`
+โดยตั้งใจ** — คำอย่าง QUEUED / CLAIMED / FAILED เป็นคำกลางของ job ledger หลายเลน และ registry จะอ่านทุก
+ที่ที่สะกดคำเหล่านั้นเป็น hand copy (preflight `enum-copy`) รายการเหล่านั้นอยู่กับ aggregate ของมันเอง
 
 `src/platform/integrations/core/pipeline-tracking-contract.js` — **แหล่ง enum ที่สอง**
 สำหรับ pipeline ledger:
@@ -1313,7 +2030,7 @@ flowchart TD
 
 ---
 
-## 18. Snapshot coverage (backup/restore contract)
+## 24. Snapshot coverage (backup/restore contract)
 
 ทุก model ต้องอยู่ใน `SNAPSHOT_MODELS` (เรียงพ่อก่อนลูก) **หรือ** อยู่ใน
 `SNAPSHOT_EXCLUDED_MODELS` พร้อมเหตุผลว่าทำไมกู้คืนไม่ได้ ทั้งคู่อยู่ใน
@@ -1325,7 +2042,7 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 
 ---
 
-## 19. Dev / Production parity
+## 25. Dev / Production parity
 
 | | Dev / Test | Production |
 |---|---|---|
@@ -1342,7 +2059,7 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 
 ---
 
-## 20. Keeping this document honest
+## 26. Keeping this document honest
 
 เอกสารนี้เขียนด้วยมือจาก `prisma/schema.prisma` **ไม่ใช่ไฟล์ generated** — `docs:graph`
 ไม่ได้สร้างมัน แปลว่าไม่มี guard ตัวไหนจับได้ถ้ามัน drift ตรวจสามอย่างนี้เองหลังแก้ schema:
@@ -1351,13 +2068,13 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 grep -c "^model " prisma/schema.prisma
 ```
 
-ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §14
+ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §20
 
 ```bash
 node -e "const fs=require('fs');const doms=fs.readdirSync('docs/domains');const owned=new Map();for(const d of doms){const fm=(fs.readFileSync('docs/domains/'+d+'/CHARTER.md','utf8').split('---')[1]||'');let on=false;const l=[];for(const line of fm.split(/\r?\n/)){if(/^owns_models:/.test(line)){on=!/\[\]/.test(line);continue}if(on){const m=line.match(/^  - (\w+)\s*$/);if(m)l.push(m[1]);else on=false}}owned.set(d,l)}const models=[...fs.readFileSync('prisma/schema.prisma','utf8').matchAll(/^model (\w+) \{/gm)].map(m=>m[1]);const claimed=new Set([...owned.values()].flat());for(const[d,l]of owned)console.log(d,l.length);console.log('unclaimed:',models.filter(m=>!claimed.has(m)).join(', ')||'(none)');console.log('phantom:',[...claimed].filter(m=>!models.includes(m)).join(', ')||'(none)')"
 ```
 
-`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §14
+`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §20
 
 ```bash
 npm run govern

@@ -222,6 +222,9 @@ export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE']
 export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
 export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
 export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
+// FR-156 — a recipe (bill of materials at one batch size) is edited or
+// archived through the same two versioned actions a product has.
+export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -273,6 +276,7 @@ export const zInventoryProductAction = z.enum(INVENTORY_PRODUCT_ACTIONS)
 export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
 export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
 export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
+export const zInventoryRecipeAction = z.enum(INVENTORY_RECIPE_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

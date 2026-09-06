@@ -1641,6 +1641,12 @@ Backlinks:
 
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
+## FR-156 — Recipe / bill of materials at a batch size (recipe_id)
+
+Source: [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md)
+
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
 ## Inventory ontology (reference)
 
 Source: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
@@ -1648,6 +1654,7 @@ Source: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 Backlinks:
 
 - [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md) (references)
+- [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md) (references)
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Domain — knowledge

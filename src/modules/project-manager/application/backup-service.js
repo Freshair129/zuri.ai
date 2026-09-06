@@ -114,7 +114,11 @@ const SNAPSHOT_MODELS = [
   // unit. Deletion is the reverse. Design and operating data, no secret:
   // exported whole.
   'inventoryCategory', 'productFamily', 'factory', 'productMaster', 'product',
-  'productBundle', 'productBundleItem', 'productLot', 'serialUnit', 'stockMovement',
+  'productBundle', 'productBundleItem',
+  // @req FR-156 — a recipe hangs off its output product and its lines off the
+  // recipe and the component products, so both restore after `product`.
+  'productRecipe', 'productRecipeLine',
+  'productLot', 'serialUnit', 'stockMovement',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
