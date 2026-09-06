@@ -71,6 +71,23 @@ function withAsset(assetId) {
   }
 }
 
+async function createContentAsset({ code, name, sha256, status = 'ACTIVE', version = 1 }) {
+  return prisma.fileAsset.create({
+    data: {
+      code,
+      tenantId: businessA.tenantId,
+      businessId: businessA.id,
+      storageKind: 'MANAGED_BLOB',
+      name,
+      mime: 'image/png',
+      size: 10,
+      sha256,
+      status,
+      version,
+    },
+  })
+}
+
 function auditFailureDb() {
   const names = [
     'business',
@@ -253,6 +270,147 @@ describe('Marketing Content persistence (FR-157)', () => {
     )
     expect(changed.approval).toMatchObject({ valid: false, reasonCode: 'ASSET_SNAPSHOT_MISMATCH' })
     expect(changed.phase).toBe('REVIEW')
+  })
+
+  it('binds asset-detail references to the requested revision and fails closed for a hidden or deleted old source', async () => {
+    const id = suffix()
+    const oldAsset = await createContentAsset({
+      code: `FIL-CNT-OLD-${id}`,
+      name: 'historic-creative.png',
+      sha256: 'c'.repeat(64),
+    })
+    const newAsset = await createContentAsset({
+      code: `FIL-CNT-NEW-${id}`,
+      name: 'current-creative.png',
+      sha256: 'd'.repeat(64),
+    })
+    const oldPayload = {
+      ...withAsset(oldAsset.id),
+      rights: {
+        ...withAsset(oldAsset.id).rights,
+        holder: 'Historic rights holder',
+        proof: `rights://historic/${id}`,
+      },
+    }
+    const newPayload = {
+      ...withAsset(newAsset.id),
+      rights: {
+        ...withAsset(newAsset.id).rights,
+        holder: 'Current rights holder',
+        proof: `rights://current/${id}`,
+      },
+    }
+    const created = await createMarketingContent(
+      { businessId: businessA.id, title: 'Historic creative', payload: oldPayload },
+      deps(ownerA),
+    )
+    const historicVersionId = created.currentVersion.id
+    const revised = await reviseMarketingContent(
+      created.id,
+      { businessId: businessA.id, expectedVersion: 1, title: 'Current creative', payload: newPayload },
+      deps(ownerA),
+    )
+
+    const currentProjection = await getMarketingContentAsset(
+      { viewer: ownerA, businessId: businessA.id, assetId: historicVersionId },
+      { db: prisma, createRepository: createMarketingContentRepository, now: () => NOW },
+    )
+    expect(currentProjection.brief.currentVersion.id).toBe(revised.currentVersion.id)
+    expect(currentProjection.brief.references.asset.file).toMatchObject({ id: newAsset.id, sha256: 'd'.repeat(64) })
+    expect(currentProjection.assetVersion).toMatchObject({
+      id: historicVersionId,
+      title: 'Historic creative',
+      payload: { asset: { fileId: oldAsset.id }, rights: { holder: 'Historic rights holder', proof: `rights://historic/${id}` } },
+    })
+    expect(currentProjection.references.asset).toMatchObject({ status: 'READY', file: { id: oldAsset.id, sha256: 'c'.repeat(64) } })
+    expect(currentProjection.references.asset.file.id).not.toBe(newAsset.id)
+    expect(currentProjection).toMatchObject({ isCurrent: false, usable: false })
+
+    await prisma.fileAsset.update({ where: { id: oldAsset.id }, data: { status: 'QUARANTINED' } })
+    const hidden = await getMarketingContentAsset(
+      { viewer: ownerA, businessId: businessA.id, assetId: historicVersionId },
+      { db: prisma, createRepository: createMarketingContentRepository, now: () => NOW },
+    )
+    expect(hidden.references.asset).toEqual({ status: 'UNAVAILABLE', reasonCode: 'ASSET_NOT_USABLE', file: null })
+    expect(hidden.brief.references.asset.file).toMatchObject({ id: newAsset.id })
+
+    await prisma.fileAsset.update({ where: { id: oldAsset.id }, data: { status: 'ACTIVE', deletedAt: NOW } })
+    const deleted = await getMarketingContentAsset(
+      { viewer: ownerA, businessId: businessA.id, assetId: historicVersionId },
+      { db: prisma, createRepository: createMarketingContentRepository, now: () => NOW },
+    )
+    expect(deleted.references.asset).toEqual({ status: 'UNAVAILABLE', reasonCode: 'ASSET_REFERENCE_UNAVAILABLE', file: null })
+    expect(deleted.brief.references.asset.file).toMatchObject({ id: newAsset.id })
+  })
+
+  it('keeps approval and matching review ahead of ready production, then ignores a hash-mismatched review', async () => {
+    const id = suffix()
+    const source = await createContentAsset({
+      code: `FIL-CNT-PHASE-${id}`,
+      name: 'phase-creative.png',
+      sha256: 'e'.repeat(64),
+    })
+    const readyReferences = async () => ({
+      asset: { status: 'READY', reasonCode: null, file: { id: source.id, version: 1, sha256: 'e'.repeat(64) } },
+      production: {
+        status: 'READY',
+        reasonCode: null,
+        project: { id: `project-${id}`, code: `PROJECT-${id}`, name: 'Production project', status: 'ACTIVE' },
+        workItem: { id: `work-item-${id}`, projectId: `project-${id}`, code: `WORK-${id}`, title: 'Produce creative', status: 'PLANNED' },
+      },
+    })
+    const dependencies = (viewer) => deps(viewer, { readMarketingContentReferences: readyReferences })
+    const phasePayload = {
+      ...withAsset(source.id),
+      production: { projectId: `project-${id}`, workItemId: `work-item-${id}` },
+    }
+    const created = await createMarketingContent(
+      { businessId: businessA.id, title: 'Phase ordering brief', payload: phasePayload },
+      dependencies(ownerA),
+    )
+    const reviewed = await reviewMarketingContent(created.id, {
+      businessId: businessA.id,
+      expectedVersion: 1,
+      contentVersionId: created.currentVersion.id,
+      payloadHash: created.currentVersion.payloadHash,
+      verdict: 'PASS',
+      rationale: 'Independent phase review',
+      rightsConfirmed: true,
+      brandConfirmed: true,
+    }, dependencies(reviewerA))
+    const approved = await decideMarketingContent(created.id, {
+      businessId: businessA.id,
+      expectedVersion: reviewed.version,
+      contentVersionId: reviewed.currentVersion.id,
+      payloadHash: reviewed.currentVersion.payloadHash,
+      reviewId: reviewed.reviews.at(-1).id,
+      verdict: 'APPROVE',
+      rationale: 'Approved while production is ready',
+      expiresAt: '2026-09-30T00:00:00.000Z',
+    }, dependencies(ownerA))
+    expect(approved.phase).toBe('APPROVED')
+
+    const changesRequired = await reviewMarketingContent(created.id, {
+      businessId: businessA.id,
+      expectedVersion: approved.version,
+      contentVersionId: approved.currentVersion.id,
+      payloadHash: approved.currentVersion.payloadHash,
+      verdict: 'CHANGES_REQUIRED',
+      rationale: 'Needs a rights note',
+      rightsConfirmed: false,
+      brandConfirmed: false,
+    }, dependencies(reviewerA))
+    expect(changesRequired.phase).toBe('REVIEW')
+
+    await prisma.marketingContentReview.update({
+      where: { id: changesRequired.reviews.at(-1).id },
+      data: { payloadHash: 'f'.repeat(64) },
+    })
+    const mismatchedReview = await getMarketingContent(
+      { viewer: ownerA, businessId: businessA.id, briefId: created.id },
+      { db: prisma, createRepository: createMarketingContentRepository, now: () => NOW, readMarketingContentReferences: readyReferences },
+    )
+    expect(mismatchedReview.phase).toBe('PRODUCTION')
   })
 
   it('uses sequence rather than timestamps for PASS then CHANGES_REQUIRED and approval then REVOKE', async () => {

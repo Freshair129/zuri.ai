@@ -265,17 +265,21 @@ function decisionDto(decision) {
 }
 
 function latestBySequence(rows) {
-  return [...rows].sort((left, right) => {
-    const bySequence = Number(right.sequence || 0) - Number(left.sequence || 0)
-    if (bySequence) return bySequence
-    const byDate = new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
-    if (byDate) return byDate
-    return String(right.id).localeCompare(String(left.id))
-  })[0] || null
+  if (!rows.length) return null
+  const sequences = rows.map((row) => Number(row.sequence))
+  if (sequences.some((sequence) => !Number.isInteger(sequence) || sequence < 1)) {
+    throw marketingConflict('Marketing content acceptance sequence is invalid')
+  }
+  const highest = Math.max(...sequences)
+  const latest = rows.filter((row) => Number(row.sequence) === highest)
+  if (latest.length > 1) throw marketingConflict('Marketing content acceptance sequence is ambiguous')
+  return latest[0]
 }
 
-function currentReview(aggregate, versionId) {
-  return latestBySequence(aggregate.reviews.filter((review) => review.contentVersionId === versionId))
+function currentReview(aggregate, versionId, payloadHash) {
+  const latest = latestBySequence(aggregate.reviews.filter((review) => review.contentVersionId === versionId))
+  if (latest && payloadHash !== undefined && latest.payloadHash !== payloadHash) return null
+  return latest
 }
 
 function assertIndependentReview(review, version, payloadHash) {
@@ -354,8 +358,8 @@ async function evaluateApproval(aggregate, { viewer, db, now, resolveAsset, read
   }
 }
 
-async function toReferences({ aggregate, viewer, db, now, resolveAsset, readMarketingContentReferences }) {
-  const content = versionContent(currentVersion(aggregate))
+async function toReferencesForVersion({ aggregate, version, viewer, db, now, resolveAsset, readMarketingContentReferences }) {
+  const content = versionContent(version)
   return readReferences({ viewer, businessId: aggregate.brief.businessId, payload: content.payload }, {
     db,
     now,
@@ -364,12 +368,25 @@ async function toReferences({ aggregate, viewer, db, now, resolveAsset, readMark
   })
 }
 
+async function toReferences({ aggregate, viewer, db, now, resolveAsset, readMarketingContentReferences }) {
+  return toReferencesForVersion({
+    aggregate,
+    version: currentVersion(aggregate),
+    viewer,
+    db,
+    now,
+    resolveAsset,
+    readMarketingContentReferences,
+  })
+}
+
 function phaseForContent({ aggregate, approval, references }) {
   if (aggregate.brief.status === 'ARCHIVED') return 'ARCHIVED'
-  if (references?.production?.status === 'READY') return 'PRODUCTION'
   if (approval.valid) return 'APPROVED'
-  const review = currentReview(aggregate, currentVersion(aggregate).id)
+  const version = currentVersion(aggregate)
+  const review = currentReview(aggregate, version.id, version.payloadHash)
   if (review) return 'REVIEW'
+  if (references?.production?.status === 'READY') return 'PRODUCTION'
   return 'DRAFT'
 }
 
@@ -821,11 +838,21 @@ export async function getMarketingContentAsset(
   const version = aggregate.revisions.find((row) => row.id === assetId)
   if (!version) throw marketingNotFound('Marketing content asset not found')
   const approval = await evaluateApproval(aggregate, { viewer, db, now: clock, resolveAsset, readMarketingContentReferences })
-  const references = await toReferences({ aggregate, viewer, db, now: clock, resolveAsset, readMarketingContentReferences })
-  const detail = toMarketingContentDto(aggregate, { canWrite, approval, references })
+  const currentReferences = await toReferences({ aggregate, viewer, db, now: clock, resolveAsset, readMarketingContentReferences })
+  const requestedReferences = await toReferencesForVersion({
+    aggregate,
+    version,
+    viewer,
+    db,
+    now: clock,
+    resolveAsset,
+    readMarketingContentReferences,
+  })
+  const detail = toMarketingContentDto(aggregate, { canWrite, approval, references: currentReferences })
   return {
     brief: detail,
     assetVersion: versionDto(aggregate, version),
+    references: requestedReferences,
     isCurrent: version.id === currentVersion(aggregate).id,
     usable: version.id === currentVersion(aggregate).id && approval.valid,
   }
