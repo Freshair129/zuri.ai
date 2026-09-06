@@ -107,14 +107,14 @@ the Business Home slot is excluded from this count.
 
 ### 3.2b Commerce domain
 
-The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-158,
-FR-159, ADR-065). Every money figure on both pages comes from the server's
+The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-162,
+FR-163, ADR-065). Every money figure on both pages comes from the server's
 read — totals from lines, paid from verified payments — never from the page.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-159 / ADR-065 |
-| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-158, FR-159 / ADR-065 |
+| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-163 / ADR-065 |
+| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-162, FR-163 / ADR-065 |
 
 ### 3.3 CRM domain
 
@@ -129,7 +129,7 @@ page can issue a write.
 |---|---|---|---|---|---|
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
-| `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-157 / ADR-064 |
+| `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-161 / ADR-064 |
 | `/customer/line-crm` | LineCRM-MCP Complete 12-Module Suite | BusinessShell → CRM / LineCRM-MCP | 12-module complete CRM + LINE OA suite (Dashboard, Live Chat, Members 360, Loyalty, Campaigns, Multi-OA, Rich Menu, Automation, AI MCP, Member Portal LIFF, Audit Log, Settings) | ready, interactive, dark/light, thai era | implemented beta; `src/app/(pm)/customer/line-crm/page.jsx`, FR-091 |
 
 ### 3.4 Market Intelligence domain

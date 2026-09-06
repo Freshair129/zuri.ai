@@ -5,7 +5,7 @@ date: "2026-09-07"
 status: DRAFT
 model_count: 104
 source: "prisma/schema.prisma"
-note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.1.0 (2026-09-06): SalesTask (FR-157, ADR-064) ใน §9 และ §20 แถว 7 เป็น built; v2.2.0 (2026-09-07): §19 Commerce (SalesOrder, SalesOrderLine, Payment — FR-158/159, ADR-065) และ §20 แถว 5 เป็น built"
+note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.1.0 (2026-09-06): SalesTask (FR-161, ADR-064) ใน §9 และ §20 แถว 7 เป็น built; v2.2.0 (2026-09-07): §19 Commerce (SalesOrder, SalesOrderLine, Payment — FR-162/159, ADR-065) และ §20 แถว 5 เป็น built"
 ---
 
 # Database Schema — Full ERD Reference
@@ -846,9 +846,9 @@ erDiagram
 | ใครสร้างแถว | `line-ingest-service` เท่านั้น — agent domain **consume** conversation ไม่ได้สร้างเอง |
 | `Conversation.channelAccountId` (FR-148) | identity ของ conversation รวม **บัญชีที่รับ** — unique `[tenantId, channel, channelAccountId, externalThreadId]`; แถวก่อน ADR-061 เป็น `LEGACY:LINE` โดยไม่เดา attribution |
 | `ConversationAnalysis` (FR-127) | รูปที่ยืมจาก legacy DSB (ADR-054 D2) — ผูก `Conversation.id` ไม่ใช่ thread id ภายนอก (D4), **derived และคำนวณใหม่ได้** (D6): ลบทิ้งปลอดภัยเสมอ, PDPA erasure ของ Customer พาแถวนี้ไปด้วย; ไม่มี `sourceAdId` จนกว่าจะมี Ad model |
-| `SalesTask` (FR-157, ADR-064) | "7. CORE: Tasks" ของ legacy ดัดแปลงเป็น task ของ **sale** — ไม่ใช่ `WorkItem` ของ project-manager: ไม่มี milestone / progress / ลูก; URGENT เป็น priority; Notion id ไม่เป็นคอลัมน์ (→ `ExternalRef`); overdue / วันนี้ **คำนวณตอนอ่าน** ตามปฏิทิน Business (Asia/Bangkok) ไม่เก็บ; อ่านต้องมี `customer` domain (404), เขียนต้อง OWNER หรือ `SALES_REP` (403) |
+| `SalesTask` (FR-161, ADR-064) | "7. CORE: Tasks" ของ legacy ดัดแปลงเป็น task ของ **sale** — ไม่ใช่ `WorkItem` ของ project-manager: ไม่มี milestone / progress / ลูก; URGENT เป็น priority; Notion id ไม่เป็นคอลัมน์ (→ `ExternalRef`); overdue / วันนี้ **คำนวณตอนอ่าน** ตามปฏิทิน Business (Asia/Bangkok) ไม่เก็บ; อ่านต้องมี `customer` domain (404), เขียนต้อง OWNER หรือ `SALES_REP` (403) |
 
-**Spec:** FR-023, FR-103, FR-127, FR-148, FR-157 · SEC-005, BR-002, SEC-001 · ADR-054, ADR-061, ADR-064
+**Spec:** FR-023, FR-103, FR-127, FR-148, FR-161 · SEC-005, BR-002, SEC-001 · ADR-054, ADR-061, ADR-064
 
 ---
 
@@ -1880,7 +1880,7 @@ erDiagram
 | ตัดสต๊อก | COMPLETE + `issueStock` เรียก `appendMovement` ของ Inventory ใน transaction เดียวกัน (reference `ORDER:<code>`) — ขาดแล้วปฏิเสธทั้งหมด, SERIAL ปฏิเสธ, ไม่มีสิทธิ์คลังปฏิเสธ (role ของ Commerce ไม่ขยาย Inventory) |
 | ไม่มี CREDIT | store credit ของ legacy ไม่ใช่การชำระ — เป็น liability ที่จะมี FR ของตัวเอง |
 
-**Spec:** FR-158, FR-159 · FEAT-022 · ADR-065, ADR-054 D3/D4/D5 · BR-001, BR-002, SEC-001 · `docs/domains/commerce/CHARTER.md`
+**Spec:** FR-162, FR-163 · FEAT-023 · ADR-065, ADR-054 D3/D4/D5 · BR-001, BR-002, SEC-001 · `docs/domains/commerce/CHARTER.md`
 
 ---
 
@@ -1897,9 +1897,9 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 2. CORE: Auth & Employee | `Employee` (roles[], passwordHash) | `Person` / `Membership` / `Session` / `RoleBinding` (§2) | ❌ refused (ADR-054 D5) |
 | 3. CORE: Customer CRM | `Customer`, `CustomerProfile`; phone-merge identity | `Customer` (§9) + `CustomerProfile` (FR-126, target); identity merge → identity domain (FR-094) | ✅ `CustomerProfile` adopted / ❌ phone-merge refused (D4.3) |
 | 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
-| 5. CORE: Orders & Payments | `Order` (`items` JSON, `paidAmount` เก็บ, float), `Transaction` (`refNumber` UK, slip OCR, CREDIT) | **`SalesOrder` / `SalesOrderLine` / `Payment` ใน commerce (§19, FR-158/159, ADR-065)** — line แทน JSON, total/paid คำนวณตอนอ่าน, เงินเป็น satang, bank reference เป็น attribute unique ต่อ Tenant, สลิปเป็น `FileAsset`, ไม่มี CREDIT; "ROAS จาก VERIFIED เท่านั้น" คงไว้เป็นกฎรายได้ | ✅ relabelled + corrected (FR-158, FR-159) |
+| 5. CORE: Orders & Payments | `Order` (`items` JSON, `paidAmount` เก็บ, float), `Transaction` (`refNumber` UK, slip OCR, CREDIT) | **`SalesOrder` / `SalesOrderLine` / `Payment` ใน commerce (§19, FR-162/159, ADR-065)** — line แทน JSON, total/paid คำนวณตอนอ่าน, เงินเป็น satang, bank reference เป็น attribute unique ต่อ Tenant, สลิปเป็น `FileAsset`, ไม่มี CREDIT; "ROAS จาก VERIFIED เท่านั้น" คงไว้เป็นกฎรายได้ | ✅ relabelled + corrected (FR-162, FR-163) |
 | 6. CORE: Marketing & Ads | `Ad`, `AdDailyMetric` (`adId` เป็น FK) | **Marketing lane (`growth` slot) — target**: provider id ใน `ExternalRef` ไม่ใช่ key (D4.1); metric derived จาก `RawExternalRecord` (§11) | 🔜 deferred (D5); ไม่มี model |
-| 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-157, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-157) |
+| 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-161, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-161) |
 | 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
 | 9. CORE: Products & Catalog | `Product` (course \| food \| equipment \| package, `sku`, `barcode`) | `ProductMaster` + `Product` (SKU) ใน Inventory (§18); `barcode` = attribute ในอนาคต; course/package → Commerce offer | ✅ relabelled (FR-154) |
 | 10. INDUSTRY/CULINARY: Enrollment & Schedule | `Enrollment`, `CourseSchedule` | Operations / Commerce — target (ที่นั่ง = สิ่งที่ขาย ไม่ใช่สต๊อก) | 🔜 deferred (D5); ไม่มี model |

@@ -3,14 +3,14 @@ import prisma from '@/lib/db'
 import { fromSatang, revenueSummary } from '../domain/commerce'
 import { loadBusiness } from './commerce-authority'
 
-// @req FR-159 — the revenue read model: verified payments net of verified
+// @req FR-163 — the revenue read model: verified payments net of verified
 //   refunds, by origin (CHAT — the legacy "ads revenue", attributed to a
 //   Conversation — WALK_IN, ONLINE) and by day in the Business's calendar,
 //   with pending money reported beside it and never inside it. Read-only by
 //   construction: this module exports no writer. Reading needs Business
 //   visibility plus the `commerce` domain (FR-072 404 otherwise).
 // @spec ADR-065; SEC-001
-// @tested tests/integration/fr159-payment.test.js
+// @tested tests/integration/fr163-payment.test.js
 
 const zDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD')
 export const zRevenueQuery = z.object({

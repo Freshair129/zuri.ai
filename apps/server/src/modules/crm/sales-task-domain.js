@@ -7,7 +7,7 @@ import {
   SALES_TASK_TYPES,
 } from '@/lib/validation/enums'
 
-// @req FR-157 — the pure vocabulary and rules of a sales task: the input
+// @req FR-161 — the pure vocabulary and rules of a sales task: the input
 //   contracts, the schedule rules (a SINGLE task is one day with an optional
 //   time window; a RANGE task spans start → due), the status machine
 //   (OPEN → IN_PROGRESS → DONE, OPEN | IN_PROGRESS → CANCELLED, DONE |

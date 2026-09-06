@@ -1,4 +1,4 @@
-// @req FR-157 — the pure rules of a sales task: the schedule contract, the
+// @req FR-161 — the pure rules of a sales task: the schedule contract, the
 //   status machine, the human code, the calendar-day due state and the
 //   summary a dashboard shows.
 // @spec ADR-064
@@ -18,7 +18,7 @@ import {
 
 const base = { businessId: 'b-1', title: 'โทรติดตาม', dueDate: '2026-09-10' }
 
-describe('FR-157 sales task contracts', () => {
+describe('FR-161 sales task contracts', () => {
   it('a SINGLE task is one day with an optional time window; a RANGE task spans start to due', () => {
     expect(zCreateSalesTask.parse(base)).toMatchObject({ title: 'โทรติดตาม' })
     expect(zCreateSalesTask.parse({ ...base, timeStart: '09:00', timeEnd: '10:30' }).timeEnd).toBe('10:30')
@@ -43,7 +43,7 @@ describe('FR-157 sales task contracts', () => {
   })
 })
 
-describe('FR-157 sales task status machine', () => {
+describe('FR-161 sales task status machine', () => {
   it('moves OPEN → IN_PROGRESS → DONE, cancels from either open state, reopens only from a closed one', () => {
     expect(nextSalesTaskStatus('OPEN', 'START')).toBe('IN_PROGRESS')
     expect(nextSalesTaskStatus('IN_PROGRESS', 'START')).toBeNull()
@@ -63,7 +63,7 @@ describe('FR-157 sales task status machine', () => {
   })
 })
 
-describe('FR-157 calendar day, code and summary', () => {
+describe('FR-161 calendar day, code and summary', () => {
   it('day keys follow the Business calendar (Asia/Bangkok), so 23:30 UTC is already tomorrow', () => {
     expect(dayKey(new Date('2026-09-06T23:30:00Z'))).toBe('2026-09-07')
     expect(dayKey(new Date('2026-09-06T16:59:00Z'))).toBe('2026-09-06')

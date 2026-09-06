@@ -1,4 +1,4 @@
-// @req FR-157 — what the sales task routes and persistence are, in source
+// @req FR-161 — what the sales task routes and persistence are, in source
 //   terms: both handlers resolve a browser viewer, stay thin and are
 //   inventoried for OpenAPI; the model is in both schemas, keyed on nothing
 //   external, snapshotted after everything it references, migrated in both
@@ -17,7 +17,7 @@ const read = (relative) => fs.readFileSync(path.join(process.cwd(), relative), '
 const COLLECTION = 'src/app/api/crm/sales-tasks/route.js'
 const ITEM = 'src/app/api/crm/sales-tasks/[id]/route.js'
 
-describe('FR-157 sales task route and persistence contract', () => {
+describe('FR-161 sales task route and persistence contract', () => {
   it('lists and creates on the collection, reads and acts on the item, never deletes', () => {
     const collection = read(COLLECTION)
     expect(collection).toMatch(/export async function GET/)
@@ -29,7 +29,7 @@ describe('FR-157 sales task route and persistence contract', () => {
     for (const file of [COLLECTION, ITEM]) {
       const source = read(file)
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-157/)
+      expect(source).toMatch(/@req FR-161/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })

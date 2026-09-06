@@ -6,7 +6,7 @@ import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { SALES_TASK_ACTIONS, SALES_TASK_PRIORITIES, SALES_TASK_TYPES } from '@/lib/validation/enums'
 
-// @req FR-157 — the sales tasks console: the follow-ups a Business's sales
+// @req FR-161 — the sales tasks console: the follow-ups a Business's sales
 //   team owes customers, with the due state and summary the server recomputes
 //   against today on every load; create a task (optionally on a conversation
 //   and assigned to a member), start it, complete it with an outcome, cancel
@@ -14,7 +14,7 @@ import { SALES_TASK_ACTIONS, SALES_TASK_PRIORITIES, SALES_TASK_TYPES } from '@/l
 //   the refusal.
 // @spec ADR-064; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
-// @tested tests/e2e/fr157-sales-tasks.spec.js, tests/unit/sales-task-routes.test.js
+// @tested tests/e2e/fr161-sales-tasks.spec.js, tests/unit/sales-task-routes.test.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -123,7 +123,7 @@ export default function SalesTasksPage() {
 
   return <div>
     <PageHeader
-      eyebrow="CRM · FEAT-021"
+      eyebrow="CRM · FEAT-022"
       title="งานขาย (Sales Tasks)"
       subtitle={`งานติดตามลูกค้าที่ทีมขายต้องทำ — โทร ส่ง LINE นัดพบ เดโม ใบเสนอราคา${business ? ` · ${business.name}` : ''}`}
       actions={<button type="button" className="btn" onClick={() => refresh().catch((err) => setError(err.message))} disabled={busy}><RefreshCw size={15} /> โหลดใหม่</button>}

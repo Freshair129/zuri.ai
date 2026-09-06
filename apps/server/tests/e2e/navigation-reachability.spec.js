@@ -136,7 +136,7 @@ test.describe('navigation reachability', () => {
   // matches nothing. This proves a reserved *domain* is never offered — a
   // different way for the palette to strand a user.
   //
-  // @req FR-158 — this probe used to type "Commerce" and expect no match; the
+  // @req FR-162 — this probe used to type "Commerce" and expect no match; the
   // Commerce slot is delivered now, so the palette must find it instead.
   test('search never offers a reserved domain that has no page, and finds a delivered one', async ({ page }) => {
     await chooseBusiness(page)

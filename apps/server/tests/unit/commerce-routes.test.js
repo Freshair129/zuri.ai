@@ -1,4 +1,4 @@
-// @req FR-158, FR-159 — what the commerce routes and persistence are, in
+// @req FR-162, FR-163 — what the commerce routes and persistence are, in
 //   source terms: every handler resolves a browser viewer, stays thin and is
 //   inventoried for OpenAPI; the three models are in both schemas with no
 //   stored total, paid or balance, snapshotted after everything they
@@ -24,7 +24,7 @@ const ROUTES = {
 }
 const MODELS = ['SalesOrder', 'SalesOrderLine', 'Payment']
 
-describe('FR-158 / FR-159 commerce route and persistence contract', () => {
+describe('FR-162 / FR-163 commerce route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
     for (const [file, methods] of Object.entries(ROUTES)) {
       const source = read(file)

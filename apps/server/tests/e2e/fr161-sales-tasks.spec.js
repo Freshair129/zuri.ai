@@ -1,15 +1,15 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 
-// @req FR-157 — the owner creates a sales task from the real CRM page, sees it
+// @req FR-161 — the owner creates a sales task from the real CRM page, sees it
 //   listed with today's due state, starts it, completes it, and finds it under
 //   the closed filter. Nothing here touches Development.
 // @spec ADR-064; SEC-001
-// @tested tests/e2e/fr157-sales-tasks.spec.js
+// @tested tests/e2e/fr161-sales-tasks.spec.js
 
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 
-test('FR-157 — a sales task is created, started and completed on the CRM page', async ({ page }) => {
+test('FR-161 — a sales task is created, started and completed on the CRM page', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
@@ -45,5 +45,5 @@ test('FR-157 — a sales task is created, started and completed on the CRM page'
   await page.getByRole('button', { name: 'ปิดแล้ว', exact: true }).click()
   await expect(page.getByRole('row').filter({ hasText: title })).toContainText('เสร็จ')
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
-  await page.screenshot({ path: 'output/playwright/fr157-sales-tasks.png', fullPage: true })
+  await page.screenshot({ path: 'output/playwright/fr161-sales-tasks.png', fullPage: true })
 })

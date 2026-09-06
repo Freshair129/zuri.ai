@@ -39,7 +39,7 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/overview', icon: LayoutDashboard }],
   },
   {
-    // @req FR-158, FR-159 — the slot stops being reserved (ADR-065): sales
+    // @req FR-162, FR-163 — the slot stops being reserved (ADR-065): sales
     // orders and the payments against them, with revenue counted from verified
     // payments only. `commerce` is the Membership/RBAC route key; the pages
     // exist, so the palette and the bar may now find it.
@@ -58,7 +58,7 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/customer', icon: LayoutDashboard },
       { label: 'Inbox', path: '/customer/conversations', icon: MessagesSquare },
-      // @req FR-157 — sales tasks: the follow-ups a salesperson owes customers,
+      // @req FR-161 — sales tasks: the follow-ups a salesperson owes customers,
       // a CRM activity record and deliberately not a Development WorkItem
       // (ADR-064). Listed only now that its page exists.
       { label: 'Sales Tasks', path: '/customer/sales-tasks', icon: ListChecks },

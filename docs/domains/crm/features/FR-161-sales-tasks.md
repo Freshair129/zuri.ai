@@ -1,16 +1,16 @@
 ---
 domain: crm
-feature: FR-157
+feature: FR-161
 module: crm
 source: legacy-prior-art
-bundle: FEAT-021
+bundle: FEAT-022
 requirements:
-  - FR-157
+  - FR-161
 version: "0.1.0"
 status: building
 ---
 
-# FR-157 — Sales tasks (งานขาย)
+# FR-161 — Sales tasks (งานขาย)
 
 ## Intent
 
@@ -56,9 +56,9 @@ action, nothing deleted.
 - `GET/POST /api/crm/sales-tasks`, `GET/PATCH /api/crm/sales-tasks/[id]`;
   the `/customer/sales-tasks` page; `SALES_REP` role
   (`crm.sales-task.write`); snapshot coverage after Customer and Conversation.
-- Tests: `tests/integration/fr157-sales-task.test.js` (AC-157.1–.6),
+- Tests: `tests/integration/fr161-sales-task.test.js` (AC-161.1–.6),
   `tests/unit/sales-task-domain.test.js`, `tests/unit/sales-task-routes.test.js`,
-  `tests/e2e/fr157-sales-tasks.spec.js`.
+  `tests/e2e/fr161-sales-tasks.spec.js`.
 
 ## Not in this slice
 

@@ -1,10 +1,10 @@
-// @req FR-157 — sales tasks against a real database: the generated code, the
+// @req FR-161 — sales tasks against a real database: the generated code, the
 //   links to a Customer and Conversation reached only through the Business's
 //   tenant, the assignee's membership, the authority ladder (domain gate then
 //   OWNER / SALES_REP), the schedule rules, the versioned actions and the due
 //   state and summary recomputed against a given "now".
 // @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-061; FR-072
-// @tested tests/integration/fr157-sales-task.test.js
+// @tested tests/integration/fr161-sales-task.test.js
 import { randomUUID } from 'node:crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
@@ -28,7 +28,7 @@ async function viewerFor(personRow, over) {
   return makeViewer({ ...over, principal: { id: personRow.id, code: personRow.code, displayName: personRow.displayName } })
 }
 
-describe('FR-157 SalesTask', () => {
+describe('FR-161 SalesTask', () => {
   beforeAll(async () => {
     const pfA = await createPortfolio({ name: 'Task Group A', code: 'PF-TASK-A' })
     tenantA = await createTenant({ portfolioId: pfA.id, name: 'Task Tenant A', code: 'TNT-TASK-A' })
@@ -61,7 +61,7 @@ describe('FR-157 SalesTask', () => {
 
   const create = (over = {}, viewer = owner, now = NOW) => createSalesTask({ businessId: busA1.id, title: 'โทรติดตามใบเสนอราคา', dueDate: '2026-09-06', ...over }, { viewer, now })
 
-  it('AC-157.1 — creates with a generated TSK-YYYYMMDD-NNN code, defaults, and the due state against now', async () => {
+  it('AC-161.1 — creates with a generated TSK-YYYYMMDD-NNN code, defaults, and the due state against now', async () => {
     const first = await create({}, rep)
     expect(first).toMatchObject({ code: 'TSK-20260906-001', businessId: busA1.id, tenantId: tenantA.id, type: 'FOLLOW_UP', priority: 'NORMAL', status: 'OPEN', scheduleKind: 'SINGLE', dueState: 'TODAY', version: 1, createdByPersonId: repPerson.id, assignee: null, customer: null })
     const second = await create({ type: 'CALL', priority: 'URGENT', timeStart: '14:00', timeEnd: '14:30' })
@@ -70,7 +70,7 @@ describe('FR-157 SalesTask', () => {
     expect(audits.map((a) => a.action)).toEqual(['SALES_TASK_CREATED'])
   })
 
-  it('AC-157.2 — links reach a Customer and Conversation through the tenant only; the assignee must be a member', async () => {
+  it('AC-161.2 — links reach a Customer and Conversation through the tenant only; the assignee must be a member', async () => {
     const linked = await create({ conversationId: convA1 })
     expect(linked.customerId).toBe(customerA1)
     expect(linked.customer).toMatchObject({ id: customerA1, displayName: 'ลูกค้า เอ' })
@@ -85,7 +85,7 @@ describe('FR-157 SalesTask', () => {
     expect(assigned.assignee).toMatchObject({ id: repPerson.id, displayName: 'Person REP' })
   })
 
-  it('AC-157.3 — the authority ladder: the customer domain gate is a 404, then OWNER or SALES_REP writes, members read', async () => {
+  it('AC-161.3 — the authority ladder: the customer domain gate is a 404, then OWNER or SALES_REP writes, members read', async () => {
     await expect(listSalesTasks({ businessId: busA1.id }, { viewer: member, now: NOW })).resolves.toMatchObject({ businessId: busA1.id })
     await expect(create({}, member)).rejects.toMatchObject({ status: 403 })
     await expect(listSalesTasks({ businessId: busA1.id }, { viewer: noDomain, now: NOW })).rejects.toMatchObject({ status: 404, message: 'Business not found' })
@@ -97,7 +97,7 @@ describe('FR-157 SalesTask', () => {
     await expect(applySalesTaskAction(task.id, { action: 'START', version: 1 }, { viewer: member })).rejects.toMatchObject({ status: 403 })
   })
 
-  it('AC-157.4 — the schedule rules apply to the merged row on UPDATE', async () => {
+  it('AC-161.4 — the schedule rules apply to the merged row on UPDATE', async () => {
     const task = await create({ scheduleKind: 'RANGE', startDate: '2026-09-01', dueDate: '2026-09-10' })
     expect(task).toMatchObject({ scheduleKind: 'RANGE', dueState: 'UPCOMING' })
     await expect(applySalesTaskAction(task.id, { action: 'UPDATE', version: 1, fields: { dueDate: '2026-08-30' } }, { viewer: owner, now: NOW })).rejects.toThrow(/precede/)
@@ -106,7 +106,7 @@ describe('FR-157 SalesTask', () => {
     await expect(create({ scheduleKind: 'RANGE' })).rejects.toThrow(/needs startDate/)
   })
 
-  it('AC-157.5 — versioned actions walk the status machine, keep the row, and audit every step', async () => {
+  it('AC-161.5 — versioned actions walk the status machine, keep the row, and audit every step', async () => {
     const task = await create({ assigneePersonId: repPerson.id })
     const started = await applySalesTaskAction(task.id, { action: 'START', version: 1 }, { viewer: rep, now: NOW })
     expect(started).toMatchObject({ status: 'IN_PROGRESS', version: 2 })
@@ -128,7 +128,7 @@ describe('FR-157 SalesTask', () => {
     expect(audits.map((a) => a.action)).toEqual(['SALES_TASK_CREATED', 'SALES_TASK_STARTED', 'SALES_TASK_COMPLETED', 'SALES_TASK_REOPENED', 'SALES_TASK_ASSIGNED', 'SALES_TASK_CANCELLED'])
   })
 
-  it('AC-157.6 — the list filters by due state and assignee, hides closed tasks unless asked, and the summary counts open work', async () => {
+  it('AC-161.6 — the list filters by due state and assignee, hides closed tasks unless asked, and the summary counts open work', async () => {
     const business = await createBusiness({ tenantId: tenantA.id, name: 'ร้านสรุป', code: 'BUS-TASK-SUM' })
     await prisma.membership.create({ data: { personId: repPerson.id, tenantId: tenantA.id, businessId: business.id, role: 'MEMBER', status: 'ACTIVE', domainKeysJson: JSON.stringify(['customer']) } })
     const boss = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: CRM, principal: { id: repPerson.id, code: repPerson.code, displayName: repPerson.displayName } })

@@ -225,7 +225,7 @@ export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
 // FR-156 — a recipe (bill of materials at one batch size) is edited or
 // archived through the same two versioned actions a product has.
 export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
-// FR-157 — sales tasks (crm): a follow-up a salesperson owes a customer,
+// FR-161 — sales tasks (crm): a follow-up a salesperson owes a customer,
 // distinct from project-manager's WorkItem. The legacy product's "URGENT"
 // status is a priority here, and its PROJECT task kind with milestones is
 // project-manager's, so neither appears.
@@ -234,7 +234,7 @@ export const SALES_TASK_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW']
 export const SALES_TASK_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED']
 export const SALES_TASK_SCHEDULE_KINDS = ['SINGLE', 'RANGE']
 export const SALES_TASK_ACTIONS = ['UPDATE', 'ASSIGN', 'START', 'COMPLETE', 'CANCEL', 'REOPEN']
-// FR-158 / FR-159 — commerce: a sales order and the payments against it. The
+// FR-162 / FR-163 — commerce: a sales order and the payments against it. The
 // order's origin is where the sale came from (CHAT = attributed to a
 // Conversation, the legacy "ads revenue"); its status is the sale's, while the
 // payment state (unpaid / partial / paid …) is DERIVED from verified payments

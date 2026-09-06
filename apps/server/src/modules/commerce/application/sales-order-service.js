@@ -21,7 +21,7 @@ import {
 } from '../domain/commerce'
 import { loadBusiness, notFound } from './commerce-authority'
 
-// @req FR-158 — the only writer of SalesOrder and its lines: create a sale
+// @req FR-162 — the only writer of SalesOrder and its lines: create a sale
 //   with its lines (a line may name an inventory SKU of the same Business; the
 //   price is always given, because a catalogue price is Commerce's own future
 //   concern, not Inventory's cost), an optional Customer and Conversation of
@@ -38,7 +38,7 @@ import { loadBusiness, notFound } from './commerce-authority'
 //   read from the lines and the verified payments — never stored. Every write
 //   is one transaction with one audit row.
 // @spec ADR-065; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr158-sales-order.test.js
+// @tested tests/integration/fr162-sales-order.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null

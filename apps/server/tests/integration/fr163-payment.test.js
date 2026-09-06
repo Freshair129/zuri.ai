@@ -1,10 +1,10 @@
-// @req FR-159 — payments against a real database: recorded PENDING by a
+// @req FR-163 — payments against a real database: recorded PENDING by a
 //   rep, the bank reference unique per Tenant, the slip a FileAsset of the same
 //   Business, verified or rejected by a verifier (or the owner), the order's
 //   paid / balance / payment state following verified money only, refunds
 //   bounded by what was paid, and the revenue summary by origin and day.
 // @spec ADR-065; ADR-054 D4; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr159-payment.test.js
+// @tested tests/integration/fr163-payment.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -19,7 +19,7 @@ const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'commerce', 'customer']
 let tenant, business, otherBusiness, owner, rep, verifier, member, noDomain, slip, foreignSlip, convA
 
-describe('FR-159 Payment', () => {
+describe('FR-163 Payment', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ name: 'Pay Group', code: 'PF-PAY' })
     tenant = await createTenant({ portfolioId: portfolio.id, name: 'Pay Tenant', code: 'TNT-PAY' })
@@ -38,7 +38,7 @@ describe('FR-159 Payment', () => {
 
   const order = (over = {}) => createOrder({ businessId: business.id, lines: [{ description: 'ชุดของขวัญ', qty: 2, unitPrice: 500 }], ...over }, { viewer: owner, now: NOW })
 
-  it('AC-159.1 — a rep records a PENDING payment with a generated PAY code; the order stays UNPAID until verified', async () => {
+  it('AC-163.1 — a rep records a PENDING payment with a generated PAY code; the order stays UNPAID until verified', async () => {
     const o = await order()
     const p = await recordPayment(o.id, { method: 'TRANSFER', amount: 400, bankReference: 'KBANK-0001', slipFileAssetId: slip.id, paidAt: '2026-09-06T02:00:00Z' }, { viewer: rep, now: NOW })
     expect(p).toMatchObject({ code: 'PAY-20260906-001', orderId: o.id, kind: 'PAYMENT', method: 'TRANSFER', amount: 400, status: 'PENDING', bankReference: 'KBANK-0001', slipFileAssetId: slip.id, createdByPersonId: 'per-rep', version: 1 })
@@ -51,7 +51,7 @@ describe('FR-159 Payment', () => {
     expect(audits.map((a) => a.action)).toEqual(['PAYMENT_RECORDED'])
   })
 
-  it('AC-159.2 — verifying needs the verifier hat (or the owner); verified money moves the order to PARTIAL then PAID; rejected money never counts', async () => {
+  it('AC-163.2 — verifying needs the verifier hat (or the owner); verified money moves the order to PARTIAL then PAID; rejected money never counts', async () => {
     const o = await order()
     const p1 = await recordPayment(o.id, { method: 'QR', amount: 300 }, { viewer: rep, now: NOW })
     await expect(applyPaymentAction(p1.id, { action: 'VERIFY', version: 1 }, { viewer: rep })).rejects.toMatchObject({ status: 404 })
@@ -74,7 +74,7 @@ describe('FR-159 Payment', () => {
     expect(await getPayment(p3.id, { viewer: member })).toMatchObject({ id: p3.id, amount: 700 })
   })
 
-  it('AC-159.3 — refunds: bounded by verified money, allowed on a cancelled order; a payment on a cancelled order is not', async () => {
+  it('AC-163.3 — refunds: bounded by verified money, allowed on a cancelled order; a payment on a cancelled order is not', async () => {
     const o = await order()
     const p = await recordPayment(o.id, { method: 'TRANSFER', amount: 1000, bankReference: 'SCB-9' }, { viewer: rep, now: NOW })
     await applyPaymentAction(p.id, { action: 'VERIFY', version: 1 }, { viewer: owner, now: NOW })
@@ -87,7 +87,7 @@ describe('FR-159 Payment', () => {
     expect(refunded.order).toMatchObject({ paid: 1000, refunded: 1000, net: 0, paymentState: 'REFUNDED', status: 'CANCELLED' })
   })
 
-  it('AC-159.4 — revenue is verified net by origin and Bangkok day, pending beside it, never rejected money', async () => {
+  it('AC-163.4 — revenue is verified net by origin and Bangkok day, pending beside it, never rejected money', async () => {
     const fresh = await createBusiness({ tenantId: tenant.id, name: 'ร้านรายได้', code: 'BUS-PAY-REV' })
     const boss = makeViewer({ visibleBusinessIds: [fresh.id], ownedBusinessIds: [fresh.id], visibleDomains: DOMAINS })
     const conv = await ingestLineMessage({ tenantId: tenant.id, businessId: fresh.id, lineUserId: 'U-rev', displayName: 'ลูกค้า แชท', threadId: 'TH-REV', text: 'x', externalMessageId: 'MR-1' })

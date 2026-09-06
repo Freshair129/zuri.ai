@@ -12,12 +12,12 @@ attributes:
 
 # ADR-065 — The Commerce Lane: Orders and Payments
 
-**Status:** Accepted. Implemented by FR-158 and FR-159 (FEAT-022) in the same change.
+**Status:** Accepted. Implemented by FR-162 and FR-163 (FEAT-023) in the same change.
 **Date:** 2026-09-07
 **Decided by:** Boss (instruction of 2026-09-06: "ทำ Orders/Payments ต่อเลย")
 **Relates to:** [ADR-054](ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (D3, D4, D5),
 [ADR-064](ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md), [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7),
-FR-154, FR-155, FR-158, FR-159, FEAT-020, FEAT-022, BR-001, BR-002, FR-061, FR-072, FR-076,
+FR-154, FR-155, FR-162, FR-163, FEAT-020, FEAT-023, BR-001, BR-002, FR-061, FR-072, FR-076,
 `docs/domains/commerce/CHARTER.md`, `docs/domains/inventory/ONTOLOGY.md`,
 `docs/architecture/database-erd/full-schema.md` §19–§20.
 
