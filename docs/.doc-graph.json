@@ -70,7 +70,6 @@
       "code:src/config/domains.js",
       "code:src/lib/validation/enums.js",
       "code:src/modules/identity/rbac.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "code:src/modules/project-manager/api-docs/openapi.js",
       "code:src/modules/project-manager/application/backup-service.js"
     ],
@@ -9813,7 +9812,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "hash": "f95ad70d",
+      "hash": "f8683157",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10154,7 +10153,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "hash": "44b77579",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
