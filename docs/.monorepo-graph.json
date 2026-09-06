@@ -5753,7 +5753,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "e7ec22d0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -6082,7 +6082,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "1fc9a34c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8237,7 +8237,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
       "hash": "242044ae",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -11141,7 +11141,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "558e1a7a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11218,7 +11218,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "826542e5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13191,7 +13191,7 @@
       "version": "1.47.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "adf9ff15",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13245,7 +13245,7 @@
       "version": "1.25.0b",
       "doc_status": "Draft",
       "hash": "c43de965",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -13607,7 +13607,7 @@
       "version": "1.29.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "0815e055",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -14526,7 +14526,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "44629708",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -14574,7 +14574,7 @@
       "version": "1.12.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "36ca7f4f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -14668,7 +14668,7 @@
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
       "hash": "e91c9e18",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PARALLEL-REVIEW-2026-09-06",
@@ -15076,7 +15076,7 @@
       "version": "1.163.0b",
       "doc_status": "Draft",
       "hash": "09e45973",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15104,7 +15104,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "17339c7b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -22451,7 +22451,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
       "hash": "dd70ab0b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -23165,7 +23165,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "f7795fb3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -23718,7 +23718,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
       "hash": "531b3e91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/commerce-domain.test.js",
@@ -23991,7 +23991,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "63785188",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",

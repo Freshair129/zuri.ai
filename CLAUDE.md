@@ -121,13 +121,36 @@ half-succeed: it deletes the files, fails the final directory removal, and still
 drops the admin entry, so `git worktree list` shows the clean end state over a
 stripped directory. Look at the directory, not only the listing.
 
-**A worktree isolates git, not Docker.** `docker-compose.yml` pins
-`name: zuri-ai` explicitly (not the directory basename), so `docker compose
-up`/`build` run from *any* worktree of this repo resolve to the **same**
-Compose project and recreate the **same** live containers — sourced from
-whichever tree ran the command, with whatever `.env` that tree does or does
-not have (a worktree has none by default: a plain `docker compose up` there
-would tear down a working deployment and rebuild it missing every secret).
+**Everything Docker moved under `apps/server/` on 2026-09-06** (the monorepo
+restructure, PR #264). `docker-compose.yml`, `Dockerfile`, `supabase/migrations/`
+and the app itself now live there, and the compose file's `context: .` and
+`env_file: .env` are both relative to it. So:
+
+```bash
+git fetch && git checkout --detach origin/main   # in the primary checkout
+cd apps/server                                    # ← new, and not optional
+docker compose up -d --build web
+```
+
+**`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
+`required: true`, and compose looks for it beside the compose file, not at the
+repo root. A root `.env` left over from the old layout is invisible to it — and
+because untracked files survive `checkout --detach`, the old one will still be
+sitting there looking correct. Keep one file rather than two that drift: on
+Windows, `New-Item -ItemType HardLink -Path apps/server/.env -Target .env`
+(no admin needed, same volume, same inode). `.gitignore`'s `.env*` already
+covers the new path.
+
+**A worktree isolates git, not Docker — and the restructure did not change
+that.** `apps/server/docker-compose.yml` still pins `name: zuri-ai` explicitly
+(not the directory basename), so `docker compose up`/`build` run from *any*
+worktree's `apps/server` resolve to the **same** Compose project and recreate
+the **same** live containers — sourced from whichever tree ran the command,
+with whatever `.env` that tree does or does not have (a worktree has none by
+default: a plain `docker compose up` there would tear down a working deployment
+and rebuild it missing every secret). The new layout makes this *easier* to
+trip, not harder: a worktree now needs its own `apps/server/.env` to run
+anything, and creating one is exactly the step that arms the mistake.
 Treat `docker compose` as an operation on the one shared stack regardless of
 which directory it's run from; a genuinely separate stack needs its own
 `-p <name>` and, if ngrok is involved, its own domain — only one agent can
