@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   Users,
   Search,
@@ -15,15 +15,84 @@ import {
   CheckCircle2
 } from 'lucide-react'
 import { CRM_MEMBERS_DIRECTORY, TIERS } from './mockData'
+import { useScope } from '@/context/ScopeContext'
+import { useFetch } from '@/modules/project-manager/components/useApi'
 
 // @req FR-091, FR-078 — CRM Member 360 Directory & Slide-over Drawer
 // @spec SDD-050, BR-001
 
 export default function LineCrmMembers() {
-  const [members, setMembers] = useState(CRM_MEMBERS_DIRECTORY)
+  const { businessId, selectedBusiness } = useScope()
+  const [dataMode, setDataMode] = useState('auto') // 'auto' | 'demo'
   const [search, setSearch] = useState('')
   const [selectedTier, setSelectedTier] = useState('ALL')
   const [activeMember, setActiveMember] = useState(null)
+
+  // Fetch real registered LINE users & customers
+  const regPath = businessId ? `/api/platform/integrations?businessId=${encodeURIComponent(businessId)}` : '/api/platform/integrations'
+  const integrations = useFetch(regPath, [businessId])
+
+  const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : '/api/crm/conversations'
+  const liveInbox = useFetch(convPath, [businessId])
+
+  const registeredUsers = useMemo(() => {
+    const registry = integrations.data?.lineRegistry || []
+    return registry.filter(r => r.kind === 'USER')
+  }, [integrations.data])
+
+  const realCustomers = useMemo(() => {
+    return liveInbox.data?.conversations || []
+  }, [liveInbox.data])
+
+  const hasRealMembers = registeredUsers.length > 0 || realCustomers.length > 0
+  const isLive = dataMode === 'demo' ? false : hasRealMembers
+
+  const members = useMemo(() => {
+    if (!isLive) return CRM_MEMBERS_DIRECTORY
+
+    const list = []
+    registeredUsers.forEach((u, i) => {
+      list.push({
+        id: u.externalAccountId || `REG-${i + 1}`,
+        name: u.name || 'พนักงาน / ผู้ใช้ LINE',
+        phone: u.metadata?.phone || '—',
+        email: u.metadata?.email || '—',
+        lineHandle: `@${(u.name || 'user').toLowerCase().replace(/\s+/g, '')}`,
+        tier: u.metadata?.role || 'Member',
+        points: u.metadata?.points || 100,
+        totalSpend: 0,
+        ordersCount: 0,
+        joinDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString('th-TH') : 'วันนี้',
+        tags: [u.metadata?.department || 'ฝ่ายขาย', 'LINE Registry'],
+        lastActive: u.updatedAt ? new Date(u.updatedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : 'เมื่อสักครู่',
+        notes: `ลงทะเบียนในบทบาท ${u.metadata?.role || 'พนักงาน'} (${u.metadata?.department || 'ทั่วไป'})`,
+        recentOrders: []
+      })
+    })
+
+    realCustomers.forEach((c) => {
+      if (!list.some(m => m.id === c.customerId)) {
+        list.push({
+          id: c.customerId || c.id,
+          name: c.customer?.displayName || 'ลูกค้า LINE',
+          phone: c.customer?.metadata?.phone || '—',
+          email: c.customer?.metadata?.email || '—',
+          lineHandle: `@${(c.customer?.displayName || 'user').toLowerCase().replace(/\s+/g, '')}`,
+          tier: c.customer?.lifecycleStage || 'Silver',
+          points: c.customer?.metadata?.points || 0,
+          totalSpend: c.customer?.metadata?.spend || 0,
+          ordersCount: 1,
+          joinDate: c.createdAt ? new Date(c.createdAt).toLocaleDateString('th-TH') : 'วันนี้',
+          tags: ['ลูกค้าแชท', c.channel || 'LINE'],
+          lastActive: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '—',
+          notes: 'ลูกค้าที่ทักเข้ามาผ่านระบบ LINE OA',
+          recentOrders: []
+        })
+      }
+    })
+
+    return list.length > 0 ? list : CRM_MEMBERS_DIRECTORY
+  }, [isLive, registeredUsers, realCustomers])
 
   const filteredMembers = members.filter((m) => {
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,9 +106,24 @@ export default function LineCrmMembers() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            สมาชิก CRM (Member 360°)
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              สมาชิก CRM (Member 360°)
+            </h1>
+            {isLive ? (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB ({members.length})
+              </span>
+            ) : (
+              <button
+                onClick={() => setDataMode(dataMode === 'demo' ? 'auto' : 'demo')}
+                className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100"
+                title="คลิกเพื่อสลับโหมด"
+              >
+                🟡 Demo Mode ({members.length})
+              </button>
+            )}
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             รายชื่อสมาชิก ฐานข้อมูลลูกค้าประวัติการสะสมแต้ม และยอดใช้จ่ายสะสม
           </p>

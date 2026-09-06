@@ -9662,7 +9662,7 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "ae8925f6",
+      "hash": "993faa97",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9708,7 +9708,7 @@
       "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
-      "hash": "6e3d75c2",
+      "hash": "d619bd4e",
       "status": "current",
       "annotations": {
         "@req": [
