@@ -2,7 +2,7 @@
 version: "0.1.0b"
 created_at: "2026-09-06T20:12:00+07:00,RWANG,9b4eaa98"
 last_update: "2026-09-06T20:12:00+07:00,RWANG"
-status: under review
+status: beta
 superseded_by: null
 ---
 
@@ -53,3 +53,11 @@ temporary missing-module fallbacks and unused public mutation aliases. Add
 Campaign service regressions proving invalid PM receipts do not appear through
 `plan.handoffs`, that list/detail agree, and that nullable-Tenant Workspaces work.
 Final integrated evidence is recorded in the Campaign phase report.
+
+## Resolution evidence
+
+Commit `2b0c0bd7` removes the weaker validator and temporary adapter fallback,
+reuses READY adapter results for exposed receipt choices and list/detail phase,
+and returns the exact execution unavailable DTO. `9ecae329` adds service/route/
+contract regressions, including damaged PM receipt filtering and archived-plan
+binding refusal. The integrated full suite passed 3,930 tests (14 skipped).
