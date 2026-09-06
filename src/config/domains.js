@@ -5,7 +5,7 @@ import {
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
   Workflow, Gauge, TrendingUp,
-  PackageCheck, MessageCircle,
+  PackageCheck, MessageCircle, LayoutGrid,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -148,7 +148,13 @@ export const DOMAINS = [
     // (FR-061 filters grants through this list) and lets the FR-146 API refuse
     // a viewer without it. The page tree lands with the Phase 1 UI slice.
     key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle,
-    sub: [{ label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard }],
+    sub: [
+      { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard },
+      // FR-151 — the rich menu designer's own page. Listed only now that it
+      // exists: the note above is about not advertising a route before its
+      // page lands, and this one has landed.
+      { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
+    ],
   },
   {
     key: 'platform', label: 'Platform', icon: ServerCog,

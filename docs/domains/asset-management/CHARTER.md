@@ -18,9 +18,9 @@ owns_routes:
   - src/app/api/edge/extraction-jobs/**
 technical_owner: TD-ASSET-MANAGEMENT
 status: active-evidence-intake-beta
-version: "1.2.0b"
+version: "1.3.0b"
 created_at: "2026-09-01T00:00:00+07:00"
-updated_at: "2026-09-04T09:00:00+07:00"
+updated_at: "2026-09-06T13:30:00+07:00"
 ---
 
 # Asset Management domain charter
@@ -32,12 +32,30 @@ operational lifecycle of company assets: evidence-backed intake, registration,
 custody, use, location, project allocation, maintenance/stocktake/disposal history
 and the handoff of reviewable financial facts.
 
-The domain answers four questions without relying on a parallel spreadsheet:
+The domain answers eight operational questions across its lifecycle (SRS.md):
 
 1. What physical unit or controlled lot is this?
-2. Who is accountable for it and who is using it now?
-3. Where is it and which Project, if any, is using it?
-4. Which evidence, procurement references and decisions explain its current state?
+2. Which evidence, procurement references and human decisions prove its intake?
+3. Who is currently accountable, who holds custody, and who is actually using it?
+4. Where is it physically located right now, and where has it been?
+5. Which Project or Workstream is using it, and under what condition was it returned?
+6. What is its maintenance schedule, calibration record, and service history?
+7. Is it physically present where the records say it is?
+8. How was it decommissioned or disposed of, and what depreciation schedule did it follow?
+
+## Subdomain Taxonomy
+
+```text
+Asset Management (DOM-ASSET-MANAGEMENT)
+├── 1. Receiving & Evidence Intake (Web, API, Excel/Sheet, Agent, LINE)
+├── 2. Register, Identity & Tagging (AST-YYYY-*, QR lookup, Tag printing)
+├── 3. Custody & Location Management (Accountable, Custodian, User, Handover)
+├── 4. Project & Workstream Allocation (Project booking, return condition)
+├── 5. Maintenance, Warranty & Service (Preventive schedule, tickets, costs)
+├── 6. Stocktake & Physical Audit (Campaigns, mobile QR scan, reconciliation)
+├── 7. Decommissioning & Disposal (Scrap, sell, donate, loss proof)
+└── 8. Depreciation Candidate Handoff (Deterministic straight-line preview)
+```
 
 ## Owned records
 
@@ -141,12 +159,15 @@ The foundation declares and locally proves the canonical contract, validation,
 pipeline identity, schema shape, backup coverage and dashboard. CR-015/ADR-056 adds
 the beta evidence intake execution lane: private managed-object evidence, candidate
 OCR/Vision with human review, Excel/bounded Sheet snapshot import-export and trusted
-LINE FileAsset handoff. Native Google synchronization, LINE byte retrieval inside
-zuri-ai, registration, Procurement lookup/mutation, Finance posting and Project
-Inventory projection are still gated and are not implied by this status.
+LINE FileAsset handoff. FR-143/ADR-059 delivers pull-based on-premise Edge extraction.
+SRS.md (v0.3.0) specifies the complete 8-subdomain physical lifecycle: Registration &
+Tagging, Custody Handover, Project Allocation Return, Maintenance, Stocktake, Disposal,
+and Finance candidate handoff.
 
 ## References
 
+- [SRS — Software Requirements Specification](SRS.md)
+- [DATA-PIPELINE — Pipeline Specification](DATA-PIPELINE.md)
 - [CR-014](../../change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md)
 - [ADR-055](../../decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md)
 - [ZV2-CR-009](../../changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md)
@@ -162,6 +183,7 @@ Inventory projection are still gated and are not implied by this status.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.2.0b | 2026-09-04 | active-evidence-intake-beta | Claimed `AssetExtractionJob` and the device-authenticated `/api/edge/extraction-jobs/**` route family for FR-143 / ADR-059 — declaration only, no implementation in this commit | working-tree | Claude Code |
+| 1.3.0b | 2026-09-06 | active-evidence-intake-beta | Refined 8-subdomain lifecycle architecture and added SRS.md reference | working-tree | Gemini (Antigravity) |
+| 1.2.0b | 2026-09-04 | active-evidence-intake-beta | Claimed `AssetExtractionJob` and the device-authenticated `/api/edge/extraction-jobs/**` route family for FR-143 / ADR-059 | working-tree | Claude Code |
 | 1.1.0b | 2026-09-02 | beta | Added receiver/reviewer capabilities and the provider-neutral evidence, extraction, workbook/snapshot and LINE handoff execution lane | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | active-foundation | Established Asset Management ownership, scope, invariants, intake convergence and explicit external boundaries | working-tree | Codex |
