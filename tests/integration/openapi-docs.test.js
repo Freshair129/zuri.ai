@@ -107,8 +107,9 @@ describe('OpenAPI document', () => {
       // operations.
       // Marketing FR-155/154 add three paths and five operations.
       // Campaign FR-156 adds two paths and four operations.
-      pathCount: 161,
-      operationCount: 212,
+      // FR-157 adds four Content paths and six scoped operations.
+      pathCount: 165,
+      operationCount: 218,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

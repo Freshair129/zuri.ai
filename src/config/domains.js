@@ -66,6 +66,8 @@ export const DOMAINS = [
       { label: 'Dashboard', path: '/growth', icon: LayoutDashboard, exact: true },
       { label: 'Strategy', path: '/growth/strategy', icon: Target },
       { label: 'Campaigns', path: '/growth/campaigns', icon: Megaphone },
+      // @req FR-157 — Content owns creative intent; Files/PM remain referenced owners.
+      { label: 'Content & Creative', path: '/growth/content', icon: FolderOpen },
     ],
   },
   {

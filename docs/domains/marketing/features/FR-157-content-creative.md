@@ -32,6 +32,19 @@ The asset detail key is MarketingContentVersion.id, not FileAsset identity.
 Historical versions remain inspectable; Library contains only current usable
 approved revisions. Internal acceptance does not authorize external execution.
 
+```mermaid
+flowchart LR
+  B[Business creative brief] --> V[Immutable content revision]
+  F[Files owner metadata] -. exact version and hash .-> V
+  P[PM Project and WorkItem] -. authorized reference .-> V
+  V --> R[Independent review]
+  R --> D[Owner decision by CAS sequence]
+  D --> G{Current revision, rights and file still usable?}
+  F -. revalidate on read .-> G
+  G -->|yes| L[Approved Library]
+  G -->|no| H[History with reason; unavailable for use]
+```
+
 ## Pinned model and transaction contract
 
 Four models: MarketingContentBrief (Business/Tenant UUID, code, title,
@@ -100,11 +113,13 @@ infrastructure failures propagate. References are never silently substituted.
 Collection service returns {briefs,truncated,canWrite}, max 100. Brief summary
 has id/code/title/status/version/currentRevision/currentVersion/phase/approval/
 references. Detail adds versions/reviews/decisions/canWrite. Phase is
-DRAFT/PRODUCTION/REVIEW/APPROVED/ARCHIVED: APPROVED only while usable; REVIEW from
-matching current review; PRODUCTION from valid PM binding. These describe creative
+DRAFT/PRODUCTION/REVIEW/APPROVED/ARCHIVED, in descending precedence ARCHIVED,
+usable APPROVED, matching current REVIEW, valid PM binding PRODUCTION, then DRAFT. These describe creative
 readiness, not PM task status. approval is {valid,reasonCode,decisionId|null}.
-Asset detail returns {brief,assetVersion,isCurrent,usable}; old versions never
-inherit current approval. AssetVersion is an immutable content revision.
+Asset detail returns {brief,assetVersion,references,isCurrent,usable}; top-level
+references resolve the requested assetVersion payload, while brief retains its
+current revision references. Old versions never inherit current approval or a
+newer source file. AssetVersion is an immutable content revision.
 
 ## Six interfaces and API
 

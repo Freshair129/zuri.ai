@@ -1,7 +1,7 @@
 ---
-version: "1.7.0b"
+version: "1.8.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-06T18:54:00+07:00,RWANG"
+last_update: "2026-09-06T22:02:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.7.0b |
+| **Version** | 1.8.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=65; operational_domain_keys=10; operational_subdomain_entries=33; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=69; operational_domain_keys=10; operational_subdomain_entries=34; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -127,7 +127,7 @@ page can issue a write.
 
 ### 3.5 People and Platform domains
 
-The operational registry has nine domain keys. Platform currently exposes eight
+The operational registry has ten domain keys. Platform currently exposes nine
 page routes from nine navigation entries because its Dashboard and Settings entries share
 `/settings`; one route is one interface row here.
 
@@ -199,7 +199,7 @@ not new global domains or new persistence aggregates.
 ### 3.9 Platform Control surface
 
 Platform Control is an installation-operator-only operational surface. It is not
-one of the nine operational Business domains (§4), is not configured in `DOMAINS`,
+one of the ten operational Business domains (§4), is not configured in `DOMAINS`,
 and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
@@ -215,10 +215,10 @@ and does not require an active Business selection.
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 is a design inventory. These two native routes implement its Strategy slice;
-Campaigns is the next native slice described below; other Marketing screens remain planned, and automated team/provider activation
+Campaigns and Content are the native slices described below; other Marketing screens remain planned, and automated team/provider activation
 is not implied by human review and channel intent fields.
 
-### Marketing Campaign slice (implementation in progress)
+### Marketing Campaign slice (locally verified beta)
 
 | Route | Interface | Native behavior | Authority and states | Trace |
 |---|---|---|---|---|
@@ -226,9 +226,23 @@ is not implied by human review and channel intent fields.
 | `/growth/campaigns/new` | MKT-UI-076 | New initiative plus versioned Strategy brief | Active Business owner; validation and atomic save | FR-156 |
 | `/growth/campaigns/[initiativeId]` | MKT-UI-007–011 | Brief, Plan, Timeline, Results, Decisions in one URL tab bar | Exact Business/initiative; receipt-bound PM data; absent metrics unavailable; owner writes with CAS | FR-156 |
 
-[Campaign contract](domains/marketing/features/FR-156-campaign-initiatives.md).
+[Campaign contract](domains/marketing/features/FR-156-campaign-initiatives.md) and [local phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md).
 Version diff: adds three native route shapes covering seven approved interfaces;
 provider measurements and automated Team refinement remain separately tracked.
+
+### Marketing Content and Creative slice (verification in progress)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/content` | MKT-UI-016/017/018 | Briefs, Production and Library in one URL tab bar; real PM task projection and current approved outputs | Growth visibility; loading/empty/error/truncated; rights and source readiness | FR-157 |
+| `/growth/content/new` | MKT-UI-077 | Creative intent, channel and format, declared rights, optional source file and production task | Business owner; validated scoped choices; incomplete/unavailable references | FR-157 |
+| `/growth/content/briefs/[briefId]` | MKT-UI-058 | Immutable versions, independent review, exact approval/rejection/revocation and archive | Exact Business; owner writes with CAS; stale/hash mismatch and archive conflicts | FR-157 |
+| `/growth/content/assets/[assetId]` | MKT-UI-059 | One immutable output version, source/rights/review evidence and current usability | Scoped read; historical, expired, revoked and unavailable source states | FR-157 |
+
+[Content contract](domains/marketing/features/FR-157-content-creative.md) and
+[phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md).
+The asset route uses a Content revision id. Source files and production tasks retain
+their owning Files/PM identities. Human review does not activate Team agents or publishing.
 
 ## 4. Runtime registry reconciliation
 
@@ -240,11 +254,11 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source `DOMAINS` entries | 11 | `business-home` plus ten operational domains |
 | Operational domain keys | 10 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 31 | includes Business Home Dashboard |
-| Operational sub-domain entries | 30 | excludes Business Home Dashboard |
+| Source sub-domain entries | 35 | includes Business Home Dashboard |
+| Operational sub-domain entries | 34 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
-| Asset Management navigation entries | 3 | Dashboard and Receiving are current; Register remains a declared unavailable destination |
-| LINE OA Studio navigation entries | 1 | reserved `soon` slot registered by FR-146 (ADR-060 D12) so a Membership grant can name the `line-oa` domain; no page route exists and the bar renders nothing for it |
+| Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Stocktake Scanner |
+| LINE OA Studio navigation entries | 2 | Dashboard and Rich Menu are mounted under the `line-oa` grant |
 | Platform navigation entries | 9 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
@@ -288,8 +302,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 55 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 9 operational domains, 29 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 69 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 10 operational domains, 34 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -306,6 +320,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
 | 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |
@@ -325,3 +340,5 @@ The current route evidence is:
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
+
+Version diff 1.7.0b → 1.8.0b: Content adds four route shapes and one navigation entry; six interfaces remain bounded by the FR-157 phase evidence.

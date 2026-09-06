@@ -134,7 +134,7 @@
       "designKey": "content/briefs",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-017",
@@ -142,7 +142,7 @@
       "designKey": "content/production",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-018",
@@ -150,7 +150,7 @@
       "designKey": "content/library",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-019",
@@ -470,7 +470,7 @@
       "designKey": "content/brief-detail",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-059",
@@ -478,7 +478,7 @@
       "designKey": "content/asset-detail",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-060",
@@ -622,7 +622,7 @@
       "designKey": "content/new",
       "implementationTaskCode": "MKT-W1-CONTENT",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "in progress: Content core, owner references and native UI"
     },
     {
       "interfaceId": "MKT-UI-078",

@@ -344,20 +344,23 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Creative brief, production and library",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Creative systems",
             "acceptanceCriteria": [
               "Versions, rights, review and PM/Files owner references persist and are tested."
             ],
-            "evidenceRefs": [],
+            "evidenceRefs": [
+              "docs/roadmap/marketing/PHASE-CONTENT-2026-09-06.md"
+            ],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
-              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/domains/marketing/features/FR-157-content-creative.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "in progress: immutable Content brief, rights-aware review/decision and authorized Files/PM references",
             "interfaceIds": [
               "MKT-UI-016",
               "MKT-UI-017",

@@ -1,5 +1,5 @@
 ---
-version: "0.5.1b"
+version: "0.6.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
 last_update: "2026-09-06T21:03:55+07:00,RWANG"
 status: beta
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.5.1b
+**Version:** 0.6.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -199,6 +199,7 @@ Tracking plan **0.5.0b → 0.5.1b**: attach verified Campaign delivery and one b
 | 0.4.0b | 2026-09-06 | beta | Attach Strategy phase evidence; preserve full-wave and actual PM import gates | See git history | RWANG |
 | 0.5.0b | 2026-09-06 | beta | Continue Campaign implementation from approved design and retain SmartGift target gate | See git history | RWANG |
 | 0.5.1b | 2026-09-06 | beta | Record locally verified Campaign slice and one bounded task completion | See git history | RWANG |
+| 0.6.0b | 2026-09-06 | beta | Start approved Content implementation with three parallel lanes | See git history | RWANG |
 
 
 ## Campaign continuation — 2026-09-06
@@ -218,3 +219,12 @@ server intake remain open; task codes, weights and dependencies are preserved.
 
 Version diff 0.5.0b → 0.5.1b: attach Campaign verification and one bounded DONE
 transition; preserve the full domain scope and pending live integration gates.
+
+## Content continuation — 2026-09-06
+
+The next approved slice is [Content and Creative](../domains/marketing/features/FR-157-content-creative.md),
+tracked in [phase evidence](marketing/PHASE-CONTENT-2026-09-06.md). Six interfaces
+cover immutable briefs, PM production and an approved Files reference library.
+MKT-W1-CONTENT is IN_PROGRESS: current counts are 4 DONE, 8 IN_PROGRESS and
+35 PLANNED. Version diff 0.5.1b → 0.6.0b starts this existing task without changing
+weights, dependencies, approved scope or the unresolved SmartGift server intake.

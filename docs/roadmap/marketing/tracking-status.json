@@ -1,6 +1,6 @@
 {
-  "version": "0.5.1b",
-  "status": "Strategy first slice and Campaign initiative slice verified locally; SmartGift instance and Workspace unresolved; not imported",
+  "version": "0.6.0b",
+  "status": "Strategy first slice and Campaign verified locally; Content implementation in progress; SmartGift instance and Workspace unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
   "progressMeaning": "Initial 5% is the design preparation snapshot. Campaign initiative task is now locally DONE with evidence; full Wave 1 remains open. Actual PM percentage is unverified because no server import occurred.",
@@ -119,7 +119,32 @@
   },
   "localTaskCounts": {
     "DONE": 4,
-    "IN_PROGRESS": 7,
-    "PLANNED": 36
+    "IN_PROGRESS": 8,
+    "PLANNED": 35
+  },
+  "contentImplementation": {
+    "requirement": "FR-157",
+    "spec": "SDD-088",
+    "status": "in progress",
+    "baseCommit": "b2656bcb",
+    "foundationCommit": "5ab8bf6a",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "agents": 3,
+    "phaseReport": "docs/roadmap/marketing/PHASE-CONTENT-2026-09-06.md",
+    "productionMigrationApplied": false,
+    "fullWave1Complete": false,
+    "foundationTests": {
+      "passed": 3933,
+      "skipped": 14,
+      "failed": 0
+    },
+    "foundationChecks": {
+      "backupAndMigrationPolicy": 4,
+      "navigationAndWarmup": 5,
+      "existingMigrationRowsPreserved": 6,
+      "addedTables": 4,
+      "foreignKeyViolations": 0
+    }
   }
 }

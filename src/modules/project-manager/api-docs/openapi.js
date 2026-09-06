@@ -19,6 +19,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
   ['/api/growth/campaigns', ['GET', 'POST']], ['/api/growth/campaigns/{id}', ['GET', 'PATCH']],
+  // @req FR-157 — scoped Content lifecycle and owner reference choices.
+  ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
+  ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],

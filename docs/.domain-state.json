@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T14:35:26.544Z",
+  "generatedAt": "2026-09-06T15:10:21.917Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -42,7 +42,7 @@
     "requirementCount": 157,
     "verifiedRequirementCount": 147,
     "progressPercent": 93.6,
-    "gapCount": 25,
+    "gapCount": 22,
     "gaps": [
       {
         "domain": "agent",
@@ -171,36 +171,6 @@
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "marketing",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "marketing",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "marketing",
-        "id": "REQ-FR-157",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-157 is not_implemented",
-        "evidence": [
-          "tests/integration/backup.test.js",
-          "tests/integration/crm-conversation-analysis.test.js",
-          "tests/integration/fr075-restore-authorization.test.js",
-          "tests/integration/line-server-backup.test.js",
-          "tests/integration/marketing-backup.test.js",
-          "tests/integration/marketing-content-backup.test.js",
-          "tests/unit/fr045-backup-contract.test.js"
-        ]
       },
       {
         "domain": "project-manager",
@@ -472,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -711,7 +681,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -1266,7 +1236,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -1643,7 +1613,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -2119,7 +2089,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -2271,7 +2241,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -2386,18 +2356,9 @@
         {
           "id": "FR-157",
           "declared": "n/a",
-          "status": "not_implemented",
-          "codeCount": 0,
-          "testCount": 7,
-          "evidence": [
-            "tests/integration/backup.test.js",
-            "tests/integration/crm-conversation-analysis.test.js",
-            "tests/integration/fr075-restore-authorization.test.js",
-            "tests/integration/line-server-backup.test.js",
-            "tests/integration/marketing-backup.test.js",
-            "tests/integration/marketing-content-backup.test.js",
-            "tests/unit/fr045-backup-contract.test.js"
-          ]
+          "status": "verified",
+          "codeCount": 18,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -2408,8 +2369,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 5,
-            "inventoried": 5,
+            "routes": 9,
+            "inventoried": 9,
             "missing": 0
           }
         },
@@ -2421,9 +2382,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 5,
-            "inventoried": 5,
-            "openApiPaths": 161,
+            "routes": 9,
+            "inventoried": 9,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -2438,18 +2399,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "verified",
@@ -2476,24 +2431,18 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 5,
-            "guardedMutations": 5,
-            "reads": 4,
+            "mutations": 7,
+            "guardedMutations": 7,
+            "reads": 8,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -2513,39 +2462,11 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-157",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-157 is not_implemented",
-          "evidence": [
-            "tests/integration/backup.test.js",
-            "tests/integration/crm-conversation-analysis.test.js",
-            "tests/integration/fr075-restore-authorization.test.js",
-            "tests/integration/line-server-backup.test.js",
-            "tests/integration/marketing-backup.test.js",
-            "tests/integration/marketing-content-backup.test.js",
-            "tests/unit/fr045-backup-contract.test.js"
-          ]
-        }
-      ],
+      "gaps": [],
       "details": {
-        "routes": 10,
-        "apiRoutes": 5,
-        "pageRoutes": 5,
+        "routes": 18,
+        "apiRoutes": 9,
+        "pageRoutes": 9,
         "ownedModels": 10,
         "featureNotes": 3
       },
@@ -2618,7 +2539,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -3380,8 +3301,8 @@
           "id": "FR-157",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 7
+          "codeCount": 3,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -3416,7 +3337,7 @@
           "details": {
             "routes": 105,
             "inventoried": 105,
-            "openApiPaths": 161,
+            "openApiPaths": 165,
             "missingFromOpenApi": 0
           }
         },
@@ -5322,18 +5243,26 @@
           "id": "FR-157",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 1,
-          "testCount": 7
+          "codeCount": 21,
+          "testCount": 20
         }
       ],
       "evidence": [
         "src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
         "src/app/(pm)/growth/campaigns/new/page.jsx",
         "src/app/(pm)/growth/campaigns/page.jsx",
+        "src/app/(pm)/growth/content/assets/[assetId]/page.jsx",
+        "src/app/(pm)/growth/content/briefs/[briefId]/page.jsx",
+        "src/app/(pm)/growth/content/new/page.jsx",
+        "src/app/(pm)/growth/content/page.jsx",
         "src/app/(pm)/growth/page.jsx",
         "src/app/(pm)/growth/strategy/page.jsx",
         "src/app/api/growth/campaigns/[id]/route.js",
         "src/app/api/growth/campaigns/route.js",
+        "src/app/api/growth/content/assets/[id]/route.js",
+        "src/app/api/growth/content/briefs/[id]/route.js",
+        "src/app/api/growth/content/references/route.js",
+        "src/app/api/growth/content/route.js",
         "src/app/api/growth/plans/[id]/handoff/route.js",
         "src/app/api/growth/plans/[id]/route.js",
         "src/app/api/growth/plans/route.js",
@@ -5342,6 +5271,8 @@
         "src/modules/marketing/application/marketing-authority.js",
         "src/modules/marketing/application/marketing-campaign-execution.js",
         "src/modules/marketing/application/marketing-campaign-service.js",
+        "src/modules/marketing/application/marketing-content-references.js",
+        "src/modules/marketing/application/marketing-content-service.js",
         "src/modules/marketing/application/marketing-plan-service.js",
         "src/modules/marketing/application/marketing-pm-handoff-service.js",
         "src/modules/marketing/components/MarketingDashboard.jsx",
@@ -5361,15 +5292,24 @@
         "src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
         "src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
         "src/modules/marketing/components/campaigns/campaign-contract.js",
+        "src/modules/marketing/components/content/ContentAssetDetail.jsx",
+        "src/modules/marketing/components/content/ContentBriefDetail.jsx",
+        "src/modules/marketing/components/content/ContentBriefForm.jsx",
+        "src/modules/marketing/components/content/ContentCollection.jsx",
+        "src/modules/marketing/components/content/ContentVersionHistory.jsx",
+        "src/modules/marketing/components/content/content-contract.js",
         "src/modules/marketing/components/marketing-contract.js",
         "src/modules/marketing/domain/marketing-campaign-contract.js",
+        "src/modules/marketing/domain/marketing-content-contract.js",
         "src/modules/marketing/domain/marketing-plan-contract.js",
         "src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+        "src/modules/marketing/infrastructure/marketing-content-repository.js",
         "src/modules/marketing/infrastructure/marketing-plan-repository.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/marketing-campaigns.spec.js",
+        "tests/e2e/marketing-content.spec.js",
         "tests/e2e/marketing-strategy.spec.js",
         "tests/e2e/navigation-reachability.spec.js",
         "tests/integration/backup.test.js",
@@ -5380,6 +5320,8 @@
         "tests/integration/marketing-campaign-execution.test.js",
         "tests/integration/marketing-campaign.test.js",
         "tests/integration/marketing-content-backup.test.js",
+        "tests/integration/marketing-content-references.test.js",
+        "tests/integration/marketing-content.test.js",
         "tests/integration/marketing-plan.test.js",
         "tests/integration/marketing-pm-handoff.test.js",
         "tests/integration/openapi-docs.test.js",
@@ -5389,12 +5331,16 @@
         "tests/unit/fr045-api-ui-contract.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/marketing-campaign-ui.test.js",
+        "tests/unit/marketing-content-ui.test.js",
         "tests/unit/marketing-migration-policy.test.js",
         "tests/unit/marketing-navigation.test.js",
         "tests/unit/marketing-strategy-ui.test.js",
         "tests/unit/marketing/marketing-authority.test.js",
         "tests/unit/marketing/marketing-campaign-contract.test.js",
         "tests/unit/marketing/marketing-campaign-route.test.js",
+        "tests/unit/marketing/marketing-content-contract.test.js",
+        "tests/unit/marketing/marketing-content-references-route.test.js",
+        "tests/unit/marketing/marketing-content-route.test.js",
         "tests/unit/marketing/marketing-plan-contract.test.js",
         "tests/unit/marketing/marketing-plan-route.test.js",
         "tests/unit/sidebar-visible-subdomains.test.js"

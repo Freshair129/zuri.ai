@@ -10,6 +10,8 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-155-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md)
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
+- references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
 Backlinks:
 
@@ -2288,7 +2290,11 @@ Source: [Content and Creative — immutable briefs and approved file references]
 
 Backlinks:
 
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
 - [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
+- [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md) (references)
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — project-manager
@@ -2461,7 +2467,10 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 
 - references: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md)
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
+- references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
+- references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 - references: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
 - references: [Zuri — Route and Shell Sitemap](ROUTES-SITEMAP.md)
 - references: [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md)
@@ -2624,6 +2633,19 @@ Source: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIG
 Backlinks:
 
 - [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
+## Marketing Content — phase evidence
+
+Source: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
+
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
+
+Backlinks:
+
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 
 ## Marketing Strategy — implementation phase report
@@ -2724,8 +2746,10 @@ Source: [Marketing — Project Manager implementation tracking plan](roadmap/PLA
 
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-155-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md)
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing — Parallel development review](roadmap/marketing/PARALLEL-REVIEW-2026-09-06.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
+- references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 - references: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
 - references: [Domain — marketing](domains/marketing/CHARTER.md)
 - relates: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
