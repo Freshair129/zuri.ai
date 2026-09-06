@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1946,
-    "total_edges": 7601,
+    "total_nodes": 1962,
+    "total_edges": 7680,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 11,
       "roadmap": 39,
       "feature": 20,
-      "route": 215,
+      "route": 218,
       "model": 92,
       "requirement": 312,
-      "test": 476,
-      "code_file": 530
+      "test": 481,
+      "code_file": 538
     },
     "coverage": {
       "requirements": 312,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (144/144)",
       "rules_anchored_in_code": "96% (129/134)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 530,
+      "annotated_code_files": 538,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -60,31 +60,10 @@
       "doc:SRS",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:FR-153-strategy-plans",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
-      "doc:SITEMAP-DOMAIN-NAV",
-      "code:src/config/domains.js"
+      "test:tests/unit/command-palette-index.test.js",
+      "test:tests/unit/domain-state.test.js"
     ],
-    "added": [
-      "route:page:/growth",
-      "route:page:/growth/strategy",
-      "test:tests/e2e/marketing-strategy.spec.js",
-      "test:tests/unit/marketing-migration-policy.test.js",
-      "test:tests/unit/marketing-navigation.test.js",
-      "test:tests/unit/marketing-strategy-ui.test.js",
-      "code:src/app/(pm)/growth/page.jsx",
-      "code:src/app/(pm)/growth/strategy/page.jsx",
-      "code:src/modules/marketing/components/marketing-contract.js",
-      "code:src/modules/marketing/components/MarketingDashboard.jsx",
-      "code:src/modules/marketing/components/MarketingState.jsx",
-      "code:src/modules/marketing/components/MarketingTabs.jsx",
-      "code:src/modules/marketing/components/PlanForm.jsx",
-      "code:src/modules/marketing/components/PlanHandoff.jsx",
-      "code:src/modules/marketing/components/PlanReviewDecision.jsx",
-      "code:src/modules/marketing/components/PlanVersionHistory.jsx",
-      "code:src/modules/marketing/components/StrategyWorkspace.jsx"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2745,6 +2724,68 @@
       }
     },
     {
+      "id": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "type": "code_file",
+      "path": "src/app/api/growth/plans/[id]/handoff/route.js",
+      "hash": "1924eaaa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-pm-handoff.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/plans/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/growth/plans/[id]/route.js",
+      "hash": "9b6384f6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-plan-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/plans/route.js",
+      "type": "code_file",
+      "path": "src/app/api/growth/plans/route.js",
+      "hash": "0beb64cc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-plan-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/health/route.js",
       "type": "code_file",
       "path": "src/app/api/health/route.js",
@@ -4922,7 +4963,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "60a20f4c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -8718,6 +8759,69 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/application/marketing-authority.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/application/marketing-authority.js",
+      "hash": "daa304ed",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-authority.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/application/marketing-plan-service.js",
+      "hash": "c46ee971",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-plan.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "hash": "956a3c38",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-007",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-pm-handoff.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/components/marketing-contract.js",
@@ -8887,6 +8991,47 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/domain/marketing-plan-contract.js",
+      "hash": "c365bd0d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-plan-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "hash": "332aa97b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086",
+          "BR-001",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-plan.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -8963,11 +9108,13 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "4a9254c5",
+      "hash": "25079497",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-153",
+          "FR-154",
           "FR-149",
           "FR-150",
           "FR-143",
@@ -10994,7 +11141,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "11461bd0",
+      "hash": "011805fc",
       "status": "current"
     },
     {
@@ -12134,7 +12281,7 @@
       "path": "docs/domains/marketing/features/FR-153-strategy-plans.md",
       "title": "Marketing Strategy: draft to accountable execution",
       "hash": "891e961c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -12190,7 +12337,7 @@
       "version": "1.6.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "049e4a1c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12568,7 +12715,7 @@
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
       "hash": "c9a02e56",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -12732,7 +12879,7 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "820b5c77",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SRS",
@@ -17517,6 +17664,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/growth/plans",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/plans",
+      "path": "src/app/api/growth/plans/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/plans/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/plans/[id]",
+      "path": "src/app/api/growth/plans/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/plans/[id]/handoff",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/plans/[id]/handoff",
+      "path": "src/app/api/growth/plans/[id]/handoff/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/health",
       "type": "route",
       "kind": "api",
@@ -19950,6 +20121,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/marketing-plan.test.js",
+      "type": "test",
+      "path": "tests/integration/marketing-plan.test.js",
+      "hash": "59bb23a5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/marketing-pm-handoff.test.js",
+      "type": "test",
+      "path": "tests/integration/marketing-pm-handoff.test.js",
+      "hash": "074ea25d",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/msp-vault-memory-port.test.js",
       "type": "test",
       "path": "tests/integration/msp-vault-memory-port.test.js",
@@ -19960,7 +20145,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "54bdc8a1",
+      "hash": "6ac2f437",
       "status": "current"
     },
     {
@@ -20492,8 +20677,8 @@
       "id": "test:tests/unit/command-palette-index.test.js",
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
-      "hash": "2cac1178",
-      "status": "current"
+      "hash": "573c21b9",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/connection-health.test.js",
@@ -20737,8 +20922,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "dcfc0b61",
-      "status": "current"
+      "hash": "d67040d7",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -21662,6 +21847,27 @@
       "type": "test",
       "path": "tests/unit/marketing-strategy-ui.test.js",
       "hash": "d09a8ac0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-authority.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing/marketing-authority.test.js",
+      "hash": "d66a4bc2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing/marketing-plan-contract.test.js",
+      "hash": "fe9e50ae",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing/marketing-plan-route.test.js",
+      "hash": "7d0c8e3c",
       "status": "current"
     },
     {
@@ -26561,6 +26767,104 @@
     },
     {
       "from": "code:src/app/api/gates/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/route.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/route.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/plans/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -35107,6 +35411,111 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/application/marketing-authority.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-authority.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-authority.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-authority.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-authority.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/marketing-contract.js",
       "to": "req:FR-153",
       "type": "implements",
@@ -35242,6 +35651,69 @@
     {
       "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
       "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -35403,6 +35875,20 @@
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-154",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45595,6 +46081,27 @@
     {
       "from": "route:api:/api/gates",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/plans/[id]/handoff",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/plans/[id]",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/plans",
+      "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -57150,6 +57657,104 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "code:src/modules/marketing/application/marketing-plan-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "code:src/modules/marketing/infrastructure/marketing-plan-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-plan.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "code:src/app/api/growth/plans/[id]/handoff/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-pm-handoff.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/msp-vault-memory-port.test.js",
       "to": "code:src/modules/agent/msp-memory-port.js",
       "type": "tests",
@@ -57393,6 +57998,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -62507,6 +63126,13 @@
     {
       "from": "test:tests/unit/command-palette-index.test.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:FR-153",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -69976,6 +70602,139 @@
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "code:src/modules/marketing/application/marketing-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-authority.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "code:src/modules/marketing/domain/marketing-plan-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "code:src/app/api/growth/plans/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "code:src/app/api/growth/plans/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-plan-route.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
