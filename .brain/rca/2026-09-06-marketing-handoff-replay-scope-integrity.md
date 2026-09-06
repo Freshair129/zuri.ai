@@ -27,8 +27,9 @@ handoff row and loaded revision.
   `expectedVersion` for a viewer with no `visibleBusinessIds` entry.
 - The branch verified the envelope hash but did not require row and receipt
   `planVersionId`, `payloadHash`, and `envelopeHash` to agree.
+- It also did not recompute the immutable revision hash from `payloadJson`.
 - Integration regressions now cover hidden-Business replay refusal and a
-  persisted row-hash mismatch.
+  persisted row-hash and revision-content mismatch.
 
 ## Root Cause
 
@@ -47,8 +48,8 @@ hidden Business or tamper a persisted row field after commit.
 ## Proposed prevention
 
 1. Apply `seesBusiness` before both live and historical handoff preparation.
-2. Validate receipt-to-row-to-revision identity and payload/envelope hashes
-   before replaying a stored result.
+2. Validate receipt-to-row-to-revision identity, recompute the revision content
+   hash, and compare payload/envelope hashes before replaying a stored result.
 3. Keep hidden-scope and receipt-tamper regressions beside the handoff adapter.
 
 ## CHANGELOG
