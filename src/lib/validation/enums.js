@@ -203,6 +203,13 @@ export const LINE_OA_RICH_MENU_ACTIONS = ['SAVE_DRAFT', 'FREEZE', 'ARCHIVE']
 // registry entry here would read every one of those as a hand copy.
 export const LINE_OA_RICH_MENU_JOB_KINDS = ['PUBLISH', 'SET_DEFAULT', 'SET_ALIAS']
 export const LINE_OA_RICH_MENU_JOB_STAGES = ['CREATE', 'UPLOAD', 'APPLY', 'DONE']
+// FR-153 — LIFF app registry vocabularies (SRS LOS-RQ-070). Statuses live with
+// the aggregate (domain/line-oa-liff-app.js) for the same enum-copy reason as
+// the job statuses above.
+export const LINE_OA_LIFF_VIEW_SIZES = ['COMPACT', 'TALL', 'FULL']
+export const LINE_OA_LIFF_SCOPES = ['profile', 'openid', 'email', 'chat_message.write']
+export const LINE_OA_LIFF_BOT_PROMPTS = ['NONE', 'NORMAL', 'AGGRESSIVE']
+export const LINE_OA_LIFF_APP_ACTIONS = ['UPDATE', 'RECORD_LIFF_ID', 'ARCHIVE']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -244,6 +251,10 @@ export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STA
 export const zLineOaRichMenuActionType = z.enum(LINE_OA_RICH_MENU_ACTION_TYPES)
 export const zLineOaRichMenuAction = z.enum(LINE_OA_RICH_MENU_ACTIONS)
 export const zLineOaRichMenuJobKind = z.enum(LINE_OA_RICH_MENU_JOB_KINDS)
+export const zLineOaLiffViewSize = z.enum(LINE_OA_LIFF_VIEW_SIZES)
+export const zLineOaLiffScope = z.enum(LINE_OA_LIFF_SCOPES)
+export const zLineOaLiffBotPrompt = z.enum(LINE_OA_LIFF_BOT_PROMPTS)
+export const zLineOaLiffAppAction = z.enum(LINE_OA_LIFF_APP_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

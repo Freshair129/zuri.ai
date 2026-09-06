@@ -103,8 +103,10 @@ describe('OpenAPI document', () => {
       // /api/assets/register/{id}/depreciation (GET),
       // /api/assets/register/{id}/maintenance (GET, POST), and
       // /api/assets/register/{id}/dispose (GET, POST).
-      pathCount: 154,
-      operationCount: 199,
+      // FR-153 adds the LIFF app registry collection and item: two paths, four
+      // operations.
+      pathCount: 156,
+      operationCount: 203,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

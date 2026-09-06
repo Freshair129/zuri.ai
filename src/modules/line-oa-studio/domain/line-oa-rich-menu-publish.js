@@ -1,11 +1,14 @@
 import { parseAreas } from './line-oa-rich-menu'
+import { resolveLiffAction } from './line-oa-liff-app'
 
 // @req FR-152 — the pure translation of a frozen LineOaRichMenuVersion into
 //   the object LINE's rich menu API accepts, and the rules of the publish job
 //   that are decidable without a database: which kinds exist, which stage a
 //   kind starts at, and how each kind treats an ambiguous provider outcome.
 // @spec ADR-060 D6 (an allow-listed action vocabulary is translated, never
-//   passed through); ADR-061 D7 (an ambiguous create is UNKNOWN, never a
+//   passed through; a LIFF action resolves through the FR-153 registry to a
+//   liff.line.me URL and is refused when no ACTIVE app carries that code);
+//   ADR-061 D7 (an ambiguous create is UNKNOWN, never a
 //   retry that could duplicate; idempotent operations may retry)
 // @tested tests/unit/line-oa-rich-menu-publish.test.js
 
@@ -21,11 +24,12 @@ export function initialStage(kind) {
 }
 
 /**
- * Translate one tap action. `LIFF` has no URL until the LIFF app registry
- * exists, so it is reported as unresolved rather than invented; the job fails
- * before any call is made.
+ * Translate one tap action. `LIFF` resolves through the account's registry
+ * (FR-153) to `https://liff.line.me/{liffId}{path}`; with no ACTIVE app of that
+ * code it is reported by code rather than invented, and the job fails before
+ * any call is made.
  */
-export function translateAction(action) {
+export function translateAction(action, { liffApps = [] } = {}) {
   switch (action?.type) {
     case 'MESSAGE':
       return { ok: true, value: { type: 'message', ...(action.label ? { label: action.label } : {}), text: action.text } }
@@ -35,8 +39,11 @@ export function translateAction(action) {
       return { ok: true, value: { type: 'uri', ...(action.label ? { label: action.label } : {}), uri: action.uri } }
     case 'RICHMENU_SWITCH':
       return { ok: true, value: { type: 'richmenuswitch', ...(action.label ? { label: action.label } : {}), richMenuAliasId: action.richMenuAlias, data: action.data } }
-    case 'LIFF':
-      return { ok: false, code: 'LINE_OA_RICH_MENU_LIFF_UNRESOLVED' }
+    case 'LIFF': {
+      const resolved = resolveLiffAction(action, liffApps)
+      if (!resolved.ok) return { ok: false, code: resolved.code }
+      return { ok: true, value: { type: 'uri', ...(action.label ? { label: action.label } : {}), uri: resolved.uri } }
+    }
     default:
       return { ok: false, code: 'LINE_OA_RICH_MENU_ACTION_UNKNOWN' }
   }
@@ -47,12 +54,12 @@ export function translateAction(action) {
  * built. `name` is the menu's name; `selected` and `chatBarText` come from
  * the version; every area is translated through the allow-list.
  */
-export function buildLineRichMenuObject({ menu, version }) {
+export function buildLineRichMenuObject({ menu, version, liffApps = [] }) {
   const areas = Array.isArray(version?.areas) ? version.areas : parseAreas(version?.areasJson)
   if (!areas.length) return { ok: false, code: 'LINE_OA_RICH_MENU_NO_AREAS' }
   const translated = []
   for (const area of areas) {
-    const action = translateAction(area.action)
+    const action = translateAction(area.action, { liffApps })
     if (!action.ok) return { ok: false, code: action.code }
     translated.push({ bounds: area.bounds, action: action.value })
   }
