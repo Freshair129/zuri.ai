@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 283,
-    "routes": 141,
-    "test_files": 453
+    "docs": 304,
+    "routes": 153,
+    "test_files": 471
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 26,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -30,9 +30,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "ARCHITECTURE.md",
+      "details": "DOCUMENT-LINKS.md",
       "files": [
-        "docs/ARCHITECTURE.md"
+        "docs/DOCUMENT-LINKS.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -65,7 +65,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/agent/CHARTER.md"
+        "docs/domains/identity/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -76,7 +76,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/crm/CHARTER.md"
+        "docs/domains/knowledge/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -87,45 +87,12 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/identity/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I8",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/integration/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I9",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/knowledge/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I10",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
         "docs/domains/market-intelligence/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I8",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -136,7 +103,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I12",
+      "id": "I9",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -147,7 +114,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -158,7 +125,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I14",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -169,7 +136,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I15",
+      "id": "I12",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -180,7 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I16",
+      "id": "I13",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -191,7 +158,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I17",
+      "id": "I14",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -202,7 +169,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I18",
+      "id": "I15",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -213,18 +180,18 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I16",
       "severity": "info",
       "check": "id-stability",
-      "title": "486 id(s) pinned across 10 families",
-      "details": "ADR 61 · BR 25 · FEAT 19 · FR 151 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 486",
+      "title": "488 id(s) pinned across 10 families",
+      "details": "ADR 62 · BR 25 · FEAT 19 · FR 152 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 488",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I20",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -235,7 +202,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -246,7 +213,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I22",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -257,10 +224,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 283 document(s)",
+      "title": "table integrity checked in 304 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -268,7 +235,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I21",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -280,19 +247,19 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I25",
+      "id": "I22",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 53 file(s) that write audit events",
+      "title": "audit entityType checked in 59 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I26",
+      "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1137 column(s) across 86 model(s) against 40 migration(s)",
+      "title": "schema-migration drift checked: 1159 column(s) across 87 model(s) against 42 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

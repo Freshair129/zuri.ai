@@ -1,4 +1,18 @@
 ---
+id: ZAI:DOMAIN-LINE-OA-STUDIO
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+  - type: relates_to
+    target: ZAI:FR-148-P1
+  - type: relates_to
+    target: ZAI:FR-149-P2
+  - type: relates_to
+    target: ZAI:FR-150-P1
+  - type: relates_to
+    target: ZAI:FR-150-P3
 domain_id: DOM-LINE-OA-STUDIO
 domain: line-oa-studio
 modules:
@@ -7,6 +21,7 @@ owns_models:
   - LineOaAccount
   - LineOaRichMenu
   - LineOaRichMenuVersion
+  - LineOaRichMenuJob
   - LineConversationJob
 owns_routes:
   - src/app/(pm)/line-oa/**
@@ -16,15 +31,15 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.5.0"
+version: "0.7.0b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-05T18:00:00+07:00"
+updated_at: "2026-09-06T13:29:04+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
      `/line-oa` page tree and the `/api/line-oa/**` handlers away from
-     project-manager's `src/app/(pm)/**` + `src/app/api/**` catch-all. No route
-     exists yet: the claim is the lane, so no other domain lands one there. The
+     project-manager's `src/app/(pm)/**` + `src/app/api/**` catch-all. The claimed route trees now contain implemented account, job
+     and rich-menu handlers; this remains the owning lane. The
      generators read each list as an unbroken run of `  - value` lines, so
      annotations stay outside the frontmatter. -->
 
@@ -311,8 +326,16 @@ vocabulary in `domain/line-oa-rich-menu.js`; the only writer
 and `GET/PATCH /api/line-oa/rich-menus/[id]`. Publishing a frozen version to
 LINE, setting the default, aliases and links are transport jobs and wait for
 that slice; the external `richMenuId` column exists and is written by nothing
-yet. ADR-060 D14 phases the rest; each slice declares its own ids first and
-updates this charter's ownership claims in the same change.
+yet. Slice 4 (**FR-152**, 2026-09-06) closed that gap on ADR-061's terms:
+`LineOaRichMenuJob` is the Studio-owned durable ledger, the Integration lane's
+new rich menu port (`server-line-rich-menu-transport.js`) makes every LINE
+call, the server worker (`POST /api/line-oa/rich-menu-worker`, the FR-149
+bearer, the same supervised script) claims with compare-and-set and a lease
+and fences on the account's epoch, and an unconfirmed create is UNKNOWN for a
+publisher to acknowledge. The ADR-060 `LineOaTransportJob` sketch below is
+superseded for rich menus by this lane, as the ADR-061 note above says for
+conversations. ADR-060 D14 phases the rest; each slice declares its own ids
+first and updates this charter's ownership claims in the same change.
 
 ## References
 
@@ -327,6 +350,8 @@ updates this charter's ownership claims in the same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0 | 2026-09-06 | phase-1-building | Slice 4: claimed `LineOaRichMenuJob` as FR-152 lands — server-owned publish jobs on ADR-061; the integration lane gains the rich menu port; the ADR-060 transport-job sketch is superseded for rich menus | working-tree | Claude Fable 5.1 |
+| 0.7.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | base 4c0cbe3 | RWANG |
 | 0.5.0 | 2026-09-06 | phase-1-building | Slice 3: claimed `LineOaRichMenu` / `LineOaRichMenuVersion` in `owns_models` as FR-151 lands — designer data, pure rules, only writer, two routes; publishing stays with the transport-job slice | working-tree | Claude Fable 5.1 |
 | 0.4.1 | 2026-09-05 | phase-1-building | Slice 2: the account's `bindingStatus` port defaults to the agent lane's FR-147 read contract; LIVE is now reachable; the read policy's SmartGift pin recorded as the remaining gap | working-tree | Claude Fable 5.1 |
 | 0.4.0 | 2026-09-05 | phase-1-building | Claimed `LineOaAccount` in `owns_models` as FR-146 slice 1 lands: model, only writer, two routes, publisher role, reserved domain slot, integration read contract; binding reader, pages, jobs and quota still open | working-tree | Claude Fable 5.1 |
@@ -334,3 +359,7 @@ updates this charter's ownership claims in the same change.
 | 0.3.0 | 2026-09-05 | proposed-phase-0 | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`), `LINE_OA_PUBLISHER` confirmed | working-tree | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed-phase-0 | Owner's answer on edge devices: added `transportMode` EDGE / CLOUD on the aggregate, the CLOUD worker over the integration lane's Vault-resolved LINE port, the published-config pull for edge runtimes and the audited mode switch | working-tree | Claude Code |
 | 0.1.0 | 2026-09-05 | proposed-phase-0 | Established the LINE OA Studio lane: multi-account aggregate, owned concepts, explicit external boundaries, contract direction and runtime interaction; no models or routes claimed as existing | working-tree | Claude Code |
+
+## FEAT-019 execution handoffs
+
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.

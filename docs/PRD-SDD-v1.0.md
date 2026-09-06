@@ -1,3 +1,15 @@
+---
+id: ZAI:PRD-SDD
+version: "1.156.0b"
+status: draft
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+---
+
 # Zuri V2 — Project Manager Module: PRD & SDD
 
 > **Scope of this document: the Project Manager module of Zuri V2**, not the whole
@@ -7,7 +19,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.154.0b |
+| **Version** | 1.156.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -188,6 +200,7 @@
 | 1.152.0b | 2026-09-06 | Claude Fable 5.1 | Statements unchanged. Under **FR-109** / **FR-081**: the `RawExternalRecord.artifactId` column AC-109.3 added on 2026-08-29 had no migration in either tree — the dev database is SQLite under `prisma db push`, so it existed locally and every test passed, while production Supabase, migrated only from `supabase/migrations/`, lacked it and `GET /api/backup/export` failed there for seven days. Added the idempotent Supabase migration `20260906090000_raw_external_record_artifact_id.sql` (**not applied**; owner-instructed operator step, ADR-057) and its SQLite twin, and a new preflight guard `schema-migration-drift` (Check 18) that compares the generated `prisma/schema.postgres.prisma` against every `CREATE TABLE` / `ALTER TABLE … ADD COLUMN` in `supabase/migrations/*.sql` — comment-stripped, static, CI-safe — with a shrink-only baseline of the 33 pre-existing gaps (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream` columns) and a unit test that removes the repairing migration to prove the check fires. RCA: `.brain/rca/2026-09-06-a-schema-column-with-no-migration.md` |
 | 1.153.0b | 2026-09-06 | Claude Fable 5.1 | Statements unchanged. The `artifactId` migration was applied to production by the deploy session, which also verified that every column in the `schema-migration-drift` baseline already existed there (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, eight `Workstream` columns — created outside the lineage). Added the recording migration `20260906120000_record_pre_lineage_tables_and_columns.sql` (all `IF NOT EXISTS` / guarded; a no-op on production, **not applied**) and the SQLite twin for the two auth tables under **FR-076** / **FR-122** / **FR-036** / **FR-046**; the baseline is repaid to zero. RCA updated with the resolution |
 | 1.154.0b | 2026-09-06 | Claude Fable 5.1 | Declared and implemented **FR-151** — the LINE OA rich menu designer (`LineOaRichMenu` + `LineOaRichMenuVersion`), bundled into **FEAT-018** — as Phase 1 slice 3 of ADR-060: identity, numbered versions immutable once frozen, allow-listed tap actions, LINE image-size and bounds validation, `FileAsset` image references, the freeze gate, archive, publisher-only writes, compare-and-swap and audit. Migrations in both trees in the same change (`schema-migration-drift` green); production SQL not applied. Publishing to LINE is explicitly the transport-job requirement's, so no `richMenuId` is written here |
+| 1.155.0b | 2026-09-06 | Claude Fable 5.1 | Declared and implemented **FR-152** — server-owned rich menu publish jobs (`LineOaRichMenuJob`), bundled into **FEAT-018** — as Phase 1 slice 4, designed on ADR-061 rather than ADR-060's transport sketch: the Studio owns the durable job, the Integration lane calls LINE through a new rich menu port, the server worker claims with compare-and-set and a lease and fences on the account's epoch; an unconfirmed create is UNKNOWN and acknowledged, idempotent stages retry. FR-151's `externalRichMenuId` is now written by this lane. Migrations in both trees; production SQL not applied; not exercised against LINE |
 
 ## Referenced Standards
 
@@ -382,6 +395,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-149 | Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. | 🟠 implementing ADR-061 |
 | FR-150 | Optional Edge conversation execution — account execution placement is SERVER or EDGE independently of LINE transport. Business-authenticated devices pull versioned, leased, minimized conversation jobs and return text; they receive no LINE credentials, recipient identifiers or send authority. Offline Edge leaves durable waiting work; no automatic transfer to an external model. | 🟠 implementing ADR-061 |
 | FR-151 | LINE OA rich menu designer — `LineOaRichMenu` and `LineOaRichMenuVersion`, the Studio-owned design record of one rich menu per LINE OA Studio account, many per account (ADR-060 D3; SRS LOS-RQ-040, LOS-RQ-041, LOS-RQ-016). A menu is the identity (`code` unique per Tenant, optional `alias` unique per account, default flag, DRAFT → READY → ARCHIVED); every body is a numbered version carrying the LINE layout (1×1, 2×1, 2×2, 2×3, 3×1, 1×2), chat-bar text (≤ 14 characters), up to twenty tap areas whose actions are an allow-listed vocabulary (message, postback, https/tel URI, LIFF app reference, rich-menu switch by alias) and never a free-form object, the declared image size (one of LINE's six) and a `FileAsset` image reference validated as a same-Business, live PNG/JPEG within LINE's 1 MiB — bytes are never copied (FR-045). Saving edits the open draft in place and reports every reason it could not be deployed (unsupported image size, an area outside the image, no areas, no image); freezing refuses a draft with any such reason and makes the version immutable, so the next save opens the next numbered version; archiving retires the open draft and keeps every frozen version. Writes need Business OWNER or `LINE_OA_PUBLISHER`, reads need Business visibility plus the `line-oa` domain, every refusal is the FR-072 404, every write is a compare-and-swap on the menu's `version` with one audit row. The external `richMenuId` is a nullable attribute of the deployed version (BR-002), written by the transport lane; this requirement never talks to LINE — publishing a frozen version is the `LineOaTransportJob` requirement's. | 🟠 implemented locally 2026-09-06 — both models (both schemas, additive migrations; production SQL **not applied**), the only writer `line-oa-rich-menu-service.js`, `GET/POST /api/line-oa/rich-menus` and `GET/PATCH /api/line-oa/rich-menus/[id]`, snapshot coverage; one integration suite (AC-151.1–.7) and three unit suites. Not claimed: the designer page, publish/default/alias transport jobs, the external `richMenuId` write |
+| FR-152 | LINE OA rich menu publish jobs, server-owned — `LineOaRichMenuJob`, the durable ledger through which a frozen `LineOaRichMenuVersion` (FR-151) reaches LINE under ADR-061's server-owned transport: a publisher queues one job per menu (`PUBLISH` the newest FROZEN version; `SET_DEFAULT` or `SET_ALIAS` a PUBLISHED one that carries an external `richMenuId`) on an account that is CONNECTED, CLOUD and `serverEnabled`, with the menu's `version` as the compare-and-swap and at most one open job per menu; the server worker (`POST /api/line-oa/rich-menu-worker`, same bearer and bounded-tick contract as FR-149's worker, ticked by the same supervised script) claims the oldest due job with compare-and-set and a bounded lease, fences on the account's status, transport mode, server flag and `transportEpoch` before any external call, resolves the account credential per attempt through the Integration lane's secret mount, and walks the job's stages through the Integration-owned rich menu port (create → upload image → done; or apply). Acceptance is the provider's HTTP acceptance, never a delivery claim: on it the version becomes PUBLISHED with its `richMenuId` and the previously PUBLISHED version RETIRED, or the account's single default moves, or the alias is set. Idempotency decides ambiguity — an unconfirmed create (timeout, unreadable id) ends `UNKNOWN`, visible to a publisher who acknowledges it and never retried because a second create would duplicate the menu; an unconfirmed or 5xx upload, default or alias returns to QUEUED with exponential backoff and reuses the persisted id; a 4xx is FAILED with the id kept for cleanup; an expired lease is UNKNOWN. `LIFF` actions have no URL until the LIFF registry exists and are refused at queue time. No token is stored on the job, returned by any route, or written to an audit row. | 🟠 implemented locally 2026-09-06 — model (both schemas, additive migrations; production SQL **not applied**), the Integration rich menu port, the only writer and worker `line-oa-rich-menu-jobs.js`, `GET/POST/PATCH /api/line-oa/rich-menus/[id]/jobs`, the worker route and script tick, snapshot coverage; one integration suite (AC-152.1–.7), three unit suites. Not exercised against LINE; activation needs FR-149's credential mount and worker deployment |
 
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
@@ -620,3 +634,9 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 
 ไม่มี model lifecycle/model cards ใน repo นี้ (ไม่มีการ train/host โมเดล) — จะเพิ่ม
 เมื่อ Zuri.Ai ฝัง agent จริงในเฟสถัดไป
+
+## FEAT-019 phase documentation — 2026-09-06
+
+[FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
+
+Version diff 1.154.0b → 1.155.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.

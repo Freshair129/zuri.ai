@@ -1,13 +1,24 @@
 ---
+id: ZAI:LINE-OA-SRS
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:FEAT-019
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
 domain: line-oa-studio
 stable_domain_id: DOM-LINE-OA-STUDIO
 status: proposed
-version: 0.3.1
-date: 2026-09-05
+version: "0.4.1b"
+date: 2026-09-06
 architecture: domain-driven-modular-monolith
 ---
 
 # SRS — LINE OA Studio domain
+
+> Current conversation boundary: ADR-061 amends earlier EDGE/CLOUD topology for server-enabled conversations. Studio owns account/job state, Integration owns LINE transport, CRM owns history and Agent supplies answer contracts. FEAT-019 / FR-148..150 are distinct from FEAT-018 rich-menu/account design. [Phase and rollout map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md). Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence.
+
 
 **System:** Zuri AI (`zuri-ai`)
 **Document type:** Software Requirements Specification
@@ -15,7 +26,7 @@ architecture: domain-driven-modular-monolith
 **Stable product-domain ID:** `DOM-LINE-OA-STUDIO`
 **Technical owner ID:** `TD-LINE-OA-STUDIO`
 **Status:** Proposed (Phase 0 declaration)
-**Version:** Draft v0.3
+**Version:** Draft v0.4.0b
 
 > **Clause-label note.** `LOS-RQ-*` labels below are local clause labels for
 > this proposal, in the convention CR-014 used for `AM-PRD-*`. They are **not**
@@ -524,6 +535,7 @@ No question remains open; the next decision is acceptance of ADR-060 itself.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 0.4.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | RWANG |
 | 0.3.1 | 2026-09-05 | proposed | Added LOS-RQ-087 (one send, one receipt path: FR-093 for reply-turn sends, the job result for Studio-initiated sends) and put the scheduler section in order as §5.7 | Claude Code |
 | 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (LOS-RQ-072), a Studio-owned scheduler (§5.7, LOS-RQ-085/086; 065 and 084 reworded), `LINE_OA_PUBLISHER` confirmed | Claude Code |
 | 0.2.0 | 2026-09-05 | proposed | Owner's answer on edge devices: transport mode per account (LOS-RQ-017..019, 029), published-config pull for edge runtimes (LOS-RQ-067), open questions 1–2 answered | Claude Code |

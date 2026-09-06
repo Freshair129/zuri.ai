@@ -27,10 +27,12 @@ const ROUTES = [
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
-  '/assets', '/assets/receiving', '/assets/register',
-  // @req FR-146 — the reserved LINE OA Studio slot; like `/commerce` above it
-  // has no page yet, and `failOnStatusCode: false` below tolerates the 404.
+  '/assets', '/assets/receiving', '/assets/register', '/assets/scanner',
+  // @req FR-146, FR-149, FR-151 — both LINE OA Studio pages exist now. This
+  // comment used to say the slot had no page and `failOnStatusCode: false`
+  // tolerated its 404; that stopped being true when the console landed.
   '/line-oa',
+  '/line-oa/rich-menus',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

@@ -68,7 +68,63 @@ COLUMN` across `supabase/migrations/*.sql` — comment-stripped, string literals
 blanked, `IF NOT EXISTS` and quoting tolerated, DDL inside `DO $ … $` blocks
 included — and raises a CRITICAL for any declared column no migration creates.
 It is a static diff and touches no database, so CI runs it on every pull
-request. It deliberately anchors on the generated Postgres schema and not on
+request.
+
+**What the guard cannot see, and the check that replaces it.** Check 18 compares
+columns. It says nothing about the *security block* a new table needs — row
+security enabled and forced, the `zuri_app_runtime_all` policy, and `REVOKE ALL
+… FROM public, anon, authenticated, service_role` — and no static check can, because
+several migrations create that policy inside a `DO` loop over `pg_class` rather
+than per table. Scanning the SQL text for `CREATE POLICY` reports 75 of 84 tables
+as missing one; on the database, 83 of 84 have one. A file-based guard here would
+be almost entirely false positives and would be muted, which is the failure this
+document already warns about one section up.
+
+So the check is operational, not static. **After applying any migration that
+creates a table, and before reporting the apply as done, ask the database:**
+
+```sql
+select c.relname,
+       c.relrowsecurity                                              as rls,
+       c.relforcerowsecurity                                         as forced,
+       (select count(*) from pg_policies p where p.tablename = c.relname) as policies,
+       (select count(*) from information_schema.role_table_grants g
+         where g.table_name = c.relname and g.grantee = 'service_role')  as service_role_privs
+from pg_class c join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relkind = 'r' and c.relname = '<NewTable>';
+```
+
+Expected: `rls=t forced=t policies>=1 service_role_privs=0`.
+
+**A version is an identity, not a label — and git will not defend it.**
+`supabase_migrations.schema_migrations` is keyed on the 14-digit version. Two
+migration files may carry the same one with different names, and git merges both
+without a conflict, because nothing about them overlaps textually. Afterwards,
+whichever ran first owns the receipt and every version-keyed tool — `supabase db
+push` included — reads the other as already applied and skips it in silence.
+Check 18 cannot see it either: it asks whether *some* file creates a column, and
+one does.
+
+This happened twice on 2026-09-06. `20260906120000` was claimed by
+`record_pre_lineage_tables_and_columns` and `server_line_jobs`, caught in review
+and renumbered before merge. `20260906180000` was claimed by
+`line_conversation_job_rls_policy` and `line_oa_rich_menu_job`, and was **not**
+caught: both merged, the first was applied and receipted, the second's DDL was
+applied with no receipt it could own, and the lineage stopped describing the
+database it governs. Both pairs came from branches cut before the other's file
+existed, which is the ordinary way two people choose the same timestamp.
+
+`tests/unit/migration-version-uniqueness.test.js` now fails on a duplicate
+prefix in either migration directory. Unlike the security-block check above,
+this one is exact and static — it compares file names and nothing else — so it
+belongs in CI rather than in a runbook. **`policies=0` with
+`rls=t` is the dangerous shape** — it denies every row to every role that is not
+the table owner and does not hold BYPASSRLS, so it is invisible while the runtime
+connects as `postgres` and fails closed the moment it does not. `LineConversationJob`
+landed exactly that way on 2026-09-06 and was repaired by
+`20260906180000_line_conversation_job_rls_policy.sql`; the same apply also showed
+`service_role_privs=7`, because Supabase default privileges re-grant on every new
+table and only a per-table `REVOKE` in the creating migration takes it back. It deliberately anchors on the generated Postgres schema and not on
 `prisma/schema.prisma`: a check on the dev schema would fire on every ordinary
 `db push` change and be muted within a week. Presence only — types, defaults
 and indexes are out of its scope.

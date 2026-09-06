@@ -1,8 +1,20 @@
+---
+id: ZAI:FEATURES
+version: "1.23.0b"
+status: active
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+---
+
 # Features (FEAT registry)
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.21.0b |
+| **Version** | 1.23.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -37,7 +49,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
 | FEAT-017 | Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash | FR-143, FR-144 | building |
-| FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes and the rich menu designer (ADR-060) | FR-146, FR-147, FR-151 | building |
+| FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer and its server-owned publish jobs (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
@@ -55,6 +67,8 @@ Version diff 1.18.0b → 1.19.0b (2026-09-05): FEAT-018 is building. FR-146's fi
 Version diff 1.19.0b → 1.20.0b (2026-09-05): FEAT-018 gains FR-147, the agent lane's read-only binding status contract, wired as FR-146's default binding port — an account can now read LIVE when the read role sees an ACTIVE, in-window binding. The contract reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN and nothing finer, because the read policy cannot see more. Still not claimed: the `/line-oa` pages, transport jobs, quota, production application of the migration, and a per-Tenant read policy (today pinned to SmartGift).
 
 Version diff 1.20.0b → 1.21.0b (2026-09-06): FEAT-018 gains FR-151, the rich menu designer — `LineOaRichMenu` with numbered `LineOaRichMenuVersion` bodies that freeze into immutable versions, LINE layout and image-size rules, allow-listed tap actions, `FileAsset` image references and the same publisher-only, 404-shaped, compare-and-swap write discipline as the account. Not claimed: the designer page, publishing a frozen version to LINE (the transport-job requirement), default/alias/link jobs, and production application of the migration.
+
+Version diff 1.21.0b → 1.22.0b (2026-09-06): FEAT-018 gains FR-152, the server-owned publish jobs that carry a frozen rich menu version to LINE under ADR-061 — queued by a publisher, claimed by the server worker with compare-and-set and a lease, executed through the Integration lane's rich menu port, settled by the provider's acceptance with ambiguity classified by idempotency (an unconfirmed create is UNKNOWN; upload, default and alias retry). Not claimed: a real LINE canary, the designer page, LIFF URL resolution, production application of the migration.
 
 ## Readiness Dashboard presentation metadata
 
@@ -659,3 +673,9 @@ writing one sentence here, or the governance chain stops.
 ]
 ```
 <!-- readiness-metadata:end -->
+
+## FEAT-019 phase documentation — 2026-09-06
+
+[FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
+
+Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
