@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
+import { qualifyDocumentIds, assertUniqueNodeIds } from './doc-identities.mjs'
 import { generateDomainState } from './domain-state.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
@@ -239,6 +240,8 @@ function build() {
     nodes.push(docNode(file, type, isAdr ? 'spec' : 'doc'))
   }
 
+  qualifyDocumentIds(nodes)
+
   // Features (FEAT) are product capabilities bundling one or more FRs — a
   // separate id family from requirements (owner decision, ADR-025 rev 2). The
   // registry is docs/FEATURES.md; rows are `| FEAT-xxx | name | FR-a, FR-b | status |`.
@@ -309,7 +312,13 @@ function build() {
   // **Relates to:**) → supersedes · relates edges. This is what makes "what replaced what"
   // and "where did this come from" answerable from the graph (RWANG lineage layer).
   const docLike = nodes.filter((n) => ['adr', 'document', 'appendix', 'roadmap'].includes(n.type))
-  const byBasename = new Map(docLike.map((n) => [n.id.slice(n.id.indexOf(':') + 1), n.id]))
+  const byDocumentPath = new Map(docLike.map(n => [n.path, n.id]))
+  const byBasename = new Map()
+  for (const n of docLike) {
+    const name = path.basename(n.path, '.md')
+    if (!byBasename.has(name)) byBasename.set(name, [])
+    byBasename.get(name).push(n.id)
+  }
   const adrById = new Map()
   for (const n of docLike) {
     const m = /:(ADR-\d{3})/.exec(n.id)
@@ -326,8 +335,7 @@ function build() {
   }
 
   for (const file of docFiles) {
-    const base = path.basename(file, '.md')
-    const selfId = (base.startsWith('ADR-') ? 'spec:' : 'doc:') + base
+    const selfId = nodes.find(n => n.path === rel(file))?.id
     if (hasLinkMetadata(read(file))) continue
     // Wikilinks have exact identities (including phase suffixes); the shared
     // resolver handles them. Legacy ID regexes would truncate those suffixes.
@@ -335,7 +343,12 @@ function build() {
       const kind = m[1].toLowerCase()
       const targets = new Set()
       for (const l of m[2].matchAll(MD_LINK)) {
-        const id = byBasename.get(path.basename(l[1], '.md'))
+        if (/^[a-z][a-z0-9+.-]*:/i.test(l[1])) continue
+        const target = decodeURIComponent(l[1].split('#')[0]).replaceAll('\\', '/')
+        const exact = byDocumentPath.get(target) || byDocumentPath.get(path.posix.normalize(path.posix.join(path.posix.dirname(rel(file)), target)))
+        const candidates = byBasename.get(path.posix.basename(target, '.md')) || []
+        if (!exact && candidates.length > 1) throw Error(`${rel(file)}: Ambiguous link target: ${l[1]}`)
+        const id = exact || candidates[0]
         if (id) targets.add(id)
       }
       for (const a of m[2].match(ADR_NUM) || []) if (adrById.has(a)) targets.add(adrById.get(a))
@@ -405,6 +418,7 @@ function build() {
 
   // Drop edges pointing at nodes that do not exist (e.g. @tested with a bare
   // filename): rewrite them onto the real test path when unambiguous.
+  assertUniqueNodeIds(nodes)
   const links = collectDocumentLinks(docFiles.map(file => ({ path: rel(file), body: read(file), nodeId: nodes.find(n => n.path === rel(file))?.id })), nodes)
   if (links.findings.length) throw Error(links.findings.map(f => `${f.path}: ${f.message}`).join('\n'))
   for (const e of links.edges) if (!edges.some(old => old.from === e.from && old.to === e.to && old.type === e.type)) edges.push(e)

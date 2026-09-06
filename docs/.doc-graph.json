@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1920,
-    "total_edges": 7446,
+    "total_nodes": 1926,
+    "total_edges": 7480,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 37,
       "feature": 19,
-      "route": 215,
+      "route": 216,
       "model": 88,
       "requirement": 310,
-      "test": 474,
-      "code_file": 523
+      "test": 477,
+      "code_file": 525
     },
     "coverage": {
       "requirements": 310,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (143/143)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 523,
+      "annotated_code_files": 525,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -57,12 +57,7 @@
     "changed": [
       "doc:A-api-spec",
       "doc:B-db-schema",
-      "doc:README",
-      "doc:CONTEXT-MAP",
-      "doc:SRS",
       "domain:line-oa-studio",
-      "doc:CONTEXT-MAP",
-      "doc:SRS",
       "doc:FEATURES",
       "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
@@ -1628,6 +1623,28 @@
         ],
         "@tested": [
           "tests/unit/asset-maintenance-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/dispose/route.js",
+      "hash": "ac429ad4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-disposal-routes.test.js"
         ]
       }
     },
@@ -5934,6 +5951,28 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-disposal-service.js",
+      "hash": "03a283ab",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-disposal-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-evidence-service.js",
@@ -6166,7 +6205,7 @@
       "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
-      "hash": "4f3b0b20",
+      "hash": "ac3671a0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8826,7 +8865,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "054f0380",
+      "hash": "ace10e1d",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -10853,9 +10892,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.41.0b",
+      "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "ad335e0e",
+      "hash": "bfbf3ed2",
       "status": "changed"
     },
     {
@@ -10911,30 +10950,6 @@
       "doc_status": "Draft",
       "hash": "047a409c",
       "status": "changed"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/asset-management/CONTEXT-MAP.md",
-      "title": "Asset Management context map",
-      "hash": "5b5e4cbd",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
-      "title": "Context map — LINE OA Studio",
-      "hash": "bcfd30d0",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CONTEXT-MAP",
-      "type": "document",
-      "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
-      "title": "Context map — Market Intelligence",
-      "hash": "8ae199b0",
-      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11057,6 +11072,110 @@
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "570c3551",
       "status": "current"
+    },
+    {
+      "id": "doc:docs/change-requests/README",
+      "type": "document",
+      "path": "docs/change-requests/README.md",
+      "title": "`docs/change-requests/` — intake, not governance",
+      "hash": "dc4d3ed8",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:README",
+        "source_path": "docs/change-requests/README.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/asset-management/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/asset-management/CONTEXT-MAP.md",
+      "title": "Asset Management context map",
+      "hash": "5b5e4cbd",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/asset-management/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/asset-management/SRS",
+      "type": "document",
+      "path": "docs/domains/asset-management/SRS.md",
+      "title": "SRS — Asset Management domain",
+      "hash": "0081661e",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/asset-management/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
+      "title": "Context map — LINE OA Studio",
+      "hash": "bcfd30d0",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/line-oa-studio/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/SRS.md",
+      "title": "SRS — LINE OA Studio domain",
+      "hash": "80ce05cb",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/line-oa-studio/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/market-intelligence/CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
+      "title": "Context map — Market Intelligence",
+      "hash": "8ae199b0",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:CONTEXT-MAP",
+        "source_path": "docs/domains/market-intelligence/CONTEXT-MAP.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/market-intelligence/SRS",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/SRS.md",
+      "title": "SRS — Market Intelligence Domain",
+      "hash": "8a5ef02c",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SRS",
+        "source_path": "docs/domains/market-intelligence/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/roadmap/line-oa-business-agent/README",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/README.md",
+      "title": "Implementation Plan: LINE OA Business Agent",
+      "hash": "58b958ec",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:README",
+        "source_path": "docs/roadmap/line-oa-business-agent/README.md"
+      }
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -12000,7 +12119,7 @@
       "type": "document",
       "path": "docs/GOVERNANCE-LINK-METADATA.md",
       "title": "Document link metadata",
-      "hash": "4c363d60",
+      "hash": "5994df64",
       "status": "current"
     },
     {
@@ -12450,22 +12569,6 @@
       "status": "current"
     },
     {
-      "id": "doc:README",
-      "type": "document",
-      "path": "docs/change-requests/README.md",
-      "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "dc4d3ed8",
-      "status": "changed"
-    },
-    {
-      "id": "doc:README",
-      "type": "roadmap",
-      "path": "docs/roadmap/line-oa-business-agent/README.md",
-      "title": "Implementation Plan: LINE OA Business Agent",
-      "hash": "58b958ec",
-      "status": "current"
-    },
-    {
       "id": "doc:ROADMAP",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
@@ -12507,30 +12610,6 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "01a84952",
-      "status": "current"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/asset-management/SRS.md",
-      "title": "SRS — Asset Management domain",
-      "hash": "0081661e",
-      "status": "changed"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/line-oa-studio/SRS.md",
-      "title": "SRS — LINE OA Studio domain",
-      "hash": "80ce05cb",
-      "status": "changed"
-    },
-    {
-      "id": "doc:SRS",
-      "type": "document",
-      "path": "docs/domains/market-intelligence/SRS.md",
-      "title": "SRS — Market Intelligence Domain",
-      "hash": "8a5ef02c",
       "status": "current"
     },
     {
@@ -16839,6 +16918,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/register/[id]/dispose",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/dispose",
+      "path": "src/app/api/assets/register/[id]/dispose/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/assets/register/[id]/maintenance",
       "type": "route",
       "kind": "api",
@@ -19659,7 +19746,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "262b78be",
+      "hash": "eb92a4d3",
       "status": "changed"
     },
     {
@@ -19905,6 +19992,20 @@
       "type": "test",
       "path": "tests/unit/asset-depreciation.test.js",
       "hash": "62b77c27",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-disposal-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-disposal-routes.test.js",
+      "hash": "dc08eda7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-disposal-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-disposal-service.test.js",
+      "hash": "00c8e1f0",
       "status": "current"
     },
     {
@@ -20398,10 +20499,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/doc-identities.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-identities.test.js",
+      "hash": "76a914ac",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/doc-links-cli.test.js",
       "type": "test",
       "path": "tests/unit/doc-links-cli.test.js",
-      "hash": "0230ea93",
+      "hash": "ebb01d46",
       "status": "current"
     },
     {
@@ -24413,6 +24521,48 @@
     {
       "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
       "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -31028,6 +31178,48 @@
     {
       "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
       "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38397,29 +38589,99 @@
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "feat:FEAT-019",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:CONTEXT-MAP",
+      "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
       "type": "relates",
       "source": "metadata",
       "status": "current"
     },
     {
-      "from": "doc:docker-ngrok",
-      "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "feat:FEAT-019",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/domains/line-oa-studio/SRS",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-03-IDENTITY-PERMISSION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/roadmap/line-oa-business-agent/README",
+      "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40581,55 +40843,6 @@
       "status": "current"
     },
     {
-      "from": "doc:README",
-      "to": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-03-IDENTITY-PERMISSION",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:README",
-      "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
       "from": "doc:ROADMAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
@@ -40669,27 +40882,6 @@
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "type": "references",
       "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
-      "type": "relates",
-      "source": "metadata",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "feat:FEAT-019",
-      "type": "relates",
-      "source": "metadata",
-      "status": "current"
-    },
-    {
-      "from": "doc:SRS",
-      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
-      "type": "relates",
-      "source": "metadata",
       "status": "current"
     },
     {
@@ -40786,6 +40978,20 @@
     {
       "from": "domain:asset-management",
       "to": "doc:DATA-PIPELINE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:docs/domains/asset-management/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:docs/domains/asset-management/SRS",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40893,6 +41099,20 @@
       "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -44334,6 +44554,13 @@
     },
     {
       "from": "route:api:/api/assets/register/[id]/depreciation",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/dispose",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -47796,6 +48023,20 @@
       "type": "supersedes",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "doc:docs/domains/line-oa-studio/SRS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
@@ -58599,6 +58840,104 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/dispose/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-disposal-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-disposal-service.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/asset-evidence-extractor-contract.test.js",
       "to": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "type": "tests",
@@ -62108,6 +62447,13 @@
     {
       "from": "test:tests/unit/design-system.test.js",
       "to": "req:SDD-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-identities.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
