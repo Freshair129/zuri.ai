@@ -54,9 +54,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:INTERFACE-INVENTORY"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -14499,7 +14497,7 @@
       "version": "1.11.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "531d81fe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",

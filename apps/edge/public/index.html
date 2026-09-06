@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zuri Edge Device Control (Desktop Node)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand-amber: #E8820C;
+      --brand-hover: #F09420;
+      --brand-dark: #B86A08;
+      --brand-tint: #FDE8D0;
+      --brand-surface: #FFF8F0;
+      --bg-dark: #0F172A;
+      --card-dark: #1E293B;
+      --border-dark: #334155;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --emerald: #10B981;
+      --rose: #F43F5E;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', 'IBM Plex Sans Thai', sans-serif; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    header {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-dark);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--brand-amber), var(--brand-dark));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(232, 130, 12, 0.3);
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .status-badge.offline {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Drop Zone */
+    .dropzone {
+      border: 2px dashed var(--border-dark);
+      border-radius: 14px;
+      padding: 32px 20px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--brand-amber);
+      background: rgba(232, 130, 12, 0.05);
+    }
+
+    .dropzone-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .dropzone-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .dropzone-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--brand-amber);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--brand-hover);
+      box-shadow: 0 2px 10px rgba(232, 130, 12, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-dark);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+    }
+
+    .info-label { color: var(--text-muted); }
+    .info-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-main); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: var(--card-dark);
+      border: 1px solid var(--brand-amber);
+      border-radius: 12px;
+      font-size: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: none;
+      animation: slideUp 0.3s ease;
+      z-index: 100;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">Z</div>
+      <div>
+        <div class="brand-title">Zuri Edge Device Node</div>
+        <div class="brand-sub">Zero-Trust Local Runtime & Headless AI Coordinator</div>
+      </div>
+    </div>
+    <div id="statusBadge" class="status-badge offline">
+      <div class="status-dot"></div>
+      <span id="statusText">ยังไม่ได้จับคู่ (NOT PAIRED)</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Card 1: 1-Click Drag & Drop Pairing -->
+    <div class="card">
+      <div class="card-title">🔐 จับคู่อุปกรณ์แบบ 1-Click (Drag & Drop Pairing)</div>
+      <div class="dropzone" id="dropZone">
+        <div class="dropzone-icon">📥</div>
+        <div class="dropzone-text">ลากไฟล์ <code style="color: var(--brand-amber);">zuri-edge-pairing-*.json</code> มาวางที่นี่</div>
+        <div class="dropzone-sub">หรือคลิกเพื่อเลือกไฟล์ที่ดาวน์โหลดมาจาก Zuri Web Console</div>
+        <input type="file" id="fileInput" accept=".json" style="display: none;">
+      </div>
+    </div>
+
+    <!-- Card 2: Status & Telemetry Info -->
+    <div class="card">
+      <div class="card-title">📡 ข้อมูลการเชื่อมต่อ Zuri Cloud & Edge Telemetry</div>
+      <div class="info-row">
+        <span class="info-label">Device ID:</span>
+        <span class="info-value" id="dispDeviceId">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Cloud Base URL:</span>
+        <span class="info-value" id="dispCloudUrl">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Last Heartbeat:</span>
+        <span class="info-value" id="dispHeartbeat">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Execution Mode:</span>
+        <span class="info-value" style="color: var(--brand-amber);" id="dispMode">HEADLESS_PLAN (Subscription)</span>
+      </div>
+
+      <div style="margin-top: 16px; display: flex; gap: 10px;">
+        <button class="btn btn-primary" id="btnHeartbeat">⚡ ทดสอบ Heartbeat ทันที</button>
+        <button class="btn btn-secondary" id="btnCheckCodex">🤖 เช็ค Codex / Claude CLI</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const isTauri = Boolean(window.__TAURI__);
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    async function invokeCmd(cmd, args = {}) {
+      if (isTauri && window.__TAURI__.core?.invoke) {
+        return await window.__TAURI__.core.invoke(cmd, args);
+      }
+      console.log('Mock Tauri invoke:', cmd, args);
+      return { success: true, message: 'Mock response in browser mode' };
+    }
+
+    async function loadStatus() {
+      if (isTauri) {
+        try {
+          const cfg = await invokeCmd('get_edge_status');
+          updateUI(cfg);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    function updateUI(cfg) {
+      if (!cfg) return;
+      document.getElementById('dispDeviceId').textContent = cfg.device_id || '—';
+      document.getElementById('dispCloudUrl').textContent = cfg.cloud_base_url || '—';
+      document.getElementById('dispHeartbeat').textContent = cfg.last_heartbeat_at || 'ยังไม่เคยส่ง';
+      document.getElementById('dispMode').textContent = `${cfg.answer_mode} (${cfg.headless_bin})`;
+
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+      if (cfg.is_paired) {
+        badge.className = 'status-badge';
+        text.textContent = 'เชื่อมต่อแล้ว (PAIRED / READY)';
+      } else {
+        badge.className = 'status-badge offline';
+        text.textContent = 'ยังไม่ได้จับคู่ (NOT PAIRED)';
+      }
+    }
+
+    // Dropzone logic
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) processFile(e.target.files[0]);
+    });
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const content = event.target.result;
+          const res = await invokeCmd('import_pairing_payload', { jsonStr: content });
+          showToast(res.message);
+          await loadStatus();
+        } catch (err) {
+          showToast('❌ ข้อผิดพลาด: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('btnHeartbeat').addEventListener('click', async () => {
+      try {
+        const res = await invokeCmd('send_heartbeat_now');
+        showToast(res.message);
+        await loadStatus();
+      } catch (err) {
+        showToast('❌ ข้อผิดพลาด: ' + err);
+      }
+    });
+
+    document.getElementById('btnCheckCodex').addEventListener('click', async () => {
+      try {
+        const res = await invokeCmd('check_headless_cli', { bin: 'codex' });
+        showToast(res.message);
+      } catch (err) {
+        showToast('❌ ข้อผิดพลาด: ' + err);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', loadStatus);
+  </script>
+</body>
+</html>
