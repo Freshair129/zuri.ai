@@ -4,13 +4,13 @@
   "scanned": {
     "docs": 298,
     "routes": 156,
-    "test_files": 475
+    "test_files": 474
   },
   "summary": {
     "critical": 0,
-    "warning": 1,
+    "warning": 0,
     "info": 23,
-    "overall": "WARN"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -224,18 +224,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "W20",
-      "severity": "warning",
-      "check": "untracked-docs",
-      "title": "1 document(s) under docs/ are untracked and invisible to every other check",
-      "details": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
-      "files": [
-        "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md"
-      ],
-      "action": "git add them if they belong to the repository, or delete them if they do not. Adding them to .gitignore is NOT the third option: an ignored file is hidden from this check too, which is strictly worse than an untracked one. This check CANNOT fire in CI — a CI checkout has no untracked files by construction, so it passes there regardless of what sits in any working tree. A green governance run on a pull request is not evidence that this class is clean. It is closed by running npm run govern locally, and by nothing else."
-    },
-    {
-      "id": "I21",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 298 document(s)",
@@ -246,7 +235,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I22",
+      "id": "I21",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -258,7 +247,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 61 file(s) that write audit events",
@@ -267,7 +256,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1176 column(s) across 88 model(s) against 43 migration(s)",

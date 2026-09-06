@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1924,
-    "total_edges": 7478,
+    "total_nodes": 1922,
+    "total_edges": 7476,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 216,
       "model": 88,
       "requirement": 310,
-      "test": 475,
-      "code_file": 523
+      "test": 474,
+      "code_file": 522
     },
     "coverage": {
       "requirements": 310,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (143/143)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 523,
+      "annotated_code_files": 522,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,9 +54,17 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "domain:knowledge",
+      "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "code:src/modules/knowledge/smartgift-knowledge-catalog.js"
+    ],
     "added": [],
-    "removed": []
+    "removed": [
+      "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "test:tests/unit/smartgift-rag-pipeline.test.js"
+    ]
   },
   "nodes": [
     {
@@ -8088,29 +8096,14 @@
       "id": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "type": "code_file",
       "path": "src/modules/knowledge/smartgift-knowledge-catalog.js",
-      "hash": "d98f7c6e",
-      "status": "current",
+      "hash": "521e6dd9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-024"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/smartgift-rag-pipeline.js",
-      "hash": "70dd9b9b",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@spec": [
-          "SDD-027"
         ],
         "@tested": [
-          "tests/unit/smartgift-rag-pipeline.test.js"
+          "tests/integration/smartgift-webhook-e2e.test.js"
         ]
       }
     },
@@ -12923,8 +12916,8 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "bd43ddc5",
-      "status": "current"
+      "hash": "d9d6bc92",
+      "status": "changed"
     },
     {
       "id": "domain:line-oa-studio",
@@ -18957,8 +18950,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
       "title": "ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains",
-      "hash": "5565f145",
-      "status": "current"
+      "hash": "37b137e0",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -19832,8 +19825,8 @@
       "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "type": "test",
       "path": "tests/integration/smartgift-webhook-e2e.test.js",
-      "hash": "5ff8b690",
-      "status": "current"
+      "hash": "de6357c0",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/sot-decisions-route.test.js",
@@ -22073,13 +22066,6 @@
       "type": "test",
       "path": "tests/unit/smartgift-document-intake-migration.test.js",
       "hash": "6e2cb541",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "type": "test",
-      "path": "tests/unit/smartgift-rag-pipeline.test.js",
-      "hash": "23fc80d5",
       "status": "current"
     },
     {
@@ -34247,20 +34233,6 @@
       "from": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "to": "req:FR-024",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:SDD-027",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -57793,6 +57765,13 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:BR-011",
       "type": "verifies",
       "status": "current",
@@ -57807,7 +57786,21 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-049",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -73428,27 +73421,6 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
     },
     {
       "from": "test:tests/unit/sot-data-plane-auth.test.js",

@@ -1,6 +1,6 @@
 ---
 id: ZAI:ADR-063
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-09-06T00:00:00+07:00,Claude Fable 5.1"
 last_update: "2026-09-06T00:00:00+07:00,Claude Fable 5.1"
@@ -68,11 +68,17 @@ FR-024's statement is unchanged; its meaning was never "write to GenesisBlockDB"
 
 That last item is recorded, not resolved. `createGraphKnowledgeReader` binds nothing itself, so it does not violate D3 as written — but the comment that documented it invited the owner to bind `traverse` to "the NAPI GenesisDatabase query/traverse", and ADR-050 D3 is explicit that "a direct substrate read is not a lighter form of consumption." The only compliant binding is one that goes through MSP into GKS ([ADR-043](ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) D2) or the ADR-046 interim `:8888` surface. The file stays; its comment is rewritten in this change to say that, so the invitation is withdrawn without touching the code.
 
-### D2a — One direct client remains, named so it cannot pass as compliant
+### D2a — The third direct client, found by the retirement and retired on owner instruction
 
-`src/modules/knowledge/smartgift-rag-pipeline.js` (`seedSmartGiftKnowledge`, `searchSmartGiftKnowledge`, both annotated FR-024 / SDD-027) has the same shape as the two retired files — it requires a `GenesisDatabase` instance, creates a collection, calls `addNode`, `addEdge`, `flushIndex` and `hybridSearch`, and embeds through an injected provider. It differs in one respect that keeps it out of D1: it has a consumer beyond its own unit test, `tests/integration/smartgift-webhook-e2e.test.js`, which seeds the SmartGift catalog through it to exercise the LINE webhook end to end.
+`src/modules/knowledge/smartgift-rag-pipeline.js` (`seedSmartGiftKnowledge`, `searchSmartGiftKnowledge`, `handleSmartGiftCustomerTurn`, annotated FR-024 / SDD-027) had the same shape as the two files in D1 — it required a `GenesisDatabase` instance, created a collection, called `addNode`, `addEdge`, `flushIndex` and `hybridSearch`, and embedded through an injected provider. It differed in one respect: it had a consumer beyond its own unit test, `tests/integration/smartgift-webhook-e2e.test.js`, which seeded the SmartGift catalog through it to exercise the LINE webhook end to end.
 
-The owner named two files, and this ADR retires two. It does not silently widen to a third; it records the third as **the last standing exception to ADR-050 D3 in this repository**, so that the sentence "Tier 1 holds no substrate client" is known to be one deletion short rather than believed to be true. Retiring it means giving the SmartGift end-to-end test a seeded knowledge fixture that does not go through the substrate — a small, separate change that should cite this section when it lands.
+Version 1.0.0 of this ADR named it as the last standing exception rather than widening a two-file instruction to three. The owner then instructed the retirement ("retire smartgift-rag-pipeline.js ต่อเลย"), and version 1.1.0 records it:
+
+- The file and `tests/unit/smartgift-rag-pipeline.test.js` are deleted.
+- The e2e test keeps everything it actually proved — webhook seam, CRM ingest, response delivery, message persistence — and replaces the mocked substrate with what Tier 1 owns: `tests/factories/smartgift-knowledge.js` maps the curated catalog (`smartgift-knowledge-catalog.js`, which stays as data) onto PUBLIC business-knowledge records (FR-047) behind `createInMemoryBusinessKnowledgeReader`, and the turn answers through `answerBusinessQuestion` (FR-049). The persona reply is now verified against the evidence packet instead of pasted through; a second case proves another Business reading the same port gets no SmartGift record.
+- What was lost is nothing the repository was allowed to have: a graph seed, a hybrid search and a prompt assembly that ran against a mock of a database Tier 1 may not open.
+
+With this, the sentence "Tier 1 holds no client of the substrate" is true of `src/` with zero exceptions.
 
 ### D3 — The canonical repositories of the three external systems
 
@@ -96,8 +102,8 @@ No requirement id is declared, retired or reworded. FR-024 stays `🟠 library-c
 
 ## Consequences
 
-- ADR-050 D3 now describes the repository with exactly one named exception (D2a). A reviewer can `grep` for `GenesisDatabase`, `hybridSearch` or `flushIndex` in `src/` and expect hits in `smartgift-rag-pipeline.js` only; any other hit is a finding, not a legacy, and when that file goes the expectation becomes zero.
-- Two test suites disappear. Both exercised a mocked client against code no caller reached, so the test count falls and the covered behaviour does not.
+- ADR-050 D3 now describes the repository as it is. A reviewer can `grep` for `GenesisDatabase`, `hybridSearch` or `flushIndex` in `src/` and expect zero hits; a hit is a finding, not a legacy.
+- Three test suites disappear. Each exercised a mocked substrate client against code no production caller reached, so the test count falls and the covered behaviour does not; the SmartGift e2e suite gains one case (Business scoping of the knowledge port) and now verifies the persona reply instead of passing it through.
 - The `sink.js` seam comment stops describing `createGenesisBlockDBSink` as a future adapter of this module and names the GKS repository as where it belongs.
 - The roadmap task `TC-TASK-ZAI-016` (cross-business analytics read model) had `symbol_links.code` pointing at the deleted sink — a placeholder that never described that task. It is set to `unavailable`, matching its `test:` field, so the roadmap reader does not link to a file that no longer exists.
 - Anyone porting the RAG loop to GKS or the sink to GenesisBlockDB starts from the deleted files' last revision in git history (`git log --all -- src/modules/knowledge/gbdb-rag-service.js`).
@@ -106,4 +112,5 @@ No requirement id is declared, retired or reworded. FR-024 stays `🟠 library-c
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.1.0 | 2026-09-06 | accepted | On owner instruction, retired `smartgift-rag-pipeline.js` and its unit test (D2a); the SmartGift webhook e2e test now reads a PUBLIC business-knowledge fixture through the in-memory reader and answers via `answerBusinessQuestion`; `src/` holds no substrate client with zero exceptions | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | accepted | Retired and deleted `gbdb-rag-service.js` and `genesisblockdb-sink.js` with their tests; recorded MSP, GKS and GenesisBlockDB as external repositories that are never zuri-ai domains; constrained how `createGraphKnowledgeReader` may ever be bound; named `smartgift-rag-pipeline.js` as the one remaining direct client | Claude Fable 5.1 |

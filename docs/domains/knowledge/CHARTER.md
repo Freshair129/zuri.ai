@@ -34,10 +34,10 @@ external systems with their own repositories and are never zuri-ai domains
   `GraphSink` seam in `sink.js` stays; its substrate adapter belongs to the GKS
   repository. `createGraphKnowledgeReader`'s injected `traverse` may only ever
   be bound through MSP → GKS or the ADR-046 interim surface, never to the
-  substrate directly. One exception remains and is named, not hidden:
-  `smartgift-rag-pipeline.js` still requires a `GenesisDatabase` instance
-  because the SmartGift webhook e2e test seeds through it (ADR-063 D2a);
-  retiring it is a separate change.
+  substrate directly. `smartgift-rag-pipeline.js`, the third such client,
+  went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
+  data and feeds the PUBLIC business-knowledge fixture the SmartGift webhook
+  e2e test reads through the in-memory reader. Zero exceptions remain.
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 

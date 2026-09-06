@@ -190,9 +190,9 @@
 ### FR-024 — Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes
 
 - **Status:** n/a
-- **Code:** `src/modules/knowledge/graph-query.js` · `src/modules/knowledge/index.js` · `src/modules/knowledge/live-facts.js` · `src/modules/knowledge/project-graph.js` · `src/modules/knowledge/query.js` · `src/modules/knowledge/sink.js` · `src/modules/knowledge/smartgift-knowledge-catalog.js` · `src/modules/knowledge/smartgift-rag-pipeline.js`
+- **Code:** `src/modules/knowledge/graph-query.js` · `src/modules/knowledge/index.js` · `src/modules/knowledge/live-facts.js` · `src/modules/knowledge/project-graph.js` · `src/modules/knowledge/query.js` · `src/modules/knowledge/sink.js` · `src/modules/knowledge/smartgift-knowledge-catalog.js`
 - **Follows:** BR-001, SDD-027, SEC-001, SEC-011
-- **Tests:** `tests/integration/agent-runtime.test.js` · `tests/integration/knowledge-project.test.js` · `tests/integration/knowledge-query.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/runtime-isolation-probe.test.js` · `tests/unit/smartgift-rag-pipeline.test.js`
+- **Tests:** `tests/integration/agent-runtime.test.js` · `tests/integration/knowledge-project.test.js` · `tests/integration/knowledge-query.test.js` · `tests/integration/smartgift-webhook-e2e.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/runtime-isolation-probe.test.js`
 
 ### FR-025 — Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)
 
@@ -385,7 +385,7 @@
 - **Status:** n/a
 - **Code:** `src/modules/agent/grounded-business-answer.js` · `src/modules/agent/index.js`
 - **Follows:** SDD-025, SDD-027, SEC-009, SEC-011
-- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/grounded-business-answer.test.js`
+- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/smartgift-webhook-e2e.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/grounded-business-answer.test.js`
 
 ### FR-050 — Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.
 
