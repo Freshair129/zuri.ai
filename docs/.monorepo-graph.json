@@ -11554,7 +11554,7 @@
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
       "hash": "86a03984",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:EXECUTION-MODES",
