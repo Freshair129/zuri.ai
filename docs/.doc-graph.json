@@ -59,10 +59,7 @@
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/asset-register-routes.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "doc:SRS"
     ],
     "added": [],
     "removed": []
@@ -8287,7 +8284,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "6c6e8ce2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -18786,7 +18783,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "adcb4574",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -19136,7 +19133,7 @@
       "type": "test",
       "path": "tests/unit/asset-register-routes.test.js",
       "hash": "ca7a5791",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/asset-register-service.test.js",
