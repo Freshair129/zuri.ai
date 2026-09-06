@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1926,
+    "total_nodes": 1927,
     "total_edges": 7480,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 178,
+      "document": 179,
       "adr": 62,
       "domain": 10,
       "roadmap": 37,
@@ -54,35 +54,14 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "domain:line-oa-studio",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
-      "code:src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
+    "changed": [],
     "added": [
-      "doc:FR-153-line-oa-liff-app-registry",
-      "route:api:/api/line-oa/liff-apps",
-      "route:api:/api/line-oa/liff-apps/[id]",
-      "model:LineOaLiffApp",
-      "req:FR-153",
-      "test:tests/integration/fr153-line-oa-liff-app.test.js",
-      "test:tests/unit/line-oa-liff-app-domain.test.js",
-      "test:tests/unit/line-oa-liff-app-routes.test.js",
-      "code:src/app/api/line-oa/liff-apps/route.js",
-      "code:src/app/api/line-oa/liff-apps/[id]/route.js",
-      "code:src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
-      "code:src/modules/line-oa-studio/domain/line-oa-liff-app.js"
+      "doc:docs/domains/identity/SYSTEM-DIAGRAM",
+      "doc:docs/SYSTEM-DIAGRAM"
     ],
-    "removed": []
+    "removed": [
+      "doc:SYSTEM-DIAGRAM"
+    ]
   },
   "nodes": [
     {
@@ -5259,7 +5238,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "ac323d04",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8322,7 +8301,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
       "hash": "33897ae1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-152"
@@ -8423,7 +8402,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
       "hash": "c4d80851",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-152"
@@ -8866,7 +8845,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "ace10e1d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -8934,7 +8913,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "073394ee",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10895,7 +10874,7 @@
       "version": "1.42.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "bfbf3ed2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10949,7 +10928,7 @@
       "version": "1.20.0b",
       "doc_status": "Draft",
       "hash": "047a409c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11113,6 +11092,19 @@
       }
     },
     {
+      "id": "doc:docs/domains/identity/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/domains/identity/SYSTEM-DIAGRAM.md",
+      "title": "Identity Domain — System Diagram & Architecture Specification",
+      "hash": "0f73075f",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/domains/identity/SYSTEM-DIAGRAM.md"
+      }
+    },
+    {
       "id": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "type": "document",
       "path": "docs/domains/line-oa-studio/CONTEXT-MAP.md",
@@ -11175,6 +11167,21 @@
         "repository": "Freshair129/zuri.ai",
         "previous_id": "doc:README",
         "source_path": "docs/roadmap/line-oa-business-agent/README.md"
+      }
+    },
+    {
+      "id": "doc:docs/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/SYSTEM-DIAGRAM.md",
+      "title": "System Diagram — zuri-ai ทั้งระบบ",
+      "version": "1.0.0",
+      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
+      "hash": "e5b570d1",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/SYSTEM-DIAGRAM.md"
       }
     },
     {
@@ -11255,7 +11262,7 @@
       "version": "1.24.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "07688cc5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12546,7 +12553,7 @@
       "version": "1.157.0b",
       "doc_status": "Draft",
       "hash": "fea7657c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -12574,7 +12581,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "b0938bec",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12610,16 +12617,6 @@
       "version": "0.7.0",
       "doc_status": "Accepted",
       "hash": "01a84952",
-      "status": "current"
-    },
-    {
-      "id": "doc:SYSTEM-DIAGRAM",
-      "type": "document",
-      "path": "docs/SYSTEM-DIAGRAM.md",
-      "title": "System Diagram — zuri-ai ทั้งระบบ",
-      "version": "1.0.0",
-      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
-      "hash": "e5b570d1",
       "status": "current"
     },
     {
@@ -12992,7 +12989,7 @@
         "line-oa-studio"
       ],
       "hash": "885da3b4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -19747,7 +19744,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "eb92a4d3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -38687,6 +38684,27 @@
       "status": "current"
     },
     {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -40880,27 +40898,6 @@
     {
       "from": "doc:SITEMAP-DOMAIN-NAV",
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE-DIAGRAMS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:PRODUCT",
       "type": "references",
       "source": "markdown",
       "status": "current"
