@@ -167,7 +167,7 @@ describe('FR-157 Content UI integration seams', () => {
   it('addresses asset detail by immutable MarketingContentVersion and does not fake preview bytes', () => {
     expect(asset).toContain('contentAssetApiPath')
     expect(asset).toContain('MarketingContentVersion')
-    expect(asset).toContain('Preview is available in Files')
+    expect(asset).toContain('Open Files to inspect the authorized source record')
     expect(asset).toContain('fileSurfacePath')
     expect(asset).toContain('historical content revision')
     expect(asset).not.toContain('<img')

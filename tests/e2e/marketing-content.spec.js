@@ -175,7 +175,7 @@ test.describe('Marketing Content first functional slice', () => {
       await expect(assetLink).toHaveAttribute('href', `/growth/content/assets/${currentVersion.id}`)
       await assetLink.click()
       await expect(page).toHaveURL(new RegExp(`/growth/content/assets/${currentVersion.id}$`))
-      await expect(page.getByTestId('marketing-content-asset-source')).toContainText(/Preview is available in Files/i)
+      await expect(page.getByTestId('marketing-content-asset-source')).toContainText(/Open Files to inspect this source/i)
       await expect(page.getByTestId('marketing-content-asset-reviews')).toContainText(/Independent reviewer|Pass/i)
       await page.getByRole('link', { name: 'Back to library', exact: true }).click()
       await expect(page).toHaveURL(/\/growth\/content\?tab=library/)
@@ -197,7 +197,7 @@ test.describe('Marketing Content first functional slice', () => {
 
     await page.goto('/growth/content?tab=production')
     await expect(page.getByRole('tab', { name: 'Production', exact: true })).toHaveAttribute('aria-current', 'page')
-    await expect(page.getByText(/Project Manager/i)).toBeVisible()
+    await expect(page.getByText('No production work recorded', { exact: true })).toBeVisible()
     await page.setViewportSize({ width: 390, height: 844 })
     await page.getByRole('tab', { name: 'Production', exact: true }).focus()
     await page.keyboard.press('End')

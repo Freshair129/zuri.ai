@@ -293,5 +293,5 @@ export function contentOwnerLabel(row) {
 }
 
 export function fileSurfacePath(fileId) {
-  return fileId ? `/files?asset=${encodeURIComponent(fileId)}` : null
+  return fileId ? '/files' : null
 }
