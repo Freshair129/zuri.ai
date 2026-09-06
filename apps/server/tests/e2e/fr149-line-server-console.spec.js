@@ -22,6 +22,10 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
   await page.goto('/line-oa')
+  // FR-149's console moved behind a view toggle when LINE Studio Enterprise
+  // landed (viewMode defaults to 'studio'), so the page has to be switched
+  // before any of its headings or fields exist.
+  await page.getByRole('button', { name: /Server Transport & Job Console/ }).click()
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
@@ -43,6 +47,8 @@ test('LINE account onboarding persists and activation requires an explicit hando
   expect((await saved).ok()).toBe(true)
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
   await page.reload()
+  // viewMode is component state, so a reload lands back on the Studio view.
+  await page.getByRole('button', { name: /Server Transport & Job Console/ }).click()
   await expect(page.getByRole('heading', { name: tag, exact: true })).toBeVisible()
   const restored = page.getByRole('heading', { name: tag, exact: true }).locator('xpath=../../..')
   await expect(restored.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveValue('EDGE')
