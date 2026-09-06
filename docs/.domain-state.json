@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T07:34:54.270Z",
+  "generatedAt": "2026-09-06T07:57:18.573Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -6220,7 +6220,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
@@ -6228,6 +6228,7 @@
         "src/lib/db.js",
         "tests/unit/db-boundary.test.js",
         "tests/unit/db-runtime-config.test.js",
+        "tests/unit/migration-version-uniqueness.test.js",
         "tests/unit/postgres-runtime-client.test.js"
       ]
     },

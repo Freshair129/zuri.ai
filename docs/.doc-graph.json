@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1907,
-    "total_edges": 7410,
+    "total_nodes": 1908,
+    "total_edges": 7411,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 213,
       "model": 87,
       "requirement": 309,
-      "test": 470,
+      "test": 471,
       "code_file": 519
     },
     "coverage": {
@@ -55,40 +55,16 @@
   },
   "drift": {
     "changed": [
-      "doc:ARCHITECTURE",
       "doc:README",
-      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
-      "domain:agent",
+      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "domain:crm",
-      "domain:integration",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:PRODUCT",
-      "doc:ROADMAP",
-      "test:tests/unit/doc-links-cli.test.js"
+      "doc:FR-152-line-oa-rich-menu-publish-jobs",
+      "doc:SRS"
     ],
     "added": [
-      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
-      "doc:PHASE-FR-149-P3-server-line-transport",
-      "doc:PHASE-FR-150-P2-optional-edge-execution",
-      "doc:FR-148-account-scoped-conversations",
-      "doc:PHASE-FR-148-P2-account-scoped-conversations",
-      "doc:PHASE-FR-149-P5-server-line-transport",
-      "doc:PHASE-FR-149-P1-server-line-transport",
-      "doc:PHASE-FR-149-P4-server-line-transport",
-      "doc:FR-149-server-line-transport",
-      "doc:FR-150-optional-edge-execution",
-      "doc:PHASE-FR-148-P1-account-scoped-conversations",
-      "doc:PHASE-FR-149-P2-server-line-transport",
-      "doc:PHASE-FR-150-P1-optional-edge-execution",
-      "doc:PHASE-FR-150-P3-optional-edge-execution",
-      "doc:PLAN-FEAT-019-DOMAIN-PHASES",
-      "doc:PLAN-ZURI-MONOREPO-MIGRATION"
+      "test:tests/unit/migration-version-uniqueness.test.js"
     ],
     "removed": []
   },
@@ -10795,7 +10771,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "ad873073",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -10978,8 +10954,8 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "9869c1e3",
-      "status": "current"
+      "hash": "a3b2bbe4",
+      "status": "changed"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11067,7 +11043,7 @@
       "version": "1.23.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "d5b9a2bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11897,8 +11873,8 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
       "title": "FR-152 — rich menu publish jobs, server-owned",
-      "hash": "0464500f",
-      "status": "current"
+      "hash": "9b5aa028",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -12350,7 +12326,7 @@
       "version": "1.156.0b",
       "doc_status": "Draft",
       "hash": "39f14aa3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -12360,7 +12336,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "a34f3775",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:prompt-engineering",
@@ -12394,7 +12370,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "9c0c59b6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12662,7 +12638,7 @@
         "agent"
       ],
       "hash": "cf8d008a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -12713,7 +12689,7 @@
         "crm"
       ],
       "hash": "6a2cc86e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -12795,7 +12771,7 @@
         "integration"
       ],
       "hash": "5c3d8354",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -12835,7 +12811,7 @@
         "line-oa-studio"
       ],
       "hash": "2925a87f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -18787,7 +18763,7 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "3d58075b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
@@ -20286,7 +20262,7 @@
       "type": "test",
       "path": "tests/unit/doc-links-cli.test.js",
       "hash": "0230ea93",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/doc-links.test.js",
@@ -21224,6 +21200,13 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/translate-raw-record.test.js",
       "hash": "3c96ef1c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/migration-version-uniqueness.test.js",
+      "type": "test",
+      "path": "tests/unit/migration-version-uniqueness.test.js",
+      "hash": "b92775b7",
       "status": "current"
     },
     {
@@ -68204,6 +68187,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/migration-version-uniqueness.test.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/mint-api-access-key-cli.test.js",
