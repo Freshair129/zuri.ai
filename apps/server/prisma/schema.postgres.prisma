@@ -2807,8 +2807,8 @@ model ProductRecipeLine {
   @@index([componentProductId])
 }
 
-// ── CRM sales task — FR-157 ─────────────────────────────────────────────────
-// @req FR-157 — a sales task is a follow-up a salesperson owes a customer: a
+// ── CRM sales task — FR-161 ─────────────────────────────────────────────────
+// @req FR-161 — a sales task is a follow-up a salesperson owes a customer: a
 //   call, a LINE message, a meeting, a demo, a quote — Business-scoped, with an
 //   optional Customer and Conversation of the same Tenant (BR-001 CRM sharing)
 //   and an optional assignee Person. It is deliberately NOT a project-manager
@@ -2816,7 +2816,7 @@ model ProductRecipeLine {
 //   product's "PROJECT" task kind stays with project-manager, its "URGENT"
 //   status is a priority here, and its Notion id would be an ExternalRef.
 // @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001
-// @tested tests/integration/fr157-sales-task.test.js
+// @tested tests/integration/fr161-sales-task.test.js
 
 model SalesTask {
   id                  String    @id @default(uuid())

@@ -225,7 +225,7 @@ export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
 // FR-156 — a recipe (bill of materials at one batch size) is edited or
 // archived through the same two versioned actions a product has.
 export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
-// FR-157 — sales tasks (crm): a follow-up a salesperson owes a customer,
+// FR-161 — sales tasks (crm): a follow-up a salesperson owes a customer,
 // distinct from project-manager's WorkItem. The legacy product's "URGENT"
 // status is a priority here, and its PROJECT task kind with milestones is
 // project-manager's, so neither appears.

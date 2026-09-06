@@ -12,13 +12,13 @@ attributes:
 
 # ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task
 
-**Status:** Accepted. Implemented by FR-157 (FEAT-021) in the same change.
+**Status:** Accepted. Implemented by FR-161 (FEAT-022) in the same change.
 **Date:** 2026-09-06
 **Decided by:** Boss (instruction of 2026-09-06: "ดัดแปลง 7. CORE: Tasks เป็น task ของ sale
 เดี๋ยวปนกันกับ projectmanager" — adapt the legacy Tasks section into *sales* tasks, or it
 will be confused with project-manager)
 **Relates to:** [ADR-054](ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (D3, D4, D5),
-[ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7), FR-157, FEAT-021, BR-001,
+[ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (D7), FR-161, FEAT-022, BR-001,
 BR-002, FR-061, FR-072, FR-076, `docs/domains/crm/CHARTER.md`,
 `docs/architecture/database-erd/full-schema.md` §19.
 

@@ -14,7 +14,7 @@ export const ROLE_LINE_OA_PUBLISHER = 'LINE_OA_PUBLISHER'
 // that may write catalogue identity and stock movements. A Business OWNER
 // holds the same capability implicitly and needs no binding.
 export const ROLE_INVENTORY_MANAGER = 'INVENTORY_MANAGER'
-// @req FR-157 — the sales representative: the Business-scoped role that may
+// @req FR-161 — the sales representative: the Business-scoped role that may
 // write sales tasks (follow-ups owed to customers) in the crm lane. A Business
 // OWNER holds the same capability implicitly and needs no binding.
 export const ROLE_SALES_REP = 'SALES_REP'
