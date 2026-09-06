@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2154,
-    "total_edges": 8498,
+    "total_nodes": 2155,
+    "total_edges": 8500,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 250,
       "model": 110,
       "requirement": 320,
-      "test": 507,
+      "test": 508,
       "code_file": 628
     },
     "coverage": {
@@ -58,7 +58,9 @@
       "test:tests/e2e/fr149-line-server-console.spec.js",
       "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/service-role-grant-baseline.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -21876,14 +21878,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "ef0c5b18",
+      "hash": "2ee571d7",
       "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "1657fe43",
+      "hash": "8a4f5941",
       "status": "changed"
     },
     {
@@ -25062,6 +25064,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/server-line-worker-routes.test.js",
       "hash": "4b60f5db",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/service-role-grant-baseline.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
+      "hash": "d86648c9",
       "status": "current"
     },
     {
@@ -83358,6 +83367,20 @@
     {
       "from": "test:tests/unit/server-line-worker-routes.test.js",
       "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

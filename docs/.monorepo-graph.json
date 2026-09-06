@@ -21818,14 +21818,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "ef0c5b18",
+      "hash": "2ee571d7",
       "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "1657fe43",
+      "hash": "8a4f5941",
       "status": "changed"
     },
     {
@@ -25004,6 +25004,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/server-line-worker-routes.test.js",
       "hash": "4b60f5db",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/service-role-grant-baseline.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
+      "hash": "d86648c9",
       "status": "current"
     },
     {
@@ -86637,6 +86644,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/shell-mode.test.js",
       "to": "code:src/lib/shell-mode.js",
       "type": "tests",
@@ -90343,7 +90364,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2154,
+    "server_nodes": 2155,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
