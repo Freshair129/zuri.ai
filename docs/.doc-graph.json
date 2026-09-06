@@ -55,8 +55,9 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx"
+      "test:tests/e2e/fr149-line-server-console.spec.js",
+      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx"
     ],
     "added": [],
     "removed": []
@@ -9501,7 +9502,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
       "hash": "f8683157",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -9750,8 +9751,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "6d0841ed",
-      "status": "current",
+      "hash": "437c0f24",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9841,7 +9842,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "hash": "44b77579",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -22231,15 +22232,15 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "2ee571d7",
-      "status": "current"
+      "hash": "c088a438",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "8a4f5941",
-      "status": "current"
+      "hash": "8c213193",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
