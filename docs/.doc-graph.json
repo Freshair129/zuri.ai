@@ -55,7 +55,15 @@
   },
   "drift": {
     "changed": [
-      "doc:INTERFACE-INVENTORY"
+      "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "code:src/config/domains.js",
+      "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx"
     ],
     "added": [],
     "removed": []
@@ -900,8 +908,8 @@
       "id": "code:src/app/(pm)/line-oa/projects/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
-      "hash": "df912b63",
-      "status": "current",
+      "hash": "4dee4be0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -5956,8 +5964,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "8a525223",
-      "status": "current",
+      "hash": "c1c4469d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -9444,8 +9452,8 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "ae8925f6",
-      "status": "current",
+      "hash": "993faa97",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9490,8 +9498,8 @@
       "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
-      "hash": "6e3d75c2",
-      "status": "current",
+      "hash": "d619bd4e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9868,8 +9876,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "b4fb78a9",
-      "status": "current",
+      "hash": "18abb83c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9885,8 +9893,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
-      "hash": "9e66ca94",
-      "status": "current",
+      "hash": "6997dcb0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9994,13 +10002,13 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "44b77579",
-      "status": "current",
+      "hash": "8f40e9ac",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
           "FR-151",
-          "FR-003"
+          "FR-080"
         ],
         "@spec": [
           "SDD-060",
@@ -10030,8 +10038,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "48c79823",
-      "status": "current",
+      "hash": "1ffa77ec",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10067,8 +10075,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
-      "hash": "97c8861c",
-      "status": "current",
+      "hash": "9e4a8803",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -14786,7 +14794,7 @@
       "version": "1.12.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "01f49294",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -40663,7 +40671,7 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "to": "req:FR-003",
+      "to": "req:FR-080",
       "type": "implements",
       "status": "current",
       "source": "annotation"

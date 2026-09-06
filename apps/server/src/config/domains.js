@@ -158,7 +158,7 @@ export const DOMAINS = [
     key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle,
     sub: [
       { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard, exact: true },
-      { label: 'โปรเจค & บัญชี', path: '/line-oa/projects', icon: Layers },
+      { label: 'บัญชี & กลุ่ม LINE OA', path: '/line-oa/projects', icon: Layers },
       { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
       { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
