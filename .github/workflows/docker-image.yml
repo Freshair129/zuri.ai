@@ -1,10 +1,8 @@
 name: docker-image
 
-# Builds the production image defined by Dockerfile (ADR-058). On a pull request that
-# touches the deployment layer it only builds, proving the image still assembles; on
-# main and on a v* tag it also pushes to GitHub Container Registry so a later VPS can
-# `docker compose pull web` with ZURI_WEB_IMAGE=ghcr.io/<owner>/<repo>:<tag> instead of
-# building on the box. No machine-specific path, no secret beyond GITHUB_TOKEN.
+# Builds the production image defined by Dockerfile (ADR-058).
+# ADR-062 containment: every event builds only until private publication and
+# consumer access are verified. Existing images and local runtime stay in place.
 
 on:
   push:
@@ -24,11 +22,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   compose-config:
@@ -53,32 +46,11 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build (and push outside pull requests)
+      - name: Build only (publication suspended by ADR-062)
         uses: docker/build-push-action@v6
         with:
           context: .
           target: runner
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
