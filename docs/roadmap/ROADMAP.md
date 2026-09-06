@@ -346,6 +346,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-155 | PHASE-ZAI-MARKETING | task | Marketing Strategy immutable revisions, independent review and exact human decisions (FR-155) | P1 | RWANG / Luna | in-progress | Approved CR-018; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
 | TASK-FR-154 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-154) | P1 | RWANG / Luna | in-progress | FR-155; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
 | TASK-FR-156 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-156); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-155; FR-154; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
+| TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | in-progress | FR-155; FR-156; SDD-088 | ../domains/marketing/features/FR-157-content-creative.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 

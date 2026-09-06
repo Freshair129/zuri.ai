@@ -73,6 +73,7 @@ model Tenant {
 
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
+  marketingContentBriefs MarketingContentBrief[]
 }
 
 model LegalEntity {
@@ -154,6 +155,7 @@ model Business {
 
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
+  marketingContentBriefs MarketingContentBrief[]
 }
 
 model Branch {
@@ -2613,4 +2615,80 @@ model MarketingInitiative {
 
   @@unique([businessId, code])
   @@index([tenantId, businessId, status])
+}
+
+// @req FR-157 — scoped creative intent and optimistic revision root.
+// @spec SDD-088, SEC-001
+// @tested tests/integration/marketing-content.test.js
+model MarketingContentBrief {
+  id String @id @default(uuid())
+  tenantId String
+  businessId String
+  code String
+  title String
+  status String @default("OPEN")
+  currentRevision Int @default(1)
+  version Int @default(1)
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+  revisions MarketingContentVersion[]
+  reviews MarketingContentReview[]
+  decisions MarketingContentDecision[]
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
+}
+
+// @req FR-157 — creative intent and exact owner references are immutable.
+model MarketingContentVersion {
+  id String @id @default(uuid())
+  briefId String
+  revision Int
+  payloadJson String
+  payloadHash String
+  createdBy String
+  createdAt DateTime @default(now())
+  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
+  reviews MarketingContentReview[]
+  decisions MarketingContentDecision[]
+  @@unique([briefId, revision])
+}
+
+// @req FR-157 — independent review binds exact content and rights findings.
+model MarketingContentReview {
+  id String @id @default(uuid())
+  briefId String
+  contentVersionId String
+  payloadHash String
+  verdict String
+  rationale String
+  rightsConfirmed Boolean @default(false)
+  brandConfirmed Boolean @default(false)
+  reviewerId String
+  createdAt DateTime @default(now())
+  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
+  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
+  decisions MarketingContentDecision[]
+  @@index([briefId, createdAt])
+}
+
+// @req FR-157 — decisions and revocations preserve exact acceptance history.
+model MarketingContentDecision {
+  id String @id @default(uuid())
+  briefId String
+  contentVersionId String
+  payloadHash String
+  reviewId String?
+  verdict String
+  rationale String
+  actorId String
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
+  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
+  review MarketingContentReview? @relation(fields: [reviewId], references: [id])
+  @@index([briefId, createdAt])
 }

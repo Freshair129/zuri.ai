@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.21.0b |
+| **Version** | 1.22.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
@@ -316,3 +316,11 @@ Campaign date/offer/condition content lives inside immutable PlanVersion payload
 not mutable duplicate columns. [Contract](../domains/marketing/features/FR-156-campaign-initiatives.md).
 The additive SQLite and private PostgreSQL migrations introduce one table; no
 production migration is claimed. Schema change: five Marketing tables → six.
+
+## Marketing Content evidence (FR-157)
+
+MarketingContentBrief owns scoped code/status/CAS and immutable MarketingContentVersion
+children. MarketingContentReview and MarketingContentDecision append exact-version
+rights/review/decision history. Files and PM references live in canonical versioned
+payloads and revalidate through their owners; no binary or PM task is copied.
+[Contract](../domains/marketing/features/FR-157-content-creative.md).

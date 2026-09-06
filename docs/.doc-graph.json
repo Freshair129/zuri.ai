@@ -3,27 +3,27 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2017,
-    "total_edges": 7917,
+    "total_nodes": 2025,
+    "total_edges": 7971,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 188,
+      "document": 189,
       "adr": 62,
       "domain": 11,
       "roadmap": 41,
       "feature": 20,
       "route": 226,
-      "model": 94,
-      "requirement": 315,
-      "test": 494,
+      "model": 98,
+      "requirement": 317,
+      "test": 495,
       "code_file": 562
     },
     "coverage": {
-      "requirements": 315,
-      "fr_with_code": "100% (146/146)",
-      "fr_with_tests": "100% (146/146)",
-      "rules_anchored_in_code": "96% (130/135)",
+      "requirements": 317,
+      "fr_with_code": "100% (147/147)",
+      "fr_with_tests": "100% (147/147)",
+      "rules_anchored_in_code": "96% (131/136)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 562,
       "fr_planned": [
@@ -55,21 +55,12 @@
   },
   "drift": {
     "changed": [
-      "doc:ARCHITECTURE",
-      "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
-      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
-      "doc:docker-ngrok",
-      "doc:PLAN-ZURI-MONOREPO-MIGRATION",
-      "test:tests/e2e/fr077-project-inventory.spec.js"
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
     "added": [
-      "doc:docs/domains/identity/SYSTEM-DIAGRAM",
-      "doc:docs/SYSTEM-DIAGRAM",
-      "test:tests/unit/docker-publication-containment.test.js"
+      "test:tests/integration/marketing-content-backup.test.js"
     ],
-    "removed": [
-      "doc:SYSTEM-DIAGRAM"
-    ]
+    "removed": []
   },
   "nodes": [
     {
@@ -9660,12 +9651,13 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "6b08687c",
-      "status": "current",
+      "hash": "c738a77f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
           "FR-013",
+          "FR-157",
           "FR-123",
           "FR-078",
           "FR-045",
@@ -9700,6 +9692,7 @@
         ],
         "@tested": [
           "tests/integration/line-server-backup.test.js",
+          "tests/integration/marketing-content-backup.test.js",
           "tests/integration/backup.test.js",
           "tests/integration/crm-conversation-analysis.test.js",
           "tests/unit/fr045-backup-contract.test.js",
@@ -11634,7 +11627,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "6b951152",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -11677,9 +11670,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.21.0b",
+      "version": "1.22.0b",
       "doc_status": "Draft",
-      "hash": "d74efa86",
+      "hash": "f9b35ea2",
       "status": "current"
     },
     {
@@ -11822,7 +11815,7 @@
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "1dbc41bf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docs/change-requests/README",
@@ -12033,7 +12026,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.25.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "f8feba87",
+      "hash": "80ee0240",
       "status": "current"
     },
     {
@@ -12892,6 +12885,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-157-content-creative",
+      "type": "document",
+      "path": "docs/domains/marketing/features/FR-157-content-creative.md",
+      "title": "Content and Creative — immutable briefs and approved file references",
+      "hash": "ec89da90",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -13413,7 +13414,7 @@
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Candidate monorepo migration gates",
       "hash": "8440ee7d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -13422,7 +13423,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.159.0b",
       "doc_status": "Draft",
-      "hash": "cc0f900a",
+      "hash": "9f22ab6c",
       "status": "current"
     },
     {
@@ -13450,7 +13451,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b56668a3",
+      "hash": "2525b678",
       "status": "current"
     },
     {
@@ -13893,7 +13894,11 @@
         "MarketingReview",
         "MarketingDecision",
         "MarketingHandoff",
-        "MarketingInitiative"
+        "MarketingInitiative",
+        "MarketingContentBrief",
+        "MarketingContentVersion",
+        "MarketingContentReview",
+        "MarketingContentDecision"
       ],
       "owns_routes": [
         "src/app/(pm)/growth/**",
@@ -13903,7 +13908,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "d21baa73",
+      "hash": "d4cbcdc4",
       "status": "current"
     },
     {
@@ -14355,6 +14360,26 @@
     },
     {
       "id": "model:LocalWorkspaceMount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingContentBrief",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingContentDecision",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingContentReview",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingContentVersion",
       "type": "model",
       "status": "current"
     },
@@ -16404,6 +16429,16 @@
       "row_text": "Marketing Campaign initiatives — a Business-scoped initiative has a distinct UUID and one versioned Strategy brief, with calendar dates, offer and conditions included in its reviewed hash. Owners create, revise, explicitly bind a valid same-plan PM handoff and close or cancel with rationale through audited optimistic transactions. Campaign list/board and Brief, Plan, Timeline, Results and Decisions views preserve scope, exact revision identity and authorized PM execution projections; metrics remain unavailable without approved evidence. 🟠 implementation in progress from approved CR-018 "
     },
     {
+      "id": "req:FR-157",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Marketing Content and Creative — Business-scoped briefs persist immutable creative versions, exact Files references and declared rights with independent reviews and revocable time-bounded decisions. Briefs, PM production and approved Library projections plus creative/asset detail and creation views revalidate owner scope, file fingerprint and rights eligibility without duplicating bytes or PM work.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Marketing Content and Creative — Business-scoped briefs persist immutable creative versions, exact Files references and declared rights with independent reviews and revocable time-bounded decisions. Briefs, PM production and approved Library projections plus creative/asset detail and creation views revalidate owner scope, file fingerprint and rights eligibility without duplicating bytes or PM work. 🟠 implementation in progress from approved CR-018 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -17492,6 +17527,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Marketing initiatives reuse immutable Strategy evidence and explicit PM receipts: one scoped association model holds lifecycle and concurrency, while optional campaignBrief content stays inside canonical PlanVersion hashes without rewriting old versions. Receipt selection verifies plan, revision/hash, Workspace and Project before the authorized PM roadmap read port; closure affects only the initiative and source-less Results remain unavailable. FR-156; FR-155; FR-154; SDD-086; SEC-001; SEC-003; ADR-025 "
+    },
+    {
+      "id": "req:SDD-088",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Creative content approval binds immutable intent, rights and one exact FileAsset version/hash. Marketing owns brief/review/decision evidence; Files owns bytes and PM owns work. Scoped owner read ports revalidate current usability, while atomic parent CAS and append-only revisions prevent stale approvals and partial writes.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Creative content approval binds immutable intent, rights and one exact FileAsset version/hash. Marketing owns brief/review/decision evidence; Files owns bytes and PM owns work. Scoped owner read ports revalidate current usability, while atomic parent CAS and append-only revisions prevent stale approvals and partial writes. FR-157; FR-155; SDD-086; SEC-001; SEC-003; ADR-025 "
     },
     {
       "id": "req:SEC-001",
@@ -20017,7 +20062,7 @@
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
       "hash": "40b2bce8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
@@ -20049,7 +20094,7 @@
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
       "hash": "04a6029e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -20119,7 +20164,7 @@
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
       "hash": "8f4b0fb2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
@@ -20826,6 +20871,13 @@
       "type": "test",
       "path": "tests/integration/marketing-campaign.test.js",
       "hash": "8a68c04a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/marketing-content-backup.test.js",
+      "type": "test",
+      "path": "tests/integration/marketing-content-backup.test.js",
+      "hash": "115f862b",
       "status": "current"
     },
     {
@@ -22589,7 +22641,7 @@
       "id": "test:tests/unit/marketing-migration-policy.test.js",
       "type": "test",
       "path": "tests/unit/marketing-migration-policy.test.js",
-      "hash": "14aa5207",
+      "hash": "357973eb",
       "status": "current"
     },
     {
@@ -37492,6 +37544,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-157",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -40711,6 +40770,13 @@
       "status": "current"
     },
     {
+      "from": "doc:B-db-schema",
+      "to": "doc:FR-157-content-creative",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:CR-017-MARKETING-ADS-ANALYTICS",
       "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
       "type": "references",
@@ -42178,6 +42244,34 @@
       "to": "doc:PHASE-CAMPAIGNS-2026-09-06",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-157-content-creative",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-157-content-creative",
+      "to": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-157-content-creative",
+      "to": "feat:FEAT-020",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-157-content-creative",
+      "to": "req:FR-157",
+      "type": "references",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -43834,6 +43928,13 @@
     },
     {
       "from": "domain:marketing",
+      "to": "doc:FR-157-content-creative",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:marketing",
       "to": "doc:MARKETING-CHANNEL-CONTRACTS",
       "type": "references",
       "source": "markdown",
@@ -44281,6 +44382,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-157",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -44605,6 +44713,34 @@
     {
       "from": "model:LocalWorkspaceMount",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingContentBrief",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingContentDecision",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingContentReview",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingContentVersion",
+      "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -46241,6 +46377,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-157",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -46998,6 +47141,13 @@
     },
     {
       "from": "req:SDD-087",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-088",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -54131,6 +54281,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -54468,6 +54625,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -56792,6 +56956,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -59150,6 +59321,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -59528,6 +59706,13 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -59623,6 +59808,244 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:SDD-088",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/marketing-plan.test.js",
@@ -67243,6 +67666,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-157",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

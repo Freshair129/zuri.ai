@@ -21,6 +21,7 @@ Source: [Appendix B — Database Schema Summary](appendices/B-db-schema.md)
 
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-155-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md)
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 
 Backlinks:
 
@@ -130,6 +131,7 @@ Backlinks:
 - [CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai](change-requests/CR-017-MARKETING-ADS-ANALYTICS.md) (references)
 - [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-155-strategy-plans.md) (references)
 - [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md) (references)
+- [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md) (references)
 - [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md) (references)
 - [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) (references)
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
@@ -172,6 +174,7 @@ Source: [Marketing — Interface Inventory & Mockup Coverage](change-requests/ma
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md) (references)
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) (references)
 - [Marketing — Mockup QA & Review Guide](change-requests/marketing/MARKETING-MOCKUP-QA.md) (relates)
@@ -2231,6 +2234,7 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-155-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-156-campaign-initiatives.md)
+- references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -2271,6 +2275,20 @@ Backlinks:
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+- [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## Content and Creative — immutable briefs and approved file references
+
+Source: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
+
+- references: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
+- references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
+- references: [req:FR-157](PRD-SDD-v1.0.md)
+- relates: feat:FEAT-020
+
+Backlinks:
+
+- [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — project-manager

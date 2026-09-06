@@ -13,8 +13,12 @@ owns_models:
   - MarketingDecision
   - MarketingHandoff
   - MarketingInitiative
+  - MarketingContentBrief
+  - MarketingContentVersion
+  - MarketingContentReview
+  - MarketingContentDecision
 technical_owner: TD-MARKETING
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
 last_update: "2026-09-06T18:35:00+07:00,RWANG"
 status: beta
@@ -62,6 +66,10 @@ adding one scoped association while preserving Strategy evidence and PM executio
 - MSP owns agent sessions/control/memory and GKS owns canonical knowledge. Human
   review records in this slice do not constitute an operational agent runtime.
 
+Content follows [the creative contract](features/FR-157-content-creative.md): immutable
+briefs and declared rights with exact Files references, PM production reads and
+independent review. Files remains the binary owner.
+
 ## Storage and acceptance
 
 MarketingPlan is a Business-scoped UUID identity with a human code. Immutable
@@ -82,3 +90,4 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | beta | Activate the approved Marketing lane and first Strategy slice | See git history | RWANG |
 | 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |
+| 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |

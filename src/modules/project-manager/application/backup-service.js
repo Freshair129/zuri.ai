@@ -2,6 +2,8 @@
 // @spec ADR-061
 // @tested tests/integration/line-server-backup.test.js
 // @req FR-013 - snapshot export/import with preview and confirmation.
+// @req FR-157 — Content roots, immutable versions, reviews and decisions restore in FK order.
+// @tested tests/integration/marketing-content-backup.test.js
 // @req FR-123 - plugin auth material is installation security state, not
 // business data; restore revokes it instead of exporting or restoring it.
 // @req FR-078 - customer import batches, review cases, decisions and provenance
@@ -109,6 +111,7 @@ const SNAPSHOT_MODELS = [
   // @req FR-155, FR-154, FR-156 — preserve Marketing evidence after its PM and scope parents.
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
+  'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),

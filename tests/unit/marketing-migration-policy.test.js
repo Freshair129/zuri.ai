@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 describe('Marketing Postgres migration security', () => {
-  it.each([['20260906200000_marketing_strategy.sql', 5], ['20260906220000_marketing_campaigns.sql', 1]])('gives every table in %s a private runtime policy', (file, count) => {
+  it.each([['20260906200000_marketing_strategy.sql', 5], ['20260906220000_marketing_campaigns.sql', 1], ['20260906230000_marketing_content.sql', 4]])('gives every table in %s a private runtime policy', (file, count) => {
     const sql = readFileSync(`supabase/migrations/${file}`, 'utf8')
     const tables = [...sql.matchAll(/CREATE TABLE "([^"]+)"/g)].map(match => match[1])
     expect(tables).toHaveLength(count)
