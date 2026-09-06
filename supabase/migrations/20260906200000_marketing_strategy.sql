@@ -1,4 +1,4 @@
--- @req FR-153, FR-154 — private Marketing evidence and PM receipt associations.
+-- @req FR-155, FR-154 — private Marketing evidence and PM receipt associations.
 -- @spec SDD-086, SEC-001, ADR-057 — same runtime-only table posture as sibling domains.
 -- Additive migration; NOT applied to production. Execute through the migration ledger.
 BEGIN;

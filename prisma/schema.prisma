@@ -72,6 +72,7 @@ model Tenant {
   @@index([portfolioId])
 
   marketingPlans MarketingPlan[]
+  marketingInitiatives MarketingInitiative[]
 }
 
 model LegalEntity {
@@ -152,6 +153,7 @@ model Business {
   @@index([tenantId])
 
   marketingPlans MarketingPlan[]
+  marketingInitiatives MarketingInitiative[]
 }
 
 model Branch {
@@ -2498,6 +2500,7 @@ model MarketingPlan {
   reviews   MarketingReview[]
   decisions MarketingDecision[]
   handoffs  MarketingHandoff[]
+  initiative MarketingInitiative?
 
   @@unique([businessId, code])
   @@index([tenantId, businessId, status])
@@ -2579,6 +2582,35 @@ model MarketingHandoff {
   workspace   Workspace            @relation(fields: [workspaceId], references: [id])
   project     Project              @relation(fields: [projectId], references: [id])
 
+  initiatives MarketingInitiative[]
+
   @@unique([planVersionId, workspaceId])
   @@index([planId])
+}
+
+// @req FR-156 — distinct Campaign identity associated with one Strategy plan and an explicit PM receipt.
+// @spec SDD-087, SEC-001, SEC-003
+// @tested tests/integration/marketing-campaign.test.js
+model MarketingInitiative {
+  id            String    @id @default(uuid())
+  tenantId      String
+  businessId    String
+  code          String
+  planId        String    @unique
+  handoffId     String?
+  status        String    @default("OPEN")
+  closureReason String?
+  version       Int       @default(1)
+  createdBy     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  tenant   Tenant            @relation(fields: [tenantId], references: [id])
+  business Business          @relation(fields: [businessId], references: [id])
+  plan     MarketingPlan     @relation(fields: [planId], references: [id])
+  handoff  MarketingHandoff? @relation(fields: [handoffId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
 }

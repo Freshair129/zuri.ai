@@ -266,6 +266,7 @@
     "FR-153",
     "FR-154",
     "FR-155",
+    "FR-156",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -374,6 +375,7 @@
     "SDD-084",
     "SDD-085",
     "SDD-086",
+    "SDD-087",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2943,6 +2945,19 @@
         }
       ]
     },
+    "FR-156": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2ca17fa6180b615ae2f046d24029288e939e473c27dbd18ac44e534ec14927a2",
+      "history": [
+        {
+          "anchor": "marketing campaign initiatives",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4358,6 +4373,19 @@
       "history": [
         {
           "anchor": "marketing planning evidence is immutable and execution is",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-087": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f4d9a5eb03320dad85fc89db4e7af499c4e348058e030d9b88655de333f3c7f",
+      "history": [
+        {
+          "anchor": "marketing initiatives reuse immutable strategy evidence and",
           "since": "2026-09-06",
           "reason": "declared"
         }

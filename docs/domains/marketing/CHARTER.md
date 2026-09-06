@@ -12,8 +12,9 @@ owns_models:
   - MarketingReview
   - MarketingDecision
   - MarketingHandoff
+  - MarketingInitiative
 technical_owner: TD-MARKETING
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
 last_update: "2026-09-06T18:35:00+07:00,RWANG"
 status: beta
@@ -41,6 +42,8 @@ and [runtime team contract](../../change-requests/marketing/MARKETING-TEAM-REFIN
 remain the full delivery scope. A sidebar capability becomes available when its
 server contract and functional UI exist. The first slice activates Dashboard and
 Strategy, described in [the strategy contract](features/FR-155-strategy-plans.md).
+Campaign implementation follows [the initiative contract](features/FR-156-campaign-initiatives.md),
+adding one scoped association while preserving Strategy evidence and PM execution ownership.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
