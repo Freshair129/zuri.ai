@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1923,
-    "total_edges": 7478,
+    "total_nodes": 1924,
+    "total_edges": 7480,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 216,
       "model": 88,
       "requirement": 310,
-      "test": 475,
+      "test": 476,
       "code_file": 522
     },
     "coverage": {
@@ -54,26 +54,11 @@
     }
   },
   "drift": {
-    "changed": [
-      "domain:knowledge",
-      "doc:ROADMAP-zuri-ai-24w-program",
-      "test:tests/integration/smartgift-webhook-e2e.test.js",
-      "code:src/modules/knowledge/graph-query.js",
-      "code:src/modules/knowledge/index.js",
-      "code:src/modules/knowledge/sink.js",
-      "code:src/modules/knowledge/smartgift-knowledge-catalog.js"
-    ],
+    "changed": [],
     "added": [
-      "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS"
+      "test:tests/unit/service-role-grant-baseline.test.js"
     ],
-    "removed": [
-      "code:src/modules/knowledge/gbdb-rag-service.js",
-      "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "test:tests/integration/knowledge-genesis-sink.test.js",
-      "test:tests/unit/gbdb-rag-service.test.js",
-      "test:tests/unit/smartgift-rag-pipeline.test.js"
-    ]
+    "removed": []
   },
   "nodes": [
     {
@@ -7824,7 +7809,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/graph-query.js",
       "hash": "4ea8efd0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
@@ -7839,7 +7824,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
       "hash": "9f383318",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024",
@@ -8091,7 +8076,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/sink.js",
       "hash": "ad52bce9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
@@ -8106,7 +8091,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/smartgift-knowledge-catalog.js",
       "hash": "521e6dd9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
@@ -12561,7 +12546,7 @@
       "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "title": "ROADMAP: Zuri AI — 24-Week Full System Delivery Program",
       "hash": "bb90a3f4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROUTES-SITEMAP",
@@ -12926,7 +12911,7 @@
         "knowledge"
       ],
       "hash": "d9d6bc92",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:line-oa-studio",
@@ -19835,7 +19820,7 @@
       "type": "test",
       "path": "tests/integration/smartgift-webhook-e2e.test.js",
       "hash": "de6357c0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/sot-decisions-route.test.js",
@@ -22040,6 +22025,13 @@
       "type": "test",
       "path": "tests/unit/server-line-worker-routes.test.js",
       "hash": "4b60f5db",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/service-role-grant-baseline.test.js",
+      "type": "test",
+      "path": "tests/unit/service-role-grant-baseline.test.js",
+      "hash": "9af50513",
       "status": "current"
     },
     {
@@ -73203,6 +73195,20 @@
     {
       "from": "test:tests/unit/server-line-worker-routes.test.js",
       "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
