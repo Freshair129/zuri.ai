@@ -1,6 +1,6 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.155.0b"
+version: "1.156.0b"
 status: draft
 last_update: "2026-09-06T13:29:04+07:00,RWANG"
 relations:
@@ -19,7 +19,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.155.0b |
+| **Version** | 1.156.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |

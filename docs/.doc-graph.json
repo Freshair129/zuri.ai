@@ -55,39 +55,14 @@
   },
   "drift": {
     "changed": [
-      "doc:ARCHITECTURE",
       "doc:README",
-      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
-      "domain:agent",
       "doc:CONTEXT-MAP",
-      "domain:crm",
-      "domain:integration",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:PRODUCT",
-      "doc:ROADMAP"
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [
-      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
-      "doc:PHASE-FR-149-P3-server-line-transport",
-      "doc:PHASE-FR-150-P2-optional-edge-execution",
-      "doc:FR-148-account-scoped-conversations",
-      "doc:PHASE-FR-148-P2-account-scoped-conversations",
-      "doc:PHASE-FR-149-P5-server-line-transport",
-      "doc:PHASE-FR-149-P1-server-line-transport",
-      "doc:PHASE-FR-149-P4-server-line-transport",
-      "doc:FR-149-server-line-transport",
-      "doc:FR-150-optional-edge-execution",
-      "doc:PHASE-FR-148-P1-account-scoped-conversations",
-      "doc:PHASE-FR-149-P2-server-line-transport",
-      "doc:PHASE-FR-150-P1-optional-edge-execution",
-      "doc:PHASE-FR-150-P3-optional-edge-execution",
-      "doc:PLAN-FEAT-019-DOMAIN-PHASES",
-      "doc:PLAN-ZURI-MONOREPO-MIGRATION"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -10320,7 +10295,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "ad873073",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -10581,9 +10556,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.22.0b",
+      "version": "1.23.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "3b6bc4af",
+      "hash": "d5b9a2bb",
       "status": "changed"
     },
     {
@@ -11864,9 +11839,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.155.0b",
+      "version": "1.156.0b",
       "doc_status": "Draft",
-      "hash": "5e139db2",
+      "hash": "39f14aa3",
       "status": "changed"
     },
     {
@@ -11877,7 +11852,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "a34f3775",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:prompt-engineering",
@@ -11911,7 +11886,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "9c0c59b6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12171,7 +12146,7 @@
         "agent"
       ],
       "hash": "cf8d008a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -12222,7 +12197,7 @@
         "crm"
       ],
       "hash": "6a2cc86e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -12304,7 +12279,7 @@
         "integration"
       ],
       "hash": "5c3d8354",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -12344,7 +12319,7 @@
         "line-oa-studio"
       ],
       "hash": "2925a87f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -18192,7 +18167,7 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "3d58075b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
