@@ -1,9 +1,9 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-06T12:48:29+07:00,RWANG,e8aec6c45aac19337ee153dd5e5d72c9b31e1ee4"
-last_update: "2026-09-06T12:48:29+07:00,RWANG"
-status: candidate
-superseded_by: null
+last_update: "2026-09-06T13:00:16+07:00,RWANG"
+status: superseded
+superseded_by: "CR-018-MARKETING-DOMAIN-DESIGN.md#1.0.0b"
 attributes:
   domain: marketing
   doc_type: change-request
@@ -12,10 +12,18 @@ attributes:
 
 # CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai
 
+**Superseded by:** [Marketing Domain Design](CR-018-MARKETING-DOMAIN-DESIGN.md)
+
+> **Superseded scope — 2026-09-06:** ผู้ใช้ขอออกแบบ Marketing ทั้ง domain พร้อม
+> subdomain/tab และ multi-agent refinement. ใช้ [Marketing Domain Design 1.0.0b](CR-018-MARKETING-DOMAIN-DESIGN.md)
+> และเอกสารลูกเป็น candidate ปัจจุบัน เนื้อหาด้านล่างคงไว้เป็น Ads-only prior draft
+> ณ baseline เดิม ไม่ใช่ข้อจำกัดของงานใหม่ ไม่ใช่สถานะ schema/runtime ปัจจุบัน
+> Bare CR-017 ในชื่อไฟล์นี้เป็น intake filename เดิม; CR-017 Asset UX ใน baseline ใหม่เป็นคนละข้อเสนอ
+
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Candidate — รอ Boss อนุมัติเอกสารก่อน implementation |
+| **Version** | 0.1.1b |
+| **Status** | Superseded — replaced by Marketing Domain Design 1.0.0b; history below |
 | Complexity | C-3 — Doc → Diagram → Code |
 | Risk | HIGH สำหรับ implementation: schema, authorization และ cross-domain attribution; รอบนี้แก้เอกสารเท่านั้น |
 | Product identity | `DOM-MARKETING`; route/RBAC key `growth`; UI label Marketing |
@@ -335,4 +343,5 @@ provider error ไม่ทำให้ข้อมูลเก่าดูเ�
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-06 | superseded | Stamp Ads-only scope as superseded by the full Marketing domain design; retain original file link and historical evidence | See git history | RWANG |
 | 0.1.0b | 2026-09-06 | candidate | Initial native Marketing / Ads Analytics proposal from pinned legacy data-flow prior art; includes ownership, UI, data contracts, phased scope and verification gates | See git history; baseline e8aec6c | RWANG |

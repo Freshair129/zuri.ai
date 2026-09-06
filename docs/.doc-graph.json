@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1826,
-    "total_edges": 6688,
+    "total_nodes": 1830,
+    "total_edges": 6695,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 161,
+      "document": 165,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -55,14 +55,13 @@
   },
   "drift": {
     "changed": [
+      "doc:CR-018-MARKETING-DOMAIN-DESIGN",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
       "doc:SRS"
     ],
-    "added": [
-      "doc:CR-017-MARKETING-ADS-ANALYTICS"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -10370,10 +10369,20 @@
       "type": "document",
       "path": "docs/change-requests/CR-017-MARKETING-ADS-ANALYTICS.md",
       "title": "CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai",
-      "version": "0.1.0b",
-      "doc_status": "Candidate — รอ Boss อนุมัติเอกสารก่อน implementation",
-      "hash": "54100e58",
-      "status": "current"
+      "version": "0.1.1b",
+      "doc_status": "Superseded — replaced by Marketing Domain Design 1.0.0b; history below",
+      "hash": "58742486",
+      "status": "superseded"
+    },
+    {
+      "id": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "document",
+      "path": "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+      "title": "CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement",
+      "version": "1.0.0b",
+      "doc_status": "Candidate — domain documentation for review; no implementation approval",
+      "hash": "a6c66c1a",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -11344,6 +11353,36 @@
       "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
       "title": "LINE Phase 1 canary runbook",
       "hash": "c54195c9",
+      "status": "current"
+    },
+    {
+      "id": "doc:MARKETING-CHANNEL-CONTRACTS",
+      "type": "document",
+      "path": "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+      "title": "Marketing — Channel & Measurement Contracts",
+      "version": "0.1.0b",
+      "doc_status": "Candidate; capabilities researched, no live account/API activation verified",
+      "hash": "19024917",
+      "status": "current"
+    },
+    {
+      "id": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "document",
+      "path": "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+      "title": "Marketing — Navigation & Views",
+      "version": "0.1.0b",
+      "doc_status": "Candidate; all new paths/tabs are proposed, not live routes",
+      "hash": "08c58281",
+      "status": "current"
+    },
+    {
+      "id": "doc:MARKETING-TEAM-REFINEMENT",
+      "type": "document",
+      "path": "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+      "title": "Marketing — Multi-agent Team & Refinement",
+      "version": "0.1.0b",
+      "doc_status": "Candidate runtime design; no live team runner is claimed",
+      "hash": "5875fb5f",
       "status": "current"
     },
     {
@@ -36198,6 +36237,55 @@
       "type": "follows",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "to": "doc:CR-017-MARKETING-ADS-ANALYTICS",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "to": "doc:MARKETING-CHANNEL-CONTRACTS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "to": "doc:MARKETING-TEAM-REFINEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-CHANNEL-CONTRACTS",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-NAVIGATION-VIEWS",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:MARKETING-TEAM-REFINEMENT",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
     },
     {
       "from": "feat:FEAT-001",
