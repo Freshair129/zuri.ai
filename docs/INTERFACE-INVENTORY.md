@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=79; operational_domain_keys=11; operational_subdomain_entries=43; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=80; operational_domain_keys=11; operational_subdomain_entries=44; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -359,6 +359,7 @@ The current route evidence is:
 | `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
 | `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
 | `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
+| `/line-oa/integrations` | LINE OA AI Models & Integrations | Business visibility | Platform integrations, LLM providers (Codex/Claude headless & API keys), MCP server bridges, and Vault status. |
 | `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
