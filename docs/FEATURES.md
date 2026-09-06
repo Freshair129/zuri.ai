@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.23.0b"
+version: "1.26.0b"
 status: active
-last_update: "2026-09-06T13:29:04+07:00,RWANG"
+last_update: "2026-09-06T21:30:00+07:00,Claude"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.24.0b |
+| **Version** | 1.26.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -51,6 +51,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-017 | Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash | FR-143, FR-144 | building |
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
+| FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -71,6 +72,10 @@ Version diff 1.20.0b → 1.21.0b (2026-09-06): FEAT-018 gains FR-151, the rich m
 Version diff 1.21.0b → 1.22.0b (2026-09-06): FEAT-018 gains FR-152, the server-owned publish jobs that carry a frozen rich menu version to LINE under ADR-061 — queued by a publisher, claimed by the server worker with compare-and-set and a lease, executed through the Integration lane's rich menu port, settled by the provider's acceptance with ambiguity classified by idempotency (an unconfirmed create is UNKNOWN; upload, default and alias retry). Not claimed: a real LINE canary, the designer page, LIFF URL resolution, production application of the migration.
 
 Version diff 1.23.0b → 1.24.0b (2026-09-06): FEAT-018 gains FR-153, the LIFF app registry — what LIFF apps an account has, with the LINE-issued liffId as an attribute, so a rich menu LIFF action publishes as a liff.line.me link through an ACTIVE app instead of being refused. Not claimed: creating the app on LINE (needs a LINE Login credential contract), the designer's LIFF tab, flow LIFF nodes, production application of the migration.
+
+Version diff 1.24.0b → 1.25.0b (2026-09-06): FEAT-020 is declared and building — the Inventory domain (`DOM-INVENTORY`, คลังสินค้า) the owner asked for, bundling FR-154 (catalogue identity: category, family, factory, product master, SKU with a fixed counted / uncounted policy, bundle) and FR-155 (the append-only stock ledger with lots and serial units, on-hand always recomputed). Implemented locally with both migrations written; the owner's node/edge ontology is recorded in `docs/domains/inventory/ONTOLOGY.md` with offers, tiers, segments and orders deferred to a Commerce lane. Not claimed: Excel/LINE intake, warehouse locations, reservations, costing, production application of the migration.
+
+Version diff 1.25.0b → 1.26.0b (2026-09-06): FEAT-020 gains FR-156, the recipe / bill of materials at a batch size — the legacy product's "Culinary" recipes-per-class-size relabelled as the general BOM they are (one recipe per output SKU and batch size, fixed lines that do not scale, explosion and shortages against the ledger, an atomic build that issues components FEFO and receives the output). FR-155 gains FEFO consumption. The domain's display label is Warehouse. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion, production application of the migration.
 
 ## Readiness Dashboard presentation metadata
 
@@ -671,6 +676,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-019",
     "primaryDomain": "line-oa-studio",
     "useCase": "ธุรกิจใช้ LINE และ CRM ได้โดยไม่ต้องมี Edge และเลือกใช้อุปกรณ์เฉพาะงาน local โดยไม่ย้ายสิทธิ์ส่งข้อความออกจาก server"
+  },
+  {
+    "id": "FEAT-020",
+    "primaryDomain": "inventory",
+    "useCase": "ธุรกิจตั้งหมวดหมู่ สินค้าหลัก และ SKU ของตนเอง เลือกว่า SKU ไหนนับสต๊อก (ตามจำนวน / Lot / Serial) หรือไม่นับ (บริการ สั่งผลิต) รับเข้า จ่ายออก ปรับยอดลง ledger แล้วเห็นยอดคงเหลือและ SKU ที่ต่ำกว่า safety stock จากหน้า /inventory โดยตัวเลขคำนวณจาก ledger ทุกครั้ง"
   }
 ]
 ```

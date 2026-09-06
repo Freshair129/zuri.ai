@@ -210,6 +210,21 @@ export const LINE_OA_LIFF_VIEW_SIZES = ['COMPACT', 'TALL', 'FULL']
 export const LINE_OA_LIFF_SCOPES = ['profile', 'openid', 'email', 'chat_message.write']
 export const LINE_OA_LIFF_BOT_PROMPTS = ['NONE', 'NORMAL', 'AGGRESSIVE']
 export const LINE_OA_LIFF_APP_ACTIONS = ['UPDATE', 'RECORD_LIFF_ID', 'ARCHIVE']
+// FR-154 / FR-155 — Inventory (คลังสินค้า) vocabularies. A Product (SKU) is
+// either counted (TRACKED — every movement is a ledger row and on-hand is the
+// sum of them) or not counted (UNTRACKED — a catalogue identity with no stock
+// ledger at all: services, made-to-order, print-on-demand). A counted product
+// additionally says how its units are identified: as an anonymous quantity
+// (NONE), per manufacturing lot (LOT) or per individual serial number (SERIAL).
+export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED']
+export const INVENTORY_TRACKING_MODES = ['NONE', 'LOT', 'SERIAL']
+export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE']
+export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
+export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
+export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
+// FR-156 — a recipe (bill of materials at one batch size) is edited or
+// archived through the same two versioned actions a product has.
+export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -255,6 +270,13 @@ export const zLineOaLiffViewSize = z.enum(LINE_OA_LIFF_VIEW_SIZES)
 export const zLineOaLiffScope = z.enum(LINE_OA_LIFF_SCOPES)
 export const zLineOaLiffBotPrompt = z.enum(LINE_OA_LIFF_BOT_PROMPTS)
 export const zLineOaLiffAppAction = z.enum(LINE_OA_LIFF_APP_ACTIONS)
+export const zInventoryStockPolicy = z.enum(INVENTORY_STOCK_POLICIES)
+export const zInventoryTrackingMode = z.enum(INVENTORY_TRACKING_MODES)
+export const zInventoryProductAction = z.enum(INVENTORY_PRODUCT_ACTIONS)
+export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
+export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
+export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
+export const zInventoryRecipeAction = z.enum(INVENTORY_RECIPE_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

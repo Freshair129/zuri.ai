@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.20.0b |
+| **Version** | 1.22.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
@@ -92,6 +92,18 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LineOaRichMenuVersion | richMenuId + versionNumber (unique), tenantId, businessId, lineOaAccountId, status, layout, chatBarText, selected, imageFileAssetId? → FileAsset (SetNull), imageWidth, imageHeight, areasJson, externalRichMenuId?, frozenAt?, publishedAt? | FR-151 — one numbered body: editable while DRAFT, immutable once FROZEN; PUBLISHED / RETIRED and `externalRichMenuId` are the transport lane's to write (BR-002: an attribute, never a key) |
 | LineOaRichMenuJob | tenantId, businessId, accountId, richMenuId, richMenuVersionId, kind, stage, status, transportEpoch, attempts, availableAt, expiresAt, claimantId?, leaseExpiresAt?, externalRichMenuId?, providerRequestId?, errorCode?, correlationId, version | FR-152 / ADR-061 — server-owned rich menu publish ledger: PUBLISH (CREATE → UPLOAD → DONE) / SET_DEFAULT / SET_ALIAS (APPLY); QUEUED → CLAIMED → ACCEPTED \| FAILED \| UNKNOWN \| CANCELLED; compare-and-set claims and a bounded lease; no token column — the worker resolves the credential per attempt |
 | LineOaLiffApp | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, description?, viewSize, endpointUrl, scopesJson, botPrompt, status, externalLiffId? (unique per account), archivedAt?, version | FR-153 / SRS LOS-RQ-070 — the LIFF app registry of one account: DRAFT until the LINE-issued liffId is recorded, then ACTIVE; a rich menu LIFF action resolves through an ACTIVE row to liff.line.me (BR-002: liffId is an attribute, never a key); no LINE call, no secret |
+| InventoryCategory | code (unique per tenant), tenantId, businessId, nameTh, nameEn, slug? (unique per business), vibe?, targetRecipient?, guardrail?, status, version | FR-154 — inventory category (`category_id`); the ontology's slug values are rows of one Business, not a system enum |
+| ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
+| Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
+| ProductMaster | code (unique per tenant), tenantId, businessId, categoryId → InventoryCategory, familyId? → ProductFamily (SetNull), factoryId? → Factory (SetNull), nameTh, nameEn, baseCost, specsJson, status, version | FR-154 — product master (`product_master`) |
+| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155) |
+| ProductBundle | code (unique per tenant), tenantId, businessId, name, description?, targetRecipients?, totalPrice?, status, version | FR-154 — bundle (`bundle_id`) |
+| ProductBundleItem | bundleId → ProductBundle (Cascade) + productId → Product (unique pair), qty | FR-154 — one SKU line of a bundle |
+| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
+| ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
+| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
+| SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
+| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
@@ -137,6 +149,16 @@ version's `externalRichMenuId` is now written by this ledger on the provider's a
 
 Version diff 1.19.0b → 1.20.0b (2026-09-06): added `LineOaLiffApp` (FR-153) with additive migrations in
 both trees in the same change; the Supabase SQL is written and **not applied**.
+
+Version diff 1.20.0b → 1.21.0b (2026-09-06): added the Inventory domain's ten tables — `InventoryCategory`,
+`ProductFamily`, `Factory`, `ProductMaster`, `Product`, `ProductBundle`, `ProductBundleItem` (FR-154) and
+`ProductLot`, `SerialUnit`, `StockMovement` (FR-155) — with one additive migration in each tree
+(`20260906230000_inventory_domain`) in the same change; the Supabase SQL is written and **not applied**.
+`Product` deliberately has no on-hand column.
+
+Version diff 1.21.0b → 1.22.0b (2026-09-06): added `ProductRecipe` and `ProductRecipeLine` (FR-156 — the
+bill of materials at a batch size) with one additive migration in each tree (`20260906233000_inventory_recipe`)
+in the same change; the Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
