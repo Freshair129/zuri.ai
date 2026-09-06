@@ -94,7 +94,30 @@ from pg_class c join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public' and c.relkind = 'r' and c.relname = '<NewTable>';
 ```
 
-Expected: `rls=t forced=t policies>=1 service_role_privs=0`. **`policies=0` with
+Expected: `rls=t forced=t policies>=1 service_role_privs=0`.
+
+**A version is an identity, not a label — and git will not defend it.**
+`supabase_migrations.schema_migrations` is keyed on the 14-digit version. Two
+migration files may carry the same one with different names, and git merges both
+without a conflict, because nothing about them overlaps textually. Afterwards,
+whichever ran first owns the receipt and every version-keyed tool — `supabase db
+push` included — reads the other as already applied and skips it in silence.
+Check 18 cannot see it either: it asks whether *some* file creates a column, and
+one does.
+
+This happened twice on 2026-09-06. `20260906120000` was claimed by
+`record_pre_lineage_tables_and_columns` and `server_line_jobs`, caught in review
+and renumbered before merge. `20260906180000` was claimed by
+`line_conversation_job_rls_policy` and `line_oa_rich_menu_job`, and was **not**
+caught: both merged, the first was applied and receipted, the second's DDL was
+applied with no receipt it could own, and the lineage stopped describing the
+database it governs. Both pairs came from branches cut before the other's file
+existed, which is the ordinary way two people choose the same timestamp.
+
+`tests/unit/migration-version-uniqueness.test.js` now fails on a duplicate
+prefix in either migration directory. Unlike the security-block check above,
+this one is exact and static — it compares file names and nothing else — so it
+belongs in CI rather than in a runbook. **`policies=0` with
 `rls=t` is the dangerous shape** — it denies every row to every role that is not
 the table owner and does not hold BYPASSRLS, so it is invisible while the runtime
 connects as `postgres` and fails closed the moment it does not. `LineConversationJob`

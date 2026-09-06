@@ -235,7 +235,7 @@
 - **Status:** done
 - **Code:** `src/lib/db-boundary.js` · `src/lib/db.js`
 - **Follows:** —
-- **Tests:** `tests/unit/db-boundary.test.js` · `tests/unit/db-runtime-config.test.js` · `tests/unit/postgres-runtime-client.test.js`
+- **Tests:** `tests/unit/db-boundary.test.js` · `tests/unit/db-runtime-config.test.js` · `tests/unit/migration-version-uniqueness.test.js` · `tests/unit/postgres-runtime-client.test.js`
 
 ### FR-031 — Viewer gate: `resolveViewer()` resolves the current authenticated principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; missing or invalid authentication fails closed and never derives OWNER-of-all.
 
