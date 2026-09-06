@@ -1,5 +1,5 @@
 -- @req FR-161 — SalesTask, a sales follow-up owed to a customer (crm). Twin of
--- supabase/migrations/20260906235000_crm_sales_task.sql.
+-- supabase/migrations/20260906235500_crm_sales_task.sql.
 -- @spec ADR-064; BR-001; BR-002; SEC-001
 -- Additive: one new table, its indexes and foreign keys; nothing existing changes.
 

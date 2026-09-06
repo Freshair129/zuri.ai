@@ -48,8 +48,8 @@ action, nothing deleted.
 ## Delivered (local, 2026-09-06)
 
 - `SalesTask` in both schemas; migrations
-  `prisma/migrations/20260906235000_crm_sales_task` and
-  `supabase/migrations/20260906235000_crm_sales_task.sql` (**not applied**).
+  `prisma/migrations/20260906235500_crm_sales_task` and
+  `supabase/migrations/20260906235500_crm_sales_task.sql` (**not applied**).
 - `src/modules/crm/sales-task-domain.js` — contracts, status machine, code,
   due state, summary; `src/modules/crm/sales-task-service.js` — the writer
   and readers.
