@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generated_from": "Server live scanner plus Edge registry/content/annotation/Markdown scan",
-  "server_source": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
+  "server_source": "57d816b289aaed1bee767ec4a5c115882964878b",
   "edge_source": "13422dae6280901452a35477dc1bea820cd61fa5",
   "nodes": [
     {
@@ -7748,43 +7748,10 @@
       }
     },
     {
-      "id": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/knowledge/gbdb-rag-service.js",
-      "hash": "802652e0",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@spec": [
-          "SDD-027"
-        ],
-        "@tested": [
-          "tests/unit/gbdb-rag-service.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/knowledge/genesisblockdb-sink.js",
-      "hash": "e9f30af8",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@tested": [
-          "tests/integration/knowledge-genesis-sink.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/knowledge/graph-query.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/graph-query.js",
-      "hash": "ce8b924b",
+      "hash": "4ea8efd0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7799,7 +7766,7 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/index.js",
-      "hash": "ac7f14b5",
+      "hash": "9f383318",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8051,7 +8018,7 @@
       "id": "code:src/modules/knowledge/sink.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/sink.js",
-      "hash": "a83523ff",
+      "hash": "ad52bce9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8066,29 +8033,14 @@
       "id": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/smartgift-knowledge-catalog.js",
-      "hash": "d98f7c6e",
+      "hash": "521e6dd9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/knowledge/smartgift-rag-pipeline.js",
-      "hash": "70dd9b9b",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@spec": [
-          "SDD-027"
         ],
         "@tested": [
-          "tests/unit/smartgift-rag-pipeline.test.js"
+          "tests/integration/smartgift-webhook-e2e.test.js"
         ]
       }
     },
@@ -9090,7 +9042,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/product-readiness-read-model.js",
       "hash": "2f6d600b",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-124"
@@ -10822,7 +10774,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "e6f83a9f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -11165,7 +11117,7 @@
       "type": "document",
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
-      "hash": "0bcf0dba",
+      "hash": "44a8284a",
       "status": "current"
     },
     {
@@ -11581,7 +11533,7 @@
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
       "hash": "565f2d7e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -11589,7 +11541,7 @@
       "path": "docs/domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md",
       "title": "FR-070 — Stable execution, domain, goal, risk, tag and supporting identities",
       "hash": "5c6cbb71",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
@@ -11621,7 +11573,7 @@
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
       "hash": "04f23303",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-079-phase1-line-runtime-connection-cutover",
@@ -11785,7 +11737,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "76075229",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -11793,7 +11745,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "2fb4c508",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -11801,7 +11753,7 @@
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
       "hash": "bd731cee",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -11809,7 +11761,7 @@
       "path": "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
       "title": "FR-112 — Structural knowledge chunking with parent-child lineage",
       "hash": "c67bed21",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-113-entity-candidate-extraction",
@@ -11817,7 +11769,7 @@
       "path": "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
       "title": "FR-113 — Entity candidate extraction from chunks and structured records",
       "hash": "a1bd1a18",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-114-canonical-normalization",
@@ -11825,7 +11777,7 @@
       "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
       "title": "FR-114 — Canonical normalization that never destroys the raw value",
       "hash": "4dc054ba",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-115-document-parsing",
@@ -11833,7 +11785,7 @@
       "path": "docs/domains/knowledge/features/FR-115-document-parsing.md",
       "title": "FR-115 — Document parsing into a structured artifact that keeps its link to the raw source",
       "hash": "7eb68252",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-116-derived-object-provenance",
@@ -11841,7 +11793,7 @@
       "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
       "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
       "hash": "4e7fa5fc",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-117-deduplication-and-versioning",
@@ -11849,7 +11801,7 @@
       "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
       "title": "FR-117 — Deduplication and version relationships within one tenant",
       "hash": "852b88ae",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-118-tier1-stage-composition",
@@ -11857,7 +11809,7 @@
       "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
       "title": "FR-118 — Tier 1 stage composition",
       "hash": "6510c5d7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-120-self-serve-account-creation",
@@ -12205,7 +12157,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
       "title": "FR-148-P1 — Account-scoped CRM conversations",
       "hash": "249e3101",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-148-P2-account-scoped-conversations",
@@ -12213,7 +12165,7 @@
       "path": "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
       "title": "FR-148-P2 — Account-scoped CRM conversations",
       "hash": "03a238f0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P1-server-line-transport",
@@ -12221,7 +12173,7 @@
       "path": "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
       "title": "FR-149-P1 — Server-owned LINE conversation transport",
       "hash": "bf083e5b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P2-server-line-transport",
@@ -12229,7 +12181,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
       "hash": "ca450ad0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P3-server-line-transport",
@@ -12237,7 +12189,7 @@
       "path": "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
       "title": "FR-149-P3 — Server-owned LINE conversation transport",
       "hash": "3f19fa1f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P4-server-line-transport",
@@ -12245,7 +12197,7 @@
       "path": "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
       "title": "FR-149-P4 — Server-owned LINE conversation transport",
       "hash": "d9fe6d5c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P5-server-line-transport",
@@ -12253,7 +12205,7 @@
       "path": "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
       "title": "FR-149-P5 — Server-owned LINE conversation transport",
       "hash": "2d2cdab9",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P1-optional-edge-execution",
@@ -12261,7 +12213,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
       "title": "FR-150-P1 — Optional Edge conversation execution",
       "hash": "3a47b1b4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P2-optional-edge-execution",
@@ -12269,7 +12221,7 @@
       "path": "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
       "title": "FR-150-P2 — Optional Edge conversation execution",
       "hash": "3d4170d1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P3-optional-edge-execution",
@@ -12277,7 +12229,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
       "title": "FR-150-P3 — Optional Edge conversation execution",
       "hash": "a49c99eb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
@@ -12443,7 +12395,7 @@
       "path": "docs/roadmap/PLAN-PENDING-BUSINESS-20260831.md",
       "title": "BUSINESS pending lane: reviewable decisions and next slices",
       "hash": "195d9b18",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PENDING-IDENTITY-20260831",
@@ -12459,7 +12411,7 @@
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
       "hash": "4760777d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -12483,7 +12435,7 @@
       "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
       "title": "Roadmap — SmartGift data backfill and customer import",
       "hash": "f179369d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
@@ -12491,7 +12443,7 @@
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Monorepo migration gates",
       "hash": "7510a989",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -12544,7 +12496,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "title": "ROADMAP: Zuri AI — 24-Week Full System Delivery Program",
-      "hash": "ae6dce12",
+      "hash": "bb90a3f4",
       "status": "current"
     },
     {
@@ -12909,7 +12861,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "00b7725c",
+      "hash": "d9d6bc92",
       "status": "current"
     },
     {
@@ -18664,7 +18616,7 @@
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
       "hash": "067fe2ef",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
@@ -18704,7 +18656,7 @@
       "path": "docs/decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md",
       "title": "ADR-033 — Customer scope and Product Owner authority",
       "hash": "400efad3",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
@@ -18928,14 +18880,22 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "81807e1c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "adr",
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
-      "hash": "4bde9f9e",
+      "hash": "5480953a",
+      "status": "changed"
+    },
+    {
+      "id": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "type": "adr",
+      "path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "title": "ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains",
+      "hash": "37b137e0",
       "status": "current"
     },
     {
@@ -19520,13 +19480,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "type": "test",
-      "path": "apps/server/tests/integration/knowledge-genesis-sink.test.js",
-      "hash": "6781702d",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/knowledge-project.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/knowledge-project.test.js",
@@ -19804,7 +19757,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
       "hash": "cf437d40",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/server-line-webhook.test.js",
@@ -19817,7 +19770,7 @@
       "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
-      "hash": "5ff8b690",
+      "hash": "de6357c0",
       "status": "current"
     },
     {
@@ -20084,7 +20037,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/asset-production-activation-contract.test.js",
       "hash": "e5e35d05",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
@@ -20336,7 +20289,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/customer-import-review-queue-script.test.js",
       "hash": "95a5857e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/customer-import-review-service.test.js",
@@ -20434,14 +20387,14 @@
       "type": "test",
       "path": "apps/server/tests/unit/doc-graph-delivery-attribution.test.js",
       "hash": "6f720e09",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-graph-retired-rules.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/doc-graph-retired-rules.test.js",
       "hash": "7d390701",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-identities.test.js",
@@ -20476,7 +20429,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/docker-publication-containment.test.js",
       "hash": "5e79610d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/document-intake-ui.test.js",
@@ -20497,7 +20450,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "5083dd6a",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -20934,13 +20887,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/unit/gbdb-rag-service.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/gbdb-rag-service.test.js",
-      "hash": "937eb756",
-      "status": "current"
-    },
-    {
       "id": "test:tests/unit/global-view-drilldown.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/global-view-drilldown.test.js",
@@ -21001,7 +20947,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/id-anchor-stability.test.js",
       "hash": "1b52bab1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/identity/agent-tool-authorizer.test.js",
@@ -21456,7 +21402,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/monorepo-layout.test.js",
       "hash": "f7fbc637",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/msp-vault-resolver.test.js",
@@ -22002,7 +21948,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/schema-migration-drift.test.js",
       "hash": "070be8f1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/scope-external-ids-migration.test.js",
@@ -22079,13 +22025,6 @@
       "type": "test",
       "path": "apps/server/tests/unit/smartgift-document-intake-migration.test.js",
       "hash": "6e2cb541",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/smartgift-rag-pipeline.test.js",
-      "hash": "23fc80d5",
       "status": "current"
     },
     {
@@ -22184,7 +22123,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/table-integrity.test.js",
       "hash": "35492257",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/task-intake-modal.test.js",
@@ -37274,27 +37213,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/graph-query.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -37606,20 +37524,6 @@
       "from": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "to": "req:FR-024",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:SDD-027",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -51582,6 +51486,48 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -58316,20 +58262,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "to": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/integration/knowledge-project.test.js",
       "to": "code:src/modules/knowledge/index.js",
       "type": "tests",
@@ -61166,6 +61098,13 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:BR-011",
       "type": "verifies",
       "status": "current",
@@ -61180,7 +61119,21 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-049",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -69698,27 +69651,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/unit/global-view-drilldown.test.js",
       "to": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "type": "tests",
@@ -76824,27 +76756,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/unit/sot-data-plane-auth.test.js",
       "to": "code:src/modules/identity/sot-data-plane-auth.js",
       "type": "tests",
@@ -80299,7 +80210,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 1930,
+    "server_nodes": 1925,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

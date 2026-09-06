@@ -50,16 +50,10 @@ export async function writeGraph(graph, sink) {
   return sink
 }
 
-// GenesisBlockDBSink — future seam (NOT implemented here).
-// A Rust-backed graph engine (GenesisBlockDB / GKS) will provide an adapter that
-// satisfies the GraphSink interface:
-//
-//   function createGenesisBlockDBSink(client) {
-//     return {
-//       addNode(node) { client.upsertNode(node.id, node.type, { label: node.label, key: node.key }) },
-//       addEdge(edge) { client.upsertEdge(edge.from, edge.to, edge.rel, edge.role ? { role: edge.role } : {}) },
-//     }
-//   }
-//
-// It is deliberately left unimplemented: this module owns only the projection + the
-// contract, never the external/Rust adapter (ADR-007 §P5 — GKS is a separate system).
+// GenesisBlockDBSink — the seam is here, the adapter is NOT (ADR-063).
+// An adapter satisfying GraphSink against the GenesisBlockDB client belongs to the
+// Genesis Knowledge System repository (https://github.com/Freshair129/Genesis-Knowledge-System),
+// which owns the write into the substrate (https://github.com/Freshair129/GenesisBlock).
+// One was implemented in this module under ADR-007 §P5 and retired on 2026-09-06: Tier 1
+// never holds a client of the substrate (ADR-043 D2.1, ADR-050 D3), and the JSON sink
+// below is the only sink this module builds.

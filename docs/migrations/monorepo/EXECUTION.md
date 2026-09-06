@@ -25,7 +25,7 @@ database migration, provider call or joint release occurs in this source migrati
 ## Provenance and rollback
 
 [The manifest](source-manifest.json) accounts for every tracked Server file at
-`be9e1440` and Edge file at `13422da`. The latter is the approved synthetic-fixture
+`57d816b2` and Edge file at `13422da`. The latter is the approved synthetic-fixture
 preparation based on Edge `a470a458`. Original Edge history stays in its private
 repository. Original worktrees, device configuration and running containers are
 unchanged. Revert this source commit before any release to restore the prior layout;

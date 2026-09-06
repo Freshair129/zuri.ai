@@ -7,9 +7,10 @@ import { queryKnowledge } from './query'
 //   from the graph (multi-hop traversal), while live facts still come from Zuri queries.
 // @tested tests/integration/agent-runtime.test.js
 //
-// `traverse` is injected — the owner binds it to the real GenesisBlockDB read (the NAPI
-// GenesisDatabase query/traverse), exactly as the sink injects its write client. It must
-// return the principal's relations as `Array<{ rel, node: { id, type, label } }>`.
+// `traverse` is injected, and this module never binds it. The binding must reach the graph
+// through MSP → GKS (ADR-043 D2) or the ADR-046 interim `:8888` surface — never a direct
+// GenesisBlockDB client, which ADR-050 D3 forbids for reads as much as writes (ADR-063 D2).
+// It must return the principal's relations as `Array<{ rel, node: { id, type, label } }>`.
 
 /**
  * Build a knowledge reader that reads a principal's neighbourhood from the graph.

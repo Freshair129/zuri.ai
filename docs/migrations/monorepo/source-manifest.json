@@ -1,6 +1,6 @@
 {
   "strategy": "reviewed snapshot; original private Edge history retained",
-  "server_commit": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
+  "server_commit": "57d816b289aaed1bee767ec4a5c115882964878b",
   "edge_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
   "server": [
     {
@@ -1631,7 +1631,7 @@
       "source_path": "docs/.doc-graph.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "1175d970e661701616d49a0b2499026b4e926bd3",
+      "blob": "07161c64486d57c7827d45e07aa27ec170a18b03",
       "target_path": "docs/.doc-graph.json",
       "disposition": "retained-at-root"
     },
@@ -1639,7 +1639,7 @@
       "source_path": "docs/.domain-state.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "d1fbdd6f19bcbfcb551692931a332df5f0737751",
+      "blob": "5b5689f401f39986dcbd0084f8d3ba22123d2676",
       "target_path": "docs/.domain-state.json",
       "disposition": "retained-at-root"
     },
@@ -1655,7 +1655,7 @@
       "source_path": "docs/.id-ledger.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "3c189007224125017940e4ac841a67cc0c2a0c40",
+      "blob": "79028ef885d01b2f129c24abacb7f64ef99bdc07",
       "target_path": "docs/.id-ledger.json",
       "disposition": "retained-at-root"
     },
@@ -1663,7 +1663,7 @@
       "source_path": "docs/.preflight-report.json",
       "mode": "100644",
       "kind": "blob",
-      "blob": "40005a775ba15f8172c52510cd474a30043559ac",
+      "blob": "756e7d25b61d212209dd2310722593bb856fb339",
       "target_path": "docs/.preflight-report.json",
       "disposition": "retained-at-root"
     },
@@ -1759,7 +1759,7 @@
       "source_path": "docs/DOCUMENT-LINKS.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "338aed8440089a254cc1e4bfe60a719d2664608d",
+      "blob": "184a9e59f86a31490e88376230e6b77b782ec395",
       "target_path": "docs/DOCUMENT-LINKS.md",
       "disposition": "retained-at-root"
     },
@@ -1791,7 +1791,7 @@
       "source_path": "docs/FEATURE-MAP.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "caa2e0a433e8af423bdc8dd0b6cf1829e54f250a",
+      "blob": "a06c321fe43d5b8a4ac2deb8334095c8d9cfce2a",
       "target_path": "docs/FEATURE-MAP.md",
       "disposition": "retained-at-root"
     },
@@ -1887,7 +1887,7 @@
       "source_path": "docs/TRACE.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "a6e8c0c22696783e57e598a5e91ae2e1e7bc3939",
+      "blob": "07cd775cf9258f415d8542c39252f05741420383",
       "target_path": "docs/TRACE.md",
       "disposition": "retained-at-root"
     },
@@ -1919,7 +1919,7 @@
       "source_path": "docs/appendices/D-traceability.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "904685aaf1e5e9add96186263c0b142d60dd6087",
+      "blob": "f59c8c337bb3931a925a97c6ff6816c098164e2f",
       "target_path": "docs/appendices/D-traceability.md",
       "disposition": "retained-at-root"
     },
@@ -3140,6 +3140,14 @@
       "disposition": "retained-at-root"
     },
     {
+      "source_path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "92db70eb56a90d856e4776bef7f918540a8f7643",
+      "target_path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "disposition": "retained-at-root"
+    },
+    {
       "source_path": "docs/deployment/docker-ngrok.md",
       "mode": "100644",
       "kind": "blob",
@@ -3655,7 +3663,7 @@
       "source_path": "docs/domains/knowledge/CHARTER.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "103cbd51a32af8a8241be25620b80f8f0dee3417",
+      "blob": "ca7efd556f86c6d53c756bc415bdb9cd9b0b5bc9",
       "target_path": "docs/domains/knowledge/CHARTER.md",
       "disposition": "retained-at-root"
     },
@@ -4415,7 +4423,7 @@
       "source_path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "mode": "100644",
       "kind": "blob",
-      "blob": "12da05c4ae80a92ecdccbd9f897f0781e7ae4ad0",
+      "blob": "1f1f4ad02a75d0353206312bf6547d57ab95824e",
       "target_path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "disposition": "retained-at-root"
     },
@@ -9204,26 +9212,10 @@
       "disposition": "relocated"
     },
     {
-      "source_path": "src/modules/knowledge/gbdb-rag-service.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "e8c900c7d4e16e28b1887118b61f47f3ac5b0bdd",
-      "target_path": "apps/server/src/modules/knowledge/gbdb-rag-service.js",
-      "disposition": "relocated"
-    },
-    {
-      "source_path": "src/modules/knowledge/genesisblockdb-sink.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "54ab651cdf00fe95285614f502079624a751ac54",
-      "target_path": "apps/server/src/modules/knowledge/genesisblockdb-sink.js",
-      "disposition": "relocated"
-    },
-    {
       "source_path": "src/modules/knowledge/graph-query.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "b30dc79b1ff5d21849596792733a73f0161d1825",
+      "blob": "6783ff319015652672e14bfe17cdee10d40e6bce",
       "target_path": "apps/server/src/modules/knowledge/graph-query.js",
       "disposition": "relocated"
     },
@@ -9231,7 +9223,7 @@
       "source_path": "src/modules/knowledge/index.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "6e081e7c3c347a13baf91cc97fafd16035d59241",
+      "blob": "55a22438e951a7498f03dcd9b1fc71bc93a583fd",
       "target_path": "apps/server/src/modules/knowledge/index.js",
       "disposition": "relocated"
     },
@@ -9335,7 +9327,7 @@
       "source_path": "src/modules/knowledge/sink.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "b68b9d32c3ad339bd8b2ff2546d50bff7a06647f",
+      "blob": "446d2d65fc85a21a6e4919adc32d0dc42c93181e",
       "target_path": "apps/server/src/modules/knowledge/sink.js",
       "disposition": "relocated"
     },
@@ -9343,16 +9335,8 @@
       "source_path": "src/modules/knowledge/smartgift-knowledge-catalog.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "39703d70f0f21cc854f341cf7ebdfa93f0ef064a",
+      "blob": "ab83b53a85f5bcbe08b1ecf0757fa314da94e781",
       "target_path": "apps/server/src/modules/knowledge/smartgift-knowledge-catalog.js",
-      "disposition": "relocated"
-    },
-    {
-      "source_path": "src/modules/knowledge/smartgift-rag-pipeline.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "7cacfe83a2458829675d52f06c4214a0723d5672",
-      "target_path": "apps/server/src/modules/knowledge/smartgift-rag-pipeline.js",
       "disposition": "relocated"
     },
     {
@@ -11108,6 +11092,14 @@
       "disposition": "relocated"
     },
     {
+      "source_path": "tests/factories/smartgift-knowledge.js",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a208e6f0cc46406890bb22304311d6799d303435",
+      "target_path": "apps/server/tests/factories/smartgift-knowledge.js",
+      "disposition": "relocated"
+    },
+    {
       "source_path": "tests/factories/viewer.js",
       "mode": "100644",
       "kind": "blob",
@@ -11676,14 +11668,6 @@
       "disposition": "relocated"
     },
     {
-      "source_path": "tests/integration/knowledge-genesis-sink.test.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "dcfd49ef8609039b2aa2d6754fc50dc2df58188c",
-      "target_path": "apps/server/tests/integration/knowledge-genesis-sink.test.js",
-      "disposition": "relocated"
-    },
-    {
       "source_path": "tests/integration/knowledge-project.test.js",
       "mode": "100644",
       "kind": "blob",
@@ -12015,7 +11999,7 @@
       "source_path": "tests/integration/smartgift-webhook-e2e.test.js",
       "mode": "100644",
       "kind": "blob",
-      "blob": "5963a0c74d45d500843604667bf90da0a7dd83f3",
+      "blob": "9a580c74cc7021a10ab5739fb2eef4dd9b6a447d",
       "target_path": "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
       "disposition": "relocated"
     },
@@ -13324,14 +13308,6 @@
       "disposition": "relocated"
     },
     {
-      "source_path": "tests/unit/gbdb-rag-service.test.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "e5abe496d0745cd2e8f76b7e728c89ddfb1a5138",
-      "target_path": "apps/server/tests/unit/gbdb-rag-service.test.js",
-      "disposition": "relocated"
-    },
-    {
       "source_path": "tests/unit/global-view-drilldown.test.js",
       "mode": "100644",
       "kind": "blob",
@@ -14625,14 +14601,6 @@
       "kind": "blob",
       "blob": "2b9867a48a62d72d319c9c77fadb4b2f34f60407",
       "target_path": "apps/server/tests/unit/smartgift-document-intake-migration.test.js",
-      "disposition": "relocated"
-    },
-    {
-      "source_path": "tests/unit/smartgift-rag-pipeline.test.js",
-      "mode": "100644",
-      "kind": "blob",
-      "blob": "917650d8bf55dfe33d59d2e2e616cb5cd821e2d9",
-      "target_path": "apps/server/tests/unit/smartgift-rag-pipeline.test.js",
       "disposition": "relocated"
     },
     {
@@ -19759,5 +19727,20 @@
     ],
     "findings": [],
     "scope": "Imported Edge current snapshot only; pattern scan is not complete secret clearance"
-  }
+  },
+  "initial_server_commit": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
+  "upstream_reconciliation": {
+    "from": "be9e1440e5fb69a6d1047c535049cdb078b2493a",
+    "to": "57d816b289aaed1bee767ec4a5c115882964878b",
+    "reason": "ADR-063 merged concurrently; preserve its explicit retirements",
+    "removed_source_paths": [
+      "src/modules/knowledge/gbdb-rag-service.js",
+      "src/modules/knowledge/genesisblockdb-sink.js",
+      "src/modules/knowledge/smartgift-rag-pipeline.js",
+      "tests/integration/knowledge-genesis-sink.test.js",
+      "tests/unit/gbdb-rag-service.test.js",
+      "tests/unit/smartgift-rag-pipeline.test.js"
+    ]
+  },
+  "generated_edge_template": "apps/edge/.env.example contains names only; original template values remain held"
 }
