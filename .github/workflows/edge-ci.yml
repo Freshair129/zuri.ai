@@ -1,0 +1,48 @@
+name: edge-ci
+
+# Every pull request, and every push to the default branch. This repository had no
+# CI at all until now, so a green PR page meant nothing: the type checker and the
+# 200+ tests only ever ran on whichever machine the author happened to use.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/edge
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/edge/package-lock.json
+
+      # `npm ci` rather than `npm install`: the lockfile is the contract, and a CI
+      # run that quietly resolves a different tree is not checking what ships.
+      - name: Install
+        run: npm ci
+
+      # A test file nobody runs makes the suite green while covering less, and
+      # silence looks exactly like success. This repository has already had it
+      # happen — see the script, which explains what it checks and why the first
+      # version of this guard asked the wrong question.
+      - name: Every test file is actually run
+        run: node scripts/assert-tests-are-run.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # The cross-repo harness in zuri.ai imports this package's compiled output, so
+      # a build that breaks silently would only surface over there. Checked here.
+      - name: Build
+        run: npm run build

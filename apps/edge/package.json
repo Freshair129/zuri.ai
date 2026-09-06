@@ -1,0 +1,65 @@
+{
+  "name": "zuri-command-agent",
+  "version": "0.2.0b",
+  "description": "Standalone local runtime for the Zuri Command Agent",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "zuri-agent": "dist/cli/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node node_modules/typescript/bin/tsc",
+    "identity:review": "node --import tsx scripts/build-catalog-identity-review.ts",
+    "user-logic:review": "node --import tsx scripts/build-catalog-user-logic-review.ts",
+    "catalog:authoring-input": "node --import tsx scripts/build-catalog-authoring-input.ts",
+    "catalog:vector-input": "node --import tsx scripts/build-catalog-vector-input.ts",
+    "catalog:vector-benchmark": "py -3 scripts/run-catalog-vector-benchmark.py",
+    "catalog:vector-benchmark:ollama": "py -3 scripts/run-catalog-vector-benchmark-ollama.py",
+    "catalog:embedding-resolve": "node --import tsx scripts/build-catalog-embedding-candidate-resolution.ts",
+    "catalog:llm-authoring-eval": "node --import tsx scripts/evaluate-catalog-llm-authoring.ts",
+    "catalog:llm-factorial": "node --import tsx scripts/evaluate-catalog-llm-factorial.ts",
+    "taxonomy:project": "node --import tsx scripts/build-taxonomy-projection.ts",
+    "start": "node dist/cli/index.js conversation serve",
+    "pricing:serve": "node --import tsx scripts/start-pricing-service.ts",
+    "test": "node --import tsx --test tests/contract/zuri-api.test.ts tests/contract/plugin-platform.test.ts tests/contract/edge-extraction-candidate.test.ts tests/unit/plugin-auth.test.ts tests/unit/queries.test.ts tests/unit/cards.test.ts tests/unit/evidence.test.ts tests/unit/commands.test.ts tests/unit/client-persistence.test.ts tests/unit/config.test.ts tests/unit/redact.test.ts tests/unit/pricing.test.ts tests/unit/pricing-service.test.ts tests/unit/pricing-page-contract.test.ts tests/unit/line-poc.test.ts tests/unit/catalog-store.test.ts tests/unit/history.test.ts tests/unit/identity.test.ts tests/unit/answer.test.ts tests/unit/conversation.test.ts tests/unit/headless.test.ts tests/unit/delivery.test.ts tests/unit/outbound-archive.test.ts tests/unit/heartbeat.test.ts tests/unit/admin-auth.test.ts tests/unit/config-reload.test.ts tests/unit/push-targets.test.ts tests/unit/stack.test.ts tests/unit/model-port.test.ts tests/unit/edge-extraction-contract.test.ts tests/unit/edge-extraction-client.test.ts tests/unit/edge-extraction-extractor.test.ts tests/unit/edge-extraction-worker.test.ts tests/unit/edge-extraction-secrecy.test.ts tests/unit/model-warmer.test.ts tests/unit/model-fallback.test.ts tests/unit/genesis-rag.test.ts tests/unit/genesis-readiness.test.ts tests/unit/genesis-taxonomy.test.ts tests/unit/genesis-taxonomy-report.test.ts tests/unit/genesis-taxonomy-projection.test.ts tests/unit/genesis-taxonomy-projection-store.test.ts tests/unit/genesis-taxonomy-serving.test.ts tests/unit/catalog-identity.test.ts tests/unit/catalog-user-logic-review.test.ts tests/unit/catalog-embedding-candidate-resolution.test.ts tests/unit/v4-clients.test.ts tests/unit/v4-querysets.test.ts tests/unit/v4-config.test.ts tests/unit/v4-flowaccount.test.ts tests/unit/v4-schema.test.ts tests/unit/v4-sku.test.ts tests/unit/v4-query-parser.test.ts tests/unit/v4-build-graph.test.ts tests/unit/v4-search.test.ts tests/unit/v4-format-cards.test.ts tests/unit/v4-ingest.test.ts tests/unit/v4-upstream-projection.test.ts tests/unit/v4-paths.test.ts tests/unit/v4-graph-snapshot.test.ts tests/unit/v4-answer-tools.test.ts tests/unit/v4-adr-guard.test.ts tests/unit/v4-persona-rules.test.ts tests/unit/v4-flex-modelcard.test.ts tests/unit/v4-eval-metrics.test.ts tests/unit/v4-eval-cli.test.ts tests/unit/line-delivery-receipt.test.ts tests/replay/line-chat.test.ts tests/integration/genesis-ingest.test.ts tests/integration/v4-store.test.ts tests/unit/conversation-worker.test.ts",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "catalog:ingest-v4": "node --import tsx scripts/ingest-catalog-v4.ts",
+    "catalog:eval-v4": "node --import tsx scripts/eval-catalog-v4.ts",
+    "test:store": "node --import tsx --test tests/integration/v4-store.test.ts",
+    "postbuild": "node -e \"require('fs').cpSync('src/rag/v4/config','dist/rag/v4/config',{recursive:true})\"",
+    "catalog:source-v4": "node --import tsx scripts/build-catalog-source-v4.ts",
+    "embed:serve": "py -3 scripts/embed-sidecar.py",
+    "embed:serve:onnx": "py -3 scripts/embed-sidecar-onnx.py",
+    "rag:serve": "node --import tsx scripts/rag-serve.ts",
+    "catalog:pipeline": "npm run catalog:source-v4 && npm run catalog:ingest-v4",
+    "rag:diagnose": "node --import tsx scripts/diagnose-rag-store.ts",
+    "model:benchmark": "node --import tsx scripts/benchmark-answer-model.ts",
+    "start:legacy": "node dist/cli/index.js webhook serve"
+  },
+  "keywords": [
+    "zuri",
+    "command-agent",
+    "duckdb",
+    "flex-cards"
+  ],
+  "author": "ATHER",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
+    "@freshair129/gks-genesis-block-native": "^0.2.5",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "dotenv": "^16.4.5",
+    "duckdb": "^1.1.3",
+    "exceljs": "^4.4.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  },
+  "allowScripts": {
+    "duckdb@1.4.4": true,
+    "esbuild@0.28.2": true
+  }
+}

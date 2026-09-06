@@ -1,5 +1,23 @@
 # CLAUDE.md — working guide for this repository
 
+## Monorepo paths (ADR-062, 2026-09-06)
+
+Canonical governance remains in root `docs/`. Server source, tests, Prisma,
+scripts and lockfile live in `apps/server/`; Edge has its own complete dependency
+tree in `apps/edge/`. Run app-specific commands from that application's directory.
+Root npm commands delegate to Server; `edge:test`, `edge:build` and `edge:typecheck`
+select Edge. Root `npm run govern` regenerates and validates both graph scopes.
+Install each app independently (`npm --prefix apps/server ci` and
+`npm --prefix apps/edge ci`). Server installation does not install Edge dependencies.
+Cross-app contract tests additionally need the Edge consumer dependencies.
+
+Historical `src/`, `tests/`, `prisma/` and `scripts/` references below are
+Server-relative; canonical IDs and subject anchors are unchanged. Edge historical
+IDs are qualified as `edge::...` only in the combined graph. Read
+[snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
+held files and release limits. Original device configuration/data are untouched.
+
+
 Read this first, then `AGENTS.md` for the full rules.
 This file is the short version: where things are, what to run, what never to touch.
 

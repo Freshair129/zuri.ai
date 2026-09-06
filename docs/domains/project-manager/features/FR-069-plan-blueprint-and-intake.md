@@ -492,5 +492,5 @@ allowlist in a UI component or Agent prompt.
 - [FR-068 — Human-visible Execution Roadmap](FR-068-human-visible-execution-roadmap.md)
 - [FR-070 — Stable execution, domain and tag identities](FR-070-stable-execution-domain-and-tag-identities.md)
 - [Seven Execution Modes](../../../EXECUTION-MODES.md)
-- [PlanEnvelope schema](../../../../contracts/plan-envelope.schema.json)
+- [PlanEnvelope schema](../../../../apps/server/contracts/plan-envelope.schema.json)
 - SDD-039 — Roadmap contract (registered in [PRD-SDD-v1.0.md](../../../PRD-SDD-v1.0.md))

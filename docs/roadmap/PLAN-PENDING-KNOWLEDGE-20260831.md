@@ -41,7 +41,7 @@ attributes:
 | [ADR-043](../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) และ [ADR-045](../decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) | MSP เป็น gateway, GKS เป็น canonical authority, identity/scope ต้องมาก่อน memory/retrieval |
 | [ADR-046](../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) และ [ADR-047](../decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) | data plane ดึง decision ที่ตัดสินแล้วด้วย cursor; Zuri ไม่เขียน DuckDB/Genesis โดยตรง |
 | [ADR-050](../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) | Stage 1–8 อยู่ Tier1; Stage 9–17 อยู่ GKS/Genesis ตาม owner matrix และ Zuri บันทึก evidence เท่านั้น |
-| [ROADMAP](./ROADMAP.md) และ [Phase 04 MSP](./line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md) | roadmap ยังระบุ FR-110 เป็นงานค้าง; MSP phase เป็น candidate และต้องมี retention/consent/transport evidence ก่อน |
+| [ROADMAP](ROADMAP.md) และ [Phase 04 MSP](line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md) | roadmap ยังระบุ FR-110 เป็นงานค้าง; MSP phase เป็น candidate และต้องมี retention/consent/transport evidence ก่อน |
 
 ## ไฟล์ปัจจุบันที่เกี่ยวข้อง
 

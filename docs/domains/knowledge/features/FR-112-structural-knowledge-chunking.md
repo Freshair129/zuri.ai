@@ -174,9 +174,9 @@ Each criterion is checked when a test in
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](./FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-CHUNK` catalog row this implements
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md)
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-CHUNK` catalog row this implements
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md)
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from
 - [PRD-SDD v1.0 — FR-112, SDD-059, SDD-057, BR-021](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 7 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §12 (Stage 7) is the source requirement
