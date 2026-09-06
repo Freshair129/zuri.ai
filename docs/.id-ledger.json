@@ -569,6 +569,7 @@
     "ADR-060",
     "ADR-061",
     "ADR-062",
+    "ADR-063",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -6917,6 +6918,19 @@
       "history": [
         {
           "anchor": "candidate server edge monorepo with independent releases",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-063": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "status": "current",
+      "statement_digest": "d6ea7d0c67f1fe6354005628fa5dfafc7a6807ca4197a4adb74a9b22ff570282",
+      "history": [
+        {
+          "anchor": "retire tier 1 genesisblockdb direct clients",
           "since": "2026-09-06",
           "reason": "declared"
         }

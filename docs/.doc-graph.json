@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1991,
-    "total_edges": 7718,
+    "total_nodes": 1986,
+    "total_edges": 7714,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 183,
-      "adr": 62,
+      "adr": 63,
       "domain": 11,
       "roadmap": 37,
       "feature": 20,
       "route": 231,
       "model": 100,
       "requirement": 313,
-      "test": 484,
-      "code_file": 546
+      "test": 481,
+      "code_file": 543
     },
     "coverage": {
       "requirements": 313,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (146/146)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 546,
+      "annotated_code_files": 543,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,8 +54,87 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
+      "doc:full-schema",
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/domain-state.test.js",
+      "code:src/config/domains.js",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/identity/rbac.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js"
+    ],
+    "added": [
+      "domain:inventory",
+      "doc:FR-154-inventory-catalogue-identity",
+      "doc:FR-155-inventory-stock-ledger",
+      "doc:FR-156-inventory-recipe-bill-of-materials",
+      "doc:ONTOLOGY",
+      "feat:FEAT-020",
+      "route:page:/inventory",
+      "route:api:/api/inventory/bundles",
+      "route:api:/api/inventory/categories",
+      "route:api:/api/inventory/factories",
+      "route:api:/api/inventory/families",
+      "route:api:/api/inventory/lots",
+      "route:api:/api/inventory/product-masters",
+      "route:api:/api/inventory/products",
+      "route:api:/api/inventory/products/[id]",
+      "route:api:/api/inventory/recipes",
+      "route:api:/api/inventory/recipes/[id]/build",
+      "route:api:/api/inventory/recipes/[id]",
+      "route:api:/api/inventory/serial-units",
+      "route:api:/api/inventory/stock",
+      "route:api:/api/inventory/stock-movements",
+      "model:InventoryCategory",
+      "model:ProductFamily",
+      "model:Factory",
+      "model:ProductMaster",
+      "model:Product",
+      "model:ProductLot",
+      "model:SerialUnit",
+      "model:ProductBundle",
+      "model:ProductBundleItem",
+      "model:StockMovement",
+      "model:ProductRecipe",
+      "model:ProductRecipeLine",
+      "req:FR-154",
+      "req:FR-155",
+      "req:FR-156",
+      "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "test:tests/integration/fr154-inventory-catalog.test.js",
+      "test:tests/integration/fr155-inventory-stock.test.js",
+      "test:tests/integration/fr156-inventory-recipe.test.js",
+      "test:tests/unit/inventory-domain.test.js",
+      "test:tests/unit/inventory-routes.test.js",
+      "code:src/app/(pm)/inventory/page.jsx",
+      "code:src/app/api/inventory/bundles/route.js",
+      "code:src/app/api/inventory/categories/route.js",
+      "code:src/app/api/inventory/factories/route.js",
+      "code:src/app/api/inventory/families/route.js",
+      "code:src/app/api/inventory/lots/route.js",
+      "code:src/app/api/inventory/product-masters/route.js",
+      "code:src/app/api/inventory/products/route.js",
+      "code:src/app/api/inventory/products/[id]/route.js",
+      "code:src/app/api/inventory/recipes/route.js",
+      "code:src/app/api/inventory/recipes/[id]/build/route.js",
+      "code:src/app/api/inventory/recipes/[id]/route.js",
+      "code:src/app/api/inventory/serial-units/route.js",
+      "code:src/app/api/inventory/stock/route.js",
+      "code:src/app/api/inventory/stock-movements/route.js",
+      "code:src/modules/inventory/application/inventory-authority.js",
+      "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "code:src/modules/inventory/application/inventory-recipe-service.js",
+      "code:src/modules/inventory/application/inventory-stock-service.js",
+      "code:src/modules/inventory/domain/inventory.js",
+      "code:src/modules/inventory/index.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -5224,7 +5303,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "0de1745b",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5546,7 +5625,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "e1fa4a75",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7549,7 +7628,7 @@
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
       "hash": "04df3468",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-076",
@@ -8233,43 +8312,10 @@
       }
     },
     {
-      "id": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/gbdb-rag-service.js",
-      "hash": "802652e0",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@spec": [
-          "SDD-027"
-        ],
-        "@tested": [
-          "tests/unit/gbdb-rag-service.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/genesisblockdb-sink.js",
-      "hash": "e9f30af8",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@tested": [
-          "tests/integration/knowledge-genesis-sink.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/knowledge/graph-query.js",
       "type": "code_file",
       "path": "src/modules/knowledge/graph-query.js",
-      "hash": "ce8b924b",
+      "hash": "4ea8efd0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8284,7 +8330,7 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "ac7f14b5",
+      "hash": "9f383318",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8536,7 +8582,7 @@
       "id": "code:src/modules/knowledge/sink.js",
       "type": "code_file",
       "path": "src/modules/knowledge/sink.js",
-      "hash": "a83523ff",
+      "hash": "ad52bce9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8551,29 +8597,14 @@
       "id": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "type": "code_file",
       "path": "src/modules/knowledge/smartgift-knowledge-catalog.js",
-      "hash": "d98f7c6e",
+      "hash": "521e6dd9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/smartgift-rag-pipeline.js",
-      "hash": "70dd9b9b",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-024"
-        ],
-        "@spec": [
-          "SDD-027"
         ],
         "@tested": [
-          "tests/unit/smartgift-rag-pipeline.test.js"
+          "tests/integration/smartgift-webhook-e2e.test.js"
         ]
       }
     },
@@ -9270,7 +9301,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "414c19b2",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -9341,7 +9372,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "fb9d6e00",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -11305,14 +11336,14 @@
       "version": "1.44.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "f87f8cad",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "10bf9a6e",
+      "hash": "6b951152",
       "status": "current"
     },
     {
@@ -11359,7 +11390,7 @@
       "version": "1.22.0b",
       "doc_status": "Draft",
       "hash": "2d18728c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11693,7 +11724,7 @@
       "version": "1.26.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "d8a75d45",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12564,7 +12595,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "3dd0f9e2",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -12612,7 +12643,7 @@
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "573d314f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -13016,7 +13047,7 @@
       "version": "1.159.0b",
       "doc_status": "Draft",
       "hash": "d0d6cc09",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -13044,7 +13075,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "78cc892c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -13059,7 +13090,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
       "title": "ROADMAP: Zuri AI — 24-Week Full System Delivery Program",
-      "hash": "ae6dce12",
+      "hash": "bb90a3f4",
       "status": "current"
     },
     {
@@ -13456,7 +13487,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "00b7725c",
+      "hash": "d9d6bc92",
       "status": "current"
     },
     {
@@ -19703,6 +19734,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "type": "adr",
+      "path": "docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md",
+      "title": "ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains",
+      "hash": "37b137e0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -20312,13 +20351,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "type": "test",
-      "path": "tests/integration/knowledge-genesis-sink.test.js",
-      "hash": "6781702d",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/knowledge-project.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-project.test.js",
@@ -20484,7 +20516,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "46991e19",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -20609,7 +20641,7 @@
       "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "type": "test",
       "path": "tests/integration/smartgift-webhook-e2e.test.js",
-      "hash": "5ff8b690",
+      "hash": "de6357c0",
       "status": "current"
     },
     {
@@ -21289,7 +21321,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "c26f44ff",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -21723,13 +21755,6 @@
       "type": "test",
       "path": "tests/unit/gate-cap-rounding.test.js",
       "hash": "fb34773e",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/gbdb-rag-service.test.js",
-      "type": "test",
-      "path": "tests/unit/gbdb-rag-service.test.js",
-      "hash": "937eb756",
       "status": "current"
     },
     {
@@ -22878,13 +22903,6 @@
       "type": "test",
       "path": "tests/unit/smartgift-document-intake-migration.test.js",
       "hash": "6e2cb541",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "type": "test",
-      "path": "tests/unit/smartgift-rag-pipeline.test.js",
-      "hash": "23fc80d5",
       "status": "current"
     },
     {
@@ -35308,27 +35326,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/graph-query.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -35640,20 +35637,6 @@
       "from": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "to": "req:FR-024",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:FR-024",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "to": "req:SDD-027",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -49903,6 +49886,48 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -56973,20 +56998,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "to": "code:src/modules/knowledge/genesisblockdb-sink.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/knowledge-genesis-sink.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/integration/knowledge-project.test.js",
       "to": "code:src/modules/knowledge/index.js",
       "type": "tests",
@@ -59865,6 +59876,13 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:BR-011",
       "type": "verifies",
       "status": "current",
@@ -59879,7 +59897,21 @@
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-049",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -68488,27 +68520,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "code:src/modules/knowledge/gbdb-rag-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/gbdb-rag-service.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/unit/global-view-drilldown.test.js",
       "to": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "type": "tests",
@@ -75913,27 +75924,6 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:FR-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
     },
     {
       "from": "test:tests/unit/sot-data-plane-auth.test.js",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T14:48:26.983Z",
+  "generatedAt": "2026-09-06T14:50:10.092Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -271,7 +271,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-050",
@@ -1902,8 +1902,8 @@
           "id": "FR-024",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 6
         },
         {
           "id": "FR-047",
@@ -6283,13 +6283,11 @@
           "id": "FR-024",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 6
         }
       ],
       "evidence": [
-        "src/modules/knowledge/gbdb-rag-service.js",
-        "src/modules/knowledge/genesisblockdb-sink.js",
         "src/modules/knowledge/graph-query.js",
         "src/modules/knowledge/index.js",
         "src/modules/knowledge/live-facts.js",
@@ -6297,15 +6295,12 @@
         "src/modules/knowledge/query.js",
         "src/modules/knowledge/sink.js",
         "src/modules/knowledge/smartgift-knowledge-catalog.js",
-        "src/modules/knowledge/smartgift-rag-pipeline.js",
         "tests/integration/agent-runtime.test.js",
-        "tests/integration/knowledge-genesis-sink.test.js",
         "tests/integration/knowledge-project.test.js",
         "tests/integration/knowledge-query.test.js",
+        "tests/integration/smartgift-webhook-e2e.test.js",
         "tests/unit/activation-readiness-integration.test.js",
-        "tests/unit/gbdb-rag-service.test.js",
-        "tests/unit/runtime-isolation-probe.test.js",
-        "tests/unit/smartgift-rag-pipeline.test.js"
+        "tests/unit/runtime-isolation-probe.test.js"
       ]
     },
     {
@@ -7325,7 +7320,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -7333,6 +7328,7 @@
         "src/modules/agent/index.js",
         "tests/integration/agent-action-gate.test.js",
         "tests/integration/agent-context.test.js",
+        "tests/integration/smartgift-webhook-e2e.test.js",
         "tests/unit/activation-readiness-integration.test.js",
         "tests/unit/grounded-business-answer.test.js"
       ]
