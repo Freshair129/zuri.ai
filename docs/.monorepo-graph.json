@@ -21818,14 +21818,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "ef0c5b18",
+      "hash": "2ee571d7",
       "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "1657fe43",
+      "hash": "8a4f5941",
       "status": "changed"
     },
     {
