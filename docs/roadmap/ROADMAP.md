@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.42.0b"
+version: "2.43.0b"
 updated: "2026-09-07"
 owner: "Owen"
 source_of_truth: true
@@ -357,6 +357,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-158 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-158) | P1 | RWANG / Luna | in-progress | FR-159; SDD-086 | ../domains/marketing/features/FR-159-strategy-plans.md |
 | TASK-FR-160 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-160); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-159; FR-158; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
 | TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | done | FR-159; FR-160; SDD-088 | marketing/PHASE-CONTENT-2026-09-06.md |
+| TASK-FR-162 | PHASE-ZAI-MARKETING | task | Marketing Operations composition boundary: Business-scoped Intake, PM-owned Calendar projection, Marketing approvals and validated Handoff receipts across four tabs (FR-162) | P1 | RWANG / Luna | done (local; SmartGift live PM intake pending) | FR-157; FR-158; SDD-089 | marketing/PHASE-OPERATIONS-2026-09-07.md |
 | TASK-FR-161 | PHASE-ZAI-CRM | task | FR-161 Sales Tasks (FEAT-022, ADR-064): `SalesTask` — งานติดตามที่พนักงานขายติดค้างลูกค้า scope ที่ Business, ผูก Customer / Conversation ของ tenant เดียวกันผ่าน Business เท่านั้น (Conversation บอก Customer ให้เมื่อไม่ระบุ ปฏิเสธเมื่อไม่ตรง), ผู้รับผิดชอบต้องมี Membership ACTIVE ครอบ Business, code `TSK-YYYYMMDD-NNN`, type / priority / scheduleKind (SINGLE + ช่วงเวลา, RANGE), status machine OPEN → IN_PROGRESS → DONE / CANCELLED + REOPEN, CAS บน `version`, audit ทุก action, dueState + summary คำนวณตอนอ่าน; อ่านต้องมี `customer` domain (404 ถ้าไม่มี), เขียนต้อง OWNER หรือ `SALES_REP` (403); route `GET/POST /api/crm/sales-tasks`, `GET/PATCH /api/crm/sales-tasks/[id]`; หน้า `/customer/sales-tasks` ใต้ CRM | P1 | Claude | done (local; production migration pending) | FR-161; FR-061; FR-072; FR-076; FEAT-022; ADR-064; ADR-054; BR-001; BR-002 | ../domains/crm/features/FR-161-sales-tasks.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
@@ -409,3 +410,5 @@ Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current
 Version diff 2.38.0b → 2.39.0b: add Campaign delivery row and its integrated verification evidence; existing Marketing Strategy rows retain their scope.
 
 Version diff 2.39.0b → 2.39.1b: record bounded Content task DONE with local phase evidence; full Marketing and live intake gates remain open.
+
+Version diff 2.42.0b → 2.43.0b (2026-09-07): reconcile main's CRM Sales Tasks row (FR-161) with Marketing Operations moved to FR-162; both delivery rows remain in their owning domains and SmartGift live intake remains an external gate.
