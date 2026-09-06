@@ -227,6 +227,50 @@ pub fn check_headless_cli(bin: String) -> CommandResult {
     }
 }
 
+#[tauri::command]
+pub fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
+#[tauri::command]
+pub async fn check_app_update(app: tauri::AppHandle) -> Result<CommandResult, String> {
+    use tauri_plugin_updater::UpdaterExt;
+
+    match app.updater() {
+        Ok(updater) => match updater.check().await {
+            Ok(Some(update)) => Ok(CommandResult {
+                success: true,
+                message: format!("พบอัปเดตเวอร์ชันใหม่ v{}", update.version),
+                data: Some(serde_json::json!({
+                    "hasUpdate": true,
+                    "version": update.version,
+                    "currentVersion": env!("CARGO_PKG_VERSION"),
+                    "body": update.body.clone().unwrap_or_default(),
+                    "date": update.date.map(|d| d.to_string())
+                })),
+            }),
+            Ok(None) => Ok(CommandResult {
+                success: true,
+                message: format!("คุณกำลังใช้งานเวอร์ชันล่าสุด (v{})", env!("CARGO_PKG_VERSION")),
+                data: Some(serde_json::json!({
+                    "hasUpdate": false,
+                    "currentVersion": env!("CARGO_PKG_VERSION")
+                })),
+            }),
+            Err(e) => Ok(CommandResult {
+                success: false,
+                message: format!("ไม่สามารถตรวจสอบอัปเดตได้: {}", e),
+                data: None,
+            }),
+        },
+        Err(e) => Ok(CommandResult {
+            success: false,
+            message: format!("Updater ไม่พร้อมใช้งาน: {}", e),
+            data: None,
+        }),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

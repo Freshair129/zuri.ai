@@ -275,13 +275,18 @@
         <span class="info-value" id="dispHeartbeat">—</span>
       </div>
       <div class="info-row">
+        <span class="info-label">App Version:</span>
+        <span class="info-value" id="dispVersion">v0.2.0</span>
+      </div>
+      <div class="info-row">
         <span class="info-label">Execution Mode:</span>
         <span class="info-value" style="color: var(--brand-amber);" id="dispMode">HEADLESS_PLAN (Subscription)</span>
       </div>
 
-      <div style="margin-top: 16px; display: flex; gap: 10px;">
+      <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px;">
         <button class="btn btn-primary" id="btnHeartbeat">⚡ ทดสอบ Heartbeat ทันที</button>
         <button class="btn btn-secondary" id="btnCheckCodex">🤖 เช็ค Codex / Claude CLI</button>
+        <button class="btn btn-secondary" id="btnCheckUpdate">🔄 ตรวจสอบการอัปเดต</button>
       </div>
     </div>
   </main>
@@ -379,6 +384,16 @@
     document.getElementById('btnCheckCodex').addEventListener('click', async () => {
       try {
         const res = await invokeCmd('check_headless_cli', { bin: 'codex' });
+        showToast(res.message);
+      } catch (err) {
+        showToast('❌ ข้อผิดพลาด: ' + err);
+      }
+    });
+
+    document.getElementById('btnCheckUpdate').addEventListener('click', async () => {
+      try {
+        showToast('กำลังตรวจสอบอัปเดตจาก GitHub Releases...');
+        const res = await invokeCmd('check_app_update');
         showToast(res.message);
       } catch (err) {
         showToast('❌ ข้อผิดพลาด: ' + err);

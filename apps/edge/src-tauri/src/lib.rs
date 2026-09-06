@@ -2,8 +2,8 @@ pub mod commands;
 
 use std::sync::Mutex;
 use commands::{
-    check_headless_cli, get_edge_status, import_pairing_payload, load_persisted_config,
-    send_heartbeat_now, AppState,
+    check_app_update, check_headless_cli, get_app_version, get_edge_status, import_pairing_payload,
+    load_persisted_config, send_heartbeat_now, AppState,
 };
 
 pub fn run() {
@@ -17,6 +17,7 @@ pub fn run() {
         ))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(AppState {
             config: Mutex::new(initial_config),
         })
@@ -24,7 +25,9 @@ pub fn run() {
             get_edge_status,
             import_pairing_payload,
             send_heartbeat_now,
-            check_headless_cli
+            check_headless_cli,
+            get_app_version,
+            check_app_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running Zuri Edge Device application");
