@@ -1,0 +1,12 @@
+entity_id: test:tests/unit/pricing-service.test.ts
+entity_type: test
+canonical_path: tests/unit/pricing-service.test.ts
+status: active
+introduced_by:
+  actor_type: agent
+  actor_id: claude-opus-5
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-06T03:35:29Z
+  source_ref: OWNER-2026-09-06-namespace-correction
+  approval_ref: OWNER-2026-09-06-namespace-correction

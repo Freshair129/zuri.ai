@@ -39,11 +39,11 @@ Market Intelligence หลัง owner อนุมัติเท่านั�
 | แหล่ง | หลักฐานที่ใช้ |
 |---|---|
 | checkout | branch codex/parallel-backlog-review-20260831, commit 424f5fab525d20fdf1180fabee4c8cf9d16dd994; clean at review time |
-| parent | [PRD/SDD registry](../PRD-SDD-v1.0.md), [feature registry](../FEATURES.md), [current roadmap](./ROADMAP.md) |
+| parent | [PRD/SDD registry](../PRD-SDD-v1.0.md), [feature registry](../FEATURES.md), [current roadmap](ROADMAP.md) |
 | parent decisions | [ADR-035 canvas](../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md), [ADR-053 FlowAccount](../decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md), [ADR-054 CRM](../decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) |
 | peer feature notes | [FR129](../domains/integration/features/FR-129-catalog-publication-approval-gate.md), [FR130](../domains/integration/features/FR-130-github-repository-projection.md), [FR131](../domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md), [FR132](../domains/agent/features/FR-132-line-ladder-quotation-tool.md) |
-| source evidence | [gate compliance](../../src/platform/integrations/core/pipeline-gate-compliance.js), [business knowledge contract](../../src/modules/knowledge/business-contract.js), [agent tools](../../src/modules/agent/tools.js), [LINE ingress](../../src/platform/integrations/providers/line/line-oa-webhook.js) |
-| verification evidence | [FR129 tests](../../tests/integration/fr129-catalog-publication-gate.test.js), [FR130 catalog e2e](../../tests/e2e/fr130-connector-catalog.spec.js), existing CRM consent/inbox tests; no FR126–128, FR131, FR132 or projection test proves implementation |
+| source evidence | [gate compliance](../../apps/server/src/platform/integrations/core/pipeline-gate-compliance.js), [business knowledge contract](../../apps/server/src/modules/knowledge/business-contract.js), [agent tools](../../apps/server/src/modules/agent/tools.js), [LINE ingress](../../apps/server/src/platform/integrations/providers/line/line-oa-webhook.js) |
+| verification evidence | [FR129 tests](../../apps/server/tests/integration/fr129-catalog-publication-gate.test.js), [FR130 catalog e2e](../../apps/server/tests/e2e/fr130-connector-catalog.spec.js), existing CRM consent/inbox tests; no FR126–128, FR131, FR132 or projection test proves implementation |
 | external state | Parent supplied open issues #99, #74 and #76–#84 with no open PR and green main CI. This is not re-verified here; issue titles are not inferred from a search miss. |
 
 Provider/account state was not called. FlowAccount facts in ADR-053 are a dated

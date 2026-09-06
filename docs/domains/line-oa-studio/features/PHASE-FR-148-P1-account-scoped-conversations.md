@@ -45,8 +45,8 @@ Reject cross-scope input; a legacy transcript remains LEGACY:LINE and is never g
 
 ## Source and validation anchors
 
-- [Implementation or wire contract](../../../../src/modules/line-oa-studio/application/line-conversation-jobs.js)
-- [Server verification anchor](../../../../tests/integration/line-account-isolation.test.js)
+- [Implementation or wire contract](../../../../apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js)
+- [Server verification anchor](../../../../apps/server/tests/integration/line-account-isolation.test.js)
 - [Shared map, explicit rollout gates and repository evidence](../../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 
 These anchors identify available coverage; this phase note does not assert that an external device, production database or real LINE delivery has been verified.

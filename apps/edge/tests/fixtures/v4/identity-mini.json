@@ -1,0 +1,132 @@
+{
+  "productMasters": [
+    {
+      "productId": "PRODUCT_M1",
+      "displayName": "สมุดโน้ต Powerbank",
+      "englishName": "Notebook Powerbank",
+      "baseSignature": "notebook power bank wireless charging 8000mah",
+      "status": "auto",
+      "typeId": "notebook",
+      "physicalVariantIds": ["PHYSICAL_VARIANT_M1A", "PHYSICAL_VARIANT_M1B"],
+      "offerIds": ["OFFER_TSP07-2"]
+    },
+    {
+      "productId": "PRODUCT_M2",
+      "displayName": "เครื่องนวดคอ",
+      "englishName": "Neck massager",
+      "baseSignature": "neck massager 4 modes 15 levels heat compress",
+      "status": "review_required",
+      "typeId": null,
+      "physicalVariantIds": ["PHYSICAL_VARIANT_M2A"],
+      "offerIds": ["OFFER_TSP07-2", "OFFER_TBY01"]
+    },
+    {
+      "productId": "PRODUCT_M3",
+      "displayName": "แก้วมัค",
+      "englishName": "Mug",
+      "baseSignature": "ceramic mug 350ml",
+      "status": "candidate",
+      "typeId": null,
+      "physicalVariantIds": ["PHYSICAL_VARIANT_M3A", "PHYSICAL_VARIANT_M3B"],
+      "offerIds": []
+    }
+  ],
+  "variants": [
+    {
+      "physicalVariantId": "PHYSICAL_VARIANT_M1A",
+      "productId": "PRODUCT_M1",
+      "status": "auto",
+      "attributes": { "colors": ["Black"], "sizes": ["A5"], "materials": null }
+    },
+    {
+      "physicalVariantId": "PHYSICAL_VARIANT_M1B",
+      "productId": "PRODUCT_M1",
+      "status": "auto",
+      "attributes": { "colors": ["Blue"], "sizes": ["A5"], "materials": null }
+    },
+    {
+      "physicalVariantId": "PHYSICAL_VARIANT_M2A",
+      "productId": "PRODUCT_M2",
+      "status": "review_required",
+      "attributes": { "colors": ["White"], "sizes": null, "materials": null }
+    },
+    {
+      "physicalVariantId": "PHYSICAL_VARIANT_M3A",
+      "productId": "PRODUCT_M3",
+      "status": "candidate",
+      "attributes": { "colors": ["White"], "sizes": null, "materials": null }
+    },
+    {
+      "physicalVariantId": "PHYSICAL_VARIANT_M3B",
+      "productId": "PRODUCT_M3",
+      "status": "candidate",
+      "attributes": { "colors": ["Red"], "sizes": null, "materials": null }
+    }
+  ],
+  "offers": [
+    {
+      "offerId": "OFFER_TSP07-2",
+      "sourceCode": "TSP07-2",
+      "offerKind": "set",
+      "status": "auto",
+      "productId": null,
+      "componentLinkIds": ["COMPONENT_LINK_CL1", "COMPONENT_LINK_CL2"],
+      "customizationProfileIds": ["CUSTOMIZATION_CP1"]
+    },
+    {
+      "offerId": "OFFER_TBY01",
+      "sourceCode": "TBY01",
+      "offerKind": "single",
+      "status": "auto",
+      "productId": "PRODUCT_M2",
+      "componentLinkIds": [],
+      "customizationProfileIds": []
+    }
+  ],
+  "componentLinks": [
+    {
+      "componentLinkId": "COMPONENT_LINK_CL1",
+      "offerId": "OFFER_TSP07-2",
+      "productId": "PRODUCT_M1",
+      "physicalVariantId": "PHYSICAL_VARIANT_M1A",
+      "quantity": 1,
+      "position": 1,
+      "role": "notebook",
+      "typeId": "notebook"
+    },
+    {
+      "componentLinkId": "COMPONENT_LINK_CL2",
+      "offerId": "OFFER_TSP07-2",
+      "productId": "PRODUCT_M2",
+      "physicalVariantId": "PHYSICAL_VARIANT_M2A",
+      "quantity": 1,
+      "position": 2,
+      "role": "neck_massager",
+      "typeId": null
+    }
+  ],
+  "customizationProfiles": [
+    {
+      "customizationProfileId": "CUSTOMIZATION_CP1",
+      "optionIds": ["screen_logo"]
+    }
+  ],
+  "graph": {
+    "nodes": [
+      { "id": "ATTR_COLOR_BLACK", "label": "AttributeValue", "props": { "attributeType": "colors", "value": "Black" } },
+      { "id": "ATTR_COLOR_BLUE", "label": "AttributeValue", "props": { "attributeType": "colors", "value": "Blue" } },
+      { "id": "ATTR_SIZE_A5", "label": "AttributeValue", "props": { "attributeType": "sizes", "value": "A5" } },
+      { "id": "ATTR_COLOR_WHITE", "label": "AttributeValue", "props": { "attributeType": "colors", "value": "White" } },
+      { "id": "ATTR_COLOR_RED", "label": "AttributeValue", "props": { "attributeType": "colors", "value": "Red" } }
+    ],
+    "edges": [
+      { "from": "PHYSICAL_VARIANT_M1A", "to": "ATTR_COLOR_BLACK", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "colors", "value": "Black" } },
+      { "from": "PHYSICAL_VARIANT_M1A", "to": "ATTR_SIZE_A5", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "sizes", "value": "A5" } },
+      { "from": "PHYSICAL_VARIANT_M1B", "to": "ATTR_COLOR_BLUE", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "colors", "value": "Blue" } },
+      { "from": "PHYSICAL_VARIANT_M1B", "to": "ATTR_SIZE_A5", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "sizes", "value": "A5" } },
+      { "from": "PHYSICAL_VARIANT_M2A", "to": "ATTR_COLOR_WHITE", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "colors", "value": "White" } },
+      { "from": "PHYSICAL_VARIANT_M3A", "to": "ATTR_COLOR_WHITE", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "colors", "value": "White" } },
+      { "from": "PHYSICAL_VARIANT_M3B", "to": "ATTR_COLOR_RED", "rel": "HAS_ATTRIBUTE", "props": { "attributeType": "colors", "value": "Red" } }
+    ]
+  }
+}

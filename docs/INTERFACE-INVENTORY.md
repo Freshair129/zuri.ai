@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=64; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=65; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -130,6 +130,7 @@ page can issue a write.
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
 | `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-157 / ADR-064 |
+| `/customer/line-crm` | LineCRM-MCP Complete 12-Module Suite | BusinessShell → CRM / LineCRM-MCP | 12-module complete CRM + LINE OA suite (Dashboard, Live Chat, Members 360, Loyalty, Campaigns, Multi-OA, Rich Menu, Automation, AI MCP, Member Portal LIFF, Audit Log, Settings) | ready, interactive, dark/light, thai era | implemented beta; `src/app/(pm)/customer/line-crm/page.jsx`, FR-091 |
 
 ### 3.4 Market Intelligence domain
 

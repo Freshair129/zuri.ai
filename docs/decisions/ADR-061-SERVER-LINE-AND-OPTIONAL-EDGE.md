@@ -67,7 +67,7 @@ Snapshot recovery preserves the LINE job ledger after its account and inbound Me
 
 - [LINE webhook processing](https://developers.line.biz/en/docs/messaging-api/receiving-messages/)
 - [LINE retry keys and acceptance semantics](https://developers.line.biz/en/docs/messaging-api/retrying-api-request/)
-- [Execution wire contract](../../contracts/line-conversation-execution.schema.json)
+- [Execution wire contract](../../apps/server/contracts/line-conversation-execution.schema.json)
 
 Production migration, credential provisioning, webhook replacement and real provider/device canary are separate evidence gates. This decision authorizes implementation; it does not claim those operations have happened.
 

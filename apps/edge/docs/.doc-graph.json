@@ -1,0 +1,5670 @@
+{
+  "version": "2.0.0",
+  "generated_by": "rwang:doc-graph",
+  "generated_at": "2026-09-06T07:17:41Z",
+  "source_ref": "1ab572a6f7bf66b6a44100530ca84a0ba86d2dbe",
+  "profile_id": "legacy-flat",
+  "provenance": {
+    "actor_type": "agent",
+    "actor_id": "claude-opus-5",
+    "tool": "rwang:doc-graph",
+    "tool_version": "1.1.0",
+    "timestamp": "2026-09-06T07:17:41Z",
+    "source_ref": "1ab572a6f7bf66b6a44100530ca84a0ba86d2dbe",
+    "approval_ref": "OWNER-2026-09-05-registry-bootstrap"
+  },
+  "stats": {
+    "total_nodes": 272,
+    "total_edges": 360,
+    "stale_edges": 0,
+    "contradiction_edges": 0,
+    "coverage": {
+      "requirements_with_code": {
+        "covered": 72,
+        "total": 142
+      },
+      "requirements_with_tests": {
+        "covered": 72,
+        "total": 142
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "doc:.brain/rca/2026-09-06-codex-stateless-mcp-isolation.md",
+      "type": "document",
+      "label": "2026-09-06-codex-stateless-mcp-isolation.md",
+      "path": ".brain/rca/2026-09-06-codex-stateless-mcp-isolation.md",
+      "hash": "4b55fefd7359",
+      "status": "current"
+    },
+    {
+      "id": "doc:AGENTS.md",
+      "type": "document",
+      "label": "AGENTS.md",
+      "path": "AGENTS.md",
+      "hash": "8e72842b3a1f",
+      "status": "current"
+    },
+    {
+      "id": "doc:.agents/zuri-01/AGENTS.md",
+      "type": "document",
+      "label": "AGENTS.md",
+      "path": ".agents/zuri-01/AGENTS.md",
+      "hash": "b9be3be84637",
+      "status": "current"
+    },
+    {
+      "id": "doc:CLAUDE.md",
+      "type": "document",
+      "label": "CLAUDE.md",
+      "path": "CLAUDE.md",
+      "hash": "2d270eea47b4",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/AGENT-RUNTIME-SPEC.md",
+      "type": "document",
+      "label": "AGENT-RUNTIME-SPEC.md",
+      "path": "docs/AGENT-RUNTIME-SPEC.md",
+      "hash": "ab05d1de150d",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/appendices/A-api-spec.md",
+      "type": "document",
+      "label": "A-api-spec.md",
+      "path": "docs/appendices/A-api-spec.md",
+      "hash": "bccbaa14532d",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/appendices/B-db-schema.md",
+      "type": "document",
+      "label": "B-db-schema.md",
+      "path": "docs/appendices/B-db-schema.md",
+      "hash": "2c5e75e7607c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/appendices/D-traceability.md",
+      "type": "document",
+      "label": "D-traceability.md",
+      "path": "docs/appendices/D-traceability.md",
+      "hash": "bfb74db207ba",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/appendices/E-risk-matrix.md",
+      "type": "document",
+      "label": "E-risk-matrix.md",
+      "path": "docs/appendices/E-risk-matrix.md",
+      "hash": "81cd1b7e7a4c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/appendices/F-glossary.md",
+      "type": "document",
+      "label": "F-glossary.md",
+      "path": "docs/appendices/F-glossary.md",
+      "hash": "21a12014c86a",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ARCHITECTURE.md",
+      "type": "document",
+      "label": "ARCHITECTURE.md",
+      "path": "docs/ARCHITECTURE.md",
+      "hash": "d705c251f73b",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "type": "document",
+      "label": "CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "path": "docs/CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "hash": "903989bb6fca",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/COMMAND-AGENT-SPEC.md",
+      "type": "document",
+      "label": "COMMAND-AGENT-SPEC.md",
+      "path": "docs/COMMAND-AGENT-SPEC.md",
+      "hash": "7c2ff7732bd2",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md",
+      "type": "document",
+      "label": "CONVERSATIONAL-ANSWER-SPEC.md",
+      "path": "docs/CONVERSATIONAL-ANSWER-SPEC.md",
+      "hash": "3606f1e05a16",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/EDGE-DEVICE-SETUP.md",
+      "type": "document",
+      "label": "EDGE-DEVICE-SETUP.md",
+      "path": "docs/EDGE-DEVICE-SETUP.md",
+      "hash": "f0512418920c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/EDGE-EXTRACTION-RUNTIME.md",
+      "type": "document",
+      "label": "EDGE-EXTRACTION-RUNTIME.md",
+      "path": "docs/EDGE-EXTRACTION-RUNTIME.md",
+      "hash": "2b3869764ca9",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-ADR.md",
+      "type": "document",
+      "label": "GENESIS-RAG-ADR.md",
+      "path": "docs/GENESIS-RAG-ADR.md",
+      "hash": "246eddfd92b2",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-CATALOG-EMBEDDING-CANDIDATE-RESOLUTION-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-CATALOG-EMBEDDING-CANDIDATE-RESOLUTION-SPEC.md",
+      "path": "docs/GENESIS-RAG-CATALOG-EMBEDDING-CANDIDATE-RESOLUTION-SPEC.md",
+      "hash": "ad751df7aaa6",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-CATALOG-FAMILY-VARIANT-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-CATALOG-FAMILY-VARIANT-SPEC.md",
+      "path": "docs/GENESIS-RAG-CATALOG-FAMILY-VARIANT-SPEC.md",
+      "hash": "17f75a2e7d6c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-CATALOG-IDENTITY-REVIEW-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-CATALOG-IDENTITY-REVIEW-SPEC.md",
+      "path": "docs/GENESIS-RAG-CATALOG-IDENTITY-REVIEW-SPEC.md",
+      "hash": "8561efa87117",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-CATALOG-USER-LOGIC-REVIEW-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-CATALOG-USER-LOGIC-REVIEW-SPEC.md",
+      "path": "docs/GENESIS-RAG-CATALOG-USER-LOGIC-REVIEW-SPEC.md",
+      "hash": "cbf0986ab9d7",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "type": "document",
+      "label": "GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "path": "docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "hash": "9df5b2f7ec32",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-SPEC.md",
+      "path": "docs/GENESIS-RAG-SPEC.md",
+      "hash": "8b8d2b73251c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-TAXONOMY-CONTRACT.md",
+      "type": "document",
+      "label": "GENESIS-RAG-TAXONOMY-CONTRACT.md",
+      "path": "docs/GENESIS-RAG-TAXONOMY-CONTRACT.md",
+      "hash": "df0737fbdd80",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "type": "document",
+      "label": "GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "hash": "874066a4278b",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-TAXONOMY-PROJECTION-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-TAXONOMY-PROJECTION-SPEC.md",
+      "path": "docs/GENESIS-RAG-TAXONOMY-PROJECTION-SPEC.md",
+      "hash": "ecd8acb31718",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-TAXONOMY-SERVING-SPEC.md",
+      "type": "document",
+      "label": "GENESIS-RAG-TAXONOMY-SERVING-SPEC.md",
+      "path": "docs/GENESIS-RAG-TAXONOMY-SERVING-SPEC.md",
+      "hash": "6d72690256a5",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/GENESIS-RAG-V4-PIPELINE-RUNBOOK.md",
+      "type": "document",
+      "label": "GENESIS-RAG-V4-PIPELINE-RUNBOOK.md",
+      "path": "docs/GENESIS-RAG-V4-PIPELINE-RUNBOOK.md",
+      "hash": "79edaa85221c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/LINE-DM-FAST-POC-SPEC.md",
+      "type": "document",
+      "label": "LINE-DM-FAST-POC-SPEC.md",
+      "path": "docs/LINE-DM-FAST-POC-SPEC.md",
+      "hash": "3c8f16c19d30",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/LINE-HISTORY-ARCHIVE-SPEC.md",
+      "type": "document",
+      "label": "LINE-HISTORY-ARCHIVE-SPEC.md",
+      "path": "docs/LINE-HISTORY-ARCHIVE-SPEC.md",
+      "hash": "58d2dae1b9c1",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/LINE-REPLY-OWNERSHIP-DECISION.md",
+      "type": "document",
+      "label": "LINE-REPLY-OWNERSHIP-DECISION.md",
+      "path": "docs/LINE-REPLY-OWNERSHIP-DECISION.md",
+      "hash": "99aa7fd835f2",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/LINE-STACK-ANSWER-PILOT-SPEC.md",
+      "type": "document",
+      "label": "LINE-STACK-ANSWER-PILOT-SPEC.md",
+      "path": "docs/LINE-STACK-ANSWER-PILOT-SPEC.md",
+      "hash": "7846e9e81df7",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/LOCAL-MODEL-SELECTION.md",
+      "type": "document",
+      "label": "LOCAL-MODEL-SELECTION.md",
+      "path": "docs/LOCAL-MODEL-SELECTION.md",
+      "hash": "94c5e78fcf30",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/chinda-qwen3-4b.md",
+      "type": "document",
+      "label": "chinda-qwen3-4b.md",
+      "path": "docs/model-cards/chinda-qwen3-4b.md",
+      "hash": "c9fc5cd6e326",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/gpt-5.6-luna-codex.md",
+      "type": "document",
+      "label": "gpt-5.6-luna-codex.md",
+      "path": "docs/model-cards/gpt-5.6-luna-codex.md",
+      "hash": "1ffcbbcaf233",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/lfm2-1.2b-rag.md",
+      "type": "document",
+      "label": "lfm2-1.2b-rag.md",
+      "path": "docs/model-cards/lfm2-1.2b-rag.md",
+      "hash": "8ffec5ddcc1b",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/ornith-1.5-9b.md",
+      "type": "document",
+      "label": "ornith-1.5-9b.md",
+      "path": "docs/model-cards/ornith-1.5-9b.md",
+      "hash": "5481ece01071",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/pathumma-thaillm-8b.md",
+      "type": "document",
+      "label": "pathumma-thaillm-8b.md",
+      "path": "docs/model-cards/pathumma-thaillm-8b.md",
+      "hash": "9d002edc95be",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/qwen3.5-4b.md",
+      "type": "document",
+      "label": "qwen3.5-4b.md",
+      "path": "docs/model-cards/qwen3.5-4b.md",
+      "hash": "98ab650f48c1",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/qwen3.5-9b-sushi-coder-rl.md",
+      "type": "document",
+      "label": "qwen3.5-9b-sushi-coder-rl.md",
+      "path": "docs/model-cards/qwen3.5-9b-sushi-coder-rl.md",
+      "hash": "d59d3c302bbc",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/qwen3.5-9b.md",
+      "type": "document",
+      "label": "qwen3.5-9b.md",
+      "path": "docs/model-cards/qwen3.5-9b.md",
+      "hash": "391e1e72665e",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/README.md",
+      "type": "document",
+      "label": "README.md",
+      "path": "docs/model-cards/README.md",
+      "hash": "4cd0ab41846e",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/model-cards/thaillm-8b-medapp.md",
+      "type": "document",
+      "label": "thaillm-8b-medapp.md",
+      "path": "docs/model-cards/thaillm-8b-medapp.md",
+      "hash": "a8a3abc37fcd",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/POC-LINE-DELIVERY.md",
+      "type": "document",
+      "label": "POC-LINE-DELIVERY.md",
+      "path": "docs/POC-LINE-DELIVERY.md",
+      "hash": "3d89d1e4c008",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "document",
+      "label": "PRD-SDD-v1.0.md",
+      "path": "docs/PRD-SDD-v1.0.md",
+      "hash": "0f5e62b404c4",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/PRICING-ENGINE-SPEC.md",
+      "type": "document",
+      "label": "PRICING-ENGINE-SPEC.md",
+      "path": "docs/PRICING-ENGINE-SPEC.md",
+      "hash": "4b596b225f5c",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ROADMAP-CONVERSATIONAL-AGENT.md",
+      "type": "document",
+      "label": "ROADMAP-CONVERSATIONAL-AGENT.md",
+      "path": "docs/ROADMAP-CONVERSATIONAL-AGENT.md",
+      "hash": "7d93201d038b",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "document",
+      "label": "SERVER-LINE-OPTIONAL-EDGE.md",
+      "path": "docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "hash": "5a4bdb6ac6dd",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/superpowers/plans/2026-08-23-smartgift-catalog-graph-v4.md",
+      "type": "document",
+      "label": "2026-08-23-smartgift-catalog-graph-v4.md",
+      "path": "docs/superpowers/plans/2026-08-23-smartgift-catalog-graph-v4.md",
+      "hash": "4055fbb5e18d",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md",
+      "type": "document",
+      "label": "2026-08-23-smartgift-catalog-graph-v4-design.md",
+      "path": "docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md",
+      "hash": "ce306ca51c55",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/SYSTEM-DIAGRAMS.md",
+      "type": "document",
+      "label": "SYSTEM-DIAGRAMS.md",
+      "path": "docs/SYSTEM-DIAGRAMS.md",
+      "hash": "5d1936786db8",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ZURI-PLUGIN-PLATFORM-P2-AUTH-DESIGN.md",
+      "type": "document",
+      "label": "ZURI-PLUGIN-PLATFORM-P2-AUTH-DESIGN.md",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-P2-AUTH-DESIGN.md",
+      "hash": "ab398ba6a9f0",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "type": "document",
+      "label": "ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "hash": "f10bfcec4bf3",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ZURI-PLUGIN-PLATFORM-TDD-IMPLEMENTATION-PLAN.md",
+      "type": "document",
+      "label": "ZURI-PLUGIN-PLATFORM-TDD-IMPLEMENTATION-PLAN.md",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-TDD-IMPLEMENTATION-PLAN.md",
+      "hash": "89fa7ff7fc29",
+      "status": "current"
+    },
+    {
+      "id": "doc:docs/ZURI-PM-EXECUTION-PIPELINE-PLAN.md",
+      "type": "document",
+      "label": "ZURI-PM-EXECUTION-PIPELINE-PLAN.md",
+      "path": "docs/ZURI-PM-EXECUTION-PIPELINE-PLAN.md",
+      "hash": "2474d8007625",
+      "status": "current"
+    },
+    {
+      "id": "doc:README.md",
+      "type": "document",
+      "label": "README.md",
+      "path": "README.md",
+      "hash": "a0bfb3421cec",
+      "status": "current"
+    },
+    {
+      "id": "doc:scripts/author-nl-queries.md",
+      "type": "document",
+      "label": "author-nl-queries.md",
+      "path": "scripts/author-nl-queries.md",
+      "hash": "af310e86506e",
+      "status": "current"
+    },
+    {
+      "id": "doc:skills/zuri-calendar-meeting/SKILL.md",
+      "type": "document",
+      "label": "SKILL.md",
+      "path": "skills/zuri-calendar-meeting/SKILL.md",
+      "hash": "7793cdc69016",
+      "status": "current"
+    },
+    {
+      "id": "doc:skills/zuri-line-flex-report/SKILL.md",
+      "type": "document",
+      "label": "SKILL.md",
+      "path": "skills/zuri-line-flex-report/SKILL.md",
+      "hash": "d61c80abff19",
+      "status": "current"
+    },
+    {
+      "id": "code:src/answer/headless.ts",
+      "type": "code_file",
+      "label": "headless.ts",
+      "path": "src/answer/headless.ts",
+      "hash": "ad7e05fb2108",
+      "status": "current"
+    },
+    {
+      "id": "code:src/answer/respond.ts",
+      "type": "code_file",
+      "label": "respond.ts",
+      "path": "src/answer/respond.ts",
+      "hash": "1245f9aa107e",
+      "status": "current"
+    },
+    {
+      "id": "code:src/cards/index.ts",
+      "type": "code_file",
+      "label": "index.ts",
+      "path": "src/cards/index.ts",
+      "hash": "bca7df14cc26",
+      "status": "current"
+    },
+    {
+      "id": "code:src/catalog/store.ts",
+      "type": "code_file",
+      "label": "store.ts",
+      "path": "src/catalog/store.ts",
+      "hash": "9ec568e8a998",
+      "status": "current"
+    },
+    {
+      "id": "code:src/cli/commands.ts",
+      "type": "code_file",
+      "label": "commands.ts",
+      "path": "src/cli/commands.ts",
+      "hash": "f95b3c43b2d4",
+      "status": "current"
+    },
+    {
+      "id": "code:src/cli/index.ts",
+      "type": "code_file",
+      "label": "index.ts",
+      "path": "src/cli/index.ts",
+      "hash": "570514b888fe",
+      "status": "current"
+    },
+    {
+      "id": "code:src/config/index.ts",
+      "type": "code_file",
+      "label": "index.ts",
+      "path": "src/config/index.ts",
+      "hash": "111079d59c88",
+      "status": "current"
+    },
+    {
+      "id": "code:src/config/secret.ts",
+      "type": "code_file",
+      "label": "secret.ts",
+      "path": "src/config/secret.ts",
+      "hash": "4132c2261dd4",
+      "status": "current"
+    },
+    {
+      "id": "code:src/conversation/client.ts",
+      "type": "code_file",
+      "label": "client.ts",
+      "path": "src/conversation/client.ts",
+      "hash": "8000a1385071",
+      "status": "current"
+    },
+    {
+      "id": "code:src/conversation/contract.ts",
+      "type": "code_file",
+      "label": "contract.ts",
+      "path": "src/conversation/contract.ts",
+      "hash": "a154efa1b857",
+      "status": "current"
+    },
+    {
+      "id": "code:src/conversation/executor.ts",
+      "type": "code_file",
+      "label": "executor.ts",
+      "path": "src/conversation/executor.ts",
+      "hash": "b00005c7d857",
+      "status": "current"
+    },
+    {
+      "id": "code:src/conversation/worker.ts",
+      "type": "code_file",
+      "label": "worker.ts",
+      "path": "src/conversation/worker.ts",
+      "hash": "c028d200ad46",
+      "status": "current"
+    },
+    {
+      "id": "code:src/delivery/outbox.ts",
+      "type": "code_file",
+      "label": "outbox.ts",
+      "path": "src/delivery/outbox.ts",
+      "hash": "589f0cd9ddbe",
+      "status": "current"
+    },
+    {
+      "id": "code:src/delivery/worker.ts",
+      "type": "code_file",
+      "label": "worker.ts",
+      "path": "src/delivery/worker.ts",
+      "hash": "89b85591d4cd",
+      "status": "current"
+    },
+    {
+      "id": "code:src/evidence/builder.ts",
+      "type": "code_file",
+      "label": "builder.ts",
+      "path": "src/evidence/builder.ts",
+      "hash": "7dd1351c2991",
+      "status": "current"
+    },
+    {
+      "id": "code:src/history/admin-auth.ts",
+      "type": "code_file",
+      "label": "admin-auth.ts",
+      "path": "src/history/admin-auth.ts",
+      "hash": "6fc8df51e7e0",
+      "status": "current"
+    },
+    {
+      "id": "code:src/history/archive.ts",
+      "type": "code_file",
+      "label": "archive.ts",
+      "path": "src/history/archive.ts",
+      "hash": "b439e1b2bd0d",
+      "status": "current"
+    },
+    {
+      "id": "code:src/history/webhook-server.ts",
+      "type": "code_file",
+      "label": "webhook-server.ts",
+      "path": "src/history/webhook-server.ts",
+      "hash": "0efc44179c29",
+      "status": "current"
+    },
+    {
+      "id": "code:src/identity/registry.ts",
+      "type": "code_file",
+      "label": "registry.ts",
+      "path": "src/identity/registry.ts",
+      "hash": "599f641269e1",
+      "status": "current"
+    },
+    {
+      "id": "code:src/line-poc/client.ts",
+      "type": "code_file",
+      "label": "client.ts",
+      "path": "src/line-poc/client.ts",
+      "hash": "6da44c94020d",
+      "status": "current"
+    },
+    {
+      "id": "code:src/line-poc/targets.ts",
+      "type": "code_file",
+      "label": "targets.ts",
+      "path": "src/line-poc/targets.ts",
+      "hash": "8729c7e70ec9",
+      "status": "current"
+    },
+    {
+      "id": "code:src/mcp/pricing-server.ts",
+      "type": "code_file",
+      "label": "pricing-server.ts",
+      "path": "src/mcp/pricing-server.ts",
+      "hash": "c8f2af9cd1fd",
+      "status": "current"
+    },
+    {
+      "id": "code:src/plugin/auth.ts",
+      "type": "code_file",
+      "label": "auth.ts",
+      "path": "src/plugin/auth.ts",
+      "hash": "bb02428c6720",
+      "status": "current"
+    },
+    {
+      "id": "code:src/plugin/contract.ts",
+      "type": "code_file",
+      "label": "contract.ts",
+      "path": "src/plugin/contract.ts",
+      "hash": "b4b263da4da4",
+      "status": "current"
+    },
+    {
+      "id": "code:src/plugin/sdk.ts",
+      "type": "code_file",
+      "label": "sdk.ts",
+      "path": "src/plugin/sdk.ts",
+      "hash": "702ef3e5e6aa",
+      "status": "current"
+    },
+    {
+      "id": "code:src/pricing/engine.ts",
+      "type": "code_file",
+      "label": "engine.ts",
+      "path": "src/pricing/engine.ts",
+      "hash": "2ee05332771d",
+      "status": "current"
+    },
+    {
+      "id": "code:src/queries/duckdb.ts",
+      "type": "code_file",
+      "label": "duckdb.ts",
+      "path": "src/queries/duckdb.ts",
+      "hash": "64850e46d9f0",
+      "status": "current"
+    },
+    {
+      "id": "code:src/queries/registry.ts",
+      "type": "code_file",
+      "label": "registry.ts",
+      "path": "src/queries/registry.ts",
+      "hash": "35fde56c07bd",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/catalog-manifest.ts",
+      "type": "code_file",
+      "label": "catalog-manifest.ts",
+      "path": "src/rag/catalog-manifest.ts",
+      "hash": "29de4138a016",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/genesis-native.ts",
+      "type": "code_file",
+      "label": "genesis-native.ts",
+      "path": "src/rag/genesis-native.ts",
+      "hash": "199341cdbc66",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/genesis-rag.ts",
+      "type": "code_file",
+      "label": "genesis-rag.ts",
+      "path": "src/rag/genesis-rag.ts",
+      "hash": "456acb770d50",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/taxonomy-projection-store.ts",
+      "type": "code_file",
+      "label": "taxonomy-projection-store.ts",
+      "path": "src/rag/taxonomy-projection-store.ts",
+      "hash": "6ebfa517c2b1",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/taxonomy-projection.ts",
+      "type": "code_file",
+      "label": "taxonomy-projection.ts",
+      "path": "src/rag/taxonomy-projection.ts",
+      "hash": "4da74b641953",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/taxonomy-report.ts",
+      "type": "code_file",
+      "label": "taxonomy-report.ts",
+      "path": "src/rag/taxonomy-report.ts",
+      "hash": "ca41fe818c9d",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/taxonomy-serving.ts",
+      "type": "code_file",
+      "label": "taxonomy-serving.ts",
+      "path": "src/rag/taxonomy-serving.ts",
+      "hash": "dcf92eb27c82",
+      "status": "current"
+    },
+    {
+      "id": "code:src/rag/taxonomy.ts",
+      "type": "code_file",
+      "label": "taxonomy.ts",
+      "path": "src/rag/taxonomy.ts",
+      "hash": "4c538b38a72d",
+      "status": "current"
+    },
+    {
+      "id": "code:src/safety/redact.ts",
+      "type": "code_file",
+      "label": "redact.ts",
+      "path": "src/safety/redact.ts",
+      "hash": "1aadc4f077c4",
+      "status": "current"
+    },
+    {
+      "id": "code:src/stack/stack-client.ts",
+      "type": "code_file",
+      "label": "stack-client.ts",
+      "path": "src/stack/stack-client.ts",
+      "hash": "ab046b54b37a",
+      "status": "current"
+    },
+    {
+      "id": "code:src/zuri-api/client.ts",
+      "type": "code_file",
+      "label": "client.ts",
+      "path": "src/zuri-api/client.ts",
+      "hash": "022f3fb8f536",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/contract/plugin-platform.test.ts",
+      "type": "test",
+      "label": "plugin-platform.test.ts",
+      "path": "tests/contract/plugin-platform.test.ts",
+      "hash": "7a7173ba2477",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/contract/zuri-api.test.ts",
+      "type": "test",
+      "label": "zuri-api.test.ts",
+      "path": "tests/contract/zuri-api.test.ts",
+      "hash": "907c3523c662",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/genesis-ingest.test.ts",
+      "type": "test",
+      "label": "genesis-ingest.test.ts",
+      "path": "tests/integration/genesis-ingest.test.ts",
+      "hash": "9d5ee12880bd",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/admin-auth.test.ts",
+      "type": "test",
+      "label": "admin-auth.test.ts",
+      "path": "tests/unit/admin-auth.test.ts",
+      "hash": "c2219f523ba2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/answer.test.ts",
+      "type": "test",
+      "label": "answer.test.ts",
+      "path": "tests/unit/answer.test.ts",
+      "hash": "f1dcda37bcd8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/cards.test.ts",
+      "type": "test",
+      "label": "cards.test.ts",
+      "path": "tests/unit/cards.test.ts",
+      "hash": "5d74506a5fa7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/catalog-store.test.ts",
+      "type": "test",
+      "label": "catalog-store.test.ts",
+      "path": "tests/unit/catalog-store.test.ts",
+      "hash": "0527f7aabe0b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/commands.test.ts",
+      "type": "test",
+      "label": "commands.test.ts",
+      "path": "tests/unit/commands.test.ts",
+      "hash": "92c45243740e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/config.test.ts",
+      "type": "test",
+      "label": "config.test.ts",
+      "path": "tests/unit/config.test.ts",
+      "hash": "8705d36e9e51",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/conversation-worker.test.ts",
+      "type": "test",
+      "label": "conversation-worker.test.ts",
+      "path": "tests/unit/conversation-worker.test.ts",
+      "hash": "95c2de38aecb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/delivery.test.ts",
+      "type": "test",
+      "label": "delivery.test.ts",
+      "path": "tests/unit/delivery.test.ts",
+      "hash": "01ae17bd3f3e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/evidence.test.ts",
+      "type": "test",
+      "label": "evidence.test.ts",
+      "path": "tests/unit/evidence.test.ts",
+      "hash": "4a94a8cf888a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-rag.test.ts",
+      "type": "test",
+      "label": "genesis-rag.test.ts",
+      "path": "tests/unit/genesis-rag.test.ts",
+      "hash": "2624be927a80",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-readiness.test.ts",
+      "type": "test",
+      "label": "genesis-readiness.test.ts",
+      "path": "tests/unit/genesis-readiness.test.ts",
+      "hash": "e257e4a28bf2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-taxonomy-projection-store.test.ts",
+      "type": "test",
+      "label": "genesis-taxonomy-projection-store.test.ts",
+      "path": "tests/unit/genesis-taxonomy-projection-store.test.ts",
+      "hash": "8f778bff097e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-taxonomy-projection.test.ts",
+      "type": "test",
+      "label": "genesis-taxonomy-projection.test.ts",
+      "path": "tests/unit/genesis-taxonomy-projection.test.ts",
+      "hash": "68325609f3dd",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-taxonomy-report.test.ts",
+      "type": "test",
+      "label": "genesis-taxonomy-report.test.ts",
+      "path": "tests/unit/genesis-taxonomy-report.test.ts",
+      "hash": "185ab0521c27",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-taxonomy-serving.test.ts",
+      "type": "test",
+      "label": "genesis-taxonomy-serving.test.ts",
+      "path": "tests/unit/genesis-taxonomy-serving.test.ts",
+      "hash": "8bcdc1e747c4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesis-taxonomy.test.ts",
+      "type": "test",
+      "label": "genesis-taxonomy.test.ts",
+      "path": "tests/unit/genesis-taxonomy.test.ts",
+      "hash": "2e7ed2ea7e17",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/headless.test.ts",
+      "type": "test",
+      "label": "headless.test.ts",
+      "path": "tests/unit/headless.test.ts",
+      "hash": "be6897321cbf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/history.test.ts",
+      "type": "test",
+      "label": "history.test.ts",
+      "path": "tests/unit/history.test.ts",
+      "hash": "93b6de7b59bf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/identity.test.ts",
+      "type": "test",
+      "label": "identity.test.ts",
+      "path": "tests/unit/identity.test.ts",
+      "hash": "8f7a684454ba",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-poc.test.ts",
+      "type": "test",
+      "label": "line-poc.test.ts",
+      "path": "tests/unit/line-poc.test.ts",
+      "hash": "61cb11e99c8c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/outbound-archive.test.ts",
+      "type": "test",
+      "label": "outbound-archive.test.ts",
+      "path": "tests/unit/outbound-archive.test.ts",
+      "hash": "de00bdbbe9fb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/plugin-auth.test.ts",
+      "type": "test",
+      "label": "plugin-auth.test.ts",
+      "path": "tests/unit/plugin-auth.test.ts",
+      "hash": "ca419921128a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/pricing-service.test.ts",
+      "type": "test",
+      "label": "pricing-service.test.ts",
+      "path": "tests/unit/pricing-service.test.ts",
+      "hash": "cb0e1d725863",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/pricing.test.ts",
+      "type": "test",
+      "label": "pricing.test.ts",
+      "path": "tests/unit/pricing.test.ts",
+      "hash": "603839e29d11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/push-targets.test.ts",
+      "type": "test",
+      "label": "push-targets.test.ts",
+      "path": "tests/unit/push-targets.test.ts",
+      "hash": "9495074c4c73",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/queries.test.ts",
+      "type": "test",
+      "label": "queries.test.ts",
+      "path": "tests/unit/queries.test.ts",
+      "hash": "9c2833c4df78",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/redact.test.ts",
+      "type": "test",
+      "label": "redact.test.ts",
+      "path": "tests/unit/redact.test.ts",
+      "hash": "ef2ee38bae7e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/stack.test.ts",
+      "type": "test",
+      "label": "stack.test.ts",
+      "path": "tests/unit/stack.test.ts",
+      "hash": "f22038a56aaf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/v4-answer-tools.test.ts",
+      "type": "test",
+      "label": "v4-answer-tools.test.ts",
+      "path": "tests/unit/v4-answer-tools.test.ts",
+      "hash": "9fc5e689fb5d",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-001",
+      "type": "requirement",
+      "label": "AC-001",
+      "path": "docs/PRD-SDD-v1.0.md#AC-001",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-002",
+      "type": "requirement",
+      "label": "AC-002",
+      "path": "docs/PRD-SDD-v1.0.md#AC-002",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-003",
+      "type": "requirement",
+      "label": "AC-003",
+      "path": "docs/PRD-SDD-v1.0.md#AC-003",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-004",
+      "type": "requirement",
+      "label": "AC-004",
+      "path": "docs/PRD-SDD-v1.0.md#AC-004",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-005",
+      "type": "requirement",
+      "label": "AC-005",
+      "path": "docs/PRD-SDD-v1.0.md#AC-005",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-006",
+      "type": "requirement",
+      "label": "AC-006",
+      "path": "docs/PRD-SDD-v1.0.md#AC-006",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-007",
+      "type": "requirement",
+      "label": "AC-007",
+      "path": "docs/PRD-SDD-v1.0.md#AC-007",
+      "status": "current"
+    },
+    {
+      "id": "req:AC-008",
+      "type": "requirement",
+      "label": "AC-008",
+      "path": "docs/PRD-SDD-v1.0.md#AC-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-001",
+      "type": "requirement",
+      "label": "ADR-001",
+      "path": "docs/appendices/D-traceability.md#ADR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-002",
+      "type": "requirement",
+      "label": "ADR-002",
+      "path": "docs/ARCHITECTURE.md#ADR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-003",
+      "type": "requirement",
+      "label": "ADR-003",
+      "path": "docs/ARCHITECTURE.md#ADR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-004",
+      "type": "requirement",
+      "label": "ADR-004",
+      "path": "docs/ARCHITECTURE.md#ADR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-005",
+      "type": "requirement",
+      "label": "ADR-005",
+      "path": "docs/PRD-SDD-v1.0.md#ADR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-006",
+      "type": "requirement",
+      "label": "ADR-006",
+      "path": "docs/ARCHITECTURE.md#ADR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-007",
+      "type": "requirement",
+      "label": "ADR-007",
+      "path": "docs/ARCHITECTURE.md#ADR-007",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-008",
+      "type": "requirement",
+      "label": "ADR-008",
+      "path": "docs/ARCHITECTURE.md#ADR-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-009",
+      "type": "requirement",
+      "label": "ADR-009",
+      "path": "docs/ARCHITECTURE.md#ADR-009",
+      "status": "current"
+    },
+    {
+      "id": "req:ADR-010",
+      "type": "requirement",
+      "label": "ADR-010",
+      "path": "docs/ARCHITECTURE.md#ADR-010",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-001",
+      "type": "requirement",
+      "label": "BR-001",
+      "path": "docs/PRD-SDD-v1.0.md#BR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-002",
+      "type": "requirement",
+      "label": "BR-002",
+      "path": "docs/PRD-SDD-v1.0.md#BR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-003",
+      "type": "requirement",
+      "label": "BR-003",
+      "path": "docs/PRD-SDD-v1.0.md#BR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-004",
+      "type": "requirement",
+      "label": "BR-004",
+      "path": "docs/PRD-SDD-v1.0.md#BR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-005",
+      "type": "requirement",
+      "label": "BR-005",
+      "path": "docs/PRD-SDD-v1.0.md#BR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-006",
+      "type": "requirement",
+      "label": "BR-006",
+      "path": "docs/PRD-SDD-v1.0.md#BR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-007",
+      "type": "requirement",
+      "label": "BR-007",
+      "path": "docs/PRD-SDD-v1.0.md#BR-007",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-008",
+      "type": "requirement",
+      "label": "BR-008",
+      "path": "docs/PRD-SDD-v1.0.md#BR-008",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-009",
+      "type": "requirement",
+      "label": "BR-009",
+      "path": "docs/PRD-SDD-v1.0.md#BR-009",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-010",
+      "type": "requirement",
+      "label": "BR-010",
+      "path": "docs/PRD-SDD-v1.0.md#BR-010",
+      "status": "current"
+    },
+    {
+      "id": "req:DR-001",
+      "type": "requirement",
+      "label": "DR-001",
+      "path": "docs/appendices/B-db-schema.md#DR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:DR-002",
+      "type": "requirement",
+      "label": "DR-002",
+      "path": "docs/appendices/B-db-schema.md#DR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:DR-003",
+      "type": "requirement",
+      "label": "DR-003",
+      "path": "docs/appendices/B-db-schema.md#DR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:DR-004",
+      "type": "requirement",
+      "label": "DR-004",
+      "path": "docs/appendices/B-db-schema.md#DR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-001",
+      "type": "requirement",
+      "label": "FR-001",
+      "path": "docs/PRD-SDD-v1.0.md#FR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-002",
+      "type": "requirement",
+      "label": "FR-002",
+      "path": "docs/PRD-SDD-v1.0.md#FR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-003",
+      "type": "requirement",
+      "label": "FR-003",
+      "path": "docs/PRD-SDD-v1.0.md#FR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-004",
+      "type": "requirement",
+      "label": "FR-004",
+      "path": "docs/PRD-SDD-v1.0.md#FR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-005",
+      "type": "requirement",
+      "label": "FR-005",
+      "path": "docs/PRD-SDD-v1.0.md#FR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-006",
+      "type": "requirement",
+      "label": "FR-006",
+      "path": "docs/PRD-SDD-v1.0.md#FR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-007",
+      "type": "requirement",
+      "label": "FR-007",
+      "path": "docs/PRD-SDD-v1.0.md#FR-007",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-008",
+      "type": "requirement",
+      "label": "FR-008",
+      "path": "docs/PRD-SDD-v1.0.md#FR-008",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-001",
+      "type": "requirement",
+      "label": "NFR-001",
+      "path": "docs/PRD-SDD-v1.0.md#NFR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-002",
+      "type": "requirement",
+      "label": "NFR-002",
+      "path": "docs/PRD-SDD-v1.0.md#NFR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-003",
+      "type": "requirement",
+      "label": "NFR-003",
+      "path": "docs/PRD-SDD-v1.0.md#NFR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-004",
+      "type": "requirement",
+      "label": "NFR-004",
+      "path": "docs/PRD-SDD-v1.0.md#NFR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-005",
+      "type": "requirement",
+      "label": "NFR-005",
+      "path": "docs/PRD-SDD-v1.0.md#NFR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-001",
+      "type": "requirement",
+      "label": "RAG-FR-001",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-FR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-002",
+      "type": "requirement",
+      "label": "RAG-FR-002",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-FR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-003",
+      "type": "requirement",
+      "label": "RAG-FR-003",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-FR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-004",
+      "type": "requirement",
+      "label": "RAG-FR-004",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-FR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-005",
+      "type": "requirement",
+      "label": "RAG-FR-005",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-FR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-FR-006",
+      "type": "requirement",
+      "label": "RAG-FR-006",
+      "path": "docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md#RAG-FR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-GR-001",
+      "type": "requirement",
+      "label": "RAG-GR-001",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-GR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-GR-002",
+      "type": "requirement",
+      "label": "RAG-GR-002",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-GR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-GR-003",
+      "type": "requirement",
+      "label": "RAG-GR-003",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-GR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-GR-004",
+      "type": "requirement",
+      "label": "RAG-GR-004",
+      "path": "docs/GENESIS-RAG-SPEC.md#RAG-GR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-NFR-001",
+      "type": "requirement",
+      "label": "RAG-NFR-001",
+      "path": "docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md#RAG-NFR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-NFR-002",
+      "type": "requirement",
+      "label": "RAG-NFR-002",
+      "path": "docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md#RAG-NFR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-OPS-001",
+      "type": "requirement",
+      "label": "RAG-OPS-001",
+      "path": "docs/appendices/D-traceability.md#RAG-OPS-001",
+      "status": "current"
+    },
+    {
+      "id": "req:RAG-SEC-001",
+      "type": "requirement",
+      "label": "RAG-SEC-001",
+      "path": "docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md#RAG-SEC-001",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-001",
+      "type": "requirement",
+      "label": "SDD-001",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-001",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-002",
+      "type": "requirement",
+      "label": "SDD-002",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-002",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-003",
+      "type": "requirement",
+      "label": "SDD-003",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-003",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-004",
+      "type": "requirement",
+      "label": "SDD-004",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-004",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-005",
+      "type": "requirement",
+      "label": "SDD-005",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-005",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-006",
+      "type": "requirement",
+      "label": "SDD-006",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-006",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-007",
+      "type": "requirement",
+      "label": "SDD-007",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-007",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-008",
+      "type": "requirement",
+      "label": "SDD-008",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-008",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-009",
+      "type": "requirement",
+      "label": "SDD-009",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-009",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-010",
+      "type": "requirement",
+      "label": "SDD-010",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-010",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-011",
+      "type": "requirement",
+      "label": "SDD-011",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-011",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-012",
+      "type": "requirement",
+      "label": "SDD-012",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-012",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-013",
+      "type": "requirement",
+      "label": "SDD-013",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-013",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-014",
+      "type": "requirement",
+      "label": "SDD-014",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-014",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-015",
+      "type": "requirement",
+      "label": "SDD-015",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-015",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-016",
+      "type": "requirement",
+      "label": "SDD-016",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-016",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-017",
+      "type": "requirement",
+      "label": "SDD-017",
+      "path": "docs/PRD-SDD-v1.0.md#SDD-017",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-001",
+      "type": "requirement",
+      "label": "SEC-001",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-001",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-002",
+      "type": "requirement",
+      "label": "SEC-002",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-002",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-003",
+      "type": "requirement",
+      "label": "SEC-003",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-003",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-004",
+      "type": "requirement",
+      "label": "SEC-004",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-004",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-005",
+      "type": "requirement",
+      "label": "SEC-005",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-005",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-006",
+      "type": "requirement",
+      "label": "SEC-006",
+      "path": "docs/PRD-SDD-v1.0.md#SEC-006",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-FR-001",
+      "type": "requirement",
+      "label": "TAX-FR-001",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-FR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-FR-002",
+      "type": "requirement",
+      "label": "TAX-FR-002",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-FR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-FR-003",
+      "type": "requirement",
+      "label": "TAX-FR-003",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-FR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-FR-004",
+      "type": "requirement",
+      "label": "TAX-FR-004",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-FR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-FR-005",
+      "type": "requirement",
+      "label": "TAX-FR-005",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-FR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-NFR-001",
+      "type": "requirement",
+      "label": "TAX-NFR-001",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-NFR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-NFR-002",
+      "type": "requirement",
+      "label": "TAX-NFR-002",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-NFR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:TAX-NFR-003",
+      "type": "requirement",
+      "label": "TAX-NFR-003",
+      "path": "docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md#TAX-NFR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-001",
+      "type": "requirement",
+      "label": "ZPP-AC-001",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-001",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-002",
+      "type": "requirement",
+      "label": "ZPP-AC-002",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-002",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-003",
+      "type": "requirement",
+      "label": "ZPP-AC-003",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-004",
+      "type": "requirement",
+      "label": "ZPP-AC-004",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-004",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-005",
+      "type": "requirement",
+      "label": "ZPP-AC-005",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-005",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-006",
+      "type": "requirement",
+      "label": "ZPP-AC-006",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-006",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-007",
+      "type": "requirement",
+      "label": "ZPP-AC-007",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-007",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-008",
+      "type": "requirement",
+      "label": "ZPP-AC-008",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-009",
+      "type": "requirement",
+      "label": "ZPP-AC-009",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-009",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-010",
+      "type": "requirement",
+      "label": "ZPP-AC-010",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-010",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-011",
+      "type": "requirement",
+      "label": "ZPP-AC-011",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-011",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-012",
+      "type": "requirement",
+      "label": "ZPP-AC-012",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-012",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-013",
+      "type": "requirement",
+      "label": "ZPP-AC-013",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-013",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-014",
+      "type": "requirement",
+      "label": "ZPP-AC-014",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-014",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-015",
+      "type": "requirement",
+      "label": "ZPP-AC-015",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-015",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-016",
+      "type": "requirement",
+      "label": "ZPP-AC-016",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-016",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-017",
+      "type": "requirement",
+      "label": "ZPP-AC-017",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-017",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-AC-018",
+      "type": "requirement",
+      "label": "ZPP-AC-018",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-AC-018",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-001",
+      "type": "requirement",
+      "label": "ZPP-FR-001",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-002",
+      "type": "requirement",
+      "label": "ZPP-FR-002",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-003",
+      "type": "requirement",
+      "label": "ZPP-FR-003",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-004",
+      "type": "requirement",
+      "label": "ZPP-FR-004",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-005",
+      "type": "requirement",
+      "label": "ZPP-FR-005",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-006",
+      "type": "requirement",
+      "label": "ZPP-FR-006",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-007",
+      "type": "requirement",
+      "label": "ZPP-FR-007",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-007",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-008",
+      "type": "requirement",
+      "label": "ZPP-FR-008",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-009",
+      "type": "requirement",
+      "label": "ZPP-FR-009",
+      "path": "docs/appendices/D-traceability.md#ZPP-FR-009",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-010",
+      "type": "requirement",
+      "label": "ZPP-FR-010",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-010",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-011",
+      "type": "requirement",
+      "label": "ZPP-FR-011",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-011",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-012",
+      "type": "requirement",
+      "label": "ZPP-FR-012",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-012",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-FR-013",
+      "type": "requirement",
+      "label": "ZPP-FR-013",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-FR-013",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-001",
+      "type": "requirement",
+      "label": "ZPP-NFR-001",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-001",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-002",
+      "type": "requirement",
+      "label": "ZPP-NFR-002",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-002",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-003",
+      "type": "requirement",
+      "label": "ZPP-NFR-003",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-004",
+      "type": "requirement",
+      "label": "ZPP-NFR-004",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-004",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-005",
+      "type": "requirement",
+      "label": "ZPP-NFR-005",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-005",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-006",
+      "type": "requirement",
+      "label": "ZPP-NFR-006",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-006",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-007",
+      "type": "requirement",
+      "label": "ZPP-NFR-007",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-007",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-008",
+      "type": "requirement",
+      "label": "ZPP-NFR-008",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-NFR-009",
+      "type": "requirement",
+      "label": "ZPP-NFR-009",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-NFR-009",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-001",
+      "type": "requirement",
+      "label": "ZPP-SEC-001",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-001",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-002",
+      "type": "requirement",
+      "label": "ZPP-SEC-002",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-002",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-003",
+      "type": "requirement",
+      "label": "ZPP-SEC-003",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-003",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-004",
+      "type": "requirement",
+      "label": "ZPP-SEC-004",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-004",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-005",
+      "type": "requirement",
+      "label": "ZPP-SEC-005",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-005",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-006",
+      "type": "requirement",
+      "label": "ZPP-SEC-006",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-006",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-007",
+      "type": "requirement",
+      "label": "ZPP-SEC-007",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-007",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-008",
+      "type": "requirement",
+      "label": "ZPP-SEC-008",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-008",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-009",
+      "type": "requirement",
+      "label": "ZPP-SEC-009",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-009",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-010",
+      "type": "requirement",
+      "label": "ZPP-SEC-010",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-010",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-011",
+      "type": "requirement",
+      "label": "ZPP-SEC-011",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-011",
+      "status": "current"
+    },
+    {
+      "id": "req:ZPP-SEC-012",
+      "type": "requirement",
+      "label": "ZPP-SEC-012",
+      "path": "docs/ZURI-PLUGIN-PLATFORM-SPEC.md#ZPP-SEC-012",
+      "status": "current"
+    }
+  ],
+  "edges": [
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:AC-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "req:ADR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:ADR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "req:ADR-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:BR-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "req:DR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "req:DR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "req:DR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "req:DR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:FR-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:NFR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:NFR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:NFR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:NFR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:NFR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-FR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-FR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-FR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-FR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-FR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "req:RAG-FR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-GR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-GR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-GR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "req:RAG-GR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "req:RAG-NFR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "req:RAG-NFR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "req:RAG-OPS-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "req:RAG-SEC-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-011",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-012",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-013",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-014",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-015",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-016",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SDD-017",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "req:SEC-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-FR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-FR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-FR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-FR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-FR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-NFR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-NFR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-TAXONOMY-IMPLEMENTATION-PLAN.md",
+      "to": "req:TAX-NFR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-011",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-012",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-013",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-014",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-015",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-016",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-017",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-AC-018",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "req:ZPP-FR-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-011",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-012",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-FR-013",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-NFR-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-001",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-002",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-003",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-004",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-005",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-006",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-007",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-008",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-009",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-010",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-011",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "req:ZPP-SEC-012",
+      "type": "defines",
+      "contract_id": "edge:document_defines_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:d4193c7c237319beb25a2eda0527993c892fde31278e507924ee2a9d87277e3d",
+      "status": "current",
+      "source": "registry"
+    },
+    {
+      "from": "doc:.brain/rca/2026-09-06-codex-stateless-mcp-isolation.md",
+      "to": "doc:docs/CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/AGENT-RUNTIME-SPEC.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/AGENT-RUNTIME-SPEC.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/A-api-spec.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/A-api-spec.md",
+      "to": "doc:docs/appendices/E-risk-matrix.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/A-api-spec.md",
+      "to": "doc:docs/ARCHITECTURE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/A-api-spec.md",
+      "to": "doc:docs/POC-LINE-DELIVERY.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/B-db-schema.md",
+      "to": "doc:docs/appendices/E-risk-matrix.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/D-traceability.md",
+      "to": "doc:docs/CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/E-risk-matrix.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/appendices/E-risk-matrix.md",
+      "to": "doc:AGENTS.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/appendices/B-db-schema.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/LINE-REPLY-OWNERSHIP-DECISION.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/appendices/E-risk-matrix.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ARCHITECTURE.md",
+      "to": "doc:docs/appendices/D-traceability.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/CODEX-STATELESS-ISOLATION-PROPOSAL.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/COMMAND-AGENT-SPEC.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/COMMAND-AGENT-SPEC.md",
+      "to": "doc:docs/appendices/D-traceability.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/EDGE-DEVICE-SETUP.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/EDGE-DEVICE-SETUP.md",
+      "to": "doc:docs/SYSTEM-DIAGRAMS.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-ADR.md",
+      "to": "doc:docs/ARCHITECTURE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/ARCHITECTURE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/ROADMAP-CONVERSATIONAL-AGENT.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/AGENT-RUNTIME-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/GENESIS-RAG-TAXONOMY-SERVING-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:AGENTS.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:docs/PRD-SDD-v1.0.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:docs/AGENT-RUNTIME-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:docs/PRICING-ENGINE-SPEC.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/GENESIS-RAG-SPEC.md",
+      "to": "doc:docs/GENESIS-RAG-IMPLEMENTATION-PLAN.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/LINE-REPLY-OWNERSHIP-DECISION.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/LINE-STACK-ANSWER-PILOT-SPEC.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/qwen3.5-9b.md",
+      "to": "doc:docs/model-cards/ornith-1.5-9b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/gpt-5.6-luna-codex.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/qwen3.5-9b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/pathumma-thaillm-8b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/qwen3.5-9b-sushi-coder-rl.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/ornith-1.5-9b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/thaillm-8b-medapp.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/qwen3.5-4b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/chinda-qwen3-4b.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/model-cards/README.md",
+      "to": "doc:docs/model-cards/lfm2-1.2b-rag.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "doc:AGENTS.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/PRD-SDD-v1.0.md",
+      "to": "doc:docs/appendices/F-glossary.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "to": "doc:.brain/rca/2026-09-06-codex-stateless-mcp-isolation.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAMS.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-SPEC.md",
+      "to": "doc:docs/ZURI-PLUGIN-PLATFORM-P2-AUTH-DESIGN.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:docs/ZURI-PLUGIN-PLATFORM-TDD-IMPLEMENTATION-PLAN.md",
+      "to": "doc:docs/ZURI-PLUGIN-PLATFORM-P2-AUTH-DESIGN.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:README.md",
+      "to": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:README.md",
+      "to": "doc:docs/POC-LINE-DELIVERY.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:README.md",
+      "to": "doc:docs/EDGE-EXTRACTION-RUNTIME.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "doc:skills/zuri-line-flex-report/SKILL.md",
+      "to": "doc:docs/appendices/E-risk-matrix.md",
+      "type": "references",
+      "contract_id": "edge:document_references_document",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457",
+      "status": "current",
+      "source": "markdown-link"
+    },
+    {
+      "from": "code:src/answer/respond.ts",
+      "to": "req:SDD-010",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cards/index.ts",
+      "to": "req:SDD-006",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/catalog/store.ts",
+      "to": "req:SDD-016",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:FR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:AC-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:FR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:AC-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:FR-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:AC-007",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:FR-008",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/commands.ts",
+      "to": "req:FR-007",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/index.ts",
+      "to": "req:FR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/index.ts",
+      "to": "req:FR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/index.ts",
+      "to": "req:SDD-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/cli/index.ts",
+      "to": "req:AC-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/index.ts",
+      "to": "req:SDD-007",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/index.ts",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/index.ts",
+      "to": "req:BR-007",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/secret.ts",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/secret.ts",
+      "to": "req:SDD-007",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/outbox.ts",
+      "to": "req:SDD-011",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/outbox.ts",
+      "to": "req:AC-006",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/outbox.ts",
+      "to": "req:NFR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/outbox.ts",
+      "to": "req:BR-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/worker.ts",
+      "to": "req:BR-008",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/delivery/worker.ts",
+      "to": "req:BR-010",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/evidence/builder.ts",
+      "to": "req:SDD-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/evidence/builder.ts",
+      "to": "req:AC-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/evidence/builder.ts",
+      "to": "req:NFR-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/admin-auth.ts",
+      "to": "req:BR-009",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/archive.ts",
+      "to": "req:BR-010",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/webhook-server.ts",
+      "to": "req:BR-009",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/webhook-server.ts",
+      "to": "req:BR-008",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/webhook-server.ts",
+      "to": "req:SDD-012",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/history/webhook-server.ts",
+      "to": "req:BR-010",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/identity/registry.ts",
+      "to": "req:SDD-009",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/line-poc/client.ts",
+      "to": "req:SDD-013",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/line-poc/targets.ts",
+      "to": "req:FR-008",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/mcp/pricing-server.ts",
+      "to": "req:SDD-015",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/auth.ts",
+      "to": "req:ZPP-FR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/auth.ts",
+      "to": "req:ZPP-FR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/auth.ts",
+      "to": "req:ZPP-SEC-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/auth.ts",
+      "to": "req:BR-006",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/contract.ts",
+      "to": "req:ZPP-FR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/contract.ts",
+      "to": "req:ZPP-FR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/plugin/sdk.ts",
+      "to": "req:ZPP-FR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/pricing/engine.ts",
+      "to": "req:SDD-014",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/duckdb.ts",
+      "to": "req:BR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:BR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:SDD-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:SEC-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:DR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:DR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:DR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/queries/registry.ts",
+      "to": "req:DR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/catalog-manifest.ts",
+      "to": "req:RAG-FR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/catalog-manifest.ts",
+      "to": "req:RAG-FR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/catalog-manifest.ts",
+      "to": "req:RAG-FR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/catalog-manifest.ts",
+      "to": "req:RAG-GR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/catalog-manifest.ts",
+      "to": "req:RAG-GR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/genesis-native.ts",
+      "to": "req:RAG-OPS-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/genesis-rag.ts",
+      "to": "req:RAG-FR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/genesis-rag.ts",
+      "to": "req:RAG-FR-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/genesis-rag.ts",
+      "to": "req:RAG-NFR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/genesis-rag.ts",
+      "to": "req:RAG-SEC-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-projection-store.ts",
+      "to": "req:TAX-NFR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-projection.ts",
+      "to": "req:TAX-FR-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-projection.ts",
+      "to": "req:RAG-GR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-report.ts",
+      "to": "req:TAX-FR-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-serving.ts",
+      "to": "req:RAG-GR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy-serving.ts",
+      "to": "req:TAX-NFR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy.ts",
+      "to": "req:TAX-FR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy.ts",
+      "to": "req:TAX-FR-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy.ts",
+      "to": "req:TAX-FR-003",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/rag/taxonomy.ts",
+      "to": "req:TAX-NFR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/safety/redact.ts",
+      "to": "req:NFR-001",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/safety/redact.ts",
+      "to": "req:SEC-004",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/safety/redact.ts",
+      "to": "req:SDD-008",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/stack/stack-client.ts",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/stack/stack-client.ts",
+      "to": "req:SDD-017",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/zuri-api/client.ts",
+      "to": "req:SDD-002",
+      "type": "implements",
+      "contract_id": "edge:code_file_implements_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:86754db815c77f99aa174fc7aef8f57411837aa0edf8f3e1559c2bd251a6b552",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/contract/plugin-platform.test.ts",
+      "to": "req:ZPP-FR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/contract/plugin-platform.test.ts",
+      "to": "req:ZPP-FR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/contract/plugin-platform.test.ts",
+      "to": "req:ZPP-SEC-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/contract/zuri-api.test.ts",
+      "to": "req:SDD-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesis-ingest.test.ts",
+      "to": "req:RAG-OPS-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/admin-auth.test.ts",
+      "to": "req:BR-009",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/answer.test.ts",
+      "to": "req:SDD-010",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/cards.test.ts",
+      "to": "req:FR-007",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/cards.test.ts",
+      "to": "req:SDD-006",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/catalog-store.test.ts",
+      "to": "req:SDD-016",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:FR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:AC-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:FR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:AC-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:FR-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:AC-007",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:FR-008",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/commands.test.ts",
+      "to": "req:SDD-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:FR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:FR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:SEC-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:SDD-007",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:BR-007",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/config.test.ts",
+      "to": "req:AC-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:BR-008",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:SDD-011",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:AC-006",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:NFR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:BR-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/delivery.test.ts",
+      "to": "req:BR-010",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/evidence.test.ts",
+      "to": "req:SDD-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/evidence.test.ts",
+      "to": "req:AC-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/evidence.test.ts",
+      "to": "req:NFR-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-rag.test.ts",
+      "to": "req:RAG-FR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-rag.test.ts",
+      "to": "req:RAG-FR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-rag.test.ts",
+      "to": "req:RAG-FR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-rag.test.ts",
+      "to": "req:RAG-GR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-rag.test.ts",
+      "to": "req:RAG-GR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-readiness.test.ts",
+      "to": "req:RAG-OPS-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-projection-store.test.ts",
+      "to": "req:TAX-NFR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-projection.test.ts",
+      "to": "req:TAX-FR-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-projection.test.ts",
+      "to": "req:RAG-GR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-report.test.ts",
+      "to": "req:TAX-FR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-serving.test.ts",
+      "to": "req:RAG-GR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy-serving.test.ts",
+      "to": "req:TAX-NFR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy.test.ts",
+      "to": "req:TAX-FR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy.test.ts",
+      "to": "req:TAX-FR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy.test.ts",
+      "to": "req:TAX-FR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesis-taxonomy.test.ts",
+      "to": "req:TAX-NFR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/history.test.ts",
+      "to": "req:SDD-012",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity.test.ts",
+      "to": "req:SDD-009",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-poc.test.ts",
+      "to": "req:SDD-013",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/outbound-archive.test.ts",
+      "to": "req:BR-010",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plugin-auth.test.ts",
+      "to": "req:ZPP-FR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plugin-auth.test.ts",
+      "to": "req:ZPP-FR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plugin-auth.test.ts",
+      "to": "req:ZPP-SEC-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plugin-auth.test.ts",
+      "to": "req:BR-006",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pricing-service.test.ts",
+      "to": "req:SDD-015",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pricing.test.ts",
+      "to": "req:SDD-014",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/push-targets.test.ts",
+      "to": "req:FR-008",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:BR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:BR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:SDD-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:SEC-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:DR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:DR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:DR-003",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/queries.test.ts",
+      "to": "req:DR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/redact.test.ts",
+      "to": "req:NFR-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/redact.test.ts",
+      "to": "req:SEC-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/redact.test.ts",
+      "to": "req:SDD-008",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/stack.test.ts",
+      "to": "req:SDD-017",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/v4-answer-tools.test.ts",
+      "to": "req:RAG-FR-004",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/v4-answer-tools.test.ts",
+      "to": "req:RAG-FR-005",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/v4-answer-tools.test.ts",
+      "to": "req:RAG-NFR-002",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/v4-answer-tools.test.ts",
+      "to": "req:RAG-SEC-001",
+      "type": "verified_by",
+      "contract_id": "edge:test_verifies_requirement",
+      "contract_version": "1.0.0",
+      "semantic_hash": "sha256:122a2f97bad49801679467f3647508a2e9fb31cabc81475819ea2f3777c13714",
+      "status": "current",
+      "source": "annotation"
+    }
+  ]
+}

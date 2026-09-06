@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "zuri-ai://contracts/edge-extraction-job.schema.json",
+  "title": "Zuri Edge Extraction Job — cloud/device wire contract (FR-143, FR-144, ADR-059)",
+  "description": "The four device-facing calls of the pull-model extraction lane and the job object they exchange. The cloud owns this shape; the zuri-edge-device repository codes against it. Every call carries `Authorization: Bearer edgk_<raw key>` (FR-144) and no session cookie. The raw key never appears in any payload defined here.",
+  "type": "object",
+  "definitions": {
+    "jobStatus": {
+      "description": "QUEUED → CLAIMED → COMPLETED | FAILED, plus CANCELLED from either non-terminal state, plus lease expiry CLAIMED → QUEUED.",
+      "enum": ["QUEUED", "CLAIMED", "COMPLETED", "FAILED", "CANCELLED"]
+    },
+    "isoDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "job": {
+      "description": "The job as the device sees it. Cloud-internal columns (tenantId, resultJson, lastError beyond `error`) are not exposed on the wire.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "businessId",
+        "evidenceId",
+        "status",
+        "attempts",
+        "version",
+        "createdAt"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "businessId": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "evidenceId": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "status": { "$ref": "#/definitions/jobStatus" },
+        "claimedByDeviceId": { "type": ["string", "null"], "maxLength": 128 },
+        "claimedAt": { "anyOf": [{ "$ref": "#/definitions/isoDateTime" }, { "type": "null" }] },
+        "leaseExpiresAt": {
+          "description": "10 minutes after claim. A CLAIMED job past this instant returns to QUEUED and may be claimed by another device; a late complete/fail from the previous holder is refused.",
+          "anyOf": [{ "$ref": "#/definitions/isoDateTime" }, { "type": "null" }]
+        },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "provider": { "type": ["string", "null"], "enum": ["openai", "edge", null] },
+        "model": { "type": ["string", "null"], "maxLength": 200 },
+        "error": {
+          "description": "The reason a FAILED job failed. Never a stack trace, host, URL or credential (SEC-025).",
+          "type": ["string", "null"],
+          "maxLength": 1000
+        },
+        "version": {
+          "description": "Optimistic-concurrency token. complete/fail are idempotent per version: a retry of the same call against the same version is a no-op that returns the same job.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence": {
+          "description": "Just enough for the device to fetch and decode the bytes. Never a bucket URL, signed link or storage credential (ADR-041 D3).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mime"],
+          "properties": {
+            "mime": { "enum": ["image/jpeg", "image/png", "image/webp", "application/pdf"] },
+            "byteSize": { "type": "integer", "minimum": 0 },
+            "documentType": { "type": ["string", "null"], "maxLength": 100 }
+          }
+        },
+        "createdAt": { "$ref": "#/definitions/isoDateTime" },
+        "updatedAt": { "$ref": "#/definitions/isoDateTime" }
+      }
+    },
+    "candidate": {
+      "description": "Mirrors the zCandidate shape in src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js. Both adapters validate against one shared module, so this schema and that one must stay identical.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "status", "documentType", "fields"],
+      "properties": {
+        "schemaVersion": { "type": "string", "enum": ["1.0"] },
+        "status": { "type": "string", "enum": ["CANDIDATE"] },
+        "documentType": {
+          "description": "One of ASSET_EVIDENCE_DOCUMENT_TYPES in src/lib/validation/enums.js — that module is the source of truth and this list is never hand-copied into device code.",
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "value", "confidence"],
+            "properties": {
+              "field": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "value": {
+                "anyOf": [
+                  { "type": "string" },
+                  { "type": "number" },
+                  { "type": "boolean" },
+                  { "type": "null" }
+                ]
+              },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "page": { "anyOf": [{ "type": "integer", "minimum": 1 }, { "type": "null" }] },
+              "anchor": { "anyOf": [{ "type": "string", "maxLength": 500 }, { "type": "null" }] },
+              "bounds": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["x", "y", "width", "height"],
+                    "properties": {
+                      "x": { "type": "number" },
+                      "y": { "type": "number" },
+                      "width": { "type": "number" },
+                      "height": { "type": "number" }
+                    }
+                  },
+                  { "type": "null" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "claimRequest": {
+      "description": "POST /api/edge/extraction-jobs/claim — the body is empty by design. Device identity and Business scope come from the credential, never from the payload; a body naming a businessId or deviceId is rejected rather than trusted.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "claimResponse": {
+      "description": "200 with the oldest QUEUED job of the credential's Business, now CLAIMED under a 10-minute lease. 204 with no body when nothing is queued.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["job"],
+      "properties": { "job": { "$ref": "#/definitions/job" } }
+    },
+    "completeRequest": {
+      "description": "POST /api/edge/extraction-jobs/{id}/complete. A candidate the shared schema rejects returns 400 and moves the job to FAILED with the validation reason.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate", "model"],
+      "properties": {
+        "candidate": { "$ref": "#/definitions/candidate" },
+        "model": {
+          "description": "The local model that produced the candidate, as the device reports it. Recorded on the job and in the ASSET_EVIDENCE_EXTRACTED audit event.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "failRequest": {
+      "description": "POST /api/edge/extraction-jobs/{id}/fail.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {
+        "reason": {
+          "description": "Why extraction failed, in terms the console can show a Human. Must not carry a stack trace, file path, host or credential.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "jobResponse": {
+      "description": "The 200 body of complete and fail, and of GET /api/assets/evidence/{id}/extraction-job.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["job"],
+      "properties": { "job": { "$ref": "#/definitions/job" } }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": { "type": "string", "enum": ["1.0"] },
+    "job": { "$ref": "#/definitions/job" },
+    "claimRequest": { "$ref": "#/definitions/claimRequest" },
+    "claimResponse": { "$ref": "#/definitions/claimResponse" },
+    "completeRequest": { "$ref": "#/definitions/completeRequest" },
+    "failRequest": { "$ref": "#/definitions/failRequest" },
+    "jobResponse": { "$ref": "#/definitions/jobResponse" }
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "version": "1.0.0",
+  "generated_by": "rwang:doc-preflight",
+  "generated_at": "2026-08-23T09:54:34Z",
+  "project": "zuri-command-agent",
+  "template": "3-layer-appendix",
+  "summary": {
+    "total_checks": 10,
+    "passed": 8,
+    "warnings": 7,
+    "critical": 0,
+    "info": 6
+  },
+  "findings": [
+    {
+      "id": "WARN-1",
+      "severity": "warning",
+      "check": "document-existence",
+      "title": "Recommended project-hygiene files absent",
+      "details": "CONTRIBUTING.md, .editorconfig, and a dedicated docs/api/README.md are not present. Solo/pre-team projects can defer these, but they become blocking once a second contributor joins.",
+      "files": ["CONTRIBUTING.md", ".editorconfig", "docs/api/README.md"],
+      "action": "Defer is acceptable at current team size (1); revisit before onboarding a second contributor. docs/appendices/A-api-spec.md already covers the docs/api/README.md role."
+    },
+    {
+      "id": "WARN-2",
+      "severity": "warning",
+      "check": "section-completeness",
+      "title": "PRD (Layer 1) has no dedicated Stakeholders/Personas section",
+      "details": "docs/PRD-SDD-v1.0.md §1.2 lists actors/use-cases but does not separately define stakeholders or end-user personas beyond the Zuri product persona (which is a system persona, defined in AGENTS.md, not a user persona).",
+      "files": ["docs/PRD-SDD-v1.0.md"],
+      "action": "Add a short §1.2a Stakeholders section naming the actual human roles (e.g. SmartGift operator, Zuri platform owner) if/when more than one human role interacts with the system."
+    },
+    {
+      "id": "WARN-3",
+      "severity": "warning",
+      "check": "section-completeness",
+      "title": "SDD (Layer 2) has no Observability section",
+      "details": "The system has heartbeat, lease, and lifecycle-state concepts but no documented logging/metrics/alerting approach beyond stderr diagnostics.",
+      "files": ["docs/PRD-SDD-v1.0.md"],
+      "action": "Add SDD §2.x Observability before S6 (worker) implementation — heartbeat/lease health is exactly the kind of thing that needs a monitoring story once the bridge runs unattended."
+    },
+    {
+      "id": "WARN-4",
+      "severity": "warning",
+      "check": "section-completeness",
+      "title": "SDD (Layer 2) has no dedicated Tech Stack or Error Handling Strategy section",
+      "details": "Tech stack (Node 22+, TypeScript, DuckDB, Zod) is stated only in the PRD executive summary; error-handling conventions are split across NFR-004 and Appendix A.4 without a consolidated statement.",
+      "files": ["docs/PRD-SDD-v1.0.md", "docs/appendices/A-api-spec.md"],
+      "action": "Low priority — content exists, just not consolidated. Fold into §2.1 or a new §2.1a on next revision."
+    },
+    {
+      "id": "WARN-5",
+      "severity": "warning",
+      "check": "requirement-coverage",
+      "title": "12 of 24 tracked requirement IDs are marked not-yet-implemented",
+      "details": "FR-003/004/005/006/008, NFR-003/004/005, SEC-005, BR-005/006, and all 8 acceptance criteria (AC-001..008) are documented but have no implementing code yet (S5–S8 of the build order are pending).",
+      "requirement_ids": ["FR-003","FR-004","FR-005","FR-006","FR-008","NFR-003","NFR-004","NFR-005","SEC-005","BR-005","BR-006","AC-001","AC-002","AC-003","AC-004","AC-005","AC-006","AC-007","AC-008"],
+      "action": "Not a doc defect — already tracked explicitly in docs/appendices/D-traceability.md §D.1–D.6 as planned/pending work against the S1–S8 build order. Listed here so it surfaces in a preflight pass too, not only buried in the appendix."
+    },
+    {
+      "id": "INFO-1",
+      "severity": "info",
+      "check": "doc-code-symlinks",
+      "title": "0 structured or unstructured requirement-ID references in source",
+      "details": "No file under src/ or tests/ carries an @req/@spec/@designs/@tested annotation or a plain FR-xxx/NFR-xxx comment. All D-traceability.md mappings are inferred from file purpose, not verified in-code.",
+      "action": "Already proposed in docs/appendices/D-traceability.md §D.7 with a worked example. Optional, not blocking — apply opportunistically as files are touched."
+    },
+    {
+      "id": "INFO-2",
+      "severity": "info",
+      "check": "document-control",
+      "title": "Pre-existing docs use a different frontmatter convention than the new Document Control Block",
+      "details": "AGENTS.md, docs/COMMAND-AGENT-SPEC.md, and docs/AGENT-RUNTIME-SPEC.md use YAML frontmatter (id/version/status/owner/created_at/last_update) instead of the Document Control Block table + Version History used by the newly scaffolded docs. Both are internally consistent; they just don't match each other.",
+      "files": ["AGENTS.md", "docs/COMMAND-AGENT-SPEC.md", "docs/AGENT-RUNTIME-SPEC.md"],
+      "action": "Left as-is by design (doc-architect does not overwrite existing docs). Optionally standardize on one convention in a future pass — not urgent, no information is missing, only the format differs."
+    },
+    {
+      "id": "INFO-3",
+      "severity": "info",
+      "check": "document-control",
+      "title": "Author identity differs between old and new docs",
+      "details": "Existing docs list author \"ATHER\"; newly generated docs list \"Boss\" (auto-detected from git config user.name). These may be the same person under a different handle.",
+      "action": "Confirm whether \"ATHER\" and \"Boss\" are the same author; if so, consider aligning the byline convention project-wide."
+    },
+    {
+      "id": "INFO-4",
+      "severity": "info",
+      "check": "glossary-completeness",
+      "title": "A few frequently-used terms are not separate glossary entries",
+      "details": "\"LINE Messaging API / LINE OA\" and \"idempotency key\" are used repeatedly across docs but only appear inline inside other entries (e.g. under Flex), not as their own Appendix F rows. Appendix F is also not linked from the main docs/PRD-SDD-v1.0.md document.",
+      "files": ["docs/appendices/F-glossary.md", "docs/PRD-SDD-v1.0.md"],
+      "action": "Add two glossary rows and one link from PRD-SDD-v1.0.md's document-authority section to Appendix F for discoverability."
+    },
+    {
+      "id": "WARN-6",
+      "severity": "warning",
+      "check": "document-control",
+      "title": "New catalog v4 spec/plan do not use the repository document-control convention",
+      "details": "The new SmartGift catalog v4 spec has status/date/owner prose and the implementation plan has no version-history block. They are review artifacts, but their control metadata is not yet aligned with the repository's established document conventions.",
+      "files": ["docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md", "docs/superpowers/plans/2026-08-23-smartgift-catalog-graph-v4.md"],
+      "action": "Standardize version/status/owner/last-updated metadata before promoting the proposal to an approved implementation baseline."
+    },
+    {
+      "id": "WARN-7",
+      "severity": "warning",
+      "check": "requirement-coverage",
+      "title": "Catalog v4 acceptance IDs are not yet in the main traceability graph",
+      "details": "AC-A through AC-E and the catalog-specific ADR labels are scoped inside the new proposal documents; docs/.doc-graph.json and docs/appendices/D-traceability.md do not yet contain their nodes or implementation edges.",
+      "files": ["docs/.doc-graph.json", "docs/appendices/D-traceability.md", "docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md"],
+      "action": "Update the document graph and traceability matrix when the proposal is approved and implementation branches are merged; do not mark these criteria implemented from this docs-only PR."
+    },
+    {
+      "id": "INFO-5",
+      "severity": "info",
+      "check": "broken-cross-references",
+      "title": "New catalog v4 documents have no relative Markdown links to validate",
+      "details": "The new spec and plan use code/path references and section references rather than Markdown links. External worktree paths are intentional and cannot be resolved inside this repository.",
+      "files": ["docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md", "docs/superpowers/plans/2026-08-23-smartgift-catalog-graph-v4.md"],
+      "action": "Keep external worktree references synchronized as implementation moves; add repository-relative links when the referenced artifacts land here."
+    },
+    {
+      "id": "INFO-6",
+      "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Catalog v4 IDs are namespaced by acceptance group",
+      "details": "The new AC-A1 through AC-E3 labels do not collide with the existing FR/NFR/BR/SEC/DR/AC numeric identifiers; they remain proposal-local until traceability is updated.",
+      "files": ["docs/superpowers/specs/2026-08-23-smartgift-catalog-graph-v4-design.md", "docs/superpowers/plans/2026-08-23-smartgift-catalog-graph-v4.md"],
+      "action": "Preserve the namespace mapping when adding these criteria to the governed traceability graph."
+    }
+  ],
+  "passed_checks": [
+    "duplicate-or-gapped-requirement-ids (FR/NFR/BR/SEC/AC/DR all sequential, no duplicates)",
+    "cross-reference-consistency (IDs match across PRD-SDD and Appendix D)",
+    "internal-contradictions (none found: CTA domains, row caps, contract version, and query params all match between docs and src/)",
+    "staleness (all docs and code share the same creation date — nothing to flag yet; re-run after the next code change)",
+    "broken-cross-references (all 22 relative markdown links resolved to existing files)",
+    "mermaid-diagram-syntax (Appendix D §D.8 diagram is syntactically valid)",
+    "new-catalog-doc-structure (spec has problem, goals, acceptance criteria, design, testing, measurement, risks; plan has wave/task/gate structure)",
+    "new-catalog-doc-links (no broken relative Markdown links found in the new spec or plan)"
+  ]
+}
