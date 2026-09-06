@@ -159,18 +159,12 @@ export default function LineStudioEdgeConnection() {
         ...(basicId ? { basicId } : {})
       });
 
-      // Step 3: Automatically activate server transport so it goes LIVE immediately
-      try {
-        await api(`/api/line-oa/accounts/${newAcc.id}`, "PATCH", {
-          action: "ENABLE_SERVER",
-          legacyQuiesced: true,
-          version: newAcc.version || 1
-        });
-      } catch (e) {
-        console.warn("Auto server activate notice:", e);
-      }
-
-      setMessage(`เชื่อมต่อบัญชี ${displayName} และเปิด Server สำเร็จเรียบร้อยแล้ว`);
+      // Creating the account deliberately stops here. SEC-016: "The UI cannot
+      // activate LINE routing or send a canary", and FR-149 routes only to an
+      // *explicitly enabled* account — so turning transport on is the owner's
+      // separate, audited click on "เปิด Server Transport" in the account card
+      // below, not a side effect of filling in this form.
+      setMessage(`เชื่อมต่อบัญชี ${displayName} แล้ว — กด "เปิด Server Transport" ในการ์ดด้านล่างเมื่อพร้อมรับข้อความจริง`);
       event.target.reset();
     });
   }
