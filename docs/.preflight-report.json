@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 272,
-    "routes": 131,
-    "test_files": 438
+    "docs": 273,
+    "routes": 133,
+    "test_files": 442
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 26,
+    "info": 27,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -216,15 +216,34 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "480 id(s) pinned across 10 families",
-      "details": "ADR 60 · BR 25 · FEAT 18 · FR 147 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 480",
+      "title": "FEAT-018 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 43f2b2585315007d6e81c3b2e1db4cd3cc1dc313192d320157d8e13c0e7f3e53 → b09db891d2a0ffab8f2ea8cf111cc37e03625a639f784f3ff9c4684458b2fbb7 · citation files: docs/domains/line-oa-studio/CHARTER.md, docs/domains/line-oa-studio/features/FR-146-line-oa-account.md, docs/domains/line-oa-studio/features/FR-148-line-oa-rich-menu.md, docs/PRD-SDD-v1.0.md, docs/roadmap/ROADMAP.md, docs/SYSTEM-DIAGRAM.md, docs/TRACE.md",
+      "files": [
+        "docs/FEATURES.md",
+        "docs/.id-ledger.json",
+        "docs/domains/line-oa-studio/CHARTER.md",
+        "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+        "docs/domains/line-oa-studio/features/FR-148-line-oa-rich-menu.md",
+        "docs/PRD-SDD-v1.0.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/SYSTEM-DIAGRAM.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-018 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I20",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "481 id(s) pinned across 10 families",
+      "details": "ADR 60 · BR 25 · FEAT 18 · FR 148 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 481",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I20",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -235,7 +254,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I22",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -246,7 +265,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I22",
+      "id": "I23",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -257,10 +276,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 272 document(s)",
+      "title": "table integrity checked in 273 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -268,7 +287,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I25",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -280,19 +299,19 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I25",
+      "id": "I26",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 49 file(s) that write audit events",
+      "title": "audit entityType checked in 50 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I26",
+      "id": "I27",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1066 column(s) across 83 model(s) against 37 migration(s)",
+      "title": "schema-migration drift checked: 1098 column(s) across 85 model(s) against 38 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

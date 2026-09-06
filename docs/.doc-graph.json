@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1769,
-    "total_edges": 6453,
+    "total_nodes": 1783,
+    "total_edges": 6498,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 159,
+      "document": 160,
       "adr": 60,
       "domain": 10,
       "roadmap": 35,
       "feature": 18,
-      "route": 187,
-      "model": 83,
-      "requirement": 304,
-      "test": 438,
-      "code_file": 471
+      "route": 189,
+      "model": 85,
+      "requirement": 305,
+      "test": 442,
+      "code_file": 475
     },
     "coverage": {
-      "requirements": 304,
-      "fr_with_code": "100% (137/137)",
-      "fr_with_tests": "100% (137/137)",
+      "requirements": 305,
+      "fr_with_code": "100% (138/138)",
+      "fr_with_tests": "100% (138/138)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 471,
+      "annotated_code_files": 475,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,12 +55,37 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
       "doc:README",
       "doc:CONTEXT-MAP",
+      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:SRS",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-148-line-oa-rich-menu",
+      "route:api:/api/line-oa/rich-menus",
+      "route:api:/api/line-oa/rich-menus/[id]",
+      "model:LineOaRichMenu",
+      "model:LineOaRichMenuVersion",
+      "req:FR-148",
+      "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "test:tests/unit/line-oa-rich-menu-domain.test.js",
+      "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
+      "code:src/app/api/line-oa/rich-menus/route.js",
+      "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -2527,6 +2552,44 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/rich-menus/[id]/route.js",
+      "hash": "c720bcb5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-148"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/rich-menus/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/rich-menus/route.js",
+      "hash": "2739e15c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-148"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/market/observations/route.js",
       "type": "code_file",
       "path": "src/app/api/market/observations/route.js",
@@ -4654,8 +4717,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "da31fba2",
-      "status": "current",
+      "hash": "e1e6abcf",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7372,6 +7435,28 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "hash": "a97d3ed1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-148"
+        ],
+        "@spec": [
+          "SEC-001",
+          "BR-002",
+          "BR-012",
+          "FR-072",
+          "FR-045"
+        ],
+        "@tested": [
+          "tests/integration/fr148-line-oa-rich-menu.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "type": "code_file",
       "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -7386,6 +7471,24 @@
         ],
         "@tested": [
           "tests/unit/line-oa-account-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "hash": "ebd60638",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-148"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-domain.test.js"
         ]
       }
     },
@@ -7803,8 +7906,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "bcf585f4",
-      "status": "current",
+      "hash": "8a0c31a1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -7869,8 +7972,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "8736eb74",
-      "status": "current",
+      "hash": "2682fc84",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -7886,6 +7989,7 @@
           "FR-107",
           "FR-067",
           "FR-089",
+          "FR-148",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -9791,8 +9895,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.37.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "38c82e72",
-      "status": "current"
+      "hash": "83d0f81b",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9843,10 +9947,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.17.0b",
+      "version": "1.18.0b",
       "doc_status": "Draft",
-      "hash": "e18bcb9b",
-      "status": "current"
+      "hash": "8abc4a38",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -10061,10 +10165,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.20.0b",
+      "version": "1.21.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "ea2aa958",
-      "status": "current"
+      "hash": "7abb247a",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10858,6 +10962,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-148-line-oa-rich-menu",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-148-line-oa-rich-menu.md",
+      "title": "FR-148 — the rich menu designer: `LineOaRichMenu` and its versions",
+      "hash": "217bdcc8",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -11200,10 +11312,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.153.0b",
+      "version": "1.154.0b",
       "doc_status": "Draft",
-      "hash": "f9b3424b",
-      "status": "current"
+      "hash": "e007db76",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -11246,8 +11358,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ea4273ed",
-      "status": "current"
+      "hash": "b565fbc4",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11661,7 +11773,9 @@
       "path": "docs/domains/line-oa-studio/CHARTER.md",
       "title": "Domain — line-oa-studio",
       "owns_models": [
-        "LineOaAccount"
+        "LineOaAccount",
+        "LineOaRichMenu",
+        "LineOaRichMenuVersion"
       ],
       "owns_routes": [
         "src/app/(pm)/line-oa/**",
@@ -11673,8 +11787,8 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "7f05e33d",
-      "status": "current"
+      "hash": "0ad52b0c",
+      "status": "changed"
     },
     {
       "id": "domain:market-intelligence",
@@ -11896,7 +12010,7 @@
     {
       "id": "feat:FEAT-018",
       "type": "feature",
-      "label": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
+      "label": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes and the rich menu designer (ADR-060)",
       "declared": "building",
       "status": "current"
     },
@@ -12102,6 +12216,16 @@
     },
     {
       "id": "model:LineOaAccount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LineOaRichMenu",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LineOaRichMenuVersion",
       "type": "model",
       "status": "current"
     },
@@ -14036,6 +14160,16 @@
       "row_text": "LINE binding status read contract — a read-only, Tenant/Business-scoped reader over the agent lane's `zuri_core.line_channel_binding` (`createPostgresLineBindingStatusReader`, `src/modules/agent/line-binding-status.js`) that answers one question, \"is there a currently valid ACTIVE binding with this code for this Tenant and Business\", and nothing else. It selects `code`, `status`, `valid_from`, `expires_at`, `rotated_at` and `version` and never a hash or credential column; runs through the same `zuri_line_smartgift_ro` read role, short transaction and forced-RLS path as the Phase 1 runtime (FR-052, SEC-010); and takes Tenant, Business and code from the caller's server-owned row (FR-146's account), never from a request. Because that role's policy exposes only ACTIVE, in-window rows of the scope it is granted for, the contract has exactly four honest labels: `ACTIVE` (a row is visible and ACTIVE), `NOT_ACTIVE` (a reader is configured and no such row is visible — pending, inactive, expired, rotated, absent and out-of-policy are indistinguishable by design), `NO_BINDING` (the account carries no binding code), and `UNKNOWN` (no reader is configured: `ZURI_LINE_BUSINESS_AGENT_ENABLED` is not `true` or `ZURI_LINE_DB_URL` is unset — the dev/test default). FR-146's account health reports the label with its source, and `effectiveStatus` reaches `LIVE` only on `ACTIVE`. The contract activates, rotates or expires nothing: ADR-020 stays the only mutation path. 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the SmartGift Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then "
     },
     {
+      "id": "req:FR-148",
+      "type": "requirement",
+      "family": "FR",
+      "label": "LINE OA rich menu designer — `LineOaRichMenu` and `LineOaRichMenuVersion`, the Studio-owned design record of one rich menu per LINE OA Studio account, many per account (ADR-060 D3; SRS LOS-RQ-040, LOS-RQ-041, LOS-RQ-016). A menu is the identity (`code` unique per Tenant, optional `alias` unique per account, default flag, DRAFT → READY → ARCHIVED); every body is a numbered version carrying the LINE layout (1×1, 2×1, 2×2, 2×3, 3×1, 1×2), chat-bar text (≤ 14 characters), up to twenty tap areas whose actions are an allow-listed vocabulary (message, postback, https/tel URI, LIFF app reference, rich-menu switch by alias) and never a free-form object, the declared image size (one of LINE's six) and a `FileAsset` image reference validated as a same-Business, live PNG/JPEG within LINE's 1 MiB — bytes are never copied (FR-045). Saving edits the open draft in place and reports every reason it could not be deployed (unsupported image size, an area outside the image, no areas, no image); freezing refuses a draft with any such reason and makes the version immutable, so the next save opens the next numbered version; archiving retires the open draft and keeps every frozen version. Writes need Business OWNER or `LINE_OA_PUBLISHER`, reads need Business visibility plus the `line-oa` domain, every refusal is the FR-072 404, every write is a compare-and-swap on the menu's `version` with one audit row. The external `richMenuId` is a nullable attribute of the deployed version (BR-002), written by the transport lane; this requirement never talks to LINE — publishing a frozen version is the `LineOaTransportJob` requirement's.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "LINE OA rich menu designer — `LineOaRichMenu` and `LineOaRichMenuVersion`, the Studio-owned design record of one rich menu per LINE OA Studio account, many per account (ADR-060 D3; SRS LOS-RQ-040, LOS-RQ-041, LOS-RQ-016). A menu is the identity (`code` unique per Tenant, optional `alias` unique per account, default flag, DRAFT → READY → ARCHIVED); every body is a numbered version carrying the LINE layout (1×1, 2×1, 2×2, 2×3, 3×1, 1×2), chat-bar text (≤ 14 characters), up to twenty tap areas whose actions are an allow-listed vocabulary (message, postback, https/tel URI, LIFF app reference, rich-menu switch by alias) and never a free-form object, the declared image size (one of LINE's six) and a `FileAsset` image reference validated as a same-Business, live PNG/JPEG within LINE's 1 MiB — bytes are never copied (FR-045). Saving edits the open draft in place and reports every reason it could not be deployed (unsupported image size, an area outside the image, no areas, no image); freezing refuses a draft with any such reason and makes the version immutable, so the next save opens the next numbered version; archiving retires the open draft and keeps every frozen version. Writes need Business OWNER or `LINE_OA_PUBLISHER`, reads need Business visibility plus the `line-oa` domain, every refusal is the FR-072 404, every write is a compare-and-swap on the menu's `version` with one audit row. The external `richMenuId` is a nullable attribute of the deployed version (BR-002), written by the transport lane; this requirement never talks to LINE — publishing a frozen version is the `LineOaTransportJob` requirement's. 🟠 implemented locally 2026-09-06 — both models (both schemas, additive migrations; production SQL **not applied**), the only writer `line-oa-rich-menu-service.js`, `GET/POST /api/line-oa/rich-menus` and `GET/PATCH /api/line-oa/rich-menus/[id]`, snapshot coverage; one integration suite (AC-148.1–.7) and three unit suites. Not claimed: the designer page, publish/default/alias transport jobs, the external `richMenuId` write "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -15865,6 +15999,22 @@
       "kind": "api",
       "route": "/api/line-oa/accounts/[id]",
       "path": "src/app/api/line-oa/accounts/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/rich-menus",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/rich-menus",
+      "path": "src/app/api/line-oa/rich-menus/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/rich-menus/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/rich-menus/[id]",
+      "path": "src/app/api/line-oa/rich-menus/[id]/route.js",
       "status": "current"
     },
     {
@@ -17826,6 +17976,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "type": "test",
+      "path": "tests/integration/fr148-line-oa-rich-menu.test.js",
+      "hash": "1d902688",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -18032,8 +18189,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "67e0cb91",
-      "status": "current"
+      "hash": "512dbee1",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -19412,6 +19569,27 @@
       "type": "test",
       "path": "tests/unit/line-oa-account-schema-contract.test.js",
       "hash": "c04182ea",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-rich-menu-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-domain.test.js",
+      "hash": "bc4a3ee2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-routes.test.js",
+      "hash": "1ad9594d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-schema-contract.test.js",
+      "hash": "8cfbfbed",
       "status": "current"
     },
     {
@@ -24150,6 +24328,48 @@
     },
     {
       "from": "code:src/app/api/line-oa/accounts/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/route.js",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/rich-menus/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -31212,6 +31432,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:FR-045",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -31221,6 +31483,20 @@
     {
       "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "to": "req:FR-148",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -31914,6 +32190,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-148",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35356,6 +35639,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-018",
+      "to": "req:FR-148",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -35637,6 +35927,20 @@
     },
     {
       "from": "model:LineOaAccount",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LineOaRichMenu",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LineOaRichMenuVersion",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -37176,6 +37480,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-148",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -38556,6 +38867,20 @@
     },
     {
       "from": "route:api:/api/line-oa/accounts",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/rich-menus/[id]",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/rich-menus",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -43876,6 +44201,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -44164,6 +44496,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -46438,6 +46777,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -47184,6 +47530,55 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr148-line-oa-rich-menu.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -48637,6 +49032,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -54936,6 +55338,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -59213,6 +59622,90 @@
     },
     {
       "from": "test:tests/unit/line-oa-account-schema-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",
+      "to": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "code:src/app/api/line-oa/rich-menus/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "code:src/app/api/line-oa/rich-menus/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-schema-contract.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",

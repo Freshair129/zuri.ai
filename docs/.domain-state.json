@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T04:37:59.702Z",
+  "generatedAt": "2026-09-06T05:14:20.822Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,8 +39,8 @@
     "domainCount": 10,
     "featureCount": 115,
     "readyFeatureCount": 99,
-    "requirementCount": 147,
-    "verifiedRequirementCount": 137,
+    "requirementCount": 148,
+    "verifiedRequirementCount": 138,
     "progressPercent": 93.2,
     "gapCount": 20,
     "gaps": [
@@ -414,7 +414,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -648,7 +648,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -788,7 +788,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-078",
@@ -999,7 +999,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-062",
@@ -1186,7 +1186,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -1549,7 +1549,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -1956,6 +1956,13 @@
           "status": "verified",
           "codeCount": 6,
           "testCount": 20
+        },
+        {
+          "id": "FR-148",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 9
         }
       ],
       "checks": {
@@ -1972,9 +1979,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
-            "openApiPaths": 131,
+            "routes": 4,
+            "inventoried": 4,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -2008,8 +2015,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 1,
-            "present": 1
+            "models": 3,
+            "present": 3
           }
         },
         "authorization": {
@@ -2019,9 +2026,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 2,
-            "guardedMutations": 2,
-            "reads": 2,
+            "mutations": 4,
+            "guardedMutations": 4,
+            "reads": 4,
             "unguardedReads": 0
           }
         },
@@ -2038,6 +2045,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/line-oa-studio/CHARTER.md",
         "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+        "docs/domains/line-oa-studio/features/FR-148-line-oa-rich-menu.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -2048,11 +2056,11 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 2,
-        "apiRoutes": 2,
+        "routes": 4,
+        "apiRoutes": 4,
         "pageRoutes": 0,
-        "ownedModels": 1,
-        "featureNotes": 1
+        "ownedModels": 3,
+        "featureNotes": 2
       },
       "featureIds": [
         "FEAT-018"
@@ -2069,7 +2077,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-092",
@@ -2102,7 +2110,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -2252,7 +2260,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -2581,7 +2589,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-046",
@@ -2623,7 +2631,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-062",
@@ -2693,7 +2701,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-073",
@@ -2953,6 +2961,13 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 20
+        },
+        {
+          "id": "FR-148",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 9
         }
       ],
       "checks": {
@@ -2987,7 +3002,7 @@
           "details": {
             "routes": 94,
             "inventoried": 94,
-            "openApiPaths": 131,
+            "openApiPaths": 133,
             "missingFromOpenApi": 0
           }
         },
@@ -3228,7 +3243,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-058",
@@ -3280,6 +3295,7 @@
         "tests/integration/fr072-files-migrate-authorization.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr148-line-oa-rich-menu.test.js",
         "tests/integration/project-authorization.test.js",
         "tests/unit/asset-management-navigation.test.js",
         "tests/unit/authorization-seam-list-routes.test.js",
@@ -4517,12 +4533,13 @@
     },
     {
       "id": "FEAT-018",
-      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD) and publisher-only writes (ADR-060)",
+      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes and the rich menu designer (ADR-060)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-146",
-        "FR-147"
+        "FR-147",
+        "FR-148"
       ],
       "primaryDomain": "line-oa-studio",
       "contributorDomains": [
@@ -4553,11 +4570,20 @@
           "progressPercent": 100,
           "codeCount": 2,
           "testCount": 3
+        },
+        {
+          "id": "FR-148",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 9
         }
       ],
       "evidence": [
         "src/app/api/line-oa/accounts/[id]/route.js",
         "src/app/api/line-oa/accounts/route.js",
+        "src/app/api/line-oa/rich-menus/[id]/route.js",
+        "src/app/api/line-oa/rich-menus/route.js",
         "src/config/domains.js",
         "src/lib/validation/enums.js",
         "src/modules/agent/line-binding-status.js",
@@ -4566,7 +4592,9 @@
         "src/modules/integration/application/integration-management-service.js",
         "src/modules/line-oa-studio/application/line-oa-account-authority.js",
         "src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
         "src/modules/line-oa-studio/domain/line-oa-account.js",
+        "src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
         "src/modules/line-oa-studio/index.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
@@ -4575,6 +4603,7 @@
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/fr146-line-oa-account.test.js",
+        "tests/integration/fr148-line-oa-rich-menu.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/integration/xlsx-intake.test.js",
         "tests/unit/asset-management-navigation.test.js",
@@ -4590,6 +4619,9 @@
         "tests/unit/line-oa-account-domain.test.js",
         "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/line-oa-account-schema-contract.test.js",
+        "tests/unit/line-oa-rich-menu-domain.test.js",
+        "tests/unit/line-oa-rich-menu-routes.test.js",
+        "tests/unit/line-oa-rich-menu-schema-contract.test.js",
         "tests/unit/phase1-business-agent-runtime.test.js",
         "tests/unit/plan-schema.test.js"
       ]
@@ -7075,7 +7107,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 28
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -7111,6 +7143,7 @@
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/line-oa-account-routes.test.js",
+        "tests/unit/line-oa-rich-menu-routes.test.js",
         "tests/unit/market-intelligence/market-observation-feed.test.js",
         "tests/unit/market-intelligence/market-observation-service.test.js",
         "tests/unit/people-route.test.js",
@@ -7467,7 +7500,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -7523,6 +7556,7 @@
         "tests/integration/fr074-scope-creation-authorization.test.js",
         "tests/integration/fr089-team-scope.test.js",
         "tests/integration/fr146-line-oa-account.test.js",
+        "tests/integration/fr148-line-oa-rich-menu.test.js",
         "tests/integration/project-authorization.test.js",
         "tests/integration/project-business-binding.test.js",
         "tests/integration/project-core.test.js",

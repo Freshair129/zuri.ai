@@ -258,6 +258,7 @@
     "FR-145",
     "FR-146",
     "FR-147",
+    "FR-148",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2822,6 +2823,19 @@
         {
           "anchor": "line binding status read contract",
           "since": "2026-09-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-148": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0dc567c7680bce75881d02c19e43053597f5d4c68a102065eb16f4259886d609",
+      "history": [
+        {
+          "anchor": "line oa rich menu designer",
+          "since": "2026-09-06",
           "reason": "declared"
         }
       ]

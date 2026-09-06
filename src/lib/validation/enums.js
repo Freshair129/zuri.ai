@@ -190,6 +190,12 @@ export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIV
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
 export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
 export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE']
+// FR-148 — rich menu designer vocabularies (ADR-060 D3, SRS LOS-RQ-040..042).
+export const LINE_OA_RICH_MENU_LAYOUTS = ['1x1', '2x1', '2x2', '2x3', '3x1', '1x2']
+export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
+export const LINE_OA_RICH_MENU_VERSION_STATUSES = ['DRAFT', 'FROZEN', 'PUBLISHED', 'RETIRED']
+export const LINE_OA_RICH_MENU_ACTION_TYPES = ['MESSAGE', 'POSTBACK', 'URI', 'LIFF', 'RICHMENU_SWITCH']
+export const LINE_OA_RICH_MENU_ACTIONS = ['SAVE_DRAFT', 'FREEZE', 'ARCHIVE']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -225,6 +231,11 @@ export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
 export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
 export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
 export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
+export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)
+export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
+export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)
+export const zLineOaRichMenuActionType = z.enum(LINE_OA_RICH_MENU_ACTION_TYPES)
+export const zLineOaRichMenuAction = z.enum(LINE_OA_RICH_MENU_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
