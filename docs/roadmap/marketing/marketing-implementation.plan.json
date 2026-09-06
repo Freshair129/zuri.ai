@@ -16,7 +16,7 @@
   "project": {
     "code": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
     "name": "Zuri Marketing — Domain Implementation",
-    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design and bounded Campaign initiative task complete locally; Strategy broader tasks remain in progress. Live evidence pending.",
+    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design and bounded Campaign initiative and Content tasks complete locally; Strategy broader tasks remain in progress. Live evidence pending.",
     "status": "ACTIVE"
   },
   "workstreams": [
@@ -344,7 +344,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Creative brief, production and library",
-          "status": "IN_PROGRESS",
+          "status": "DONE",
           "weight": 5,
           "metadata": {
             "ownerRole": "Creative systems",
@@ -360,7 +360,7 @@
               "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
               "docs/domains/marketing/features/FR-157-content-creative.md"
             ],
-            "implementationStatus": "in progress: immutable Content brief, rights-aware review/decision and authorized Files/PM references",
+            "implementationStatus": "native verified: six Content interfaces, immutable rights/review evidence and authorized Files/PM projections; see phase report",
             "interfaceIds": [
               "MKT-UI-016",
               "MKT-UI-017",

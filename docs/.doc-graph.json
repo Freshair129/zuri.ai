@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 2059,
-    "total_edges": 8104,
+    "total_edges": 8105,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -55,13 +55,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/marketing-content.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/marketing-content-ui.test.js",
-      "code:src/modules/marketing/components/content/content-contract.js",
-      "code:src/modules/marketing/components/content/ContentBriefDetail.jsx",
-      "code:src/modules/marketing/components/content/ContentCollection.jsx",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "doc:PHASE-CONTENT-2026-09-06"
     ],
     "added": [],
     "removed": []
@@ -601,7 +595,7 @@
       "id": "code:src/app/(pm)/growth/content/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/growth/content/page.jsx",
-      "hash": "ee7a31b0",
+      "hash": "412edbf0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9220,7 +9214,7 @@
       "id": "code:src/modules/marketing/application/marketing-content-service.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-content-service.js",
-      "hash": "7d2516ed",
+      "hash": "a9374a2f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9461,8 +9455,8 @@
       "id": "code:src/modules/marketing/components/content/content-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/components/content/content-contract.js",
-      "hash": "f263d1f5",
-      "status": "changed",
+      "hash": "5195befa",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-157"
@@ -9479,7 +9473,7 @@
       "id": "code:src/modules/marketing/components/content/ContentAssetDetail.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/content/ContentAssetDetail.jsx",
-      "hash": "5bbc7ff1",
+      "hash": "7aef4d6f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9499,7 +9493,7 @@
       "type": "code_file",
       "path": "src/modules/marketing/components/content/ContentBriefDetail.jsx",
       "hash": "ca146f52",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-157"
@@ -9536,8 +9530,8 @@
       "id": "code:src/modules/marketing/components/content/ContentCollection.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/content/ContentCollection.jsx",
-      "hash": "a2639769",
-      "status": "changed",
+      "hash": "469ab38b",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-157"
@@ -9940,7 +9934,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "d96ce2c0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -13248,7 +13242,7 @@
       "type": "document",
       "path": "docs/domains/marketing/features/FR-157-content-creative.md",
       "title": "Content and Creative — immutable briefs and approved file references",
-      "hash": "71729297",
+      "hash": "0e507a29",
       "status": "current"
     },
     {
@@ -13304,7 +13298,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.8.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d7c85885",
+      "hash": "f3caedc3",
       "status": "current"
     },
     {
@@ -13470,8 +13464,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-CONTENT-2026-09-06.md",
       "title": "Marketing Content — phase evidence",
-      "hash": "6141e258",
-      "status": "current"
+      "hash": "b41fe712",
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-148-P1-account-scoped-conversations",
@@ -13706,7 +13700,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "33afa026",
+      "hash": "92cfeb3e",
       "status": "current"
     },
     {
@@ -13788,9 +13782,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.159.0b",
+      "version": "1.160.1b",
       "doc_status": "Draft",
-      "hash": "9f22ab6c",
+      "hash": "b50c2c6e",
       "status": "current"
     },
     {
@@ -13818,7 +13812,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "2525b678",
+      "hash": "c6a6a220",
       "status": "current"
     },
     {
@@ -16773,7 +16767,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Marketing execution handoff — an exact approved Strategy revision generates a deterministic PlanEnvelope for a same-Business Workspace, previews the PM diff, then commits through the existing authorized PM importer with the reviewed hash, concurrency guard, audit and Marketing receipt in one transaction. Replays reconcile one receipt per revision/Workspace; revocation, expiry, stale content and scope mismatches prevent new execution. Action delivery progress never claims marketing KPI attainment. 🟠 implementation in progress from approved CR-018 "
+      "row_text": "Marketing execution handoff — an exact approved Strategy revision generates a deterministic PlanEnvelope for a same-Business Workspace, previews the PM diff, then commits through the existing authorized PM importer with the reviewed hash, concurrency guard, audit and Marketing receipt in one transaction. Replays reconcile one receipt per revision/Workspace; revocation, expiry, stale content and scope mismatches prevent new execution. Action delivery progress never claims marketing KPI attainment. 🟢 locally verified Content slice; external publishing and Team runtime remain separate gates "
     },
     {
       "id": "req:FR-155",
@@ -20664,8 +20658,8 @@
       "id": "test:tests/e2e/marketing-content.spec.js",
       "type": "test",
       "path": "tests/e2e/marketing-content.spec.js",
-      "hash": "38bdc569",
-      "status": "changed"
+      "hash": "c1c7b5bc",
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/marketing-strategy.spec.js",
@@ -21329,7 +21323,7 @@
       "id": "test:tests/integration/marketing-content.test.js",
       "type": "test",
       "path": "tests/integration/marketing-content.test.js",
-      "hash": "0b179b25",
+      "hash": "85c7f550",
       "status": "current"
     },
     {
@@ -21358,7 +21352,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "b6d35e22",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -23093,8 +23087,8 @@
       "id": "test:tests/unit/marketing-content-ui.test.js",
       "type": "test",
       "path": "tests/unit/marketing-content-ui.test.js",
-      "hash": "2447e8ab",
-      "status": "changed"
+      "hash": "3e1a638f",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing-migration-policy.test.js",
@@ -43156,6 +43150,13 @@
     {
       "from": "doc:FR-157-content-creative",
       "to": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-157-content-creative",
+      "to": "doc:PHASE-CONTENT-2026-09-06",
       "type": "references",
       "source": "markdown",
       "status": "current"

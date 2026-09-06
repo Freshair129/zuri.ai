@@ -230,7 +230,7 @@ is not implied by human review and channel intent fields.
 Version diff: adds three native route shapes covering seven approved interfaces;
 provider measurements and automated Team refinement remain separately tracked.
 
-### Marketing Content and Creative slice (verification in progress)
+### Marketing Content and Creative slice (locally verified beta)
 
 | Route | Interface | Native behavior | Authority and states | Trace |
 |---|---|---|---|---|

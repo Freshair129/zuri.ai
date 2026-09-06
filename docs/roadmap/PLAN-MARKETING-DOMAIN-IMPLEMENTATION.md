@@ -1,7 +1,7 @@
 ---
-version: "0.6.0b"
+version: "0.6.1b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T21:03:55+07:00,RWANG"
+last_update: "2026-09-06T22:26:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -187,7 +187,7 @@ The user requested GPT-5.6 Luna with max reasoning for parallel work. Three boun
 ## Version diff
 
 Approved domain design remains 1.1.0b / commit 494a3666.
-Tracking plan **0.5.0b → 0.5.1b**: attach verified Campaign delivery and one bounded DONE transition while preserving seven partial tasks, the five-wave plan and the unresolved server import. The approved 11-subdomain design is unchanged.
+Tracking plan **0.6.0b → 0.6.1b**: attach verified Content delivery and one bounded DONE transition while preserving seven partial tasks, the five-wave plan and the unresolved server import. The approved 11-subdomain design is unchanged.
 
 ## CHANGELOG
 
@@ -200,6 +200,7 @@ Tracking plan **0.5.0b → 0.5.1b**: attach verified Campaign delivery and one b
 | 0.5.0b | 2026-09-06 | beta | Continue Campaign implementation from approved design and retain SmartGift target gate | See git history | RWANG |
 | 0.5.1b | 2026-09-06 | beta | Record locally verified Campaign slice and one bounded task completion | See git history | RWANG |
 | 0.6.0b | 2026-09-06 | beta | Start approved Content implementation with three parallel lanes | See git history | RWANG |
+| 0.6.1b | 2026-09-06 | beta | Record locally verified Content delivery and one bounded DONE transition | See git history | RWANG |
 
 
 ## Campaign continuation — 2026-09-06
@@ -225,6 +226,6 @@ transition; preserve the full domain scope and pending live integration gates.
 The next approved slice is [Content and Creative](../domains/marketing/features/FR-157-content-creative.md),
 tracked in [phase evidence](marketing/PHASE-CONTENT-2026-09-06.md). Six interfaces
 cover immutable briefs, PM production and an approved Files reference library.
-MKT-W1-CONTENT is IN_PROGRESS: current counts are 4 DONE, 8 IN_PROGRESS and
-35 PLANNED. Version diff 0.5.1b → 0.6.0b starts this existing task without changing
+MKT-W1-CONTENT is locally DONE: current counts are 5 DONE, 7 IN_PROGRESS and
+35 PLANNED. Version diff 0.6.0b → 0.6.1b records verified delivery without changing
 weights, dependencies, approved scope or the unresolved SmartGift server intake.

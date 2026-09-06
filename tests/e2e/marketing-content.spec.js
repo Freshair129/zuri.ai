@@ -123,6 +123,7 @@ test.describe('Marketing Content first functional slice', () => {
     await expect(page.getByTestId('marketing-content-brief-list')).toContainText(brief.title)
     const listLink = page.getByTestId('marketing-content-brief-list').getByRole('link', { name: brief.title, exact: true })
     await expect(listLink).toHaveAttribute('href', `/growth/content/briefs/${briefId}`)
+    await page.screenshot({ path: testInfo.outputPath('content-briefs-desktop.png'), fullPage: true })
     await listLink.click()
     await expect(page).toHaveURL(new RegExp(`/growth/content/briefs/${briefId}$`))
     await expect(page.getByTestId('marketing-content-brief')).toContainText(CONTENT_PAYLOAD.message)
@@ -177,6 +178,7 @@ test.describe('Marketing Content first functional slice', () => {
       await expect(page).toHaveURL(new RegExp(`/growth/content/assets/${currentVersion.id}$`))
       await expect(page.getByTestId('marketing-content-asset-source')).toContainText(/Open Files to inspect the authorized source record/i)
       await expect(page.getByTestId('marketing-content-asset-reviews')).toContainText(/Independent reviewer|Pass/i)
+      await page.screenshot({ path: testInfo.outputPath('content-asset-desktop.png'), fullPage: true })
       await page.getByRole('link', { name: 'Back to library', exact: true }).click()
       await expect(page).toHaveURL(/\/growth\/content\?tab=library/)
 

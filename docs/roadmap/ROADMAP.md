@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.39.0b"
+version: "2.39.1b"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -346,7 +346,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-155 | PHASE-ZAI-MARKETING | task | Marketing Strategy immutable revisions, independent review and exact human decisions (FR-155) | P1 | RWANG / Luna | in-progress | Approved CR-018; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
 | TASK-FR-154 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-154) | P1 | RWANG / Luna | in-progress | FR-155; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
 | TASK-FR-156 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-156); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-155; FR-154; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
-| TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | in-progress | FR-155; FR-156; SDD-088 | ../domains/marketing/features/FR-157-content-creative.md |
+| TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | done | FR-155; FR-156; SDD-088 | marketing/PHASE-CONTENT-2026-09-06.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
@@ -396,3 +396,5 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
 
 Version diff 2.38.0b → 2.39.0b: add Campaign delivery row and its integrated verification evidence; existing Marketing Strategy rows retain their scope.
+
+Version diff 2.39.0b → 2.39.1b: record bounded Content task DONE with local phase evidence; full Marketing and live intake gates remain open.

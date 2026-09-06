@@ -2285,6 +2285,7 @@ Source: [Content and Creative — immutable briefs and approved file references]
 
 - references: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
+- references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 - references: [req:FR-157](PRD-SDD-v1.0.md)
 - relates: feat:FEAT-020
 
@@ -2645,6 +2646,7 @@ Source: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2
 Backlinks:
 
 - [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md) (references)
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 
