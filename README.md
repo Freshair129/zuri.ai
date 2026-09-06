@@ -17,6 +17,9 @@ not a version of, and shares nothing with, the legacy zuri project.
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) — the requirement registry (FR/NFR/BR/SEC/SDD)
 - [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction
 - [docs/roadmap/](docs/roadmap/) — live delivery state
+- [Document link metadata](docs/GOVERNANCE-LINK-METADATA.md) — stable IDs, relations and wikilinks
+- [ADR / FR / phase templates](docs/templates/) — copy a `.md.template`, replace placeholders, then run `npm run govern`
+- [Document crosslinks and backlinks](docs/DOCUMENT-LINKS.md) — generated navigation
 
 ## Planning import contracts
 

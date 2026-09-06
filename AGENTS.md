@@ -273,6 +273,13 @@ working view for each of the seven execution modes must be functional.
 
 ### 16. Use the governance tooling, do not hand-maintain it
 
+For document metadata, follow [Document link metadata](docs/GOVERNANCE-LINK-METADATA.md)
+and copy the ADR, FR or FR-phase template from `docs/templates/`. Use stable
+namespace-qualified IDs and typed `relations`; matching legacy control lines may
+coexist. `docs/DOCUMENT-LINKS.md` is generated crosslink/backlink navigation, never
+a source to edit. `docs:check` checks this view too; metadata conflicts and missing
+explicit targets fail graph generation and strict preflight.
+
 The document graph and the preflight report are **generated**, never edited by hand:
 
 ```bash
