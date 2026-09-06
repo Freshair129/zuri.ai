@@ -33,7 +33,11 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // A rich menu belongs to an account, so make one the same way FR-149 does.
   const tag = `rm-e2e-${Date.now()}`
   createdNames.push(tag)
-  await page.goto('/line-oa')
+  // FR-149's console is a tab of LINE Studio Enterprise now
+  // (LineStudioEdgeConnection). `/line-oa` reads `?tab=` straight into the
+  // shell's initial tab, so the URL selects it — and survives the reload below,
+  // which a click on a tab control would not.
+  await page.goto('/line-oa?tab=edge-connection')
   await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
   await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
   await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
@@ -42,7 +46,7 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
   await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
   await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
-  await expect(page.getByRole('heading', { name: tag, exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')
   await expect(page.getByRole('heading', { name: 'Rich Menu' })).toBeVisible()

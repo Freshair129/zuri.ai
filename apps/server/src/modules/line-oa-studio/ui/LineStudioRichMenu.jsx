@@ -1,9 +1,8 @@
 // @req FR-146, FR-151, FR-152 — LINE Studio Enterprise Rich Menu Builder
-// @spec SDD-060, SDD-061 — Interactive Rich Menu Layout & Action Configurator
+// @spec SDD-060, SDD-061 — Live Rich Menu API & Layout Configurator
 "use client";
 
-import React, { useState } from "react";
-import { MOCK_RICH_MENU_LAYOUTS } from "./mockStudioData";
+import React, { useState, useEffect } from "react";
 import {
   Smartphone,
   Save,
@@ -15,28 +14,68 @@ import {
   Repeat,
   Sparkles,
   Info,
-  ChevronRight
+  ChevronRight,
+  Plus,
+  RefreshCw,
+  AlertTriangle
 } from "lucide-react";
 
+const LAYOUT_OPTIONS = [
+  { id: "1x1", name: "1 ช่อง เต็ม", rows: 1, cols: 1, zones: ["A"] },
+  { id: "2x1", name: "2 ช่อง บน-ล่าง", rows: 2, cols: 1, zones: ["A", "B"] },
+  { id: "1x2", name: "2 ช่อง ซ้าย-ขวา", rows: 1, cols: 2, zones: ["A", "B"] },
+  { id: "2x2", name: "4 ช่อง จัตุรัส", rows: 2, cols: 2, zones: ["A", "B", "C", "D"] },
+  { id: "2x3", name: "6 ช่อง มาตรฐาน", rows: 2, cols: 3, zones: ["A", "B", "C", "D", "E", "F"] },
+  { id: "3x1", name: "3 ช่อง แถวเดี่ยว", rows: 1, cols: 3, zones: ["A", "B", "C"] }
+];
+
 export default function LineStudioRichMenu({ project }) {
+  const accountId = project?.id;
+
+  const [menus, setMenus] = useState([]);
+  const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedLayoutId, setSelectedLayoutId] = useState("2x3");
   const [chatBarText, setChatBarText] = useState("เมนูหลัก");
-  const [defaultOpen, setDefaultOpen] = useState(true);
   const [selectedZone, setSelectedZone] = useState("A");
   const [zoneActions, setZoneActions] = useState({
-    A: { type: "uri", value: "https://zuri.ai/store", label: "สั่งซื้อสินค้า" },
+    A: { type: "uri", value: "https://zuri.ai", label: "หน้าแรก" },
     B: { type: "message", value: "เช็คสถานะออเดอร์", label: "สถานะออเดอร์" },
     C: { type: "message", value: "ติดต่อเจ้าหน้าที่", label: "ติดต่อแอดมิน" },
-    D: { type: "uri", value: "https://liff.line.me/1657892011-kLa92mP", label: "สะสมแต้ม" },
+    D: { type: "uri", value: "https://liff.line.me/app", label: "บริการสมาชิก" },
     E: { type: "postback", value: "action=faq", label: "คำถามที่พบบ่อย" },
-    F: { type: "uri", value: "https://zuri.ai/location", label: "แผนที่และสาขา" }
+    F: { type: "uri", value: "https://zuri.ai/location", label: "สาขาและแผนที่" }
   });
 
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [deploying, setDeploying] = useState(false);
-  const [deploySuccess, setDeploySuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const currentLayout = MOCK_RICH_MENU_LAYOUTS.find(l => l.id === selectedLayoutId) || MOCK_RICH_MENU_LAYOUTS[4];
+  const fetchMenus = async () => {
+    if (!accountId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/line-oa/rich-menus?accountId=${encodeURIComponent(accountId)}`);
+      const data = await res.json();
+      if (res.ok && data.richMenus) {
+        setMenus(data.richMenus);
+        if (data.richMenus.length > 0 && !selectedMenu) {
+          setSelectedMenu(data.richMenus[0]);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenus();
+  }, [accountId]);
+
+  const currentLayout = LAYOUT_OPTIONS.find(l => l.id === selectedLayoutId) || LAYOUT_OPTIONS[4];
 
   const handleUpdateZoneAction = (zone, key, val) => {
     setZoneActions(prev => ({
@@ -48,18 +87,37 @@ export default function LineStudioRichMenu({ project }) {
     }));
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     setSaving(true);
-    setTimeout(() => setSaving(false), 1500);
-  };
-
-  const handleDeployToLine = () => {
-    setDeploying(true);
-    setTimeout(() => {
-      setDeploying(false);
-      setDeploySuccess(true);
-      setTimeout(() => setDeploySuccess(false), 3000);
-    }, 1800);
+    setError("");
+    try {
+      if (accountId) {
+        const payload = {
+          lineOaAccountId: accountId,
+          code: `menu-${Date.now()}`,
+          name: chatBarText || "Main Rich Menu",
+          layout: selectedLayoutId,
+          chatBarText: chatBarText,
+          areasJson: JSON.stringify(zoneActions)
+        };
+        const res = await fetch("/api/line-oa/rich-menus", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.issues?.join(" · ") || errData.error || "Failed to save rich menu");
+        }
+        await fetchMenus();
+      }
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2500);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -77,194 +135,166 @@ export default function LineStudioRichMenu({ project }) {
         </div>
 
         <div className="flex items-center gap-2.5">
+          {error && <span className="text-xs text-rose-600 font-semibold">{error}</span>}
           <button
             onClick={handleSaveDraft}
-            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-          >
-            <Save className="w-3.5 h-3.5 text-slate-500" />
-            <span>{saving ? "กำลังบันทึก..." : "บันทึกแบบร่าง"}</span>
-          </button>
-          <button
-            onClick={handleDeployToLine}
-            disabled={deploying}
+            disabled={saving}
             className={`px-4 py-1.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
-              deploySuccess
+              saveSuccess
                 ? "bg-emerald-600 shadow-emerald-500/20"
-                : "bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 shadow-brand-amber/20"
+                : "bg-brand-amber hover:bg-brand-hover shadow-brand-amber/20"
             }`}
           >
-            {deploySuccess ? <Check className="w-3.5 h-3.5" /> : <Rocket className="w-3.5 h-3.5" />}
-            <span>{deploying ? "กำลังส่งไปยัง LINE..." : deploySuccess ? "Deploy สำเร็จแล้ว!" : "Deploy to LINE"}</span>
+            {saveSuccess ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+            <span>{saving ? "กำลังบันทึก..." : saveSuccess ? "บันทึกสำเร็จ!" : "บันทึก Rich Menu"}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Workspace: Left Layout Selector + Center Canvas + Right Zone Config */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Layout Templates */}
-        <div className="w-60 border-r border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 p-4 overflow-y-auto shrink-0 space-y-4">
-          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            เลือกรูปแบบโครงสร้าง (LAYOUT)
-          </div>
-
-          <div className="space-y-2">
-            {MOCK_RICH_MENU_LAYOUTS.map(layout => (
-              <button
-                key={layout.id}
-                onClick={() => {
-                  setSelectedLayoutId(layout.id);
-                  if (!layout.zones.includes(selectedZone)) {
+      {/* Main Studio Grid */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        {/* Left Column: Layout Selector & Settings (4 cols) */}
+        <div className="lg:col-span-4 p-5 border-r border-slate-200/80 dark:border-slate-800 overflow-y-auto space-y-5 bg-slate-50/40 dark:bg-slate-900/40">
+          <div>
+            <label className="text-xs font-bold text-slate-900 dark:text-white block mb-2">
+              1. เลือกรูปแบบ Layout ช่องเมนู
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {LAYOUT_OPTIONS.map((layout) => (
+                <button
+                  key={layout.id}
+                  onClick={() => {
+                    setSelectedLayoutId(layout.id);
                     setSelectedZone(layout.zones[0]);
-                  }
-                }}
-                className={`w-full p-3 rounded-xl border text-left transition-all ${
-                  selectedLayoutId === layout.id
-                    ? "bg-brand-surface/50 dark:bg-slate-800 border-brand-amber text-brand-dark dark:text-brand-amber shadow-2xs font-bold"
-                    : "bg-white dark:bg-slate-850 border-slate-200/70 dark:border-slate-750 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
-                }`}
-              >
-                <div className="flex items-center justify-between text-xs">
-                  <span>{layout.name}</span>
-                  <span className="font-mono text-[10px] text-slate-400">({layout.id})</span>
-                </div>
-                <div className="mt-1.5 text-[10px] text-slate-400 font-normal">
-                  {layout.zones.length} พื้นที่สัมผัส (Zones {layout.zones.join(", ")})
-                </div>
-              </button>
-            ))}
+                  }}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    selectedLayoutId === layout.id
+                      ? "border-brand-amber bg-brand-amber/10 text-brand-dark dark:text-brand-amber shadow-xs"
+                      : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs">{layout.name}</span>
+                    <LayoutGrid className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">{layout.id} grid</span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Chat Bar Settings */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                ข้อความบนแถบเมนูแชท (Chat Bar)
-              </label>
-              <input
-                type="text"
-                value={chatBarText}
-                onChange={(e) => setChatBarText(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-600 dark:text-slate-400">เปิดเมนูอัตโนมัติ</span>
-              <input
-                type="checkbox"
-                checked={defaultOpen}
-                onChange={(e) => setDefaultOpen(e.target.checked)}
-                className="w-4 h-4 text-brand-amber rounded focus:ring-brand-amber"
-              />
+          <div className="space-y-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+            <label className="text-xs font-bold text-slate-900 dark:text-white block">
+              2. ข้อความแถบเมนูด้านล่าง (Chat Bar Text)
+            </label>
+            <input
+              type="text"
+              value={chatBarText}
+              onChange={(e) => setChatBarText(e.target.value)}
+              placeholder="เช่น เมนูหลัก / กดเพื่อเปิดเมนู"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+            <label className="text-xs font-bold text-slate-900 dark:text-white block">
+              3. ตั้งค่า Action ประจำโซน [{selectedZone}]
+            </label>
+            <div className="space-y-2.5">
+              <div>
+                <span className="text-[11px] text-slate-500 block mb-1">ประเภทการกระทำ (Action Type)</span>
+                <select
+                  value={zoneActions[selectedZone]?.type || "uri"}
+                  onChange={(e) => handleUpdateZoneAction(selectedZone, "type", e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-2 text-xs"
+                >
+                  <option value="uri">🔗 เปิดลิงก์ URL / LIFF App</option>
+                  <option value="message">💬 ส่งข้อความแชท (Message)</option>
+                  <option value="postback">⚡ Postback Event Data</option>
+                </select>
+              </div>
+
+              <div>
+                <span className="text-[11px] text-slate-500 block mb-1">ค่า Value / URL / Payload</span>
+                <input
+                  type="text"
+                  value={zoneActions[selectedZone]?.value || ""}
+                  onChange={(e) => handleUpdateZoneAction(selectedZone, "value", e.target.value)}
+                  placeholder="https://... หรือ ข้อความที่ต้องการส่ง"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-2.5 text-xs font-mono"
+                />
+              </div>
+
+              <div>
+                <span className="text-[11px] text-slate-500 block mb-1">ป้ายกำกับ (Label)</span>
+                <input
+                  type="text"
+                  value={zoneActions[selectedZone]?.label || ""}
+                  onChange={(e) => handleUpdateZoneAction(selectedZone, "label", e.target.value)}
+                  placeholder="ชื่อปุ่ม"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-2.5 text-xs"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Center: Interactive Visual Rich Menu Grid Canvas */}
-        <div className="flex-1 bg-slate-100/50 dark:bg-slate-950 p-6 flex flex-col items-center justify-center overflow-y-auto">
-          <div className="w-full max-w-xl space-y-3">
-            <div className="text-center text-xs text-slate-500 font-thai">
-              คลิกที่ช่อง (Zone) เพื่อตั้งค่า Action ให้กับปุ่มนั้นๆ
+        {/* Right Column: Live Mobile Mockup Preview (8 cols) */}
+        <div className="lg:col-span-8 p-6 flex flex-col items-center justify-center bg-slate-100/60 dark:bg-slate-950/60 overflow-y-auto">
+          <div className="w-full max-w-sm rounded-[36px] bg-slate-900 p-3.5 shadow-2xl border-4 border-slate-800">
+            {/* Phone Screen Canvas */}
+            <div className="w-full h-[520px] rounded-[26px] bg-[#849EB5] flex flex-col justify-between overflow-hidden relative">
+              {/* Top Chat Bar */}
+              <div className="bg-[#2E3C4E] px-4 py-2.5 text-white flex items-center justify-between text-xs font-bold shadow-xs">
+                <span>{project?.name || "Zuri Support"}</span>
+                <span className="text-[10px] text-emerald-400 font-normal">● Official</span>
+              </div>
+
+              {/* Chat Simulation Area */}
+              <div className="p-3 space-y-2 text-xs overflow-y-auto">
+                <div className="bg-white rounded-2xl rounded-tl-xs p-2.5 max-w-[80%] shadow-xs text-slate-800">
+                  สวัสดีครับ มีอะไรให้เราช่วยเหลือหรือกดเมนูด้านล่างได้เลยครับ 🎉
+                </div>
+              </div>
+
+              {/* Rich Menu Bottom Canvas */}
+              <div className="bg-white border-t-2 border-slate-300">
+                <div
+                  className="grid gap-1 p-1 bg-slate-200"
+                  style={{
+                    gridTemplateRows: `repeat(${currentLayout.rows}, minmax(0, 1fr))`,
+                    gridTemplateColumns: `repeat(${currentLayout.cols}, minmax(0, 1fr))`
+                  }}
+                >
+                  {currentLayout.zones.map((zone) => {
+                    const isSelected = selectedZone === zone;
+                    const action = zoneActions[zone];
+
+                    return (
+                      <button
+                        key={zone}
+                        onClick={() => setSelectedZone(zone)}
+                        className={`h-20 rounded-lg p-2 text-center flex flex-col items-center justify-center transition-all ${
+                          isSelected
+                            ? "bg-brand-amber text-white font-bold shadow-sm"
+                            : "bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="text-xs font-black">{zone}</span>
+                        <span className="text-[10px] truncate max-w-[90%] font-semibold mt-0.5">
+                          {action?.label || `โซน ${zone}`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom Chat Bar Trigger */}
+                <div className="bg-slate-100 py-1.5 text-center text-[10px] font-bold text-slate-600 border-t border-slate-200">
+                  ▲ {chatBarText}
+                </div>
+              </div>
             </div>
-
-            {/* Rich Menu Canvas (2500 x 1686 standard aspect ratio 3:2) */}
-            <div className="w-full aspect-[3/2] rounded-2xl bg-white dark:bg-slate-850 border-2 border-slate-300 dark:border-slate-700 shadow-xl overflow-hidden relative grid p-2 gap-2"
-              style={{
-                gridTemplateRows: `repeat(${currentLayout.rows}, 1fr)`,
-                gridTemplateColumns: `repeat(${currentLayout.cols}, 1fr)`
-              }}
-            >
-              {currentLayout.zones.map((zone) => {
-                const isSelected = selectedZone === zone;
-                const action = zoneActions[zone] || { label: `Zone ${zone}`, type: "message" };
-
-                return (
-                  <button
-                    key={zone}
-                    onClick={() => setSelectedZone(zone)}
-                    className={`rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all border-2 relative group ${
-                      isSelected
-                        ? "bg-brand-surface/90 dark:bg-brand-amber/20 border-brand-amber ring-4 ring-brand-amber/20 shadow-md"
-                        : "bg-slate-50 dark:bg-slate-800/80 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-amber/50 hover:bg-slate-100"
-                    }`}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-brand-amber/15 text-brand-dark dark:text-brand-amber font-bold text-sm flex items-center justify-center mb-1">
-                      {zone}
-                    </div>
-                    <div className="font-bold text-xs text-slate-800 dark:text-slate-100 group-hover:text-brand-amber">
-                      {action.label || `Zone ${zone}`}
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 uppercase">
-                      {action.type}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Bottom Simulated Chat Bar */}
-            <div className="w-full py-2.5 px-4 rounded-xl bg-slate-850 text-white flex items-center justify-between text-xs font-semibold shadow-md">
-              <span className="font-thai">{chatBarText}</span>
-              <span className="text-slate-400 text-[10px]">▲ ยุบ/ขยายเมนู</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Zone Action Configurator */}
-        <div className="w-72 border-l border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-850 p-4 overflow-y-auto shrink-0 space-y-4">
-          <div className="pb-3 border-b border-slate-100 dark:border-slate-750">
-            <h3 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-5 h-5 rounded-md bg-brand-amber text-white flex items-center justify-center text-[10px] font-bold">
-                {selectedZone}
-              </span>
-              <span>ตั้งค่าปุ่ม Zone {selectedZone}</span>
-            </h3>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-              ชื่อปุ่มแสดงผล (Label)
-            </label>
-            <input
-              type="text"
-              value={zoneActions[selectedZone]?.label || ""}
-              onChange={(e) => handleUpdateZoneAction(selectedZone, "label", e.target.value)}
-              placeholder="เช่น สั่งซื้อสินค้า"
-              className="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-              ประเภทการทำงาน (Action Type)
-            </label>
-            <select
-              value={zoneActions[selectedZone]?.type || "uri"}
-              onChange={(e) => handleUpdateZoneAction(selectedZone, "type", e.target.value)}
-              className="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-            >
-              <option value="uri">เปิดเว็บไซต์ (URI Link)</option>
-              <option value="message">ส่งข้อความอัตโนมัติ (Message Text)</option>
-              <option value="postback">Postback Event (สั่งรัน Flow)</option>
-              <option value="richmenuswitch">สลับ Rich Menu (Switch Menu)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-              ค่าที่ส่ง / ลิงก์ (Target Value)
-            </label>
-            <input
-              type="text"
-              value={zoneActions[selectedZone]?.value || ""}
-              onChange={(e) => handleUpdateZoneAction(selectedZone, "value", e.target.value)}
-              placeholder={zoneActions[selectedZone]?.type === "uri" ? "https://..." : "ข้อความหรือค่าตัวแปร..."}
-              className="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-mono"
-            />
-          </div>
-
-          <div className="p-3 rounded-xl bg-brand-surface/40 dark:bg-slate-800/40 border border-brand-amber/20 text-[11px] text-slate-600 dark:text-slate-300">
-            <Info className="w-4 h-4 text-brand-amber inline-block mr-1 -mt-0.5" />
-            <span>เมื่อผู้ใช้แตะที่พื้นที่นี้ใน LINE ระบบจะทำงานตามที่ระบุทันที</span>
           </div>
         </div>
       </div>

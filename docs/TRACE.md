@@ -27,8 +27,8 @@
 
 - **Status:** done
 - **Surface:** `/projects` (page) · `/api/projects/[id]` (api) · `/api/projects` (api)
-- **Code:** `src/app/(pm)/projects/page.jsx` · `src/app/api/projects/[id]/route.js` · `src/app/api/projects/route.js` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js`
-- **Follows:** BR-001, BR-004, NFR-008, SDD-004, SDD-021, SDD-033, SDD-036, SDD-047, SEC-001, SEC-008
+- **Code:** `src/app/(pm)/projects/page.jsx` · `src/app/api/projects/[id]/route.js` · `src/app/api/projects/route.js` · `src/modules/line-oa-studio/ui/LineStudioProjects.jsx` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js`
+- **Follows:** BR-001, BR-004, NFR-008, SDD-004, SDD-021, SDD-033, SDD-036, SDD-047, SDD-060, SDD-061, SEC-001, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-list-contract.test.js` · `tests/unit/authorization-seam-list-routes.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/domain-state.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/projects-dashboard-ui.test.js`
 
 ### FR-004 — Workstream CRUD: executionMode + progressStrategy + progressWeight
