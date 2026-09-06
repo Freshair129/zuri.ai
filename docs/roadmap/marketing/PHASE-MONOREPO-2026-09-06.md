@@ -86,7 +86,6 @@ conversation records. Integration completion does not change those task statuses
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | under review | Record required published-main path and ID reconciliation | See git history | RWANG |
-
 | 0.1.1b | 2026-09-06 | beta | Record integrated Server/Edge checks, migration and browser fixture RCA corrections; Operations stays planned | See git history | RWANG |
 
 Version diff 0.1.0b → 0.1.1b: prerequisite integration verified; tracking 0.6.1b → 0.6.2b adds integration evidence without closing an Operations task.

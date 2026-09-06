@@ -12303,7 +12303,7 @@
       "version": "1.45.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "cf6eb037",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -12357,7 +12357,7 @@
       "version": "1.23.0b",
       "doc_status": "Draft",
       "hash": "8414e8ea",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -13614,7 +13614,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "1ec33c03",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -13662,7 +13662,7 @@
       "version": "1.9.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "45a98bba",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -13923,7 +13923,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
       "title": "Marketing continuation on the published monorepo",
-      "hash": "b5730f7e",
+      "hash": "0bc9b2e5",
       "status": "changed"
     },
     {
@@ -21302,7 +21302,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/marketing-content.spec.js",
       "hash": "24e4414b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/marketing-strategy.spec.js",
@@ -22009,7 +22009,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "a9687252",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -23766,7 +23766,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/marketing-migration-policy.test.js",
       "hash": "5c2bb8ee",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing-navigation.test.js",
