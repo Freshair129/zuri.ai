@@ -51,6 +51,7 @@ const ROUTES = [
   '/line-oa/rich-menus',
   '/line-oa/live-crm',
   '/line-oa/edge-connection',
+  '/line-oa/integrations',
   '/line-oa/templates',
   '/line-oa/team',
   '/line-oa/settings',
