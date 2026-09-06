@@ -1,11 +1,11 @@
-// @req FR-162 — sales orders against a real database: the generated code,
+// @req FR-166 — sales orders against a real database: the generated code,
 //   lines with exact money and computed totals, the Customer and Conversation
 //   reached only through the Business's tenant (the Conversation makes the
 //   sale CHAT), the authority ladder, UPDATE while DRAFT, CONFIRM, COMPLETE
 //   with stock issued through the Inventory ledger (or refused whole),
 //   CANCEL, version conflicts and audit.
 // @spec ADR-065; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr162-sales-order.test.js
+// @tested tests/integration/fr166-sales-order.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -20,7 +20,7 @@ const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'commerce', 'customer', 'inventory']
 let tenantA, busA, busA2, tenantB, busB, owner, rep, repWithStock, member, noDomain, box, card, gadget, foreignProduct, convA, customerA, customerB
 
-describe('FR-162 SalesOrder', () => {
+describe('FR-166 SalesOrder', () => {
   beforeAll(async () => {
     const pfA = await createPortfolio({ name: 'Order Group A', code: 'PF-ORD-A' })
     tenantA = await createTenant({ portfolioId: pfA.id, name: 'Order Tenant A', code: 'TNT-ORD-A' })

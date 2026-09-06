@@ -308,18 +308,18 @@
       "id": "code:src/app/(pm)/commerce/orders/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/orders/page.jsx",
-      "hash": "054f541b",
+      "hash": "f1470ed7",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162",
+          "FR-166",
           "FR-163"
         ],
         "@spec": [
           "SEC-001"
         ],
         "@tested": [
-          "tests/e2e/fr162-commerce-orders.spec.js",
+          "tests/e2e/fr166-commerce-orders.spec.js",
           "tests/unit/commerce-routes.test.js"
         ]
       }
@@ -328,18 +328,18 @@
       "id": "code:src/app/(pm)/commerce/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/page.jsx",
-      "hash": "02ae582b",
+      "hash": "f58dcfb0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-163",
-          "FR-162"
+          "FR-166"
         ],
         "@spec": [
           "SEC-001"
         ],
         "@tested": [
-          "tests/e2e/fr162-commerce-orders.spec.js",
+          "tests/e2e/fr166-commerce-orders.spec.js",
           "tests/unit/commerce-routes.test.js"
         ]
       }
@@ -2502,11 +2502,11 @@
       "id": "code:src/app/api/commerce/orders/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/commerce/orders/[id]/route.js",
-      "hash": "221b6f3c",
+      "hash": "201edd5c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162"
+          "FR-166"
         ],
         "@spec": [
           "BR-001",
@@ -2515,7 +2515,7 @@
         ],
         "@tested": [
           "tests/unit/commerce-routes.test.js",
-          "tests/integration/fr162-sales-order.test.js"
+          "tests/integration/fr166-sales-order.test.js"
         ]
       }
     },
@@ -2523,11 +2523,11 @@
       "id": "code:src/app/api/commerce/orders/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/commerce/orders/route.js",
-      "hash": "42594919",
+      "hash": "53b7c906",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162"
+          "FR-166"
         ],
         "@spec": [
           "BR-001",
@@ -2536,7 +2536,7 @@
         ],
         "@tested": [
           "tests/unit/commerce-routes.test.js",
-          "tests/integration/fr162-sales-order.test.js"
+          "tests/integration/fr166-sales-order.test.js"
         ]
       }
     },
@@ -5902,15 +5902,15 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "fe616f40",
-      "status": "changed",
+      "hash": "d8e124a2",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
           "FR-045",
           "FR-039",
           "FR-060",
-          "FR-162",
+          "FR-166",
           "FR-163",
           "FR-091",
           "FR-161",
@@ -6230,8 +6230,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "1fc9a34c",
-      "status": "changed",
+      "hash": "32c20a3c",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7534,11 +7534,11 @@
       "id": "code:src/modules/commerce/application/commerce-authority.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/commerce-authority.js",
-      "hash": "3b8615d1",
+      "hash": "e8f281ed",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162"
+          "FR-166"
         ],
         "@spec": [
           "SEC-001",
@@ -7546,7 +7546,7 @@
           "SEC-018"
         ],
         "@tested": [
-          "tests/integration/fr162-sales-order.test.js",
+          "tests/integration/fr166-sales-order.test.js",
           "tests/integration/fr163-payment.test.js"
         ]
       }
@@ -7593,11 +7593,11 @@
       "id": "code:src/modules/commerce/application/sales-order-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/sales-order-service.js",
-      "hash": "aed6b7e6",
+      "hash": "749338af",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162"
+          "FR-166"
         ],
         "@spec": [
           "BR-001",
@@ -7606,7 +7606,7 @@
           "FR-072"
         ],
         "@tested": [
-          "tests/integration/fr162-sales-order.test.js"
+          "tests/integration/fr166-sales-order.test.js"
         ]
       }
     },
@@ -7614,11 +7614,11 @@
       "id": "code:src/modules/commerce/domain/commerce.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/domain/commerce.js",
-      "hash": "66458f41",
+      "hash": "dd26c50c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162",
+          "FR-166",
           "FR-163"
         ],
         "@spec": [
@@ -7633,11 +7633,11 @@
       "id": "code:src/modules/commerce/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/index.js",
-      "hash": "0f36438b",
+      "hash": "fc61b207",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-162",
+          "FR-166",
           "FR-163"
         ],
         "@tested": [
@@ -8385,8 +8385,8 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
-      "hash": "242044ae",
-      "status": "changed",
+      "hash": "da443be3",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -8395,7 +8395,7 @@
           "FR-154",
           "FR-161",
           "FR-163",
-          "FR-162"
+          "FR-166"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -11289,8 +11289,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "558e1a7a",
-      "status": "changed",
+      "hash": "bb99c312",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11307,7 +11307,7 @@
           "FR-156",
           "FR-022",
           "FR-161",
-          "FR-162",
+          "FR-166",
           "FR-163",
           "FR-092",
           "FR-106",
@@ -11366,8 +11366,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "826542e5",
-      "status": "changed",
+      "hash": "b63a7647",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -11398,7 +11398,7 @@
           "FR-102",
           "FR-106",
           "FR-161",
-          "FR-162",
+          "FR-166",
           "FR-163",
           "FR-127",
           "FR-133",
@@ -13339,8 +13339,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.47.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "adf9ff15",
-      "status": "changed"
+      "hash": "66c7ef99",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13393,8 +13393,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.25.0b",
       "doc_status": "Draft",
-      "hash": "c43de965",
-      "status": "changed"
+      "hash": "126f2271",
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -13755,8 +13755,8 @@
       "title": "Features (FEAT registry)",
       "version": "1.29.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "0815e055",
-      "status": "changed"
+      "hash": "0f68134a",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -14654,19 +14654,19 @@
       "status": "current"
     },
     {
-      "id": "doc:FR-162-sales-orders",
-      "type": "document",
-      "path": "docs/domains/commerce/features/FR-162-sales-orders.md",
-      "title": "FR-162 — Sales orders (order_id)",
-      "hash": "d2ab5d97",
-      "status": "current"
-    },
-    {
       "id": "doc:FR-163-payments-and-revenue",
       "type": "document",
       "path": "docs/domains/commerce/features/FR-163-payments-and-revenue.md",
       "title": "FR-163 — Payments, verification and revenue (payment_id)",
-      "hash": "f26d5258",
+      "hash": "c86274e7",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-166-sales-orders",
+      "type": "document",
+      "path": "docs/domains/commerce/features/FR-166-sales-orders.md",
+      "title": "FR-166 — Sales orders (order_id)",
+      "hash": "e652ceb7",
       "status": "current"
     },
     {
@@ -14674,8 +14674,8 @@
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "44629708",
-      "status": "changed"
+      "hash": "fc6c78e0",
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -14722,8 +14722,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.12.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "cd38d7ef",
-      "status": "changed"
+      "hash": "52841546",
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -14816,8 +14816,8 @@
       "type": "document",
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
-      "hash": "e91c9e18",
-      "status": "changed"
+      "hash": "d512850a",
+      "status": "current"
     },
     {
       "id": "doc:PARALLEL-REVIEW-2026-09-06",
@@ -15224,8 +15224,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.163.0b",
       "doc_status": "Draft",
-      "hash": "09e45973",
-      "status": "changed"
+      "hash": "3fe19887",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15252,8 +15252,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "17339c7b",
-      "status": "changed"
+      "hash": "cb288298",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15552,7 +15552,7 @@
       "modules": [
         "commerce"
       ],
-      "hash": "c6b37d47",
+      "hash": "ed6d4e40",
       "status": "current"
     },
     {
@@ -18454,16 +18454,6 @@
       "row_text": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235500_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync "
     },
     {
-      "id": "req:FR-162",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Sales orders (commerce) — `SalesOrder` and `SalesOrderLine`, what a Business sold (ADR-065: the legacy ERD's Orders section adapted, corrections recorded): Business-scoped, identity an internal UUID with a generated human `code` `ORD-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only (BR-001) — a Conversation supplies its Customer, refuses a different one, and makes the `origin` CHAT (the legacy \"ads revenue\"); otherwise `origin` WALK_IN or ONLINE. Lines (never a JSON blob) may name an ACTIVE Inventory `Product` of the same Business and carry the price given at the time of sale, a quantity and a discount; money is integer satang in every column and baht with at most two decimals in the API. Subtotal, total, paid, balance due and the payment state are computed on every read from the lines and the VERIFIED payments, never stored. Status machine DRAFT → CONFIRMED → COMPLETED, DRAFT or CONFIRMED → CANCELLED; `UPDATE` replaces lines only while DRAFT (`SALES_ORDER_LINES_LOCKED` after CONFIRM), notes and discount while open; `COMPLETE` may issue stock — every line naming a counted SKU is issued through Inventory's exported `appendMovement` inside the order's transaction (FEFO for lots, reference `ORDER:<code>`), refused whole with a per-SKU list when any is short, refused for a SERIAL-tracked line, and refused when the viewer lacks Inventory's write authority (a Commerce role never widens Inventory); `CANCEL` keeps the row and its payments. Compare-and-swap on `version`, one audit row per write, nothing deleted. Reads need Business visibility plus the `commerce` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`commerce.order.write`, FR-076 pattern).",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "Sales orders (commerce) — `SalesOrder` and `SalesOrderLine`, what a Business sold (ADR-065: the legacy ERD's Orders section adapted, corrections recorded): Business-scoped, identity an internal UUID with a generated human `code` `ORD-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only (BR-001) — a Conversation supplies its Customer, refuses a different one, and makes the `origin` CHAT (the legacy \"ads revenue\"); otherwise `origin` WALK_IN or ONLINE. Lines (never a JSON blob) may name an ACTIVE Inventory `Product` of the same Business and carry the price given at the time of sale, a quantity and a discount; money is integer satang in every column and baht with at most two decimals in the API. Subtotal, total, paid, balance due and the payment state are computed on every read from the lines and the VERIFIED payments, never stored. Status machine DRAFT → CONFIRMED → COMPLETED, DRAFT or CONFIRMED → CANCELLED; `UPDATE` replaces lines only while DRAFT (`SALES_ORDER_LINES_LOCKED` after CONFIRM), notes and discount while open; `COMPLETE` may issue stock — every line naming a counted SKU is issued through Inventory's exported `appendMovement` inside the order's transaction (FEFO for lots, reference `ORDER:<code>`), refused whole with a per-SKU list when any is short, refused for a SERIAL-tracked line, and refused when the viewer lacks Inventory's write authority (a Commerce role never widens Inventory); `CANCEL` keeps the row and its payments. Compare-and-swap on `version`, one audit row per write, nothing deleted. Reads need Business visibility plus the `commerce` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`commerce.order.write`, FR-076 pattern). 🟠 implemented locally 2026-09-07 — two models (both schemas, additive migration `20260907000000_commerce_orders_payments` shared with FR-163; production SQL **not applied**), the only writer `sales-order-service.js`, `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`, the `commerce` slot live with `/commerce/orders`, snapshot coverage; one integration suite (AC-162.1–.6), two unit suites, one e2e spec shared with FR-163. Not claimed: the offer / price catalogue, invoices, an order from a LINE chat, serial-tracked fulfilment "
-    },
-    {
       "id": "req:FR-163",
       "type": "requirement",
       "family": "FR",
@@ -18471,7 +18461,17 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Payments, verification and revenue (commerce) — `Payment`, a PAYMENT or REFUND against a sales order (ADR-065): `code` `PAY-YYYYMMDD-NNN` unique per Tenant, `method` (TRANSFER / CASH / QR / CARD / OTHER), an exact `amountSatang`, an optional `bankReference` that is an attribute unique per Tenant (the legacy duplicate-slip rule kept, the key refused — BR-002, ADR-054 D4), an optional slip that must be a `FileAsset` of the same Business, `paidAt`; PENDING until a verifier confirms (VERIFIED) or rejects it with a reason (REJECTED); only a PENDING payment can be acted on. Recording needs Business OWNER or `SALES_REP`; verifying or rejecting needs Business OWNER or `PAYMENT_VERIFIER` (`commerce.payment.verify`), because verified money is what everything else is counted from: the order's paid, balance due and payment state (UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED — derived, never a column) follow VERIFIED money only; a refund is never verified beyond what was verifiably paid; a payment cannot be recorded on a CANCELLED order, a refund can. `GET /api/commerce/revenue` counts VERIFIED payments net of VERIFIED refunds on the day the money was paid in the Business's calendar (Asia/Bangkok), by origin (CHAT / WALK_IN / ONLINE) and by day, with pending money beside it — the legacy \"ROAS from VERIFIED only\" kept; no ad attribution until an Ad model exists. Slip OCR is not verification and is not called. Compare-and-swap on `version`, one audit row per write. 🟠 implemented locally 2026-09-07 — model (both schemas, migration shared with FR-162; production SQL **not applied**), the only writer `payment-service.js`, the read-only `revenue-read-model.js`, `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH /api/commerce/payments/[id]`, `GET /api/commerce/revenue`, the `/commerce` dashboard and the payment panel of the orders console, `PAYMENT_VERIFIER` role; one integration suite (AC-163.1–.4), calculators in the unit suite. Not claimed: slip OCR, receipts and invoices, store credit, bank reconciliation "
+      "row_text": "Payments, verification and revenue (commerce) — `Payment`, a PAYMENT or REFUND against a sales order (ADR-065): `code` `PAY-YYYYMMDD-NNN` unique per Tenant, `method` (TRANSFER / CASH / QR / CARD / OTHER), an exact `amountSatang`, an optional `bankReference` that is an attribute unique per Tenant (the legacy duplicate-slip rule kept, the key refused — BR-002, ADR-054 D4), an optional slip that must be a `FileAsset` of the same Business, `paidAt`; PENDING until a verifier confirms (VERIFIED) or rejects it with a reason (REJECTED); only a PENDING payment can be acted on. Recording needs Business OWNER or `SALES_REP`; verifying or rejecting needs Business OWNER or `PAYMENT_VERIFIER` (`commerce.payment.verify`), because verified money is what everything else is counted from: the order's paid, balance due and payment state (UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED — derived, never a column) follow VERIFIED money only; a refund is never verified beyond what was verifiably paid; a payment cannot be recorded on a CANCELLED order, a refund can. `GET /api/commerce/revenue` counts VERIFIED payments net of VERIFIED refunds on the day the money was paid in the Business's calendar (Asia/Bangkok), by origin (CHAT / WALK_IN / ONLINE) and by day, with pending money beside it — the legacy \"ROAS from VERIFIED only\" kept; no ad attribution until an Ad model exists. Slip OCR is not verification and is not called. Compare-and-swap on `version`, one audit row per write. 🟠 implemented locally 2026-09-07 — model (both schemas, migration shared with FR-166; production SQL **not applied**), the only writer `payment-service.js`, the read-only `revenue-read-model.js`, `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH /api/commerce/payments/[id]`, `GET /api/commerce/revenue`, the `/commerce` dashboard and the payment panel of the orders console, `PAYMENT_VERIFIER` role; one integration suite (AC-163.1–.4), calculators in the unit suite. Not claimed: slip OCR, receipts and invoices, store credit, bank reconciliation "
+    },
+    {
+      "id": "req:FR-166",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Sales orders (commerce) — `SalesOrder` and `SalesOrderLine`, what a Business sold (ADR-065: the legacy ERD's Orders section adapted, corrections recorded): Business-scoped, identity an internal UUID with a generated human `code` `ORD-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only (BR-001) — a Conversation supplies its Customer, refuses a different one, and makes the `origin` CHAT (the legacy \"ads revenue\"); otherwise `origin` WALK_IN or ONLINE. Lines (never a JSON blob) may name an ACTIVE Inventory `Product` of the same Business and carry the price given at the time of sale, a quantity and a discount; money is integer satang in every column and baht with at most two decimals in the API. Subtotal, total, paid, balance due and the payment state are computed on every read from the lines and the VERIFIED payments, never stored. Status machine DRAFT → CONFIRMED → COMPLETED, DRAFT or CONFIRMED → CANCELLED; `UPDATE` replaces lines only while DRAFT (`SALES_ORDER_LINES_LOCKED` after CONFIRM), notes and discount while open; `COMPLETE` may issue stock — every line naming a counted SKU is issued through Inventory's exported `appendMovement` inside the order's transaction (FEFO for lots, reference `ORDER:<code>`), refused whole with a per-SKU list when any is short, refused for a SERIAL-tracked line, and refused when the viewer lacks Inventory's write authority (a Commerce role never widens Inventory); `CANCEL` keeps the row and its payments. Compare-and-swap on `version`, one audit row per write, nothing deleted. Reads need Business visibility plus the `commerce` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`commerce.order.write`, FR-076 pattern).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Sales orders (commerce) — `SalesOrder` and `SalesOrderLine`, what a Business sold (ADR-065: the legacy ERD's Orders section adapted, corrections recorded): Business-scoped, identity an internal UUID with a generated human `code` `ORD-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only (BR-001) — a Conversation supplies its Customer, refuses a different one, and makes the `origin` CHAT (the legacy \"ads revenue\"); otherwise `origin` WALK_IN or ONLINE. Lines (never a JSON blob) may name an ACTIVE Inventory `Product` of the same Business and carry the price given at the time of sale, a quantity and a discount; money is integer satang in every column and baht with at most two decimals in the API. Subtotal, total, paid, balance due and the payment state are computed on every read from the lines and the VERIFIED payments, never stored. Status machine DRAFT → CONFIRMED → COMPLETED, DRAFT or CONFIRMED → CANCELLED; `UPDATE` replaces lines only while DRAFT (`SALES_ORDER_LINES_LOCKED` after CONFIRM), notes and discount while open; `COMPLETE` may issue stock — every line naming a counted SKU is issued through Inventory's exported `appendMovement` inside the order's transaction (FEFO for lots, reference `ORDER:<code>`), refused whole with a per-SKU list when any is short, refused for a SERIAL-tracked line, and refused when the viewer lacks Inventory's write authority (a Commerce role never widens Inventory); `CANCEL` keeps the row and its payments. Compare-and-swap on `version`, one audit row per write, nothing deleted. Reads need Business visibility plus the `commerce` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`commerce.order.write`, FR-076 pattern). 🟠 implemented locally 2026-09-07 — two models (both schemas, additive migration `20260907000000_commerce_orders_payments` shared with FR-163; production SQL **not applied**), the only writer `sales-order-service.js`, `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`, the `commerce` slot live with `/commerce/orders`, snapshot coverage; one integration suite (AC-162.1–.6), two unit suites, one e2e spec shared with FR-163. Not claimed: the offer / price catalogue, invoices, an order from a LINE chat, serial-tracked fulfilment "
     },
     {
       "id": "req:NFR-001",
@@ -22488,7 +22488,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md",
       "title": "ADR-065 — The Commerce Lane: Orders and Payments",
-      "hash": "57987f3b",
+      "hash": "7d910f30",
       "status": "current"
     },
     {
@@ -22632,10 +22632,10 @@
       "status": "current"
     },
     {
-      "id": "test:tests/e2e/fr162-commerce-orders.spec.js",
+      "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
-      "path": "apps/server/tests/e2e/fr162-commerce-orders.spec.js",
-      "hash": "cdcadd2e",
+      "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
+      "hash": "a790c500",
       "status": "current"
     },
     {
@@ -22663,8 +22663,8 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
-      "hash": "dd70ab0b",
-      "status": "changed"
+      "hash": "f9501e6d",
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -23094,17 +23094,17 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/fr162-sales-order.test.js",
-      "type": "test",
-      "path": "apps/server/tests/integration/fr162-sales-order.test.js",
-      "hash": "8ba337ad",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/fr163-payment.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr163-payment.test.js",
       "hash": "252cff91",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr166-sales-order.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr166-sales-order.test.js",
+      "hash": "47f05ce4",
       "status": "current"
     },
     {
@@ -23377,8 +23377,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "f7795fb3",
-      "status": "changed"
+      "hash": "6ecadcd4",
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -23930,21 +23930,21 @@
       "id": "test:tests/unit/command-palette-index.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
-      "hash": "531b3e91",
-      "status": "changed"
+      "hash": "68625dbc",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/commerce-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/commerce-domain.test.js",
-      "hash": "aaf2da97",
+      "hash": "012d5481",
       "status": "current"
     },
     {
       "id": "test:tests/unit/commerce-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/commerce-routes.test.js",
-      "hash": "1351f689",
+      "hash": "46413608",
       "status": "current"
     },
     {
@@ -24203,8 +24203,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
-      "hash": "bd7787bb",
-      "status": "changed"
+      "hash": "6b8141ac",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -24700,8 +24700,8 @@
       "id": "test:tests/unit/id-anchor-stability.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/id-anchor-stability.test.js",
-      "hash": "1b52bab1",
-      "status": "current"
+      "hash": "aa51c506",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/identity/agent-tool-authorizer.test.js",
@@ -29943,14 +29943,14 @@
     },
     {
       "from": "code:src/app/(pm)/commerce/orders/page.jsx",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/commerce/orders/page.jsx",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -29964,14 +29964,14 @@
     },
     {
       "from": "code:src/app/(pm)/commerce/page.jsx",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/commerce/page.jsx",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -33058,7 +33058,7 @@
     },
     {
       "from": "code:src/app/api/commerce/orders/[id]/route.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -33086,7 +33086,7 @@
     },
     {
       "from": "code:src/app/api/commerce/orders/route.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -38140,14 +38140,14 @@
     },
     {
       "from": "code:src/config/domains.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/config/domains.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40646,7 +40646,7 @@
     },
     {
       "from": "code:src/modules/commerce/application/commerce-authority.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40730,7 +40730,7 @@
     },
     {
       "from": "code:src/modules/commerce/application/sales-order-service.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40751,21 +40751,14 @@
     },
     {
       "from": "code:src/modules/commerce/domain/commerce.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/commerce/domain/commerce.js",
-      "to": "req:FR-163",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/commerce/index.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40773,6 +40766,13 @@
     {
       "from": "code:src/modules/commerce/index.js",
       "to": "req:FR-163",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/index.js",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -41864,14 +41864,14 @@
     },
     {
       "from": "code:src/modules/identity/rbac.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/identity/rbac.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45693,14 +45693,14 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45987,14 +45987,14 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50781,14 +50781,14 @@
       "status": "current"
     },
     {
-      "from": "doc:FR-162-sales-orders",
+      "from": "doc:FR-163-payments-and-revenue",
       "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
       "type": "references",
       "source": "markdown",
       "status": "current"
     },
     {
-      "from": "doc:FR-163-payments-and-revenue",
+      "from": "doc:FR-166-sales-orders",
       "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
       "type": "references",
       "source": "markdown",
@@ -52350,14 +52350,14 @@
     },
     {
       "from": "domain:commerce",
-      "to": "doc:FR-162-sales-orders",
+      "to": "doc:FR-163-payments-and-revenue",
       "type": "references",
       "source": "markdown",
       "status": "current"
     },
     {
       "from": "domain:commerce",
-      "to": "doc:FR-163-payments-and-revenue",
+      "to": "doc:FR-166-sales-orders",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -53078,14 +53078,14 @@
     },
     {
       "from": "feat:FEAT-023",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
     },
     {
       "from": "feat:FEAT-023",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -55226,14 +55226,14 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-162",
+      "from": "req:FR-163",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-163",
+      "from": "req:FR-166",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -60771,14 +60771,14 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -61771,35 +61771,35 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/e2e/fr162-commerce-orders.spec.js",
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "to": "code:src/app/(pm)/commerce/orders/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
     },
     {
-      "from": "test:tests/e2e/fr162-commerce-orders.spec.js",
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "to": "code:src/app/(pm)/commerce/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
     },
     {
-      "from": "test:tests/e2e/fr162-commerce-orders.spec.js",
-      "to": "req:FR-162",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/e2e/fr162-commerce-orders.spec.js",
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
-      "from": "test:tests/e2e/fr162-commerce-orders.spec.js",
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -62115,7 +62115,7 @@
     },
     {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63823,14 +63823,14 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/backup.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -64215,14 +64215,14 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -66588,14 +66588,14 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -67833,90 +67833,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "code:src/app/api/commerce/orders/[id]/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "code:src/app/api/commerce/orders/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "code:src/modules/commerce/application/commerce-authority.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "code:src/modules/commerce/application/sales-order-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:BR-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:BR-002",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:BR-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:BR-020",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:FR-072",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:FR-162",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr162-sales-order.test.js",
-      "to": "req:SEC-018",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/integration/fr163-payment.test.js",
       "to": "code:src/app/api/commerce/orders/[id]/payments/route.js",
       "type": "tests",
@@ -67988,17 +67904,17 @@
     },
     {
       "from": "test:tests/integration/fr163-payment.test.js",
-      "to": "req:FR-162",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/fr163-payment.test.js",
       "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr163-payment.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr163-payment.test.js",
@@ -68009,6 +67925,90 @@
     },
     {
       "from": "test:tests/integration/fr163-payment.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "code:src/app/api/commerce/orders/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "code:src/app/api/commerce/orders/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "code:src/modules/commerce/application/commerce-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "code:src/modules/commerce/application/sales-order-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr166-sales-order.test.js",
       "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
@@ -69493,14 +69493,14 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -69920,14 +69920,14 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -70277,14 +70277,14 @@
     },
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -70809,14 +70809,14 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -74533,14 +74533,14 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -76108,7 +76108,7 @@
     },
     {
       "from": "test:tests/unit/command-palette-index.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -76150,14 +76150,14 @@
     },
     {
       "from": "test:tests/unit/commerce-domain.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/commerce-domain.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -76248,14 +76248,14 @@
     },
     {
       "from": "test:tests/unit/commerce-routes.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/commerce-routes.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -76892,14 +76892,14 @@
     },
     {
       "from": "test:tests/unit/customer-import-review-service.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/customer-import-review-service.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -77298,14 +77298,14 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -77396,14 +77396,14 @@
     },
     {
       "from": "test:tests/unit/domain-state.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/domain-state.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -78075,14 +78075,14 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78439,14 +78439,14 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -80238,14 +80238,14 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -82093,14 +82093,14 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -84480,14 +84480,14 @@
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-162",
+      "to": "req:FR-163",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-163",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

@@ -117,7 +117,7 @@ describe('OpenAPI document', () => {
       // and the atomic build (POST) — three paths, five operations.
       // FR-161 adds sales tasks: the collection (GET, POST) and the item
       // (GET, PATCH) — two paths, four operations.
-      // FR-162/FR-163 add commerce: orders (GET, POST), the order item (GET,
+      // FR-166/FR-163 add commerce: orders (GET, POST), the order item (GET,
       // PATCH), its payments (GET, POST), the payment item (GET, PATCH) and
       // the revenue summary (GET) — five paths, nine operations.
       pathCount: 186,

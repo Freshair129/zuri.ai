@@ -2,7 +2,7 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { applyOrderAction, getOrder } from '@/modules/commerce/application/sales-order-service'
 
-// @req FR-162 — one sales order. GET reads it with its lines, its payments and
+// @req FR-166 — one sales order. GET reads it with its lines, its payments and
 //   the money computed on this read; PATCH applies one versioned action —
 //   UPDATE (lines only while DRAFT), CONFIRM, COMPLETE (optionally issuing
 //   stock through the Inventory ledger) or CANCEL — under Business OWNER or
@@ -11,7 +11,7 @@ import { applyOrderAction, getOrder } from '@/modules/commerce/application/sales
 //   id and an order in a Business the viewer may not see answer identically
 //   (FR-072).
 // @spec ADR-065; BR-001; SEC-001; BR-012
-// @tested tests/unit/commerce-routes.test.js, tests/integration/fr162-sales-order.test.js
+// @tested tests/unit/commerce-routes.test.js, tests/integration/fr166-sales-order.test.js
 
 export const dynamic = 'force-dynamic'
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T21:21:06.459Z",
+  "generatedAt": "2026-09-06T21:36:17.412Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -807,18 +807,18 @@
       "status": "verified",
       "requirements": [
         {
-          "id": "FR-162",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 8,
-          "testCount": 24
-        },
-        {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
           "testCount": 21
+        },
+        {
+          "id": "FR-166",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -909,8 +909,8 @@
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/commerce/CHARTER.md",
-        "docs/domains/commerce/features/FR-162-sales-orders.md",
         "docs/domains/commerce/features/FR-163-payments-and-revenue.md",
+        "docs/domains/commerce/features/FR-166-sales-orders.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -1409,18 +1409,18 @@
           "testCount": 20
         },
         {
-          "id": "FR-162",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 24
-        },
-        {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
           "testCount": 21
+        },
+        {
+          "id": "FR-166",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -3732,18 +3732,18 @@
           "testCount": 20
         },
         {
-          "id": "FR-162",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 3,
-          "testCount": 24
-        },
-        {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
           "testCount": 21
+        },
+        {
+          "id": "FR-166",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -6008,8 +6008,8 @@
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
-        "FR-162",
-        "FR-163"
+        "FR-163",
+        "FR-166"
       ],
       "primaryDomain": "commerce",
       "contributorDomains": [
@@ -6026,18 +6026,18 @@
       ],
       "requirements": [
         {
-          "id": "FR-162",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 24
-        },
-        {
           "id": "FR-163",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
           "testCount": 21
+        },
+        {
+          "id": "FR-166",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -6059,13 +6059,13 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
-        "apps/server/tests/e2e/fr162-commerce-orders.spec.js",
+        "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
-        "apps/server/tests/integration/fr162-sales-order.test.js",
         "apps/server/tests/integration/fr163-payment.test.js",
+        "apps/server/tests/integration/fr166-sales-order.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -9042,8 +9042,8 @@
         "apps/server/tests/integration/fr155-inventory-stock.test.js",
         "apps/server/tests/integration/fr156-inventory-recipe.test.js",
         "apps/server/tests/integration/fr161-sales-task.test.js",
-        "apps/server/tests/integration/fr162-sales-order.test.js",
         "apps/server/tests/integration/fr163-payment.test.js",
+        "apps/server/tests/integration/fr166-sales-order.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",

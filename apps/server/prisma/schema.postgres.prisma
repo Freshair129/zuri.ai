@@ -3096,8 +3096,8 @@ model SalesTask {
   @@index([conversationId])
 }
 
-// ── Commerce — FR-162 sales orders, FR-163 payments ─────────────────────────
-// @req FR-162 — a sales order (order_id) is what a Business sold: lines that
+// ── Commerce — FR-166 sales orders, FR-163 payments ─────────────────────────
+// @req FR-166 — a sales order (order_id) is what a Business sold: lines that
 //   may name an inventory SKU, an optional Customer and the Conversation the
 //   sale came from (chat-first attribution), a status machine, and money kept
 //   as integer satang. Totals, paid, balance and payment state are computed
@@ -3106,7 +3106,7 @@ model SalesTask {
 //   verifier confirms the slip; the bank reference is an attribute unique per
 //   Tenant (BR-002), the slip image is a FileAsset of the same Business.
 // @spec ADR-065; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
-// @tested tests/integration/fr162-sales-order.test.js,
+// @tested tests/integration/fr166-sales-order.test.js,
 //   tests/integration/fr163-payment.test.js
 
 model SalesOrder {

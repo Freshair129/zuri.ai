@@ -61,7 +61,7 @@ Commerce questions. Inventory owns the goods an offer is made of and how many
 exist; Commerce will reference `ProductMaster` / `Product` by internal id and
 never write to them. That lane was chartered on 2026-09-07
 ([`docs/domains/commerce/CHARTER.md`](../commerce/CHARTER.md), ADR-065) with its first
-slice — sales orders and payments (FR-162, FR-163): a `SalesOrderLine` names an
+slice — sales orders and payments (FR-166, FR-163): a `SalesOrderLine` names an
 Inventory `Product` by internal id with a price given at the time of sale, exactly as
 this page predicted, and the Inventory rows did not change for it. The offer layer
 above (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient` and their

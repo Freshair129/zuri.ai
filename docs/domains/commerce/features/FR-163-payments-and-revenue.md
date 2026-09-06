@@ -49,7 +49,7 @@ kept exactly; the Ad model that would consume it is still Marketing's future.
 
 ## Delivered (local, 2026-09-07)
 
-- `Payment` in both schemas (migration shared with FR-162, **not applied**).
+- `Payment` in both schemas (migration shared with FR-166, **not applied**).
 - `application/payment-service.js` — the only writer: record, verify, reject;
   `application/revenue-read-model.js` — read-only.
 - `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH

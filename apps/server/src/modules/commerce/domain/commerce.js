@@ -7,7 +7,7 @@ import {
   SALES_ORDER_ORIGINS,
 } from '@/lib/validation/enums'
 
-// @req FR-162 — the pure vocabulary and calculators of a sales order: money
+// @req FR-166 — the pure vocabulary and calculators of a sales order: money
 //   as integer satang (a baht input with at most two decimals is exact), the
 //   line and order totals, the status machine (DRAFT → CONFIRMED → COMPLETED,
 //   DRAFT | CONFIRMED → CANCELLED), the origin of a sale (CHAT when it came

@@ -65,7 +65,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_SALES_REP]: Object.freeze([
     'crm.read',
     SALES_TASK_WRITE_PERMISSION,
-    // @req FR-162 — a rep also writes the orders they close and records the
+    // @req FR-166 — a rep also writes the orders they close and records the
     // payments customers send; verifying those payments is a different hat.
     'commerce.read',
     ORDER_WRITE_PERMISSION,

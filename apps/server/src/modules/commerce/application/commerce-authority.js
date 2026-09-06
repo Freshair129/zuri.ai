@@ -2,7 +2,7 @@ import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { hasPermission, ORDER_WRITE_PERMISSION, PAYMENT_VERIFY_PERMISSION } from '@/modules/identity/rbac'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
-// @req FR-162 — the authorization ladder of the Commerce lane: view needs
+// @req FR-166 — the authorization ladder of the Commerce lane: view needs
 //   Business visibility plus the `commerce` domain (FR-061); writing orders
 //   and recording payments needs Business OWNER or the SALES_REP binding
 //   (`commerce.order.write`); verifying or rejecting a payment needs Business
@@ -11,7 +11,7 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 //   an unknown Business gets (FR-072). `businessId` is a selector the service
 //   validates against the trusted viewer, never the scope.
 // @spec ADR-065; SEC-001; BR-020; SEC-018
-// @tested tests/integration/fr162-sales-order.test.js, tests/integration/fr163-payment.test.js
+// @tested tests/integration/fr166-sales-order.test.js, tests/integration/fr163-payment.test.js
 
 export const COMMERCE_DOMAIN_KEY = 'commerce'
 

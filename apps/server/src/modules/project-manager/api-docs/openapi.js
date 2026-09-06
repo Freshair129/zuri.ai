@@ -64,7 +64,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
-  // @req FR-162, FR-163 — commerce: the order collection and item (cancel is
+  // @req FR-166, FR-163 — commerce: the order collection and item (cancel is
   // an action, never a DELETE), the order's payments (list + record), the
   // payment item (read + verify/reject action) and the revenue read model.
   ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],

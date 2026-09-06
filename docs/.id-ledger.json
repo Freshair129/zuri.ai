@@ -274,6 +274,7 @@
     "FR-161",
     "FR-162",
     "FR-163",
+    "FR-166",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3085,15 +3086,25 @@
     "FR-162": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "burnt",
       "statement_digest": "677eea73e454e2845568821a5c3692f4bcb85f46b957e7e327b0b99116c87272",
       "history": [
         {
           "anchor": "sales orders commerce",
           "since": "2026-09-06",
           "reason": "declared"
+        },
+        {
+          "anchor": "sales orders commerce",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-166. PR #273 merged FR-162 into main as Marketing Operations coordination while this branch was open; the later declaration renumbers, so the Commerce sales-order requirement becomes FR-166",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.163.1b"
         }
-      ]
+      ],
+      "retired_to": "FR-166",
+      "retired_at": "2026-09-06",
+      "reason": "PR #273 merged FR-162 into main as Marketing Operations coordination while this branch was open; the later declaration renumbers, so the Commerce sales-order requirement becomes FR-166",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.163.1b"
     },
     "FR-163": {
       "family": "FR",
@@ -3103,6 +3114,19 @@
       "history": [
         {
           "anchor": "payments verification and revenue commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-166": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "677eea73e454e2845568821a5c3692f4bcb85f46b957e7e327b0b99116c87272",
+      "history": [
+        {
+          "anchor": "sales orders commerce",
           "since": "2026-09-06",
           "reason": "declared"
         }

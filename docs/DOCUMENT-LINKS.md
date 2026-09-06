@@ -1371,8 +1371,8 @@ Source: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-C
 
 Backlinks:
 
-- [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md) (references)
 - [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md) (references)
+- [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md) (references)
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
@@ -1546,14 +1546,14 @@ Backlinks:
 
 Source: [Domain — commerce](domains/commerce/CHARTER.md)
 
-- references: [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md)
 - references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+- references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
-## FR-162 — Sales orders (order_id)
+## FR-163 — Payments, verification and revenue (payment_id)
 
-Source: [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md)
+Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
 
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
@@ -1561,9 +1561,9 @@ Backlinks:
 
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
-## FR-163 — Payments, verification and revenue (payment_id)
+## FR-166 — Sales orders (order_id)
 
-Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+Source: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 

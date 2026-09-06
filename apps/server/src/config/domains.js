@@ -40,7 +40,7 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/overview', icon: LayoutDashboard }],
   },
   {
-    // @req FR-162, FR-163 — the slot stops being reserved (ADR-065): sales
+    // @req FR-166, FR-163 — the slot stops being reserved (ADR-065): sales
     // orders and the payments against them, with revenue counted from verified
     // payments only. `commerce` is the Membership/RBAC route key; the pages
     // exist, so the palette and the bar may now find it.
