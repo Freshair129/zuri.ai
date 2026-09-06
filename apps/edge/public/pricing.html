@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>SmartGift — เครื่องคำนวณราคา</title>
+
+<style>
+  /* ── Tokens ──────────────────────────────────────────────────────────
+     Ground: ink with a teal bias, the colour of a carbon-copy invoice.
+     Accent: brass — ledger warmth, spent only on numbers that carry a
+     decision. Semantic colours stay separate from the accent.            */
+  :root {
+    --paper:#EFF1EF; --paper-2:#E5E9E6; --paper-3:#DAE0DC;
+    --ink:#10201D; --ink-2:#3A4C48; --ink-3:#6A7B76;
+    --rule:#C8D1CC; --rule-soft:#D9E0DC;
+    --brass:#92642A; --brass-soft:#EBDCC3; --teal:#235049;
+    --good:#2C6B4F; --good-bg:#DCEBE1;
+    --warn:#8A5A17; --warn-bg:#F3E5CC;
+    --crit:#963232; --crit-bg:#F3DCDC;
+    --field:#FFFFFF; --tile:#FFFFFF;
+    --shadow:0 1px 2px rgba(16,32,29,.07), 0 8px 24px -12px rgba(16,32,29,.18);
+
+    --sans:'Leelawadee UI','Noto Sans Thai','Sarabun','Segoe UI',Tahoma,system-ui,sans-serif;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --mono:ui-monospace,'Cascadia Mono','SF Mono',Consolas,'Liberation Mono',monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#10201D; --paper-2:#162925; --paper-3:#1E332E;
+      --ink:#E2E9E5; --ink-2:#A9BAB4; --ink-3:#7E918B;
+      --rule:#2A403A; --rule-soft:#223530;
+      --brass:#D4A055; --brass-soft:#3A2E1B; --teal:#6FB3A6;
+      --good:#6DC095; --good-bg:#16302A;
+      --warn:#DCA85A; --warn-bg:#33280F;
+      --crit:#E08A8A; --crit-bg:#351E1E;
+      --field:#0B1917; --tile:#0B1917;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper:#EFF1EF; --paper-2:#E5E9E6; --paper-3:#DAE0DC; --ink:#10201D; --ink-2:#3A4C48;
+    --ink-3:#6A7B76; --rule:#C8D1CC; --rule-soft:#D9E0DC; --brass:#92642A; --brass-soft:#EBDCC3;
+    --teal:#235049; --good:#2C6B4F; --good-bg:#DCEBE1; --warn:#8A5A17; --warn-bg:#F3E5CC;
+    --crit:#963232; --crit-bg:#F3DCDC; --field:#FFFFFF; --tile:#FFFFFF;
+    --shadow:0 1px 2px rgba(16,32,29,.07), 0 8px 24px -12px rgba(16,32,29,.18);
+  }
+  :root[data-theme="dark"] {
+    --paper:#10201D; --paper-2:#162925; --paper-3:#1E332E; --ink:#E2E9E5; --ink-2:#A9BAB4;
+    --ink-3:#7E918B; --rule:#2A403A; --rule-soft:#223530; --brass:#D4A055; --brass-soft:#3A2E1B;
+    --teal:#6FB3A6; --good:#6DC095; --good-bg:#16302A; --warn:#DCA85A; --warn-bg:#33280F;
+    --crit:#E08A8A; --crit-bg:#351E1E; --field:#0B1917; --tile:#0B1917;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1560px; margin:0 auto; padding:24px 18px 56px; }
+
+  /* ── Masthead ─────────────────────────────────────────────────────── */
+  .masthead {
+    display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 28px;
+    padding-bottom:16px; margin-bottom:22px; border-bottom:2px solid var(--ink);
+  }
+  .masthead h1 { margin:0; font-size:clamp(23px,3vw,32px); font-weight:700; letter-spacing:-.015em; line-height:1.15; }
+  .eyebrow { font-family:var(--serif); font-style:italic; font-size:14px; color:var(--brass); display:block; margin-bottom:2px; }
+  .masthead p { margin:0 0 2px; color:var(--ink-2); font-size:13.5px; max-width:46ch; }
+  .keybox { display:flex; flex-direction:column; gap:3px; font-size:12px; }
+  .keybox input {
+    font:inherit; font-size:12.5px; padding:5px 8px; width:190px;
+    border:1px solid var(--rule); border-radius:5px; background:var(--field); color:var(--ink);
+  }
+  .keybox .state { color:var(--ink-3); font-size:11.5px; }
+  .keybox .state.on { color:var(--good); }
+
+  /* ── Shell ────────────────────────────────────────────────────────── */
+  .shell { display:grid; grid-template-columns:308px minmax(0,1fr); gap:22px; align-items:start; }
+  .work  { display:grid; grid-template-columns:330px minmax(0,1fr); gap:22px; align-items:start; }
+  @media (max-width:1180px) { .work { grid-template-columns:1fr; } }
+  @media (max-width:980px)  { .shell { grid-template-columns:1fr; } }
+
+  .panel { background:var(--paper-2); border:1px solid var(--rule); border-radius:3px; box-shadow:var(--shadow); }
+  @media (min-width:981px) {
+    .catalog { position:sticky; top:16px; display:flex; flex-direction:column; max-height:calc(100vh - 32px); }
+  }
+  @media (min-width:1181px) {
+    .form-panel { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; }
+  }
+
+  fieldset { border:0; border-top:1px solid var(--rule-soft); margin:0; padding:14px 16px 16px; }
+  fieldset:first-of-type { border-top:0; }
+  legend { font-size:11px; text-transform:uppercase; letter-spacing:.11em; font-weight:700; color:var(--ink-3); padding:0; margin-bottom:11px; }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px 8px; }
+  .span2 { grid-column:1 / -1; }
+
+  label { display:flex; flex-direction:column; gap:5px; font-size:12.5px; color:var(--ink-2); }
+  label .hint { color:var(--ink-3); font-size:11.5px; }
+
+  input[type="text"], input[type="number"], input[type="search"], select {
+    width:100%; padding:7px 9px; font-family:var(--mono); font-size:13.5px;
+    font-variant-numeric:tabular-nums; color:var(--ink); background:var(--field);
+    border:1px solid var(--rule); border-radius:2px;
+  }
+  select, input[type="search"] { font-family:var(--sans); font-size:13px; }
+  input:focus-visible, select:focus-visible, button:focus-visible { outline:2px solid var(--brass); outline-offset:1px; }
+
+  .check { flex-direction:row; align-items:center; gap:8px; cursor:pointer; }
+  .check input { accent-color:var(--brass); width:15px; height:15px; margin:0; }
+
+  .seg { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--rule); border-radius:2px; overflow:hidden; }
+  .seg button {
+    font-family:var(--sans); font-size:13px; font-weight:600; padding:9px 6px;
+    background:var(--field); color:var(--ink-2); border:0; border-right:1px solid var(--rule); cursor:pointer;
+  }
+  .seg button:last-child { border-right:0; }
+  .seg button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+  .seg-note { font-size:11.5px; color:var(--ink-3); margin-top:7px; line-height:1.45; }
+
+  /* ── Catalog rail ─────────────────────────────────────────────────── */
+  .cat-head { padding:12px 14px; border-bottom:1px solid var(--rule); background:var(--paper-3); }
+  .cat-head h2 { margin:0 0 9px; font-size:13px; letter-spacing:.01em; }
+
+  .drop {
+    border:1.5px dashed var(--rule); border-radius:3px; padding:14px 12px; text-align:center;
+    background:var(--field); cursor:pointer; display:block;
+  }
+  .drop:hover, .drop.over { border-color:var(--brass); background:var(--brass-soft); }
+  .drop b { display:block; font-size:13px; color:var(--brass); }
+  .drop span { font-size:11.5px; color:var(--ink-3); }
+  .drop input { display:none; }
+
+  .tabs { display:flex; gap:0; overflow-x:auto; border-bottom:1px solid var(--rule); background:var(--paper-3); }
+  .tabs:empty { display:none; }
+  .tab {
+    display:flex; align-items:center; gap:6px; flex:none; cursor:pointer;
+    font-family:var(--sans); font-size:12px; padding:8px 10px;
+    background:transparent; border:0; border-right:1px solid var(--rule);
+    border-bottom:2px solid transparent; color:var(--ink-2); max-width:190px;
+  }
+  .tab[aria-selected="true"] { background:var(--paper-2); color:var(--ink); border-bottom-color:var(--brass); font-weight:600; }
+  .tab .name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tab .n { font-family:var(--mono); font-size:10.5px; color:var(--ink-3); }
+  .tab .x { font-family:var(--mono); font-size:13px; color:var(--ink-3); padding:0 2px; border-radius:2px; }
+  .tab .x:hover { background:var(--crit-bg); color:var(--crit); }
+
+  .cat-search { padding:10px 12px; border-bottom:1px solid var(--rule-soft); }
+
+  .cards { overflow-y:auto; padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; flex:1; min-height:0; }
+  @media (max-width:980px) { .cards { max-height:340px; grid-template-columns:repeat(auto-fill,minmax(126px,1fr)); } }
+
+  .card {
+    display:flex; flex-direction:column; text-align:left; cursor:pointer; overflow:hidden;
+    background:var(--tile); border:1px solid var(--rule); border-radius:3px; padding:0;
+    font-family:var(--sans); color:var(--ink);
+  }
+  .card:hover { border-color:var(--brass); }
+  .card[aria-pressed="true"] { border-color:var(--brass); box-shadow:inset 0 0 0 1px var(--brass); }
+  .card .thumb { aspect-ratio:1/1; width:100%; object-fit:contain; background:var(--paper-3); display:block; }
+  .card .ph {
+    aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.02em;
+  }
+  .card .meta { padding:6px 8px 8px; display:flex; flex-direction:column; gap:2px; }
+  .card .code { font-family:var(--mono); font-size:11.5px; font-weight:700; }
+  .card .desc { font-size:11px; color:var(--ink-3); line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card .rmb { font-family:var(--mono); font-size:11.5px; color:var(--brass); }
+  .card .flag { font-size:10px; color:var(--warn); }
+
+  .cat-empty { padding:26px 18px; text-align:center; color:var(--ink-3); font-size:12.5px; line-height:1.6; }
+  .examples { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }
+  .examples button {
+    font-family:var(--sans); font-size:12px; padding:5px 10px; cursor:pointer;
+    background:transparent; color:var(--brass); border:1px solid var(--rule); border-radius:100px;
+  }
+  .examples button:hover { border-color:var(--brass); background:var(--brass-soft); }
+
+  .progress { padding:10px 14px; font-size:12px; color:var(--ink-2); font-family:var(--mono); }
+  .bar { height:3px; background:var(--paper-3); border-radius:2px; overflow:hidden; margin-top:6px; }
+  .bar i { display:block; height:100%; background:var(--brass); width:0; }
+
+  /* ── Summary strip ────────────────────────────────────────────────── */
+  .strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); border:1px solid var(--rule); border-radius:3px; background:var(--paper-2); overflow:hidden; margin-bottom:18px; box-shadow:var(--shadow); }
+  .stat { padding:12px 15px; border-right:1px solid var(--rule-soft); }
+  .stat:last-child { border-right:0; }
+  .stat .k { font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); }
+  .stat .v { font-family:var(--mono); font-size:18px; font-variant-numeric:tabular-nums; margin-top:3px; letter-spacing:-.02em; }
+  .stat .v small { font-size:12px; color:var(--ink-3); font-family:var(--sans); }
+  .stat.accent .v { color:var(--brass); }
+
+  /* ── Quote table ──────────────────────────────────────────────────── */
+  .tablecard { border:1px solid var(--rule); border-radius:3px; background:var(--paper-2); box-shadow:var(--shadow); overflow:hidden; }
+  .tablecard header { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; padding:12px 15px; border-bottom:1px solid var(--rule); background:var(--paper-3); }
+  .tablecard h2 { margin:0; font-size:14px; }
+  .tablecard header .sub { font-size:12px; color:var(--ink-3); font-family:var(--mono); }
+
+  .scroller { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; min-width:640px; }
+  th, td { padding:9px 14px; text-align:right; border-bottom:1px solid var(--rule-soft); }
+  th { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); font-weight:700; white-space:nowrap; }
+  th:first-child, td:first-child { text-align:left; }
+  tbody td { font-family:var(--mono); font-size:13.5px; font-variant-numeric:tabular-nums; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:var(--paper-3); }
+  .qty { font-weight:700; }
+  .price { font-size:16px; font-weight:700; color:var(--brass); }
+  .muted { color:var(--ink-3); }
+
+  .chip { display:inline-block; font-family:var(--sans); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:2px 7px; border-radius:2px; white-space:nowrap; }
+  .chip.ladder { background:var(--paper-3); color:var(--ink-3); }
+  .chip.floor  { background:var(--warn-bg); color:var(--warn); }
+  .chip.volume { background:var(--good-bg); color:var(--good); }
+
+  .breakdown { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+  .breakdown div { padding:11px 15px; border-right:1px solid var(--rule-soft); border-top:1px solid var(--rule-soft); }
+  .breakdown .k { font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em; }
+  .breakdown .v { font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums; margin-top:2px; }
+
+  .notices { display:flex; flex-direction:column; gap:8px; margin-top:18px; }
+  .notice { display:flex; gap:11px; padding:11px 14px; border-radius:3px; font-size:13px; line-height:1.5; border:1px solid transparent; }
+  .notice .mark { font-family:var(--mono); font-weight:700; flex:none; }
+  .notice.warn { background:var(--warn-bg); color:var(--warn); border-color:color-mix(in srgb,var(--warn) 25%,transparent); }
+  .notice.crit { background:var(--crit-bg); color:var(--crit); border-color:color-mix(in srgb,var(--crit) 30%,transparent); }
+  .notice.info { background:var(--paper-2); color:var(--ink-2); border-color:var(--rule); }
+
+  .footnote { margin-top:24px; padding-top:13px; border-top:1px solid var(--rule); font-size:12px; color:var(--ink-3); line-height:1.6; max-width:78ch; }
+  .footnote b { color:var(--ink-2); }
+  .err { color:var(--crit); font-size:13px; padding:14px 16px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .seg button, .examples button, .card, .tab, tbody tr, .drop { transition:background-color .12s ease, color .12s ease, border-color .12s ease; }
+    .bar i { transition:width .2s ease; }
+  }
+
+  /* ── Quote basket ─────────────────────────────────────────────────── */
+  .actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .btn {
+    font-family:var(--sans); font-size:12.5px; font-weight:600; padding:6px 12px; cursor:pointer;
+    background:var(--field); color:var(--ink); border:1px solid var(--rule); border-radius:2px;
+  }
+  .btn:hover { border-color:var(--brass); color:var(--brass); }
+  .btn.primary { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .btn.primary:hover { background:var(--brass); border-color:var(--brass); color:#fff; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .btn .n { font-family:var(--mono); font-size:11px; opacity:.75; }
+
+  .basket { margin-top:18px; border:1px solid var(--rule); border-radius:3px; background:var(--paper-2); box-shadow:var(--shadow); }
+  .basket:empty { display:none; }
+  .basket header { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:11px 15px; border-bottom:1px solid var(--rule); background:var(--paper-3); }
+  .basket h2 { margin:0; font-size:13px; }
+  .bitem { display:flex; align-items:center; gap:10px; padding:8px 15px; border-bottom:1px solid var(--rule-soft); font-size:13px; }
+  .bitem:last-child { border-bottom:0; }
+  .bitem img, .bitem .noimg { width:34px; height:34px; object-fit:contain; background:var(--paper-3); border-radius:2px; flex:none; }
+  .bitem .c { font-family:var(--mono); font-size:12px; font-weight:700; }
+  .bitem .d { flex:1; min-width:0; color:var(--ink-3); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bitem .p { font-family:var(--mono); font-size:12.5px; color:var(--brass); }
+  .bitem .rm { background:none; border:0; color:var(--ink-3); cursor:pointer; font-family:var(--mono); font-size:15px; padding:0 4px; }
+  .bitem .rm:hover { color:var(--crit); }
+
+  /* ── Printed quotation ────────────────────────────────────────────── */
+  .sheet-backdrop {
+    position:fixed; inset:0; background:rgba(8,18,16,.6); z-index:50;
+    overflow:auto; padding:24px 16px; display:none;
+  }
+  .sheet-backdrop[open] { display:block; }
+  .sheet-tools {
+    max-width:210mm; margin:0 auto 12px; display:flex; gap:8px; justify-content:flex-end;
+  }
+  .sheet {
+    max-width:210mm; margin:0 auto; background:#fff; color:#111; padding:16mm 14mm;
+    font-family:var(--sans); font-size:12px; line-height:1.5;
+  }
+  .sheet .brand { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; border-bottom:2px solid #111; padding-bottom:9px; }
+  .sheet .brand h1 { margin:0; font-size:19px; letter-spacing:-.01em; }
+  .sheet .brand .contact { text-align:right; font-size:11px; color:#444; line-height:1.6; }
+  .sheet .meta { display:flex; justify-content:space-between; font-size:11px; color:#444; margin:8px 0 14px; }
+
+  .item { display:grid; grid-template-columns:96px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ddd; page-break-inside:avoid; break-inside:avoid; }
+  .item .pic { width:96px; height:96px; object-fit:contain; background:#f4f4f2; border:1px solid #e3e3e0; }
+  .item h3 { margin:0 0 2px; font-size:13.5px; }
+  .item .code { font-family:var(--mono); font-size:11.5px; color:#666; }
+  .item .spec { margin:6px 0 0; font-size:11px; color:#333; line-height:1.6; }
+  .item table { width:100%; margin-top:8px; border-collapse:collapse; min-width:0; }
+  .item th, .item td { border:1px solid #ccc; padding:4px 8px; text-align:center; font-size:11.5px; }
+  .item th { background:#f2f2f0; font-weight:700; color:#333; letter-spacing:0; text-transform:none; }
+  .item td { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  .item td.q { color:#555; }
+  .item td.v { font-weight:700; }
+
+  .sheet .notes { margin-top:14px; font-size:11px; color:#333; line-height:1.7; }
+  .sheet .notes b { display:block; margin-bottom:3px; }
+  .sheet .foot { margin-top:16px; padding-top:8px; border-top:1px solid #ddd; font-size:10.5px; color:#666; display:flex; justify-content:space-between; }
+
+  @media print {
+    body > .wrap, .sheet-tools { display:none !important; }
+    .sheet-backdrop { position:static; padding:0; background:#fff; display:block; overflow:visible; }
+    .sheet { max-width:none; margin:0; padding:0; box-shadow:none; }
+    @page { size:A4; margin:14mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div style="flex:1 1 320px">
+      <span class="eyebrow">SmartGift · pricing instrument</span>
+      <h1>เครื่องคำนวณราคาขาย</h1>
+    </div>
+    <p>เลือกสินค้าจากแคตตาล็อก หรือกรอกเอง → ใบราคาตามจำนวนสั่ง พร้อมกำไรและส่วนที่ต้องระวัง</p>
+    <div class="keybox">
+      <label for="ownerKey">คีย์เจ้าของ</label>
+      <input type="password" id="ownerKey" autocomplete="off" spellcheck="false" placeholder="ปลดล็อกต้นทุนและกำไร">
+      <span class="state" id="keyState">ยังไม่ปลดล็อก — เห็นได้เฉพาะราคาขาย</span>
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <!-- ───────────────── Catalog rail ───────────────── -->
+    <section class="panel catalog" aria-label="แคตตาล็อกสินค้า">
+      <div class="cat-head">
+        <h2>แคตตาล็อกสินค้า</h2>
+        <label class="drop" id="drop">
+          <b>เลือกไฟล์ หรือลากมาวาง</b>
+          <span>.xlsx จากโรงงาน หรือ .csv รายการสินค้า</span>
+          <input type="file" id="file" accept=".xlsx,.csv" multiple>
+        </label>
+      </div>
+
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div id="progress"></div>
+      <div class="cat-search" id="searchWrap" hidden>
+        <input type="search" id="search" placeholder="ค้นหารหัสหรือชื่อสินค้า">
+      </div>
+
+      <div id="catBody">
+        <div class="cat-empty">
+          ยังไม่มีแคตตาล็อก<br>อัปโหลดไฟล์เพื่อเลือกสินค้าจากรูป
+          <div class="examples">
+            <button type="button" data-ex="fan">พัดลม + ร่ม</button>
+            <button type="button" data-ex="bottle">ขวดน้ำ + ร่ม</button>
+            <button type="button" data-ex="corp">ลูกค้าองค์กร</button>
+            <button type="button" data-ex="cheap">ของถูก สั่งน้อย</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="work">
+
+      <!-- ───────────────── Inputs ───────────────── -->
+      <form class="panel form-panel" id="form" autocomplete="off">
+        <fieldset>
+          <legend>กลุ่มลูกค้า</legend>
+          <div class="seg" role="group" aria-label="เลือกกลุ่มลูกค้า">
+            <button type="button" id="p-standard" aria-pressed="true">ทั่วไป</button>
+            <button type="button" id="p-corporate" aria-pressed="false">องค์กร</button>
+          </div>
+          <p class="seg-note" id="profileNote"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>สินค้าและต้นทุน</legend>
+          <div class="grid2">
+            <label class="span2">รหัสสินค้า<input type="text" id="sku" value="TJS23-2"></label>
+            <label>ต้นทุนโรงงาน <span class="hint">RMB/ชุด</span><input type="number" id="rmb" value="32" min="0" step="0.5"></label>
+            <label>อัตราแลกเปลี่ยน <span class="hint">บาท/หยวน</span><input type="number" id="fx" value="5" min="0.01" step="0.05"></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>กล่องบรรจุ</legend>
+          <div class="grid2">
+            <label>จำนวนต่อกล่อง<input type="number" id="upc" value="20" min="1" step="1"></label>
+            <label>น้ำหนัก/กล่อง <span class="hint">กก. — เว้นว่างได้</span><input type="number" id="kg" value="" min="0" step="0.5" placeholder="ไม่ระบุ"></label>
+          </div>
+          <div class="grid3" style="margin-top:10px">
+            <label>กว้าง <span class="hint">ซม.</span><input type="number" id="cl" value="47.5" min="0" step="0.5"></label>
+            <label>ยาว <span class="hint">ซม.</span><input type="number" id="cw" value="45.5" min="0" step="0.5"></label>
+            <label>สูง <span class="hint">ซม.</span><input type="number" id="ch" value="51" min="0" step="0.5"></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>ขนส่งจีน–ไทย</legend>
+          <div class="grid2">
+            <label class="span2 check">
+              <input type="checkbox" id="elec" checked>
+              <span>มีอุปกรณ์ไฟฟ้าในกล่อง <span class="hint">(เรท มอก.)</span></span>
+            </label>
+            <label>เดือนที่ส่ง
+              <select id="month">
+                <option value="1">มกราคม</option><option value="2">กุมภาพันธ์</option>
+                <option value="3">มีนาคม</option><option value="4">เมษายน</option>
+                <option value="5">พฤษภาคม</option><option value="6">มิถุนายน</option>
+                <option value="7">กรกฎาคม</option><option value="8">สิงหาคม</option>
+                <option value="9">กันยายน</option><option value="10">ตุลาคม</option>
+                <option value="11" selected>พฤศจิกายน</option><option value="12">ธันวาคม</option>
+              </select>
+            </label>
+            <label>วิธีส่ง
+              <select id="mode">
+                <option value="auto" selected>อัตโนมัติ</option>
+                <option value="truck">ทางรถ</option>
+                <option value="sea">ทางเรือ</option>
+              </select>
+            </label>
+            <label>โกดัง
+              <select id="wh">
+                <option value="guangzhou_shenzhen" selected>กวางโจว/เซินเจิ้น</option>
+                <option value="yiwu">อี้อู</option>
+              </select>
+            </label>
+            <label>ระดับสมาชิก
+              <select id="tier">
+                <option value="elite">ELITE</option><option value="gold">GOLD</option>
+                <option value="silver" selected>SILVER</option><option value="member">MEMBER</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>สกรีนโลโก้</legend>
+          <div class="grid2">
+            <label class="span2">วิธีสกรีน
+              <select id="logoMethod">
+                <option value="flat" selected>คิดเหมาจุดละ (ที่ใช้อยู่)</option>
+                <option value="hotstamp">Hot stamp / ปั๊มนูน</option>
+                <option value="hotstamp_text">ปั๊มชื่อ/ตัวอักษรสั้น</option>
+                <option value="engrave">เลเซอร์ / แกะสลัก</option>
+                <option value="silk">Silk screen</option>
+                <option value="uv">UV print</option>
+                <option value="none">ไม่สกรีน</option>
+              </select>
+            </label>
+            <label>จำนวนจุด <span class="hint">จากรหัส +2</span>
+              <input type="number" id="positions" value="4" min="1" step="1">
+            </label>
+            <label id="wrapRate">บาท/จุด/ชิ้น
+              <input type="number" id="screenRate" value="10" min="0" step="1">
+            </label>
+            <label id="wrapColors" hidden>จำนวนสี <span class="hint">silk</span>
+              <input type="number" id="colors" value="1" min="1" step="1">
+            </label>
+            <label id="wrapUv" hidden>USD/ชิ้น/จุด <span class="hint">UV</span>
+              <input type="number" id="uvRate" value="0" min="0" step="0.01">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>กำหนดส่ง</legend>
+          <div class="grid2">
+            <label>ลูกค้าต้องการภายใน <span class="hint">วัน</span>
+              <input type="number" id="deadline" value="" min="1" step="1" placeholder="ไม่กำหนด">
+            </label>
+            <label class="check" style="align-self:end">
+              <input type="checkbox" id="rush">
+              <span>งานเร่ง <span class="hint">ข้ามตัวอย่าง</span></span>
+            </label>
+          </div>
+          <p class="seg-note" id="leadNote"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>ค่าใช้จ่ายอื่น</legend>
+          <div class="grid2">
+            <label>ค่าส่งโรงงาน-โกดัง <span class="hint">ในจีน หยวน/ชุด</span>
+              <input type="number" id="inlandRmb" value="2" min="0" step="0.5">
+            </label>
+            <label>ต่อชุด <span class="hint">สกรีน กล่อง ถุง</span><input type="number" id="ucost" value="0" min="0" step="5"></label>
+            <label class="span2">ต่อออเดอร์ <span class="hint">บล็อก ตัวอย่าง</span><input type="number" id="ocost" value="0" min="0" step="100"></label>
+            <label class="span2">ค่าส่งในไทย <span class="hint">กทม./ปริมณฑล ฟรี · ตจว. ตามจริง</span>
+              <input type="number" id="domestic" value="0" min="0" step="100" placeholder="0 = ส่งฟรี">
+            </label>
+          </div>
+        </fieldset>
+      </form>
+
+      <!-- ───────────────── Results ───────────────── -->
+      <div>
+        <div class="strip" id="strip"></div>
+        <div class="tablecard">
+          <header>
+            <div>
+              <h2 id="quoteTitle">ใบราคา</h2>
+              <span class="sub" id="quoteSub"></span>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn" id="addToSheet">เพิ่มลงใบราคา</button>
+              <button type="button" class="btn primary" id="openSheet" disabled>
+                ออกใบราคา <span class="n" id="basketCount">0</span>
+              </button>
+            </div>
+          </header>
+          <div class="scroller">
+            <table>
+              <thead><tr>
+                <th>จำนวน</th><th>ราคา/ชุด</th><th>ที่มา</th>
+                <th>ต้นทุนรวม</th><th>กำไร/ออเดอร์</th><th>margin</th>
+              </tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <div class="breakdown" id="breakdown"></div>
+        </div>
+        <div class="basket" id="basket"></div>
+        <div class="notices" id="notices"></div>
+        <p class="footnote" id="foot"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet-tools">
+    <button type="button" class="btn" id="closeSheet">ปิด</button>
+    <button type="button" class="btn primary" id="printSheet">พิมพ์ / บันทึกเป็น PDF</button>
+  </div>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const fmt2 = n => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PART 1 — Talking to the pricing engine
+     There is no pricing arithmetic left in this file. Every number on the
+     screen comes from POST /api/pricing/quote/adhoc, which runs the same
+     `src/pricing` engine the LINE agent and the CLI already use.
+     This block used to be a line-for-line port of that engine, and a port
+     is a copy: it silently lost the factory-to-warehouse cost, then held
+     it in the wrong currency, and each fix had to be made twice. A rule
+     that lives in one place cannot disagree with itself.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const round = (v,d) => { const f = 10**d; return Math.round((v + Number.EPSILON) * f) / f; };
+
+  /* Labels and standing copy for the two published policies. The breaks, factors, bands and
+     floors behind them are the server's; only the words are here. */
+  const PROFILE_TEXT = {
+    standard: {
+      label:'ทั่วไป',
+      note:'บ.เล็ก · freelance ตัวแทนประกัน · นายหน้า — markup ตามช่วงต้นทุน แล้วลดหลั่นตามจำนวน',
+    },
+    corporate: {
+      label:'องค์กร',
+      note:'รัฐวิสาหกิจ · กสทช. · ไทยคม — คูณต้นทุนรวมที่ 1,000 ชุด แล้วลดหลั่นตามจำนวนเหมือนทั่วไป',
+    },
+  };
+
+  /*
+   * A form default, not a pricing rule: the last digit of an item code is the number of pieces in
+   * the set, and the box and the bag are two more places a logo goes. The field stays editable and
+   * whatever it ends up saying is sent with the quote, so the server never has to guess.
+   */
+  function positionsForCode(code) {
+    const m = /(\d)\s*$/.exec(code || '');
+    const pieces = m ? Number(m[1]) : 1;
+    return (pieces === 0 ? 1 : pieces) + 2;
+  }
+
+  /* ── The service ──────────────────────────────────────────────────────
+     Same origin: this page is served by the pricing service itself, so there
+     is no cross-origin request to arrange and no key baked into a page that
+     someone else hosts. Costs need the owner key, which is typed once and
+     kept in sessionStorage — it never touches the URL or localStorage.      */
+
+  const KEY_STORAGE = 'zuri-pricing-key';
+  let apiKey = sessionStorage.getItem(KEY_STORAGE) || '';
+
+  function setApiKey(value) {
+    apiKey = (value || '').trim();
+    if (apiKey) sessionStorage.setItem(KEY_STORAGE, apiKey);
+    else sessionStorage.removeItem(KEY_STORAGE);
+  }
+
+  async function apiFetch(path, init = {}) {
+    const headers = Object.assign({}, init.headers);
+    if (apiKey) headers['x-zuri-pricing-key'] = apiKey;
+    if (init.body) headers['content-type'] = 'application/json';
+    const res = await fetch(path, Object.assign({}, init, {headers}));
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const err = new Error((data && data.error) || `HTTP ${res.status}`);
+      err.status = res.status;
+      err.issues = data && data.issues;
+      throw err;
+    }
+    return data;
+  }
+
+  /* The engine names its reasons in full; the table's chips are shorter. */
+  const BASIS_FROM_ENGINE = {ladder:'ladder', volume_markup:'volume', min_profit_floor:'floor'};
+
+  function requestFor(i) {
+    return {
+      sku: i.sku || '—',
+      profile: i.profile,
+      factoryCostRmb: i.rmb,
+      exchangeRate: i.fx,
+      carton: Object.assign(
+        {unitsPerCarton: i.upc, cartonCbm: i.cbm},
+        i.kg ? {cartonWeightKg: i.kg} : {}
+      ),
+      freight: {warehouse: i.wh, mode: i.mode, membershipTier: i.tier, goodsClass: i.goods, shipMonth: i.month},
+      logo: {
+        method: i.logo.method,
+        positions: i.logo.positions,
+        flatRatePerPositionThb: i.logo.rate,
+        colors: i.logo.colors,
+        uvRatePerPieceUsd: i.logo.uvRate,
+      },
+      additionalUnitCostThb: i.ucost,
+      additionalOrderCostThb: i.ocost,
+      inlandChinaCostRmb: i.inlandRmb,
+      rush: i.rush,
+      ...(i.deadline ? {deadlineDays: i.deadline} : {}),
+    };
+  }
+
+  /**
+   * One quote, computed on the server and reshaped into what this page renders.
+   *
+   * The reshaping is naming only — no arithmetic — so a number that appears here appeared in the
+   * engine's own output first.
+   */
+  async function quote(i) {
+    let r;
+    try {
+      r = await apiFetch('/api/pricing/quote/adhoc', {method:'POST', body: JSON.stringify(requestFor(i))});
+    } catch (e) {
+      /*
+       * This whole page is a cost instrument, so the service refusing an unkeyed caller is the
+       * expected state on first load — not a fault. Say which one it is, because "the service is
+       * down" and "you have not unlocked it" call for opposite next steps.
+       */
+      if (e.status === 403) e.needsKey = true;
+      throw e;
+    }
+    if (!r.detail) {
+      const err = new Error('ต้องใส่คีย์เจ้าของก่อนจึงจะเห็นต้นทุนและกำไร');
+      err.needsKey = true;
+      throw err;
+    }
+    const d = r.detail, a = d.anchorLandedUnitCost, f = a.freight;
+    const P = {
+      label: (PROFILE_TEXT[r.profile] || {}).label || r.profile,
+      note: (PROFILE_TEXT[r.profile] || {}).note || '',
+      anchor: d.policy.anchorQuantity,
+      breaks: d.policy.quantityBreaks,
+    };
+    const anchorLanded = {
+      factory: a.factoryCostThb,
+      inland: a.inlandChinaCostThb,
+      perUnit: a.freightPerUnitThb,
+      logoPer: a.logoPerUnitThb,
+      ucost: a.additionalUnitCostThb,
+      total: a.totalThb,
+      sof: a.smallOrderFactor,
+      fr: {
+        mode: f.mode, why: f.modeReason, cartons: f.cartons, volumeCbm: f.volumeCbm,
+        weightKg: f.weightKg, chargedBy: f.chargedBy, flipKg: f.weightFlipThresholdKg,
+        rate: {cbm: f.rate.thbPerCbm, kg: f.rate.thbPerKg},
+      },
+    };
+    const breaks = d.breaks.map(b => ({
+      qty: b.quantity,
+      price: b.unitPriceThb,
+      basis: BASIS_FROM_ENGINE[b.basis] || b.basis,
+      minProfit: b.minOrderGrossProfitThb,
+      landed: round(b.landedUnitCostThb, 2),
+      mode: b.freightMode,
+      sof: b.smallOrderFactor,
+      profit: round(b.orderGrossProfitThb, 2),
+      margin: b.grossMarginPct,
+    }));
+    const markup = d.breaks.length ? d.breaks[0].markupFactor : 0;
+    return {
+      P, markup, anchorLanded, breaks,
+      warn: warningsFor(i, breaks, anchorLanded, d.warnings),
+      lead: r.leadTime || null,
+      deadline: r.deadline || null,
+    };
+  }
+
+  /**
+   * What the salesperson should be told before sending the sheet.
+   *
+   * These are read *off* the quote — a price that rises with quantity, a profit that falls, a
+   * discount too steep to print — plus whatever the engine itself flagged. They decide nothing
+   * about the price, which is why they can be worked out here.
+   */
+  function warningsFor(i, breaks, anchorLanded, engineWarnings) {
+    const warn = [];
+    for (let k = 1; k < breaks.length; k++) {
+      if (breaks[k].price > breaks[k-1].price)
+        warn.push(['crit', `สั่ง ${breaks[k].qty} ชุดแพงกว่าสั่ง ${breaks[k-1].qty} ชุด — ตรวจการบรรจุกล่อง`]);
+      if (breaks[k].profit < breaks[k-1].profit)
+        warn.push(['crit', `ออเดอร์ ${breaks[k].qty} ชุดได้กำไรน้อยกว่า ${breaks[k-1].qty} ชุด (${fmt(breaks[k].profit)} เทียบ ${fmt(breaks[k-1].profit)} บาท) — สูตรนี้ไม่เหมาะกับสินค้าราคานี้`]);
+      const drop = 1 - breaks[k].price / breaks[k-1].price;
+      if (drop > 0.25)
+        warn.push(['warn', `ราคาตกลง ${Math.round(drop*100)}% ระหว่าง ${breaks[k-1].qty} กับ ${breaks[k].qty} ชุด — ควรเสนอขั้นนี้เมื่อลูกค้าถาม ไม่ใช่พิมพ์ไว้ข้าง ๆ กัน`]);
+    }
+    const floored = breaks.filter(b => b.basis === 'floor');
+    if (floored.length)
+      warn.push(['warn', `พื้นกำไรดันราคาขึ้นที่ ${floored.map(b => `${b.qty} ชุด (ให้ถึง ${fmt(b.minProfit)} บาท)`).join(', ')}`]);
+    const modes = new Set(breaks.map(b => b.mode));
+    if (modes.size > 1)
+      warn.push(['warn', `วิธีส่งไม่เหมือนกันทุกขั้น — ${breaks.filter(b=>b.mode==='sea').map(b=>b.qty).join(', ')} ชุดไปทางเรือ ถูกกว่าแต่ช้ากว่า ต้องเช็ค lead time กับลูกค้า`]);
+    const premium = breaks.filter(b => b.sof > 1);
+    if (premium.length)
+      warn.push(['warn', `โรงงานคิดราคาสูงขึ้นสำหรับออเดอร์เล็กที่ ${premium.map(b => `${b.qty} ชุด (x${b.sof})`).join(', ')} — แคตตาล็อกบอกแค่ช่วง 1.1-1.5 เท่า ไม่ได้ระบุว่าจำนวนไหนได้เท่าไร ควรยืนยันกับโรงงาน`]);
+    if (i.logo.method === 'none')
+      warn.push(['warn', 'ยังไม่ได้เลือกวิธีสกรีน จึงไม่มีค่าสกรีนในต้นทุน — ใบราคาที่ส่งลูกค้าระบุว่ารวมสกรีนโลโก้ทุกชิ้นพร้อมกล่องและถุง']);
+    else if (i.logo.method === 'uv' && !i.logo.uvRate)
+      warn.push(['warn', 'UV print ไม่มีเรทประกาศ แคตตาล็อกให้สอบถามฝ่ายขาย — ตอนนี้คิดเป็นศูนย์ ทำให้ราคาต่ำกว่าความจริง']);
+    if (!i.kg)
+      warn.push(['info', `ไม่ได้ระบุน้ำหนักกล่อง จึงคิดค่าขนส่งตามปริมาตร จะเปลี่ยนไปคิดตามน้ำหนักเมื่อกล่องหนักเกิน ${anchorLanded.fr.flipKg} กก.`]);
+    if (i.ucost === 0 && i.ocost === 0)
+      warn.push(['info', 'ยังไม่ได้ใส่ค่ากล่องของขวัญ ถุง หรือค่าส่งในไทยนอกเหนือจากค่าสกรีน — กำไรที่เห็นจึงสูงกว่าความจริง']);
+    /* Anything the engine itself wanted said, verbatim. */
+    for (const w of engineWarnings || []) warn.push(['info', w]);
+    return warn;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PART 2 — Reading a catalog in the browser
+     An .xlsx is a ZIP. The factory books run to hundreds of MB because
+     every product photo is embedded, so nothing is read whole: the
+     central directory is located from the tail, and each entry is sliced
+     out of the File and inflated only when it is actually needed.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const dv = buf => new DataView(buf);
+  const readU32 = (b,o) => dv(b).getUint32(o, true);
+  const readU16 = (b,o) => dv(b).getUint16(o, true);
+
+  async function readZipDirectory(file) {
+    const tailLen = Math.min(file.size, 66_000);
+    const tail = await file.slice(file.size - tailLen).arrayBuffer();
+    const t = new Uint8Array(tail);
+
+    let eocd = -1;
+    for (let i = t.length - 22; i >= 0; i--) {
+      if (t[i] === 0x50 && t[i+1] === 0x4b && t[i+2] === 0x05 && t[i+3] === 0x06) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('ไฟล์นี้ไม่ใช่ .xlsx ที่อ่านได้ (หา ZIP directory ไม่เจอ)');
+
+    const count = readU16(tail, eocd + 10);
+    const dirSize = readU32(tail, eocd + 12);
+    const dirOffset = readU32(tail, eocd + 16);
+
+    const dir = await file.slice(dirOffset, dirOffset + dirSize).arrayBuffer();
+    const entries = new Map();
+    let p = 0;
+    const dec = new TextDecoder();
+    for (let n = 0; n < count && p + 46 <= dir.byteLength; n++) {
+      if (readU32(dir, p) !== 0x02014b50) break;
+      const method = readU16(dir, p + 10);
+      const compSize = readU32(dir, p + 20);
+      const nameLen = readU16(dir, p + 28);
+      const extraLen = readU16(dir, p + 30);
+      const commentLen = readU16(dir, p + 32);
+      const localOffset = readU32(dir, p + 42);
+      const name = dec.decode(new Uint8Array(dir, p + 46, nameLen));
+      entries.set(name, {method, compSize, localOffset});
+      p += 46 + nameLen + extraLen + commentLen;
+    }
+    return entries;
+  }
+
+  async function readEntry(file, entry) {
+    // The local header repeats the name/extra lengths; data starts after them.
+    const head = await file.slice(entry.localOffset, entry.localOffset + 30).arrayBuffer();
+    if (readU32(head, 0) !== 0x04034b50) throw new Error('ZIP local header เสียหาย');
+    const start = entry.localOffset + 30 + readU16(head, 26) + readU16(head, 28);
+    const blob = file.slice(start, start + entry.compSize);
+    if (entry.method === 0) return blob;
+    if (entry.method !== 8) throw new Error(`ZIP ใช้การบีบอัดแบบที่ไม่รองรับ (method ${entry.method})`);
+    return new Response(blob.stream().pipeThrough(new DecompressionStream('deflate-raw'))).blob();
+  }
+
+  const readText = async (file, entries, name) => {
+    const e = entries.get(name);
+    return e ? (await readEntry(file, e)).text() : null;
+  };
+
+  /* ── Sheet → product blocks ──────────────────────────────────────── */
+
+  const colIndex = ref => {
+    let n = 0;
+    for (const ch of ref.match(/^[A-Z]+/)[0]) n = n * 26 + (ch.charCodeAt(0) - 64);
+    return n - 1;
+  };
+
+  // "20 sets/ctn, 47.5*45.5*51cm, 17kgs" — the factory's own packing notation.
+  const PACK_RE = /(\d+)\s*(?:sets?|pcs?)\s*\/\s*ctn\s*[,，]\s*([\d.]+)\s*\*\s*([\d.]+)\s*\*\s*([\d.]+)\s*cm(?:\s*[,，]\s*([\d.]+)\s*kgs?)?/i;
+  const ITEM_RE = /^([A-Z]{2,4}[\w-]*\d[\w-]*)/;
+  // The EXW column is a live formula like `32/6.5` — the RMB price and the
+  // rate the factory used are both recoverable; the displayed USD is not enough.
+  const RMB_RE = /^\s*([\d.]+)\s*\/\s*([\d.]+)\s*$/;
+  const isNum = s => s !== '' && s !== null && Number.isFinite(Number(s));
+
+  function parseSheet(xml, shared) {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const out = [];
+    for (const r of doc.getElementsByTagName('row')) {
+      const cells = {};
+      for (const c of r.getElementsByTagName('c')) {
+        const ref = c.getAttribute('r');
+        if (!ref) continue;
+        const v = c.getElementsByTagName('v')[0];
+        const f = c.getElementsByTagName('f')[0];
+        let val = null;
+        if (c.getAttribute('t') === 's' && v) val = shared[+v.textContent] ?? '';
+        else if (c.getAttribute('t') === 'inlineStr') val = c.textContent.trim();
+        else if (v) val = v.textContent;
+        if (val === null) continue;
+        val = String(val).replace(/\s+/g, ' ').trim();
+        if (val) cells[colIndex(ref)] = {v: val, f: f ? f.textContent : null};
+      }
+      if (Object.keys(cells).length) out.push({r: +r.getAttribute('r'), cells});
+    }
+    return out;
+  }
+
+  function parseSharedStrings(xml) {
+    if (!xml) return [];
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    return [...doc.getElementsByTagName('si')].map(si =>
+      [...si.getElementsByTagName('t')].map(t => t.textContent).join(''));
+  }
+
+  /* Rows whose first column is a field label rather than part of the product name. */
+  const DESC_LABEL = /^(function|details?|product|name|feature|description)\b/i;
+
+  function buildProducts(rows) {
+    const products = [];
+    let cur = null;
+    for (const {r, cells} of rows) {
+      const idx = Object.keys(cells).map(Number).sort((a,b) => a-b);
+      const first = cells[0]?.v || '';
+      const priceKey = idx.find(i => i >= 3 && isNum(cells[i].v));
+      const code = first ? ITEM_RE.exec(first) : null;
+
+      if (code && priceKey !== undefined) {
+        const pc = cells[priceKey];
+        const m = pc.f ? RMB_RE.exec(pc.f) : null;
+        // Texts on the header row, excluding the price column itself.
+        const heads = idx.filter(i => i > 0 && i < priceKey && !isNum(cells[i].v)).map(i => cells[i].v);
+        cur = {
+          code: code[1], row: r, endRow: r,
+          // One text means the catalog names the product outright (gift-set books).
+          // Two or more means a label/value layout (power-bank book) — the real
+          // description lives on a later "Function" row, so leave it to be filled in.
+          name: heads.length === 1 ? heads[0] : '',
+          nameParts: heads,
+          rmb: m ? +m[1] : null,
+          usd: +pc.v,
+          upc: null, dims: null, kg: null, img: null,
+        };
+        products.push(cur);
+      }
+      if (!cur) continue;
+      cur.endRow = r;
+
+      if (!cur.name && idx.length >= 2) {
+        const label = cells[idx[0]]?.v || '';
+        const value = cells[idx[1]]?.v || '';
+        if (DESC_LABEL.test(label) && value.length > 8 && !isNum(value)) cur.name = value;
+      }
+      if (!cur.upc) {
+        const pm = PACK_RE.exec(idx.map(i => cells[i].v).join(' | '));
+        if (pm) {
+          cur.upc = +pm[1];
+          cur.dims = [+pm[2], +pm[3], +pm[4]];
+          if (pm[5]) cur.kg = +pm[5];
+        }
+      }
+    }
+    // Anything still unnamed falls back to whatever the header row did say.
+    for (const p of products) {
+      if (!p.name) p.name = p.nameParts.join(' · ');
+      delete p.nameParts;
+    }
+    return products;
+  }
+
+  /* Anchors give a 0-based sheet row per picture; sheet rows are 1-based. */
+  function mapImages(drawingXml, relsXml, products) {
+    if (!drawingXml || !relsXml) return;
+    const rels = new Map();
+    for (const rel of new DOMParser().parseFromString(relsXml, 'application/xml')
+                       .getElementsByTagName('Relationship')) {
+      rels.set(rel.getAttribute('Id'), 'xl/' + rel.getAttribute('Target').replace(/^\.\.\//, ''));
+    }
+    const doc = new DOMParser().parseFromString(drawingXml, 'application/xml');
+    const anchors = [];
+    for (const tag of ['twoCellAnchor', 'oneCellAnchor']) {
+      for (const a of doc.getElementsByTagNameNS('*', tag)) {
+        const from = a.getElementsByTagNameNS('*', 'from')[0];
+        const rowEl = from && from.getElementsByTagNameNS('*', 'row')[0];
+        const blip = a.getElementsByTagNameNS('*', 'blip')[0];
+        const id = blip && (blip.getAttribute('r:embed') ||
+                            blip.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'embed'));
+        if (rowEl && id && rels.has(id)) anchors.push({row: +rowEl.textContent + 1, path: rels.get(id)});
+      }
+    }
+    anchors.sort((a,b) => a.row - b.row);
+    let ai = 0;
+    for (const p of products) {
+      while (ai < anchors.length && anchors[ai].row < p.row) ai++;
+      if (ai < anchors.length && anchors[ai].row <= p.endRow) { p.img = anchors[ai].path; ai++; }
+    }
+  }
+
+  async function loadXlsx(file, onProgress) {
+    onProgress('อ่านโครงสร้างไฟล์…', 0.1);
+    const entries = await readZipDirectory(file);
+
+    const sheetName = [...entries.keys()].find(n => /^xl\/worksheets\/sheet1\.xml$/.test(n))
+      || [...entries.keys()].find(n => /^xl\/worksheets\/.*\.xml$/.test(n));
+    if (!sheetName) throw new Error('ไม่พบ worksheet ในไฟล์');
+
+    onProgress('อ่านข้อความในตาราง…', 0.3);
+    const shared = parseSharedStrings(await readText(file, entries, 'xl/sharedStrings.xml'));
+
+    onProgress('อ่านตารางสินค้า…', 0.55);
+    const rows = parseSheet(await readText(file, entries, sheetName), shared);
+    const products = buildProducts(rows);
+
+    onProgress('จับคู่รูปสินค้า…', 0.85);
+    const drawing = await readText(file, entries, 'xl/drawings/drawing1.xml');
+    const rels = await readText(file, entries, 'xl/drawings/_rels/drawing1.xml.rels');
+    mapImages(drawing, rels, products);
+
+    return {products, entries, file};
+  }
+
+  /* ── CSV ─────────────────────────────────────────────────────────── */
+
+  function parseCsv(text) {
+    const rows = []; let row = [], cur = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cur); cur = ''; }
+      else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+      else if (c !== '\r') cur += c;
+    }
+    if (cur || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => c.trim()));
+  }
+
+  function loadCsv(text) {
+    const rows = parseCsv(text.replace(/^﻿/, ''));
+    if (!rows.length) throw new Error('ไฟล์ CSV ว่าง');
+    const head = rows[0].map(h => h.toLowerCase().trim());
+    const find = (...keys) => head.findIndex(h => keys.some(k => h.includes(k)));
+    const c = {
+      code: find('item', 'รหัส', 'sku', 'code'),
+      name: find('product', 'detail', 'ชื่อ', 'รายละเอียด', 'name'),
+      rmb:  find('rmb', 'exw', 'ต้นทุน', 'cost'),
+      upc:  find('per carton', 'per ctn', 'ต่อกล่อง', '/ctn'),
+      l:    find('length', 'กว้าง'),
+      w:    find('width', 'ยาว'),
+      h:    find('height', 'สูง'),
+      kg:   find('weight', 'น้ำหนัก'),
+    };
+    if (c.code < 0) throw new Error('ไม่พบคอลัมน์รหัสสินค้า — ต้องมีหัวตารางที่มีคำว่า Item / SKU / รหัส');
+
+    const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
+    const products = rows.slice(1).map((r, i) => {
+      const g = k => (c[k] >= 0 ? (r[c[k]] ?? '').trim() : '');
+      const dims = [num(g('l')), num(g('w')), num(g('h'))];
+      return {
+        code: g('code') || `แถว ${i+2}`, name: g('name'), rmb: num(g('rmb')), usd: null,
+        upc: num(g('upc')), dims: dims.every(Boolean) ? dims : null, kg: num(g('kg')),
+        img: null, row: i, endRow: i,
+      };
+    }).filter(p => p.code);
+    return {products, entries: null, file: null};
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PART 3 — Catalog UI
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const books = [];          // {label, products, entries, file, imgBase}
+  let activeBook = -1;
+  let selectedCode = null;
+  let currentProduct = null; // what the form is currently describing, for the quotation sheet
+  const urlCache = new Map();
+
+  /** Catalogs shipped with the app — the two factory workbooks, pre-extracted. */
+  const BUNDLED = [
+    {key: 'giftset',   label: 'Business Office Gift set'},
+    {key: 'powerbank', label: 'Power bank / Notebook'},
+  ];
+
+  /*
+   * Built from `location.origin` rather than left relative: if the page is ever opened with
+   * credentials in the URL (http://user:pass@host/…), fetch refuses to resolve a relative path
+   * against that base and the catalog would vanish with no explanation.
+   */
+  const assetUrl = path => new URL(path, location.origin + '/').href;
+
+  async function loadBundled() {
+    const failed = [];
+    for (const b of BUNDLED) {
+      try {
+        /*
+         * Through the API, not the JSON file: the catalog carries factory costs, and a static
+         * file cannot be told who is asking. The same owner key that unlocks the numbers on
+         * screen is what returns `rmb` here; without it the rail still lists the range, and
+         * selecting a product simply cannot prefill a cost.
+         */
+        const data = await apiFetch(`/api/pricing/catalog?book=${encodeURIComponent(b.key)}&limit=5000`);
+        books.push({
+          label: b.label,
+          products: data.items,
+          entries: null, file: null, bundled: true,
+          imgBase: assetUrl(`catalog/img/${b.key}/`),
+        });
+      } catch (e) {
+        failed.push(`${b.label} — ${e.message}`);
+      }
+    }
+    if (books.length) {
+      activeBook = 0;
+      $('searchWrap').hidden = false;
+      renderTabs();
+      renderCards();
+    }
+    // Silence here would look identical to "there is no catalog", so say what went wrong.
+    if (failed.length) {
+      $('progress').innerHTML =
+        `<div class="progress" style="color:var(--crit)">โหลดแคตตาล็อกไม่สำเร็จ: ${esc(failed.join(' · '))}` +
+        `<br>ยังกรอกเองหรืออัปโหลดไฟล์ได้ตามปกติ</div>`;
+    }
+  }
+
+  const ELECTRIC = ['fan','power bank','powerbank','massage','humidifier','charger','charging','usb',
+    'earbud','speaker','bluetooth','kettle','blender','toothbrush','dryer','steamer','led','light',
+    'lamp','bracelet','watch','electric','battery','mah','clock','cable','plug','flash drive','digital','screen'];
+  const guessElectric = name => {
+    const t = (name || '').toLowerCase();
+    return ELECTRIC.some(k => t.includes(k));
+  };
+
+  /* A deterministic tint so a product without a photo still reads as itself. */
+  function tint(code) {
+    let h = 0;
+    for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return `hsl(${h % 360} 22% 62% / .28)`;
+  }
+
+  const imgObserver = new IntersectionObserver(async (items) => {
+    for (const it of items) {
+      if (!it.isIntersecting) continue;
+      const el = it.target;
+      imgObserver.unobserve(el);
+      const {book, path} = el.dataset;
+      const key = `${book}:${path}`;
+      try {
+        let url = urlCache.get(key);
+        if (!url) {
+          const b = books[+book];
+          const entry = b.entries.get(path);
+          if (!entry) continue;
+          url = URL.createObjectURL(await readEntry(b.file, entry));
+          urlCache.set(key, url);
+        }
+        const img = new Image();
+        img.className = 'thumb';
+        img.alt = '';
+        img.src = url;
+        el.replaceWith(img);
+      } catch { /* leave the placeholder in place */ }
+    }
+  }, {rootMargin: '220px'});
+
+  function renderTabs() {
+    $('tabs').innerHTML = books.map((b,i) => `
+      <div class="tab" role="tab" tabindex="0" aria-selected="${i === activeBook}" data-book="${i}">
+        <span class="name">${esc(b.label)}</span>
+        <span class="n">${b.products.length}</span>
+        <span class="x" data-close="${i}" title="ปิด">×</span>
+      </div>`).join('');
+  }
+
+  function renderCards() {
+    const body = $('catBody');
+    if (activeBook < 0) return;
+    const q = $('search').value.trim().toLowerCase();
+    const all = books[activeBook].products;
+    const list = q ? all.filter(p => (p.code + ' ' + p.name).toLowerCase().includes(q)) : all;
+
+    if (!list.length) {
+      body.innerHTML = `<div class="cat-empty">ไม่พบสินค้าที่ตรงกับ “${esc(q)}”</div>`;
+      return;
+    }
+
+    const book = books[activeBook];
+    body.innerHTML = `<div class="cards">` + list.slice(0, 600).map(p => {
+      // A bundled catalog serves thumbnails as ordinary files, so the browser's own lazy
+      // loading is enough. An uploaded workbook has them inside the ZIP, and those are
+      // sliced out only when the card scrolls into view.
+      const thumb = !p.img
+        ? `<div class="ph" style="background:${tint(p.code)}">${esc(p.code.slice(0,3))}</div>`
+        : book.imgBase
+          ? `<img class="thumb" loading="lazy" alt="" src="${esc(book.imgBase + p.img)}">`
+          : `<div class="ph" style="background:${tint(p.code)}" data-book="${activeBook}" data-path="${esc(p.img)}"></div>`;
+      const missing = !p.upc ? `<span class="flag">ไม่มีข้อมูลกล่อง</span>` : '';
+      return `<button type="button" class="card" data-code="${esc(p.code)}"
+                aria-pressed="${p.code === selectedCode}">
+        ${thumb}
+        <span class="meta">
+          <span class="code">${esc(p.code)}</span>
+          <span class="desc">${esc(p.name || '—')}</span>
+          <span class="rmb">${p.rmb != null ? p.rmb + ' RMB' : (p.usd != null ? '$' + p.usd.toFixed(2) : '—')}</span>
+          ${missing}
+        </span>
+      </button>`;
+    }).join('') + `</div>` +
+      (list.length > 600 ? `<div class="cat-empty">แสดง 600 จาก ${list.length} รายการ — ใช้ช่องค้นหาเพื่อจำกัดผล</div>` : '');
+
+    if (books[activeBook].entries) {
+      body.querySelectorAll('.ph[data-path]').forEach(el => imgObserver.observe(el));
+    }
+  }
+
+  /** Thumbnail URL for a product, or null when the catalog has no picture for it. */
+  function thumbUrl(book, p) {
+    if (!p.img) return null;
+    if (book.imgBase) return book.imgBase + p.img;
+    return urlCache.get(`${books.indexOf(book)}:${p.img}`) || null;
+  }
+
+  function selectProduct(code) {
+    const p = books[activeBook].products.find(x => x.code === code);
+    if (!p) return;
+    selectedCode = code;
+    currentProduct = {code: p.code, name: p.name, img: thumbUrl(books[activeBook], p)};
+
+    $('sku').value = p.code;
+    if (p.rmb != null) $('rmb').value = p.rmb;
+    if (p.upc) $('upc').value = p.upc;
+    if (p.dims) { $('cl').value = p.dims[0]; $('cw').value = p.dims[1]; $('ch').value = p.dims[2]; }
+    $('kg').value = p.kg ?? '';
+    $('positions').value = positionsForCode(p.code);
+    // Bundled catalogs carry the electrical flag already; uploads are guessed from the name.
+    $('elec').checked = typeof p.e === 'boolean' ? p.e : guessElectric(p.name);
+
+    renderCards();
+    render();
+    if (window.matchMedia('(max-width: 980px)').matches) {
+      $('form').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  }
+
+  function setProgress(msg, pct) {
+    $('progress').innerHTML = msg
+      ? `<div class="progress">${esc(msg)}<div class="bar"><i style="width:${Math.round(pct*100)}%"></i></div></div>`
+      : '';
+  }
+
+  async function addFiles(fileList) {
+    for (const file of fileList) {
+      try {
+        setProgress(`${file.name} — เริ่มอ่าน…`, 0.05);
+        const isCsv = /\.csv$/i.test(file.name);
+        const book = isCsv
+          ? loadCsv(await file.text())
+          : await loadXlsx(file, (m, p) => setProgress(`${file.name} — ${m}`, p));
+        if (!book.products.length) throw new Error('ไม่พบรายการสินค้าในไฟล์นี้');
+        books.push({...book, label: file.name.replace(/\.(xlsx|csv)$/i, '')});
+        activeBook = books.length - 1;
+        selectedCode = null;
+        $('searchWrap').hidden = false;
+        $('search').value = '';
+        renderTabs();
+        renderCards();
+        setProgress('', 0);
+      } catch (e) {
+        setProgress('', 0);
+        $('catBody').innerHTML = `<div class="cat-empty" style="color:var(--crit)">
+          อ่าน ${esc(file.name)} ไม่สำเร็จ<br>${esc(e.message)}</div>`;
+      }
+    }
+  }
+
+  function closeBook(i) {
+    // Cache keys carry the book index, and removing a book shifts every index after it.
+    // Rebuilding the cache is cheaper than remapping it — but every URL must be revoked
+    // first, or the blobs stay resident for the life of the page.
+    for (const url of urlCache.values()) URL.revokeObjectURL(url);
+    urlCache.clear();
+    books.splice(i, 1);
+    activeBook = books.length ? Math.min(i, books.length - 1) : -1;
+    renderTabs();
+    if (activeBook < 0) {
+      $('searchWrap').hidden = true;
+      $('catBody').innerHTML = `<div class="cat-empty">ยังไม่มีแคตตาล็อก<br>อัปโหลดไฟล์เพื่อเลือกสินค้าจากรูป</div>`;
+    } else renderCards();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PART 4 — Wiring and results
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const BASIS_LABEL = {ladder:'บันได', floor:'พื้นกำไร', volume:'ราคาเดียว'};
+  const MODE_LABEL = {truck:'ทางรถ', sea:'ทางเรือ'};
+  let profile = 'standard';
+
+  function readForm() {
+    const num = id => parseFloat($(id).value);
+    const l = num('cl'), w = num('cw'), h = num('ch');
+    return {
+      profile, sku: $('sku').value.trim() || '—',
+      rmb: num('rmb'), fx: num('fx'),
+      upc: Math.round(num('upc')), cbm: round((l*w*h)/1e6, 4),
+      kg: $('kg').value === '' ? null : num('kg'),
+      wh: $('wh').value, tier: $('tier').value, mode: $('mode').value,
+      month: parseInt($('month').value, 10),
+      goods: $('elec').checked ? 'electronic_tisi' : 'general',
+      inlandRmb: num('inlandRmb') || 0,
+      ucost: num('ucost') || 0,
+      ocost: (num('ocost') || 0) + (num('domestic') || 0),
+      usdRate: num('fx') * 6.5,
+      logo: {
+        method: $('logoMethod').value,
+        positions: Math.max(1, Math.round(num('positions')) || 1),
+        rate: num('screenRate') || 0,
+        colors: Math.max(1, Math.round(num('colors')) || 1),
+        uvRate: num('uvRate') || 0,
+      },
+      deadline: $('deadline').value === '' ? null : Math.round(num('deadline')),
+      rush: $('rush').checked,
+    };
+  }
+
+  function validate(i) {
+    if (!(i.rmb >= 0)) return 'กรอกต้นทุนโรงงานเป็นตัวเลข';
+    if (!(i.fx > 0)) return 'อัตราแลกเปลี่ยนต้องมากกว่า 0';
+    if (!(i.upc >= 1)) return 'จำนวนต่อกล่องต้องอย่างน้อย 1';
+    if (!(i.cbm > 0)) return 'กรอกขนาดกล่องให้ครบทั้งสามด้าน';
+    return null;
+  }
+
+  function syncLogoFields() {
+    const m = $('logoMethod').value;
+    $('wrapRate').hidden = m !== 'flat';
+    $('wrapColors').hidden = m !== 'silk';
+    $('wrapUv').hidden = m !== 'uv';
+  }
+
+  /*
+   * The lead time and, when a deadline is given, the freight mode it forces are decided by the
+   * engine along with the price — the mode changes the freight cost, so deciding it here would
+   * quote one shipment and promise another.
+   */
+  function renderLeadNote(i, q) {
+    const stages = lt => lt.stages.map(x => `${x.label} ${x.minDays === x.maxDays ? x.minDays : x.minDays + '-' + x.maxDays} วัน`).join(' → ');
+    if (q.deadline) {
+      $('leadNote').textContent =
+        q.deadline.reason + (q.deadline.mode && q.lead ? ` · ${stages(q.lead)}` : '');
+      return;
+    }
+    if (!q.lead) { $('leadNote').textContent = ''; return; }
+    const at = q.breaks.length ? q.breaks[q.breaks.length - 1].qty : '';
+    $('leadNote').textContent =
+      `ที่ ${at} ชุด — ${MODE_LABEL[q.lead.mode] || q.lead.mode} ${q.lead.minDays}-${q.lead.maxDays} วัน` +
+      (i.rush ? ' (งานเร่ง ข้ามขั้นทำตัวอย่าง)' : '') + ' ยังไม่รวมเวลาที่ลูกค้าใช้คอนเฟิร์ม';
+  }
+
+  /*
+   * Typing is faster than the network, so every render carries a token and a late answer to a
+   * question the user has already changed is dropped. Without it the table would flicker back to
+   * an older number whenever a slow response landed after a newer one.
+   */
+  let renderToken = 0;
+
+  function showQuoteProblem(message, hint) {
+    $('rows').innerHTML = `<tr><td colspan="6" class="err">${esc(message)}</td></tr>`;
+    $('strip').innerHTML = ''; $('breakdown').innerHTML = '';
+    $('notices').innerHTML = hint ? `<div class="notice warn"><span class="mark">!</span><span>${esc(hint)}</span></div>` : '';
+  }
+
+  async function render() {
+    const i = readForm();
+    syncLogoFields();
+    const err = validate(i);
+    if (err) {
+      showQuoteProblem(err, null);
+      return;
+    }
+
+    const token = ++renderToken;
+    let q;
+    try {
+      q = await quote(i);
+    } catch (e) {
+      if (token !== renderToken) return;
+      showQuoteProblem(
+        e.needsKey ? 'ยังไม่ได้ปลดล็อกต้นทุน' : `คำนวณราคาไม่สำเร็จ — ${e.message}`,
+        e.needsKey
+          ? 'ใส่คีย์เจ้าของที่ช่องมุมขวาบน แล้วตัวเลขต้นทุนและกำไรจะกลับมา'
+          : (e.issues && e.issues.length ? e.issues.join(' · ') : 'ตรวจว่าบริการราคา (pricing service) ยังทำงานอยู่')
+      );
+      return;
+    }
+    if (token !== renderToken) return;
+
+    renderLeadNote(i, q);
+    const fr = q.anchorLanded.fr, top = q.breaks[q.breaks.length - 1];
+    lastQuote = q;
+
+    $('strip').innerHTML = `
+      <div class="stat"><div class="k">ต้นทุนโรงงาน</div><div class="v">${fmt2(q.anchorLanded.factory)} <small>บาท</small></div></div>
+      <div class="stat"><div class="k">ค่าขนส่ง/ชุด</div><div class="v">${fmt2(q.anchorLanded.perUnit)} <small>บาท</small></div></div>
+      <div class="stat"><div class="k">ค่าสกรีน/ชุด</div><div class="v">${fmt2(q.anchorLanded.logoPer)} <small>บาท</small></div></div>
+      <div class="stat"><div class="k">ต้นทุนรวม/ชุด</div><div class="v">${fmt2(q.anchorLanded.total)} <small>บาท</small></div></div>
+      <div class="stat accent"><div class="k">ตัวคูณที่ใช้</div><div class="v">${q.markup}<small>×</small></div></div>
+      <div class="stat accent"><div class="k">ราคาที่ ${top.qty} ชุด</div><div class="v">${fmt(top.price)} <small>บาท</small></div></div>`;
+
+    $('quoteTitle').textContent = `ใบราคา — ${i.sku}`;
+    $('quoteSub').textContent =
+      `${q.P.label} · ${i.rmb} RMB × ${i.fx} · ${i.cbm} CBM/กล่อง · สกรีน ${i.logo.positions} จุด`;
+
+    $('rows').innerHTML = q.breaks.map(b => `
+      <tr>
+        <td class="qty">${b.qty} ชุด</td>
+        <td class="price">${fmt(b.price)}</td>
+        <td><span class="chip ${b.basis}">${BASIS_LABEL[b.basis]}</span></td>
+        <td class="muted">${fmt2(b.landed)}</td>
+        <td>${fmt(b.profit)}</td>
+        <td class="muted">${b.margin}%</td>
+      </tr>`).join('');
+
+    $('breakdown').innerHTML = `
+      <div><div class="k">วิธีส่ง</div><div class="v">${MODE_LABEL[fr.mode]}</div></div>
+      <div><div class="k">เรทที่ใช้</div><div class="v">${fmt(fr.rate.cbm)} <span class="muted">/CBM</span></div></div>
+      <div><div class="k">คิดตาม</div><div class="v">${fr.chargedBy === 'volume' ? 'ปริมาตร' : 'น้ำหนัก'}</div></div>
+      <div><div class="k">ที่ ${q.P.anchor} ชุด</div><div class="v">${fr.cartons} กล่อง · ${fr.volumeCbm} CBM</div></div>
+      <div><div class="k">ราคาโรงงานที่ ${q.P.anchor} ชุด</div><div class="v">x${q.anchorLanded.sof}</div></div>`;
+
+    $('notices').innerHTML = q.warn.map(([lvl, msg]) =>
+      `<div class="notice ${lvl}"><span class="mark">${lvl === 'crit' ? '!!' : lvl === 'warn' ? '!' : 'i'}</span><span>${esc(msg)}</span></div>`).join('');
+
+    $('foot').innerHTML =
+      `<b>ที่มาของตัวเลข</b> — เรทขนส่งถอดจากตารางของ LK (ถ่ายไว้ 27 ก.ค. 2026) · ` +
+      `ตัวคูณ fit จาก 43 SKU ที่จับคู่ต้นทุนโรงงานกับใบราคาที่ส่งลูกค้าได้ คลาดเคลื่อนเฉลี่ย 4.6% · ` +
+      `บันไดส่วนลด 1.00 / 0.90 / 0.85 / 0.80 / 0.75 fit จากใบราคาจริง คลาดเคลื่อนต่ำกว่า 2% ` +
+      `<b>ขั้น 300 กับ 1,000 ยังไม่มีในใบราคาที่ตีพิมพ์</b> ค่า 0.77 กับ 0.73 เป็นการประมาณ · ` +
+      `<b>ไฟล์ที่อัปโหลดอ่านในเครื่องคุณเท่านั้น</b> ไม่ถูกส่งขึ้นเซิร์ฟเวอร์ · ` +
+      `กำไรที่แสดงเป็นกำไรขั้นต้น ยังไม่หัก VAT ภาษีนำเข้า และค่าธรรมเนียมรับเงิน`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PART 5 — Quotation sheet
+     Laid out to match the price lists SmartGift already sends customers:
+     code and picture, the spec lines, the quantity ladder, then the
+     standing notes about logo screening, gift box and MOQ.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const basket = [];
+  let lastQuote = null;
+
+  function addToSheet() {
+    if (!lastQuote) return;
+    const i = readForm();
+    const code = i.sku;
+    const item = {
+      code,
+      name: currentProduct && currentProduct.code === code ? (currentProduct.name || '') : '',
+      img: currentProduct && currentProduct.code === code ? currentProduct.img : null,
+      profile: lastQuote.P.label,
+      breaks: lastQuote.breaks.map(b => ({qty: b.qty, price: b.price})),
+      carton: `${i.upc} ชุด/กล่อง · ${i.cbm} CBM`,
+    };
+    const at = basket.findIndex(b => b.code === code);
+    if (at >= 0) basket[at] = item; else basket.push(item);
+    renderBasket();
+  }
+
+  function renderBasket() {
+    $('basketCount').textContent = basket.length;
+    $('openSheet').disabled = basket.length === 0;
+    if (!basket.length) { $('basket').innerHTML = ''; return; }
+    $('basket').innerHTML = `
+      <header>
+        <h2>รายการในใบราคา <span class="n" style="font-family:var(--mono);color:var(--ink-3)">${basket.length}</span></h2>
+        <button type="button" class="btn" id="clearBasket">ล้างทั้งหมด</button>
+      </header>` +
+      basket.map((b, n) => `
+        <div class="bitem">
+          ${b.img ? `<img src="${esc(b.img)}" alt="">` : '<span class="noimg"></span>'}
+          <span class="c">${esc(b.code)}</span>
+          <span class="d">${esc(b.name || '—')}</span>
+          <span class="p">${fmt(b.breaks[b.breaks.length-1].price)} บาท @ ${b.breaks[b.breaks.length-1].qty}</span>
+          <button type="button" class="rm" data-rm="${n}" title="เอาออก">×</button>
+        </div>`).join('');
+  }
+
+  const SHEET_NOTES = [
+    'ราคารวมสกรีนโลโก้ Full Color ทุกชิ้น',
+    'ราคารวมชุดกล่องของขวัญและถุงพร้อมสกรีน',
+    'ราคานี้อ้างอิงจำนวนสั่งซื้อตามตาราง สั่งจำนวนอื่นกรุณาสอบถามฝ่ายขาย',
+    'ราคายังไม่รวมภาษีมูลค่าเพิ่ม 7%',
+  ];
+
+  function buildSheet() {
+    const today = new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'});
+    const ref = 'SG-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+
+    $('sheet').innerHTML = `
+      <div class="brand">
+        <h1>ใบเสนอราคา · SmartGift</h1>
+        <div class="contact">
+          www.smartgiftthailand.com<br>
+          Line : @smartgiftthailand · Tel 02-101-1644
+        </div>
+      </div>
+      <div class="meta"><span>เลขที่ ${ref}</span><span>วันที่ ${esc(today)}</span></div>
+
+      ${basket.map(b => `
+        <div class="item">
+          ${b.img ? `<img class="pic" src="${esc(b.img)}" alt="">` : '<div class="pic"></div>'}
+          <div>
+            <h3>${esc(b.name || b.code)}</h3>
+            <div class="code">รหัส ${esc(b.code)} · ${esc(b.carton)}</div>
+            <table>
+              <tr>${b.breaks.map(x => `<th>${x.qty} ชุด</th>`).join('')}</tr>
+              <tr>${b.breaks.map(x => `<td class="v">${fmt(x.price)}</td>`).join('')}</tr>
+            </table>
+          </div>
+        </div>`).join('')}
+
+      <div class="notes">
+        <b>เงื่อนไข</b>
+        ${SHEET_NOTES.map(n => `• ${esc(n)}`).join('<br>')}
+      </div>
+      <div class="foot">
+        <span>ราคาต่อชุด สกุลเงินบาท</span>
+        <span>ยืนราคา 30 วันนับจากวันที่ออกใบเสนอราคา</span>
+      </div>`;
+    $('sheetBackdrop').setAttribute('open', '');
+  }
+
+  const EXAMPLES = {
+    fan:    {sku:'TJS23-2', rmb:32, upc:20, cl:47.5, cw:45.5, ch:51,   kg:'', elec:true,  ucost:0,  ocost:0,    profile:'standard',  month:11},
+    bottle: {sku:'TJS2462', rmb:26, upc:20, cl:47.5, cw:45.5, ch:51,   kg:'', elec:false, ucost:0,  ocost:0,    profile:'standard',  month:11},
+    corp:   {sku:'TDK03-4', rmb:85, upc:10, cl:64,   cw:39.5, ch:29.5, kg:'', elec:true,  ucost:60, ocost:5000, profile:'corporate', month:11},
+    cheap:  {sku:'TJS05-2', rmb:17, upc:40, cl:80.5, cw:51,   ch:24,   kg:17, elec:false, ucost:25, ocost:800,  profile:'standard',  month:4},
+  };
+
+  function applyExample(key) {
+    const e = EXAMPLES[key];
+    for (const k of ['sku','rmb','upc','cl','cw','ch','kg','ucost','ocost','month']) $(k).value = e[k];
+    $('elec').checked = e.elec;
+    setProfile(e.profile);
+  }
+
+  function setProfile(p) {
+    profile = p;
+    $('p-standard').setAttribute('aria-pressed', String(p === 'standard'));
+    $('p-corporate').setAttribute('aria-pressed', String(p === 'corporate'));
+    $('profileNote').textContent = PROFILE_TEXT[p].note;
+    render();
+  }
+
+  $('form').addEventListener('input', render);
+  $('form').addEventListener('change', render);
+  $('p-standard').addEventListener('click', () => setProfile('standard'));
+  $('p-corporate').addEventListener('click', () => setProfile('corporate'));
+
+  $('file').addEventListener('change', e => { addFiles([...e.target.files]); e.target.value = ''; });
+  const drop = $('drop');
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => addFiles([...e.dataTransfer.files]));
+
+  $('tabs').addEventListener('click', e => {
+    const close = e.target.closest('[data-close]');
+    if (close) { closeBook(+close.dataset.close); return; }
+    const tab = e.target.closest('[data-book]');
+    if (tab) { activeBook = +tab.dataset.book; renderTabs(); renderCards(); }
+  });
+
+  $('search').addEventListener('input', renderCards);
+
+  $('catBody').addEventListener('click', e => {
+    const card = e.target.closest('.card');
+    if (card) selectProduct(card.dataset.code);
+    const ex = e.target.closest('[data-ex]');
+    if (ex) applyExample(ex.dataset.ex);
+  });
+
+  $('addToSheet').addEventListener('click', addToSheet);
+  $('openSheet').addEventListener('click', buildSheet);
+  $('closeSheet').addEventListener('click', () => $('sheetBackdrop').removeAttribute('open'));
+  $('printSheet').addEventListener('click', () => window.print());
+  $('sheetBackdrop').addEventListener('click', e => {
+    if (e.target === $('sheetBackdrop')) $('sheetBackdrop').removeAttribute('open');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $('sheetBackdrop').removeAttribute('open');
+  });
+  $('basket').addEventListener('click', e => {
+    if (e.target.id === 'clearBasket') { basket.length = 0; renderBasket(); return; }
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { basket.splice(+rm.dataset.rm, 1); renderBasket(); }
+  });
+
+  setProfile('standard');
+  renderBasket();
+  /*
+   * The key is held for the browser session only. Reloading the bundled catalog after it changes
+   * is what fills in the costs: the rail is served through the same role-gated endpoint, so a
+   * catalog fetched before the key was typed simply has no `rmb` in it.
+   */
+  async function refreshBundled() {
+    for (let k = books.length - 1; k >= 0; k--) if (books[k].bundled) books.splice(k, 1);
+    await loadBundled();
+  }
+
+  function reflectKeyState() {
+    const on = Boolean(apiKey);
+    $('keyState').textContent = on ? 'ปลดล็อกแล้ว — เห็นต้นทุนและกำไร' : 'ยังไม่ปลดล็อก — เห็นได้เฉพาะราคาขาย';
+    $('keyState').classList.toggle('on', on);
+  }
+
+  let keyTimer = null;
+  $('ownerKey').value = apiKey;
+  $('ownerKey').addEventListener('input', e => {
+    setApiKey(e.target.value);
+    reflectKeyState();
+    clearTimeout(keyTimer);
+    // Debounced: a key is typed a character at a time and each one would otherwise refetch
+    // the whole catalog.
+    keyTimer = setTimeout(() => { refreshBundled(); render(); }, 400);
+  });
+  reflectKeyState();
+
+  fetch('/health')
+    .then(r => r.json())
+    .then(h => {
+      if (h && h.ownerKeyConfigured === false) {
+        $('keyState').textContent = 'บริการนี้ยังไม่ได้ตั้งคีย์เจ้าของ — ดูได้เฉพาะราคาขาย';
+      }
+    })
+    .catch(() => {});
+
+  loadBundled();
+})();
+</script>
+</body>
+</html>

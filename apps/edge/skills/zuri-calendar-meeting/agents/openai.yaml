@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zuri Calendar Meeting"
+  short_description: "สร้างนัดหมาย Google Calendar ให้ Zuri"
+  default_prompt: "สร้างและตรวจนัดหมาย Google Calendar จากรายละเอียดการประชุม"

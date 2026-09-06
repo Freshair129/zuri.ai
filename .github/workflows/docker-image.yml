@@ -10,13 +10,13 @@ on:
     tags: ['v*']
   pull_request:
     paths:
-      - Dockerfile
-      - .dockerignore
-      - docker-compose.yml
-      - deploy/**
-      - next.config.js
-      - package.json
-      - package-lock.json
+      - apps/server/Dockerfile
+      - apps/server/.dockerignore
+      - apps/server/docker-compose.yml
+      - apps/server/deploy/**
+      - apps/server/next.config.js
+      - apps/server/package.json
+      - apps/server/package-lock.json
       - .github/workflows/docker-image.yml
   workflow_dispatch:
 
@@ -33,6 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate docker-compose.yml against .env.example
         shell: bash
+        working-directory: apps/server
         run: |
           cp .env.example .env
           docker compose config --quiet
@@ -49,7 +50,7 @@ jobs:
       - name: Build only (publication suspended by ADR-062)
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: apps/server
           target: runner
           push: false
           cache-from: type=gha

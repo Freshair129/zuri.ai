@@ -1,0 +1,6 @@
+# Closed-world entity TYPE registration.
+#
+# Limited to what this repository actually has. There is no docs/domains/ tree, so 'domain' and
+# 'feature' are absent rather than invented — a closed world that registers types nothing uses is
+# not closed, it is just wider.
+types: [requirement, document, code_file, test]

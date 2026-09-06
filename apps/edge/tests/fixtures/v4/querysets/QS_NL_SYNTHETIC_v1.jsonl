@@ -1,0 +1,60 @@
+{"id":"SYN-NL-1","text":"พาวเวอร์แบงก์ รุ่นสังเคราะห์ 2 มีตัวไหนบ้าง ไม่ใช่แก้วน้ำ จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_002"},"exclude":["drinkware"],"qty":100,"budget":null,"group":"smart_tech","intent":"find"}
+{"id":"SYN-NL-2","text":"แฟลชไดรฟ์ รุ่นสังเคราะห์ 3 เปรียบเทียบตัวเลือก ไม่ใช่แก้วน้ำ งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_003"},"exclude":["drinkware"],"qty":null,"budget":900,"group":"smart_tech","intent":"compare"}
+{"id":"SYN-NL-3","text":"ที่ชาร์จ รุ่นสังเคราะห์ 4 มีกี่สี ไม่ใช่แก้วน้ำ","expected":{"kind":"model","id":"PRODUCT_SYNTH_004"},"exclude":["drinkware"],"qty":null,"budget":null,"group":"smart_tech","intent":"color"}
+{"id":"SYN-NL-4","text":"ลำโพง ราคาเท่าไหร่ ไม่ใช่แก้วน้ำ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"speaker"},"exclude":["drinkware"],"qty":100,"budget":null,"group":"smart_tech","intent":"price"}
+{"id":"SYN-NL-5","text":"หูฟังไร้สาย มีตัวไหนบ้าง ไม่ใช่แก้วน้ำ งบ 900 บาท","expected":{"kind":"type","id":"earbuds"},"exclude":["drinkware"],"qty":null,"budget":900,"group":"smart_tech","intent":"find"}
+{"id":"SYN-NL-6","text":"หูฟัง เปรียบเทียบตัวเลือก ไม่ใช่แก้วน้ำ","expected":{"kind":"type","id":"earphone"},"exclude":["drinkware"],"qty":null,"budget":null,"group":"smart_tech","intent":"compare"}
+{"id":"SYN-NL-7","text":"เฮดเซ็ต มีกี่สี ไม่ใช่แก้วน้ำ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"headset"},"exclude":["drinkware"],"qty":100,"budget":null,"group":"smart_tech","intent":"color"}
+{"id":"SYN-NL-8","text":"เมาส์ ราคาเท่าไหร่ ไม่ใช่แก้วน้ำ งบ 900 บาท","expected":{"kind":"type","id":"mouse"},"exclude":["drinkware"],"qty":null,"budget":900,"group":"smart_tech","intent":"price"}
+{"id":"SYN-NL-9","text":"คีย์บอร์ด มีตัวไหนบ้าง ไม่ใช่แก้วน้ำ","expected":{"kind":"type","id":"keyboard"},"exclude":["drinkware"],"qty":null,"budget":null,"group":"smart_tech","intent":"find"}
+{"id":"SYN-NL-10","text":"สายรัดข้อมืออัจฉริยะ เปรียบเทียบตัวเลือก ไม่ใช่แก้วน้ำ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"smart_bracelet"},"exclude":["drinkware"],"qty":100,"budget":null,"group":"smart_tech","intent":"compare"}
+{"id":"SYN-NL-11","text":"อุปกรณ์ในรถ รุ่นสังเคราะห์ 12 มีกี่สี ไม่ใช่แก้วน้ำ งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_012"},"exclude":["drinkware"],"qty":null,"budget":900,"group":"smart_tech","intent":"color"}
+{"id":"SYN-NL-12","text":"พาวเวอร์แบงก์ รุ่นสังเคราะห์ 34 ราคาเท่าไหร่ ไม่ใช่แก้วน้ำ","expected":{"kind":"model","id":"PRODUCT_SYNTH_034"},"exclude":["drinkware"],"qty":null,"budget":null,"group":"smart_tech","intent":"price"}
+{"id":"SYN-NL-13","text":"แฟลชไดรฟ์ รุ่นสังเคราะห์ 35 มีตัวไหนบ้าง ไม่ใช่แก้วน้ำ จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_035"},"exclude":["drinkware"],"qty":100,"budget":null,"group":"smart_tech","intent":"find"}
+{"id":"SYN-NL-14","text":"ที่ชาร์จ เปรียบเทียบตัวเลือก ไม่ใช่แก้วน้ำ งบ 900 บาท","expected":{"kind":"type","id":"charger"},"exclude":["drinkware"],"qty":null,"budget":900,"group":"smart_tech","intent":"compare"}
+{"id":"SYN-NL-15","text":"ลำโพง มีกี่สี ไม่ใช่แก้วน้ำ","expected":{"kind":"type","id":"speaker"},"exclude":["drinkware"],"qty":null,"budget":null,"group":"smart_tech","intent":"color"}
+{"id":"SYN-NL-16","text":"เครื่องนวดคอ ราคาเท่าไหร่ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"neck_massager"},"exclude":[],"qty":100,"budget":null,"group":"care_wellness","intent":"price"}
+{"id":"SYN-NL-17","text":"ปืนนวด มีตัวไหนบ้าง งบ 900 บาท","expected":{"kind":"type","id":"massage_gun"},"exclude":[],"qty":null,"budget":900,"group":"care_wellness","intent":"find"}
+{"id":"SYN-NL-18","text":"หวีนวด เปรียบเทียบตัวเลือก","expected":{"kind":"type","id":"massage_comb"},"exclude":[],"qty":null,"budget":null,"group":"care_wellness","intent":"compare"}
+{"id":"SYN-NL-19","text":"ไดร์เป่าผม มีกี่สี จำนวน 100 ชิ้น","expected":{"kind":"type","id":"hair_dryer"},"exclude":[],"qty":100,"budget":null,"group":"care_wellness","intent":"color"}
+{"id":"SYN-NL-20","text":"เครื่องทำความชื้น ราคาเท่าไหร่ งบ 900 บาท","expected":{"kind":"type","id":"humidifier"},"exclude":[],"qty":null,"budget":900,"group":"care_wellness","intent":"price"}
+{"id":"SYN-NL-21","text":"พัดลม รุ่นสังเคราะห์ 18 มีตัวไหนบ้าง","expected":{"kind":"model","id":"PRODUCT_SYNTH_018"},"exclude":[],"qty":null,"budget":null,"group":"care_wellness","intent":"find"}
+{"id":"SYN-NL-22","text":"ถุงมือ รุ่นสังเคราะห์ 19 เปรียบเทียบตัวเลือก จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_019"},"exclude":[],"qty":100,"budget":null,"group":"care_wellness","intent":"compare"}
+{"id":"SYN-NL-23","text":"ผ้าเช็ดตัว รุ่นสังเคราะห์ 20 มีกี่สี งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_020"},"exclude":[],"qty":null,"budget":900,"group":"care_wellness","intent":"color"}
+{"id":"SYN-NL-24","text":"กรรไกรตัดเล็บ ราคาเท่าไหร่","expected":{"kind":"type","id":"nail_clipper"},"exclude":[],"qty":null,"budget":null,"group":"care_wellness","intent":"price"}
+{"id":"SYN-NL-25","text":"เครื่องนวดคอ มีตัวไหนบ้าง จำนวน 100 ชิ้น","expected":{"kind":"type","id":"neck_massager"},"exclude":[],"qty":100,"budget":null,"group":"care_wellness","intent":"find"}
+{"id":"SYN-NL-26","text":"ปืนนวด เปรียบเทียบตัวเลือก งบ 900 บาท","expected":{"kind":"type","id":"massage_gun"},"exclude":[],"qty":null,"budget":900,"group":"care_wellness","intent":"compare"}
+{"id":"SYN-NL-27","text":"หวีนวด มีกี่สี","expected":{"kind":"type","id":"massage_comb"},"exclude":[],"qty":null,"budget":null,"group":"care_wellness","intent":"color"}
+{"id":"SYN-NL-28","text":"ไดร์เป่าผม ราคาเท่าไหร่ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"hair_dryer"},"exclude":[],"qty":100,"budget":null,"group":"care_wellness","intent":"price"}
+{"id":"SYN-NL-29","text":"เครื่องทำความชื้น มีตัวไหนบ้าง งบ 900 บาท","expected":{"kind":"type","id":"humidifier"},"exclude":[],"qty":null,"budget":900,"group":"care_wellness","intent":"find"}
+{"id":"SYN-NL-30","text":"พัดลม เปรียบเทียบตัวเลือก","expected":{"kind":"type","id":"fan"},"exclude":[],"qty":null,"budget":null,"group":"care_wellness","intent":"compare"}
+{"id":"SYN-NL-31","text":"พวงกุญแจ รุ่นสังเคราะห์ 28 มีกี่สี จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_028"},"exclude":[],"qty":100,"budget":null,"group":"office","intent":"color"}
+{"id":"SYN-NL-32","text":"ไฟแช็ก รุ่นสังเคราะห์ 29 ราคาเท่าไหร่ งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_029"},"exclude":[],"qty":null,"budget":900,"group":"office","intent":"price"}
+{"id":"SYN-NL-33","text":"สมุดโน้ต รุ่นสังเคราะห์ 22 มีตัวไหนบ้าง","expected":{"kind":"model","id":"PRODUCT_SYNTH_022"},"exclude":[],"qty":null,"budget":null,"group":"office","intent":"find"}
+{"id":"SYN-NL-34","text":"ไส้สมุด เปรียบเทียบตัวเลือก จำนวน 100 ชิ้น","expected":{"kind":"type","id":"notebook_refill"},"exclude":[],"qty":100,"budget":null,"group":"office","intent":"compare"}
+{"id":"SYN-NL-35","text":"ปากกา มีกี่สี งบ 900 บาท","expected":{"kind":"type","id":"pen"},"exclude":[],"qty":null,"budget":900,"group":"office","intent":"color"}
+{"id":"SYN-NL-36","text":"ที่คั่นหนังสือ ราคาเท่าไหร่","expected":{"kind":"type","id":"bookmark"},"exclude":[],"qty":null,"budget":null,"group":"office","intent":"price"}
+{"id":"SYN-NL-37","text":"ที่ใส่นามบัตร มีตัวไหนบ้าง จำนวน 100 ชิ้น","expected":{"kind":"type","id":"name_card_holder"},"exclude":[],"qty":100,"budget":null,"group":"office","intent":"find"}
+{"id":"SYN-NL-38","text":"กระเป๋าเอกสาร เปรียบเทียบตัวเลือก งบ 900 บาท","expected":{"kind":"type","id":"briefcase"},"exclude":[],"qty":null,"budget":900,"group":"office","intent":"compare"}
+{"id":"SYN-NL-39","text":"พวงกุญแจ มีกี่สี","expected":{"kind":"type","id":"key_chain"},"exclude":[],"qty":null,"budget":null,"group":"office","intent":"color"}
+{"id":"SYN-NL-40","text":"ไฟแช็ก ราคาเท่าไหร่ จำนวน 100 ชิ้น","expected":{"kind":"type","id":"lighter"},"exclude":[],"qty":100,"budget":null,"group":"office","intent":"price"}
+{"id":"SYN-NL-41","text":"สมุดโน้ต รุ่นสังเคราะห์ 22 มีตัวไหนบ้าง งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_022"},"exclude":[],"qty":null,"budget":900,"group":"office","intent":"find"}
+{"id":"SYN-NL-42","text":"ไส้สมุด รุ่นสังเคราะห์ 23 เปรียบเทียบตัวเลือก","expected":{"kind":"model","id":"PRODUCT_SYNTH_023"},"exclude":[],"qty":null,"budget":null,"group":"office","intent":"compare"}
+{"id":"SYN-NL-43","text":"ปากกา รุ่นสังเคราะห์ 24 มีกี่สี จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_024"},"exclude":[],"qty":100,"budget":null,"group":"office","intent":"color"}
+{"id":"SYN-NL-44","text":"ที่คั่นหนังสือ ราคาเท่าไหร่ งบ 900 บาท","expected":{"kind":"type","id":"bookmark"},"exclude":[],"qty":null,"budget":900,"group":"office","intent":"price"}
+{"id":"SYN-NL-45","text":"ที่ใส่นามบัตร มีตัวไหนบ้าง","expected":{"kind":"type","id":"name_card_holder"},"exclude":[],"qty":null,"budget":null,"group":"office","intent":"find"}
+{"id":"SYN-NL-46","text":"แก้วน้ำ เปรียบเทียบตัวเลือก จำนวน 100 ชิ้น","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":100,"budget":null,"group":"home_travel","intent":"compare"}
+{"id":"SYN-NL-47","text":"เครื่องชงกาแฟ มีกี่สี งบ 900 บาท","expected":{"kind":"type","id":"coffee_maker"},"exclude":[],"qty":null,"budget":900,"group":"home_travel","intent":"color"}
+{"id":"SYN-NL-48","text":"ร่ม ราคาเท่าไหร่","expected":{"kind":"type","id":"umbrella"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"price"}
+{"id":"SYN-NL-49","text":"กระเป๋า มีตัวไหนบ้าง จำนวน 100 ชิ้น","expected":{"kind":"type","id":"bag"},"exclude":[],"qty":100,"budget":null,"group":"home_travel","intent":"find"}
+{"id":"SYN-NL-50","text":"แก้วน้ำ เปรียบเทียบตัวเลือก งบ 900 บาท","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":null,"budget":900,"group":"home_travel","intent":"compare"}
+{"id":"SYN-NL-51","text":"แก้วน้ำ รุ่นสังเคราะห์ 1 มีกี่สี","expected":{"kind":"model","id":"PRODUCT_SYNTH_001"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"color"}
+{"id":"SYN-NL-52","text":"เครื่องชงกาแฟ รุ่นสังเคราะห์ 30 ราคาเท่าไหร่ จำนวน 100 ชิ้น","expected":{"kind":"model","id":"PRODUCT_SYNTH_030"},"exclude":[],"qty":100,"budget":null,"group":"home_travel","intent":"price"}
+{"id":"SYN-NL-53","text":"ร่ม รุ่นสังเคราะห์ 31 มีตัวไหนบ้าง งบ 900 บาท","expected":{"kind":"model","id":"PRODUCT_SYNTH_031"},"exclude":[],"qty":null,"budget":900,"group":"home_travel","intent":"find"}
+{"id":"SYN-NL-54","text":"กระเป๋า เปรียบเทียบตัวเลือก","expected":{"kind":"type","id":"bag"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"compare"}
+{"id":"SYN-NL-55","text":"แก้วน้ำ มีกี่สี จำนวน 100 ชิ้น","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":100,"budget":null,"group":"home_travel","intent":"color"}
+{"id":"SYN-NL-56","text":"แก้วน้ำ ราคาเท่าไหร่ งบ 900 บาท","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":null,"budget":900,"group":"home_travel","intent":"price"}
+{"id":"SYN-NL-57","text":"เครื่องชงกาแฟ มีตัวไหนบ้าง","expected":{"kind":"type","id":"coffee_maker"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"find"}
+{"id":"SYN-NL-58","text":"ร่ม เปรียบเทียบตัวเลือก จำนวน 100 ชิ้น","expected":{"kind":"type","id":"umbrella"},"exclude":[],"qty":100,"budget":null,"group":"home_travel","intent":"compare"}
+{"id":"SYN-NL-59","text":"กระเป๋า มีกี่สี งบ 900 บาท","expected":{"kind":"type","id":"bag"},"exclude":[],"qty":null,"budget":900,"group":"home_travel","intent":"color"}
+{"id":"SYN-NL-60","text":"แก้วน้ำ ราคาเท่าไหร่","expected":{"kind":"type","id":"drinkware"},"exclude":[],"qty":null,"budget":null,"group":"home_travel","intent":"price"}

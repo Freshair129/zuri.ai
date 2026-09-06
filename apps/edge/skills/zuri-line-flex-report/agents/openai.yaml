@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zuri LINE Flex Report"
+  short_description: "สร้างและส่งการ์ด LINE ของ Zuri"
+  default_prompt: "สร้างและส่ง Flex Message โทน Zuri ไปยังกลุ่ม LINE ที่ยืนยันแล้ว"
