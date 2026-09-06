@@ -1139,6 +1139,7 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 
 - references: [CR-014 — Asset Management Domain Product Requirements (PRD)](change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md)
 - references: [CR-015 — Asset Evidence Intake Execution](change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
+- references: [Asset Register Import Pipeline Specification](domains/asset-management/DATA-PIPELINE.md)
 - references: [FR-133..136 — Asset Management foundation](domains/asset-management/features/FR-133-asset-management-foundation.md)
 - references: [FR-137..140 — Asset Evidence Intake Execution](domains/asset-management/features/FR-137-asset-evidence-intake-execution.md)
 - references: [FR-143 — Edge-executed asset evidence extraction](domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md)
@@ -1146,6 +1147,14 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 - references: [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md)
 - references: [ADR-056 — Asset Evidence Cloud and Extraction Boundary](decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md)
 - references: [ADR-059 — Edge-executed evidence extraction (pull model)](decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md)
+
+## Asset Register Import Pipeline Specification
+
+Source: [Asset Register Import Pipeline Specification](domains/asset-management/DATA-PIPELINE.md)
+
+Backlinks:
+
+- [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 
 ## FR-133..136 — Asset Management foundation
 

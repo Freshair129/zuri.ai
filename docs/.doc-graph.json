@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1847,
-    "total_edges": 7039,
+    "total_nodes": 1859,
+    "total_edges": 7090,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 162,
+      "document": 164,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
       "feature": 19,
-      "route": 201,
+      "route": 204,
       "model": 87,
       "requirement": 309,
-      "test": 461,
-      "code_file": 498
+      "test": 463,
+      "code_file": 503
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 498,
+      "annotated_code_files": 503,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -57,17 +57,12 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
+      "doc:SRS",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:INTERFACE-INVENTORY",
-      "code:src/config/domains.js"
+      "doc:INTERFACE-INVENTORY"
     ],
-    "added": [
-      "route:page:/line-oa/rich-menus",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "test:tests/unit/line-oa-rich-menu-console.test.js",
-      "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -288,6 +283,27 @@
         ],
         "@tested": [
           "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/assets/register/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/assets/register/page.jsx",
+      "hash": "f639f138",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-navigation.test.js"
         ]
       }
     },
@@ -1503,6 +1519,50 @@
         "@tested": [
           "tests/unit/asset-management-contract.test.js",
           "tests/unit/asset-management-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/route.js",
+      "hash": "c950797a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/route.js",
+      "hash": "eed65fb3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-routes.test.js"
         ]
       }
     },
@@ -4606,7 +4666,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "6ea5495e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5697,6 +5757,28 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-register-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-register-service.js",
+      "hash": "bbc80845",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-request-scope.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-request-scope.js",
@@ -5736,6 +5818,27 @@
         ],
         "@tested": [
           "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "hash": "9118f05d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-service.test.js"
         ]
       }
     },
@@ -8281,7 +8384,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "a2ff6620",
+      "hash": "2c609b62",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10307,9 +10410,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.38.0b",
+      "version": "1.39.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "4804401a",
+      "hash": "e8d51227",
       "status": "current"
     },
     {
@@ -10371,7 +10474,7 @@
       "type": "document",
       "path": "docs/domains/asset-management/CONTEXT-MAP.md",
       "title": "Asset Management context map",
-      "hash": "aaffc3fe",
+      "hash": "5b5e4cbd",
       "status": "changed"
     },
     {
@@ -10484,6 +10587,14 @@
       "path": "docs/change-requests/CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION.md",
       "title": "CR-017 — Asset Evidence and Waiting Room UX Correction",
       "hash": "f2ad7c83",
+      "status": "current"
+    },
+    {
+      "id": "doc:DATA-PIPELINE",
+      "type": "document",
+      "path": "docs/domains/asset-management/DATA-PIPELINE.md",
+      "title": "Asset Register Import Pipeline Specification",
+      "hash": "26d86627",
       "status": "current"
     },
     {
@@ -11442,9 +11553,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.4.0b",
+      "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "73d7655b",
+      "hash": "7c555fe6",
       "status": "changed"
     },
     {
@@ -11830,6 +11941,14 @@
     {
       "id": "doc:SRS",
       "type": "document",
+      "path": "docs/domains/asset-management/SRS.md",
+      "title": "SRS — Asset Management domain",
+      "hash": "0081661e",
+      "status": "changed"
+    },
+    {
+      "id": "doc:SRS",
+      "type": "document",
       "path": "docs/domains/line-oa-studio/SRS.md",
       "title": "SRS — LINE OA Studio domain",
       "hash": "1c725c1f",
@@ -12075,7 +12194,7 @@
       "modules": [
         "asset-management"
       ],
-      "hash": "4d107c90",
+      "hash": "ed7b2311",
       "status": "current"
     },
     {
@@ -16093,6 +16212,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/register",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register",
+      "path": "src/app/api/assets/register/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]",
+      "path": "src/app/api/assets/register/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/audit",
       "type": "route",
       "kind": "api",
@@ -17146,6 +17281,14 @@
       "kind": "page",
       "route": "/assets/receiving",
       "path": "src/app/(pm)/assets/receiving/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/assets/register",
+      "type": "route",
+      "kind": "page",
+      "route": "/assets/register",
+      "path": "src/app/(pm)/assets/register/page.jsx",
       "status": "current"
     },
     {
@@ -18826,7 +18969,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "cb224829",
+      "hash": "cf4a6dca",
       "status": "current"
     },
     {
@@ -19170,6 +19313,20 @@
       "type": "test",
       "path": "tests/unit/asset-receiving-evidence-ui.test.js",
       "hash": "c5c98889",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-register-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-register-routes.test.js",
+      "hash": "ca7a5791",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-register-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-register-service.test.js",
+      "hash": "de4c4bd2",
       "status": "current"
     },
     {
@@ -21695,6 +21852,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/audit/page.jsx",
       "to": "req:FR-014",
       "type": "implements",
@@ -23314,6 +23506,90 @@
     {
       "from": "code:src/app/api/assets/intakes/validate/route.js",
       "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SEC-024",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29717,6 +29993,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/application/asset-request-scope.js",
       "to": "req:FR-137",
       "type": "implements",
@@ -29789,6 +30107,41 @@
     {
       "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
       "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38069,6 +38422,13 @@
     },
     {
       "from": "domain:asset-management",
+      "to": "doc:DATA-PIPELINE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
       "to": "doc:FR-133-asset-management-foundation",
       "type": "references",
       "source": "markdown",
@@ -41477,6 +41837,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/assets/register/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/audit",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -42381,6 +42755,13 @@
     },
     {
       "from": "route:page:/assets/receiving",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/assets/register",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -53000,6 +53381,20 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-137",
       "type": "verifies",
       "status": "current",
@@ -56164,6 +56559,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "code:src/app/(pm)/assets/register/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
       "status": "current",
@@ -56515,6 +56917,118 @@
     {
       "from": "test:tests/unit/asset-receiving-evidence-ui.test.js",
       "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "code:src/app/api/assets/register/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-register-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
