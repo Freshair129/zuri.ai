@@ -151,7 +151,7 @@ export default function LineStudioEdgeConnection() {
       });
 
       // Step 2: Connect account
-      const newAcc = await api("/api/line-oa/accounts", "POST", {
+      await api("/api/line-oa/accounts", "POST", {
         businessId: business.id,
         integrationConnectionId: conn.id,
         code,
@@ -159,18 +159,13 @@ export default function LineStudioEdgeConnection() {
         ...(basicId ? { basicId } : {})
       });
 
-      // Step 3: Automatically activate server transport so it goes LIVE immediately
-      try {
-        await api(`/api/line-oa/accounts/${newAcc.id}`, "PATCH", {
-          action: "ENABLE_SERVER",
-          legacyQuiesced: true,
-          version: newAcc.version || 1
-        });
-      } catch (e) {
-        console.warn("Auto server activate notice:", e);
-      }
-
-      setMessage(`เชื่อมต่อบัญชี ${displayName} และเปิด Server สำเร็จเรียบร้อยแล้ว`);
+      // Creating an account deliberately does NOT enable server transport.
+      // FR-149 resolves a webhook only against an *explicitly* enabled account,
+      // and `legacyQuiesced` is the operator's word that the legacy consumer has
+      // stopped — asserting it on their behalf would risk both transports
+      // reading the same webhook. The account card's "เปิด Server Transport"
+      // button is where a person says it, and this form must not pre-empt it.
+      setMessage(`เชื่อมต่อบัญชี ${displayName} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
       event.target.reset();
     });
   }

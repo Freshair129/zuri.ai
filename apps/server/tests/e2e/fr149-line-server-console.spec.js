@@ -29,18 +29,23 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
-  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
-  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
-  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
-  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
-  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
-  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
-  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  // One submit provisions the connection and the account together now: the
+  // display name names both, and the account code, destination and secret
+  // reference are derived from it unless the advanced block overrides them.
+  // Only the display name is required, so that is all this fixture fills.
+  await page.getByLabel(/ชื่อบัญชี LINE OA/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที' }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
   const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
-  await expect(panel.getByRole('button', { name: 'เปิด Server transport', exact: true })).toBeDisabled()
+  // Creating an account must not put it live. The card still offers the
+  // activation button, and does not offer the one that exists only once server
+  // transport is on — which is FR-149's "explicitly enabled" seen from the
+  // console. The earlier form of this check asserted the activation button was
+  // disabled, but the state it read was never set by anything, so it passed
+  // whatever the console did.
+  await expect(panel.getByRole('button', { name: /เปิด Server Transport/ })).toBeVisible()
+  await expect(panel.getByRole('button', { name: 'ปิด Server transport', exact: true })).toHaveCount(0)
   await panel.getByLabel('ประมวลผลคำตอบ', { exact: true }).selectOption('EDGE')
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
   await panel.getByRole('button', { name: 'บันทึกการประมวลผล', exact: true }).click()
