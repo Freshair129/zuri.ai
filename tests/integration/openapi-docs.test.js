@@ -96,12 +96,14 @@ describe('OpenAPI document', () => {
       // menu collection and item the same way: two paths, four operations.
       // FR-152 adds the rich menu jobs path (GET, POST, PATCH) and the
       // rich-menu worker tick (POST): two paths, four operations.
-      // FR-133/FR-135 add eight paths and nine operations: /api/assets/lookup (GET),
+      // FR-133/FR-135/FR-136 add ten paths and twelve operations: /api/assets/lookup (GET),
       // /api/assets/register (GET, POST), /api/assets/register/{id} (GET), the four
-      // lifecycle POST routes (responsibility, relocate, allocate, return), and
-      // /api/assets/register/{id}/verify (POST).
-      pathCount: 151,
-      operationCount: 194,
+      // lifecycle POST routes (responsibility, relocate, allocate, return),
+      // /api/assets/register/{id}/verify (POST),
+      // /api/assets/register/{id}/depreciation (GET), and
+      // /api/assets/register/{id}/maintenance (GET, POST).
+      pathCount: 153,
+      operationCount: 197,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
