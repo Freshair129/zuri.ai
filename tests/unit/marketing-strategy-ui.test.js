@@ -92,6 +92,7 @@ describe('FR-153/FR-154 Marketing UI integration seams', () => {
     expect(workspace).toContain("action: 'archive'")
     expect(workspace).toContain('const loadedPlan = detail.data?.plan || detail.data || null')
     expect(workspace).toContain('loadedPlan?.id === planId')
+    expect(workspace).toContain('TruncationNotice')
     expect(workspace).toContain('Situation')
     expect(workspace).toContain('Objectives')
     expect(workspace).toContain('Scenarios')
@@ -114,6 +115,7 @@ describe('FR-153/FR-154 Marketing UI integration seams', () => {
   it('keeps dashboard numbers grounded in plan records and calls provider metrics unavailable', () => {
     expect(dashboard).toContain('Array.isArray(data?.plans)')
     expect(dashboard).toContain('Provider metrics are unavailable')
+    expect(dashboard).toContain('TruncationNotice')
     expect(dashboard).not.toContain('impressions')
     expect(dashboard).not.toContain('conversionRate')
   })

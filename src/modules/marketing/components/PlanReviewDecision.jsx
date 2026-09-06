@@ -30,6 +30,7 @@ export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy 
       {!independent && <InlineNotice>Independent review requires another real user than the revision author. No simulated agent can provide that review.</InlineNotice>}
       {independent && (
         <form
+          data-testid="marketing-independent-review"
           className="mt-3 rounded-xl border border-[var(--border)] p-3"
           onSubmit={(event) => { event.preventDefault(); onReview({ planVersionId: version.id, payloadHash: version.payloadHash, verdict: reviewVerdict, rationale: reviewRationale.trim() }) }}
         >
@@ -42,6 +43,7 @@ export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy 
         </form>
       )}
       <form
+        data-testid="marketing-human-decision"
         className="mt-3 rounded-xl border border-[var(--border)] p-3"
         onSubmit={(event) => {
           event.preventDefault()

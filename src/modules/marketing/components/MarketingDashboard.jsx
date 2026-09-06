@@ -7,7 +7,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, Plus } from 'lucide-react'
-import { Card, Kpi, PageHeader, SectionTitle, StatusPill, EmptyState, ProgressBar } from '@/components/ui'
+import { Card, Kpi, PageHeader, SectionTitle, StatusPill, EmptyState, ProgressBar, TruncationNotice } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 import { growthPlansPath, strategyTabHref } from './marketing-contract'
@@ -21,6 +21,7 @@ export default function MarketingDashboard({ businessId }) {
   const scope = useScope()
   const { data, loading, error, reload } = useFetch(businessId ? growthPlansPath(businessId) : null, [businessId])
   const plans = Array.isArray(data?.plans) ? data.plans : []
+  const truncated = Boolean(data?.truncated || data?.pagination?.truncated || data?.meta?.truncated)
   const counts = plans.reduce((result, plan) => {
     const status = planStatus(plan)
     result[status] = (result[status] || 0) + 1
@@ -61,6 +62,7 @@ export default function MarketingDashboard({ businessId }) {
               <SectionTitle caption="Real plan records in the active Business">Recent plans</SectionTitle>
               <Link href={strategyHref} className="btn text-[11px]">View Strategy <ArrowRight size={13} aria-hidden /></Link>
             </div>
+            {truncated && <TruncationNotice shown={plans.length} limit={100} noun="plans" hint="Open Strategy to work with the records currently returned." />}
             <div className="space-y-2">
               {plans.map((plan) => (
                 <Link key={plan.id} href={strategyTabHref('/growth/strategy', 'plans', { planId: plan.id })} className="block rounded-xl border border-[var(--border)] p-3 hover:bg-[var(--brand-surface)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--action-primary)]">

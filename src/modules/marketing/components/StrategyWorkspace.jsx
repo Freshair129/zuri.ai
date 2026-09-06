@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { ArrowLeft, Archive, Plus } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { Card, EmptyState, ErrorState, PageHeader, ProgressBar, SectionTitle, StatusPill } from '@/components/ui'
+import { Card, EmptyState, ErrorState, PageHeader, ProgressBar, SectionTitle, StatusPill, TruncationNotice } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
 import { GROWTH_PLANS_PATH, STRATEGY_TABS, growthPlanPath, growthPlansPath, strategyTabHref } from './marketing-contract'
@@ -23,10 +23,11 @@ import { PlanHandoff } from './PlanHandoff'
 import { PlanReviewDecision } from './PlanReviewDecision'
 import { PlanVersionHistory } from './PlanVersionHistory'
 
-function PlanList({ plans, planId }) {
+function PlanList({ plans, planId, truncated }) {
   if (!plans.length) return <EmptyState title="No Marketing plans yet" hint="Create the first plan from this Business-scoped Strategy workspace." />
   return (
     <div className="space-y-2" data-testid="marketing-plan-list">
+      {truncated && <TruncationNotice shown={plans.length} limit={100} noun="plans" hint="The API returned the newest records only." />}
       {plans.map((plan) => (
         <Link key={plan.id} href={strategyTabHref('/growth/strategy', 'plans', { planId: plan.id })} className={`block rounded-xl border p-3 hover:bg-[var(--brand-surface)] ${plan.id === planId ? 'border-[var(--action-primary)]' : 'border-[var(--border)]'}`}>
           <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-xs font-bold">{plan.title || 'Untitled plan'}</p><p className="mt-1 text-[10px] text-muted">{plan.code || plan.id} · revision {plan.currentRevision || 1}</p></div><StatusPill status={plan.status || 'DRAFT'} /></div>
@@ -162,7 +163,7 @@ export default function StrategyWorkspace({ businessId }) {
               <PlanHandoff businessId={businessId} plan={plan} />
             </div>
           )}
-          {!planId && !creating && <Card><SectionTitle caption="Create or inspect immutable revisions">Marketing plans</SectionTitle><PlanList plans={planList} planId={planId} /></Card>}
+          {!planId && !creating && <Card><SectionTitle caption="Create or inspect immutable revisions">Marketing plans</SectionTitle><PlanList plans={planList} planId={planId} truncated={Boolean(plans.data?.truncated || plans.data?.pagination?.truncated || plans.data?.meta?.truncated)} /></Card>}
         </MarketingDataState>
       )}
     </main>
