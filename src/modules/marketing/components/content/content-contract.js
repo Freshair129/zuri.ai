@@ -5,6 +5,7 @@
 // @tested tests/unit/marketing-content-ui.test.js
 
 import { PLAN_CHANNELS } from '../marketing-contract'
+import { WORK_STATUSES } from '@/lib/validation/enums'
 
 export const CONTENT_TABS = [
   { key: 'briefs', label: 'Briefs' },
@@ -21,13 +22,17 @@ export const CONTENT_FORMATS = [
 ]
 
 export const CONTENT_PHASES = ['DRAFT', 'PRODUCTION', 'REVIEW', 'APPROVED', 'ARCHIVED']
-export const PRODUCTION_STAGES = [
-  { key: 'READY', label: 'Ready' },
-  { key: 'IN_PROGRESS', label: 'In progress' },
-  { key: 'REVIEW', label: 'In review' },
-  { key: 'DONE', label: 'Accepted' },
-  { key: 'OTHER', label: 'Other status' },
-]
+const PRODUCTION_STAGE_LABELS = {
+  PLANNED: 'Planned',
+  READY: 'Ready',
+  IN_PROGRESS: 'In progress',
+  REVIEW: 'In review',
+  BLOCKED: 'Blocked',
+  DONE: 'Accepted',
+  CANCELLED: 'Cancelled',
+}
+
+export const PRODUCTION_STAGES = WORK_STATUSES.map((key) => ({ key, label: PRODUCTION_STAGE_LABELS[key] || key }))
 
 export const CONTENT_API_PATH = '/api/growth/content'
 
@@ -235,7 +240,6 @@ export function latestContentPassReview(brief, version) {
 
 export function productionStage(status) {
   const normalized = text(status).toUpperCase()
-  if (normalized === 'PLANNED') return 'READY'
   if (PRODUCTION_STAGES.some((stage) => stage.key === normalized)) return normalized
   return 'OTHER'
 }

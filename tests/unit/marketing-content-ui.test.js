@@ -88,7 +88,7 @@ describe('FR-157 Content UI contracts', () => {
     expect(library).toHaveLength(1)
     expect(library[0].assetVersion.id).toBe('version-approved')
     expect(contentProductionRows({ production: [{ id: 'legacy-work-1', status: 'IN_PROGRESS' }], briefs: [{ id: 'brief-ready', references: { production: { status: 'READY', project: { id: 'project-1' }, workItem: { id: 'work-1', status: 'IN_PROGRESS' } } } }, { id: 'brief-unavailable', references: { production: { status: 'UNAVAILABLE', workItem: { id: 'work-2' } } } }] })).toEqual([{ id: 'work-1', status: 'IN_PROGRESS', briefId: 'brief-ready', project: { id: 'project-1' }, projectId: 'project-1' }])
-    expect(productionStage('PLANNED')).toBe('READY')
+    expect(productionStage('PLANNED')).toBe('PLANNED')
     expect(productionStage('DONE')).toBe('DONE')
     expect(productionStage('UNKNOWN')).toBe('OTHER')
     expect(contentVersionDiff({ message: 'before', asset: null }, { message: 'after', asset: { fileId: 'file-1' } })).toEqual(expect.arrayContaining(['message', 'asset']))

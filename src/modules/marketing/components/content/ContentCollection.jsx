@@ -26,6 +26,7 @@ import {
   contentProductionRows,
   currentContentVersion,
   formatContentDate,
+  PRODUCTION_STAGES,
   productionStage,
   productionStageLabel,
   contentAssetPagePath,
@@ -88,7 +89,7 @@ function ProductionCard({ item }) {
 
 function ProductionBoard({ rows }) {
   return <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" data-testid="marketing-content-production-board">
-    {['READY', 'IN_PROGRESS', 'REVIEW', 'DONE', 'OTHER'].map((stage) => {
+    {[...PRODUCTION_STAGES.map((stage) => stage.key), 'OTHER'].map((stage) => {
       const items = rows.filter((item) => productionStage(item.status) === stage)
       return <section key={stage} className="min-h-32 rounded-xl bg-[var(--surface-mid)] p-2" aria-labelledby={`content-production-${stage}`}><div className="mb-2 flex items-center justify-between gap-2 px-1"><h2 id={`content-production-${stage}`} className="text-[11px] font-bold">{productionStageLabel(stage)}</h2><span className="text-[10px] text-muted">{items.length}</span></div><div className="space-y-2">{items.map((item) => <ProductionCard key={item.workItemId || item.id} item={item} />)}{items.length === 0 && <p className="px-1 py-3 text-[10px] text-muted">No work items recorded</p>}</div></section>
     })}
