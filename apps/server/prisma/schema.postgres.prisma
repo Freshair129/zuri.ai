@@ -85,6 +85,7 @@ model Tenant {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  salesTasks                SalesTask[]
 
   @@index([portfolioId])
 
@@ -177,6 +178,7 @@ model Business {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  salesTasks                SalesTask[]
 
   @@index([tenantId])
 
@@ -250,6 +252,7 @@ model Person {
   workspaceMemberships          WorkspaceMembership[]
   workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
   assetResponsibilities         AssetResponsibility[]
+  salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -1469,6 +1472,7 @@ model Customer {
   conversations         Conversation[]
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
+  salesTasks            SalesTask[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1596,6 +1600,7 @@ model Conversation {
   customer Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]
   analyses ConversationAnalysis[]
+  salesTasks SalesTask[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -3029,4 +3034,56 @@ model ProductRecipeLine {
 
   @@unique([recipeId, componentProductId])
   @@index([componentProductId])
+}
+
+// ── CRM sales task — FR-161 ─────────────────────────────────────────────────
+// @req FR-161 — a sales task is a follow-up a salesperson owes a customer: a
+//   call, a LINE message, a meeting, a demo, a quote — Business-scoped, with an
+//   optional Customer and Conversation of the same Tenant (BR-001 CRM sharing)
+//   and an optional assignee Person. It is deliberately NOT a project-manager
+//   WorkItem: no milestones, no progress roll-up, no Workstream. The legacy
+//   product's "PROJECT" task kind stays with project-manager, its "URGENT"
+//   status is a priority here, and its Notion id would be an ExternalRef.
+// @spec ADR-064; ADR-054 D3/D4; BR-001; BR-002; SEC-001
+// @tested tests/integration/fr161-sales-task.test.js
+
+model SalesTask {
+  id                  String    @id @default(uuid())
+  code                String
+  tenantId            String
+  businessId          String
+  customerId          String?
+  conversationId      String?
+  assigneePersonId    String?
+  createdByPersonId   String?
+  title               String
+  description         String?
+  type                String    @default("FOLLOW_UP")
+  priority            String    @default("NORMAL")
+  status              String    @default("OPEN")
+  scheduleKind        String    @default("SINGLE")
+  dueDate             DateTime
+  startDate           DateTime?
+  timeStart           String?
+  timeEnd             String?
+  outcome             String?
+  completedAt         DateTime?
+  completedByPersonId String?
+  cancelledAt         DateTime?
+  cancelReason        String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer     Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  assignee     Person?       @relation("SalesTaskAssignee", fields: [assigneePersonId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, code])
+  @@index([businessId, status, dueDate])
+  @@index([assigneePersonId, status])
+  @@index([customerId])
+  @@index([conversationId])
 }

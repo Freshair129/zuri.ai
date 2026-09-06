@@ -1,17 +1,17 @@
 ---
 title: "Database Schema — Full ERD Reference"
-version: "2.1.0"
+version: "2.2.0"
 date: "2026-09-06"
 status: DRAFT
-model_count: 110
+model_count: 111
 source: "apps/server/prisma/schema.prisma"
-note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.1.0 (2026-09-06): เพิ่ม §14–§19 สำหรับ 43 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, marketing, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054"
+note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.1.0 (2026-09-06): เพิ่ม §14–§19 สำหรับ 43 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, marketing, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.2.0 (2026-09-07): SalesTask (FR-161, ADR-064) ใน §9 และ §20 แถว 7 เป็น built"
 ---
 
 # Database Schema — Full ERD Reference
 
-> **110 models** — นับจาก `apps/server/prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
-> v2.1.0 ครอบคลุม 43 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §14–§19 — และ §20 คือ
+> **111 models** — นับจาก `apps/server/prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
+> v2.x ครอบคลุม 44 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §9 (`ConversationAnalysis`, `SalesTask`) และ §14–§19 — และ §20 คือ
 > สถานะของทุกหัวข้อใน ERD ของผลิตภัณฑ์เดิม (`Freshair129/zuri1.0`) ว่ายืม / เปลี่ยน label / เลื่อน / ปฏิเสธ
 > **Source of truth:** `apps/server/prisma/schema.prisma` · Postgres cutover: `apps/server/prisma/schema.postgres.prisma`
 > **Registry ย่อ:** [Appendix B](../../appendices/B-db-schema.md) · **Domain lanes:** [DOMAIN-MAP](../../DOMAIN-MAP.md)
@@ -99,6 +99,10 @@ erDiagram
     ProductMaster ||--o{ Product : "SKU"
     Product ||--o{ StockMovement : "ledger"
     Product ||--o{ ProductRecipe : "BOM at batch size"
+
+    Business ||--o{ SalesTask : "sales team owes"
+    Customer ||--o{ SalesTask : "followed up by"
+    Person ||--o{ SalesTask : "assigned"
 ```
 
 **สิ่งที่ diagram นี้ไม่ได้บอก:** `AuditEvent`, `Dependency` และ `ExternalRef` ไม่มี FK จริง
@@ -756,6 +760,35 @@ erDiagram
     Customer ||--o{ Conversation : "chats in"
     Conversation ||--o{ Message : "contains"
     Conversation ||--o{ ConversationAnalysis : "analysed as"
+    Business ||--o{ SalesTask : "sales team owes"
+    Customer ||--o{ SalesTask : "followed up by"
+    Conversation ||--o{ SalesTask : "raised from"
+    Person ||--o{ SalesTask : "assigned"
+
+    SalesTask {
+        uuid     id                  PK
+        string   code                UK  "TSK-YYYYMMDD-NNN unique ต่อ Tenant"
+        uuid     tenantId            FK
+        uuid     businessId          FK  "ทีมขายที่ติดค้างงาน"
+        uuid     customerId          FK  "nullable — ผ่าน tenant ของ Business เท่านั้น"
+        uuid     conversationId      FK  "nullable — บอก customer ให้เมื่อไม่ระบุ"
+        uuid     assigneePersonId    FK  "nullable — ต้องมี Membership ครอบ Business"
+        uuid     createdByPersonId       "scalar — audit คือผู้ตัดสิน"
+        string   title
+        string   type                    "FOLLOW_UP | CALL | LINE_MESSAGE | EMAIL | MEETING | DEMO | QUOTE"
+        string   priority                "URGENT | HIGH | NORMAL | LOW"
+        string   status                  "OPEN | IN_PROGRESS | DONE | CANCELLED"
+        string   scheduleKind            "SINGLE | RANGE"
+        datetime dueDate
+        datetime startDate              "RANGE เท่านั้น"
+        string   timeStart               "HH:MM — SINGLE เท่านั้น"
+        string   timeEnd
+        string   outcome
+        datetime completedAt
+        datetime cancelledAt
+        string   cancelReason
+        int      version
+    }
 
     ConversationAnalysis {
         uuid     id             PK
@@ -815,8 +848,9 @@ erDiagram
 | ใครสร้างแถว | `line-ingest-service` เท่านั้น — agent domain **consume** conversation ไม่ได้สร้างเอง |
 | `Conversation.channelAccountId` (FR-148) | identity ของ conversation รวม **บัญชีที่รับ** — unique `[tenantId, channel, channelAccountId, externalThreadId]`; แถวก่อน ADR-061 เป็น `LEGACY:LINE` โดยไม่เดา attribution |
 | `ConversationAnalysis` (FR-127) | รูปที่ยืมจาก legacy DSB (ADR-054 D2) — ผูก `Conversation.id` ไม่ใช่ thread id ภายนอก (D4), **derived และคำนวณใหม่ได้** (D6): ลบทิ้งปลอดภัยเสมอ, PDPA erasure ของ Customer พาแถวนี้ไปด้วย; ไม่มี `sourceAdId` จนกว่าจะมี Ad model |
+| `SalesTask` (FR-161, ADR-064) | "7. CORE: Tasks" ของ legacy ดัดแปลงเป็น task ของ **sale** — ไม่ใช่ `WorkItem` ของ project-manager: ไม่มี milestone / progress / ลูก; URGENT เป็น priority; Notion id ไม่เป็นคอลัมน์ (→ `ExternalRef`); overdue / วันนี้ **คำนวณตอนอ่าน** ตามปฏิทิน Business (Asia/Bangkok) ไม่เก็บ; อ่านต้องมี `customer` domain (404), เขียนต้อง OWNER หรือ `SALES_REP` (403) |
 
-**Spec:** FR-023, FR-103, FR-127, FR-148 · SEC-005, BR-002, SEC-001 · ADR-054, ADR-061
+**Spec:** FR-023, FR-103, FR-127, FR-148, FR-161 · SEC-005, BR-002, SEC-001 · ADR-054, ADR-061, ADR-064
 
 ---
 
@@ -1963,7 +1997,7 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
 | 5. CORE: Orders & Payments | `Order`, `Transaction` (slip OCR, revenue split) | **Commerce lane — target**: `Order` / `Payment` keyed on UUID, slip OCR ผ่าน evidence pattern ของ Asset (§15) | 🔜 deferred (D5); ไม่มี model |
 | 6. CORE: Marketing & Ads | Ad, AdDailyMetric (adId เป็น FK) | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision (§19); provider ids and measurements remain in Integration owner records | ✅ native planning evidence; provider execution and metrics remain deferred |
-| 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT) | **`SalesTask` ใน crm — target** (คำสั่ง owner 2026-09-06: task ของ *sale* ผูก `Customer` / `Conversation` / assignee `Person`) — **ไม่ใช่** `WorkItem` ของ project-manager; ADR-054 D5 ปฏิเสธ `Task` ในฐานะ project task เท่านั้น | 🔜 target — ต้องมี FR ของตัวเอง; ไม่มี model |
+| 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-161, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-161) |
 | 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
 | 9. CORE: Products & Catalog | `Product` (course \| food \| equipment \| package, `sku`, `barcode`) | `ProductMaster` + `Product` (SKU) ใน Inventory (§18); `barcode` = attribute ในอนาคต; course/package → Commerce offer | ✅ relabelled (FR-154) |
 | 10. INDUSTRY/CULINARY: Enrollment & Schedule | `Enrollment`, `CourseSchedule` | Operations / Commerce — target (ที่นั่ง = สิ่งที่ขาย ไม่ใช่สต๊อก) | 🔜 deferred (D5); ไม่มี model |
@@ -1988,7 +2022,7 @@ preflight บังคับว่า model หนึ่งถูก claim ไ�
 |---|---|---|
 | **project-manager** | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt | 30 |
 | **identity** | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding, PersonCredential, PasswordResetToken, Session, ChannelIdentity, SotDataPlaneKey, WorkspaceMembership, WorkspaceInvite, ApiAccessKey, PlatformGrant, PluginInstallation, PluginAuthorizationCode, PluginSession, EdgeDeviceCredential | 17 |
-| **crm** | Person, Customer, CustomerImportBatch, CustomerImportProvenance, CustomerImportReviewCase, CustomerImportReviewDecision, Conversation, Message, ConversationAnalysis | 9 |
+| **crm** | Person, Customer, CustomerImportBatch, CustomerImportProvenance, CustomerImportReviewCase, CustomerImportReviewDecision, Conversation, Message, ConversationAnalysis, SalesTask | 10 |
 | **integration** | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord, SotDecision, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision | 15 |
 | **market-intelligence** | MarketObservation | 1 |
 | **asset-management** | RegisteredAsset, AssetIntake, AssetEvidence, AssetProcurementRef, AssetLot, AssetResponsibility, AssetLocationHistory, AssetProjectAllocation, AssetDepreciationCandidate, AssetExtractionJob | 10 |
@@ -1998,9 +2032,9 @@ preflight บังคับว่า model หนึ่งถูก claim ไ�
 | **agent** | — (ไม่มีโดยตั้งใจ: state อยู่ใน production Postgres `zuri_core.*` + MSP vault) | 0 |
 | **knowledge** | — (ไม่มีโดยตั้งใจ: store คือ `zuri_core.business_knowledge` หลัง knowledge port) | 0 |
 | **platform-control** | — (ไม่มีโดยตั้งใจ: projection ที่ถอดออกได้ ไม่ถือ persistence model) | 0 |
-| | **รวม** | **110** |
+| | **รวม** | **111** |
 
-> **ครบพอดี:** 110 model ใน `apps/server/prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
+> **ครบพอดี:** 111 model ใน `apps/server/prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
 > และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §27)
 > Pipeline ทั้ง 6 ตัวอยู่ในเลน **integration** — `docs/domains/knowledge/CHARTER.md`
 > อ้างถึงมันในเนื้อความเพราะ knowledge *เรียกใช้* `createPipelineRun` ของเลนนั้น ไม่ได้เป็นเจ้าของ
@@ -2123,6 +2157,7 @@ flowchart TD
 | `SerialUnit` | `(productId, serialNo)` UNIQUE · `(businessId, status)` | serial unique ต่อ SKU; รายการ IN_STOCK |
 | `StockMovement` | `(productId, occurredAt)` · `(businessId, occurredAt)` · `(lotId)` · `(serialUnitId)` | on-hand = SUM ต่อ product / ต่อ lot; ประวัติหน่วย |
 | `ProductRecipe` | `(productId, batchSize)` UNIQUE | หนึ่งสูตรต่อ (SKU ผลลัพธ์, batch size) |
+| `SalesTask` | `(tenantId, code)` UNIQUE · `(businessId, status, dueDate)` · `(assigneePersonId, status)` · `(customerId)` · `(conversationId)` | รายการงานเปิดของ Business เรียงตามกำหนด; "ของฉัน"; งานต่อลูกค้า / ต่อบทสนทนา |
 
 ---
 
@@ -2197,6 +2232,11 @@ flowchart TD
 | `SerialUnit.status` | `INVENTORY_SERIAL_STATUSES` | IN_STOCK · RESERVED · ISSUED · RETURNED · SCRAPPED |
 | `StockMovement.kind` | `INVENTORY_MOVEMENT_KINDS` | RECEIPT · ISSUE · ADJUSTMENT |
 | (`PATCH` action) `Product` / `ProductRecipe` | `INVENTORY_PRODUCT_ACTIONS` / `INVENTORY_RECIPE_ACTIONS` | UPDATE · ARCHIVE |
+| `SalesTask.type` | `SALES_TASK_TYPES` | FOLLOW_UP · CALL · LINE_MESSAGE · EMAIL · MEETING · DEMO · QUOTE |
+| `SalesTask.priority` | `SALES_TASK_PRIORITIES` | URGENT · HIGH · NORMAL · LOW |
+| `SalesTask.status` | `SALES_TASK_STATUSES` | OPEN · IN_PROGRESS · DONE · CANCELLED |
+| `SalesTask.scheduleKind` | `SALES_TASK_SCHEDULE_KINDS` | SINGLE · RANGE |
+| (`PATCH` action) `SalesTask` | `SALES_TASK_ACTIONS` | UPDATE · ASSIGN · START · COMPLETE · CANCEL · REOPEN |
 
 **status ของ job (`LineOaRichMenuJob`, `LineConversationJob`, `AssetExtractionJob`) และ status สองคำ
 (`ACTIVE · ARCHIVED` ของ catalogue Inventory, `DRAFT · ACTIVE · ARCHIVED` ของ LIFF) ไม่อยู่ใน `enums.js`

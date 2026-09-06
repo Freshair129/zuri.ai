@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.161.0b"
+version: "1.162.0b"
 status: draft
-last_update: "2026-09-06T22:26:00+07:00,RWANG"
+last_update: "2026-09-07T03:00:00+07:00,Claude"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -19,11 +19,11 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.161.0b |
+| **Version** | 1.162.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-06 |
+| **Last Updated** | 2026-09-07 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
@@ -209,6 +209,7 @@ relations:
 | 1.160.1b | 2026-09-06 | RWANG | Record locally verified FR-157 delivery without changing requirement subjects. |
 | 1.161.0b | 2026-09-06 | RWANG | Restore published main Warehouse subjects FR-154, FR-155, FR-156 and FEAT-020 after abandoning this branch declarations to FR-158, FR-159, FR-160 and FEAT-021; preserve FR-157 Content and reconcile ADR-062 monorepo paths. |
 | 1.158.0b | 2026-09-06 | RWANG | Reconcile main FR-153 (LINE LIFF) and move this unpublished Marketing Strategy declaration to FR-159; retain FR-158 and SDD-086 from the user-approved Marketing design: immutable Strategy review/decision and transactional PM handoff. Local implementation in progress; no provider activation or production migration claim. |
+| 1.162.0b | 2026-09-07 | Claude Fable 5.1 | Declared and implemented **FR-161** — sales tasks (`SalesTask`), new **FEAT-022**, under **ADR-064**: the legacy ERD's "7. CORE: Tasks" adapted on the owner's instruction into a CRM sales activity record (the follow-up a salesperson owes a customer) and kept apart from project-manager's `WorkItem`. URGENT became a priority, PROJECT tasks with milestones stay refused (ADR-054 D5 narrowed, not reversed), the Notion id is not a column, overdue is computed on read. New `SALES_REP` role, `/customer/sales-tasks` page, two routes. ERD §19 row 7 moves from target to built. Migration in both trees; production SQL not applied |
 
 ## Referenced Standards
 
@@ -412,6 +413,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-158 | Marketing execution handoff — an exact approved Strategy revision generates a deterministic PlanEnvelope for a same-Business Workspace, previews the PM diff, then commits through the existing authorized PM importer with the reviewed hash, concurrency guard, audit and Marketing receipt in one transaction. Replays reconcile one receipt per revision/Workspace; revocation, expiry, stale content and scope mismatches prevent new execution. Action delivery progress never claims marketing KPI attainment. | 🟢 locally verified PM handoff slice; broader runtime and production gates remain open |
 | FR-160 | Marketing Campaign initiatives — a Business-scoped initiative has a distinct UUID and one versioned Strategy brief, with calendar dates, offer and conditions included in its reviewed hash. Owners create, revise, explicitly bind a valid same-plan PM handoff and close or cancel with rationale through audited optimistic transactions. Campaign list/board and Brief, Plan, Timeline, Results and Decisions views preserve scope, exact revision identity and authorized PM execution projections; metrics remain unavailable without approved evidence. | 🟠 implementation in progress from approved CR-018 |
 | FR-157 | Marketing Content and Creative — Business-scoped briefs persist immutable creative versions, exact Files references and declared rights with independent reviews and revocable time-bounded decisions. Briefs, PM production and approved Library projections plus creative/asset detail and creation views revalidate owner scope, file fingerprint and rights eligibility without duplicating bytes or PM work. | 🟠 implementation in progress from approved CR-018 |
+| FR-161 | Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's "Tasks" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. | 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235500_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync |
 
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is

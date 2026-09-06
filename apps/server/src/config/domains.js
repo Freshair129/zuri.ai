@@ -52,6 +52,10 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/customer', icon: LayoutDashboard },
       { label: 'Inbox', path: '/customer/conversations', icon: MessagesSquare },
+      // @req FR-161 — sales tasks: the follow-ups a salesperson owes customers,
+      // a CRM activity record and deliberately not a Development WorkItem
+      // (ADR-064). Listed only now that its page exists.
+      { label: 'Sales Tasks', path: '/customer/sales-tasks', icon: ListChecks },
     ],
   },
   {
