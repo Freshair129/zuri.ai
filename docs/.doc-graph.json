@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1925,
+    "total_nodes": 1926,
     "total_edges": 7482,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 216,
       "model": 88,
       "requirement": 310,
-      "test": 476,
+      "test": 477,
       "code_file": 522
     },
     "coverage": {
@@ -57,7 +57,9 @@
     "changed": [
       "doc:EXECUTION"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/ci-code-changes.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -11174,7 +11176,7 @@
       "type": "document",
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
-      "hash": "385a1321",
+      "hash": "582676c5",
       "status": "changed"
     },
     {
@@ -20241,6 +20243,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/card-calculator-agreement.test.js",
       "hash": "1be702ca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/ci-code-changes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/ci-code-changes.test.js",
+      "hash": "c54d9a8f",
       "status": "current"
     },
     {

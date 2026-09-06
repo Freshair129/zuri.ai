@@ -11117,7 +11117,7 @@
       "type": "document",
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
-      "hash": "385a1321",
+      "hash": "582676c5",
       "status": "changed"
     },
     {
@@ -20184,6 +20184,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/card-calculator-agreement.test.js",
       "hash": "1be702ca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/ci-code-changes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/ci-code-changes.test.js",
+      "hash": "c54d9a8f",
       "status": "current"
     },
     {
@@ -80210,7 +80217,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 1925,
+    "server_nodes": 1926,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

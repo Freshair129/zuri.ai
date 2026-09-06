@@ -88,16 +88,22 @@ Conversation and extraction contracts remain distinct; package extraction is def
 Local clean installs completed for both apps. Edge: 913 passed, three existing
 environment-gated skips; typecheck/build passed. After reconciling upstream ADR-063,
 Server: 3,846 passed, 14 existing skips; production build generated 51 pages.
+Two additional large-diff CI-classifier regressions passed focused validation.
 Local E2E before that upstream reconciliation passed 99 tests with four existing
 skips and no flaky result. Hosted CI must verify the reconciled revision, including
 Node 22 Server, Node 24 Edge, full E2E and the app-specific Docker build, before merge.
 Both Compose profiles validate without production configuration.
 
 Graph reconciliation preserves all 1,923 current Server source IDs and all 272
-original Edge IDs, with zero lost source edges. Two authored Server nodes and 21
+original Edge IDs, with zero lost source edges. Three authored Server nodes and 21
 additionally discovered Edge documents are explicitly accounted for. Metadata,
 wikilinks and cross-app aliases resolve with zero findings; preflight has zero
 critical and zero warning findings. M6/M7 release and retirement gates remain open.
+
+The first hosted run exposed a pre-existing `grep -q`/`pipefail` change-filter
+defect on large diffs: E2E was incorrectly skipped. The replacement classifier
+consumes the complete list and fails toward running E2E. A successful skipped
+result from that run is not accepted as E2E evidence.
 
 ## Version diff / CHANGELOG
 

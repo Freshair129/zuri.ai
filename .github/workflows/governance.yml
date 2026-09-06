@@ -36,6 +36,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - id: filter
         shell: bash
         run: |
@@ -69,12 +73,11 @@ jobs:
           # wildcard. A wildcard would also skip a README dropped into `src/`
           # beside code, and the whole point of this filter is that a surprise
           # runs the suite rather than dodges it.
-          if printf '%s\n' "$changed" | grep -qvE '^(docs/|\.brain/|AGENTS\.md$|CLAUDE\.md$|README\.md$)'; then
+          # Read the whole diff: grep -q can close a large pipe early, and under
+          # pipefail that was misclassified as docs-only (PR 264 relocation).
+          if ! printf '%s\n' "$changed" | node scripts/ci-code-changes.mjs >> "$GITHUB_OUTPUT"; then
+            echo "classification failed — running the full suite"
             echo "code=true" >> "$GITHUB_OUTPUT"
-            echo "→ non-documentation files changed: running e2e"
-          else
-            echo "code=false" >> "$GITHUB_OUTPUT"
-            echo "→ documentation only: skipping e2e (it cannot observe this change)"
           fi
 
   verify:
