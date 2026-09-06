@@ -9843,9 +9843,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.16.0b",
+      "version": "1.17.0b",
       "doc_status": "Draft",
-      "hash": "ff756539",
+      "hash": "e18bcb9b",
       "status": "current"
     },
     {
@@ -9973,9 +9973,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.7",
+      "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "fcf299ba",
+      "hash": "01919c10",
       "status": "current"
     },
     {
@@ -11200,9 +11200,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.152.0b",
+      "version": "1.153.0b",
       "doc_status": "Draft",
-      "hash": "2515d633",
+      "hash": "f9b3424b",
       "status": "current"
     },
     {
@@ -11246,7 +11246,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "9ca663c1",
+      "hash": "ea4273ed",
       "status": "current"
     },
     {
