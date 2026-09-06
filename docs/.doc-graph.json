@@ -9639,7 +9639,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "hash": "f95ad70d",
+      "hash": "f8683157",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9853,7 +9853,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "ef2fe1af",
+      "hash": "b4fb78a9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9870,7 +9870,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
-      "hash": "a83c9bf7",
+      "hash": "9e66ca94",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9889,7 +9889,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "2d1f32a2",
+      "hash": "6d0841ed",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9979,7 +9979,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "e7d28eb1",
+      "hash": "44b77579",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10015,7 +10015,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "386f2c3d",
+      "hash": "48c79823",
       "status": "current",
       "annotations": {
         "@req": [
@@ -22608,14 +22608,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "c2ca7e3c",
+      "hash": "398b259c",
       "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "53512028",
+      "hash": "3fb7cfb4",
       "status": "changed"
     },
     {

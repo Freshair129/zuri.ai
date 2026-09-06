@@ -40,6 +40,23 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [projectsList, setProjectsList] = useState([]);
+
+  useEffect(() => {
+    if (!business?.id) return;
+    fetch(`/api/projects?businessId=${encodeURIComponent(business.id)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.projects && data.projects.length > 0) {
+          setProjectsList(data.projects);
+          if (!selectedProject) {
+            setSelectedProject(data.projects[0]);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [business?.id]);
+
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
@@ -80,9 +97,26 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
             </div>
             <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
               <span>โปรเจคปัจจุบัน:</span>
-              <span className="font-bold text-brand-dark dark:text-brand-amber">
-                {selectedProject?.name || "Whocalled"}
-              </span>
+              {projectsList.length > 0 ? (
+                <select
+                  value={selectedProject?.id || ""}
+                  onChange={(e) => {
+                    const found = projectsList.find(p => p.id === e.target.value);
+                    if (found) setSelectedProject(found);
+                  }}
+                  className="font-bold text-brand-dark dark:text-brand-amber bg-transparent border-0 p-0 text-xs focus:ring-0 cursor-pointer underline decoration-dotted"
+                >
+                  {projectsList.map(p => (
+                    <option key={p.id} value={p.id} className="text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900">
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="font-bold text-brand-dark dark:text-brand-amber">
+                  {selectedProject?.name || business?.name || "ยังไม่มีโปรเจค"}
+                </span>
+              )}
             </div>
           </div>
         </div>

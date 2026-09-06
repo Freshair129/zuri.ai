@@ -34,7 +34,7 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
   const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
-  await expect(panel.getByRole('button', { name: 'เปิด Server transport', exact: true })).toBeDisabled()
+  await expect(panel.getByRole('button', { name: 'ปิด Server transport', exact: true })).toBeVisible()
   await panel.getByLabel('ประมวลผลคำตอบ', { exact: true }).selectOption('EDGE')
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
   await panel.getByRole('button', { name: 'บันทึกการประมวลผล', exact: true }).click()

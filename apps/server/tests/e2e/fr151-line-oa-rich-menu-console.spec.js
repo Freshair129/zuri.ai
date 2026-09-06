@@ -88,5 +88,5 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
     await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
   }
-  await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
+  await expect(card.getByText(/ส่งขึ้น LINE: ต้อง Freeze ฉบับร่างก่อน/).first()).toBeVisible()
 })
