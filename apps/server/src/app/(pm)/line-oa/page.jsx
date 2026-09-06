@@ -131,7 +131,7 @@ export default function LineOaPage() {
       </div>
 
       {viewMode === 'studio' ? (
-        <div className="-mx-6 -my-4 h-[calc(100vh-100px)]">
+        <div className="w-full">
           <LineStudioShell />
         </div>
       ) : (

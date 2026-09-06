@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2021,
-    "total_edges": 7846,
+    "total_nodes": 2020,
+    "total_edges": 7842,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 100,
       "requirement": 313,
       "test": 483,
-      "code_file": 572
+      "code_file": 571
     },
     "coverage": {
       "requirements": 313,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (146/146)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 572,
+      "annotated_code_files": 571,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,9 +54,16 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "code:src/app/(pm)/line-oa/page.jsx",
+      "code:src/modules/line-oa-studio/ui/index.js",
+      "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "code:src/modules/line-oa-studio/ui/mockStudioData.js"
+    ],
     "added": [],
-    "removed": []
+    "removed": [
+      "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx"
+    ]
   },
   "nodes": [
     {
@@ -526,8 +533,8 @@
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
-      "hash": "f5c21725",
-      "status": "current",
+      "hash": "f0ac054f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149"
@@ -9089,8 +9096,8 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "dcc68335",
-      "status": "current",
+      "hash": "9a4e59da",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9145,23 +9152,6 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
       "hash": "ae989d43",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-146",
-          "FR-151"
-        ],
-        "@spec": [
-          "SDD-060",
-          "SDD-061"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
-      "hash": "0046ad2a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9247,8 +9237,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "13803c4a",
-      "status": "current",
+      "hash": "196bb4c7",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9301,8 +9291,8 @@
       "id": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
-      "hash": "7b01ae09",
-      "status": "current",
+      "hash": "42fc779c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -36950,34 +36940,6 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
-      "to": "req:SDD-061",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
-      "to": "req:FR-146",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
-      "to": "req:FR-151",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
-      "to": "req:SDD-060",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
       "to": "req:SDD-061",
       "type": "follows",
       "status": "current",
