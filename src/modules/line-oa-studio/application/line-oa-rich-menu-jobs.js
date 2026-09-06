@@ -100,7 +100,8 @@ export async function queueRichMenuJob(menuId, input, { viewer, db = prisma, now
       if (data.kind === 'SET_ALIAS' && !menu.alias) throw failure(409, 'LINE_OA_RICH_MENU_NO_ALIAS')
     }
     if (data.kind === 'PUBLISH') {
-      const built = buildLineRichMenuObject({ menu, version: target })
+      const liffApps = await tx.lineOaLiffApp.findMany({ where: { lineOaAccountId: menu.lineOaAccountId }, select: { code: true, status: true, externalLiffId: true } })
+      const built = buildLineRichMenuObject({ menu, version: target, liffApps })
       if (!built.ok) throw failure(422, built.code)
     }
 
@@ -244,7 +245,10 @@ export async function runLineRichMenuWorker({
       let stage = job.stage
       let externalRichMenuId = job.externalRichMenuId
       if (stage === 'CREATE') {
-        const built = buildLineRichMenuObject({ menu, version })
+        // Resolved again at execution: an app archived between queue and run
+        // fails the job here rather than publishing a dead link.
+        const liffApps = await db.lineOaLiffApp.findMany({ where: { lineOaAccountId: pending.accountId }, select: { code: true, status: true, externalLiffId: true } })
+        const built = buildLineRichMenuObject({ menu, version, liffApps })
         if (!built.ok) return finish('FAILED', { patch: { errorCode: built.code } })
         const result = await richMenuTransport.create({ account, richMenu: built.value })
         const stop = await outcomeOf('CREATE', result)

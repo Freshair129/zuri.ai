@@ -67,6 +67,9 @@ const SNAPSHOT_MODELS = [
   // deletes before them. Operating truth, not credential material: it holds
   // no secret and is exported whole.
   'lineOaAccount',
+  // @req FR-153 — a LIFF app registry row hangs off its account: design data,
+  // no secret, exported whole.
+  'lineOaLiffApp',
   // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
   // both — so they restore in that order and delete in the reverse. All three,
   // plus projectGoal and roleBinding below, were absent from this list until the

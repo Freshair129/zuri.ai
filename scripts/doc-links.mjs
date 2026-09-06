@@ -70,6 +70,7 @@ export function collectDocumentLinks(documents, nodes) {
   for (const n of nodes) {
     if (/^(req|feat):/.test(n.id)) register(`ZAI:${n.id.slice(n.id.indexOf(':') + 1)}`, n)
     register(n.id, n)
+    if (n.identity_migration) register(n.identity_migration.previous_id, n)
   }
   for (const [key] of explicit) if (aliases.get(key)?.size > 1) findings.push({ path: '', message: `Explicit ID collides with registered identity: ${key}` })
 
@@ -87,7 +88,7 @@ export function collectDocumentLinks(documents, nodes) {
     // Bare global IDs are allowed for legacy controls, with an exact full match.
     else if (/^(ADR|FR|NFR|BR|SEC|SDD|FEAT)-\d{3}$/.test(target)) matches = aliases.get(`ZAI:${target}`)
     if (!matches || matches.size !== 1) {
-      if (strict) fail(doc, `${matches?.size > 1 ? 'Ambiguous' : 'Missing'} link target: ${raw}`)
+      if (strict || matches?.size > 1) fail(doc, `${matches?.size > 1 ? 'Ambiguous' : 'Missing'} link target: ${raw}`)
       return null
     }
     const id = [...matches][0], node = byGraphId.get(id)

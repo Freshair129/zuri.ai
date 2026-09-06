@@ -91,6 +91,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LineOaRichMenu | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, alias? (unique per account), status, isDefault, archivedAt?, version | FR-151 / ADR-060 D3 — one rich menu of one LINE OA Studio account: identity, alias and default flag; DRAFT → READY (a version is frozen) → ARCHIVED; bodies live in the versions; cascades with the account |
 | LineOaRichMenuVersion | richMenuId + versionNumber (unique), tenantId, businessId, lineOaAccountId, status, layout, chatBarText, selected, imageFileAssetId? → FileAsset (SetNull), imageWidth, imageHeight, areasJson, externalRichMenuId?, frozenAt?, publishedAt? | FR-151 — one numbered body: editable while DRAFT, immutable once FROZEN; PUBLISHED / RETIRED and `externalRichMenuId` are the transport lane's to write (BR-002: an attribute, never a key) |
 | LineOaRichMenuJob | tenantId, businessId, accountId, richMenuId, richMenuVersionId, kind, stage, status, transportEpoch, attempts, availableAt, expiresAt, claimantId?, leaseExpiresAt?, externalRichMenuId?, providerRequestId?, errorCode?, correlationId, version | FR-152 / ADR-061 — server-owned rich menu publish ledger: PUBLISH (CREATE → UPLOAD → DONE) / SET_DEFAULT / SET_ALIAS (APPLY); QUEUED → CLAIMED → ACCEPTED \| FAILED \| UNKNOWN \| CANCELLED; compare-and-set claims and a bounded lease; no token column — the worker resolves the credential per attempt |
+| LineOaLiffApp | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, description?, viewSize, endpointUrl, scopesJson, botPrompt, status, externalLiffId? (unique per account), archivedAt?, version | FR-153 / SRS LOS-RQ-070 — the LIFF app registry of one account: DRAFT until the LINE-issued liffId is recorded, then ACTIVE; a rich menu LIFF action resolves through an ACTIVE row to liff.line.me (BR-002: liffId is an attribute, never a key); no LINE call, no secret |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
@@ -133,6 +134,9 @@ in a later slice.
 Version diff 1.18.0b → 1.19.0b (2026-09-06): added `LineOaRichMenuJob` (FR-152, ADR-061) with additive
 migrations in both trees in the same change; the Supabase SQL is written and **not applied**. The
 version's `externalRichMenuId` is now written by this ledger on the provider's acceptance.
+
+Version diff 1.19.0b → 1.20.0b (2026-09-06): added `LineOaLiffApp` (FR-153) with additive migrations in
+both trees in the same change; the Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

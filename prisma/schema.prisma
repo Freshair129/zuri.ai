@@ -67,6 +67,7 @@ model Tenant {
   assetExtractionJobs       AssetExtractionJob[]
   lineOaAccounts            LineOaAccount[]
   lineOaRichMenus           LineOaRichMenu[]
+  lineOaLiffApps            LineOaLiffApp[]
 
   @@index([portfolioId])
 
@@ -146,6 +147,7 @@ model Business {
   assetExtractionJobs       AssetExtractionJob[]
   lineOaAccounts            LineOaAccount[]
   lineOaRichMenus           LineOaRichMenu[]
+  lineOaLiffApps            LineOaLiffApp[]
 
   @@index([tenantId])
 
@@ -2275,6 +2277,7 @@ model LineOaAccount {
   transportEpoch          Int       @default(1)
   conversationJobs        LineConversationJob[]
   richMenuJobs            LineOaRichMenuJob[]
+  liffApps                LineOaLiffApp[]
   isDefaultForBusiness    Boolean   @default(false)
   botProfileJson          String    @default("{}")
   archivedAt              DateTime?
@@ -2361,6 +2364,39 @@ model LineOaRichMenuVersion {
 // and a bounded lease; an ambiguous external outcome ends as UNKNOWN for an
 // operator, never as a silent retry that could duplicate a menu. Holds no
 // secret: the worker resolves the account's credential per attempt.
+// FR-153 — the LIFF app registry of one LineOaAccount (SRS LOS-RQ-070): what
+// the account's LIFF apps are called, where they open, at what size, with which
+// scopes. The external liffId LINE Developers assigns is recorded as an
+// attribute (BR-002) by a publisher; nothing here calls LINE. A rich menu LIFF
+// action resolves through an ACTIVE row to https://liff.line.me/{liffId}.
+model LineOaLiffApp {
+  id              String    @id @default(uuid())
+  code            String
+  tenantId        String
+  businessId      String
+  lineOaAccountId String
+  name            String
+  description     String?
+  viewSize        String    @default("FULL")
+  endpointUrl     String
+  scopesJson      String    @default("[]")
+  botPrompt       String    @default("NORMAL")
+  status          String    @default("DRAFT")
+  externalLiffId  String?
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  version         Int       @default(1)
+
+  tenant   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  account  LineOaAccount @relation(fields: [lineOaAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@unique([lineOaAccountId, externalLiffId])
+  @@index([lineOaAccountId, status])
+}
+
 model LineOaRichMenuJob {
   id                 String    @id @default(uuid())
   tenantId           String

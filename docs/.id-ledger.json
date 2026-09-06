@@ -2907,23 +2907,15 @@
     "FR-153": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
+      "status": "current",
+      "statement_digest": "bb732e75941b7fafa8b139e7a4221935de3b47394cfd3db9e3ec8b3d034903b9",
       "history": [
         {
-          "anchor": "marketing strategy revision and decision",
+          "anchor": "line oa liff app registry",
           "since": "2026-09-06",
           "reason": "declared"
-        },
-        {
-          "anchor": "marketing strategy revision and decision",
-          "since": "2026-09-06",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-155. Main published FR-153 for LINE LIFF in 81070de0; this unpublished Marketing branch moves its Strategy requirement to FR-155."
         }
-      ],
-      "retired_to": "FR-155",
-      "retired_at": "2026-09-06",
-      "reason": "Main published FR-153 for LINE LIFF in 81070de0; this unpublished Marketing branch moves its Strategy requirement to FR-155."
+      ]
     },
     "FR-154": {
       "family": "FR",
@@ -4931,7 +4923,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "e26a57bc5868fe3c3c0876384de77cfbf0c893e51cac0775f3c77a95ac089e59",
+      "statement_digest": "4ed5de3cdb8b500831a64ec94cf78175e0caffbe80d729af4d592132d084019f",
       "history": [
         {
           "anchor": "line oa studio",
@@ -4940,7 +4932,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "FEAT-018 statement extended to name the server-owned publish jobs as FR-152 joins the bundle; the feature's subject is unchanged"
+      "statement_digest_reason": "FEAT-018 statement extended to name the LIFF app registry as FR-153 joins the bundle; the feature's subject is unchanged"
     },
     "FEAT-019": {
       "family": "FEAT",
