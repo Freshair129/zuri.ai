@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.34.0"
+version: "2.35.0"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -225,6 +225,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 > Revision 2.34.0 (2026-09-06): session deploy apply migration `artifactId` ไป production แล้ว (คอลัมน์ + index มีจริง บันทึก version 20260906090000) และตรวจแบบ read-only พบว่า production มีทุกคอลัมน์ใน baseline ของ `schema-migration-drift` อยู่แล้ว (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, `Workstream` 8 คอลัมน์ — สร้างนอก lineage มาก่อน) `GET /api/backup/export` ตอบ 401 เมื่อไม่ login แทน 500. เพิ่ม recording migration `20260906120000_record_pre_lineage_tables_and_columns.sql` (ทุก statement เป็น `IF NOT EXISTS` หรือมี guard เป็น no-op บน production, **ยังไม่บันทึก version** — ขั้นตอน operator ตาม ADR-057) และคู่ SQLite ของสองตาราง auth; baseline หดเหลือศูนย์. ไม่มี deploy main ใหม่
 
+> Revision 2.35.0 (2026-09-06): Phase 1 slice 3 ของ LINE OA Studio — ประกาศและส่งมอบ **FR-151** rich menu designer (ใน FEAT-018): model `LineOaRichMenu` + `LineOaRichMenuVersion` ในทั้งสอง schema พร้อม migration ทั้งสอง tree ในการเปลี่ยนแปลงเดียวกัน (guard `schema-migration-drift` เขียว; SQL production **ยังไม่ apply**), writer เดียว `line-oa-rich-menu-service.js`, สอง route, snapshot coverage, integration 1 ชุด (AC-151.1–.7) + unit 3 ชุด. กติกา: รุ่นที่ FROZEN แล้วไม่เปลี่ยน, freeze ปฏิเสธ draft ที่ยังมี issue (ขนาดรูปไม่ตรง 6 ขนาดของ LINE, area เกินรูป, ไม่มี area, ไม่มีรูป), action ของ tap area เป็น allow-list ไม่รับ object อิสระ, `richMenuId` ภายนอกเป็น attribute ของรุ่นที่ deploy และเขียนโดย transport lane เท่านั้น. ยังเปิดอยู่: หน้า designer, `LineOaTransportJob` (publish / default / alias / link), การ apply migration บน production
+
 ## Phases
 
 | Phase | Goal | Exit Criteria | Status | Progress |
@@ -326,6 +328,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-148 | PHASE-ZAI-LINE-OA-STUDIO | task | Account-scoped CRM isolation and historical namespace migration | P0 | Codex | in-progress (implemented; review pending) | FR-148; ADR-061 | ../decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md |
 | TASK-FR-149 | PHASE-ZAI-LINE-OA-STUDIO | task | Native webhook, server queue and LINE acceptance reconciliation; console and deployment wiring | P0 | Codex | in-progress (implemented; production migration, secrets and canary pending) | FR-149; FR-148; ADR-061 | ../decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md |
 | TASK-FR-150 | PHASE-ZAI-LINE-OA-STUDIO | task | Optional Edge conversation compute with separate external-model permission | P0 | Codex | in-progress (two-repository implementation; coordinated review pending) | FR-150; FR-149; ADR-061 | ../decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md |
+| TASK-FR-151 | PHASE-ZAI-LINE-OA-STUDIO | task | FR-151 LINE OA rich menu designer (FEAT-018, ADR-060 D3/D6/D11): `LineOaRichMenu` (identity, `code` unique ต่อ Tenant, `alias` unique ต่อบัญชี, DRAFT → READY → ARCHIVED) + `LineOaRichMenuVersion` (body เป็นรุ่นมีเลข แก้ได้ตอน DRAFT, FROZEN แล้วไม่เปลี่ยนอีก); layout ของ LINE 6 แบบ, chat-bar ≤ 14 ตัวอักษร, tap area ≤ 20 ช่อง action เป็น allow-list (MESSAGE / POSTBACK / URI https-tel / LIFF / RICHMENU_SWITCH), ขนาดรูป 6 ขนาดของ LINE, รูปเป็น `FileAsset` ของ Business เดียวกัน PNG/JPEG ≤ 1 MiB; SAVE_DRAFT / FREEZE / ARCHIVE เป็น compare-and-swap บน `version` เขียนได้เฉพาะ OWNER หรือ `LINE_OA_PUBLISHER` ปฏิเสธเป็น 404; route `GET/POST /api/line-oa/rich-menus`, `GET/PATCH /api/line-oa/rich-menus/[id]`. **slice 3 ส่งมอบใน local 2026-09-06** migration ทั้งสอง tree (production ยังไม่ apply); ยังไม่มี: หน้า designer, publish/default/alias เป็น transport job, การเขียน `richMenuId` ภายนอก | P1 | Claude | done (local; publish via transport job pending) | FR-151; FR-146; FEAT-018; ADR-060; FR-045; FR-072; FR-076 | ../domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
