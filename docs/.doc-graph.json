@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2171,
-    "total_edges": 8568,
+    "total_nodes": 2172,
+    "total_edges": 8571,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 253,
       "model": 111,
       "requirement": 321,
-      "test": 511,
+      "test": 512,
       "code_file": 633
     },
     "coverage": {
@@ -9611,7 +9611,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "60180308",
+      "hash": "07bae331",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9701,7 +9701,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
-      "hash": "a94cee03",
+      "hash": "55b6a93a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9737,12 +9737,13 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "477807a7",
+      "hash": "fa023565",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
-          "FR-151"
+          "FR-151",
+          "FR-003"
         ],
         "@spec": [
           "SDD-060",
@@ -9754,7 +9755,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
-      "hash": "5ff8fbeb",
+      "hash": "1064366a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9772,7 +9773,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "a836c030",
+      "hash": "b34d39f4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9791,7 +9792,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
-      "hash": "d4cb960f",
+      "hash": "2dac055e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9826,7 +9827,7 @@
       "id": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
-      "hash": "42fc779c",
+      "hash": "1c94b388",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13066,7 +13067,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.24.0b",
       "doc_status": "Draft",
-      "hash": "1678c065",
+      "hash": "264eb71d",
       "status": "changed"
     },
     {
@@ -14323,7 +14324,7 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-161-sales-tasks.md",
       "title": "FR-161 — Sales tasks (งานขาย)",
-      "hash": "619bb964",
+      "hash": "f4704f03",
       "status": "current"
     },
     {
@@ -14881,7 +14882,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.162.0b",
       "doc_status": "Draft",
-      "hash": "59b9f3c1",
+      "hash": "c5e51920",
       "status": "changed"
     },
     {
@@ -14909,7 +14910,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "4ebf1bf8",
+      "hash": "1d09b499",
       "status": "changed"
     },
     {
@@ -18063,7 +18064,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235000_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync "
+      "row_text": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235500_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync "
     },
     {
       "id": "req:NFR-001",
@@ -22071,14 +22072,14 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "3abd6068",
+      "hash": "2ee571d7",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "7771c50f",
+      "hash": "8a4f5941",
       "status": "current"
     },
     {
@@ -25285,6 +25286,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/server-line-worker-routes.test.js",
       "hash": "4b60f5db",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/service-role-grant-baseline.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
+      "hash": "d86648c9",
       "status": "current"
     },
     {
@@ -39699,6 +39707,13 @@
       "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
       "to": "req:SDD-060",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:FR-003",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -84071,6 +84086,20 @@
     {
       "from": "test:tests/unit/server-line-worker-routes.test.js",
       "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/service-role-grant-baseline.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
