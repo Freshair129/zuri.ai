@@ -16,7 +16,7 @@ function ContentPageContent({ businessId }) {
   const searchParams = useSearchParams()
   const requestedTab = searchParams.get('tab')
   const tab = CONTENT_TABS.some((item) => item.key === requestedTab) ? requestedTab : 'briefs'
-  return <ContentCollection key={`${businessId || 'no-business'}:${tab}`} businessId={businessId} tab={tab} />
+  return <ContentCollection key={businessId || 'no-business'} businessId={businessId} tab={tab} />
 }
 export default function MarketingContentPage() {
   const scope = useScope()

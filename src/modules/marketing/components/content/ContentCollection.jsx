@@ -46,6 +46,10 @@ function briefIdFor(row) {
   return row?.briefId || row?.contentBriefId || row?.brief?.id || row?.content?.briefId || null
 }
 
+function productionRowKey(row) {
+  return `${briefIdFor(row) || 'brief'}:${row?.workItemId || row?.id || 'work-item'}`
+}
+
 function assetVersionFor(row) {
   return row?.assetVersion || null
 }
@@ -91,7 +95,7 @@ function ProductionBoard({ rows }) {
   return <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5" data-testid="marketing-content-production-board">
     {[...PRODUCTION_STAGES.map((stage) => stage.key), 'OTHER'].map((stage) => {
       const items = rows.filter((item) => productionStage(item.status) === stage)
-      return <section key={stage} className="min-h-32 rounded-xl bg-[var(--surface-mid)] p-2" aria-labelledby={`content-production-${stage}`}><div className="mb-2 flex items-center justify-between gap-2 px-1"><h2 id={`content-production-${stage}`} className="text-[11px] font-bold">{productionStageLabel(stage)}</h2><span className="text-[10px] text-muted">{items.length}</span></div><div className="space-y-2">{items.map((item) => <ProductionCard key={item.workItemId || item.id} item={item} />)}{items.length === 0 && <p className="px-1 py-3 text-[10px] text-muted">No work items recorded</p>}</div></section>
+      return <section key={stage} className="min-h-32 rounded-xl bg-[var(--surface-mid)] p-2" aria-labelledby={`content-production-${stage}`}><div className="mb-2 flex items-center justify-between gap-2 px-1"><h2 id={`content-production-${stage}`} className="text-[11px] font-bold">{productionStageLabel(stage)}</h2><span className="text-[10px] text-muted">{items.length}</span></div><div className="space-y-2">{items.map((item) => <ProductionCard key={productionRowKey(item)} item={item} />)}{items.length === 0 && <p className="px-1 py-3 text-[10px] text-muted">No work items recorded</p>}</div></section>
     })}
   </div>
 }
@@ -104,7 +108,7 @@ function ProductionList({ rows }) {
     { key: 'start', label: 'Start', render: (row) => formatContentDate(row.startAt) },
     { key: 'target', label: 'Target', render: (row) => formatContentDate(row.targetAt || row.dueAt) },
   ]
-  return <Card data-testid="marketing-content-production-list"><DataTable columns={columns} rows={rows} rowKey={(row) => row.workItemId || row.id} /></Card>
+  return <Card data-testid="marketing-content-production-list"><DataTable columns={columns} rows={rows} rowKey={productionRowKey} /></Card>
 }
 
 function ProductionView({ data, view, setView }) {
@@ -141,7 +145,7 @@ export default function ContentCollection({ businessId, tab = 'briefs' }) {
     <PageHeader eyebrow="MARKETING / CONTENT & CREATIVE" title="Content & Creative" subtitle="Brief intent, PM production and approved creative references stay connected to their owner services." actions={canWrite && <Link href="/growth/content/new" className="btn btn-primary"><Plus size={14} aria-hidden /> New brief</Link>} />
     <MarketingTabs tabs={CONTENT_TABS} activeKey={tab} hrefForTab={hrefForTab} ariaLabel="Marketing content sections" />
     <MarketingDataState loading={dataRequest.loading && !data} error={dataRequest.error} retry={dataRequest.reload}>
-      <div className="mb-4 flex flex-wrap items-end gap-2"><label className="min-w-[220px] flex-1"><span className="mb-1 block text-[11px] font-bold text-muted">Search content</span><input className="input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search visible briefs" /></label>{tab === 'production' && <span className="text-[10px] text-muted">Work status and dates come from Project Manager.</span>}</div>
+      <div className="mb-4 flex flex-wrap items-end gap-2">{tab === 'briefs' && <label className="min-w-[220px] flex-1"><span className="mb-1 block text-[11px] font-bold text-muted">Search content</span><input className="input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search visible briefs" /></label>}{tab === 'production' && <span className="text-[10px] text-muted">Work status and dates come from Project Manager.</span>}</div>
       {truncationFor(data) && <TruncationNotice shown={tab === 'briefs' ? contentBriefRows(data).length : tab === 'production' ? contentProductionRows(data).length : contentLibraryRows(data).length} limit={100} noun={tab === 'briefs' ? 'briefs' : tab === 'production' ? 'work items' : 'approved creative'} hint="Search within the bounded records returned for this Business." />}
       {tab === 'briefs' && <BriefList data={data} query={query} />}
       {tab === 'production' && <ProductionView data={data} view={productionView} setView={setProductionView} />}

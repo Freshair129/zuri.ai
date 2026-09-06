@@ -29,6 +29,7 @@ import {
 
 const read = (path) => readFileSync(resolve(process.cwd(), path), 'utf8')
 const collection = read('src/modules/marketing/components/content/ContentCollection.jsx')
+const collectionRoute = read('src/app/(pm)/growth/content/page.jsx')
 const contract = read('src/modules/marketing/components/content/content-contract.js')
 const form = read('src/modules/marketing/components/content/ContentBriefForm.jsx')
 const detail = read('src/modules/marketing/components/content/ContentBriefDetail.jsx')
@@ -137,6 +138,13 @@ describe('FR-157 Content UI integration seams', () => {
     expect(contract).toContain('approval?.valid === true')
     expect(collection).not.toContain('Autumn Gift Edit')
     expect(collection).not.toContain('WI-118')
+  })
+
+  it('keeps tab focus and collection identity stable across URL sections', () => {
+    expect(collectionRoute).toContain("key={businessId || 'no-business'}")
+    expect(collection).toContain("{tab === 'briefs' && <label")
+    expect(collection).toContain('productionRowKey')
+    expect(collection).not.toContain('key={item.workItemId || item.id}')
   })
 
   it('keeps create and revise fields owner-scoped and sends intent references only', () => {
