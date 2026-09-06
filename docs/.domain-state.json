@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T18:18:59.686Z",
+  "generatedAt": "2026-09-06T18:23:31.784Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -874,7 +874,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 20
         },
         {
           "id": "FR-147",
@@ -1253,7 +1253,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 20
         },
         {
           "id": "FR-148",
@@ -1639,7 +1639,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 20
         },
         {
           "id": "FR-149",
@@ -2272,14 +2272,14 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
-          "testCount": 26
+          "codeCount": 28,
+          "testCount": 20
         },
         {
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
+          "codeCount": 16,
           "testCount": 25
         },
         {
@@ -2293,7 +2293,7 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 19,
+          "codeCount": 21,
           "testCount": 17
         },
         {
@@ -2307,7 +2307,7 @@
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 12,
+          "codeCount": 13,
           "testCount": 14
         }
       ],
@@ -2319,8 +2319,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 9,
+            "inventoried": 9,
             "missing": 0
           }
         },
@@ -2433,9 +2433,9 @@
         }
       ],
       "details": {
-        "routes": 17,
+        "routes": 24,
         "apiRoutes": 15,
-        "pageRoutes": 2,
+        "pageRoutes": 9,
         "ownedModels": 6,
         "featureNotes": 10
       },
@@ -3491,8 +3491,8 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 26
+          "codeCount": 2,
+          "testCount": 20
         },
         {
           "id": "FR-149",
@@ -5280,8 +5280,8 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
-          "testCount": 26
+          "codeCount": 36,
+          "testCount": 20
         },
         {
           "id": "FR-147",
@@ -5294,7 +5294,7 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
+          "codeCount": 25,
           "testCount": 17
         },
         {
@@ -5308,13 +5308,20 @@
           "id": "FR-153",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 17,
+          "codeCount": 18,
           "testCount": 14
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
         "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
         "apps/server/src/app/api/line-oa/accounts/[id]/route.js",
         "apps/server/src/app/api/line-oa/accounts/route.js",
         "apps/server/src/app/api/line-oa/liff-apps/[id]/route.js",
@@ -5323,7 +5330,6 @@
         "apps/server/src/app/api/line-oa/rich-menus/[id]/jobs/route.js",
         "apps/server/src/app/api/line-oa/rich-menus/[id]/route.js",
         "apps/server/src/app/api/line-oa/rich-menus/route.js",
-        "apps/server/src/config/domains.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/line-binding-status.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -5362,7 +5368,6 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
-        "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -5377,16 +5382,12 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
-        "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
-        "apps/server/tests/unit/domain-navigation.test.js",
-        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
-        "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-account-routes.test.js",
@@ -5399,7 +5400,6 @@
         "apps/server/tests/unit/line-oa-rich-menu-publish.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-schema-contract.test.js",
-        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js"
@@ -5443,7 +5443,7 @@
           "id": "FR-149",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 22,
+          "codeCount": 27,
           "testCount": 25
         },
         {
@@ -5455,7 +5455,12 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/team/page.jsx",
         "apps/server/src/app/api/agent/line-delivery/route.js",
         "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/edge/conversation-jobs/[id]/complete/route.js",

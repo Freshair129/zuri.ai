@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=72; operational_domain_keys=11; operational_subdomain_entries=36; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=79; operational_domain_keys=11; operational_subdomain_entries=43; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -352,7 +352,14 @@ The current route evidence is:
 | Route | Surface | Scope | Behavior |
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
+| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View and manage LINE OA accounts, associated projects, credentials status, and create new connections. |
+| `/line-oa/design-studio` | LINE OA Design Studio | Business visibility | Visual designer for Rich Menus, LIFF Apps, Flex Messages, and quick reply templates with live mobile preview. |
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
+| `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
+| `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
+| `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
+| `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
+| `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
 
