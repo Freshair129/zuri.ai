@@ -36,6 +36,7 @@ import {
   Wrench,
   Calculator,
   TrendingDown,
+  Trash2,
 } from 'lucide-react'
 import { Card, SectionTitle, StatusPill, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
@@ -80,21 +81,29 @@ export default function AssetRegisterWorkspace() {
   const [tagModalOpen, setTagModalOpen] = useState(false)
   const [printAssets, setPrintAssets] = useState([])
 
-  // Maintenance & Depreciation
+  // Maintenance, Depreciation & Disposal
   const [depreciationData, setDepreciationData] = useState(null)
   const [maintenanceLogs, setMaintenanceLogs] = useState([])
+  const [disposalLogs, setDisposalLogs] = useState([])
 
   // Context lookup options
   const [peopleList, setPeopleList] = useState([])
   const [projectsList, setProjectsList] = useState([])
 
-  // Action Drawer Sub-Views: null | 'TRANSFER' | 'RELOCATE' | 'ALLOCATE' | 'RETURN' | 'MAINTENANCE' | 'COMPLETE_MAINT'
+  // Action Drawer Sub-Views: null | 'TRANSFER' | 'RELOCATE' | 'ALLOCATE' | 'RETURN' | 'MAINTENANCE' | 'COMPLETE_MAINT' | 'DISPOSE'
   const [activeAction, setActiveAction] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError] = useState('')
   const [actionSuccess, setActionSuccess] = useState('')
 
   // Form States
+  const [disposalForm, setDisposalForm] = useState({
+    method: 'SCRAP',
+    reason: '',
+    salePrice: '',
+    buyerOrRecipient: '',
+    documentRef: '',
+  })
   const [transferForm, setTransferForm] = useState({
     personId: '',
     role: 'CUSTODIAN',
@@ -182,16 +191,17 @@ export default function AssetRegisterWorkspace() {
     fetchAssets()
   }, [fetchAssets])
 
-  // 3. Fetch Single Asset Detail with History, Depreciation, and Maintenance
+  // 3. Fetch Single Asset Detail with History, Depreciation, Maintenance, and Disposal
   const fetchAssetDetail = useCallback(
     async (id) => {
       if (!business?.id || !id) return
       setDetailLoading(true)
       try {
-        const [assetRes, depRes, maintRes] = await Promise.all([
+        const [assetRes, depRes, maintRes, dispRes] = await Promise.all([
           fetch(`/api/assets/register/${id}?businessId=${business.id}`),
           fetch(`/api/assets/register/${id}/depreciation?businessId=${business.id}`),
           fetch(`/api/assets/register/${id}/maintenance?businessId=${business.id}`),
+          fetch(`/api/assets/register/${id}/dispose?businessId=${business.id}`),
         ])
 
         if (assetRes.ok) {
@@ -209,6 +219,12 @@ export default function AssetRegisterWorkspace() {
           setMaintenanceLogs(mJson.items || [])
         } else {
           setMaintenanceLogs([])
+        }
+        if (dispRes.ok) {
+          const dispJson = await dispRes.json()
+          setDisposalLogs(dispJson.items || [])
+        } else {
+          setDisposalLogs([])
         }
       } catch (err) {
         console.error('Failed to fetch asset detail:', err)
@@ -286,6 +302,42 @@ export default function AssetRegisterWorkspace() {
         throw new Error(err.error || 'เกิดข้อผิดพลาดในการบันทึกซ่อมเสร็จ')
       }
       setActionSuccess('บันทึกการซ่อมบำรุงเสร็จสิ้นและคืนสถานะอุปกรณ์เรียบร้อยแล้ว')
+      setActiveAction(null)
+      fetchAssetDetail(selectedAssetId)
+      fetchAssets()
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleDisposalSubmit = async (e) => {
+    e.preventDefault()
+    if (!disposalForm.reason.trim()) {
+      setActionError('กรุณาระบุเหตุผลการตัดจำหน่าย (Disposal Reason)')
+      return
+    }
+    setActionLoading(true)
+    setActionError('')
+    try {
+      const res = await fetch(`/api/assets/register/${selectedAssetId}/dispose`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          businessId: business.id,
+          method: disposalForm.method,
+          reason: disposalForm.reason,
+          salePrice: disposalForm.salePrice ? Number(disposalForm.salePrice) : undefined,
+          buyerOrRecipient: disposalForm.buyerOrRecipient || undefined,
+          documentRef: disposalForm.documentRef || undefined,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'เกิดข้อผิดพลาดในการบันทึกตัดจำหน่าย')
+      }
+      setActionSuccess('บันทึกการตัดจำหน่ายสินทรัพย์ (Disposed) เรียบร้อยแล้ว')
       setActiveAction(null)
       fetchAssetDetail(selectedAssetId)
       fetchAssets()
@@ -748,74 +800,176 @@ export default function AssetRegisterWorkspace() {
                 )}
 
                 {/* Quick Action Toolbar */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
-                  <p className="text-[11px] font-bold text-muted uppercase">Lifecycle Actions</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setActiveAction(activeAction === 'TRANSFER' ? null : 'TRANSFER')}
-                      className={`btn flex items-center gap-1.5 text-xs ${
-                        activeAction === 'TRANSFER' ? 'btn-primary' : 'btn-secondary'
-                      }`}
-                    >
-                      <ArrowRightLeft size={13} />
-                      <span>โอนย้ายผู้ดูแล</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveAction(activeAction === 'RELOCATE' ? null : 'RELOCATE')}
-                      className={`btn flex items-center gap-1.5 text-xs ${
-                        activeAction === 'RELOCATE' ? 'btn-primary' : 'btn-secondary'
-                      }`}
-                    >
-                      <Move size={13} />
-                      <span>ย้ายสถานที่</span>
-                    </button>
-                    {activeProjectAllocation ? (
-                      <button
-                        onClick={() => setActiveAction(activeAction === 'RETURN' ? null : 'RETURN')}
-                        className={`btn flex items-center gap-1.5 text-xs ${
-                          activeAction === 'RETURN' ? 'btn-primary' : 'btn-secondary'
-                        }`}
-                      >
-                        <CornerUpLeft size={13} />
-                        <span>บันทึกคืนจากโปรเจกต์</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setActiveAction(activeAction === 'ALLOCATE' ? null : 'ALLOCATE')}
-                        className={`btn flex items-center gap-1.5 text-xs ${
-                          activeAction === 'ALLOCATE' ? 'btn-primary' : 'btn-secondary'
-                        }`}
-                      >
-                        <FolderKanban size={13} />
-                        <span>จัดสรรเข้าโปรเจกต์</span>
-                      </button>
-                    )}
-
-                    {assetDetail.status === 'MAINTENANCE' ? (
-                      <button
-                        onClick={() => setActiveAction(activeAction === 'COMPLETE_MAINT' ? null : 'COMPLETE_MAINT')}
-                        className={`btn flex items-center gap-1.5 text-xs ${
-                          activeAction === 'COMPLETE_MAINT' ? 'btn-primary' : 'btn-secondary text-emerald-600'
-                        }`}
-                      >
-                        <Check size={13} />
-                        <span>บันทึกซ่อมเสร็จ</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setActiveAction(activeAction === 'MAINTENANCE' ? null : 'MAINTENANCE')}
-                        className={`btn flex items-center gap-1.5 text-xs ${
-                          activeAction === 'MAINTENANCE' ? 'btn-primary' : 'btn-secondary text-amber-600'
-                        }`}
-                      >
-                        <Wrench size={13} />
-                        <span>แจ้งซ่อม / บำรุงรักษา</span>
-                      </button>
-                    )}
+                {assetDetail.status === 'DISPOSED' ? (
+                  <div className="flex items-center gap-2 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400 font-semibold">
+                    <Trash2 size={14} />
+                    <span>สินทรัพย์นี้ถูกตัดจำหน่ายแล้ว (DISPOSED) — ไม่สามารถทำธุรกรรม จัดสรร หรือซ่อมบำรุงต่อได้</span>
                   </div>
-                </div>
+                ) : (
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
+                    <p className="text-[11px] font-bold text-muted uppercase">Lifecycle Actions</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setActiveAction(activeAction === 'TRANSFER' ? null : 'TRANSFER')}
+                        className={`btn flex items-center gap-1.5 text-xs ${
+                          activeAction === 'TRANSFER' ? 'btn-primary' : 'btn-secondary'
+                        }`}
+                      >
+                        <ArrowRightLeft size={13} />
+                        <span>โอนย้ายผู้ดูแล</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveAction(activeAction === 'RELOCATE' ? null : 'RELOCATE')}
+                        className={`btn flex items-center gap-1.5 text-xs ${
+                          activeAction === 'RELOCATE' ? 'btn-primary' : 'btn-secondary'
+                        }`}
+                      >
+                        <Move size={13} />
+                        <span>ย้ายสถานที่</span>
+                      </button>
+                      {activeProjectAllocation ? (
+                        <button
+                          onClick={() => setActiveAction(activeAction === 'RETURN' ? null : 'RETURN')}
+                          className={`btn flex items-center gap-1.5 text-xs ${
+                            activeAction === 'RETURN' ? 'btn-primary' : 'btn-secondary'
+                          }`}
+                        >
+                          <CornerUpLeft size={13} />
+                          <span>บันทึกคืนจากโปรเจกต์</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setActiveAction(activeAction === 'ALLOCATE' ? null : 'ALLOCATE')}
+                          className={`btn flex items-center gap-1.5 text-xs ${
+                            activeAction === 'ALLOCATE' ? 'btn-primary' : 'btn-secondary'
+                          }`}
+                        >
+                          <FolderKanban size={13} />
+                          <span>จัดสรรเข้าโปรเจกต์</span>
+                        </button>
+                      )}
+
+                      {assetDetail.status === 'MAINTENANCE' ? (
+                        <button
+                          onClick={() => setActiveAction(activeAction === 'COMPLETE_MAINT' ? null : 'COMPLETE_MAINT')}
+                          className={`btn flex items-center gap-1.5 text-xs ${
+                            activeAction === 'COMPLETE_MAINT' ? 'btn-primary' : 'btn-secondary text-emerald-600'
+                          }`}
+                        >
+                          <Check size={13} />
+                          <span>บันทึกซ่อมเสร็จ</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setActiveAction(activeAction === 'MAINTENANCE' ? null : 'MAINTENANCE')}
+                          className={`btn flex items-center gap-1.5 text-xs ${
+                            activeAction === 'MAINTENANCE' ? 'btn-primary' : 'btn-secondary text-amber-600'
+                          }`}
+                        >
+                          <Wrench size={13} />
+                          <span>แจ้งซ่อม / บำรุงรักษา</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => setActiveAction(activeAction === 'DISPOSE' ? null : 'DISPOSE')}
+                        className={`btn flex items-center gap-1.5 text-xs ${
+                          activeAction === 'DISPOSE' ? 'btn-primary' : 'btn-secondary text-red-600 hover:text-red-700'
+                        }`}
+                      >
+                        <Trash2 size={13} />
+                        <span>ตัดจำหน่าย (Disposal)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Dynamic Action Forms */}
+                {activeAction === 'DISPOSE' && (
+                  <Card className="border-red-500 bg-[var(--surface)]">
+                    <h3 className="text-xs font-bold text-red-600 flex items-center gap-1.5">
+                      <Trash2 size={14} />
+                      <span>บันทึกการตัดจำหน่ายสินทรัพย์ (Asset Decommissioning & Disposal)</span>
+                    </h3>
+                    <p className="mt-1 text-[11px] text-muted">
+                      การตัดจำหน่ายจะเปลี่ยนสถานะเป็น DISPOSED และระงับการจัดสรรหรือโอนย้ายในอนาคต (AM-RQ-070..073)
+                    </p>
+                    <form onSubmit={handleDisposalSubmit} className="mt-3 space-y-3 text-xs">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] text-muted">วิธีการตัดจำหน่าย (Disposal Method) *</label>
+                          <select
+                            value={disposalForm.method}
+                            onChange={(e) => setDisposalForm({ ...disposalForm, method: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          >
+                            <option value="SCRAP">ทำลาย / ขายเศษซาก (SCRAP)</option>
+                            <option value="SELL">ขายทอดตลาด / ขายมือสอง (SELL)</option>
+                            <option value="DONATE">บริจาคสาธารณะกุศล (DONATE)</option>
+                            <option value="LOSS_THEFT">สูญหาย / ถูกโจรกรรม (LOSS / THEFT)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted">ราคาขาย / มูลค่าซากที่ได้รับ (บาท)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={disposalForm.salePrice}
+                            onChange={(e) => setDisposalForm({ ...disposalForm, salePrice: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-muted">เหตุผลและความจำเป็นในการตัดจำหน่าย *</label>
+                        <input
+                          type="text"
+                          placeholder="เช่น สภาพชำรุดซ่อมไม่คุ้มทุน, หมดอายุการใช้งานตามเกณฑ์"
+                          value={disposalForm.reason}
+                          onChange={(e) => setDisposalForm({ ...disposalForm, reason: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] text-muted">ผู้รับซื้อ / หน่วยงานผู้รับบริจาค</label>
+                          <input
+                            type="text"
+                            placeholder="เช่น บริษัท รีไซเคิล จำกัด หรือ มูลนิธิกระจกเงา"
+                            value={disposalForm.buyerOrRecipient}
+                            onChange={(e) => setDisposalForm({ ...disposalForm, buyerOrRecipient: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted">เอกสารอนุมัติ / ใบเสร็จอ้างอิง</label>
+                          <input
+                            type="text"
+                            placeholder="เช่น DOC-DISP-2026-001"
+                            value={disposalForm.documentRef}
+                            onChange={(e) => setDisposalForm({ ...disposalForm, documentRef: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAction(null)}
+                          className="btn btn-secondary text-xs"
+                        >
+                          ยกเลิก
+                        </button>
+                        <button type="submit" disabled={actionLoading} className="btn btn-primary bg-red-600 hover:bg-red-700 text-white text-xs">
+                          {actionLoading ? 'กำลังบันทึก...' : 'ยืนยันการตัดจำหน่าย'}
+                        </button>
+                      </div>
+                    </form>
+                  </Card>
+                )}
+
                 {activeAction === 'MAINTENANCE' && (
                   <Card className="border-[var(--action-primary)] bg-[var(--surface)]">
                     <h3 className="text-xs font-bold text-amber-600 flex items-center gap-1.5">
@@ -1376,6 +1530,45 @@ export default function AssetRegisterWorkspace() {
                     </div>
                   )}
                 </div>
+
+                {/* Disposal Record Card (AM-RQ-070..073) */}
+                {disposalLogs.length > 0 && (
+                  <div>
+                    <SectionTitle caption="บันทึกการตัดจำหน่าย การจำหน่ายออก และการอนุมัติ">
+                      ประวัติการตัดจำหน่าย (Disposal Record)
+                    </SectionTitle>
+                    <div className="space-y-2">
+                      {disposalLogs.map((d) => (
+                        <div
+                          key={d.id}
+                          className="rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 p-3 text-xs space-y-1.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-red-700 dark:text-red-400 flex items-center gap-1.5">
+                              <Trash2 size={13} />
+                              <span>{d.method} — {d.reason}</span>
+                            </span>
+                            <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:text-red-400">
+                              DISPOSED
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-[11px] text-muted pt-1">
+                            {d.salePrice !== undefined && d.salePrice !== null && (
+                              <div>ราคาขาย / ซาก: <span className="font-semibold text-foreground font-mono">{Number(d.salePrice).toLocaleString()} THB</span></div>
+                            )}
+                            {d.buyerOrRecipient && (
+                              <div>ผู้รับมอบ / ผู้ซื้อ: <span className="font-semibold text-foreground">{d.buyerOrRecipient}</span></div>
+                            )}
+                            {d.documentRef && (
+                              <div>เอกสารอ้างอิง: <span className="font-semibold text-foreground">{d.documentRef}</span></div>
+                            )}
+                            <div>วันที่ตัดจำหน่าย: <span className="font-semibold text-foreground">{new Date(d.disposedAt || d.occurredAt).toLocaleDateString('th-TH')}</span></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
