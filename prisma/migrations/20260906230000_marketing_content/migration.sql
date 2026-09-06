@@ -35,6 +35,7 @@ CREATE TABLE "MarketingContentReview" (
     "briefId" TEXT NOT NULL,
     "contentVersionId" TEXT NOT NULL,
     "payloadHash" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
     "verdict" TEXT NOT NULL,
     "rationale" TEXT NOT NULL,
     "rightsConfirmed" BOOLEAN NOT NULL DEFAULT false,
@@ -51,6 +52,7 @@ CREATE TABLE "MarketingContentDecision" (
     "briefId" TEXT NOT NULL,
     "contentVersionId" TEXT NOT NULL,
     "payloadHash" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
     "reviewId" TEXT,
     "verdict" TEXT NOT NULL,
     "rationale" TEXT NOT NULL,
@@ -75,5 +77,11 @@ CREATE UNIQUE INDEX "MarketingContentVersion_briefId_revision_key" ON "Marketing
 CREATE INDEX "MarketingContentReview_briefId_createdAt_idx" ON "MarketingContentReview"("briefId", "createdAt");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentReview_briefId_sequence_key" ON "MarketingContentReview"("briefId", "sequence");
+
+-- CreateIndex
 CREATE INDEX "MarketingContentDecision_briefId_createdAt_idx" ON "MarketingContentDecision"("briefId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentDecision_briefId_sequence_key" ON "MarketingContentDecision"("briefId", "sequence");
 

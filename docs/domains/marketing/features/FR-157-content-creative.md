@@ -5,7 +5,7 @@ feature: FR-157
 module: marketing
 domain: marketing
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: beta
 created_at: "2026-09-06T21:20:00+07:00,RWANG,b2656bcb"
 last_update: "2026-09-06T21:20:00+07:00,RWANG"
@@ -43,6 +43,9 @@ MarketingContentDecision (briefId, contentVersionId, payloadHash, optional revie
 verdict, rationale, actor/time, optional expiresAt). Children are append-only.
 Unique Business/code and brief/revision. Injected repository transactions include
 parent expectedVersion CAS, new children and immutable AuditEvent atomically.
+Review and decision rows carry sequence = expectedVersion + 1, unique per brief
+in their table. Latest authority sorts by sequence, never wall-clock timestamps;
+equal or backwards clocks cannot resurrect earlier approval.
 
 Title max 200; text fields max 4000, nonempty. Persisted payload fields:
 objective, audience, message, claims, shotList, acceptanceCriteria, evidenceReference,
@@ -139,3 +142,4 @@ local completion; owner-controlled publishing/runtime remain separate gates.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | beta | Pin six approved Content interfaces and exact rights/file/PM contract | See git history | RWANG |
+| 0.1.1b | 2026-09-06 | beta | Bind review/decision order to parent CAS sequence, independent of wall clock | See git history | RWANG |

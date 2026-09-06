@@ -2663,6 +2663,7 @@ model MarketingContentReview {
   briefId String
   contentVersionId String
   payloadHash String
+  sequence Int
   verdict String
   rationale String
   rightsConfirmed Boolean @default(false)
@@ -2672,6 +2673,7 @@ model MarketingContentReview {
   brief MarketingContentBrief @relation(fields: [briefId], references: [id])
   contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
   decisions MarketingContentDecision[]
+  @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
 
@@ -2681,6 +2683,7 @@ model MarketingContentDecision {
   briefId String
   contentVersionId String
   payloadHash String
+  sequence Int
   reviewId String?
   verdict String
   rationale String
@@ -2690,5 +2693,6 @@ model MarketingContentDecision {
   brief MarketingContentBrief @relation(fields: [briefId], references: [id])
   contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
   review MarketingContentReview? @relation(fields: [reviewId], references: [id])
+  @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
