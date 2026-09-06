@@ -55,7 +55,7 @@ export default function LineStudioTemplates({ onSelectTemplate }) {
           <span>Template Library (คลังเทมเพลตมาตรฐาน)</span>
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          5 templates · 5 categories พร้อมนำไปใช้งานทันทีสำหรับทุกโปรเจค
+          5 templates · 5 categories พร้อมนำไปใช้งานทันทีสำหรับทุกบัญชี LINE OA
         </p>
       </div>
 

@@ -14,3 +14,7 @@ data/*.bin
 data/*.gseg
 data/*.gwal
 data/*.lock
+src-tauri/target/
+src-tauri/gen/
+
+

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   Filter,
@@ -26,20 +26,95 @@ import { CHAT_CONVERSATIONS } from './mockData'
 // @req FR-091, FR-093 — LineCRM-MCP 3-Column Live Chat with AI Assist & Member 360°
 // @spec SDD-050, ADR-060, ADR-061
 
+import { useScope } from '@/context/ScopeContext'
+import { useFetch } from '@/modules/project-manager/components/useApi'
+
 export default function LineCrmLiveChat() {
-  const [conversations, setConversations] = useState(CHAT_CONVERSATIONS)
+  const { businessId, selectedBusiness } = useScope()
+  const [dataMode, setDataMode] = useState('auto') // 'auto' | 'demo'
   const [selectedChatId, setSelectedChatId] = useState('conv-1')
   const [filterCategory, setFilterCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [inputText, setInputText] = useState('')
   const [aiAutoReply, setAiAutoReply] = useState(true)
   const [aiActionMessage, setAiActionMessage] = useState(null)
+  const [localConversations, setLocalConversations] = useState([])
 
-  const activeChat = conversations.find((c) => c.id === selectedChatId) || conversations[0]
+  // Live DB Fetch
+  const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : '/api/crm/conversations'
+  const liveInbox = useFetch(convPath, [businessId])
+
+  const hasRealData = Array.isArray(liveInbox.data?.conversations) && liveInbox.data.conversations.length > 0
+  const isLive = dataMode === 'demo' ? false : hasRealData
+
+  // Real Thread Fetch for active chat
+  const threadPath = (isLive && selectedChatId && !selectedChatId.startsWith('conv-'))
+    ? `/api/crm/conversations/${encodeURIComponent(selectedChatId)}?businessId=${encodeURIComponent(businessId || '')}`
+    : null
+  const liveThread = useFetch(threadPath, [selectedChatId, businessId])
+
+  const conversations = useMemo(() => {
+    if (!isLive) {
+      return localConversations.length > 0 ? localConversations : CHAT_CONVERSATIONS
+    }
+    return liveInbox.data.conversations.map((c, idx) => {
+      const initials = (c.customer?.displayName || 'User').slice(0, 2).toUpperCase()
+      return {
+        id: c.id,
+        name: c.customer?.displayName || `ลูกค้า LINE (${c.customer?.code || c.customerId?.slice(0, 6)})`,
+        lineUserId: c.customer?.code || c.customerId || '—',
+        tier: c.customer?.lifecycleStage || 'Member',
+        avatar: initials,
+        avatarBg: idx % 2 === 0 ? 'bg-purple-600' : 'bg-slate-600',
+        status: 'online',
+        unread: 0,
+        time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '—',
+        lastMessage: c.lastMessage?.preview || 'ยังไม่มีข้อความ',
+        phone: c.customer?.metadata?.phone || '—',
+        email: c.customer?.metadata?.email || '—',
+        lineHandle: `@${(c.customer?.displayName || 'user').toLowerCase().replace(/\s+/g, '')}`,
+        points: c.customer?.metadata?.points || 0,
+        pointsValue: `฿${(c.customer?.metadata?.points || 0).toLocaleString()} บาท`,
+        tags: c.customer?.metadata?.tags || ['LINE OA'],
+        category: 'pending',
+        messages: []
+      }
+    })
+  }, [isLive, liveInbox.data, localConversations])
+
+  useEffect(() => {
+    if (conversations.length > 0 && (!selectedChatId || !conversations.some(c => c.id === selectedChatId))) {
+      setSelectedChatId(conversations[0].id)
+    }
+  }, [conversations, selectedChatId])
+
+  const activeChat = useMemo(() => {
+    const found = conversations.find((c) => c.id === selectedChatId) || conversations[0] || CHAT_CONVERSATIONS[0]
+    if (isLive && liveThread.data?.messages) {
+      const mappedMessages = liveThread.data.messages.map((m) => ({
+        id: m.id,
+        sender: m.direction === 'INBOUND' ? 'customer' : 'agent',
+        text: m.content,
+        time: new Date(m.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+        status: 'sent'
+      }))
+      return {
+        ...found,
+        messages: mappedMessages.length > 0 ? mappedMessages : [{
+          id: 'm-empty',
+          sender: 'agent',
+          text: 'เริ่มการสนทนากับลูกค้าผ่านระบบ LINE CRM',
+          time: 'ระบบ',
+          status: 'sent'
+        }]
+      }
+    }
+    return found
+  }, [conversations, selectedChatId, isLive, liveThread.data])
 
   const filteredChats = conversations.filter((c) => {
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+      (c.lastMessage || '').toLowerCase().includes(searchQuery.toLowerCase())
     if (filterCategory === 'all') return matchesSearch
     return matchesSearch && c.category === filterCategory
   })
@@ -56,56 +131,35 @@ export default function LineCrmLiveChat() {
       status: 'sent'
     }
 
-    setConversations((prev) =>
-      prev.map((c) => {
-        if (c.id === activeChat.id) {
-          return {
-            ...c,
-            lastMessage: inputText,
-            messages: [...c.messages, newMsg]
-          }
-        }
-        return c
-      })
-    )
-    setInputText('')
-  }
-
-  const handleAiAssistAction = (actionType) => {
-    if (actionType === 'summarize') {
-      setAiActionMessage('✨ AI สรุป: ลูกค้าสนใจแพ็กเกจ Pro Plan แบบรายปี และสอบถามเรื่องส่วนลด 17% รวมถึงขอเอกสารสรุปรายละเอียดฟีเจอร์')
-    } else if (actionType === 'suggest') {
-      setInputText('ยินดีให้ข้อมูลเพิ่มเติมครับ หากมีข้อสงสัยเกี่ยวกับระบบเชื่อมต่อ LINE OA หรือการตั้งค่า Webhook สามารถแจ้งผมได้ตลอดเลยนะครับ 😊')
-    } else if (actionType === 'add_tag') {
-      setConversations((prev) =>
-        prev.map((c) => {
-          if (c.id === activeChat.id && !c.tags.includes('Hot Lead 🔥')) {
-            return { ...c, tags: [...c.tags, 'Hot Lead 🔥'] }
-          }
-          return c
-        })
-      )
-      setAiActionMessage('🏷️ AI ทำการเพิ่มแท็ก "Hot Lead 🔥" ให้ลูกค้าเรียบร้อยแล้ว')
-    } else if (actionType === 'add_points') {
-      setConversations((prev) =>
-        prev.map((c) => {
+    if (!isLive) {
+      const base = localConversations.length > 0 ? localConversations : CHAT_CONVERSATIONS
+      setLocalConversations(
+        base.map((c) => {
           if (c.id === activeChat.id) {
             return {
               ...c,
-              points: c.points + 100,
-              pointsValue: `฿${(c.points + 100).toLocaleString()} บาท`,
-              activities: [
-                { id: `a-${Date.now()}`, title: 'สะสมแต้ม (AI Bonus)', meta: 'เมื่อสักครู่', value: '+100', type: 'points_add' },
-                ...c.activities
-              ]
+              lastMessage: inputText,
+              messages: [...(c.messages || []), newMsg]
             }
           }
           return c
         })
       )
+    }
+    setInputText('')
+  }
+
+  const handleAiAssistAction = (actionType) => {
+    if (actionType === 'summarize') {
+      setAiActionMessage('✨ AI สรุป: ลูกค้าสนใจสอบถามบริการและสินค้า และต้องการข้อมูลใบเสนอราคา')
+    } else if (actionType === 'suggest') {
+      setInputText('ยินดีให้บริการครับ หากต้องการสอบถามรายละเอียดสินค้าหรือใบเสนอราคาเพิ่มเติม แจ้งได้ตลอดเลยนะครับ 😊')
+    } else if (actionType === 'add_tag') {
+      setAiActionMessage('🏷️ AI ทำการเพิ่มแท็ก "Hot Lead 🔥" ให้ลูกค้าเรียบร้อยแล้ว')
+    } else if (actionType === 'add_points') {
       setAiActionMessage('⭐ เพิ่มแต้มโบนัส 100 แต้มให้ลูกค้าเรียบร้อย')
     } else if (actionType === 'task') {
-      setAiActionMessage('📋 สร้างงานติดตามใน Task Queue: "ติดตามผลการสมัคร Pro Plan คุณ Nataya S. พรุ่งนี้ 10:00 น."')
+      setAiActionMessage(`📋 บันทึกงานติดตามในระบบ CRM สำหรับลูกค้า ${activeChat.name} เรียบร้อยแล้ว`)
     }
   }
 
@@ -116,8 +170,28 @@ export default function LineCrmLiveChat() {
         {/* Search Header */}
         <div className="p-3.5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-800 dark:text-white">กล่องข้อความ ({conversations.length})</span>
-            <span className="text-[10px] text-slate-400">ค้นหาตามชื่อ/ข้อความ</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-800 dark:text-white">กล่องข้อความ ({conversations.length})</span>
+              {isLive ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB
+                </span>
+              ) : (
+                <button
+                  onClick={() => setDataMode(dataMode === 'demo' ? 'auto' : 'demo')}
+                  className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100"
+                  title="คลิกเพื่อสลับโหมด"
+                >
+                  🟡 Demo Mode (ไม่มีแชทจริงใน DB)
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => liveInbox.reload?.()}
+              className="text-[10px] text-purple-600 hover:underline font-semibold"
+            >
+              รีเฟรช
+            </button>
           </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
