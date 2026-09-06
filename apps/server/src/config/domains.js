@@ -167,6 +167,7 @@ export const DOMAINS = [
       { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
       { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
+      { label: 'Integrations & AI', path: '/line-oa/integrations', icon: PlugZap },
       { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },
       { label: 'ทีม', path: '/line-oa/team', icon: Users },
       { label: 'Settings', path: '/line-oa/settings', icon: Settings },

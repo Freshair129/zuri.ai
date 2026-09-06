@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T19:56:01.493Z",
+  "generatedAt": "2026-09-06T20:17:26.758Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2415,6 +2415,13 @@
           "testCount": 36
         },
         {
+          "id": "FR-080",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 15
+        },
+        {
           "id": "FR-091",
           "declared": "done",
           "status": "verified",
@@ -2432,7 +2439,7 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 28,
+          "codeCount": 29,
           "testCount": 20
         },
         {
@@ -2479,8 +2486,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 9,
-            "inventoried": 9,
+            "routes": 10,
+            "inventoried": 10,
             "missing": 0
           }
         },
@@ -2593,9 +2600,9 @@
         }
       ],
       "details": {
-        "routes": 24,
+        "routes": 25,
         "apiRoutes": 15,
-        "pageRoutes": 9,
+        "pageRoutes": 10,
         "ownedModels": 6,
         "featureNotes": 10
       },
@@ -4449,7 +4456,8 @@
       "primaryDomain": "integration",
       "contributorDomains": [
         "agent",
-        "integration"
+        "integration",
+        "line-oa-studio"
       ],
       "useCase": "Owner เลือก LINE model provider และ Vault reference ของ Business โดยไม่เปิดเผย secret ใน browser",
       "progressPercent": 100,
@@ -4477,11 +4485,12 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
+          "codeCount": 10,
           "testCount": 15
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
         "apps/server/src/app/(pm)/platform/integrations/page.jsx",
         "apps/server/src/app/api/platform/integrations/line-registry/route.js",
         "apps/server/src/app/api/platform/integrations/route.js",
@@ -5605,7 +5614,7 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 36,
+          "codeCount": 37,
           "testCount": 20
         },
         {
@@ -5640,6 +5649,7 @@
       "evidence": [
         "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
         "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+        "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
         "apps/server/src/app/(pm)/line-oa/projects/page.jsx",

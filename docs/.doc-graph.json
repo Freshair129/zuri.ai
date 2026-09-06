@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2259,
-    "total_edges": 8963,
+    "total_nodes": 2261,
+    "total_edges": 8967,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 14,
       "roadmap": 43,
       "feature": 24,
-      "route": 274,
+      "route": 275,
       "model": 119,
       "requirement": 325,
       "test": 522,
-      "code_file": 666
+      "code_file": 667
     },
     "coverage": {
       "requirements": 325,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (155/155)",
       "rules_anchored_in_code": "96% (131/136)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 666,
+      "annotated_code_files": 667,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,11 +55,69 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/fr149-line-server-console.spec.js",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx"
+      "doc:A-api-spec",
+      "doc:B-db-schema",
+      "doc:full-schema",
+      "domain:asset-management",
+      "domain:commerce",
+      "domain:inventory",
+      "doc:ONTOLOGY",
+      "domain:market-intelligence",
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:PRODUCT",
+      "doc:ROADMAP",
+      "doc:SITEMAP-DOMAIN-NAV",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/command-palette-index.test.js",
+      "test:tests/unit/domain-state.test.js",
+      "code:src/config/domains.js",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/identity/rbac.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "domain:procurement",
+      "doc:FR-164-suppliers-and-purchase-orders",
+      "doc:FR-165-goods-receipts",
+      "doc:ERP-MODULE-MAP",
+      "feat:FEAT-024",
+      "route:page:/procurement",
+      "route:page:/procurement/purchase-orders",
+      "route:api:/api/procurement/purchase-orders",
+      "route:api:/api/procurement/purchase-orders/[id]/receipts",
+      "route:api:/api/procurement/purchase-orders/[id]",
+      "route:api:/api/procurement/suppliers",
+      "route:api:/api/procurement/suppliers/[id]",
+      "model:Supplier",
+      "model:PurchaseOrder",
+      "model:PurchaseOrderLine",
+      "model:GoodsReceipt",
+      "model:GoodsReceiptLine",
+      "req:FR-164",
+      "req:FR-165",
+      "test:tests/e2e/fr164-procurement.spec.js",
+      "test:tests/integration/fr164-procurement.test.js",
+      "test:tests/integration/fr165-goods-receipt.test.js",
+      "test:tests/unit/procurement-domain.test.js",
+      "test:tests/unit/procurement-routes.test.js",
+      "code:src/app/(pm)/procurement/page.jsx",
+      "code:src/app/(pm)/procurement/purchase-orders/page.jsx",
+      "code:src/app/api/procurement/purchase-orders/route.js",
+      "code:src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
+      "code:src/app/api/procurement/purchase-orders/[id]/route.js",
+      "code:src/app/api/procurement/suppliers/route.js",
+      "code:src/app/api/procurement/suppliers/[id]/route.js",
+      "code:src/modules/procurement/application/goods-receipt-service.js",
+      "code:src/modules/procurement/application/procurement-authority.js",
+      "code:src/modules/procurement/application/purchase-order-service.js",
+      "code:src/modules/procurement/application/supplier-service.js",
+      "code:src/modules/procurement/domain/procurement.js",
+      "code:src/modules/procurement/index.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -799,6 +857,22 @@
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/integrations/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
+      "hash": "e6bcb3e8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080",
+          "FR-146"
+        ],
+        "@spec": [
+          "SDD-044"
         ]
       }
     },
@@ -6091,8 +6165,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "4af8ea19",
-      "status": "current",
+      "hash": "8cd718eb",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -6423,7 +6497,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "3d88090d",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8580,7 +8654,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
       "hash": "083fb152",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-076",
@@ -10166,7 +10240,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "hash": "437c0f24",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -11605,7 +11679,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "04436538",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11684,7 +11758,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "e98e3b07",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13659,7 +13733,7 @@
       "version": "1.48.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "5d3b776f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13713,7 +13787,7 @@
       "version": "1.26.0b",
       "doc_status": "Draft",
       "hash": "5081e8de",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14085,7 +14159,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "f7c09b3b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15020,7 +15094,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "03eb8c03",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -15067,8 +15141,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0578534b",
-      "status": "current"
+      "hash": "40bcc63c",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -15162,7 +15236,7 @@
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
       "hash": "adf0acc7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PARALLEL-REVIEW-2026-09-06",
@@ -15570,7 +15644,7 @@
       "version": "1.164.0b",
       "doc_status": "Draft",
       "hash": "09f5ecf5",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -15580,7 +15654,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "e5bbfd88",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:prompt-engineering",
@@ -15598,7 +15672,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "cee05cfc",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15634,7 +15708,7 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "6096c26f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:UI-DESIGN-SYSTEM",
@@ -15875,7 +15949,7 @@
         "asset-management"
       ],
       "hash": "d3595dcb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:commerce",
@@ -15898,7 +15972,7 @@
         "commerce"
       ],
       "hash": "e6951ec9",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:crm",
@@ -16038,7 +16112,7 @@
         "inventory"
       ],
       "hash": "097cc353",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -16100,7 +16174,7 @@
         "market-intelligence"
       ],
       "hash": "4c916d04",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:marketing",
@@ -22030,6 +22104,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/integrations",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/integrations",
+      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/line-oa/live-crm",
       "type": "route",
       "kind": "page",
@@ -23086,14 +23168,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
       "hash": "c088a438",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "8c213193",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
@@ -23877,7 +23959,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "518589eb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -24430,7 +24512,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
       "hash": "d3b74557",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/commerce-domain.test.js",
@@ -24703,7 +24785,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "29f93a40",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -27594,6 +27676,27 @@
     {
       "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
       "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
+      "to": "req:SDD-044",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -55439,6 +55542,13 @@
     },
     {
       "from": "route:page:/line-oa/edge-connection",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/integrations",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
