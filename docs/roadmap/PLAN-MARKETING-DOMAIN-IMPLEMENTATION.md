@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T13:58:59+07:00,RWANG"
+last_update: "2026-09-06T14:15:00+07:00,RWANG"
 status: candidate
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.1.0b
+**Version:** 0.2.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -61,7 +61,7 @@ blocks the next wave's items. Specific contract/persistence/source dependencies 
 The verification task depends on every delivery item in its wave. This follows the conservative approved
 wave order; work within a wave can proceed when its own dependencies are satisfied.
 
-A DONE transition requires acceptance evidence. W1 includes real persistence and MSP/Agent owner acceptance.
+The delivery policy requires acceptance evidence before a DONE transition. This is currently a human review rule: the existing PM status mutation does not enforce evidence presence, and its Roadmap/WorkItem UI does not expose these custom acceptance/evidence fields. The import preserves them as metadata; metadata persistence is not a user-visible completion guard. W1 includes real persistence and MSP/Agent owner acceptance.
 W2 requires all five source readers, scoped tests and independent live-read receipts. W3 requires specialist
 journeys through measurement and refinement. W4 requires per-action authority, owner contracts, canary and
 recovery evidence. Design approval does not authorize a live publishing or spending action.
@@ -169,10 +169,16 @@ services to record evidence and status at meaningful delivery/verification check
 - Instance/session/Workspace verification, server dry-run, transactional import and read-back: **pending target clarification**.
 - No application source, database, route, permission or provider account was modified during plan preparation.
 
+## Parallel development review
+
+The user requested GPT-5.6 Luna with max reasoning for parallel work. Three bounded agents independently reviewed the PM import plan, Wave 1 persistence/authorization contracts and Wave 1 interface contracts. Root reconciles shared schema, registry and shell changes. This is the development team configuration; no Marketing runtime model selection or permission was changed.
+
+[Parallel review and lane decisions](marketing/PARALLEL-REVIEW-2026-09-06.md) records findings and the first functional slice. All 47 task identities/statuses/weights and 100 interface mappings are preserved. Task-specific design references now include applicable Navigation, Inventory, Channel and Team documents. No server import has occurred, so the initial idempotency key is retained; it must not be changed on a transport retry.
+
 ## Version diff
 
 Approved domain design remains 1.1.0b / commit 494a3666.
-New tracking plan and JSON artifacts: **0.1.0b**. This records approval and delivery tracking
+Tracking plan **0.1.0b → 0.2.0b**: parallel review, task-specific provenance and explicit PM UI/enforcement limits. This records approval and delivery tracking
 without changing the approved 11-subdomain design.
 
 ## CHANGELOG
@@ -180,3 +186,4 @@ without changing the approved 11-subdomain design.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Decompose approved design into five weighted waves with 47 tasks, complete interface coverage and explicit import evidence boundaries | See git history | RWANG |
+| 0.2.0b | 2026-09-06 | candidate | Incorporate three GPT-5.6 Luna max reviews; enrich task provenance and distinguish stored metadata from PM UI/enforcement | See git history | RWANG |

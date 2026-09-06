@@ -67,7 +67,9 @@
               "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md"
             ],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "design evidence only",
             "interfaceIds": []
@@ -90,7 +92,9 @@
               "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md"
             ],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "design evidence only",
             "interfaceIds": []
@@ -189,7 +193,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -209,7 +217,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -229,7 +239,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -260,7 +272,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -287,7 +301,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -315,7 +331,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -342,7 +360,9 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -370,7 +390,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -390,7 +411,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -410,7 +432,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -430,7 +453,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -450,7 +474,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -470,7 +495,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -504,7 +532,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -577,7 +609,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -597,7 +630,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -617,7 +651,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -637,7 +672,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -657,7 +693,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -677,7 +714,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -697,7 +735,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -717,7 +756,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -744,7 +786,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -766,7 +811,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -793,7 +841,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -817,7 +868,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -890,7 +945,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -919,7 +977,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -946,7 +1007,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -970,7 +1034,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -995,7 +1062,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1019,7 +1089,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1045,7 +1118,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1067,7 +1143,10 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1090,7 +1169,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1163,7 +1246,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1185,7 +1272,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1205,7 +1293,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1225,7 +1314,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1247,7 +1340,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1267,7 +1361,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1287,7 +1382,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": [
@@ -1309,7 +1408,8 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
@@ -1329,7 +1429,11 @@
             ],
             "evidenceRefs": [],
             "designRefs": [
-              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+              "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
             ],
             "implementationStatus": "not started",
             "interfaceIds": []
