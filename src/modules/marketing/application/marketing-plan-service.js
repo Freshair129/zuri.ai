@@ -637,9 +637,15 @@ export async function getApprovedMarketingPlanForHandoff({
   db,
   now = () => new Date(),
   createRepository = createMarketingPlanRepository,
+  operation = 'commit',
 } = {}) {
   requireDependencies({ db, createRepository })
-  const { scope } = await assertMarketingWriteAccess({ db, viewer, businessId })
+  // Preview is a read of an already-approved artifact. Commit callers remain
+  // owner-gated by default, including unknown operation values.
+  const access = operation === 'preview'
+    ? await assertMarketingReadAccess({ db, viewer, businessId })
+    : await assertMarketingWriteAccess({ db, viewer, businessId })
+  const { scope } = access
   const repository = requireRepository(db, createRepository, scope)
   const aggregate = requireAggregate(await repository.load(planId))
   assertPlanBusiness(aggregate, businessId)
@@ -653,7 +659,7 @@ export async function getApprovedMarketingPlanForHandoff({
   const { approval } = assertCurrentApproval(aggregate, resolveNow(now))
 
   return {
-    plan: toMarketingPlanDto(aggregate, { canWrite: true }),
+    plan: toMarketingPlanDto(aggregate, { canWrite: access.canWrite }),
     approval: decisionDto(approval),
   }
 }

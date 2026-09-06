@@ -352,6 +352,34 @@ describe('Marketing Strategy plan persistence (FR-153)', () => {
   })
 
   it('exports one exact approval gate for PM and rejects expiry, revocation and archive mutation', async () => {
+    const visibleOnly = makeViewer({
+      principal: { id: 'marketing-visible-only' },
+      visibleBusinessIds: [businessA.id],
+      ownedBusinessIds: [],
+      visibleDomains: DOMAINS,
+    })
+    const preview = await getApprovedMarketingPlanForHandoff({
+      planId: plan.id,
+      businessId: businessA.id,
+      expectedVersion: plan.version,
+      viewer: visibleOnly,
+      db: prisma,
+      now,
+      operation: 'preview',
+      createRepository: createMarketingPlanRepository,
+    })
+    expect(preview.plan.canWrite).toBe(false)
+    await expect(getApprovedMarketingPlanForHandoff({
+      planId: plan.id,
+      businessId: businessA.id,
+      expectedVersion: plan.version,
+      viewer: visibleOnly,
+      db: prisma,
+      now,
+      operation: 'commit',
+      createRepository: createMarketingPlanRepository,
+    })).rejects.toMatchObject({ status: 404 })
+
     const approved = await getApprovedMarketingPlanForHandoff({
       planId: plan.id,
       businessId: businessA.id,
