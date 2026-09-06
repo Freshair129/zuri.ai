@@ -33,6 +33,9 @@ import {
   Camera,
   CheckSquare,
   Square,
+  Wrench,
+  Calculator,
+  TrendingDown,
 } from 'lucide-react'
 import { Card, SectionTitle, StatusPill, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
@@ -77,11 +80,15 @@ export default function AssetRegisterWorkspace() {
   const [tagModalOpen, setTagModalOpen] = useState(false)
   const [printAssets, setPrintAssets] = useState([])
 
+  // Maintenance & Depreciation
+  const [depreciationData, setDepreciationData] = useState(null)
+  const [maintenanceLogs, setMaintenanceLogs] = useState([])
+
   // Context lookup options
   const [peopleList, setPeopleList] = useState([])
   const [projectsList, setProjectsList] = useState([])
 
-  // Action Drawer Sub-Views: null | 'TRANSFER' | 'RELOCATE' | 'ALLOCATE' | 'RETURN'
+  // Action Drawer Sub-Views: null | 'TRANSFER' | 'RELOCATE' | 'ALLOCATE' | 'RETURN' | 'MAINTENANCE' | 'COMPLETE_MAINT'
   const [activeAction, setActiveAction] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError] = useState('')
@@ -108,6 +115,19 @@ export default function AssetRegisterWorkspace() {
   const [returnForm, setReturnForm] = useState({
     returnCondition: 'GOOD',
     note: '',
+  })
+  const [maintenanceForm, setMaintenanceForm] = useState({
+    title: '',
+    issueDescription: '',
+    priority: 'NORMAL',
+    serviceProvider: '',
+    estimatedCost: '',
+  })
+  const [completeMaintForm, setCompleteMaintForm] = useState({
+    resolutionNotes: '',
+    actualCost: '',
+    newCondition: 'GOOD',
+    invoiceRef: '',
   })
 
   // 1. Fetch Registered Assets
@@ -162,16 +182,33 @@ export default function AssetRegisterWorkspace() {
     fetchAssets()
   }, [fetchAssets])
 
-  // 3. Fetch Single Asset Detail with History
+  // 3. Fetch Single Asset Detail with History, Depreciation, and Maintenance
   const fetchAssetDetail = useCallback(
     async (id) => {
       if (!business?.id || !id) return
       setDetailLoading(true)
       try {
-        const res = await fetch(`/api/assets/register/${id}?businessId=${business.id}`)
-        if (res.ok) {
-          const json = await res.json()
+        const [assetRes, depRes, maintRes] = await Promise.all([
+          fetch(`/api/assets/register/${id}?businessId=${business.id}`),
+          fetch(`/api/assets/register/${id}/depreciation?businessId=${business.id}`),
+          fetch(`/api/assets/register/${id}/maintenance?businessId=${business.id}`),
+        ])
+
+        if (assetRes.ok) {
+          const json = await assetRes.json()
           setAssetDetail(json.asset)
+        }
+        if (depRes.ok) {
+          const depJson = await depRes.json()
+          setDepreciationData(depJson)
+        } else {
+          setDepreciationData(null)
+        }
+        if (maintRes.ok) {
+          const mJson = await maintRes.json()
+          setMaintenanceLogs(mJson.items || [])
+        } else {
+          setMaintenanceLogs([])
         }
       } catch (err) {
         console.error('Failed to fetch asset detail:', err)
@@ -188,6 +225,75 @@ export default function AssetRegisterWorkspace() {
     setActionError('')
     setActionSuccess('')
     fetchAssetDetail(id)
+  }
+
+  const handleMaintenanceSubmit = async (e) => {
+    e.preventDefault()
+    if (!maintenanceForm.title.trim()) {
+      setActionError('กรุณาระบุหัวข้อหรืออาการที่ต้องการส่งซ่อม')
+      return
+    }
+    setActionLoading(true)
+    setActionError('')
+    try {
+      const res = await fetch(`/api/assets/register/${selectedAssetId}/maintenance`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          businessId: business.id,
+          action: 'CREATE',
+          title: maintenanceForm.title,
+          issueDescription: maintenanceForm.issueDescription,
+          priority: maintenanceForm.priority,
+          serviceProvider: maintenanceForm.serviceProvider,
+          estimatedCost: maintenanceForm.estimatedCost || undefined,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'เกิดข้อผิดพลาดในการเปิดใบแจ้งซ่อม')
+      }
+      setActionSuccess('บันทึกเปิดใบแจ้งซ่อมและปรับสถานะเป็น MAINTENANCE เรียบร้อยแล้ว')
+      setActiveAction(null)
+      fetchAssetDetail(selectedAssetId)
+      fetchAssets()
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleCompleteMaintenanceSubmit = async (e) => {
+    e.preventDefault()
+    setActionLoading(true)
+    setActionError('')
+    try {
+      const res = await fetch(`/api/assets/register/${selectedAssetId}/maintenance`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          businessId: business.id,
+          action: 'COMPLETE',
+          resolutionNotes: completeMaintForm.resolutionNotes,
+          actualCost: completeMaintForm.actualCost || undefined,
+          newCondition: completeMaintForm.newCondition,
+          invoiceRef: completeMaintForm.invoiceRef || undefined,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'เกิดข้อผิดพลาดในการบันทึกซ่อมเสร็จ')
+      }
+      setActionSuccess('บันทึกการซ่อมบำรุงเสร็จสิ้นและคืนสถานะอุปกรณ์เรียบร้อยแล้ว')
+      setActiveAction(null)
+      fetchAssetDetail(selectedAssetId)
+      fetchAssets()
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setActionLoading(false)
+    }
   }
 
   const copyQrUri = (code) => {
@@ -684,10 +790,182 @@ export default function AssetRegisterWorkspace() {
                         <span>จัดสรรเข้าโปรเจกต์</span>
                       </button>
                     )}
+
+                    {assetDetail.status === 'MAINTENANCE' ? (
+                      <button
+                        onClick={() => setActiveAction(activeAction === 'COMPLETE_MAINT' ? null : 'COMPLETE_MAINT')}
+                        className={`btn flex items-center gap-1.5 text-xs ${
+                          activeAction === 'COMPLETE_MAINT' ? 'btn-primary' : 'btn-secondary text-emerald-600'
+                        }`}
+                      >
+                        <Check size={13} />
+                        <span>บันทึกซ่อมเสร็จ</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setActiveAction(activeAction === 'MAINTENANCE' ? null : 'MAINTENANCE')}
+                        className={`btn flex items-center gap-1.5 text-xs ${
+                          activeAction === 'MAINTENANCE' ? 'btn-primary' : 'btn-secondary text-amber-600'
+                        }`}
+                      >
+                        <Wrench size={13} />
+                        <span>แจ้งซ่อม / บำรุงรักษา</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
                 {/* Dynamic Action Forms */}
+                {activeAction === 'MAINTENANCE' && (
+                  <Card className="border-[var(--action-primary)] bg-[var(--surface)]">
+                    <h3 className="text-xs font-bold text-amber-600 flex items-center gap-1.5">
+                      <Wrench size={14} />
+                      <span>เปิดใบแจ้งซ่อม / บำรุงรักษา (Maintenance Ticket)</span>
+                    </h3>
+                    <form onSubmit={handleMaintenanceSubmit} className="mt-3 space-y-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] text-muted">หัวข้อ / อาการที่ต้องซ่อมบำรุง *</label>
+                        <input
+                          type="text"
+                          placeholder="เช่น แบตเตอรี่เสื่อม, จอดับ, ซ่อมบำรุงตามระยะรอบปี"
+                          value={maintenanceForm.title}
+                          onChange={(e) => setMaintenanceForm({ ...maintenanceForm, title: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] text-muted">ระดับความเร่งด่วน</label>
+                          <select
+                            value={maintenanceForm.priority}
+                            onChange={(e) => setMaintenanceForm({ ...maintenanceForm, priority: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          >
+                            <option value="LOW">ต่ำ (Low)</option>
+                            <option value="NORMAL">ปกติ (Normal)</option>
+                            <option value="HIGH">สูง (High)</option>
+                            <option value="URGENT">ด่วนฉุกเฉิน (Urgent)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted">ผู้ให้บริการ / ศูนย์ซ่อม</label>
+                          <input
+                            type="text"
+                            placeholder="เช่น Apple Care, ศูนย์บริการภายนอก"
+                            value={maintenanceForm.serviceProvider}
+                            onChange={(e) => setMaintenanceForm({ ...maintenanceForm, serviceProvider: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] text-muted">ประมาณการค่าใช้จ่าย (บาท)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={maintenanceForm.estimatedCost}
+                            onChange={(e) => setMaintenanceForm({ ...maintenanceForm, estimatedCost: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted">รายละเอียดเพิ่มเติม</label>
+                          <input
+                            type="text"
+                            placeholder="หมายเหตุอาการ"
+                            value={maintenanceForm.issueDescription}
+                            onChange={(e) => setMaintenanceForm({ ...maintenanceForm, issueDescription: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAction(null)}
+                          className="btn btn-secondary text-xs"
+                        >
+                          ยกเลิก
+                        </button>
+                        <button type="submit" disabled={actionLoading} className="btn btn-primary text-xs">
+                          {actionLoading ? 'กำลังบันทึก...' : 'เปิดใบแจ้งซ่อม'}
+                        </button>
+                      </div>
+                    </form>
+                  </Card>
+                )}
+
+                {activeAction === 'COMPLETE_MAINT' && (
+                  <Card className="border-emerald-500 bg-[var(--surface)]">
+                    <h3 className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                      <Check size={14} />
+                      <span>บันทึกการซ่อมบำรุงเสร็จสิ้น (Complete Maintenance)</span>
+                    </h3>
+                    <form onSubmit={handleCompleteMaintenanceSubmit} className="mt-3 space-y-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] text-muted">สรุปผลการซ่อม / การเปลี่ยนอะไหล่</label>
+                        <input
+                          type="text"
+                          placeholder="เช่น เปลี่ยนแบตเตอรี่ใหม่ และทดสอบการใช้งานผ่าน"
+                          value={completeMaintForm.resolutionNotes}
+                          onChange={(e) => setCompleteMaintForm({ ...completeMaintForm, resolutionNotes: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] text-muted">ค่าใช้จ่ายจริง (บาท)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={completeMaintForm.actualCost}
+                            onChange={(e) => setCompleteMaintForm({ ...completeMaintForm, actualCost: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted">เลขที่ใบเสร็จ / Invoice</label>
+                          <input
+                            type="text"
+                            placeholder="INV-XXXXX"
+                            value={completeMaintForm.invoiceRef}
+                            onChange={(e) => setCompleteMaintForm({ ...completeMaintForm, invoiceRef: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-muted">สภาพหลังซ่อมเสร็จ (New Condition)</label>
+                        <select
+                          value={completeMaintForm.newCondition}
+                          onChange={(e) => setCompleteMaintForm({ ...completeMaintForm, newCondition: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2"
+                        >
+                          <option value="EXCELLENT">สมบูรณ์แบบ (EXCELLENT)</option>
+                          <option value="GOOD">สภาพดีพร้อมใช้งาน (GOOD)</option>
+                          <option value="FAIR">พอใช้ (FAIR)</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAction(null)}
+                          className="btn btn-secondary text-xs"
+                        >
+                          ยกเลิก
+                        </button>
+                        <button type="submit" disabled={actionLoading} className="btn btn-primary text-xs">
+                          {actionLoading ? 'กำลังบันทึก...' : 'ยืนยันปิดงานซ่อม'}
+                        </button>
+                      </div>
+                    </form>
+                  </Card>
+                )}
+
                 {activeAction === 'TRANSFER' && (
                   <Card className="border-[var(--action-primary)] bg-[var(--surface)]">
                     <h3 className="text-xs font-bold">โอนย้ายสิทธิ์การดูแล (Transfer Custody)</h3>
@@ -986,145 +1264,113 @@ export default function AssetRegisterWorkspace() {
                   </div>
                 </div>
 
-                {/* Active Project Allocation Card */}
-                {activeProjectAllocation && (
-                  <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-xs">
-                    <div className="flex items-center gap-2 text-blue-600 font-bold">
-                      <FolderKanban size={15} />
-                      <span>กำลังถูกจัดสรรใช้งานในโครงการ</span>
-                    </div>
-                    <p className="mt-1 font-semibold text-sm">
-                      {activeProjectAllocation.project?.title || activeProjectAllocation.projectId}
-                    </p>
-                    <p className="text-[11px] text-muted mt-0.5">
-                      จัดสรรตั้งแต่:{' '}
-                      {new Date(activeProjectAllocation.effectiveFrom).toLocaleDateString('th-TH')}
-                    </p>
+                {/* Depreciation Schedule Card (FR-136) */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <SectionTitle caption="การคำนวณค่าเสื่อมราคาแบบเส้นตรง (Straight-Line Preview)">
+                      ตารางค่าเสื่อมราคา (Depreciation Schedule)
+                    </SectionTitle>
+                    {depreciationData && (
+                      <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600">
+                        {depreciationData.status || 'PREVIEW'}
+                      </span>
+                    )}
                   </div>
-                )}
 
-                {/* Responsibilities History */}
-                <div>
-                  <SectionTitle caption="บันทึกช่วงเวลาผู้รับผิดชอบและผู้ดูแล (ไม่เขียนทับประวัติ)">
-                    ประวัติผู้รับผิดชอบ (Custody Intervals)
-                  </SectionTitle>
-                  {assetDetail.responsibilities.length === 0 ? (
-                    <p className="text-xs text-muted">ไม่มีบันทึกผู้รับผิดชอบ</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {assetDetail.responsibilities.map((r) => (
-                        <div
-                          key={r.id}
-                          className="flex items-center justify-between rounded-lg border border-[var(--border)] p-2.5 text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="rounded-md bg-[var(--surface-subtle)] px-2 py-0.5 text-[10px] font-bold">
-                              {r.role}
-                            </span>
-                            <div>
-                              <p className="font-semibold">{r.person?.displayName || r.person?.email || 'Unknown'}</p>
-                              <p className="text-[10px] text-muted">
-                                {new Date(r.effectiveFrom).toLocaleDateString('th-TH')} -{' '}
-                                {r.effectiveTo ? new Date(r.effectiveTo).toLocaleDateString('th-TH') : 'ปัจจุบัน'}
-                              </p>
-                            </div>
-                          </div>
-                          {!r.effectiveTo && (
-                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
-                              Active
-                            </span>
-                          )}
+                  {depreciationData ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2.5">
+                          <p className="text-[10px] text-muted">อายุการใช้งาน</p>
+                          <p className="font-bold">{depreciationData.usefulLifeMonths} เดือน</p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Locations History */}
-                <div>
-                  <SectionTitle caption="ประวัติการย้ายและสถานที่ตั้งอุปกรณ์">
-                    ประวัติตำแหน่งที่ตั้ง (Location History)
-                  </SectionTitle>
-                  {assetDetail.locations.length === 0 ? (
-                    <p className="text-xs text-muted">ไม่มีบันทึกสถานที่ตั้ง</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {assetDetail.locations.map((l) => (
-                        <div
-                          key={l.id}
-                          className="flex items-center justify-between rounded-lg border border-[var(--border)] p-2.5 text-xs"
-                        >
-                          <div>
-                            <p className="font-semibold">{l.locationName || l.locationCode}</p>
-                            {l.branch && <p className="text-[10px] text-muted">สาขา: {l.branch.name}</p>}
-                            <p className="text-[10px] text-muted">
-                              {new Date(l.effectiveFrom).toLocaleDateString('th-TH')} -{' '}
-                              {l.effectiveTo ? new Date(l.effectiveTo).toLocaleDateString('th-TH') : 'ปัจจุบัน'}
-                            </p>
-                          </div>
-                          {!l.effectiveTo && (
-                            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600">
-                              Primary
-                            </span>
-                          )}
+                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2.5">
+                          <p className="text-[10px] text-muted">มูลค่าซาก (Residual)</p>
+                          <p className="font-bold">{Number(depreciationData.residualValue).toLocaleString()} {depreciationData.currency}</p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Project Allocation History */}
-                <div>
-                  <SectionTitle caption="ประวัติการยืมใช้งานและส่งคืนในแต่ละโครงการ">
-                    ประวัติการจัดสรรโครงการ (Project Allocations)
-                  </SectionTitle>
-                  {(!assetDetail.projectAllocations || assetDetail.projectAllocations.length === 0) ? (
-                    <p className="text-xs text-muted">ไม่มีประวัติการจัดสรรโครงการ</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {assetDetail.projectAllocations.map((alloc) => (
-                        <div
-                          key={alloc.id}
-                          className="flex items-center justify-between rounded-lg border border-[var(--border)] p-2.5 text-xs"
-                        >
-                          <div>
-                            <p className="font-semibold">{alloc.project?.title || alloc.projectId}</p>
-                            <p className="text-[10px] text-muted">
-                              {new Date(alloc.effectiveFrom).toLocaleDateString('th-TH')} -{' '}
-                              {alloc.effectiveTo ? new Date(alloc.effectiveTo).toLocaleDateString('th-TH') : 'กำลังใช้งาน'}
-                            </p>
-                          </div>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              alloc.status === 'ACTIVE'
-                                ? 'bg-blue-500/10 text-blue-600'
-                                : 'bg-[var(--surface-subtle)] text-muted'
-                            }`}
-                          >
-                            {alloc.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Evidence & Documents */}
-                <div>
-                  <SectionTitle caption="ภาพถ่ายและหลักฐานการจ่ายเงินที่ผูกติดกับทรัพย์สิน">
-                    หลักฐานที่แนบ ({assetDetail.evidence?.length || 0})
-                  </SectionTitle>
-                  {(!assetDetail.evidence || assetDetail.evidence.length === 0) ? (
-                    <p className="text-xs text-muted">ไม่มีหลักฐานแนบ</p>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      {assetDetail.evidence.map((e) => (
-                        <div key={e.id} className="rounded-lg border border-[var(--border)] p-2.5 text-xs">
-                          <p className="text-[10px] font-bold text-[var(--action-primary)]">{e.role}</p>
-                          <p className="mt-0.5 truncate font-semibold">{e.fileAsset?.filename || 'File Asset'}</p>
-                          <p className="text-[10px] text-muted">
-                            {e.fileAsset?.sizeBytes ? `${Math.round(e.fileAsset.sizeBytes / 1024)} KB` : ''} · {e.status}
+                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2.5">
+                          <p className="text-[10px] text-muted">ค่าเสื่อม/เดือน</p>
+                          <p className="font-bold text-[var(--action-primary)]">
+                            {depreciationData.monthlyDepreciation || depreciationData.schedule?.[0]?.depreciation
+                              ? `${Number(depreciationData.monthlyDepreciation || depreciationData.schedule[0].depreciation).toLocaleString()} ${depreciationData.currency}`
+                              : '-'}
                           </p>
+                        </div>
+                      </div>
+
+                      <div className="max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[11px]">
+                        <table className="w-full text-left">
+                          <thead className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[10px] text-muted sticky top-0">
+                            <tr>
+                              <th className="p-2">งวดที่</th>
+                              <th className="p-2">รอบเดือน</th>
+                              <th className="p-2 text-right">ค่าเสื่อมงวดนี้</th>
+                              <th className="p-2 text-right">ค่าเสื่อมสะสม</th>
+                              <th className="p-2 text-right">มูลค่าสุทธิ (NBV)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[var(--border)]">
+                            {depreciationData.schedule?.slice(0, 12).map((s) => (
+                              <tr key={s.period} className="hover:bg-[var(--surface-subtle)]">
+                                <td className="p-2 font-mono">#{s.period}</td>
+                                <td className="p-2">{s.periodStart || s.month}</td>
+                                <td className="p-2 text-right font-mono">{Number(s.depreciation || s.depreciationAmount).toLocaleString()}</td>
+                                <td className="p-2 text-right font-mono">{Number(s.accumulatedDepreciation).toLocaleString()}</td>
+                                <td className="p-2 text-right font-mono font-semibold">{Number(s.bookValue).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {depreciationData.schedule?.length > 12 && (
+                        <p className="text-center text-[10px] text-muted">
+                          แสดงตัวอย่าง 12 งวดแรก จากทั้งหมด {depreciationData.schedule.length} งวด
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted">ไม่มีข้อมูลตารางค่าเสื่อมราคา</p>
+                  )}
+                </div>
+
+                {/* Maintenance Service History (AM-RQ-050..053) */}
+                <div>
+                  <SectionTitle caption="ประวัติการเปิดใบแจ้งซ่อม บำรุงรักษา และการเปลี่ยนอะไหล่">
+                    ประวัติการซ่อมบำรุง (Maintenance History)
+                  </SectionTitle>
+                  {maintenanceLogs.length === 0 ? (
+                    <p className="text-xs text-muted">ไม่มีประวัติการส่งซ่อมบำรุง</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {maintenanceLogs.map((m) => (
+                        <div
+                          key={m.id}
+                          className="rounded-lg border border-[var(--border)] p-2.5 text-xs space-y-1 bg-[var(--surface)]"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-foreground flex items-center gap-1.5">
+                              <Wrench size={12} className={m.action === 'ASSET_MAINTENANCE_LOGGED' ? 'text-amber-500' : 'text-emerald-500'} />
+                              <span>{m.title || (m.action === 'ASSET_MAINTENANCE_COMPLETED' ? 'ปิดงานซ่อมบำรุง' : 'แจ้งซ่อม')}</span>
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                m.action === 'ASSET_MAINTENANCE_LOGGED'
+                                  ? 'bg-amber-500/10 text-amber-600'
+                                  : 'bg-emerald-500/10 text-emerald-600'
+                              }`}
+                            >
+                              {m.action === 'ASSET_MAINTENANCE_LOGGED' ? 'เปิดงานซ่อม' : 'ซ่อมเสร็จ'}
+                            </span>
+                          </div>
+                          {m.issueDescription && <p className="text-[11px] text-muted">{m.issueDescription}</p>}
+                          {m.resolutionNotes && <p className="text-[11px] text-emerald-700 dark:text-emerald-400">ผลการซ่อม: {m.resolutionNotes}</p>}
+                          <div className="flex items-center justify-between text-[10px] text-muted pt-1">
+                            <span>
+                              {m.serviceProvider ? `ศูนย์บริการ: ${m.serviceProvider}` : ''}
+                              {m.actualCost ? ` · ค่าใช้จ่ายจริง: ${Number(m.actualCost).toLocaleString()} บาท` : m.estimatedCost ? ` · ประมาณการ: ${Number(m.estimatedCost).toLocaleString()} บาท` : ''}
+                            </span>
+                            <span>{new Date(m.occurredAt || m.loggedAt || m.completedAt).toLocaleDateString('th-TH')}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
