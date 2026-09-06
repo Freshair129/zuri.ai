@@ -99,6 +99,10 @@ const SNAPSHOT_MODELS = [
   // versions reference the FileAsset image (just above), so both restore after
   // those and delete before them. Design data, no secret: exported whole.
   'lineOaRichMenu', 'lineOaRichMenuVersion',
+  // @req FR-152 — a publish job references its account, menu and version, so it
+  // restores after all three. Operational state only (stage, status, the
+  // external richMenuId); it holds no token, so it is exported whole.
+  'lineOaRichMenuJob',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),

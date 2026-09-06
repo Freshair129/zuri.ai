@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.18.0b |
+| **Version** | 1.19.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
@@ -90,6 +90,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LineOaAccount | code (unique per tenant), tenantId, businessId, integrationConnectionId (unique), bindingCode? (unique per tenant), displayName, basicId?, status, transportMode, isDefaultForBusiness, botProfileJson, archivedAt?, version | FR-146 / ADR-060 D2-D3 — the LINE OA Studio account aggregate: one LINE Official Account operated by one Business, many per Business. References the integration lane's `LINE_OA` connection 1:1 and the agent lane's binding code; holds no credential material. `status` is the stored machine DRAFT → CONNECTED → PAUSED \| ARCHIVED and LIVE is derived from the binding, never stored; `transportMode` EDGE \| CLOUD names who owns the account's LINE transport. Operating truth, exported whole by the snapshot; production DDL written and not yet applied |
 | LineOaRichMenu | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, alias? (unique per account), status, isDefault, archivedAt?, version | FR-151 / ADR-060 D3 — one rich menu of one LINE OA Studio account: identity, alias and default flag; DRAFT → READY (a version is frozen) → ARCHIVED; bodies live in the versions; cascades with the account |
 | LineOaRichMenuVersion | richMenuId + versionNumber (unique), tenantId, businessId, lineOaAccountId, status, layout, chatBarText, selected, imageFileAssetId? → FileAsset (SetNull), imageWidth, imageHeight, areasJson, externalRichMenuId?, frozenAt?, publishedAt? | FR-151 — one numbered body: editable while DRAFT, immutable once FROZEN; PUBLISHED / RETIRED and `externalRichMenuId` are the transport lane's to write (BR-002: an attribute, never a key) |
+| LineOaRichMenuJob | tenantId, businessId, accountId, richMenuId, richMenuVersionId, kind, stage, status, transportEpoch, attempts, availableAt, expiresAt, claimantId?, leaseExpiresAt?, externalRichMenuId?, providerRequestId?, errorCode?, correlationId, version | FR-152 / ADR-061 — server-owned rich menu publish ledger: PUBLISH (CREATE → UPLOAD → DONE) / SET_DEFAULT / SET_ALIAS (APPLY); QUEUED → CLAIMED → ACCEPTED \| FAILED \| UNKNOWN \| CANCELLED; compare-and-set claims and a bounded lease; no token column — the worker resolves the credential per attempt |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
@@ -128,6 +129,10 @@ Version diff 1.17.0b → 1.18.0b (2026-09-06): added `LineOaRichMenu` and `LineO
 ADR-060 D3) with additive migrations in both trees in the same change; the Supabase SQL is written and
 **not applied**. The version's `externalRichMenuId` is a nullable attribute written by the transport lane
 in a later slice.
+
+Version diff 1.18.0b → 1.19.0b (2026-09-06): added `LineOaRichMenuJob` (FR-152, ADR-061) with additive
+migrations in both trees in the same change; the Supabase SQL is written and **not applied**. The
+version's `externalRichMenuId` is now written by this ledger on the provider's acceptance.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

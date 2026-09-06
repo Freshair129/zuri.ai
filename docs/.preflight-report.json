@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 276,
-    "routes": 141,
-    "test_files": 457
+    "docs": 277,
+    "routes": 143,
+    "test_files": 461
   },
   "summary": {
     "critical": 0,
@@ -227,8 +227,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "486 id(s) pinned across 10 families",
-      "details": "ADR 61 · BR 25 · FEAT 19 · FR 151 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 486",
+      "title": "487 id(s) pinned across 10 families",
+      "details": "ADR 61 · BR 25 · FEAT 19 · FR 152 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 85 · SEC 25 · ZV2-CR 10 · roster 487",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -271,7 +271,7 @@
       "id": "I24",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 276 document(s)",
+      "title": "table integrity checked in 277 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -294,7 +294,7 @@
       "id": "I26",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 53 file(s) that write audit events",
+      "title": "audit entityType checked in 54 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
@@ -303,7 +303,7 @@
       "id": "I27",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1137 column(s) across 86 model(s) against 41 migration(s)",
+      "title": "schema-migration drift checked: 1159 column(s) across 87 model(s) against 42 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

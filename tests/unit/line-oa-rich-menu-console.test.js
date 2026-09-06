@@ -33,11 +33,13 @@ describe('the rich menu console offers only the actions the service implements',
 
   it('offers no control that claims the menu reaches LINE', () => {
     // `applyRichMenuAction` has three branches and none of them calls a
-    // transport. A publish/deploy/sync control would be a promise the lane
-    // cannot keep — the exact shape of the claims removed from the integrations
-    // page on 2026-09-05.
+    // transport, so no menu action on this page can reach LINE. Publishing does
+    // exist since FR-152, but through a different lane
+    // (line-oa-rich-menu-jobs.js + a worker) that this page does not drive —
+    // so the page must not imply it drives one, in either direction.
     const service = shipped(src(SERVICE))
     expect(service).not.toMatch(/fetch\(|Transport|api\.line\.me/)
+    expect(page).not.toMatch(/rich-menus\/\$\{[^}]*\}\/jobs|\/jobs'/)
     // Look at what a reader can click, not at prose: the page says the words
     // "ไม่ใช่การส่งขึ้น LINE" on purpose, and a blanket text ban would forbid
     // the very sentence that keeps the page honest.
@@ -52,6 +54,17 @@ describe('the rich menu console offers only the actions the service implements',
 
   it('says plainly that freezing is not publishing, where an author would look for the button', () => {
     expect(src(PAGE)).toMatch(/Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE/)
+  })
+
+  it('does not claim the publish capability is missing, only that this page does not drive it', () => {
+    // The first version of this page said the system had no such step. FR-152
+    // landed one while the page was in review, and a page that denies a
+    // capability the product ships is the same defect as one that invents a
+    // capability it does not — just pointing the other way.
+    const jobs = 'src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js'
+    expect(() => src(jobs)).not.toThrow()
+    expect(src(PAGE)).not.toMatch(/ระบบยังไม่มีขั้นตอนนั้น/)
+    expect(src(PAGE)).toMatch(/คิวงานแยก \(FR-152\)/)
   })
 
   it('shows the freeze blockers the service computed instead of deciding readiness itself', () => {

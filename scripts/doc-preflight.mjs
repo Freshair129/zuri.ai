@@ -899,8 +899,10 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
     if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_EDGE_DEVICE_ENDPOINT(rel(file)) ||
-      // ADR-061/FR-149: exact deployment-only worker endpoint authenticates a timing-safe bearer.
-      rel(file) === 'src/app/api/line-oa/worker/route.js') continue
+      // ADR-061/FR-149 and FR-152: the two deployment-only worker endpoints authenticate a
+      // timing-safe bearer (ZURI_LINE_WORKER_TOKEN); no browser viewer exists on a worker tick.
+      rel(file) === 'src/app/api/line-oa/worker/route.js' ||
+      rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue

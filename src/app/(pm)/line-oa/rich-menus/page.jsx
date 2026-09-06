@@ -18,12 +18,14 @@ import { RICH_MENU_IMAGE_SIZES, RICH_MENU_CHAT_BAR_MAX, layoutAreas } from '@/mo
 //   and a menu the caller may not see answers exactly like an unknown one.
 // @tested tests/unit/line-oa-rich-menu-console.test.js
 //
-// What this page deliberately does NOT offer, because the lane does not:
-// there is no "publish to LINE" control. `applyRichMenuAction` accepts three
-// actions and none of them talks to LINE, so a Publish button would be a claim
-// the system cannot honour. FROZEN means "this version is settled and could be
-// deployed", not "LINE has it". The page says so where an author would expect
-// the button to be.
+// Publishing is NOT one of this page's controls, and the reason changed while
+// this page was in review. `applyRichMenuAction` still accepts exactly three
+// actions and none of them talks to LINE — but FR-152 (#244) added a separate
+// lane that does: `POST /api/line-oa/rich-menus/:id/jobs` queues PUBLISH,
+// SET_DEFAULT or SET_ALIAS and a worker carries it out. So the honest statement
+// is no longer "the system cannot do this"; it is "this page does not drive
+// that lane yet". The copy below says exactly that, because the first version
+// of it said the capability did not exist, and by merge time that was false.
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -239,7 +241,7 @@ export default function LineOaRichMenusPage() {
           <Select label="บัญชี LINE OA" value={accountId} onChange={e => setAccountId(e.target.value)} options={accounts.map(a => ({ value: a.id, label: `${a.displayName} (${a.code})` }))} />
           <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeArchived} onChange={e => setIncludeArchived(e.target.checked)} />แสดงเมนูที่เก็บเข้าคลังแล้ว</label>
         </div>
-        <p className="mt-3 text-xs text-muted">Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE — หน้านี้ยังไม่มีการส่งเมนูไปยัง LINE เพราะระบบยังไม่มีขั้นตอนนั้น</p>
+        <p className="mt-3 text-xs text-muted">Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE — การส่งขึ้น LINE เป็นคิวงานแยก (FR-152) ที่หน้านี้ยังไม่ได้เชื่อม</p>
       </Card>
       <div className="mb-4 grid gap-4 xl:grid-cols-2">{menus.map(menu => <Menu key={menu.id} menu={menu} onAction={action} busy={busy} />)}</div>
       {menus.length === 0 && !error && <Card className="mb-4"><p className="text-sm">ยังไม่มีเมนูสำหรับบัญชีนี้</p></Card>}

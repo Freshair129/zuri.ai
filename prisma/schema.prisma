@@ -2266,6 +2266,7 @@ model LineOaAccount {
   allowDelayedPush         Boolean   @default(false)
   transportEpoch          Int       @default(1)
   conversationJobs        LineConversationJob[]
+  richMenuJobs            LineOaRichMenuJob[]
   isDefaultForBusiness    Boolean   @default(false)
   botProfileJson          String    @default("{}")
   archivedAt              DateTime?
@@ -2306,6 +2307,7 @@ model LineOaRichMenu {
   business Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
   account  LineOaAccount           @relation(fields: [lineOaAccountId], references: [id], onDelete: Cascade)
   versions LineOaRichMenuVersion[]
+  jobs     LineOaRichMenuJob[]
 
   @@unique([tenantId, code])
   @@unique([lineOaAccountId, alias])
@@ -2339,9 +2341,49 @@ model LineOaRichMenuVersion {
 
   richMenu LineOaRichMenu @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
   image    FileAsset?     @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
+  jobs     LineOaRichMenuJob[]
 
   @@unique([richMenuId, versionNumber])
   @@index([lineOaAccountId, status])
+}
+
+// FR-152 — one server-owned unit of rich menu work against LINE (ADR-061 D1,
+// D6, D7): PUBLISH a frozen version (create the menu, upload its image),
+// SET_DEFAULT or SET_ALIAS for a published one. Claimed with compare-and-set
+// and a bounded lease; an ambiguous external outcome ends as UNKNOWN for an
+// operator, never as a silent retry that could duplicate a menu. Holds no
+// secret: the worker resolves the account's credential per attempt.
+model LineOaRichMenuJob {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  accountId          String
+  richMenuId         String
+  richMenuVersionId  String
+  kind               String
+  stage              String    @default("CREATE")
+  status             String    @default("QUEUED")
+  transportEpoch     Int
+  attempts           Int       @default(0)
+  availableAt        DateTime  @default(now())
+  expiresAt          DateTime
+  claimantId         String?
+  leaseExpiresAt     DateTime?
+  externalRichMenuId String?
+  providerRequestId  String?
+  errorCode          String?
+  correlationId      String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  version            Int       @default(1)
+
+  account  LineOaAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  richMenu LineOaRichMenu        @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  menuVersion LineOaRichMenuVersion @relation(fields: [richMenuVersionId], references: [id], onDelete: Cascade)
+
+  @@index([status, availableAt])
+  @@index([accountId, status])
+  @@index([richMenuId, status])
 }
 
 // @req FR-149, FR-150 — durable server-owned conversation execution and acceptance ledger.

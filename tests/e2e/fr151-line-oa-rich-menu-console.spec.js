@@ -79,5 +79,6 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
 
   // No control claims the menu reaches LINE, and the page says why.
   await expect(page.getByText(/ไม่ใช่การส่งขึ้น LINE/)).toBeVisible()
+  await expect(page.getByText(/คิวงานแยก \(FR-152\)/)).toBeVisible()
   await expect(page.getByRole('button', { name: /publish|เผยแพร่|ส่งขึ้น/i })).toHaveCount(0)
 })
