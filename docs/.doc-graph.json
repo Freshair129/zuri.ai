@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1825,
+    "total_nodes": 1827,
     "total_edges": 6688,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 160,
+      "document": 162,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -56,8 +56,8 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
+      "doc:SRS",
       "doc:CONTEXT-MAP",
       "doc:SRS"
     ],
@@ -10249,7 +10249,7 @@
       "type": "document",
       "path": "docs/domains/asset-management/CONTEXT-MAP.md",
       "title": "Asset Management context map",
-      "hash": "aaffc3fe",
+      "hash": "5b5e4cbd",
       "status": "changed"
     },
     {
@@ -10365,6 +10365,14 @@
       "status": "current"
     },
     {
+      "id": "doc:DATA-PIPELINE",
+      "type": "document",
+      "path": "docs/domains/asset-management/DATA-PIPELINE.md",
+      "title": "Asset Register Import Pipeline Specification",
+      "hash": "26d86627",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -10372,7 +10380,7 @@
       "version": "1.0.8",
       "doc_status": "Approved",
       "hash": "9869c1e3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11692,6 +11700,14 @@
     {
       "id": "doc:SRS",
       "type": "document",
+      "path": "docs/domains/asset-management/SRS.md",
+      "title": "SRS — Asset Management domain",
+      "hash": "0081661e",
+      "status": "changed"
+    },
+    {
+      "id": "doc:SRS",
+      "type": "document",
       "path": "docs/domains/line-oa-studio/SRS.md",
       "title": "SRS — LINE OA Studio domain",
       "hash": "1c725c1f",
@@ -11937,7 +11953,7 @@
       "modules": [
         "asset-management"
       ],
-      "hash": "4d107c90",
+      "hash": "ed7b2311",
       "status": "current"
     },
     {
