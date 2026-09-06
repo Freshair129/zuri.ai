@@ -110,6 +110,47 @@ describe('native LINE webhook trust boundary', () => {
     expect(h.evidenceFactory).not.toHaveBeenCalled()
     expect(h.admit).not.toHaveBeenCalled()
   })
+
+  // A deterministic rejection belongs to one event. Aborting the batch on it
+  // loses every later event permanently, because the redelivery fails at the
+  // same event every time.
+  it('skips one event that fails deterministically and still admits the rest', async () => {
+    const events = [
+      { ...textEvent, webhookEventId: 'native-event-a', message: { id: 'native-message-a', type: 'text', text: 'first' } },
+      { ...textEvent, webhookEventId: 'native-event-b', message: { id: 'native-message-b', type: 'text', text: 'poison' } },
+      { ...textEvent, webhookEventId: 'native-event-c', message: { id: 'native-message-c', type: 'text', text: 'third' } },
+    ]
+    const admit = vi.fn(async ({ event }) => {
+      if (event.webhookEventId === 'native-event-b') throw Object.assign(new Error('CHANNEL_IDENTITY_COMPATIBILITY_CONFLICT'), { status: 409 })
+      return { created: true }
+    })
+    const h = harness({ admit })
+    const response = await invoke(h.handler, body(events))
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ accepted: true, skipped: 1 })
+    expect(admit.mock.calls.map(([{ event }]) => event.webhookEventId))
+      .toEqual(['native-event-a', 'native-event-b', 'native-event-c'])
+  })
+
+  it('still asks LINE to redeliver when an event fails ambiguously, after attempting the whole batch', async () => {
+    const events = [
+      { ...textEvent, webhookEventId: 'native-event-d', message: { id: 'native-message-d', type: 'text', text: 'first' } },
+      { ...textEvent, webhookEventId: 'native-event-e', message: { id: 'native-message-e', type: 'text', text: 'transient' } },
+      { ...textEvent, webhookEventId: 'native-event-f', message: { id: 'native-message-f', type: 'text', text: 'third' } },
+    ]
+    const admit = vi.fn(async ({ event }) => {
+      if (event.webhookEventId === 'native-event-e') throw new Error('PRIVATE_QUEUE_ERROR')
+      return { created: true }
+    })
+    const response = await invoke(harness({ admit }).handler, body(events))
+
+    expect(response.status).toBe(503)
+    expect(await response.text()).not.toContain('PRIVATE_QUEUE_ERROR')
+    // The neighbours are attempted rather than abandoned; redelivery is
+    // idempotent, so attempting them costs nothing and losing them costs a message.
+    expect(admit).toHaveBeenCalledTimes(3)
+  })
 })
 
 describe('native webhook retry with durable SQLite admission', () => {

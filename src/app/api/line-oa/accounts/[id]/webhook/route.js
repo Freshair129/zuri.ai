@@ -28,6 +28,8 @@ async function boundedBody(request) {
   } finally { reader.releaseLock() }
 }
 export const dynamic = 'force-dynamic'
+// Statuses that mean "this event will fail the same way next time".
+const DETERMINISTIC = [400, 403, 404, 409, 413]
 export function createServerLineWebhookPost({ db = prisma, ports = serverLinePorts,
   evidenceFactory = createLineOaEvidenceRecorder, admit = admitLineConversation } = {}) {
   return async (request, { params }) => {
@@ -39,11 +41,30 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       const body = verifyServerLineWebhook({ rawBody: bytes, signature: request.headers.get('x-line-signature'), account })
       const evidence = await evidenceFactory({ db, tenantId: account.tenantId, businessId: account.businessId, destination: account.destination })
       if (!evidence || evidence.connectionId !== account.connectionId) throw new Error('LINE_EVIDENCE_UNAVAILABLE')
+      // One event must not discard its neighbours. A deterministic rejection
+      // (4xx — an identity conflict on one user, an over-long text) fails
+      // identically on every redelivery, so aborting the batch means every
+      // later event in it is never admitted at all: other customers' messages
+      // are lost while the endpoint merely looks unhealthy. Skip those and keep
+      // going. An ambiguous failure still returns non-2xx after the whole batch
+      // is attempted, because redelivery is the only way to recover it — and
+      // both `record` and `admit` are idempotent on redelivery, the property
+      // the partial-batch replay test already pins.
+      let unresolved = 0
+      let skipped = 0
       for (const event of body.events) {
-        await evidence.record({ body, event })
-        await admit({ db, account, event, correlationId })
+        try {
+          await evidence.record({ body, event })
+          await admit({ db, account, event, correlationId })
+        } catch (error) {
+          if (DETERMINISTIC.includes(error?.status)) skipped += 1
+          else unresolved += 1
+        }
       }
-      return NextResponse.json({ accepted: true, correlationId })
+      if (unresolved) return NextResponse.json({ error: 'LINE_WEBHOOK_NOT_ACCEPTED', correlationId }, { status: 503 })
+      // `skipped` is a count, never event material — the one signal an operator
+      // gets that admitted events are fewer than delivered ones.
+      return NextResponse.json({ accepted: true, correlationId, ...(skipped ? { skipped } : {}) })
     } catch (error) {
       // Do not echo parser/provider errors or event material. Non-2xx asks LINE to redeliver.
       const status = [400,401,403,404,409,413,503].includes(error?.status) ? error.status : 503
