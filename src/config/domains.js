@@ -5,7 +5,7 @@ import {
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
   Workflow, Gauge, TrendingUp,
-  PackageCheck, MessageCircle, LayoutGrid,
+  PackageCheck, MessageCircle, LayoutGrid, QrCode,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -138,6 +138,7 @@ export const DOMAINS = [
       { label: 'Dashboard', path: '/assets', icon: LayoutDashboard },
       { label: 'Receiving & Inspection', path: '/assets/receiving', icon: ClipboardCheck },
       { label: 'Asset Register', path: '/assets/register', icon: PackageCheck },
+      { label: 'Stocktake Scanner', path: '/assets/scanner', icon: QrCode },
     ],
   },
   {
