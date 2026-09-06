@@ -1,5 +1,5 @@
 import { workspacePath } from '../../scripts/workspace-path.mjs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
@@ -256,8 +256,19 @@ describe('domain state projection', () => {
 
 
 it('retains requirement membership when code paths move under apps/server', () => {
-  const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
-  const before = buildDomainState({ nodes, edges })
-  const after = buildDomainState({ nodes: relocated, edges })
-  expect(JSON.stringify(after).replaceAll('apps/server/', '')).toEqual(JSON.stringify(before))
+  // Freeze the clock across both builds: buildDomainState stamps its own
+  // `generatedAt` with the real time it runs, and these two calls are close
+  // enough together that they occasionally land on either side of a
+  // millisecond boundary -- a difference in that one field, nothing to do
+  // with what this test actually checks, was enough to fail the JSON
+  // string-equality assertion below on an unlucky run.
+  vi.useFakeTimers()
+  try {
+    const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
+    const before = buildDomainState({ nodes, edges })
+    const after = buildDomainState({ nodes: relocated, edges })
+    expect(JSON.stringify(after).replaceAll('apps/server/', '')).toEqual(JSON.stringify(before))
+  } finally {
+    vi.useRealTimers()
+  }
 })
