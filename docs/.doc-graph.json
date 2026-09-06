@@ -55,14 +55,10 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
       "doc:README",
-      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "doc:SRS"
     ],
     "added": [],
     "removed": []
@@ -9850,7 +9846,7 @@
       "version": "1.17.0b",
       "doc_status": "Draft",
       "hash": "e18bcb9b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -9980,7 +9976,7 @@
       "version": "1.0.8",
       "doc_status": "Approved",
       "hash": "01919c10",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11207,7 +11203,7 @@
       "version": "1.153.0b",
       "doc_status": "Draft",
       "hash": "f9b3424b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11251,7 +11247,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "ea4273ed",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
