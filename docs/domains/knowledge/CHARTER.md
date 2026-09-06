@@ -12,6 +12,11 @@ by storage: it answers "what does the system know", never "what happened"
 (that is MSP, in the agent domain) and never "what is the state now" (that is
 operational data in its owning domain). Architecture spec §16–19.
 
+"(GKS)" names the authority this domain **consumes**, not a claim that this
+domain is GKS. The Genesis Knowledge System, MSP and GenesisBlockDB are
+external systems with their own repositories and are never zuri-ai domains
+(ADR-063 D3–D4); this lane holds only the Tier 1 contracts that face them.
+
 ## Boundaries
 
 - **Owns no Prisma models.** Its store is the production runtime's
@@ -22,6 +27,17 @@ operational data in its owning domain). Architecture spec §16–19.
   conversation (spec §19: MSP → candidate → validation → GKS, in that order).
 - Serves grounded answers to the agent domain through the knowledge contract;
   it does not talk to LINE and it does not resolve identity.
+- **Holds no client of GenesisBlockDB** — no `GenesisDatabase` binding, no
+  `hybridSearch`, no embedding call, no `addNode`/`addEdge` (ADR-043 D2.1,
+  ADR-050 D3). The two files that once did (`gbdb-rag-service.js`,
+  `genesisblockdb-sink.js`) were retired by ADR-063 on 2026-09-06. The
+  `GraphSink` seam in `sink.js` stays; its substrate adapter belongs to the GKS
+  repository. `createGraphKnowledgeReader`'s injected `traverse` may only ever
+  be bound through MSP → GKS or the ADR-046 interim surface, never to the
+  substrate directly. `smartgift-rag-pipeline.js`, the third such client,
+  went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
+  data and feeds the PUBLIC business-knowledge fixture the SmartGift webhook
+  e2e test reads through the in-memory reader. Zero exceptions remain.
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 
