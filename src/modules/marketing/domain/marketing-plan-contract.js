@@ -31,6 +31,9 @@ export const MARKETING_PLAN_LIMITS = Object.freeze({
   budget: 1_000_000_000_000,
 })
 
+export const MARKETING_CAMPAIGN_STATUSES = Object.freeze(['OPEN', 'CLOSED', 'CANCELLED'])
+export const MARKETING_CAMPAIGN_PHASES = Object.freeze(['DRAFT', 'APPROVED', 'EXECUTING', 'CLOSED', 'CANCELLED'])
+
 const nonEmptyText = (name, max) => z
   .string()
   .trim()
@@ -53,6 +56,32 @@ const zChannels = z.array(z.enum(MARKETING_PLAN_CHANNELS))
     }
   })
 
+const zCalendarDate = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD')
+  .superRefine((value, context) => {
+    const [year, month, day] = value.split('-').map(Number)
+    const date = new Date(Date.UTC(year, month - 1, day))
+    if (
+      !Number.isFinite(date.getTime()) ||
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: 'date is not a valid calendar date' })
+    }
+  })
+
+export const zMarketingCampaignBrief = z.object({
+  startDate: zCalendarDate,
+  endDate: zCalendarDate,
+  offer: nonEmptyText('offer', MARKETING_PLAN_LIMITS.text),
+  conditions: nonEmptyText('conditions', MARKETING_PLAN_LIMITS.text),
+}).strict().superRefine((brief, context) => {
+  if (brief.endDate < brief.startDate) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['endDate'], message: 'endDate must be on or after startDate' })
+  }
+})
+
 export const zMarketingPlanPayload = z.object({
   objective: nonEmptyText('objective', MARKETING_PLAN_LIMITS.text),
   situation: nonEmptyText('situation', MARKETING_PLAN_LIMITS.text),
@@ -64,13 +93,73 @@ export const zMarketingPlanPayload = z.object({
   actions: z.array(zMarketingPlanAction)
     .min(1, 'at least one action is required')
     .max(MARKETING_PLAN_LIMITS.actions, 'too many actions'),
+  // Existing Strategy plans predate Campaign initiatives. The field is
+  // optional at the Strategy boundary so their serialized payload and hash
+  // remain byte-for-byte compatible; Campaign creation requires it below.
+  campaignBrief: zMarketingCampaignBrief.optional(),
 }).strict()
+
+export function hasMarketingCampaignBrief(payload) {
+  return Boolean(payload && payload.campaignBrief)
+}
+
+export function assertMarketingCampaignBriefPreserved(previousPayload, nextPayload) {
+  if (hasMarketingCampaignBrief(previousPayload) && !hasMarketingCampaignBrief(nextPayload)) {
+    throw new Error('Marketing campaignBrief cannot be removed from an existing plan revision')
+  }
+  return nextPayload
+}
 
 const zBusinessId = nonEmptyText('businessId', 100)
 const zPlanId = nonEmptyText('planId', 100)
 const zPlanVersionId = nonEmptyText('planVersionId', 100)
+const zHandoffId = nonEmptyText('handoffId', 100)
 const zPayloadHash = z.string().regex(/^[a-f0-9]{64}$/, 'payloadHash must be a SHA-256 hex digest')
 const zExpectedVersion = z.number().int().min(1)
+const zCampaignPayload = zMarketingPlanPayload.superRefine((payload, context) => {
+  if (!payload.campaignBrief) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['campaignBrief'], message: 'campaignBrief is required for a Campaign initiative' })
+  }
+})
+
+export const zMarketingCampaignCreateInput = z.object({
+  businessId: zBusinessId,
+  title: zMarketingPlanTitle,
+  payload: zCampaignPayload,
+}).strict()
+
+export const zMarketingCampaignRevisionInput = z.object({
+  businessId: zBusinessId,
+  expectedVersion: zExpectedVersion,
+  expectedPlanVersion: zExpectedVersion,
+  title: zMarketingPlanTitle,
+  payload: zCampaignPayload,
+}).strict()
+
+export const zMarketingCampaignBindHandoffInput = z.object({
+  businessId: zBusinessId,
+  expectedVersion: zExpectedVersion,
+  expectedPlanVersion: zExpectedVersion,
+  action: z.literal('bind-handoff'),
+  handoffId: zHandoffId,
+}).strict()
+
+export const zMarketingCampaignClosureInput = z.object({
+  businessId: zBusinessId,
+  expectedVersion: zExpectedVersion,
+  action: z.enum(['close', 'cancel']),
+  reason: zMarketingPlanRationale,
+}).strict()
+
+export const zMarketingCampaignReviseActionInput = zMarketingCampaignRevisionInput.extend({
+  action: z.literal('revise'),
+})
+
+export const zMarketingCampaignActionInput = z.discriminatedUnion('action', [
+  zMarketingCampaignReviseActionInput,
+  zMarketingCampaignBindHandoffInput,
+  zMarketingCampaignClosureInput,
+])
 
 export const zMarketingPlanCreateInput = z.object({
   businessId: zBusinessId,

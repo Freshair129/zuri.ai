@@ -9,6 +9,7 @@ import {
 } from './marketing-authority'
 import {
   MARKETING_PLAN_DECISION_VERDICTS,
+  assertMarketingCampaignBriefPreserved,
   parseMarketingPlanVersionPayload,
   hashMarketingPlanContent,
   isFiniteFutureDate,
@@ -428,6 +429,11 @@ export async function reviseMarketingPlan(
     const current = requireAggregate(await txRepository.load(planId))
     assertPlanBusiness(current, data.businessId)
     assertMutable(current)
+    try {
+      assertMarketingCampaignBriefPreserved(versionContent(current, currentVersion(current)).payload, data.payload)
+    } catch (error) {
+      throw marketingConflict(error.message)
+    }
     const revision = current.plan.currentRevision + 1
     const next = await txRepository.appendRevision({
       planId,
