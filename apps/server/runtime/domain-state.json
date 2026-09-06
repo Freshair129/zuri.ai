@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T20:06:13.046Z",
+  "generatedAt": "2026-09-06T20:50:30.249Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2227,13 +2227,6 @@
       "status": "partial",
       "requirements": [
         {
-          "id": "FR-003",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 11
-        },
-        {
           "id": "FR-021",
           "declared": "done",
           "status": "verified",
@@ -2258,7 +2251,7 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 15
         },
         {
@@ -4163,7 +4156,7 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
+          "codeCount": 11,
           "testCount": 15
         }
       ],
@@ -4179,6 +4172,7 @@
         "apps/server/src/modules/agent/phase1-runtime.js",
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-registry-service.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/platform/integrations/core/connection-health.js",
         "apps/server/src/platform/integrations/core/connector-catalog.js",
         "apps/server/src/platform/integrations/core/credential-vault.js",
@@ -5943,7 +5937,6 @@
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
-        "line-oa-studio",
         "project-manager"
       ],
       "useCase": "PM สร้าง แก้ไข เปิด และ archive Project โดยไม่ลบประวัติ",
@@ -5956,7 +5949,7 @@
           "id": "FR-003",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
+          "codeCount": 5,
           "testCount": 11
         }
       ],
@@ -5964,7 +5957,6 @@
         "apps/server/src/app/(pm)/projects/page.jsx",
         "apps/server/src/app/api/projects/[id]/route.js",
         "apps/server/src/app/api/projects/route.js",
-        "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/project-manager/application/project-list-read-model.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",

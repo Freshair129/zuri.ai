@@ -10,7 +10,7 @@ import { LineStudioShell } from '@/modules/line-oa-studio/ui'
 export default function LineOaProjectsPage() {
   return (
     <div className="w-full">
-      <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">กำลังโหลด โปรเจค & บัญชี...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">กำลังโหลด บัญชี & กลุ่ม LINE OA...</div>}>
         <LineStudioShell initialTab="projects" />
       </Suspense>
     </div>
