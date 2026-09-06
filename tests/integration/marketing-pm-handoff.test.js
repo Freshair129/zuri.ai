@@ -244,6 +244,95 @@ describe('Marketing PM handoff', () => {
     expect(await prisma.auditEvent.count({ where: { action: 'MARKETING_PM_HANDOFF_COMMITTED' } })).toBe(0)
   })
 
+  it('rolls back the real PM import, CAS and receipt when Marketing audit fails', async () => {
+    const fx = await fixture()
+    const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
+    const viewer = viewerFor(fx.business.id)
+    const service = createMarketingPmHandoffService({
+      db: prisma,
+      now: () => new Date('2026-09-06T12:00:00.000Z'),
+      audit: async () => {
+        throw new Error('simulated Marketing audit failure')
+      },
+    })
+    const preview = await service.preview(await inputFor(fx), { viewer })
+    await expect(
+      service.commit(await inputFor(fx, 'commit', viewer, preview.previewHash), { viewer }),
+    ).rejects.toThrow('simulated Marketing audit failure')
+
+    expect(await prisma.project.findUnique({ where: { code: projectCode } })).toBeNull()
+    expect(await prisma.marketingHandoff.count({ where: { planId: fx.plan.id } })).toBe(0)
+    expect((await prisma.marketingPlan.findUnique({ where: { id: fx.plan.id } }))?.version).toBe(fx.plan.version)
+    const receipts = await prisma.planImportReceipt.findMany({ include: { project: true } })
+    expect(receipts.some((receipt) => receipt.project?.code === projectCode)).toBe(false)
+    const importedAudits = await prisma.auditEvent.findMany({ where: { action: 'PLAN_IMPORTED' } })
+    expect(importedAudits.some((event) => JSON.parse(event.payloadJson).projectCode === projectCode)).toBe(false)
+  })
+
+  it('preserves an existing Project lifecycle status while the PM importer advances its version', async () => {
+    const fx = await fixture()
+    const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
+    const project = await prisma.project.create({
+      data: {
+        code: projectCode,
+        businessId: fx.business.id,
+        workspaceId: fx.workspace.id,
+        name: fx.plan.title,
+        type: 'MARKETING_PLAN',
+        status: 'ACTIVE',
+        version: 7,
+      },
+    })
+    const priorVersion = await prisma.marketingPlanVersion.create({
+      data: {
+        planId: fx.plan.id,
+        revision: 2,
+        payloadJson: JSON.stringify({ title: fx.plan.title, payload }),
+        payloadHash: hashMarketingPlanContent({ title: fx.plan.title, payload }),
+        createdBy: 'author-person',
+        createdAt: new Date('2026-09-06T00:00:01.000Z'),
+      },
+    })
+    await prisma.marketingHandoff.create({
+      data: {
+        planId: fx.plan.id,
+        planVersionId: priorVersion.id,
+        workspaceId: fx.workspace.id,
+        projectId: project.id,
+        payloadHash: priorVersion.payloadHash,
+        envelopeHash: 'prior-envelope-hash',
+        receiptJson: JSON.stringify({
+          handoffId: 'prior-handoff',
+          planId: fx.plan.id,
+          businessId: fx.business.id,
+          planVersionId: priorVersion.id,
+          expectedVersion: fx.plan.version - 1,
+          workspaceId: fx.workspace.id,
+          projectId: project.id,
+          payloadHash: priorVersion.payloadHash,
+          envelopeHash: 'prior-envelope-hash',
+          previewHash: 'prior-preview-hash',
+        }),
+        createdBy: 'author-person',
+      },
+    })
+    const viewer = viewerFor(fx.business.id)
+    const service = createMarketingPmHandoffService({ db: prisma, now: () => new Date('2026-09-06T12:00:00.000Z') })
+    const preview = await service.preview(await inputFor(fx), { viewer })
+    expect(preview.valid).toBe(true)
+    expect(preview.envelope.project.status).toBe('ACTIVE')
+    expect(preview.preview.pm.currentProject.version).toBe(7)
+
+    const committed = await service.commit(
+      await inputFor(fx, 'commit', viewer, preview.previewHash),
+      { viewer },
+    )
+    expect(committed.committed).toBe(true)
+    const updatedProject = await prisma.project.findUnique({ where: { id: project.id } })
+    expect(updatedProject?.status).toBe('ACTIVE')
+    expect(updatedProject?.version).toBe(8)
+  })
+
   it('replays the immutable receipt without a second PM commit', async () => {
     const fx = await fixture()
     const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
@@ -264,6 +353,36 @@ describe('Marketing PM handoff', () => {
     expect(await prisma.marketingHandoff.count({ where: { planId: fx.plan.id } })).toBe(1)
   })
 
+  it('rejects a historical receipt whose row or immutable version binding is inconsistent', async () => {
+    const fx = await fixture()
+    const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
+    const project = await prisma.project.create({
+      data: { code: projectCode, businessId: fx.business.id, workspaceId: fx.workspace.id, name: fx.plan.title, type: 'MARKETING_PLAN' },
+    })
+    fx.projectId = project.id
+    const service = serviceFor(fx, {
+      commit: async () => ({ committed: true, projectId: project.id, projectCode, auditEventId: 'pm-audit' }),
+    })
+    const viewer = viewerFor(fx.business.id)
+    const preview = await service.preview(await inputFor(fx), { viewer })
+    const committed = await service.commit(await inputFor(fx, 'commit', viewer, preview.previewHash), { viewer })
+    const handoff = await prisma.marketingHandoff.findUnique({ where: { id: committed.receipt.handoffId } })
+    const receipt = JSON.parse(handoff.receiptJson)
+
+    await prisma.marketingHandoff.update({
+      where: { id: handoff.id },
+      data: { receiptJson: JSON.stringify({ ...receipt, payloadHash: '0'.repeat(64) }) },
+    })
+    await expect(service.preview(await inputFor(fx), { viewer })).rejects.toMatchObject({ code: 'MARKETING_RECEIPT_CORRUPT' })
+
+    await prisma.marketingHandoff.update({ where: { id: handoff.id }, data: { receiptJson: JSON.stringify(receipt) } })
+    await prisma.marketingPlanVersion.update({
+      where: { id: fx.version.id },
+      data: { payloadJson: JSON.stringify({ title: fx.plan.title, payload: { ...payload, objective: 'Tampered revision content' } }) },
+    })
+    await expect(service.preview(await inputFor(fx), { viewer })).rejects.toMatchObject({ code: 'MARKETING_RECEIPT_CORRUPT' })
+  })
+
   it('replays history after the decision has expired or been revoked', async () => {
     const fx = await fixture()
     const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
@@ -279,6 +398,36 @@ describe('Marketing PM handoff', () => {
     const second = await service.commit(await inputFor(fx, 'commit', viewer, preview.previewHash), { viewer })
     expect(second.replay).toBe(true)
     expect(second.receipt).toEqual(first.receipt)
+  })
+
+  it('rechecks PM target authorization before replaying historical receipts', async () => {
+    const fx = await fixture()
+    const projectCode = `MKT-${fx.business.id}-${fx.workspace.id}-${fx.plan.code}`
+    const project = await prisma.project.create({
+      data: { code: projectCode, businessId: fx.business.id, workspaceId: fx.workspace.id, name: fx.plan.title, type: 'MARKETING_PLAN' },
+    })
+    fx.projectId = project.id
+    const authorized = fx.makeDryRun()
+    const service = serviceFor(fx, {
+      dryRun: authorized,
+      commit: async () => ({ committed: true, projectId: project.id, projectCode, auditEventId: 'pm-audit' }),
+    })
+    const viewer = viewerFor(fx.business.id)
+    const preview = await service.preview(await inputFor(fx), { viewer })
+    await service.commit(await inputFor(fx, 'commit', viewer, preview.previewHash), { viewer })
+
+    const denied = {
+      run: async () => ({
+        valid: false,
+        errors: ['Target workspace not found'],
+        workspace: { id: fx.workspace.id, businessId: fx.business.id },
+      }),
+    }
+    const replayService = serviceFor(fx, { dryRun: denied })
+    await expect(replayService.preview(await inputFor(fx), { viewer })).rejects.toMatchObject({
+      status: 404,
+      code: 'MARKETING_WORKSPACE_NOT_FOUND',
+    })
   })
 
   it('creates and approves through Marketing core, then commits through the real PM importer', async () => {

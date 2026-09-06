@@ -5,7 +5,11 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { commitPlan, dryRunPlan } from '@/modules/project-manager/import/plan-import-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { parseMarketingPlanVersionPayload, zMarketingPlanPayload } from '@/modules/marketing/domain/marketing-plan-contract'
+import {
+  hashMarketingPlanContent,
+  parseMarketingPlanVersionPayload,
+  zMarketingPlanPayload,
+} from '@/modules/marketing/domain/marketing-plan-contract'
 
 // @req FR-154 — an approved Marketing revision can be previewed and handed to
 // the existing PM PlanEnvelope importer exactly once per revision/Workspace.
@@ -83,6 +87,39 @@ function parseJson(value, fallback = null) {
     return JSON.parse(value)
   } catch {
     return fallback
+  }
+}
+
+function assertStoredReceipt(row, receipt, expected) {
+  const consistent = Boolean(receipt) &&
+    receipt.status === 'SUCCEEDED' &&
+    receipt.handoffId === row.id &&
+    row.planId === expected.planId &&
+    row.planVersionId === expected.planVersionId &&
+    row.workspaceId === expected.workspaceId &&
+    row.projectId === receipt.projectId &&
+    row.payloadHash === expected.payloadHash &&
+    row.envelopeHash === expected.envelopeHash &&
+    receipt.planId === expected.planId &&
+    receipt.businessId === expected.businessId &&
+    receipt.planVersionId === expected.planVersionId &&
+    receipt.expectedVersion === expected.expectedVersion &&
+    receipt.workspaceId === expected.workspaceId &&
+    receipt.payloadHash === expected.payloadHash &&
+    receipt.envelopeHash === expected.envelopeHash
+  if (!consistent) {
+    throw serviceError(409, 'Stored Marketing handoff receipt is inconsistent', 'MARKETING_RECEIPT_CORRUPT')
+  }
+}
+
+function assertStoredVersionBinding(version, expectedHash) {
+  try {
+    const content = parseMarketingPlanVersionPayload(version.payloadJson)
+    if (version.payloadHash !== expectedHash || hashMarketingPlanContent(content) !== expectedHash) {
+      throw new Error('Marketing revision hash does not match its immutable title and payload')
+    }
+  } catch (error) {
+    throw serviceError(409, error.message || 'Stored Marketing revision is inconsistent', 'MARKETING_RECEIPT_CORRUPT')
   }
 }
 
@@ -380,12 +417,24 @@ async function prepare(input, { viewer, db, readApprovedPlan, dryRun, now, opera
   if (historical) {
     const receipt = historical.receipt
     const envelope = receipt.envelope
-    if (!envelope || !receipt.envelopeHash || hashCanonical(envelope) !== receipt.envelopeHash) {
+    const envelopeHash = envelope && hashCanonical(envelope)
+    if (!envelope || !receipt.envelopeHash || envelopeHash !== receipt.envelopeHash) {
       throw serviceError(409, 'Stored Marketing handoff receipt is inconsistent', 'MARKETING_RECEIPT_CORRUPT')
     }
+    assertStoredReceipt(historical.row, receipt, {
+      planId: input.planId,
+      businessId: input.businessId,
+      planVersionId: historical.row.planVersionId,
+      expectedVersion: input.expectedVersion,
+      workspaceId: input.workspaceId,
+      payloadHash: historical.row.payloadHash,
+      envelopeHash,
+    })
     const plan = await db.marketingPlan?.findUnique?.({ where: { id: input.planId } })
     const version = await db.marketingPlanVersion?.findUnique?.({ where: { id: historical.row.planVersionId } })
     if (!plan || plan.businessId !== input.businessId || !version) throw serviceError(404, 'Marketing plan not found', 'MARKETING_PLAN_NOT_FOUND')
+    if (version.planId !== plan.id) throw serviceError(409, 'Stored Marketing handoff receipt is inconsistent', 'MARKETING_RECEIPT_CORRUPT')
+    assertStoredVersionBinding(version, historical.row.payloadHash)
     const scope = await loadScope(db, plan, input, { allowInactive: true })
     const replayPm = await dryRun(envelope, { workspaceId: input.workspaceId, viewer, db })
     assertHistoricalPmTarget(replayPm, plan, scope.workspace)
@@ -430,7 +479,18 @@ async function prepare(input, { viewer, db, readApprovedPlan, dryRun, now, opera
   const existing = await findHandoff(db, { planVersionId: version.id, workspaceId: input.workspaceId })
   if (existing) {
     const receipt = parseJson(existing.receiptJson)
-    if (!receipt || existing.payloadHash !== version.payloadHash || existing.envelopeHash !== envelopeHash) {
+    try {
+      assertStoredReceipt(existing, receipt, {
+        planId: plan.id,
+        businessId: scope.business.id,
+        planVersionId: version.id,
+        expectedVersion: plan.version,
+        workspaceId: input.workspaceId,
+        payloadHash: version.payloadHash,
+        envelopeHash,
+      })
+    } catch (error) {
+      if (error.code === 'MARKETING_RECEIPT_CORRUPT') throw error
       throw serviceError(409, 'Existing Marketing handoff does not match the immutable revision', 'MARKETING_HANDOFF_HASH_CONFLICT')
     }
     return {
