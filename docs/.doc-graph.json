@@ -56,11 +56,10 @@
   "drift": {
     "changed": [
       "doc:README",
+      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "test:tests/integration/server-line-webhook.test.js",
-      "code:src/app/api/line-oa/accounts/[id]/webhook/route.js"
+      "doc:SRS"
     ],
     "added": [],
     "removed": []
@@ -2609,7 +2608,7 @@
       "type": "code_file",
       "path": "src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "hash": "2bc4200c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149"
@@ -10293,8 +10292,8 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "01919c10",
-      "status": "current"
+      "hash": "9869c1e3",
+      "status": "changed"
     },
     {
       "id": "doc:docker-ngrok",
@@ -18623,7 +18622,7 @@
       "type": "test",
       "path": "tests/integration/server-line-webhook.test.js",
       "hash": "cad133e8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
