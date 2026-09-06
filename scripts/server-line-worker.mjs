@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// @req FR-149 — supervised worker, one bounded request at a time.
+// @req FR-149, FR-152 — supervised worker, one bounded request at a time:
+//   a conversation tick, then a rich menu tick, on the same bearer.
 // @spec ADR-061
 // @tested tests/integration/server-line-jobs.test.js
 import { setTimeout as delay } from 'node:timers/promises'
@@ -11,12 +12,17 @@ if (endpoint.username || endpoint.password || endpoint.pathname !== '/api/line-o
 let stopping = false
 process.on('SIGTERM', () => { stopping = true })
 process.on('SIGINT', () => { stopping = true })
-while (!stopping) {
+const richMenuEndpoint = new URL('/api/line-oa/rich-menu-worker', endpoint)
+async function tick(url, event) {
   try {
-    const response = await fetch(endpoint, { method: 'POST', redirect: 'error',
+    const response = await fetch(url, { method: 'POST', redirect: 'error',
       headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(240_000) })
-    console.log(JSON.stringify({ event: 'line.worker.tick', status: response.status }))
+    console.log(JSON.stringify({ event, status: response.status }))
     await response.body?.cancel()
-  } catch { console.error(JSON.stringify({ event: 'line.worker.unavailable' })) }
+  } catch { console.error(JSON.stringify({ event: `${event}.unavailable` })) }
+}
+while (!stopping) {
+  await tick(endpoint, 'line.worker.tick')
+  if (!stopping) await tick(richMenuEndpoint, 'line.rich-menu-worker.tick')
   if (!stopping) await delay(1000)
 }

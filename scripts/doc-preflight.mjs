@@ -11,6 +11,7 @@ import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
+import { collectDocumentLinks } from './doc-links.mjs'
 import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
@@ -54,6 +55,20 @@ const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
 const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
 const specDocs = []
 const allDocs = labDocs
+
+// Read source files even when the persisted graph is stale or missing a new doc.
+{
+  const generated = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
+  const sources = allDocs.filter(f => !generated.has(path.basename(f)))
+  const saved = existsSync(GRAPH) ? JSON.parse(read(GRAPH)).nodes : []
+  const nodes = sources.map(f => {
+    const p = rel(f), base = path.basename(f, '.md')
+    return saved.find(n => n.path === p) || { id: base === 'CHARTER' && p.startsWith('docs/domains/') ? `domain:${p.split('/')[2]}` : `${base.startsWith('ADR-') ? 'spec' : 'doc'}:${base}`, path: p }
+  })
+  nodes.push(...saved.filter(n => /^(req|feat):/.test(n.id)))
+  const result = collectDocumentLinks(sources.map(f => ({ path: rel(f), body: read(f), nodeId: nodes.find(n => n.path === rel(f))?.id })), nodes)
+  for (const f of result.findings) add('critical', 'doc-link-metadata', 'Invalid document link', f.message, [f.path], 'Fix the source metadata or link target and rerun npm run govern')
+}
 
 // ---- Check 1: document control blocks ------------------------------------
 for (const f of allDocs) {
@@ -884,8 +899,10 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
     if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_EDGE_DEVICE_ENDPOINT(rel(file)) ||
-      // ADR-061/FR-149: exact deployment-only worker endpoint authenticates a timing-safe bearer.
-      rel(file) === 'src/app/api/line-oa/worker/route.js') continue
+      // ADR-061/FR-149 and FR-152: the two deployment-only worker endpoints authenticate a
+      // timing-safe bearer (ZURI_LINE_WORKER_TOKEN); no browser viewer exists on a worker tick.
+      rel(file) === 'src/app/api/line-oa/worker/route.js' ||
+      rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue
