@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T16:25:10.260Z",
+  "generatedAt": "2026-09-06T16:36:31.307Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2235,7 +2235,7 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 19,
+          "codeCount": 18,
           "testCount": 22
         },
         {
@@ -2256,7 +2256,7 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 17,
+          "codeCount": 16,
           "testCount": 14
         },
         {
@@ -5035,7 +5035,7 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 28,
+          "codeCount": 27,
           "testCount": 22
         },
         {
@@ -5049,7 +5049,7 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
+          "codeCount": 20,
           "testCount": 14
         },
         {
@@ -5102,7 +5102,6 @@
         "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
-        "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
