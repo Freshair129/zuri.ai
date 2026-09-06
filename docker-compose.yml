@@ -6,7 +6,7 @@
 #                                                            or an external Postgres (Supabase) via DATABASE_URL
 #
 # Real services only: this repository is ONE Next.js app. There is no separate API,
-# gateway, worker, queue or Redis to compose — every route handler, the LINE webhook
+# gateway or Redis. The optional line-server worker ticks durable database jobs; the LINE webhook
 # seam (`POST /api/agent/line-webhook`) and the console are served by `web`.
 #
 # Configuration:
@@ -69,6 +69,29 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+
+  # FR-149: optional server worker. The web service keeps transport credentials;
+  # this process only calls the authenticated work endpoint and has no secret mount.
+  line-worker:
+    image: ${ZURI_WEB_IMAGE:-zuri-ai-web:local}
+    profiles: ["line-server"]
+    restart: unless-stopped
+    command: ["node", "scripts/server-line-worker.mjs"]
+    environment:
+      ZURI_LINE_WORKER_URL: http://web:3000/api/line-oa/worker
+      ZURI_LINE_WORKER_TOKEN: ${ZURI_LINE_WORKER_TOKEN:-}
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - zuri-network
+    healthcheck:
+      disable: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
 
   ngrok:
     image: ngrok/ngrok:3

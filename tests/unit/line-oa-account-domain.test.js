@@ -50,9 +50,9 @@ describe('FR-146 LineOaAccount domain rules', () => {
     expect(nextStoredStatus('LIVE', 'PAUSE')).toBeNull()
   })
 
-  it('defaults the transport mode from an ACTIVE edge credential (ADR-059 D5 rule)', () => {
+  it('defaults LINE transport to CLOUD independently of Edge credentials (ADR-061)', () => {
     expect(LINE_OA_TRANSPORT_MODES).toEqual(['EDGE', 'CLOUD'])
-    expect(defaultTransportMode({ hasActiveEdgeCredential: true })).toBe('EDGE')
+    expect(defaultTransportMode({ hasActiveEdgeCredential: true })).toBe('CLOUD')
     expect(defaultTransportMode({ hasActiveEdgeCredential: false })).toBe('CLOUD')
     expect(defaultTransportMode()).toBe('CLOUD')
   })

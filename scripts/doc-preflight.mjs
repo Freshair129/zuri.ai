@@ -875,11 +875,17 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   const IS_EDGE_DEVICE_ENDPOINT = (p) =>
     p.includes('/api/edge/extraction-jobs/claim/') ||
     p.includes('/api/edge/extraction-jobs/[id]/complete/') ||
-    p.includes('/api/edge/extraction-jobs/[id]/fail/')
+    p.includes('/api/edge/extraction-jobs/[id]/fail/') ||
+    // ADR-061/FR-150: same active Business-scoped device identity, never a browser viewer.
+    p.includes('/api/edge/conversation-jobs/claim/') ||
+    p.includes('/api/edge/conversation-jobs/[id]/complete/') ||
+    p.includes('/api/edge/conversation-jobs/[id]/fail/')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
-    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_EDGE_DEVICE_ENDPOINT(rel(file))) continue
+    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_EDGE_DEVICE_ENDPOINT(rel(file)) ||
+      // ADR-061/FR-149: exact deployment-only worker endpoint authenticates a timing-safe bearer.
+      rel(file) === 'src/app/api/line-oa/worker/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue

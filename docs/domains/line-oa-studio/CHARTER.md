@@ -5,9 +5,11 @@ modules:
   - line-oa-studio
 owns_models:
   - LineOaAccount
+  - LineConversationJob
 owns_routes:
   - src/app/(pm)/line-oa/**
   - src/app/api/line-oa/**
+  - src/app/api/edge/conversation-jobs/**
 owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
@@ -25,6 +27,9 @@ updated_at: "2026-09-05T18:00:00+07:00"
      annotations stay outside the frontmatter. -->
 
 # LINE OA Studio domain charter
+
+> **Current transport authority: ADR-061 (2026-09-06).** The owner approved server-owned LINE ingress/send with optional EDGE compute. FR-149/150 and LineConversationJob implement this independently of Studio-initiated rich-menu/dispatch jobs. Existing transport descriptions below describe ADR-060 legacy/planned lanes and are superseded for conversational transport by ADR-061. An Edge credential never chooses the LINE transport owner.
+
 
 ## Mission
 

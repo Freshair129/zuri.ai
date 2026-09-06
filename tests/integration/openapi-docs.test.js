@@ -93,8 +93,8 @@ describe('OpenAPI document', () => {
       // FR-146 adds two paths and four operations: the LINE OA Studio account
       // collection (GET list, POST connect) and item (GET read, PATCH versioned
       // action — archive is an action, never a DELETE).
-      pathCount: 131,
-      operationCount: 169,
+      pathCount: 139,
+      operationCount: 177,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

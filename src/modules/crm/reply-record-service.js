@@ -2,11 +2,12 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
+// @req FR-148 — account/business scoped outbound append participates in caller transactions.
 // @req FR-093 — the outbound half of a conversation becomes a row. Until this existed
 //   nothing anywhere wrote a Message with `direction: 'OUTBOUND'`: the reply was
 //   assembled, handed to the transport, sent to the customer and then forgotten.
 // @spec SDD-051, BR-011, SEC-001, SDD-048
-// @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js
+// @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js, tests/integration/line-account-isolation.test.js
 //
 // WHY THIS IS NOT `ingestLineMessage({ direction: 'OUTBOUND' })`
 // -------------------------------------------------------------
@@ -62,18 +63,22 @@ export const replyExternalId = (inboundMessageId) => `reply:${inboundMessageId}`
 /**
  * Record one delivered reply.
  *
- * @param {{tenantId: string, receipt: object, correlationId?: string}} input
+ * @param {{tenantId: string, businessId?: string, channelAccountId?: string, receipt: object, correlationId?: string, db?: object}} input
  * @returns {Promise<{messageId: string, conversationId: string, created: boolean}>}
  */
-export async function recordLineReply({ tenantId, receipt, correlationId }) {
+export async function recordLineReply({ tenantId, businessId, channelAccountId, receipt, correlationId, db = prisma, acceptance }) {
   const data = zReplyReceipt.parse(receipt)
   if (!tenantId) throw failure(400, 'TENANT_REQUIRED')
 
   // The scope check and the conversation lookup are the same query. An inbound message
   // outside this tenant is simply not found — there is no branch in which it resolves
   // and is then rejected, and therefore no branch someone can forget to write.
-  const inbound = await prisma.message.findFirst({
-    where: { id: data.inboundMessageId, conversation: { tenantId } },
+  const inbound = await db.message.findFirst({
+    where: { id: data.inboundMessageId, conversation: {
+      tenantId,
+      ...(businessId !== undefined ? { businessId } : {}),
+      ...(channelAccountId !== undefined ? { channel: 'LINE', channelAccountId } : {}),
+    } },
     select: { id: true, conversationId: true, direction: true },
   })
   if (!inbound) throw failure(404, 'INBOUND_MESSAGE_NOT_FOUND')
@@ -84,7 +89,7 @@ export async function recordLineReply({ tenantId, receipt, correlationId }) {
 
   const externalMessageId = replyExternalId(inbound.id)
 
-  const existing = await prisma.message.findUnique({
+  const existing = await db.message.findUnique({
     where: { conversationId_externalMessageId: { conversationId: inbound.conversationId, externalMessageId } },
     select: { id: true },
   })
@@ -92,23 +97,23 @@ export async function recordLineReply({ tenantId, receipt, correlationId }) {
     return { messageId: existing.id, conversationId: inbound.conversationId, created: false }
   }
 
-  return prisma.$transaction(async (tx) => {
+  const append = async (tx) => {
     const message = await tx.message.create({
       data: {
         conversationId: inbound.conversationId,
         direction: DIRECTION,
-        // The body is what was said. Where it came from is a different fact and lives
-        // on the audit event, so a reader of the conversation reads the conversation.
+        // Text accepted by LINE (server) or reported sent (legacy transport).
+        // The audit distinguishes those outcomes; neither proves the user read it.
         body: data.text,
         externalMessageId,
-        ...(data.deliveredAt ? { createdAt: new Date(data.deliveredAt) } : {}),
+        ...(acceptance?.acceptedAt ? { createdAt: new Date(acceptance.acceptedAt) } : data.deliveredAt ? { createdAt: new Date(data.deliveredAt) } : {}),
       },
     })
 
     await recordAudit(tx, {
       entityType: 'CONVERSATION',
       entityId: inbound.conversationId,
-      action: 'REPLY_DELIVERED',
+      action: acceptance ? 'OUTBOUND_ACCEPTED' : 'REPLY_DELIVERED',
       actorType: 'LINE',
       // @spec SDD-048 — same correlation id as the webhook that produced the answer, so
       //   `webhook → turn → message → reply` stays one chain in the audit table. No
@@ -116,6 +121,9 @@ export async function recordLineReply({ tenantId, receipt, correlationId }) {
       //   read by tooling that has no business seeing customer content (SEC-009).
       payload: {
         tenantId,
+        ...(businessId !== undefined ? { businessId } : {}),
+        ...(channelAccountId !== undefined ? { channelAccountId } : {}),
+        ...(acceptance || {}),
         conversationId: inbound.conversationId,
         inboundMessageId: inbound.id,
         messageId: message.id,
@@ -126,5 +134,38 @@ export async function recordLineReply({ tenantId, receipt, correlationId }) {
     })
 
     return { messageId: message.id, conversationId: inbound.conversationId, created: true }
-  })
+  }
+  if (typeof db.$transaction !== 'function') return append(db)
+  try {
+    return await db.$transaction(append)
+  } catch (error) {
+    if (error?.code !== 'P2002') throw error
+    const winner = await db.message.findUnique({
+      where: { conversationId_externalMessageId: { conversationId: inbound.conversationId, externalMessageId } },
+    })
+    if (!winner) throw error
+    return { messageId: winner.id, conversationId: inbound.conversationId, created: false }
+  }
+}
+
+/**
+ * Append what LINE accepted, inside the same transaction as the server job's
+ * terminal state. Acceptance is not delivery or a read receipt. All authority
+ * comes from the worker's resolved account, never a client-selected conversation.
+ */
+export async function appendOutbound({
+  db = prisma, tenantId, businessId, channelAccountId, receipt, correlationId,
+  acceptedAt = new Date().toISOString(), providerRequestId,
+}) {
+  if (![tenantId, businessId, channelAccountId].every((value) => typeof value === 'string' && value.trim())) {
+    throw failure(400, 'OUTBOUND_SCOPE_REQUIRED')
+  }
+  if (Object.prototype.hasOwnProperty.call(receipt || {}, 'deliveredAt')) {
+    throw failure(400, 'ACCEPTANCE_IS_NOT_DELIVERY')
+  }
+  const acceptance = z.object({
+    acceptedAt: z.string().datetime(),
+    providerRequestId: z.string().min(1).optional(),
+  }).parse({ acceptedAt, providerRequestId })
+  return recordLineReply({ db, tenantId, businessId, channelAccountId, receipt, correlationId, acceptance })
 }

@@ -65,8 +65,7 @@ describe('FR-146 LineOaAccount', () => {
     blindMember = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['projects'] })
     foreignOwner = ownsElsewhere({ owns: otherBusiness.id, sees: business.id, seesDomains: DOMAINS_WITH_STUDIO, visibleDomains: DOMAINS_WITH_STUDIO })
 
-    // The edge Business holds an ACTIVE device credential, so ADR-059 D5's
-    // rule makes its accounts default to EDGE transport.
+    // A paired worker no longer changes LINE transport ownership (ADR-061).
     const minted = await mintEdgeDeviceCredential({ businessId: edgeBusiness.id, deviceId: 'DEV-LINE', label: 'Shop node', viewer: owner })
     edgeKey = minted.key
   })
@@ -85,20 +84,20 @@ describe('FR-146 LineOaAccount', () => {
     expect(account.health.connection).toMatchObject({ status: 'ACTIVE', secretConfigured: false, secretStatus: 'MISSING', lastWebhookAt: null })
     // No binding code yet: the FR-147 label says so, whether or not a reader exists.
     expect(account.health.binding).toEqual({ code: null, status: 'NO_BINDING' })
-    expect(account.health.transportJobs).toBeNull()
+    expect(account.health.transportJobs).toEqual({})
     expect(account.health.quota).toBeNull()
     expect(account.health.sources.binding).toMatch(/no binding code/)
 
     const audit = await prisma.auditEvent.findMany({ where: { entityId: account.id, action: 'LINE_OA_ACCOUNT_CONNECTED' } })
     expect(audit).toHaveLength(1)
-    expect(JSON.parse(audit[0].payloadJson)).toMatchObject({ transportMode: 'CLOUD', transportModeSource: 'NO_EDGE_CREDENTIAL', status: 'DRAFT' })
+    expect(JSON.parse(audit[0].payloadJson)).toMatchObject({ transportMode: 'CLOUD', transportModeSource: 'SERVER_DEFAULT', status: 'DRAFT' })
   })
 
-  it('AC-146.2 — defaults to EDGE where the Business holds an ACTIVE edge credential, and a publisher may override at connect time', async () => {
+  it('AC-146.2 — defaults to CLOUD even where the Business holds an ACTIVE edge credential, and a publisher may override at connect time', async () => {
     const first = await connectLineOaAccount({
       businessId: edgeBusiness.id, integrationConnectionId: (await lineConnection(edgeBusiness)).id, code: 'oa-edge-main', displayName: 'Edge Main',
     }, { viewer: owner })
-    expect(first.transportMode).toBe('EDGE')
+    expect(first.transportMode).toBe('CLOUD')
 
     const overridden = await connectLineOaAccount({
       businessId: edgeBusiness.id, integrationConnectionId: (await lineConnection(edgeBusiness)).id, code: 'oa-edge-cloud', displayName: 'Edge but cloud', transportMode: 'CLOUD',

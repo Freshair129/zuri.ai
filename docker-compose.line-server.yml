@@ -1,0 +1,17 @@
+# ADR-061 / FR-149: explicit server transport deployment overlay.
+# docker compose -f docker-compose.yml -f docker-compose.line-server.yml --profile line-server up -d
+# Apply reviewed database migrations and populate the out-of-repo credential file first.
+services:
+  web:
+    environment:
+      ZURI_LINE_SERVER_ENABLED: "true"
+      ZURI_LINE_WORKER_TOKEN: ${ZURI_LINE_WORKER_TOKEN:?Set a dedicated random worker token}
+      ZURI_LINE_REPLY_SEAL_KEY: ${ZURI_LINE_REPLY_SEAL_KEY:?Set a 64-character hex sealing key}
+      ZURI_LINE_SECRET_FILE: /run/secrets/zuri-line.json
+    volumes:
+      - type: bind
+        source: ${ZURI_LINE_SECRET_FILE_HOST:?Set an absolute credential file path outside the checkout}
+        target: /run/secrets/zuri-line.json
+        read_only: true
+        bind:
+          create_host_path: false

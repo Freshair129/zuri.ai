@@ -5,6 +5,7 @@ owns_routes:
   - src/app/(pm)/platform/integrations/**
   - src/app/(pm)/platform/sot-pipeline/**
   - src/app/api/platform/integrations/**
+  - src/app/api/line-oa/connections/**
   - src/app/api/platform/sot/**
 owns_models:
   - IntegrationProvider
@@ -82,6 +83,7 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   provider-specific `SecretManagerProvisionPort` exists. Candidate FR-125 /
   ADR-053 proposes the first such write-only path for FlowAccount; it does not
   relax the generic form and no browser response may contain secret material.
+- ADR-061 adds an owner-only LINE connection metadata provisioner at `POST /api/line-oa/connections`. It accepts a deployment-secret reference, never secret bytes. Server LINE channel credentials may resolve from an out-of-checkout read-only deployment secret mount, scoped to Tenant, Business, account, connection and destination. This exception concerns channel transport credentials only.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.

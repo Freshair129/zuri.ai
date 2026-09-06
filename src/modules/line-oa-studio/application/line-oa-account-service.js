@@ -1,4 +1,6 @@
 import prisma from '@/lib/db'
+import { LINE_OA_ACCOUNT_ACTIONS, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
+import { resolveServerLineAccount, createServerLineSecretManagerFromEnv } from '@/platform/integrations/providers/line/server-line-transport'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { readLineOaConnectionHealth } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
@@ -15,6 +17,8 @@ import {
 } from '../domain/line-oa-account'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
 
+// @req FR-149 — server activation and execution policy fenced against delivery jobs.
+// @spec ADR-061
 // @req FR-146 — the only writer of LineOaAccount: connect an existing LINE_OA
 //   connection as an account, list and read accounts with computed health, and
 //   apply the versioned actions (pause, resume, archive, set default, switch
@@ -22,12 +26,15 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   appends an audit row that carries no secret and no customer content.
 // @spec ADR-060 D2 (N per Business, one Business per account), D3 (the account
 //   references the connection and the binding; health is computed, never
-//   stored; transportMode from an ACTIVE edge credential), D5 (an audited,
+//   stored; server transport is the ADR-061 default), D5 (an audited,
 //   versioned switch changes the transport owner), D11 (refusals 404-shaped).
 // @spec SEC-001, BR-002, BR-012, FR-072, FR-080, FR-144
 // @tested tests/integration/fr146-line-oa-account.test.js
 
 const ACTIONS = Object.freeze({
+  ENABLE_SERVER: 'LINE_OA_SERVER_ENABLED',
+  DISABLE_SERVER: 'LINE_OA_SERVER_DISABLED',
+  CONFIGURE_EXECUTION: 'LINE_OA_EXECUTION_CONFIGURED',
   PAUSE: 'LINE_OA_ACCOUNT_PAUSED',
   RESUME: 'LINE_OA_ACCOUNT_RESUMED',
   ARCHIVE: 'LINE_OA_ACCOUNT_ARCHIVED',
@@ -46,8 +53,6 @@ function failure(status, message) {
  * thing this repository can answer today, and each is replaceable so the health
  * sources stay honest:
  *
- * - `hasActiveEdgeCredential(businessId)` — the ADR-059 D5 rule, read from
- *   identity's EdgeDeviceCredential (FR-144).
  * - `connectionHealth(connectionIds)` — the integration lane's redacted
  *   connection read model (FR-080): status, secret readiness, last webhook
  *   receipt. The Studio never reads the credential table itself.
@@ -61,8 +66,6 @@ function failure(status, message) {
  */
 function portsOf(db, ports = {}) {
   return {
-    hasActiveEdgeCredential: ports.hasActiveEdgeCredential
-      ?? (async (businessId) => (await db.edgeDeviceCredential.count({ where: { businessId, status: 'ACTIVE' } })) > 0),
     connectionHealth: ports.connectionHealth
       ?? ((connectionIds) => readLineOaConnectionHealth({ db, connectionIds })),
     bindingStatus: ports.bindingStatus ?? defaultBindingStatus,
@@ -85,10 +88,11 @@ const SELECT = {
   id: true, code: true, tenantId: true, businessId: true, integrationConnectionId: true,
   bindingCode: true, displayName: true, basicId: true, status: true, transportMode: true,
   isDefaultForBusiness: true, botProfileJson: true, archivedAt: true, createdAt: true,
-  updatedAt: true, version: true,
+  updatedAt: true, version: true, serverEnabled: true, executionMode: true,
+  modelAccess: true, allowDelayedPush: true, transportEpoch: true,
 }
 
-function toHealth(row, { connection, bindingStatus }) {
+function toHealth(row, { connection, bindingStatus, transportJobs }) {
   return {
     connection: connection
       ? {
@@ -103,15 +107,12 @@ function toHealth(row, { connection, bindingStatus }) {
       code: row.bindingCode,
       status: bindingStatus ?? 'UNKNOWN',
     },
-    // Declared by ADR-060 D3 and not yet built: no transport-job lane, no
-    // insight snapshot. `null`, not zero — a tile must not read an absence as
-    // "nothing queued" or "no quota".
-    transportJobs: null,
+    transportJobs,
     quota: null,
     sources: {
       connection: 'integration read model (FR-080) — computed, never stored',
       binding: BINDING_SOURCES[bindingStatus ?? 'UNKNOWN'] ?? BINDING_SOURCES.UNKNOWN,
-      transportJobs: 'not built (ADR-060 Phase 1, later slice)',
+      transportJobs: 'persistent LineConversationJob status counts (FR-149)',
       quota: 'not built (ADR-060 Phase 4)',
     },
     computedAt: new Date().toISOString(),
@@ -129,8 +130,13 @@ function toDto(row, health) {
     integrationConnectionId: row.integrationConnectionId,
     bindingCode: row.bindingCode,
     status: row.status,
-    effectiveStatus: deriveEffectiveStatus(row.status, health?.binding?.status ?? null),
+    effectiveStatus: deriveEffectiveStatus(row.status, health?.binding?.status ?? null, row),
     transportMode: row.transportMode,
+    serverEnabled: row.serverEnabled,
+    executionMode: row.executionMode,
+    modelAccess: row.modelAccess,
+    allowDelayedPush: row.allowDelayedPush,
+    transportEpoch: row.transportEpoch,
     isDefaultForBusiness: row.isDefaultForBusiness,
     botProfile: parseBotProfile(row.botProfileJson),
     archivedAt: row.archivedAt,
@@ -144,10 +150,11 @@ function toDto(row, health) {
 async function describe(rows, db, ports) {
   const p = portsOf(db, ports)
   const connections = await p.connectionHealth(rows.map((row) => row.integrationConnectionId))
+  const groups = await db.lineConversationJob.groupBy({ by: ['accountId', 'status'], where: { accountId: { in: rows.map(row => row.id) } }, _count: { _all: true } })
   const result = []
   for (const row of rows) {
     const bindingStatus = await p.bindingStatus(row)
-    result.push(toDto(row, toHealth(row, { connection: connections.get(row.integrationConnectionId) ?? null, bindingStatus })))
+    result.push(toDto(row, toHealth(row, { connection: connections.get(row.integrationConnectionId) ?? null, bindingStatus, transportJobs: Object.fromEntries(groups.filter(group => group.accountId === row.id).map(group => [group.status, group._count._all])) })))
   }
   return result
 }
@@ -170,8 +177,6 @@ export async function connectLineOaAccount(input, { viewer, db = prisma, ports }
   const data = zConnectLineOaAccount.parse(input)
   // Authority before existence (SEC-001): an unauthorized caller learns nothing.
   assertMayPublish(viewer, data.businessId)
-  const p = portsOf(db, ports)
-
   const created = await db.$transaction(async (tx) => {
     const business = await tx.business.findUnique({ where: { id: data.businessId }, select: { id: true, tenantId: true } })
     if (!business) throw notFound()
@@ -198,9 +203,8 @@ export async function connectLineOaAccount(input, { viewer, db = prisma, ports }
     let transportModeSource = 'OVERRIDE'
     let transportMode = data.transportMode
     if (!transportMode) {
-      const hasEdge = await p.hasActiveEdgeCredential(business.id)
-      transportMode = defaultTransportMode({ hasActiveEdgeCredential: hasEdge })
-      transportModeSource = hasEdge ? 'ACTIVE_EDGE_CREDENTIAL' : 'NO_EDGE_CREDENTIAL'
+      transportMode = defaultTransportMode()
+      transportModeSource = 'SERVER_DEFAULT'
     }
 
     // The first live account of a Business is its default unless the caller
@@ -323,21 +327,67 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         change.transportMode = data.transportMode
         payload.from.transportMode = row.transportMode
         payload.to.transportMode = data.transportMode
-        // ADR-060 D5: a switch cancels work queued under the old owner. There
-        // is no transport-job lane yet, so the count is truthfully zero and
-        // recorded as such rather than implied.
-        payload.cancelledTransportJobs = 0
+        // The shared epoch fence below cancels work issued to the old owner.
+        if (data.transportMode === 'EDGE') change.serverEnabled = false
+        break
+      }
+      case 'CONFIGURE_EXECUTION': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        for (const key of ['executionMode', 'modelAccess', 'allowDelayedPush']) {
+          change[key] = data[key]
+          payload.from[key] = row[key]
+          payload.to[key] = data[key]
+        }
+        break
+      }
+      case 'ENABLE_SERVER': {
+        if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
+        const validate = ports?.validateServerCredentials ?? (async () => resolveServerLineAccount({
+          accountId: row.id, db: tx, requireEnabled: false,
+          secretManager: createServerLineSecretManagerFromEnv(),
+        }))
+        if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
+        await validate(row, { db: tx })
+        change.serverEnabled = true
+        change.status = 'CONNECTED'
+        payload.to.serverEnabled = true
+        payload.legacyQuiesced = true
+        break
+      }
+      case 'DISABLE_SERVER': {
+        if (!row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_DISABLED')
+        change.serverEnabled = false
+        payload.to.serverEnabled = false
         break
       }
       default:
         throw failure(400, 'LINE_OA_ACCOUNT_ACTION_UNKNOWN')
     }
 
+    // An external send cannot be recalled. Resolve uncertain delivery before
+    // handing ownership away; in-flight generation is cancelled by an epoch fence.
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT').includes(data.action)
+    if (fencesWork) {
+      change.transportEpoch = { increment: 1 }
+      if (data.action === 'ARCHIVE') change.serverEnabled = false
+    }
     const result = await tx.lineOaAccount.updateMany({
       where: { id: row.id, version: row.version },
       data: { ...change, version: { increment: 1 } },
     })
     if (result.count !== 1) throw failure(409, 'LINE_OA_ACCOUNT_VERSION_CONFLICT')
+    if (fencesWork) {
+      // The account CAS above holds its row lock until commit. Send leases
+      // lock this same row first, so the active-send check cannot race a send.
+      const sending = await tx.lineConversationJob.count({ where: { accountId: row.id, OR: [{ status: { in: ['SENDING', 'UNKNOWN'] } }, { status: 'READY', firstSendAt: { not: null } }] } })
+      if (sending) throw failure(409, 'LINE_OA_DELIVERY_RECONCILIATION_REQUIRED')
+      const cancelled = await tx.lineConversationJob.updateMany({
+        where: { accountId: row.id, status: { in: ['QUEUED', 'CLAIMED', 'READY'] } },
+        data: { status: 'CANCELLED', sealedReplyToken: null, claimantId: null, leaseExpiresAt: null },
+      })
+      payload.cancelledTransportJobs = cancelled.count
+      payload.to.transportEpoch = row.transportEpoch + 1
+    }
 
     await recordAudit(tx, {
       entityType: LINE_OA_ACCOUNT_ENTITY,

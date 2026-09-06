@@ -258,6 +258,9 @@
     "FR-145",
     "FR-146",
     "FR-147",
+    "FR-148",
+    "FR-149",
+    "FR-150",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -408,6 +411,7 @@
     "FEAT-016",
     "FEAT-017",
     "FEAT-018",
+    "FEAT-019",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -556,6 +560,7 @@
     "ADR-058",
     "ADR-059",
     "ADR-060",
+    "ADR-061",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2826,6 +2831,45 @@
         }
       ]
     },
+    "FR-148": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4444ccf596914eaadd9b34db272ff3172955c56bd16d1d909be39a0e71a47e41",
+      "history": [
+        {
+          "anchor": "account scoped crm conversations",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-149": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5fb79e24e190d88fc405252e230ace90b126de5b268596110507b0a293669ac",
+      "history": [
+        {
+          "anchor": "server owned line conversation transport",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-150": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bb6c18b657685cfda4affd8b56c4f72cc66f53d267284ad3d0b30438b726469f",
+      "history": [
+        {
+          "anchor": "optional edge conversation execution",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4802,6 +4846,19 @@
         }
       ]
     },
+    "FEAT-019": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6392fd967db7af7aa21bba1cecf0d6a977df152b02844037daf03c8dcfae0c9c",
+      "history": [
+        {
+          "anchor": "server line with optional edge",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -6732,6 +6789,19 @@
         {
           "anchor": "line oa studio is a first class zuri domain",
           "since": "2026-09-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-061": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
+      "status": "current",
+      "statement_digest": "b6276d4a70052431d053cbb77219e799be562bfdbbdf3408a0b9d8a7508bddae",
+      "history": [
+        {
+          "anchor": "server owned line and optional edge execution",
+          "since": "2026-09-06",
           "reason": "declared"
         }
       ]

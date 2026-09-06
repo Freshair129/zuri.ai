@@ -8,6 +8,8 @@ owns_routes:
 
 # Domain charter — agent
 
+ADR-061 adds a server-answer adapter for the server-owned LINE job worker (FR-149); direct native ingress and job state are owned by line-oa-studio / Integration. BR-011 forwarding remains explicit legacy only; server-enabled accounts reject it. No Edge or binding bearer is required to compute a server answer.
+
 The LINE/AI runtime: the webhook seam, per-turn AuthContext, binding-only scope
 resolution (FR-052), MSP vault access, model transport (OpenRouter), activation
 gates, canary and golden evaluation. The agent is an orchestration layer — per
