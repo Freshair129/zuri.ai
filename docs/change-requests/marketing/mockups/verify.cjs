@@ -1,0 +1,36 @@
+/* Prototype-only checks. NODE_PATH may point to a runtime that provides playwright and sharp. */
+const fs=require('fs'),path=require('path'),{pathToFileURL}=require('url');
+const {chromium}=require('playwright'),sharp=require('sharp'),data=require('./catalog');
+const root=__dirname,shots=path.join(root,'screenshots');fs.mkdirSync(shots,{recursive:true});
+const errors=[],checks=[],screenResults=[];
+const assert=(ok,name)=>{checks.push({name,pass:!!ok});if(!ok)throw new Error(name);};
+(async()=>{
+ const browser=await chromium.launch({headless:true,...(process.env.MKT_BROWSER?{executablePath:process.env.MKT_BROWSER}:{}),args:['--allow-file-access-from-files']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+ page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>errors.push(r.url()+': '+r.failure()?.errorText));
+ const base=pathToFileURL(path.join(root,'index.html')).href;
+ await page.goto(base);await page.waitForFunction(()=>window.marketingPrototype);
+ const go=async key=>{const s=data.screens.find(s=>s.key===key);await page.evaluate(id=>location.hash=id,s.id);await page.waitForFunction(id=>window.marketingPrototype.current.id===id,s.id);return s;};
+ for(const s of data.screens){await go(s.key);await page.locator('h1').waitFor();const evidence=await page.evaluate(()=>({title:document.querySelector('h1').textContent,overflow:document.documentElement.scrollWidth>innerWidth+1,brokenLinks:[...document.querySelectorAll('a[href^="#"]')].filter(a=>!window.MKT.screens.some(s=>a.hash==='#'+s.id)).map(a=>a.hash)}));screenResults.push({id:s.id,key:s.key,desktop:evidence});await page.screenshot({path:path.join(shots,s.id+'.jpg'),type:'jpeg',quality:78,fullPage:true});}
+ console.log('Desktop captured: '+screenResults.length);
+ await page.setViewportSize({width:390,height:844});
+ for(const s of data.screens){await go(s.key);screenResults.find(r=>r.id===s.id).mobile=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,title:document.querySelector('h1').textContent}));if(data.sections.some(n=>data.screens.find(x=>x.section===n.key)?.id===s.id))await page.screenshot({path:path.join(shots,s.id+'-mobile.jpg'),type:'jpeg',quality:78,fullPage:true});}
+ console.log('Mobile checked: '+screenResults.length);
+ await page.setViewportSize({width:1440,height:1000});
+ await go('campaigns/list');await page.getByRole('button',{name:'Board',exact:true}).click();assert(await page.locator('.board-column').count()===4,'List-to-board toggle');
+ await go('paid-media/campaigns');await page.locator('#provider-filter').selectOption('TikTok');assert(await page.locator('tbody tr').count()===1,'Provider filter limits paid rows');await page.locator('#record-search').fill('no-match');assert(await page.locator('tbody tr').count()===0,'Search empty result');
+ await go('strategy/scenarios');await page.locator('#allocation').fill('75');assert((await page.locator('#allocation-result').innerText()).includes('90,000'),'Scenario allocation recalculates');
+ await go('campaigns/new');await page.getByRole('button',{name:'Save draft & preview'}).click();assert((await page.locator('#form-error').innerText()).length>0,'Required form validation');
+ for(const el of await page.locator('#design-form input,#design-form textarea').all()){const type=await el.getAttribute('type');await el.fill(type==='date'?'2026-09-12':type==='number'?'10000':'Review fixture');}
+ await page.getByRole('button',{name:'Save draft & preview'}).click();await page.waitForFunction(()=>window.marketingPrototype.current.key==='campaigns/brief');assert(true,'Valid draft opens preview');
+ await go('team/approve');await page.getByRole('button',{name:'Confirm in mockup'}).click();assert((await page.locator('#form-error').innerText()).length>0,'Approval requires reason and exact-version acknowledgement');await page.locator('#decision-reason').fill('Reviewed exact scope in this mockup');await page.locator('#ack').check();await page.getByRole('button',{name:'Confirm in mockup'}).click();await page.waitForFunction(()=>window.marketingPrototype.current.key==='team/decision-detail');assert((await page.locator('#main').innerText()).includes('simulated locally'),'Decision receipt is explicitly simulated');
+ await page.locator('#business-picker').selectOption({index:1});assert((await page.locator('#main').innerText()).includes('No records in this Business'),'Business switch displays independent empty scope');assert(await page.evaluate(()=>!sessionStorage.getItem('mkt-decision')&&!sessionStorage.getItem('mkt-draft')),'Business switch clears local draft and decision');await page.locator('#business-picker').selectOption({index:0});
+ await page.locator('#inventory-toggle').click();await page.locator('#inventory-search').fill('MKT-UI-100');assert(await page.locator('#inventory-rows tbody tr').count()===1,'Inventory lookup reaches shared states');await page.locator('#close-inventory').click();
+ await go('dashboard/state-forbidden');assert(!(await page.locator('#screen-content').innerText()).includes('SG Core'),'Forbidden body excludes account evidence');await go('dashboard/state-unknown');assert(!(await page.locator('#screen-content').innerText()).includes('Retry'),'Unknown outcome offers receipt reconciliation, no retry');
+ await go('dashboard/overview');await page.screenshot({path:path.join(root,'preview.png'),fullPage:true});
+ const contactDir=path.join(root,'contact-sheets');fs.mkdirSync(contactDir,{recursive:true});
+ for(const section of data.sections){const items=data.screens.filter(s=>s.section===section.key);const w=480,h=400,cols=3;const composites=[];for(let i=0;i<items.length;i++){const thumb=await sharp(path.join(shots,items[i].id+'.jpg')).resize(w,h-28,{fit:'contain',background:'#edf0f3'}).toBuffer();const left=i%cols*w,top=Math.floor(i/cols)*h;composites.push({input:thumb,left,top:top+28});const label=Buffer.from(`<svg width="480" height="28"><rect width="480" height="28" fill="#1f2937"/><text x="12" y="19" fill="white" font-family="Arial" font-size="13">${items[i].id} / ${items[i].key.replaceAll('&','&amp;')}</text></svg>`);composites.push({input:label,left,top});}await sharp({create:{width:cols*w,height:Math.ceil(items.length/cols)*h,channels:3,background:'#edf0f3'}}).composite(composites).jpeg({quality:80}).toFile(path.join(contactDir,section.key+'.jpg'));}
+ const failures=screenResults.filter(r=>r.desktop.overflow||r.mobile.overflow||r.desktop.brokenLinks.length||r.desktop.title!==data.screens.find(s=>s.id===r.id).title||r.mobile.title!==r.desktop.title);
+ const result={checkedAt:new Date().toISOString(),scope:'Standalone design prototype only',browser:await browser.version(),viewports:{desktop:[1440,1000],mobile:[390,844]},counts:{interfaces:screenResults.length,desktopScreenshots:100,mobileScreenshots:13,contactSheets:13,interactionChecks:checks.length},errors,failures,checks,screens:screenResults,pass:!errors.length&&!failures.length&&checks.every(c=>c.pass)};
+ fs.writeFileSync(path.join(root,'verification.json'),JSON.stringify(result,null,2)+'\n');await browser.close();console.log(JSON.stringify({pass:result.pass,counts:result.counts,errors,failures},null,2));if(!result.pass)process.exitCode=1;
+})().catch(e=>{console.error(e);process.exitCode=1;});

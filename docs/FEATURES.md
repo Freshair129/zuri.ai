@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.26.0b"
+version: "1.27.0b"
 status: active
 last_update: "2026-09-06T21:30:00+07:00,Claude"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.26.0b |
+| **Version** | 1.27.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -52,6 +52,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 | FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
+| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -681,6 +682,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-020",
     "primaryDomain": "inventory",
     "useCase": "ธุรกิจตั้งหมวดหมู่ สินค้าหลัก และ SKU ของตนเอง เลือกว่า SKU ไหนนับสต๊อก (ตามจำนวน / Lot / Serial) หรือไม่นับ (บริการ สั่งผลิต) รับเข้า จ่ายออก ปรับยอดลง ledger แล้วเห็นยอดคงเหลือและ SKU ที่ต่ำกว่า safety stock จากหน้า /inventory โดยตัวเลขคำนวณจาก ledger ทุกครั้ง"
+  },
+  {
+    "id": "FEAT-021",
+    "primaryDomain": "marketing",
+    "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt."
   }
 ]
 ```
@@ -691,3 +697,5 @@ writing one sentence here, or the governance chain stops.
 [FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
 
 Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
+
+Version diff 1.25.0b → 1.26.0b: FEAT-021 includes FR-157 Content and Creative from approved CR-018.
