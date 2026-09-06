@@ -223,7 +223,13 @@ describe('Marketing Strategy plan persistence (FR-153)', () => {
     })
     const revised = await reviseMarketingPlan(
       plan.id,
-      { businessId: businessA.id, expectedVersion: 1, title: 'Demand Plan v2', payload: { ...payload, budget: 12000 } },
+      {
+        action: 'revise',
+        businessId: businessA.id,
+        expectedVersion: 1,
+        title: 'Demand Plan v2',
+        payload: { ...payload, budget: 12000 },
+      },
       deps(ownerA),
     )
     expect(revised.currentRevision).toBe(2)
@@ -233,7 +239,7 @@ describe('Marketing Strategy plan persistence (FR-153)', () => {
 
     await expect(reviseMarketingPlan(
       plan.id,
-      { businessId: businessA.id, expectedVersion: 1, title: 'Stale', payload },
+      { action: 'revise', businessId: businessA.id, expectedVersion: 1, title: 'Stale', payload },
       deps(ownerA),
     )).rejects.toMatchObject({ status: 409 })
     plan = revised

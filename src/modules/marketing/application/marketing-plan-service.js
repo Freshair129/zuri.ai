@@ -51,6 +51,12 @@ function resolveNow(now) {
   return date
 }
 
+function withoutAction(input) {
+  if (!input || typeof input !== 'object') return input
+  const { action: _action, ...rest } = input
+  return rest
+}
+
 function requireRepository(db, createRepository, scope) {
   const repository = createRepository(db, scope)
   if (!repository || typeof repository.load !== 'function' || typeof repository.transaction !== 'function') {
@@ -411,7 +417,7 @@ export async function reviseMarketingPlan(
   { db, viewer, createRepository = createMarketingPlanRepository, now = () => new Date(), idFactory = randomUUID } = {},
 ) {
   requireDependencies({ db, createRepository })
-  const data = zMarketingPlanRevisionInput.parse(input)
+  const data = zMarketingPlanRevisionInput.parse(withoutAction(input))
   const { scope } = await assertMarketingWriteAccess({ db, viewer, businessId: data.businessId })
   const actorId = principalId(viewer)
   const timestamp = resolveNow(now)
