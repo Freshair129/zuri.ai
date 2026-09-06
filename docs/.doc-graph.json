@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1825,
-    "total_edges": 6688,
+    "total_nodes": 1828,
+    "total_edges": 6993,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 160,
+      "document": 161,
       "adr": 61,
       "domain": 10,
       "roadmap": 35,
@@ -16,7 +16,7 @@
       "route": 198,
       "model": 86,
       "requirement": 308,
-      "test": 453,
+      "test": 455,
       "code_file": 491
     },
     "coverage": {
@@ -56,7 +56,6 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
       "doc:SRS"
@@ -10372,7 +10371,7 @@
       "version": "1.0.8",
       "doc_status": "Approved",
       "hash": "9869c1e3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11277,6 +11276,14 @@
       "version": "1.0.1",
       "doc_status": "Active",
       "hash": "0155ea43",
+      "status": "current"
+    },
+    {
+      "id": "doc:GOVERNANCE-LINK-METADATA",
+      "type": "document",
+      "path": "docs/GOVERNANCE-LINK-METADATA.md",
+      "title": "Document link metadata",
+      "hash": "4c363d60",
       "status": "current"
     },
     {
@@ -19307,6 +19314,20 @@
       "type": "test",
       "path": "tests/unit/doc-graph-retired-rules.test.js",
       "hash": "cca07812",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/doc-links-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-links-cli.test.js",
+      "hash": "45cbe51e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/doc-links.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-links.test.js",
+      "hash": "6d614060",
       "status": "current"
     },
     {
@@ -36189,6 +36210,1672 @@
       "source": "annotation"
     },
     {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:EXECUTION-MODES",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:EXECUTION-MODES",
+      "to": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:EXECUTION-PLAN-BUNDLE",
+      "to": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-031-viewer-gate",
+      "to": "doc:FR-061-per-business-domain-visibility",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-037-project-files",
+      "to": "doc:FR-045-managed-local-file-workspace",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-039-business-scope-ceiling",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-040-project-work-views",
+      "to": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-040-project-work-views",
+      "to": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-044-entry-landing-login-business-routing",
+      "to": "doc:FR-046-production-viewer-entry-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-044-entry-landing-login-business-routing",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-064-schedule-timeline",
+      "to": "doc:FR-063-project-board",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-065-import-target-authorization",
+      "to": "req:FR-012",
+      "type": "references",
+      "source": "wikilink",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-065-import-target-authorization",
+      "to": "req:FR-061",
+      "type": "references",
+      "source": "wikilink",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-065-import-target-authorization",
+      "to": "req:FR-062",
+      "type": "references",
+      "source": "wikilink",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-065-import-target-authorization",
+      "to": "req:FR-067",
+      "type": "references",
+      "source": "wikilink",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-066-profile-first-workspace-onboarding",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:FR-040-project-work-views",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:FR-063-project-board",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:FR-064-schedule-timeline",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-068-human-visible-execution-roadmap",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-069-plan-blueprint-and-intake",
+      "to": "doc:EXECUTION-MODES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-069-plan-blueprint-and-intake",
+      "to": "doc:FR-068-human-visible-execution-roadmap",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-069-plan-blueprint-and-intake",
+      "to": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-069-plan-blueprint-and-intake",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-069-plan-blueprint-and-intake",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "to": "doc:EXECUTION-MODES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "to": "doc:FR-051-production-supabase-tenant-isolation",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "to": "doc:ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "to": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-031-viewer-gate",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-061-per-business-domain-visibility",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-062-permissions-read-scope",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:FR-078-customer-data-backfill-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-076-product-owner-business-assignment",
+      "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-078-customer-data-backfill-contract",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-078-customer-data-backfill-contract",
+      "to": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-078-customer-data-backfill-contract",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-078-customer-data-backfill-contract",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-091-conversation-inbox",
+      "to": "doc:FR-093-reply-delivery-receipt",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-103-pdpa-consent-attestation",
+      "to": "doc:ethics-governance",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-103-pdpa-consent-attestation",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-115-document-parsing",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:FR-116-derived-object-provenance",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-125-flowaccount-read-only-pull-pipeline",
+      "to": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:full-schema",
+      "to": "doc:B-db-schema",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:full-schema",
+      "to": "doc:DB-MIGRATION-NOTES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GOVERNANCE-LINK-METADATA",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:GOVERNANCE-LINK-METADATA",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:A-api-spec",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:ROUTES-SITEMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:UI-DESIGN-SYSTEM",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "to": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FEATURES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FR-092-market-translation-core",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FR-129-catalog-publication-approval-gate",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FR-130-github-repository-projection",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FR-131-shipping-rate-card-as-business-knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:FR-132-line-ladder-quotation-tool",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "doc:ROADMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "spec:ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "to": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:FR-057-authorized-agent-context-and-vault-resolution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:FR-110-published-knowledge-snapshot-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:ROADMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "domain:integration",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PLAN-PENDING-IDENTITY-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "doc:ROADMAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:EXECUTION-MODES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:FR-051-production-supabase-tenant-isolation",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:FR-052-server-owned-line-scope-binding",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:FR-078-customer-data-backfill-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "doc:ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRODUCT",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-03-IDENTITY-PERMISSION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:README",
+      "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SITEMAP-DOMAIN-NAV",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SITEMAP-DOMAIN-NAV",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SYSTEM-DIAGRAM",
+      "to": "doc:PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:zuri_workspace_system",
+      "to": "doc:FR-076-product-owner-business-assignment",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:zuri_workspace_system",
+      "to": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:zuri_workspace_system",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:zuri_workspace_system",
+      "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:CR-014-ASSET-MANAGEMENT-DOMAIN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:FR-133-asset-management-foundation",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:FR-137-asset-evidence-intake-execution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:FR-143-edge-executed-evidence-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "doc:ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "spec:ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
+      "to": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "domain:agent",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "domain:crm",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "domain:identity",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "domain:integration",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:line-oa-studio",
+      "to": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:project-manager",
+      "to": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "feat:FEAT-001",
       "to": "req:FR-037",
       "type": "bundles",
@@ -40767,6 +42454,13 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-002-INTEGRATION-DIRECTION",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
       "to": "req:SDD-001",
       "type": "supersedes",
@@ -40775,10 +42469,24 @@
     },
     {
       "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "to": "spec:ADR-001-STANDALONE-ZURI-V2",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
       "to": "spec:ADR-002-INTEGRATION-DIRECTION",
       "type": "supersedes",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
@@ -40800,6 +42508,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
@@ -40943,6 +42658,13 @@
     },
     {
       "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "to": "req:BR-001",
       "type": "relates",
       "status": "current",
@@ -41006,6 +42728,13 @@
     },
     {
       "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "to": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
       "type": "relates",
       "status": "current",
@@ -41017,6 +42746,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
@@ -41076,6 +42812,13 @@
     },
     {
       "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
       "to": "req:BR-001",
       "type": "relates",
       "status": "current",
@@ -41122,6 +42865,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
@@ -41180,6 +42930,27 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
       "to": "req:BR-010",
       "type": "relates",
@@ -41236,6 +43007,27 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
+      "to": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
       "to": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "relates",
@@ -41262,6 +43054,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "to": "doc:ARCHITECTURE-TARGET-MODULAR-MONOLITH",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
@@ -41304,6 +43103,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
@@ -41363,10 +43169,24 @@
     },
     {
       "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
       "to": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
@@ -41377,10 +43197,24 @@
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:EXECUTION-MODES",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "to": "doc:FR-040-project-work-views",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-040-project-work-views",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
@@ -41391,10 +43225,24 @@
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-063-project-board",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "to": "doc:FR-064-schedule-timeline",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-064-schedule-timeline",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
@@ -41409,6 +43257,13 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
@@ -41619,6 +43474,90 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "to": "doc:FR-080-integration-secret-management-ui",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "to": "doc:PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "to": "doc:PLAN-FR-080-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "to": "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "doc:FR-061-per-business-domain-visibility",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "doc:FR-062-permissions-read-scope",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "doc:FR-076-product-owner-business-assignment",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "doc:FR-078-customer-data-backfill-contract",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
@@ -42210,6 +44149,13 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "domain:knowledge",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "req:BR-009",
       "type": "relates",
       "status": "current",
@@ -42301,6 +44247,13 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
       "type": "relates",
       "status": "current",
@@ -42308,10 +44261,24 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
@@ -42322,10 +44289,24 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
@@ -42335,11 +44316,25 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
       "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
@@ -42454,11 +44449,67 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
       "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
@@ -42469,10 +44520,101 @@
     },
     {
       "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "domain:line-oa-studio",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
       "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "to": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
@@ -55854,6 +57996,20 @@
     {
       "from": "test:tests/unit/design-system.test.js",
       "to": "req:SDD-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-links-cli.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-links.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
