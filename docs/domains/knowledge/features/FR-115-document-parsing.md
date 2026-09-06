@@ -12,7 +12,7 @@ status: "implemented"
 ## Intent
 
 FR-115 implements Stage 2 of `DPL-KNOWLEDGE-INGEST-V1` — the `DPS-KI-PARSE` row
-of [FR-109](./FR-109-knowledge-ingestion-stage-catalog.md)'s catalog — as a pure
+of [FR-109](FR-109-knowledge-ingestion-stage-catalog.md)'s catalog — as a pure
 function in the knowledge lane: `src/modules/knowledge/parsing.js`, function
 `parseDocument`.
 
@@ -185,7 +185,7 @@ PDF, DOCX, OCR and vision layout analysis are **not** parsed here, and this is a
 division of labour rather than a shortfall. Extracting text from a PDF or reading
 a scanned table needs either a model or a native binary; neither belongs in a
 pure function in this lane. Those formats already arrive through
-[FR-071](./FR-071-supabase-data-pipeline-monitor-and-replay.md)'s
+[FR-071](FR-071-supabase-data-pipeline-monitor-and-replay.md)'s
 `smartgift.document-intake.v1` front door, which receives and validates someone
 else's extraction rather than performing one. There are two ways into the
 pipeline because there are two kinds of source, not because one way is
@@ -261,27 +261,27 @@ Known gaps in this list, stated rather than left to be discovered:
   to the caller and never stored, so the knowledge charter's `owns_models: []`
   stays true.
 - **Not chunking.** Splitting `structure` into retrieval units is
-  [FR-112](./FR-112-structural-knowledge-chunking.md), and this file does not
+  [FR-112](FR-112-structural-knowledge-chunking.md), and this file does not
   import it.
 - **No entity work.** Mentions, types and candidates are
-  [FR-113](./FR-113-entity-candidate-extraction.md).
+  [FR-113](FR-113-entity-candidate-extraction.md).
 - **Not a CommonMark implementation.** It recognises the constructs Stage 7 can
   use — ATX and setext headings, fenced and indented code, pipe tables — and
   treats everything else as text. Lists, block quotes, link reference definitions
   and inline markup are not modelled.
 - **Not classification or provenance capture.** `scope` is
-  [FR-111](./FR-111-knowledge-sensitivity-lattice.md)'s (Stage 5) and the
+  [FR-111](FR-111-knowledge-sensitivity-lattice.md)'s (Stage 5) and the
   provenance envelope is Stage 3's; the parser emits only the one link §7 asks of
   it, `parsed_from`.
 
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](./FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-PARSE` catalog row this implements
-- [FR-112 — Structural knowledge chunking with parent-child lineage](./FR-112-structural-knowledge-chunking.md) — the consumer that owns the block shape
-- [FR-113 — Entity candidate extraction from chunks and structured records](./FR-113-entity-candidate-extraction.md) — the stage below Stage 7
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from, not from here
-- [FR-071 — Supabase data pipeline monitor and replay](./FR-071-supabase-data-pipeline-monitor-and-replay.md) — the `smartgift.document-intake.v1` front door for the formats this parser does not read
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-PARSE` catalog row this implements
+- [FR-112 — Structural knowledge chunking with parent-child lineage](FR-112-structural-knowledge-chunking.md) — the consumer that owns the block shape
+- [FR-113 — Entity candidate extraction from chunks and structured records](FR-113-entity-candidate-extraction.md) — the stage below Stage 7
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from, not from here
+- [FR-071 — Supabase data pipeline monitor and replay](FR-071-supabase-data-pipeline-monitor-and-replay.md) — the `smartgift.document-intake.v1` front door for the formats this parser does not read
 - [PRD-SDD v1.0 — FR-115, SDD-063, FR-112, FR-081](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — its stage table puts Stage 2 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §7 (Stage 2) is the source requirement

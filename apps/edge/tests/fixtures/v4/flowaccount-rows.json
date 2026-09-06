@@ -1,0 +1,202 @@
+[
+  {
+    "rowIndex": 1,
+    "productCode": "SYN01(P-14)-100",
+    "name": "สินค้าทดสอบสังเคราะห์ 1",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 610,
+    "unitPriceWithVat": 652.7,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 2,
+    "productCode": "SYN02(P-14)-500",
+    "name": "สินค้าทดสอบสังเคราะห์ 2",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 620,
+    "unitPriceWithVat": 663.4,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 3,
+    "productCode": "SYN03-2(P-20)-500",
+    "name": "สินค้าทดสอบสังเคราะห์ 3",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 630,
+    "unitPriceWithVat": 674.1,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 4,
+    "productCode": "SYN0762(P-PT)-10",
+    "name": "สินค้าทดสอบสังเคราะห์ 4",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 640,
+    "unitPriceWithVat": 684.8,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 5,
+    "productCode": "SYN05",
+    "name": "สินค้าทดสอบสังเคราะห์ 5",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 0,
+    "unitPriceWithVat": 0,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 6,
+    "productCode": "BAD-801-(400)100",
+    "name": "สินค้าทดสอบสังเคราะห์ 6",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 660,
+    "unitPriceWithVat": 706.2,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 7,
+    "productCode": "SYN-2(P-02)-500",
+    "name": "สินค้าทดสอบสังเคราะห์ 7",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 670,
+    "unitPriceWithVat": 716.9,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 8,
+    "productCode": "",
+    "name": "ชุดทดสอบ SYN08-4(P-06)",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 680,
+    "unitPriceWithVat": 727.6,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 9,
+    "productCode": "",
+    "name": "ชุดทดสอบ SYN09-2",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 690,
+    "unitPriceWithVat": 738.3,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 10,
+    "productCode": "",
+    "name": "สินค้าทดสอบสังเคราะห์ 10",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 700,
+    "unitPriceWithVat": 749,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 11,
+    "productCode": "",
+    "name": "สินค้าทดสอบสังเคราะห์ 11",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 710,
+    "unitPriceWithVat": 759.7,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 12,
+    "productCode": "",
+    "name": "สินค้าทดสอบสังเคราะห์ 12",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 720,
+    "unitPriceWithVat": 770.4,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 13,
+    "productCode": "",
+    "name": "สินค้าทดสอบสังเคราะห์ 13",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 730,
+    "unitPriceWithVat": 781.1,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 14,
+    "productCode": "SYN14",
+    "name": "สินค้าทดสอบสังเคราะห์ 14",
+    "unit": "ชุด",
+    "category": "Other",
+    "unitPrice": 740,
+    "unitPriceWithVat": 791.8,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 15,
+    "productCode": "INVALID",
+    "name": "สินค้าทดสอบสังเคราะห์ 15",
+    "unit": "ชุด",
+    "category": "Other",
+    "unitPrice": 750,
+    "unitPriceWithVat": 802.5,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 16,
+    "productCode": "SYN16",
+    "name": "สินค้าทดสอบ ไม่ใช้งาน",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 760,
+    "unitPriceWithVat": 813.2,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 17,
+    "productCode": "SYN17",
+    "name": "สินค้าทดสอบสังเคราะห์ 17",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 770,
+    "unitPriceWithVat": 823.9,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 18,
+    "productCode": "SYN18",
+    "name": "สินค้าทดสอบสังเคราะห์ 18",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 780,
+    "unitPriceWithVat": 834.6,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 19,
+    "productCode": "SY05601(P-09)-20",
+    "name": "สินค้าทดสอบสังเคราะห์ 19",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 790,
+    "unitPriceWithVat": 845.3,
+    "buyPrice": 0
+  },
+  {
+    "rowIndex": 20,
+    "productCode": "SYN20",
+    "name": "สินค้าทดสอบสังเคราะห์ 20",
+    "unit": "ชุด",
+    "category": "Gift Set",
+    "unitPrice": 800,
+    "unitPriceWithVat": 856,
+    "buyPrice": 0
+  }
+]

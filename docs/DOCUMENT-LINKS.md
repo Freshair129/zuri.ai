@@ -1129,7 +1129,8 @@ Backlinks:
 
 Source: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
-- references: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+- references: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
+- references: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
 - relates: feat:FEAT-019
 - relates: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 - relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
@@ -1144,8 +1145,9 @@ Backlinks:
 - [Zuri V2 — Product Definition](PRODUCT.md) (references)
 - [ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path](decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
+- [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md) (relates)
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
-- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
@@ -2235,6 +2237,18 @@ Backlinks:
 - [FR-116 — Derived-object provenance and the lineage chain back to a source](domains/knowledge/features/FR-116-derived-object-provenance.md) (references)
 - [FR-117 — Deduplication and version relationships within one tenant](domains/knowledge/features/FR-117-deduplication-and-versioning.md) (references)
 
+## Monorepo snapshot execution
+
+Source: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
+
+- relates: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+Backlinks:
+
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (references)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (references)
+
 ## Zuri V2 — Project Manager Module: PRD & SDD
 
 Source: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
@@ -2391,7 +2405,7 @@ Backlinks:
 - [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
 - [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
 - [Features (FEAT registry)](FEATURES.md) (relates)
-- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
@@ -2524,16 +2538,18 @@ Backlinks:
 
 - [FR-078 — Customer data backfill contract](domains/crm/features/FR-078-customer-data-backfill-contract.md) (references)
 
-## Candidate monorepo migration gates
+## Monorepo migration gates
 
-Source: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+Source: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
 
+- references: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
 Backlinks:
 
 - [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (references)
+- [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md) (relates)
 
 ## ROADMAP: zuri-ai — Live Delivery State
 

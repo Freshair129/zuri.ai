@@ -1,0 +1,21 @@
+# A cross-reference between documents.
+contract_id: edge:document_references_document
+contract_version: 1.0.0
+predicate: references
+from_type: [document]
+to_type: [document]
+labels:
+  forward: references
+  inverse: references (query only)
+payload_schema: {}
+cardinality: 0..*
+semantic_hash: sha256:1d8c883e0c255683ecb31b954616012949404d89ff06182875aad41708632457
+status: active
+provenance:
+  actor_type: agent
+  actor_id: claude-opus-5
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-05T08:55:21Z
+  source_ref: OWNER-2026-09-05-registry-bootstrap
+  approval_ref: OWNER-2026-09-05-registry-bootstrap

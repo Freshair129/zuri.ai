@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-062
-version: "0.2.0b"
-status: candidate
+version: "0.3.0b"
+status: beta
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-06T19:38:00+07:00,RWANG"
+last_update: "2026-09-06T21:40:04+07:00,RWANG"
 attributes:
   domain: architecture
   scope: server-edge-repository-topology
@@ -26,15 +26,18 @@ relations:
 
 # ADR-062 — Candidate Server/Edge monorepo with independent releases
 
-**Status:** Candidate. Documentation requested by the owner; physical import, directory relocation and repository retirement await review.
+**Status:** Approved for isolated snapshot relocation on 2026-09-06. Source migration is under verification; independent release and repository retirement remain separate gates.
+
+The original heading remains pinned by ADR-039's subject anchor; the status above
+records approval without renaming the canonical subject.
 
 ## Context
 
 Server LINE behavior is already implemented in the server repository under ADR-061. Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence. The earlier unmerged ADR-062 proposal said to relocate first and then implement ADR-061; that order is now obsolete. Repository layout must not block the current two-repository rollout.
 
-## Proposed decision
+## Decision
 
-1. Prefer evolving the existing `Freshair129/zuri.ai` into a monorepo after rollout and migration readiness are reviewed. Keep separate repositories while that decision is candidate. Do not import the discontinued `Freshair129/zuri` product.
+1. Prefer evolving the existing `Freshair129/zuri.ai` into a monorepo after rollout and migration readiness are reviewed. The owner approved snapshot relocation; retain the original Edge repository/history for provenance and rollback. Do not import the discontinued `Freshair129/zuri` product.
 2. Target `apps/server`, `apps/edge`, and a transport-neutral `packages/contracts`. Server and Edge remain independently built, installed, versioned, released and rolled back. A shared commit never requires simultaneous device deployment.
 3. Begin with the existing npm toolchain if approved. Do not combine relocation with dependency upgrades, framework changes, LINE cutover, database migration or credential changes. Server installation must not require Edge native dependencies.
 4. Root docs remain the canonical product/domain/global requirement registry. Preserve original Edge IDs with an explicit repository-qualified mapping and source provenance. No renumbering or silent collision resolution.
@@ -42,15 +45,15 @@ Server LINE behavior is already implemented in the server repository under ADR-0
 6. Current metadata linking is not a monorepo graph importer. Before relocation, extend discovery and identity mapping, preserve exact source/ID sets, and prove both original per-repository graphs are represented. Unknown namespaces must not be hidden by dropping nodes.
 7. Preserve the original Edge repository/history until per-app releases, graph reconciliation and rollback are proven. Retirement is a reviewed successor/maintenance record, never deletion of local runtime data or secrets.
 
-## Proposed layout
+## Layout
 
 ```text
 zuri.ai/
   apps/server/          web, API, server worker; own build/release
   apps/edge/            optional device runtime; own native dependencies/release
-  packages/contracts/   portable schemas and non-sensitive compatibility fixtures
+  packages/contracts/   reserved; extraction deferred until separately verified
   docs/                 canonical product/domain records and qualified lineage
-  scripts/              root governance orchestration
+  package.json          root governance/application command orchestration
 ```
 
 ## Alternatives and tradeoffs
@@ -83,6 +86,18 @@ inventory, cross-repository graph reconciliation and independent release evidenc
 remain open. Keep separate app lockfiles and never make the destination public as
 a rollback after importing private Edge material.
 
+## Approved snapshot implementation
+
+The isolated migration uses Server `be9e1440` and synthetic Edge `13422da`.
+See [execution evidence](../migrations/monorepo/EXECUTION.md) and
+[per-file provenance](../migrations/monorepo/source-manifest.json).
+Source moves preserve app working directories and independent lockfiles. Server
+governance reads canonical root docs explicitly; its legacy node IDs remain stable,
+while node paths identify `apps/server/...`. The combined graph qualifies Edge
+IDs and verifies original registry identities/edges against imported content.
+Customer-derived fixtures have synthetic replacements; held operator/business
+files are accounted for outside the import. No history rewrite or runtime restart.
+
 ## Approval and exit gates
 
 Approve the target layout and source-access model, inventory source/history/licensing without secrets or customer data, record exact ID and graph mappings, validate independent installs/builds/tests, verify compatibility against recorded released versions, then import with an independently reversible release plan. Detailed gates: [migration plan](../roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md). Until they pass, ADR-041 repository separation remains operational policy.
@@ -95,3 +110,5 @@ No new customer FR/FEAT or design-rule number is invented for moving directories
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Documented current requirement ownership and phase handoffs; release gates remain separate | base 4c0cbe3 | RWANG |
 | 0.2.0b | 2026-09-06 | candidate | Approved private source and build-only publication prerequisite; relocation gates remain open | base 4486be20 | RWANG |
+
+Version diff 0.2.0b → 0.3.0b: owner-approved snapshot layout, scoped graph discovery and provenance; release gates remain open.
