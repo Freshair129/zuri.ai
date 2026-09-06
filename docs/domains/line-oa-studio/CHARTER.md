@@ -5,6 +5,8 @@ modules:
   - line-oa-studio
 owns_models:
   - LineOaAccount
+  - LineOaRichMenu
+  - LineOaRichMenuVersion
   - LineConversationJob
 owns_routes:
   - src/app/(pm)/line-oa/**
@@ -14,7 +16,7 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.4.0"
+version: "0.5.0"
 created_at: "2026-09-05T00:00:00+07:00"
 updated_at: "2026-09-05T18:00:00+07:00"
 ---
@@ -300,8 +302,17 @@ so `effectiveStatus` reaches LIVE when the read role sees an ACTIVE, in-window
 binding and health reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN with its
 source. Not yet: the `/line-oa` pages, transport jobs and quota, and a
 per-Tenant read policy (today pinned to SmartGift, so other Tenants read
-NOT_ACTIVE). ADR-060 D14 phases the rest; each slice declares its own ids
-first and updates this charter's ownership claims in the same change.
+NOT_ACTIVE). Slice 3 (**FR-151**, 2026-09-06) claimed `LineOaRichMenu` and
+`LineOaRichMenuVersion`: the rich menu designer's data — identity, alias and
+default flag on the menu; numbered bodies that freeze into immutable versions;
+LINE layout, image-size and bounds rules and an allow-listed tap-action
+vocabulary in `domain/line-oa-rich-menu.js`; the only writer
+`application/line-oa-rich-menu-service.js`; `GET/POST /api/line-oa/rich-menus`
+and `GET/PATCH /api/line-oa/rich-menus/[id]`. Publishing a frozen version to
+LINE, setting the default, aliases and links are transport jobs and wait for
+that slice; the external `richMenuId` column exists and is written by nothing
+yet. ADR-060 D14 phases the rest; each slice declares its own ids first and
+updates this charter's ownership claims in the same change.
 
 ## References
 
@@ -316,6 +327,7 @@ first and updates this charter's ownership claims in the same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0 | 2026-09-06 | phase-1-building | Slice 3: claimed `LineOaRichMenu` / `LineOaRichMenuVersion` in `owns_models` as FR-151 lands — designer data, pure rules, only writer, two routes; publishing stays with the transport-job slice | working-tree | Claude Fable 5.1 |
 | 0.4.1 | 2026-09-05 | phase-1-building | Slice 2: the account's `bindingStatus` port defaults to the agent lane's FR-147 read contract; LIVE is now reachable; the read policy's SmartGift pin recorded as the remaining gap | working-tree | Claude Fable 5.1 |
 | 0.4.0 | 2026-09-05 | phase-1-building | Claimed `LineOaAccount` in `owns_models` as FR-146 slice 1 lands: model, only writer, two routes, publisher role, reserved domain slot, integration read contract; binding reader, pages, jobs and quota still open | working-tree | Claude Fable 5.1 |
 | 0.3.1 | 2026-09-05 | phase-1-declared | Delivery state: FR-146 (`LineOaAccount`, FEAT-018) declared as the first Phase 1 slice; ownership claims unchanged until the model lands | working-tree | Claude Fable 5.1 |
