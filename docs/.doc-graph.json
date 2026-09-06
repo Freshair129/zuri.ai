@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1768,
+    "total_nodes": 1769,
     "total_edges": 6453,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 187,
       "model": 83,
       "requirement": 304,
-      "test": 437,
+      "test": 438,
       "code_file": 471
     },
     "coverage": {
@@ -55,26 +55,12 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:README",
-      "domain:agent",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:FR-146-line-oa-account",
-      "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/fr146-line-oa-account.test.js",
-      "code:src/modules/agent/phase1-runtime.js",
-      "code:src/modules/line-oa-studio/application/line-oa-account-service.js"
+      "doc:SRS"
     ],
-    "added": [
-      "req:FR-147",
-      "test:tests/unit/line-binding-status.test.js",
-      "code:src/modules/agent/line-binding-status.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5136,7 +5122,7 @@
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
       "hash": "94b8088f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-047",
@@ -7367,7 +7353,7 @@
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-account-service.js",
       "hash": "a200cb33",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146"
@@ -9806,7 +9792,7 @@
       "version": "1.37.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "38c82e72",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9857,9 +9843,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.15.0b",
+      "version": "1.16.0b",
       "doc_status": "Draft",
-      "hash": "a6234351",
+      "hash": "ff756539",
       "status": "current"
     },
     {
@@ -9987,9 +9973,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.6",
+      "version": "1.0.7",
       "doc_status": "Approved",
-      "hash": "80dc1e06",
+      "hash": "fcf299ba",
       "status": "current"
     },
     {
@@ -10078,7 +10064,7 @@
       "version": "1.20.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "ea2aa958",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10512,7 +10498,7 @@
       "type": "document",
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
-      "hash": "90693e8f",
+      "hash": "94a68bbd",
       "status": "current"
     },
     {
@@ -10652,7 +10638,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "4ff597bb",
+      "hash": "6c4010bf",
       "status": "current"
     },
     {
@@ -10869,7 +10855,7 @@
       "path": "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
       "title": "FR-146 — `LineOaAccount`, the account aggregate",
       "hash": "3f8f666d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -11214,10 +11200,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.151.0b",
+      "version": "1.152.0b",
       "doc_status": "Draft",
-      "hash": "7c9b8721",
-      "status": "changed"
+      "hash": "2515d633",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11260,8 +11246,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "1ad47888",
-      "status": "changed"
+      "hash": "9ca663c1",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11521,7 +11507,7 @@
         "agent"
       ],
       "hash": "35170031",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -11688,7 +11674,7 @@
         "line-oa-studio"
       ],
       "hash": "7f05e33d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -17837,7 +17823,7 @@
       "type": "test",
       "path": "tests/integration/fr146-line-oa-account.test.js",
       "hash": "e1bfb783",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/iam-authorization.test.js",
@@ -20133,6 +20119,13 @@
       "type": "test",
       "path": "tests/unit/runtime-postgres-config.test.js",
       "hash": "eaad3529",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/schema-migration-drift.test.js",
+      "type": "test",
+      "path": "tests/unit/schema-migration-drift.test.js",
+      "hash": "6793e2da",
       "status": "current"
     },
     {
