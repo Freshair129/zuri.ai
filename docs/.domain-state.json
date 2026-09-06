@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T12:55:11.932Z",
+  "generatedAt": "2026-09-06T13:08:51.635Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1757,8 +1757,8 @@
           "id": "FR-024",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 8
+          "codeCount": 8,
+          "testCount": 6
         },
         {
           "id": "FR-047",
@@ -6017,13 +6017,11 @@
           "id": "FR-024",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 8
+          "codeCount": 8,
+          "testCount": 6
         }
       ],
       "evidence": [
-        "src/modules/knowledge/gbdb-rag-service.js",
-        "src/modules/knowledge/genesisblockdb-sink.js",
         "src/modules/knowledge/graph-query.js",
         "src/modules/knowledge/index.js",
         "src/modules/knowledge/live-facts.js",
@@ -6033,11 +6031,9 @@
         "src/modules/knowledge/smartgift-knowledge-catalog.js",
         "src/modules/knowledge/smartgift-rag-pipeline.js",
         "tests/integration/agent-runtime.test.js",
-        "tests/integration/knowledge-genesis-sink.test.js",
         "tests/integration/knowledge-project.test.js",
         "tests/integration/knowledge-query.test.js",
         "tests/unit/activation-readiness-integration.test.js",
-        "tests/unit/gbdb-rag-service.test.js",
         "tests/unit/runtime-isolation-probe.test.js",
         "tests/unit/smartgift-rag-pipeline.test.js"
       ]

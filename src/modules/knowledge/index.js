@@ -6,7 +6,8 @@
 export { projectKnowledgeGraph } from './project-graph'
 export { queryKnowledge } from './query'
 export { writeGraph, createJsonSink } from './sink'
-export { createGenesisBlockDBSink } from './genesisblockdb-sink'
+// The GenesisBlockDB adapter that once sat here was retired by ADR-063: Tier 1 holds the
+// sink seam, never a client of the substrate (ADR-043 D2.1, ADR-050 D3).
 export { createGraphKnowledgeReader } from './graph-query'
 export { assertNoLiveFacts, LIVE_FACT_FIELDS } from './live-facts'
 export {
