@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.33.0"
+version: "2.34.0"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -222,6 +222,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > Revision 2.32.0 (2026-09-05): ประกาศและส่งมอบ **FR-147** (ใน FEAT-018) — contract อ่านสถานะ binding แบบ read-only ในเลน agent (`src/modules/agent/line-binding-status.js`) ผูกเป็น port `bindingStatus` ค่า default ของ FR-146 ทำให้บัญชีอ่านเป็น LIVE ได้เมื่อ read role เห็น binding ที่ ACTIVE และอยู่ในช่วงเวลา. contract ตอบได้แค่ ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN เพราะ policy ของ `zuri_line_smartgift_ro` เห็นเฉพาะแถว ACTIVE ในช่วงเวลาของ scope ที่ถูก grant — ไม่แต่งสถานะ PENDING/INACTIVE ที่มองไม่เห็น. ยังเปิดอยู่: policy ยังตรึงที่ tenant SmartGift (tenant อื่นอ่านเป็น NOT_ACTIVE จนกว่า operator จะขยาย), หน้า `/line-oa`, transport job, quota, migration production ของ FR-146 ยังไม่ apply
 
 > Revision 2.33.0 (2026-09-06): ซ่อมช่องว่างของ migration — คอลัมน์ `RawExternalRecord.artifactId` (FR-109 AC-109.3, เข้า schema 2026-08-29) ไม่มี migration ในทั้งสอง tree เพราะฐาน dev เป็น SQLite แบบ `prisma db push` ทำให้ test ผ่านทั้งหมดขณะที่ production Supabase (migrate จาก `supabase/migrations/` เท่านั้น) ไม่มีคอลัมน์นี้ และ `GET /api/backup/export` ล้มบน production มาเจ็ดวัน. เพิ่ม migration ฝั่ง Supabase `20260906090000_raw_external_record_artifact_id.sql` (idempotent, **ยังไม่ apply** — เป็นขั้นตอน operator ตามคำสั่งเจ้าของ ADR-057 ผ่าน session deploy) และคู่ SQLite, พร้อม guard ใหม่ใน preflight `schema-migration-drift` (Check 18) ที่เทียบ `prisma/schema.postgres.prisma` (generated) กับทุก `CREATE TABLE` / `ALTER TABLE … ADD COLUMN` ใน `supabase/migrations/*.sql` แบบ static ไม่แตะฐานข้อมูล (ตัด comment ก่อน รองรับ `IF NOT EXISTS`, identifier มี/ไม่มี quote, ADD COLUMN หลายคอลัมน์, DO block) — จงใจไม่อิง `prisma/schema.prisma` เพราะไฟล์นั้นเป็น schema ฝั่ง dev ที่ field ปรากฏได้โดยไม่มี migration ตามปกติ. baseline แบบหดได้อย่างเดียว `docs/.schema-migration-baseline.json` บันทึก drift เดิม 33 คอลัมน์ (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, `Workstream` 8 คอลัมน์ — สองรายการหลังยังไม่ยืนยันบน production และเป็นสิ่งที่ session deploy ควรตรวจถัดไป) และ unit test พิสูจน์ว่า guard แดงเมื่อถอด migration ออก. RCA: `.brain/rca/2026-09-06-a-schema-column-with-no-migration.md`
+
+> Revision 2.34.0 (2026-09-06): session deploy apply migration `artifactId` ไป production แล้ว (คอลัมน์ + index มีจริง บันทึก version 20260906090000) และตรวจแบบ read-only พบว่า production มีทุกคอลัมน์ใน baseline ของ `schema-migration-drift` อยู่แล้ว (`PersonCredential`, `PasswordResetToken`, `PlanImportReceipt`, `Workstream` 8 คอลัมน์ — สร้างนอก lineage มาก่อน) `GET /api/backup/export` ตอบ 401 เมื่อไม่ login แทน 500. เพิ่ม recording migration `20260906120000_record_pre_lineage_tables_and_columns.sql` (ทุก statement เป็น `IF NOT EXISTS` หรือมี guard เป็น no-op บน production, **ยังไม่บันทึก version** — ขั้นตอน operator ตาม ADR-057) และคู่ SQLite ของสองตาราง auth; baseline หดเหลือศูนย์. ไม่มี deploy main ใหม่
 
 ## Phases
 
