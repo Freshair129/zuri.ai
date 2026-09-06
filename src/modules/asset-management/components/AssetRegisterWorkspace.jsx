@@ -29,9 +29,15 @@ import {
   ArrowRightLeft,
   Move,
   CornerUpLeft,
+  Printer,
+  Camera,
+  CheckSquare,
+  Square,
 } from 'lucide-react'
 import { Card, SectionTitle, StatusPill, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
+import AssetTagModal from './AssetTagModal'
+import { QrCodeSvg } from './AssetTagLabel'
 
 const CATEGORIES = [
   { code: '', label: 'ทุกหมวดหมู่' },
@@ -65,6 +71,11 @@ export default function AssetRegisterWorkspace() {
   const [assetDetail, setAssetDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Selection for Batch Printing
+  const [selectedAssetIds, setSelectedAssetIds] = useState(new Set())
+  const [tagModalOpen, setTagModalOpen] = useState(false)
+  const [printAssets, setPrintAssets] = useState([])
 
   // Context lookup options
   const [peopleList, setPeopleList] = useState([])
@@ -417,6 +428,28 @@ export default function AssetRegisterWorkspace() {
               <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
               <span>รีเฟรช</span>
             </button>
+
+            {selectedAssetIds.size > 0 && (
+              <button
+                onClick={() => {
+                  const toPrint = data.items.filter((item) => selectedAssetIds.has(item.id))
+                  setPrintAssets(toPrint)
+                  setTagModalOpen(true)
+                }}
+                className="btn btn-primary flex items-center gap-1.5 px-3 py-2 text-xs"
+              >
+                <Printer size={13} />
+                <span>พิมพ์ป้าย ({selectedAssetIds.size})</span>
+              </button>
+            )}
+
+            <Link
+              href="/assets/scanner"
+              className="btn btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs text-amber-600 dark:text-amber-500 font-semibold"
+            >
+              <Camera size={13} />
+              <span>สแกน QR / ตรวจนับ</span>
+            </Link>
           </div>
         </div>
       </Card>
@@ -427,7 +460,22 @@ export default function AssetRegisterWorkspace() {
           <table className="w-full text-left text-xs">
             <thead className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[11px] font-semibold text-muted">
               <tr>
-                <th className="py-3 pl-4 pr-2">รหัสทรัพย์สิน</th>
+                <th className="py-3 pl-3 pr-1 w-8">
+                  <input
+                    type="checkbox"
+                    checked={data.items.length > 0 && selectedAssetIds.size === data.items.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedAssetIds(new Set(data.items.map((i) => i.id)))
+                      } else {
+                        setSelectedAssetIds(new Set())
+                      }
+                    }}
+                    className="rounded"
+                    aria-label="เลือกทั้งหมด"
+                  />
+                </th>
+                <th className="py-3 pl-2 pr-2">รหัสทรัพย์สิน</th>
                 <th className="px-3 py-3">ชื่อรายการ / สเปก</th>
                 <th className="px-3 py-3">หมวดหมู่</th>
                 <th className="px-3 py-3">สถานะ</th>
@@ -440,14 +488,14 @@ export default function AssetRegisterWorkspace() {
             <tbody className="divide-y divide-[var(--border)]">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-muted">
+                  <td colSpan={9} className="py-12 text-center text-muted">
                     <RefreshCw size={24} className="mx-auto animate-spin opacity-50" />
                     <p className="mt-2 text-xs">กำลังโหลดทะเบียนทรัพย์สิน...</p>
                   </td>
                 </tr>
               ) : data.items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center">
+                  <td colSpan={9} className="py-12 text-center">
                     <Package size={32} className="mx-auto text-muted opacity-40" />
                     <p className="mt-2 font-bold text-[13px]">ยังไม่พบทรัพย์สินที่ขึ้นทะเบียน</p>
                     <p className="mt-0.5 text-xs text-muted">
@@ -469,7 +517,21 @@ export default function AssetRegisterWorkspace() {
                     onClick={() => openDetail(asset.id)}
                     className="group cursor-pointer transition-colors hover:bg-[var(--surface-subtle)]"
                   >
-                    <td className="py-3 pl-4 pr-2 font-mono font-bold text-[var(--action-primary)]">
+                    <td className="py-3 pl-3 pr-1" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedAssetIds.has(asset.id)}
+                        onChange={(e) => {
+                          const next = new Set(selectedAssetIds)
+                          if (e.target.checked) next.add(asset.id)
+                          else next.delete(asset.id)
+                          setSelectedAssetIds(next)
+                        }}
+                        className="rounded"
+                        aria-label={`เลือก ${asset.assetCode}`}
+                      />
+                    </td>
+                    <td className="py-3 pl-2 pr-2 font-mono font-bold text-[var(--action-primary)]">
                       <div className="flex items-center gap-1.5">
                         <QrCode size={13} className="text-muted group-hover:text-[var(--action-primary)]" />
                         <span>{asset.assetCode}</span>
@@ -853,21 +915,37 @@ export default function AssetRegisterWorkspace() {
                 )}
 
                 {/* QR Tag Panel */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-bold text-muted uppercase">Digital QR Tag</p>
-                      <p className="mt-1 font-mono text-xs break-all">
-                        zuri://assets/{business.id}/{assetDetail.assetCode}?v=1
-                      </p>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4 flex items-center justify-between gap-4">
+                  <div className="space-y-1 overflow-hidden">
+                    <p className="text-[11px] font-bold text-muted uppercase">Digital QR Tag & Payload</p>
+                    <p className="font-mono text-xs break-all text-amber-700 dark:text-amber-500 font-semibold">
+                      zuri://assets/{business.id}/{assetDetail.assetCode}?v=1
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => copyQrUri(assetDetail.assetCode)}
+                        className="btn btn-secondary flex items-center gap-1 text-xs"
+                      >
+                        {copied ? <Check size={13} style={{ color: 'var(--success)' }} /> : <Copy size={13} />}
+                        <span>{copied ? 'คัดลอกแล้ว' : 'คัดลอก URI'}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPrintAssets([assetDetail])
+                          setTagModalOpen(true)
+                        }}
+                        className="btn btn-primary flex items-center gap-1 text-xs"
+                      >
+                        <Printer size={13} />
+                        <span>พิมพ์ป้าย QR</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={() => copyQrUri(assetDetail.assetCode)}
-                      className="btn btn-secondary shrink-0 flex items-center gap-1 text-xs"
-                    >
-                      {copied ? <Check size={13} style={{ color: 'var(--success)' }} /> : <Copy size={13} />}
-                      <span>{copied ? 'คัดลอกแล้ว' : 'คัดลอก URI'}</span>
-                    </button>
+                  </div>
+                  <div className="shrink-0 bg-white p-1 rounded-lg border border-gray-200 shadow-xs">
+                    <QrCodeSvg
+                      value={`zuri://assets/${business.id}/${assetDetail.assetCode}?v=1`}
+                      size={72}
+                    />
                   </div>
                 </div>
 
@@ -1057,6 +1135,14 @@ export default function AssetRegisterWorkspace() {
           </div>
         </div>
       )}
+
+      {/* Printable Tag Modal */}
+      <AssetTagModal
+        assets={printAssets}
+        businessName={business?.name || 'Zuri Business'}
+        isOpen={tagModalOpen}
+        onClose={() => setTagModalOpen(false)}
+      />
     </div>
   )
 }

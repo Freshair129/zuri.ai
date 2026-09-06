@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 279,
-    "routes": 149,
-    "test_files": 465
+    "routes": 151,
+    "test_files": 468
   },
   "summary": {
     "critical": 0,
@@ -294,7 +294,7 @@
       "id": "I26",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 56 file(s) that write audit events",
+      "title": "audit entityType checked in 57 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
