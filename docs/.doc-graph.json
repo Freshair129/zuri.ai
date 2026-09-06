@@ -55,7 +55,7 @@
   },
   "drift": {
     "changed": [
-      "doc:INTERFACE-INVENTORY"
+      "test:tests/unit/domain-state.test.js"
     ],
     "added": [],
     "removed": []
@@ -14780,7 +14780,7 @@
       "version": "1.12.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "cd38d7ef",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -24260,8 +24260,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
-      "hash": "63785188",
-      "status": "current"
+      "hash": "bd7787bb",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
