@@ -9423,7 +9423,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "60180308",
+      "hash": "07bae331",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9513,7 +9513,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
-      "hash": "a94cee03",
+      "hash": "55b6a93a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9549,12 +9549,13 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "477807a7",
+      "hash": "fa023565",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
-          "FR-151"
+          "FR-151",
+          "FR-003"
         ],
         "@spec": [
           "SDD-060",
@@ -9566,7 +9567,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
-      "hash": "5ff8fbeb",
+      "hash": "1064366a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9584,7 +9585,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "a836c030",
+      "hash": "b34d39f4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9603,7 +9604,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
-      "hash": "d4cb960f",
+      "hash": "2dac055e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9638,7 +9639,7 @@
       "id": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
-      "hash": "42fc779c",
+      "hash": "1c94b388",
       "status": "current",
       "annotations": {
         "@req": [
@@ -42624,6 +42625,13 @@
       "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
       "to": "req:SDD-060",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:FR-003",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
