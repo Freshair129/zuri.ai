@@ -66,6 +66,7 @@ model Tenant {
   edgeDeviceCredentials     EdgeDeviceCredential[]
   assetExtractionJobs       AssetExtractionJob[]
   lineOaAccounts            LineOaAccount[]
+  lineOaRichMenus           LineOaRichMenu[]
 
   @@index([portfolioId])
 }
@@ -142,6 +143,7 @@ model Business {
   edgeDeviceCredentials     EdgeDeviceCredential[]
   assetExtractionJobs       AssetExtractionJob[]
   lineOaAccounts            LineOaAccount[]
+  lineOaRichMenus           LineOaRichMenu[]
 
   @@index([tenantId])
 }
@@ -1021,6 +1023,7 @@ model FileAsset {
   workItem      WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
   links         FileLink[]
   assetEvidence AssetEvidence[]
+  lineOaRichMenuVersions LineOaRichMenuVersion[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -2273,10 +2276,72 @@ model LineOaAccount {
   tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business   Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
   connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id])
+  richMenus  LineOaRichMenu[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, bindingCode])
   @@index([businessId, status])
+}
+
+// FR-151 — a rich menu design of one LineOaAccount (ADR-060 D3): identity,
+// alias and default flag live here; every body is an immutable-once-frozen
+// LineOaRichMenuVersion. The external richMenuId LINE assigns at deployment is
+// recorded on the version that was deployed, as an attribute (BR-002).
+model LineOaRichMenu {
+  id              String    @id @default(uuid())
+  code            String
+  tenantId        String
+  businessId      String
+  lineOaAccountId String
+  name            String
+  alias           String?
+  status          String    @default("DRAFT")
+  isDefault       Boolean   @default(false)
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  version         Int       @default(1)
+
+  tenant   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  account  LineOaAccount           @relation(fields: [lineOaAccountId], references: [id], onDelete: Cascade)
+  versions LineOaRichMenuVersion[]
+
+  @@unique([tenantId, code])
+  @@unique([lineOaAccountId, alias])
+  @@index([lineOaAccountId, status])
+}
+
+// FR-151 — one numbered body of a rich menu: layout, chat-bar text, tap areas
+// with their actions, and the FileAsset image it was designed against. DRAFT is
+// editable; FROZEN never changes again; PUBLISHED / RETIRED are set by the
+// transport lane (a later slice), never by the designer.
+model LineOaRichMenuVersion {
+  id                 String    @id @default(uuid())
+  richMenuId         String
+  tenantId           String
+  businessId         String
+  lineOaAccountId    String
+  versionNumber      Int
+  status             String    @default("DRAFT")
+  layout             String
+  chatBarText        String
+  selected           Boolean   @default(false)
+  imageFileAssetId   String?
+  imageWidth         Int
+  imageHeight        Int
+  areasJson          String    @default("[]")
+  externalRichMenuId String?
+  frozenAt           DateTime?
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  richMenu LineOaRichMenu @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  image    FileAsset?     @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
+
+  @@unique([richMenuId, versionNumber])
+  @@index([lineOaAccountId, status])
 }
 
 // @req FR-149, FR-150 — durable server-owned conversation execution and acceptance ledger.

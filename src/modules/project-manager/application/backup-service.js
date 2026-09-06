@@ -95,6 +95,10 @@ const SNAPSHOT_MODELS = [
   'workspace', 'project', 'planImportReceipt', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
+  // @req FR-151 — a rich menu hangs off a LINE OA account (above) and its
+  // versions reference the FileAsset image (just above), so both restore after
+  // those and delete before them. Design data, no secret: exported whole.
+  'lineOaRichMenu', 'lineOaRichMenuVersion',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
