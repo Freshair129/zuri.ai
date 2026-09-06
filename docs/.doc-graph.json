@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1859,
-    "total_edges": 7187,
+    "total_nodes": 1875,
+    "total_edges": 7248,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 175,
+      "document": 177,
       "adr": 62,
       "domain": 10,
       "roadmap": 37,
       "feature": 19,
-      "route": 200,
+      "route": 204,
       "model": 87,
       "requirement": 309,
-      "test": 459,
-      "code_file": 497
+      "test": 463,
+      "code_file": 503
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 497,
+      "annotated_code_files": 503,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,13 +55,41 @@
   },
   "drift": {
     "changed": [
+      "doc:ARCHITECTURE",
       "doc:README",
-      "doc:CONTEXT-MAP",
+      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "domain:agent",
       "doc:CONTEXT-MAP",
       "doc:SRS",
+      "domain:crm",
+      "domain:integration",
+      "domain:line-oa-studio",
+      "doc:CONTEXT-MAP",
+      "doc:SRS",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "doc:PRODUCT",
+      "doc:ROADMAP",
       "test:tests/unit/doc-links-cli.test.js"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "doc:PHASE-FR-149-P3-server-line-transport",
+      "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "doc:FR-148-account-scoped-conversations",
+      "doc:PHASE-FR-148-P2-account-scoped-conversations",
+      "doc:PHASE-FR-149-P5-server-line-transport",
+      "doc:PHASE-FR-149-P1-server-line-transport",
+      "doc:PHASE-FR-149-P4-server-line-transport",
+      "doc:FR-149-server-line-transport",
+      "doc:FR-150-optional-edge-execution",
+      "doc:PHASE-FR-148-P1-account-scoped-conversations",
+      "doc:PHASE-FR-149-P2-server-line-transport",
+      "doc:PHASE-FR-150-P1-optional-edge-execution",
+      "doc:PHASE-FR-150-P3-optional-edge-execution",
+      "doc:PLAN-FEAT-019-DOMAIN-PHASES",
+      "doc:PLAN-ZURI-MONOREPO-MIGRATION"
+    ],
     "removed": []
   },
   "nodes": [
@@ -286,6 +314,27 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/assets/register/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/assets/register/page.jsx",
+      "hash": "f639f138",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-navigation.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
@@ -467,6 +516,24 @@
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "hash": "f2a84547",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-151"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-console.test.js"
         ]
       }
     },
@@ -1479,6 +1546,50 @@
         "@tested": [
           "tests/unit/asset-management-contract.test.js",
           "tests/unit/asset-management-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/route.js",
+      "hash": "c950797a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/route.js",
+      "hash": "eed65fb3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023",
+          "SEC-024"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-routes.test.js"
         ]
       }
     },
@@ -4581,7 +4692,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "0f369963",
+      "hash": "6ea5495e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5673,6 +5784,28 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-register-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-register-service.js",
+      "hash": "bbc80845",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-request-scope.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-request-scope.js",
@@ -5712,6 +5845,27 @@
         ],
         "@tested": [
           "tests/unit/asset-evidence-route-schema-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "hash": "9118f05d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-register-service.test.js"
         ]
       }
     },
@@ -8257,7 +8411,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "a2ff6620",
+      "hash": "2c609b62",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10283,9 +10437,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.38.0b",
+      "version": "1.39.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "4804401a",
+      "hash": "e8d51227",
       "status": "current"
     },
     {
@@ -10294,7 +10448,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "ad873073",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -10347,7 +10501,7 @@
       "type": "document",
       "path": "docs/domains/asset-management/CONTEXT-MAP.md",
       "title": "Asset Management context map",
-      "hash": "aaffc3fe",
+      "hash": "5b5e4cbd",
       "status": "changed"
     },
     {
@@ -10463,6 +10617,14 @@
       "status": "current"
     },
     {
+      "id": "doc:DATA-PIPELINE",
+      "type": "document",
+      "path": "docs/domains/asset-management/DATA-PIPELINE.md",
+      "title": "Asset Register Import Pipeline Specification",
+      "hash": "26d86627",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -10558,7 +10720,7 @@
       "version": "1.23.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "d5b9a2bb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11442,9 +11604,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.4.0b",
+      "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "a2d0b9f4",
+      "hash": "7c555fe6",
       "status": "current"
     },
     {
@@ -11841,7 +12003,7 @@
       "version": "1.156.0b",
       "doc_status": "Draft",
       "hash": "39f14aa3",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -11851,7 +12013,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "a34f3775",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:prompt-engineering",
@@ -11885,7 +12047,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "9c0c59b6",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -11922,6 +12084,14 @@
       "doc_status": "Accepted",
       "hash": "01a84952",
       "status": "current"
+    },
+    {
+      "id": "doc:SRS",
+      "type": "document",
+      "path": "docs/domains/asset-management/SRS.md",
+      "title": "SRS — Asset Management domain",
+      "hash": "0081661e",
+      "status": "changed"
     },
     {
       "id": "doc:SRS",
@@ -12145,7 +12315,7 @@
         "agent"
       ],
       "hash": "cf8d008a",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:asset-management",
@@ -12171,7 +12341,7 @@
       "modules": [
         "asset-management"
       ],
-      "hash": "4d107c90",
+      "hash": "ed7b2311",
       "status": "current"
     },
     {
@@ -12196,7 +12366,7 @@
         "crm"
       ],
       "hash": "6a2cc86e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -12278,7 +12448,7 @@
         "integration"
       ],
       "hash": "5c3d8354",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -12318,7 +12488,7 @@
         "line-oa-studio"
       ],
       "hash": "2925a87f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:market-intelligence",
@@ -16189,6 +16359,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/register",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register",
+      "path": "src/app/api/assets/register/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]",
+      "path": "src/app/api/assets/register/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/audit",
       "type": "route",
       "kind": "api",
@@ -17245,6 +17431,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/assets/register",
+      "type": "route",
+      "kind": "page",
+      "route": "/assets/register",
+      "path": "src/app/(pm)/assets/register/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/audit",
       "type": "route",
       "kind": "page",
@@ -17330,6 +17524,14 @@
       "kind": "page",
       "route": "/line-oa",
       "path": "src/app/(pm)/line-oa/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/rich-menus",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/rich-menus",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
       "status": "current"
     },
     {
@@ -18166,7 +18368,7 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "3d58075b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
@@ -18293,6 +18495,13 @@
       "type": "test",
       "path": "tests/e2e/fr149-line-server-console.spec.js",
       "hash": "3abd6068",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "hash": "d2e528d2",
       "status": "current"
     },
     {
@@ -18915,7 +19124,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "cb224829",
+      "hash": "cf4a6dca",
       "status": "current"
     },
     {
@@ -19259,6 +19468,20 @@
       "type": "test",
       "path": "tests/unit/asset-receiving-evidence-ui.test.js",
       "hash": "c5c98889",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-register-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-register-routes.test.js",
+      "hash": "ca7a5791",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-register-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-register-service.test.js",
+      "hash": "de4c4bd2",
       "status": "current"
     },
     {
@@ -20337,6 +20560,13 @@
       "type": "test",
       "path": "tests/unit/line-oa-account-schema-contract.test.js",
       "hash": "c04182ea",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-console.test.js",
+      "hash": "7301a056",
       "status": "current"
     },
     {
@@ -21777,6 +22007,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/register/page.jsx",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/audit/page.jsx",
       "to": "req:FR-014",
       "type": "implements",
@@ -21988,6 +22253,20 @@
     },
     {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -23382,6 +23661,90 @@
     {
       "from": "code:src/app/api/assets/intakes/validate/route.js",
       "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/route.js",
+      "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/route.js",
+      "to": "req:SEC-024",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29785,6 +30148,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-register-service.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/application/asset-request-scope.js",
       "to": "req:FR-137",
       "type": "implements",
@@ -29857,6 +30262,41 @@
     {
       "from": "code:src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
       "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -39040,6 +39480,13 @@
     },
     {
       "from": "domain:asset-management",
+      "to": "doc:DATA-PIPELINE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:asset-management",
       "to": "doc:FR-133-asset-management-foundation",
       "type": "references",
       "source": "markdown",
@@ -42546,6 +42993,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/assets/register/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/audit",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -43456,6 +43917,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/assets/register",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/assets",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -43528,6 +43996,13 @@
     {
       "from": "route:page:/files",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -47245,6 +47720,27 @@
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-152",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -54153,6 +54649,20 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-137",
       "type": "verifies",
       "status": "current",
@@ -57317,6 +57827,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "code:src/app/(pm)/assets/register/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
       "status": "current",
@@ -57668,6 +58185,118 @@
     {
       "from": "test:tests/unit/asset-receiving-evidence-ui.test.js",
       "to": "req:SDD-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "code:src/app/api/assets/register/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-routes.test.js",
+      "to": "req:SEC-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-register-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-register-service.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -65056,6 +65685,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",

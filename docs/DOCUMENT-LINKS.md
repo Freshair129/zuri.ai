@@ -1261,6 +1261,7 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 
 - references: [CR-014 — Asset Management Domain Product Requirements (PRD)](change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md)
 - references: [CR-015 — Asset Evidence Intake Execution](change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
+- references: [Asset Register Import Pipeline Specification](domains/asset-management/DATA-PIPELINE.md)
 - references: [FR-133..136 — Asset Management foundation](domains/asset-management/features/FR-133-asset-management-foundation.md)
 - references: [FR-137..140 — Asset Evidence Intake Execution](domains/asset-management/features/FR-137-asset-evidence-intake-execution.md)
 - references: [FR-143 — Edge-executed asset evidence extraction](domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md)
@@ -1276,6 +1277,14 @@ Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEX
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: feat:FEAT-019
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+## Asset Register Import Pipeline Specification
+
+Source: [Asset Register Import Pipeline Specification](domains/asset-management/DATA-PIPELINE.md)
+
+Backlinks:
+
+- [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 
 ## FR-133..136 — Asset Management foundation
 
@@ -1300,6 +1309,14 @@ Source: [FR-143 — Edge-executed asset evidence extraction](domains/asset-manag
 Backlinks:
 
 - [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
+
+## SRS — Asset Management domain
+
+Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
+
+- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
+- relates: feat:FEAT-019
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## Domain — crm
 
