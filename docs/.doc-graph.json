@@ -56,7 +56,6 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
@@ -66,9 +65,7 @@
       "test:tests/unit/line-oa-rich-menu-console.test.js",
       "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
     ],
-    "added": [
-      "test:tests/unit/migration-version-uniqueness.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -10958,7 +10955,7 @@
       "version": "1.0.8",
       "doc_status": "Approved",
       "hash": "a3b2bbe4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11876,7 +11873,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
       "title": "FR-152 — rich menu publish jobs, server-owned",
-      "hash": "0464500f",
+      "hash": "9b5aa028",
       "status": "current"
     },
     {

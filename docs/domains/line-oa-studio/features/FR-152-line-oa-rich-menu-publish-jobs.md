@@ -78,8 +78,8 @@ untouched.
 ## Delivered (local, 2026-09-06)
 
 - `prisma/schema.prisma` + generated Postgres schema: `LineOaRichMenuJob`;
-  migrations `prisma/migrations/20260906180000_line_oa_rich_menu_job` and
-  `supabase/migrations/20260906180000_line_oa_rich_menu_job.sql` (forced RLS,
+  migrations `prisma/migrations/20260906190000_line_oa_rich_menu_job` and
+  `supabase/migrations/20260906190000_line_oa_rich_menu_job.sql` (forced RLS,
   private grants, **not applied**) in the same change.
 - `src/platform/integrations/providers/line/server-line-rich-menu-transport.js`
   — the Integration lane's port.
