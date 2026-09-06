@@ -496,7 +496,10 @@ shared.** A resource another session can be inside — a worktree, a container, 
 volume, a `.vhdx` — is never proven idle by its tidiness. Merge status, a clean
 `git status` and an empty junction list all describe *stored* state; deletion
 safety is a claim about the *present*, and only the process table can answer it
-(`Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*<path>*' }`).
+(`Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*<path>*' }`
+— **minus the probe's own ancestry**, or it always finds itself; CLAUDE.md
+carries the corrected form, and its result is a floor rather than a total,
+because a process that entered the directory earlier no longer names it).
 On 2026-09-06 all three static checks passed on a worktree that nine live
 processes were working in, and the morning's other deletion took a live Docker
 data disk on the strength of a registry that lists OS disks only. Both were the
