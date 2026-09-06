@@ -68,6 +68,15 @@ model Tenant {
   lineOaAccounts            LineOaAccount[]
   lineOaRichMenus           LineOaRichMenu[]
   lineOaLiffApps            LineOaLiffApp[]
+  inventoryCategories       InventoryCategory[]
+  productFamilies           ProductFamily[]
+  factories                 Factory[]
+  productMasters            ProductMaster[]
+  products                  Product[]
+  productLots               ProductLot[]
+  serialUnits               SerialUnit[]
+  productBundles            ProductBundle[]
+  stockMovements            StockMovement[]
 
   @@index([portfolioId])
 }
@@ -146,6 +155,15 @@ model Business {
   lineOaAccounts            LineOaAccount[]
   lineOaRichMenus           LineOaRichMenu[]
   lineOaLiffApps            LineOaLiffApp[]
+  inventoryCategories       InventoryCategory[]
+  productFamilies           ProductFamily[]
+  factories                 Factory[]
+  productMasters            ProductMaster[]
+  products                  Product[]
+  productLots               ProductLot[]
+  serialUnits               SerialUnit[]
+  productBundles            ProductBundle[]
+  stockMovements            StockMovement[]
 
   @@index([tenantId])
 }
@@ -2465,4 +2483,257 @@ model LineConversationJob {
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
+}
+
+// ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
+// @req FR-154 — catalogue identity: category → family → master → product (SKU),
+//   the factory that makes it and the bundle that packs several SKUs. Every row
+//   is Tenant- and Business-scoped, keyed by an internal UUID with a human
+//   `code` unique per Tenant (BR-002: no external id is ever a key).
+// @req FR-155 — the stock ledger: a lot, a serial unit and an append-only
+//   movement. On-hand is never stored on the product; it is the sum of the
+//   product's movements (a pure calculator, the same rule progress follows).
+// @spec BR-002, SEC-001, ADR-025
+// @tested tests/integration/fr154-inventory-catalog.test.js,
+//   tests/integration/fr155-inventory-stock.test.js
+
+model InventoryCategory {
+  id              String   @id @default(uuid())
+  code            String
+  tenantId        String
+  businessId      String
+  nameTh          String
+  nameEn          String
+  slug            String?
+  vibe            String?
+  targetRecipient String?
+  guardrail       String?
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  version         Int      @default(1)
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMasters ProductMaster[]
+
+  @@unique([tenantId, code])
+  @@unique([businessId, slug])
+  @@index([businessId, status])
+}
+
+model ProductFamily {
+  id          String   @id @default(uuid())
+  code        String
+  tenantId    String
+  businessId  String
+  name        String
+  description String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMasters ProductMaster[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+}
+
+model Factory {
+  id         String   @id @default(uuid())
+  code       String
+  tenantId   String
+  businessId String
+  name       String
+  country    String?
+  contact    String?
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMasters ProductMaster[]
+  lots           ProductLot[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+}
+
+model ProductMaster {
+  id         String   @id @default(uuid())
+  code       String
+  tenantId   String
+  businessId String
+  categoryId String
+  familyId   String?
+  factoryId  String?
+  nameTh     String
+  nameEn     String
+  baseCost   Float    @default(0)
+  specsJson  String   @default("{}")
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category InventoryCategory @relation(fields: [categoryId], references: [id])
+  family   ProductFamily?    @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  factory  Factory?          @relation(fields: [factoryId], references: [id], onDelete: SetNull)
+  products Product[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([categoryId])
+  @@index([familyId])
+}
+
+model Product {
+  id              String    @id @default(uuid())
+  code            String
+  tenantId        String
+  businessId      String
+  productMasterId String
+  name            String?
+  color           String?
+  material        String?
+  unit            String    @default("EA")
+  stockPolicy     String    @default("TRACKED")
+  trackingMode    String    @default("NONE")
+  safetyStock     Int       @default(10)
+  status          String    @default("ACTIVE")
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  version         Int       @default(1)
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMaster ProductMaster       @relation(fields: [productMasterId], references: [id])
+  lots          ProductLot[]
+  serialUnits   SerialUnit[]
+  bundleItems   ProductBundleItem[]
+  movements     StockMovement[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([productMasterId])
+}
+
+model ProductLot {
+  id             String    @id @default(uuid())
+  code           String
+  tenantId       String
+  businessId     String
+  productId      String
+  factoryId      String?
+  manufacturedAt DateTime?
+  expiresAt      DateTime?
+  receivedQty    Int       @default(0)
+  status         String    @default("OPEN")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business    Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  factory     Factory?        @relation(fields: [factoryId], references: [id], onDelete: SetNull)
+  serialUnits SerialUnit[]
+  movements   StockMovement[]
+
+  @@unique([productId, code])
+  @@index([businessId, status])
+  @@index([factoryId])
+}
+
+model SerialUnit {
+  id         String   @id @default(uuid())
+  serialNo   String
+  tenantId   String
+  businessId String
+  productId  String
+  lotId      String?
+  status     String   @default("IN_STOCK")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business  Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lot       ProductLot?     @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  movements StockMovement[]
+
+  @@unique([productId, serialNo])
+  @@index([businessId, status])
+  @@index([lotId])
+}
+
+model ProductBundle {
+  id               String   @id @default(uuid())
+  code             String
+  tenantId         String
+  businessId       String
+  name             String
+  description      String?
+  targetRecipients Int?
+  totalPrice       Float?
+  status           String   @default("ACTIVE")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  version          Int      @default(1)
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items    ProductBundleItem[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+}
+
+model ProductBundleItem {
+  id        String @id @default(uuid())
+  bundleId  String
+  productId String
+  qty       Int    @default(1)
+
+  bundle  ProductBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product Product       @relation(fields: [productId], references: [id])
+
+  @@unique([bundleId, productId])
+  @@index([productId])
+}
+
+model StockMovement {
+  id           String   @id @default(uuid())
+  tenantId     String
+  businessId   String
+  productId    String
+  lotId        String?
+  serialUnitId String?
+  kind         String
+  quantity     Int
+  reason       String?
+  reference    String?
+  actorId      String?
+  occurredAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lot        ProductLot? @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  serialUnit SerialUnit? @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
+
+  @@index([productId, occurredAt])
+  @@index([businessId, occurredAt])
+  @@index([lotId])
+  @@index([serialUnitId])
 }

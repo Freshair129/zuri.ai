@@ -35,6 +35,14 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']],
   ['/api/line-oa/liff-apps', ['GET', 'POST']], ['/api/line-oa/liff-apps/{id}', ['GET', 'PATCH']],
+  // @req FR-154, FR-155 — the Inventory domain: six catalogue collections
+  // (list + create), the product item (read + versioned action; archive is an
+  // action, never a DELETE), the lot collection, the read-only serial-unit
+  // list, the append-only ledger (list + record) and the recomputed summary.
+  ['/api/inventory/categories', ['GET', 'POST']], ['/api/inventory/families', ['GET', 'POST']], ['/api/inventory/factories', ['GET', 'POST']],
+  ['/api/inventory/product-masters', ['GET', 'POST']], ['/api/inventory/products', ['GET', 'POST']], ['/api/inventory/products/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/bundles', ['GET', 'POST']], ['/api/inventory/lots', ['GET', 'POST']], ['/api/inventory/serial-units', ['GET']],
+  ['/api/inventory/stock-movements', ['GET', 'POST']], ['/api/inventory/stock', ['GET']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
