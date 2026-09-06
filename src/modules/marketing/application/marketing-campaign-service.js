@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
 import prisma from '@/lib/db'
+import { readMarketingCampaignExecution as readMarketingCampaignExecutionAdapter } from '@/modules/marketing/application/marketing-campaign-execution'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
   assertMarketingReadAccess,
@@ -15,7 +16,6 @@ import {
   toMarketingPlanDto,
 } from '@/modules/marketing/application/marketing-plan-service'
 import {
-  MARKETING_CAMPAIGN_PHASES,
   MARKETING_CAMPAIGN_STATUSES,
   phaseForMarketingCampaign,
   unavailableMarketingCampaignResults,
@@ -32,8 +32,7 @@ import { createMarketingCampaignRepository } from '@/modules/marketing/infrastru
 // @req FR-156 — create and mutate a Business-scoped Campaign identity while
 // reusing immutable Strategy evidence and an explicitly authorized PM receipt.
 // @spec SDD-087, SEC-001, SEC-003
-// @tested tests/unit/marketing/marketing-campaign-service.test.js,
-//   tests/integration/marketing-campaign.test.js
+// @tested tests/integration/marketing-campaign.test.js
 
 function requireDependencies({ db, createRepository }) {
   if (!db?.business?.findUnique) {
@@ -111,19 +110,6 @@ function versionContent(version) {
   return { ...content, payloadHash }
 }
 
-function planVersionDto(version) {
-  const content = versionContent(version)
-  return {
-    id: version.id,
-    revision: version.revision,
-    title: content.title,
-    payloadHash: version.payloadHash,
-    payload: content.payload,
-    createdBy: version.createdBy,
-    createdAt: version.createdAt,
-  }
-}
-
 function handoffDto(handoff, receipt) {
   return {
     id: handoff.id,
@@ -139,118 +125,61 @@ function handoffDto(handoff, receipt) {
   }
 }
 
-function unavailable(reasonCode) {
-  return { ...unavailableMarketingCampaignResults, reasonCode }
-}
-
-function normalizeAdapterError(error) {
-  if (error?.code === 'ERR_MODULE_NOT_FOUND' && /marketing-campaign-execution/i.test(String(error.message))) {
-    return unavailable('EXECUTION_ADAPTER_UNAVAILABLE')
-  }
-  throw error
-}
-
-async function defaultReadMarketingCampaignExecution(input, dependencies) {
-  try {
-    const adapter = await import('./marketing-campaign-execution.js')
-    if (typeof adapter.readMarketingCampaignExecution !== 'function') {
-      return unavailable('EXECUTION_ADAPTER_UNAVAILABLE')
-    }
-    return adapter.readMarketingCampaignExecution(input, dependencies)
-  } catch (error) {
-    return normalizeAdapterError(error)
+function unavailableExecution(reasonCode) {
+  return {
+    status: 'UNAVAILABLE',
+    reasonCode,
+    handoff: null,
+    roadmap: null,
   }
 }
 
 async function readExecution(reader, input, dependencies) {
   const result = await reader(input, dependencies)
   if (!result || result.status !== 'READY' || !result.roadmap) {
-    return unavailable(result?.reasonCode || 'EXECUTION_UNAVAILABLE')
+    return unavailableExecution(result?.reasonCode || 'EXECUTION_UNAVAILABLE')
   }
   return result
 }
 
-async function loadWorkspaceAndProject(db, handoff) {
-  if (!db?.workspace?.findUnique || !db?.project?.findUnique) return null
-  const [workspace, project] = await Promise.all([
-    db.workspace.findUnique({
-      where: { id: handoff.workspaceId },
-      select: { id: true, tenantId: true, businessId: true, code: true, name: true, scopeType: true, status: true },
-    }),
-    db.project.findUnique({
-      where: { id: handoff.projectId },
-      select: { id: true, businessId: true, workspaceId: true, code: true, status: true, deletedAt: true },
-    }),
-  ])
-  return { workspace, project }
-}
-
 /**
- * Validate a persisted receipt before exposing its PM identifiers. The PM
- * adapter remains authoritative for the caller's read permission and roadmap;
- * this check owns Marketing's immutable Plan and Business/Tenant binding.
+ * The PM adapter is the authority for a receipt's project/workspace binding,
+ * provenance and caller read permission. Marketing only chooses candidate
+ * rows from this Plan and exposes rows the adapter proves READY.
  */
-async function validateHandoff({ db, aggregate, handoff }) {
-  if (!handoff || handoff.planId !== aggregate.plan.id) return { valid: false, reasonCode: 'HANDOFF_PLAN_MISMATCH' }
-  const version = aggregate.revisions.find((row) => row.id === handoff.planVersionId)
-  if (!version || version.planId !== aggregate.plan.id || handoff.payloadHash !== version.payloadHash) {
-    return { valid: false, reasonCode: 'HANDOFF_REVISION_MISMATCH' }
-  }
-  const content = versionContent(version)
-  const receipt = parseJson(handoff.receiptJson)
-  if (!receipt || typeof receipt !== 'object') return { valid: false, reasonCode: 'HANDOFF_RECEIPT_INVALID' }
-  const receiptMatches = [
-    ['handoffId', receipt.handoffId, handoff.id],
-    ['planId', receipt.planId, aggregate.plan.id],
-    ['businessId', receipt.businessId, aggregate.plan.businessId],
-    ['planVersionId', receipt.planVersionId, version.id],
-    ['workspaceId', receipt.workspaceId, handoff.workspaceId],
-    ['projectId', receipt.projectId, handoff.projectId],
-    ['payloadHash', receipt.payloadHash, handoff.payloadHash],
-    ['envelopeHash', receipt.envelopeHash, handoff.envelopeHash],
-  ]
-  if (receiptMatches.some(([, actual, expected]) => actual !== undefined && actual !== expected)) {
-    return { valid: false, reasonCode: 'HANDOFF_RECEIPT_MISMATCH' }
-  }
-  if (!receipt.planId || !receipt.businessId || !receipt.planVersionId || !receipt.workspaceId || !receipt.projectId) {
-    return { valid: false, reasonCode: 'HANDOFF_RECEIPT_INCOMPLETE' }
-  }
-  const linked = await loadWorkspaceAndProject(db, handoff)
-  if (!linked?.workspace || !linked.project) return { valid: false, reasonCode: 'HANDOFF_TARGET_UNAVAILABLE' }
-  const { workspace, project } = linked
-  if (
-    workspace.tenantId !== aggregate.plan.tenantId ||
-    workspace.businessId !== aggregate.plan.businessId ||
-    workspace.scopeType !== 'BUSINESS' ||
-    workspace.status !== 'ACTIVE' ||
-    project.businessId !== aggregate.plan.businessId ||
-    project.workspaceId !== workspace.id ||
-    project.deletedAt
-  ) {
-    return { valid: false, reasonCode: 'HANDOFF_TARGET_SCOPE_INVALID' }
-  }
-  return {
-    valid: true,
-    handoff,
-    version,
-    content,
-    receipt,
-    workspace,
-    project,
-    dto: handoffDto(handoff, receipt),
-  }
-}
-
-async function safeHandoffs({ db, aggregate }) {
+async function authorizedHandoffs({ db, viewer, aggregate, candidates, readExecutionPort }) {
+  const currentVersion = currentPlanVersion(aggregate)
   const rows = []
-  for (const handoff of aggregate.handoffs) {
-    const checked = await validateHandoff({ db, aggregate, handoff })
-    if (checked.valid) rows.push(checked)
+  for (const handoff of candidates) {
+    if (!handoff || handoff.planId !== aggregate.plan.id) continue
+    const version = aggregate.revisions.find((row) => row.id === handoff.planVersionId)
+    if (!version || version.planId !== aggregate.plan.id) continue
+    const execution = await readExecution(
+      readExecutionPort,
+      {
+        viewer,
+        businessId: aggregate.plan.businessId,
+        planId: aggregate.plan.id,
+        handoffId: handoff.id,
+        currentPlanVersionId: currentVersion.id,
+      },
+      { db },
+    )
+    if (execution.status !== 'READY') continue
+    const receipt = parseJson(handoff.receiptJson)
+    if (!receipt || typeof receipt !== 'object') continue
+    rows.push({
+      handoff,
+      version,
+      receipt,
+      execution,
+      dto: handoffDto(handoff, receipt),
+    })
   }
   return rows
 }
 
-async function hasCurrentApproval({ db, viewer, aggregate }) {
+async function hasCurrentApproval({ db, viewer, aggregate, now = () => new Date() }) {
   if (aggregate.plan.status !== 'APPROVED') return false
   try {
     await getApprovedMarketingPlanForHandoff({
@@ -260,6 +189,7 @@ async function hasCurrentApproval({ db, viewer, aggregate }) {
       viewer,
       db,
       operation: 'preview',
+      now,
     })
     return true
   } catch (error) {
@@ -284,10 +214,19 @@ function summaryPlan(aggregate) {
   }
 }
 
-async function toSummary({ db, viewer, aggregate, canWrite }) {
-  const validHandoffs = await safeHandoffs({ db, aggregate })
+async function toSummary({ db, viewer, aggregate, canWrite, readExecutionPort, now }) {
+  const selectedCandidate = aggregate.handoffs.find((row) => row.id === aggregate.initiative.handoffId)
+  const validHandoffs = selectedCandidate
+    ? await authorizedHandoffs({
+        db,
+        viewer,
+        aggregate,
+        candidates: [selectedCandidate],
+        readExecutionPort,
+      })
+    : []
   const selected = validHandoffs.find((row) => row.handoff.id === aggregate.initiative.handoffId)
-  const approved = await hasCurrentApproval({ db, viewer, aggregate })
+  const approved = await hasCurrentApproval({ db, viewer, aggregate, now })
   const phase = phaseForMarketingCampaign({
     initiative: aggregate.initiative,
     hasReadyHandoff: Boolean(selected),
@@ -314,22 +253,18 @@ async function toSummary({ db, viewer, aggregate, canWrite }) {
   }
 }
 
-async function toDetail({ db, viewer, aggregate, canWrite, readExecutionPort }) {
-  const validHandoffs = await safeHandoffs({ db, aggregate })
+async function toDetail({ db, viewer, aggregate, canWrite, readExecutionPort, now }) {
+  const validHandoffs = await authorizedHandoffs({
+    db,
+    viewer,
+    aggregate,
+    candidates: aggregate.handoffs,
+    readExecutionPort,
+  })
   const selected = validHandoffs.find((row) => row.handoff.id === aggregate.initiative.handoffId)
-  let execution = unavailable(selected ? 'EXECUTION_UNAVAILABLE' : 'NO_HANDOFF')
+  let execution = unavailableExecution(selected ? 'EXECUTION_UNAVAILABLE' : 'NO_HANDOFF')
   if (selected) {
-    execution = await readExecution(
-      readExecutionPort,
-      {
-        viewer,
-        businessId: aggregate.plan.businessId,
-        planId: aggregate.plan.id,
-        handoffId: selected.handoff.id,
-        currentPlanVersionId: currentPlanVersion(aggregate).id,
-      },
-      { db },
-    )
+    execution = selected.execution
     if (execution.status === 'READY') {
       execution = {
         status: 'READY',
@@ -347,7 +282,7 @@ async function toDetail({ db, viewer, aggregate, canWrite, readExecutionPort }) 
       }
     }
   }
-  const approved = await hasCurrentApproval({ db, viewer, aggregate })
+  const approved = await hasCurrentApproval({ db, viewer, aggregate, now })
   const phase = phaseForMarketingCampaign({
     initiative: aggregate.initiative,
     hasReadyHandoff: execution.status === 'READY',
@@ -388,6 +323,8 @@ export async function listMarketingCampaigns(
   {
     db = prisma,
     createRepository = createMarketingCampaignRepository,
+    readMarketingCampaignExecution = readMarketingCampaignExecutionAdapter,
+    now = () => new Date(),
   } = {},
 ) {
   requireDependencies({ db, createRepository })
@@ -399,7 +336,7 @@ export async function listMarketingCampaigns(
   const campaigns = []
   for (const initiative of initiatives) {
     const aggregate = await repository.load(initiative.id)
-    if (aggregate) campaigns.push(await toSummary({ db, viewer, aggregate, canWrite }))
+    if (aggregate) campaigns.push(await toSummary({ db, viewer, aggregate, canWrite, readExecutionPort: readMarketingCampaignExecution, now }))
   }
   return { campaigns, canWrite, truncated }
 }
@@ -409,14 +346,15 @@ export async function getMarketingCampaign(
   {
     db = prisma,
     createRepository = createMarketingCampaignRepository,
-    readMarketingCampaignExecution = defaultReadMarketingCampaignExecution,
+    readMarketingCampaignExecution: readExecutionPort = readMarketingCampaignExecutionAdapter,
+    now = () => new Date(),
   } = {},
 ) {
   requireDependencies({ db, createRepository })
   const { scope, canWrite } = await assertMarketingReadAccess({ db, viewer, businessId })
   const { aggregate } = await loadScopedAggregate({ db, createRepository, scope, initiativeId })
   if (aggregate.initiative.businessId !== businessId) throw marketingNotFound('Marketing campaign not found')
-  return toDetail({ db, viewer, aggregate, canWrite, readExecutionPort: readMarketingCampaignExecution })
+  return toDetail({ db, viewer, aggregate, canWrite, readExecutionPort, now })
 }
 
 export async function createMarketingCampaign(
@@ -427,6 +365,7 @@ export async function createMarketingCampaign(
     createRepository = createMarketingCampaignRepository,
     now = () => new Date(),
     idFactory = randomUUID,
+    readMarketingCampaignExecution = readMarketingCampaignExecutionAdapter,
   } = {},
 ) {
   requireDependencies({ db, createRepository })
@@ -480,7 +419,7 @@ export async function createMarketingCampaign(
     return txRepository.load(initiative.id)
   })
 
-  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: defaultReadMarketingCampaignExecution })
+  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: readMarketingCampaignExecution, now })
 }
 
 async function reviseCampaign(initiativeId, data, dependencies) {
@@ -490,6 +429,7 @@ async function reviseCampaign(initiativeId, data, dependencies) {
     createRepository = createMarketingCampaignRepository,
     now = () => new Date(),
     idFactory = randomUUID,
+    readMarketingCampaignExecution = readMarketingCampaignExecutionAdapter,
   } = dependencies
   const { scope } = await assertMarketingWriteAccess({ db, viewer, businessId: data.businessId })
   const actorId = principalId(viewer)
@@ -508,7 +448,7 @@ async function reviseCampaign(initiativeId, data, dependencies) {
       title: data.title,
       payload: data.payload,
     }
-    await reviseMarketingPlan(current.plan.id, planInput, {
+    const revisedPlan = await reviseMarketingPlan(current.plan.id, planInput, {
       db: tx,
       viewer,
       createRepository: createMarketingPlanRepository,
@@ -526,12 +466,14 @@ async function reviseCampaign(initiativeId, data, dependencies) {
         planId: current.plan.id,
         expectedVersion: data.expectedVersion,
         expectedPlanVersion: data.expectedPlanVersion,
-        planVersionId: currentPlanVersion(current).id,
+        previousPlanVersionId: currentPlanVersion(current).id,
+        planVersionId: revisedPlan.currentVersion.id,
+        payloadHash: revisedPlan.currentVersion.payloadHash,
       },
     })
     return txRepository.load(updated.id)
   })
-  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: defaultReadMarketingCampaignExecution })
+  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: readMarketingCampaignExecution, now })
 }
 
 async function bindCampaignHandoff(initiativeId, data, dependencies) {
@@ -540,7 +482,7 @@ async function bindCampaignHandoff(initiativeId, data, dependencies) {
     viewer,
     createRepository = createMarketingCampaignRepository,
     now = () => new Date(),
-    readMarketingCampaignExecution = defaultReadMarketingCampaignExecution,
+    readMarketingCampaignExecution = readMarketingCampaignExecutionAdapter,
   } = dependencies
   const { scope } = await assertMarketingWriteAccess({ db, viewer, businessId: data.businessId })
   const actorId = principalId(viewer)
@@ -550,25 +492,20 @@ async function bindCampaignHandoff(initiativeId, data, dependencies) {
     const current = requireAggregate(await txRepository.load(initiativeId))
     if (current.initiative.businessId !== data.businessId) throw marketingNotFound('Marketing campaign not found')
     assertCampaignMutable(current.initiative)
+    if (current.plan.deletedAt || current.plan.status === 'ARCHIVED') {
+      throw marketingConflict('Archived Marketing plans cannot receive a Campaign handoff')
+    }
     if (current.initiative.version !== data.expectedVersion) throw marketingConflict('Marketing campaign changed; reload before binding')
     if (current.plan.version !== data.expectedPlanVersion) throw marketingConflict('Marketing plan changed; reload before binding')
-    const handoff = current.handoffs.find((row) => row.id === data.handoffId)
-    const checked = await validateHandoff({ db: tx, aggregate: current, handoff })
-    if (!checked.valid) throw marketingConflict(`Marketing handoff cannot be selected: ${checked.reasonCode}`)
-
-    const currentVersion = currentPlanVersion(current)
-    const execution = await readExecution(
-      readMarketingCampaignExecution,
-      {
-        viewer,
-        businessId: data.businessId,
-        planId: current.plan.id,
-        handoffId: handoff.id,
-        currentPlanVersionId: currentVersion.id,
-      },
-      { db: tx },
-    )
-    if (execution.status !== 'READY') throw marketingConflict(`Marketing handoff is not readable: ${execution.reasonCode}`)
+    const checked = (await authorizedHandoffs({
+      db: tx,
+      viewer,
+      aggregate: current,
+      candidates: current.handoffs.filter((row) => row.id === data.handoffId),
+      readExecutionPort: readMarketingCampaignExecution,
+    }))[0]
+    if (!checked) throw marketingConflict('Marketing handoff is not readable or does not belong to this Campaign')
+    const handoff = checked.handoff
 
     // Guard the Strategy parent in this same transaction. The increment is a
     // reservation boundary for the handoff selection, so a concurrent Strategy
@@ -595,7 +532,7 @@ async function bindCampaignHandoff(initiativeId, data, dependencies) {
     })
     return txRepository.load(updated.id)
   })
-  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: readMarketingCampaignExecution })
+  return toDetail({ db, viewer, aggregate, canWrite: true, readExecutionPort: readMarketingCampaignExecution, now })
 }
 
 async function closeOrCancelCampaign(initiativeId, data, dependencies) {
@@ -632,7 +569,7 @@ async function closeOrCancelCampaign(initiativeId, data, dependencies) {
     })
     return txRepository.load(updated.id)
   })
-  return toDetail({ db, viewer, aggregate, canWrite: false, readExecutionPort: defaultReadMarketingCampaignExecution })
+  return toDetail({ db, viewer, aggregate, canWrite: false, readExecutionPort: readMarketingCampaignExecutionAdapter, now })
 }
 
 export async function updateMarketingCampaign(
@@ -646,15 +583,7 @@ export async function updateMarketingCampaign(
   return closeOrCancelCampaign(initiativeId, data, dependencies)
 }
 
-export const reviseMarketingCampaign = reviseCampaign
-export const bindMarketingCampaignHandoff = bindCampaignHandoff
-export const closeMarketingCampaign = closeOrCancelCampaign
-export const cancelMarketingCampaign = closeOrCancelCampaign
-
 export {
-  validateHandoff,
   toSummary as toMarketingCampaignSummaryDto,
   toDetail as toMarketingCampaignDto,
-  defaultReadMarketingCampaignExecution,
 }
-

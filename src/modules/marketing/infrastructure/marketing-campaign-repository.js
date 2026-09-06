@@ -79,7 +79,7 @@ export function createMarketingCampaignRepository(prisma, scope) {
     const initiative = await findInitiative(id)
     if (!initiative) return null
     const aggregate = await planRepository.load(initiative.planId)
-    if (!aggregate?.plan || aggregate.plan.id !== initiative.planId) {
+    if (!aggregate?.plan || aggregate.plan.id !== initiative.planId || aggregate.plan.deletedAt) {
       throw marketingNotFound('Marketing campaign not found')
     }
     if (aggregate.plan.tenantId !== scope.tenantId || aggregate.plan.businessId !== scope.businessId) {
