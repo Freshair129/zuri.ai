@@ -55,14 +55,10 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/(pm)/line-oa/page.jsx",
-      "code:src/modules/line-oa-studio/ui/index.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx"
+      "test:tests/e2e/fr149-line-server-console.spec.js",
+      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js"
     ],
-    "added": [
-      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -712,7 +708,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
       "hash": "1f6d4f4a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9467,7 +9463,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
       "hash": "6cf02ed5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9647,7 +9643,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "hash": "a836c030",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -21880,15 +21876,15 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "3abd6068",
-      "status": "current"
+      "hash": "ef0c5b18",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "7771c50f",
-      "status": "current"
+      "hash": "1657fe43",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
