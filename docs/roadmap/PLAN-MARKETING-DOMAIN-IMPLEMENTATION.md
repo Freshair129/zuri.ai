@@ -197,11 +197,12 @@ Tracking plan **0.3.0b → 0.4.0b**: attach first-slice delivery evidence and ve
 | 0.2.0b | 2026-09-06 | candidate | Incorporate three GPT-5.6 Luna max reviews; enrich task provenance and distinguish stored metadata from PM UI/enforcement | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Begin approved Strategy implementation in three lanes; track partial task progress and native contracts | See git history | RWANG |
 | 0.4.0b | 2026-09-06 | beta | Attach Strategy phase evidence; preserve full-wave and actual PM import gates | See git history | RWANG |
+| 0.5.0b | 2026-09-06 | beta | Continue Campaign implementation from approved design and retain SmartGift target gate | See git history | RWANG |
 
 
 ## Campaign continuation — 2026-09-06
 
-The user requested continuation after Strategy delivery. [FR-156](../domains/marketing/features/FR-156-campaign-initiatives.md)
+The user requested continuation after Strategy delivery. [FR-156](../domains/marketing/features/FR-156-campaign-initiatives.md) and [phase evidence](marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 derives the next slice from approved Campaigns interfaces. MKT-W1-CAMPAIGNS is
 IN_PROGRESS; all other incomplete wave items retain their status. Three GPT-5.6
 Luna max agents own core/API, UI and authorized PM projection lanes. Root owns

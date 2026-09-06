@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.20.0b |
+| **Version** | 1.21.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 

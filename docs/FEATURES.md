@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.24.0b"
+version: "1.25.0b"
 status: active
 last_update: "2026-09-06T13:29:04+07:00,RWANG"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.24.0b |
+| **Version** | 1.25.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement

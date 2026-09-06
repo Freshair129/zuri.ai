@@ -81,3 +81,4 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | beta | Activate the approved Marketing lane and first Strategy slice | See git history | RWANG |
+| 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |

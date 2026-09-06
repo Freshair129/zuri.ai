@@ -1,5 +1,5 @@
 ---
-version: "1.6.0b"
+version: "1.7.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-06T18:54:00+07:00,RWANG"
 status: "candidate"
@@ -14,7 +14,7 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.6.0b |
+| **Version** | 1.7.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
