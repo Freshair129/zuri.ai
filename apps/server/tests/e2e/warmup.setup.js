@@ -41,11 +41,19 @@ const ROUTES = [
   '/projects/warmup/all-work', '/projects/warmup/timeline', '/projects/warmup/repositories',
   '/projects/warmup', '/projects/warmup/execution/DELIVERY', '/projects/new',
   '/assets', '/assets/receiving', '/assets/register', '/assets/scanner',
-  // @req FR-146, FR-149, FR-151 — both LINE OA Studio pages exist now. This
-  // comment used to say the slot had no page and `failOnStatusCode: false`
-  // tolerated its 404; that stopped being true when the console landed.
+  // @req FR-146, FR-149, FR-151 — LINE OA Studio's sub-navigation moved into
+  // a left sidebar and grew from two pages to the full set the domain
+  // registry (src/config/domains.js) now declares; tests/unit/e2e-warmup.test.js
+  // fails the moment this list falls behind that registry again.
   '/line-oa',
+  '/line-oa/projects',
+  '/line-oa/design-studio',
   '/line-oa/rich-menus',
+  '/line-oa/live-crm',
+  '/line-oa/edge-connection',
+  '/line-oa/templates',
+  '/line-oa/team',
+  '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
