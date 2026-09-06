@@ -44,9 +44,14 @@ export default function CustomerDashboardPage() {
         title="Dashboard"
         subtitle={`ขอบเขต: tenant ของ ${readScope.businessName}`}
         actions={
-          <Link href="/customer/conversations" className="btn btn-primary">
-            เปิด Inbox <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/customer/line-crm" className="btn bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 shadow-sm hover:opacity-90">
+              ✨ เปิด LineCRM-MCP (ครบ 12 เมนู) <ArrowRight className="h-4 w-4 inline ml-1" aria-hidden />
+            </Link>
+            <Link href="/customer/conversations" className="btn btn-primary">
+              เปิด Inbox <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
         }
       />
 

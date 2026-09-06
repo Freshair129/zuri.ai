@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.7.0 |
+| **Version** | 0.8.0b |
 | **Status** | Accepted |
 | **Author** | Claude |
 | **Date** | 2026-09-05 |
@@ -202,14 +202,19 @@ references through a translation contract and surfaces the result here. Only the
 sub-domain is implemented today; further sub-domains remain declared information
 architecture until their own FR lands.
 
-### Growth — การตลาด  *(V1: growth — existing AI surface)*
-1. **Dashboard** — spend · ROAS · KPI attainment
-2. Campaigns *(lift)*
-3. Ads Audit *(lift)*
-4. Daily Brief *(lift; fix V1 date-only key → per-business)*
-5. Automations *(lift)*
-6. Broadcasts *(lift; consent-checked)*
-7. AI Copilot — chat over business data *(new; the ADR-007 agent stack: Gate E read now, Gate F actions later)*
+### Marketing — การตลาด (DOM-MARKETING, existing route/RBAC key growth)
+
+The user-approved [Marketing design](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
+replaces this section's retired lifting proposal (ADR-024).
+
+1. **Dashboard** — `/growth`: real Strategy plan summaries; provider measurements remain unavailable until source-reader activation.
+2. **Strategy** — `/growth/strategy`: Situation, Objectives, Plans and Scenarios tabs; immutable revisions, independent reviews, decisions and PM preview/receipt sections (FR-159, FR-158).
+
+The full approved target additionally includes Campaigns, Paid Media, Content,
+Social, Partners, Live, Website, SEO, Analytics, Operations and Team. Their
+[view/tab inventory](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) stays
+planned until each owner contract and functional UI exists. Meta Ads, TikTok Ads,
+Instagram, GA4 and SEO in a draft are channel intent, not connected accounts.
 
 ### Operations — ปฏิบัติการ  *(V1: operations — culinary-school core)*
 1. **Dashboard** — คิวครัว · คลาสวันนี้ · พนักงานเข้ากะ
@@ -371,3 +376,5 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
 4. **Per-business module registry storage** — ✅ a small **`BusinessModule` table** (toggles
    without a migration). Deferred to the Platform → Business-config build.
 5. **AI Copilot & Campaigns placement** — ✅ under **Growth** (marketing lens).
+
+Version diff 0.7.0 → 0.8.0b: replace the retired Growth sketch with approved native Marketing navigation and explicit first-slice boundaries.

@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.40.0b"
+version: "2.41.0b"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -351,6 +351,10 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-154 | PHASE-ZAI-INVENTORY | task | FR-154 Inventory catalogue identity (FEAT-020, BR-002): `InventoryCategory` (`category_id`), `ProductFamily` (`product_family`), `Factory` (`factory_id`), `ProductMaster` (`product_master`), `Product` (`product_id` / SKU — `stockPolicy` TRACKED / UNTRACKED และ `trackingMode` NONE / LOT / SERIAL กำหนดตอนสร้างและไม่แก้), `ProductBundle` + `ProductBundleItem` (`bundle_id`, รายงาน `availableSets` จาก ledger); `code` unique ต่อ Tenant, reference ต้องอยู่ใน Business เดียวกัน, อ่านได้เมื่อมี `inventory` domain grant, เขียนได้เฉพาะ OWNER หรือ `INVENTORY_MANAGER`, CAS บน `version` สำหรับ `UPDATE` / `ARCHIVE`; route `GET/POST /api/inventory/{categories,families,factories,product-masters,products,bundles}` + `GET/PATCH /api/inventory/products/[id]`; domain slot + หน้า `/inventory`; ontology ของ owner บันทึกใน ONTOLOGY.md (offer/tier/segment/client → Commerce) | P1 | Claude | done (local; production migration pending) | FR-154; FR-061; FR-072; FR-076; FEAT-020; BR-002 | ../domains/inventory/features/FR-154-inventory-catalogue-identity.md |
 | TASK-FR-155 | PHASE-ZAI-INVENTORY | task | FR-155 Inventory stock ledger (FEAT-020): `StockMovement` append-only (RECEIPT / ISSUE / ADJUSTMENT, quantity มีเครื่องหมาย) — on-hand = ผลรวมของแถว คำนวณทุกครั้งที่อ่าน ไม่เก็บใน `Product`; สินค้า UNTRACKED ถูกปฏิเสธด้วย code และรายงาน on-hand เป็น null; `ProductLot` (`lot_id`: receipt ตั้งชื่อหรือสร้าง lot ด้วย code, `receivedQty` ตาม), `SerialUnit` (`serial_id`: หนึ่ง serial ต่อหน่วย หนึ่งแถว ledger ต่อหน่วย เกิดจาก receipt ออกด้วย issue ปฏิเสธซ้ำ); ISSUE ที่ทำให้ติดลบถูกปฏิเสธ; audit ทุก write พร้อม `onHandBefore` / `onHandAfter`; route `GET/POST /api/inventory/lots`, `GET /api/inventory/serial-units`, `GET/POST /api/inventory/stock-movements`, `GET /api/inventory/stock`; dashboard KPI + ตาราง on-hand + ฟอร์มบันทึก | P1 | Claude | done (local; production migration pending) | FR-155; FR-154; FEAT-020; BR-002 | ../domains/inventory/features/FR-155-inventory-stock-ledger.md |
 | TASK-FR-156 | PHASE-ZAI-INVENTORY | task | FR-156 recipe / bill of materials ตาม batch size (FEAT-020): `ProductRecipe` (`recipe_id` — หนึ่งแถวต่อ SKU ผลลัพธ์ + `batchSize`, `yieldQty`, ACTIVE / ARCHIVED, CAS บน `version`) + `ProductRecipeLine` (ส่วนประกอบ SKU ใน Business เดียวกัน, `qty` ต่อ batch, `fixed` ไม่ scale, ห้ามเป็นตัวเอง); calculator เลือกสูตรจากจำนวน (batch ใหญ่สุดที่ไม่เกิน), explode, shortage เทียบ on-hand จาก ledger, `maxBuildableQuantity`; route `GET/POST /api/inventory/recipes`, `GET/PATCH /api/inventory/recipes/[id]` (`?quantity=`), `POST /api/inventory/recipes/[id]/build` (issue ส่วนประกอบที่นับ FEFO + receipt ผลลัพธ์ใน transaction เดียว; ปฏิเสธทั้งหมดเมื่อขาด พร้อมรายการ; ปฏิเสธ serial component/output และ LOT output ที่ไม่มี `outputLotCode`) | P1 | Claude | done (local; production migration pending) | FR-156; FR-154; FR-155; FEAT-020; BR-002 | ../domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md |
+| TASK-FR-159 | PHASE-ZAI-MARKETING | task | Marketing Strategy immutable revisions, independent review and exact human decisions (FR-159) | P1 | RWANG / Luna | in-progress | Approved CR-018; SDD-086 | ../domains/marketing/features/FR-159-strategy-plans.md |
+| TASK-FR-158 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-158) | P1 | RWANG / Luna | in-progress | FR-159; SDD-086 | ../domains/marketing/features/FR-159-strategy-plans.md |
+| TASK-FR-160 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-160); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-159; FR-158; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
+| TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | done | FR-159; FR-160; SDD-088 | marketing/PHASE-CONTENT-2026-09-06.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
@@ -398,3 +402,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 [FR-148 / FR-149 / FR-150 domain phase map](PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
 
 Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
+
+Version diff 2.38.0b → 2.39.0b: add Campaign delivery row and its integrated verification evidence; existing Marketing Strategy rows retain their scope.
+
+Version diff 2.39.0b → 2.39.1b: record bounded Content task DONE with local phase evidence; full Marketing and live intake gates remain open.
