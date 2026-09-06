@@ -39,8 +39,15 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/overview', icon: LayoutDashboard }],
   },
   {
-    key: 'commerce', label: 'Commerce', icon: ShoppingCart, soon: true,
-    sub: [{ label: 'Dashboard', path: '/commerce', icon: LayoutDashboard }],
+    // @req FR-158, FR-159 — the slot stops being reserved (ADR-065): sales
+    // orders and the payments against them, with revenue counted from verified
+    // payments only. `commerce` is the Membership/RBAC route key; the pages
+    // exist, so the palette and the bar may now find it.
+    key: 'commerce', label: 'Commerce', icon: ShoppingCart, basePath: '/commerce',
+    sub: [
+      { label: 'Dashboard', path: '/commerce', icon: LayoutDashboard },
+      { label: 'Orders', path: '/commerce/orders', icon: ClipboardCheck },
+    ],
   },
   {
     // @req FR-091 — the slot stops being reserved. `Customer`, `Conversation` and

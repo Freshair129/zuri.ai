@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=62; operational_domain_keys=11; operational_subdomain_entries=34; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=64; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -104,6 +104,17 @@ the Business Home slot is excluded from this count.
 | `/milestones` | Milestones and Gates | BusinessShell → Development / Milestones & Gates | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
 | `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
 | `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
+
+### 3.2b Commerce domain
+
+The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-158,
+FR-159, ADR-065). Every money figure on both pages comes from the server's
+read — totals from lines, paid from verified payments — never from the page.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-159 / ADR-065 |
+| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-158, FR-159 / ADR-065 |
 
 ### 3.3 CRM domain
 

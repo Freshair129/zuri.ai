@@ -1,17 +1,17 @@
 ---
 title: "Database Schema — Full ERD Reference"
-version: "2.1.0"
-date: "2026-09-06"
+version: "2.2.0"
+date: "2026-09-07"
 status: DRAFT
-model_count: 101
+model_count: 104
 source: "prisma/schema.prisma"
-note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §19 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.1.0 (2026-09-06): SalesTask (FR-157, ADR-064) ใน §9 และ §19 แถว 7 เป็น built"
+note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.1.0 (2026-09-06): SalesTask (FR-157, ADR-064) ใน §9 และ §20 แถว 7 เป็น built; v2.2.0 (2026-09-07): §19 Commerce (SalesOrder, SalesOrderLine, Payment — FR-158/159, ADR-065) และ §20 แถว 5 เป็น built"
 ---
 
 # Database Schema — Full ERD Reference
 
-> **101 models** — นับจาก `prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
-> v2.x ครอบคลุม 34 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §9 (`ConversationAnalysis`, `SalesTask`) และ §14–§18 — และ §19 คือ
+> **104 models** — นับจาก `prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
+> v2.x ครอบคลุม 37 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §9 (`ConversationAnalysis`, `SalesTask`) และ §14–§19 — และ §20 คือ
 > สถานะของทุกหัวข้อใน ERD ของผลิตภัณฑ์เดิม (`Freshair129/zuri1.0`) ว่ายืม / เปลี่ยน label / เลื่อน / ปฏิเสธ
 > **Source of truth:** `prisma/schema.prisma` · Postgres cutover: `prisma/schema.postgres.prisma`
 > **Registry ย่อ:** [Appendix B](../../appendices/B-db-schema.md) · **Domain lanes:** [DOMAIN-MAP](../../DOMAIN-MAP.md)
@@ -95,6 +95,12 @@ erDiagram
     Business ||--o{ SalesTask : "sales team owes"
     Customer ||--o{ SalesTask : "followed up by"
     Person ||--o{ SalesTask : "assigned"
+
+    Business ||--o{ SalesOrder : "sold"
+    Conversation ||--o{ SalesOrder : "CHAT origin"
+    SalesOrder ||--o{ SalesOrderLine : "lines"
+    Product ||--o{ SalesOrderLine : "SKU sold"
+    SalesOrder ||--o{ Payment : "settled by"
 ```
 
 **สิ่งที่ diagram นี้ไม่ได้บอก:** `AuditEvent`, `Dependency` และ `ExternalRef` ไม่มี FK จริง
@@ -1779,7 +1785,7 @@ erDiagram
 
 | Field | หมายเหตุ |
 |---|---|
-| **ไม่มีคอลัมน์ on-hand** บน `Product` / `ProductLot` | on-hand = `SUM(StockMovement.quantity)` คำนวณทุกครั้งที่อ่าน — กฎเดียวกับ progress (§21.4): ตัวเลขที่เก็บไว้คือตัวเลขที่หน้าจอจะเถียงกันได้ |
+| **ไม่มีคอลัมน์ on-hand** บน `Product` / `ProductLot` | on-hand = `SUM(StockMovement.quantity)` คำนวณทุกครั้งที่อ่าน — กฎเดียวกับ progress (§22.4): ตัวเลขที่เก็บไว้คือตัวเลขที่หน้าจอจะเถียงกันได้ |
 | `stockPolicy` / `trackingMode` แก้ไม่ได้ | ความหมายของทุกแถว ledger ขึ้นกับสองค่านี้ — เปลี่ยนนโยบายคือ archive แล้วสร้าง SKU ใหม่ |
 | UNTRACKED | ไม่มี ledger: `recordMovement` ปฏิเสธด้วย code, summary รายงาน `onHand = null` ไม่ใช่ 0 (ศูนย์อ่านว่า "นับแล้วว่าง") |
 | FEFO (FR-155) | ISSUE ของ LOT-tracked ที่ไม่ระบุ lot ตัดจาก OPEN lot ที่ `expiresAt` เร็วสุดก่อน (ไม่ทราบวันหมดอายุ = ท้ายสุด) หนึ่งแถวต่อ lot; ระบุ lot แล้วเกินที่ lot มีถูกปฏิเสธ |
@@ -1792,7 +1798,93 @@ erDiagram
 
 ---
 
-## 19. Legacy ERD (zuri1.0) → zuri-ai: what was borrowed, relabelled, deferred, refused
+## 19. COMMERCE: sales orders, payments & verified revenue
+
+Commerce (`DOM-COMMERCE`, ADR-065) ตอบ "ขายอะไรไป ให้ใคร จากบทสนทนาไหน และเงินเข้ามาจริงเท่าไร" —
+model สามตัวที่ยืมรูปจาก "5. CORE: Orders & Payments" ของ legacy ERD (§20) โดยแก้สี่อย่างตอนข้ามพรมแดน:
+line แทน JSON, **ไม่เก็บ total / paid**, เงินเป็น **satang จำนวนเต็ม**, bank reference เป็น attribute ไม่ใช่ key
+
+```mermaid
+erDiagram
+    Business ||--o{ SalesOrder : "sold"
+    Customer ||--o{ SalesOrder : "bought"
+    Conversation ||--o{ SalesOrder : "CHAT origin"
+    SalesOrder ||--o{ SalesOrderLine : "lines"
+    Product ||--o{ SalesOrderLine : "SKU sold"
+    SalesOrder ||--o{ Payment : "settled by"
+    FileAsset ||--o{ Payment : "slip"
+
+    SalesOrder {
+        uuid     id                PK
+        string   code              UK  "ORD-YYYYMMDD-NNN unique ต่อ Tenant"
+        uuid     tenantId          FK
+        uuid     businessId        FK
+        uuid     customerId        FK  "nullable — ผ่าน tenant ของ Business"
+        uuid     conversationId    FK  "nullable — มี = origin CHAT (ads revenue เดิม)"
+        string   origin                "CHAT | WALK_IN | ONLINE"
+        string   status                "DRAFT | CONFIRMED | COMPLETED | CANCELLED"
+        string   currency              "THB"
+        int      discountSatang        "ส่วนลดทั้งออเดอร์"
+        string   notes
+        datetime orderedAt
+        datetime confirmedAt
+        datetime completedAt
+        datetime cancelledAt
+        string   cancelReason
+        datetime stockIssuedAt         "COMPLETE + issueStock ผ่าน Inventory"
+        uuid     closedByPersonId      "scalar"
+        int      version
+    }
+
+    SalesOrderLine {
+        uuid     id              PK
+        uuid     orderId         FK
+        uuid     productId       FK  "nullable — SKU ของ Business เดียวกัน"
+        string   description
+        int      qty
+        int      unitPriceSatang     "ราคาตอนขาย — ไม่ใช่ baseCost ของ Inventory"
+        int      discountSatang
+        int      sortOrder
+    }
+
+    Payment {
+        uuid     id                 PK
+        string   code               UK  "PAY-YYYYMMDD-NNN unique ต่อ Tenant"
+        uuid     tenantId           FK
+        uuid     businessId         FK
+        uuid     orderId            FK
+        string   kind                   "PAYMENT | REFUND"
+        string   method                 "TRANSFER | CASH | QR | CARD | OTHER"
+        int      amountSatang
+        string   status                 "PENDING | VERIFIED | REJECTED"
+        string   bankReference          "unique ต่อ Tenant — attribute (BR-002)"
+        uuid     slipFileAssetId    FK  "nullable — FileAsset ของ Business เดียวกัน"
+        string   note
+        datetime paidAt                 "วันที่นับรายได้ (ปฏิทิน Bangkok)"
+        datetime verifiedAt
+        uuid     verifiedByPersonId     "scalar"
+        string   rejectReason
+        int      version
+    }
+```
+
+| Field | หมายเหตุ |
+|---|---|
+| **ไม่มีคอลัมน์ total / paid / balance / paymentState** | คำนวณทุกครั้งที่อ่านจาก line (qty × unitPrice − discount) และการชำระที่ **VERIFIED** เท่านั้น — กฎเดียวกับ progress (§22.4) และ on-hand (§18); `paymentState` UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED เป็นค่าที่ derive ใน `domain/commerce.js` |
+| เงินเป็น satang จำนวนเต็ม | API รับ-ส่งเป็นบาททศนิยมสองตำแหน่ง; 0.1 + 0.2 ไม่เป็นบั๊กอีก — คนละแนวกับ `Product.baseCost` (float, ต้นทุน catalogue) และ `RegisteredAsset.acquisitionAmount` (string) |
+| `origin` + `conversationId` | ออเดอร์จากบทสนทนาเป็น CHAT เสมอ (การแบ่ง store / ads revenue ของ legacy แบบชัดเจน); `attributed` บน DTO คือ "มี conversation" |
+| `Payment.bankReference` unique ต่อ Tenant | กฎ "กันสลิปซ้ำ" ของ legacy คงไว้ (`PAYMENT_REFERENCE_TAKEN`) แต่ **ไม่ใช่ key** และ nullable (BR-002, ADR-054 D4) |
+| `slipFileAssetId` | bytes ของสลิปอยู่ที่ `FileAsset` เหมือนทุกไฟล์; OCR เป็น candidate ในอนาคตที่ verify ตัวเองไม่ได้ (กฎ evidence ของ Asset §15) |
+| สองหมวก | `SALES_REP` บันทึกออเดอร์และการชำระ (PENDING); `PAYMENT_VERIFIER` (หรือ OWNER) เท่านั้นที่ VERIFY / REJECT — เพราะรายได้นับจาก VERIFIED |
+| REFUND | เป็น `Payment` kind REFUND; verify ไม่ได้เกินที่ VERIFIED ไปแล้ว; ชำระบนออเดอร์ที่ CANCELLED ไม่ได้ แต่ refund ได้ |
+| ตัดสต๊อก | COMPLETE + `issueStock` เรียก `appendMovement` ของ Inventory ใน transaction เดียวกัน (reference `ORDER:<code>`) — ขาดแล้วปฏิเสธทั้งหมด, SERIAL ปฏิเสธ, ไม่มีสิทธิ์คลังปฏิเสธ (role ของ Commerce ไม่ขยาย Inventory) |
+| ไม่มี CREDIT | store credit ของ legacy ไม่ใช่การชำระ — เป็น liability ที่จะมี FR ของตัวเอง |
+
+**Spec:** FR-158, FR-159 · FEAT-022 · ADR-065, ADR-054 D3/D4/D5 · BR-001, BR-002, SEC-001 · `docs/domains/commerce/CHARTER.md`
+
+---
+
+## 20. Legacy ERD (zuri1.0) → zuri-ai: what was borrowed, relabelled, deferred, refused
 
 `Freshair129/zuri1.0` — `docs/architecture/database-erd/full-schema.md` v2.0.0 (17 models) — คือ ERD
 ของผลิตภัณฑ์เดิม ADR-024 D7 บอกว่าอ่านเป็น **prior art** ได้ แต่ไม่มีอะไรสืบทอดหรือย้ายมาจากมัน และ
@@ -1805,7 +1897,7 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 2. CORE: Auth & Employee | `Employee` (roles[], passwordHash) | `Person` / `Membership` / `Session` / `RoleBinding` (§2) | ❌ refused (ADR-054 D5) |
 | 3. CORE: Customer CRM | `Customer`, `CustomerProfile`; phone-merge identity | `Customer` (§9) + `CustomerProfile` (FR-126, target); identity merge → identity domain (FR-094) | ✅ `CustomerProfile` adopted / ❌ phone-merge refused (D4.3) |
 | 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
-| 5. CORE: Orders & Payments | `Order`, `Transaction` (slip OCR, revenue split) | **Commerce lane — target**: `Order` / `Payment` keyed on UUID, slip OCR ผ่าน evidence pattern ของ Asset (§15) | 🔜 deferred (D5); ไม่มี model |
+| 5. CORE: Orders & Payments | `Order` (`items` JSON, `paidAmount` เก็บ, float), `Transaction` (`refNumber` UK, slip OCR, CREDIT) | **`SalesOrder` / `SalesOrderLine` / `Payment` ใน commerce (§19, FR-158/159, ADR-065)** — line แทน JSON, total/paid คำนวณตอนอ่าน, เงินเป็น satang, bank reference เป็น attribute unique ต่อ Tenant, สลิปเป็น `FileAsset`, ไม่มี CREDIT; "ROAS จาก VERIFIED เท่านั้น" คงไว้เป็นกฎรายได้ | ✅ relabelled + corrected (FR-158, FR-159) |
 | 6. CORE: Marketing & Ads | `Ad`, `AdDailyMetric` (`adId` เป็น FK) | **Marketing lane (`growth` slot) — target**: provider id ใน `ExternalRef` ไม่ใช่ key (D4.1); metric derived จาก `RawExternalRecord` (§11) | 🔜 deferred (D5); ไม่มี model |
 | 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-157, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-157) |
 | 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
@@ -1823,7 +1915,7 @@ ADR-054 D3/D4 (scope จาก aggregate ที่มี, external id เป็�
 
 ---
 
-## 20. Domain ownership map
+## 21. Domain ownership map
 
 preflight บังคับว่า model หนึ่งถูก claim ได้โดย charter เดียว — ตารางนี้อ่านจาก
 `docs/domains/<d>/CHARTER.md` frontmatter (`owns_models`)
@@ -1838,21 +1930,22 @@ preflight บังคับว่า model หนึ่งถูก claim ไ�
 | **asset-management** | RegisteredAsset, AssetIntake, AssetEvidence, AssetProcurementRef, AssetLot, AssetResponsibility, AssetLocationHistory, AssetProjectAllocation, AssetDepreciationCandidate, AssetExtractionJob | 10 |
 | **line-oa-studio** | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineConversationJob | 6 |
 | **inventory** | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement | 12 |
+| **commerce** | SalesOrder, SalesOrderLine, Payment | 3 |
 | **agent** | — (ไม่มีโดยตั้งใจ: state อยู่ใน production Postgres `zuri_core.*` + MSP vault) | 0 |
 | **knowledge** | — (ไม่มีโดยตั้งใจ: store คือ `zuri_core.business_knowledge` หลัง knowledge port) | 0 |
 | **platform-control** | — (ไม่มีโดยตั้งใจ: projection ที่ถอดออกได้ ไม่ถือ persistence model) | 0 |
-| | **รวม** | **101** |
+| | **รวม** | **104** |
 
-> **ครบพอดี:** 101 model ใน `prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
-> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §26)
+> **ครบพอดี:** 104 model ใน `prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
+> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §27)
 > Pipeline ทั้ง 6 ตัวอยู่ในเลน **integration** — `docs/domains/knowledge/CHARTER.md`
 > อ้างถึงมันในเนื้อความเพราะ knowledge *เรียกใช้* `createPipelineRun` ของเลนนั้น ไม่ได้เป็นเจ้าของ
 
 ---
 
-## 21. Key Data Flows
+## 22. Key Data Flows
 
-### 21.1 LINE turn → Conversation → Agent
+### 22.1 LINE turn → Conversation → Agent
 
 ```mermaid
 flowchart LR
@@ -1868,7 +1961,7 @@ flowchart LR
 ขอบเขต production มาจาก **binding ที่ server เป็นเจ้าของเท่านั้น** — `tenantId`/`businessId`
 ที่ client ส่งมาถูกปฏิเสธก่อนงาน turn ใด ๆ จะเริ่ม (FR-052, SEC-010)
 
-### 21.2 Intake convergence — ทุก surface ลงท่อเดียว
+### 22.2 Intake convergence — ทุก surface ลงท่อเดียว
 
 ```mermaid
 flowchart TD
@@ -1888,7 +1981,7 @@ flowchart TD
 surface ใหม่เพิ่ม **converter** ไม่เคยเพิ่ม write path ที่สอง (BR-009, SDD-009)
 และ **plan คือข้อมูล ไม่ใช่คำสั่ง** — ไม่มีอะไรใน envelope ถูก execute (BR-007, SEC-002)
 
-### 21.3 External ingestion → market observation
+### 22.3 External ingestion → market observation
 
 ```mermaid
 flowchart LR
@@ -1901,7 +1994,7 @@ flowchart LR
     E -->|retry| B
 ```
 
-### 21.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
+### 22.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
 
 ```mermaid
 flowchart TD
@@ -1919,7 +2012,7 @@ flowchart TD
 
 ---
 
-## 22. Index Strategy
+## 23. Index Strategy
 
 | Table | Index | Purpose |
 |---|---|---|
@@ -1962,10 +2055,13 @@ flowchart TD
 | `StockMovement` | `(productId, occurredAt)` · `(businessId, occurredAt)` · `(lotId)` · `(serialUnitId)` | on-hand = SUM ต่อ product / ต่อ lot; ประวัติหน่วย |
 | `ProductRecipe` | `(productId, batchSize)` UNIQUE | หนึ่งสูตรต่อ (SKU ผลลัพธ์, batch size) |
 | `SalesTask` | `(tenantId, code)` UNIQUE · `(businessId, status, dueDate)` · `(assigneePersonId, status)` · `(customerId)` · `(conversationId)` | รายการงานเปิดของ Business เรียงตามกำหนด; "ของฉัน"; งานต่อลูกค้า / ต่อบทสนทนา |
+| `SalesOrder` | `(tenantId, code)` UNIQUE · `(businessId, status, orderedAt)` · `(customerId)` · `(conversationId)` | ออเดอร์เปิดของ Business ล่าสุดก่อน; ออเดอร์ต่อลูกค้า / ต่อบทสนทนา (รายได้จากแชท) |
+| `SalesOrderLine` | `(orderId)` · `(productId)` | line ของออเดอร์; "SKU นี้ขายไปกี่ครั้ง" |
+| `Payment` | `(tenantId, code)` UNIQUE · `(tenantId, bankReference)` UNIQUE · `(orderId, status)` · `(businessId, status, paidAt)` | กันสลิปซ้ำ; การชำระ VERIFIED ของออเดอร์; รายได้ตามวันที่ชำระ |
 
 ---
 
-## 23. Naming Conventions
+## 24. Naming Conventions
 
 | Convention | Example | Rule |
 |---|---|---|
@@ -1986,7 +2082,7 @@ flowchart TD
 เป็นแหล่งความจริงที่ Excel dropdown, OpenAPI และ Zod validation อ่านร่วมกัน —
 อย่าคัดลอกรายการ enum ด้วยมือที่ไหนอีก
 
-### 23.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
+### 24.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
 
 `src/lib/validation/enums.js` — โดเมนธุรกิจหลัก:
 
@@ -2041,6 +2137,12 @@ flowchart TD
 | `SalesTask.status` | `SALES_TASK_STATUSES` | OPEN · IN_PROGRESS · DONE · CANCELLED |
 | `SalesTask.scheduleKind` | `SALES_TASK_SCHEDULE_KINDS` | SINGLE · RANGE |
 | (`PATCH` action) `SalesTask` | `SALES_TASK_ACTIONS` | UPDATE · ASSIGN · START · COMPLETE · CANCEL · REOPEN |
+| `SalesOrder.origin` | `SALES_ORDER_ORIGINS` | CHAT · WALK_IN · ONLINE |
+| `SalesOrder.status` | `SALES_ORDER_STATUSES` | DRAFT · CONFIRMED · COMPLETED · CANCELLED |
+| (`PATCH` action) `SalesOrder` | `SALES_ORDER_ACTIONS` | UPDATE · CONFIRM · COMPLETE · CANCEL |
+| `Payment.kind` / `.method` / `.status` | `PAYMENT_KINDS` / `PAYMENT_METHODS` / `PAYMENT_STATUSES` | PAYMENT · REFUND / TRANSFER · CASH · QR · CARD · OTHER / PENDING · VERIFIED · REJECTED |
+| (`PATCH` action) `Payment` | `PAYMENT_ACTIONS` | VERIFY · REJECT |
+| (derived, ไม่ใช่คอลัมน์) `paymentState` ของออเดอร์ | `PAYMENT_STATES` ใน `domain/commerce.js` | UNPAID · PARTIAL · PAID · OVERPAID · REFUNDED |
 
 **status ของ job (`LineOaRichMenuJob`, `LineConversationJob`, `AssetExtractionJob`) และ status สองคำ
 (`ACTIVE · ARCHIVED` ของ catalogue Inventory, `DRAFT · ACTIVE · ARCHIVED` ของ LIFF) ไม่อยู่ใน `enums.js`
@@ -2070,7 +2172,7 @@ flowchart TD
 
 ---
 
-## 24. Snapshot coverage (backup/restore contract)
+## 25. Snapshot coverage (backup/restore contract)
 
 ทุก model ต้องอยู่ใน `SNAPSHOT_MODELS` (เรียงพ่อก่อนลูก) **หรือ** อยู่ใน
 `SNAPSHOT_EXCLUDED_MODELS` พร้อมเหตุผลว่าทำไมกู้คืนไม่ได้ ทั้งคู่อยู่ใน
@@ -2082,7 +2184,7 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 
 ---
 
-## 25. Dev / Production parity
+## 26. Dev / Production parity
 
 | | Dev / Test | Production |
 |---|---|---|
@@ -2099,7 +2201,7 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 
 ---
 
-## 26. Keeping this document honest
+## 27. Keeping this document honest
 
 เอกสารนี้เขียนด้วยมือจาก `prisma/schema.prisma` **ไม่ใช่ไฟล์ generated** — `docs:graph`
 ไม่ได้สร้างมัน แปลว่าไม่มี guard ตัวไหนจับได้ถ้ามัน drift ตรวจสามอย่างนี้เองหลังแก้ schema:
@@ -2108,13 +2210,13 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 grep -c "^model " prisma/schema.prisma
 ```
 
-ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §20
+ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §21
 
 ```bash
 node -e "const fs=require('fs');const doms=fs.readdirSync('docs/domains');const owned=new Map();for(const d of doms){const fm=(fs.readFileSync('docs/domains/'+d+'/CHARTER.md','utf8').split('---')[1]||'');let on=false;const l=[];for(const line of fm.split(/\r?\n/)){if(/^owns_models:/.test(line)){on=!/\[\]/.test(line);continue}if(on){const m=line.match(/^  - (\w+)\s*$/);if(m)l.push(m[1]);else on=false}}owned.set(d,l)}const models=[...fs.readFileSync('prisma/schema.prisma','utf8').matchAll(/^model (\w+) \{/gm)].map(m=>m[1]);const claimed=new Set([...owned.values()].flat());for(const[d,l]of owned)console.log(d,l.length);console.log('unclaimed:',models.filter(m=>!claimed.has(m)).join(', ')||'(none)');console.log('phantom:',[...claimed].filter(m=>!models.includes(m)).join(', ')||'(none)')"
 ```
 
-`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §20
+`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §21
 
 ```bash
 npm run govern

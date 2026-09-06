@@ -57,6 +57,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-157 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
+  // @req FR-158, FR-159 — commerce: the order collection and item (cancel is
+  // an action, never a DELETE), the order's payments (list + record), the
+  // payment item (read + verify/reject action) and the revenue read model.
+  ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],
+  ['/api/commerce/orders/{id}/payments', ['GET', 'POST']], ['/api/commerce/payments/{id}', ['GET', 'PATCH']],
+  ['/api/commerce/revenue', ['GET']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.

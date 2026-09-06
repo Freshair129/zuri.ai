@@ -18,6 +18,11 @@ export const ROLE_INVENTORY_MANAGER = 'INVENTORY_MANAGER'
 // write sales tasks (follow-ups owed to customers) in the crm lane. A Business
 // OWNER holds the same capability implicitly and needs no binding.
 export const ROLE_SALES_REP = 'SALES_REP'
+// @req FR-159 — the payment verifier: the Business-scoped role that confirms
+// or rejects a payment slip (commerce). A SALES_REP records payments; only a
+// verifier or the Business OWNER turns PENDING into VERIFIED, because verified
+// payments are what revenue is counted from (ADR-065).
+export const ROLE_PAYMENT_VERIFIER = 'PAYMENT_VERIFIER'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
 export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
@@ -27,6 +32,8 @@ export const ASSET_EVIDENCE_REVIEW_PERMISSION = 'asset.evidence.review'
 export const LINE_OA_PUBLISH_PERMISSION = 'line-oa.account.publish'
 export const INVENTORY_MANAGE_PERMISSION = 'inventory.catalog.write'
 export const SALES_TASK_WRITE_PERMISSION = 'crm.sales-task.write'
+export const ORDER_WRITE_PERMISSION = 'commerce.order.write'
+export const PAYMENT_VERIFY_PERMISSION = 'commerce.payment.verify'
 
 export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PRODUCT_OWNER]: Object.freeze([
@@ -58,6 +65,14 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_SALES_REP]: Object.freeze([
     'crm.read',
     SALES_TASK_WRITE_PERMISSION,
+    // @req FR-158 — a rep also writes the orders they close and records the
+    // payments customers send; verifying those payments is a different hat.
+    'commerce.read',
+    ORDER_WRITE_PERMISSION,
+  ]),
+  [ROLE_PAYMENT_VERIFIER]: Object.freeze([
+    'commerce.read',
+    PAYMENT_VERIFY_PERMISSION,
   ]),
 })
 

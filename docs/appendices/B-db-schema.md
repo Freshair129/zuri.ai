@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.23.0b |
+| **Version** | 1.24.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-06 |
 
@@ -102,6 +102,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
 | ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
 | SalesTask | code (`TSK-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), assigneePersonId? → Person (SetNull), createdByPersonId?, title, description?, type, priority, status (OPEN / IN_PROGRESS / DONE / CANCELLED), scheduleKind (SINGLE / RANGE), dueDate, startDate?, timeStart?, timeEnd?, outcome?, completedAt?, completedByPersonId?, cancelledAt?, cancelReason?, version | FR-157 / ADR-064 — a sales follow-up owed to a customer (crm); not a project-manager WorkItem; overdue / due-today computed on read, never stored |
+| SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-158 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
+| SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-158 — one line; may name an Inventory SKU; price given at sale time |
+| Payment | code (`PAY-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, orderId → SalesOrder (Cascade), kind (PAYMENT / REFUND), method, amountSatang, status (PENDING / VERIFIED / REJECTED), bankReference? (unique per tenant — an attribute), slipFileAssetId? → FileAsset (SetNull), note?, paidAt, verifiedAt?, verifiedByPersonId?, rejectReason?, createdByPersonId?, version | FR-159 / ADR-065 — a payment or refund; only VERIFIED money counts; the slip's bytes are the FileAsset's |
 | ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
 | SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
 | StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
@@ -164,6 +167,11 @@ in the same change; the Supabase SQL is written and **not applied**.
 Version diff 1.22.0b → 1.23.0b (2026-09-06): added `SalesTask` (FR-157, ADR-064 — the legacy Tasks section as a
 CRM sales activity record) with one additive migration in each tree (`20260906235000_crm_sales_task`) in the
 same change; the Supabase SQL is written and **not applied**.
+
+Version diff 1.23.0b → 1.24.0b (2026-09-07): added `SalesOrder`, `SalesOrderLine` and `Payment` (FR-158, FR-159,
+ADR-065 — the Commerce lane's first slice; money in integer satang, no stored total or paid) with one additive
+migration in each tree (`20260907000000_commerce_orders_payments`) in the same change; the Supabase SQL is
+written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

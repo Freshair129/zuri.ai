@@ -59,8 +59,13 @@ deliberately **not** Inventory's. Nothing here is a schema; the schema is
 describe **what is offered, to whom, at what price, and who bought it** —
 Commerce questions. Inventory owns the goods an offer is made of and how many
 exist; Commerce will reference `ProductMaster` / `Product` by internal id and
-never write to them. When that lane is chartered it declares its own FRs; the
-Inventory rows will not need to change for it.
+never write to them. That lane was chartered on 2026-09-07
+([`docs/domains/commerce/CHARTER.md`](../commerce/CHARTER.md), ADR-065) with its first
+slice — sales orders and payments (FR-158, FR-159): a `SalesOrderLine` names an
+Inventory `Product` by internal id with a price given at the time of sale, exactly as
+this page predicted, and the Inventory rows did not change for it. The offer layer
+above (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient` and their
+edges) is still deferred, now *inside* that lane as its own FRs.
 
 ## Graph projection
 
