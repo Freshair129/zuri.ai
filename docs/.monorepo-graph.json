@@ -705,6 +705,64 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "hash": "e0c09982",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "hash": "d2ab43ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "hash": "6ea7f015",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -728,6 +786,25 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "hash": "df912b63",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
@@ -742,6 +819,63 @@
         ],
         "@tested": [
           "tests/unit/line-oa-rich-menu-console.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "hash": "6b925689",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "hash": "2892bf96",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
+      "hash": "fa799f2a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
         ]
       }
     },
@@ -5898,7 +6032,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "9b9cd814",
+      "hash": "9d418dcb",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -5915,7 +6049,6 @@
           "FR-157",
           "FR-086",
           "FR-133",
-          "FR-146",
           "FR-154",
           "FR-164",
           "FR-165",
@@ -10099,7 +10232,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "b34d39f4",
+      "hash": "d09091cd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14875,7 +15008,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "f5e2f93c",
+      "hash": "0578534b",
       "status": "changed"
     },
     {
@@ -21822,11 +21955,67 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/design-studio",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/design-studio",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/edge-connection",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/edge-connection",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/live-crm",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/live-crm",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/projects",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/projects",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/line-oa/rich-menus",
       "type": "route",
       "kind": "page",
       "route": "/line-oa/rich-menus",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/settings",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/settings",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/team",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/team",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/templates",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/templates",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
       "status": "current"
     },
     {
@@ -30634,6 +30823,76 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -30683,6 +30942,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:FR-151",
       "type": "implements",
@@ -30692,6 +30972,69 @@
     {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:SDD-060",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38378,13 +38721,6 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:FR-133",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/config/domains.js",
-      "to": "req:FR-146",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -58368,7 +58704,56 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/line-oa/design-studio",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/edge-connection",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/live-crm",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/projects",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/settings",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/team",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/templates",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -61386,13 +61771,6 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -62268,7 +62646,56 @@
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "code:src/app/(pm)/line-oa/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/templates/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -75470,13 +75897,6 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -78291,13 +78711,6 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -79097,13 +79510,6 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -83156,13 +83562,6 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -85572,13 +85971,6 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -88729,13 +89121,6 @@
     {
       "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/procurement-routes.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -94526,7 +94911,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2245,
+    "server_nodes": 2259,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

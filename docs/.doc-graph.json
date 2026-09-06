@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2245,
-    "total_edges": 8935,
+    "total_nodes": 2259,
+    "total_edges": 8963,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 14,
       "roadmap": 43,
       "feature": 24,
-      "route": 267,
+      "route": 274,
       "model": 119,
       "requirement": 325,
       "test": 522,
-      "code_file": 659
+      "code_file": 666
     },
     "coverage": {
       "requirements": 325,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (155/155)",
       "rules_anchored_in_code": "96% (131/136)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 659,
+      "annotated_code_files": 666,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,69 +55,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:full-schema",
-      "domain:asset-management",
-      "domain:commerce",
-      "domain:inventory",
-      "doc:ONTOLOGY",
-      "domain:market-intelligence",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:PRODUCT",
-      "doc:ROADMAP",
-      "doc:SITEMAP-DOMAIN-NAV",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/command-palette-index.test.js",
-      "test:tests/unit/domain-state.test.js",
-      "code:src/config/domains.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/identity/rbac.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "code:src/config/domains.js"
     ],
-    "added": [
-      "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
-      "domain:procurement",
-      "doc:FR-164-suppliers-and-purchase-orders",
-      "doc:FR-165-goods-receipts",
-      "doc:ERP-MODULE-MAP",
-      "feat:FEAT-024",
-      "route:page:/procurement",
-      "route:page:/procurement/purchase-orders",
-      "route:api:/api/procurement/purchase-orders",
-      "route:api:/api/procurement/purchase-orders/[id]/receipts",
-      "route:api:/api/procurement/purchase-orders/[id]",
-      "route:api:/api/procurement/suppliers",
-      "route:api:/api/procurement/suppliers/[id]",
-      "model:Supplier",
-      "model:PurchaseOrder",
-      "model:PurchaseOrderLine",
-      "model:GoodsReceipt",
-      "model:GoodsReceiptLine",
-      "req:FR-164",
-      "req:FR-165",
-      "test:tests/e2e/fr164-procurement.spec.js",
-      "test:tests/integration/fr164-procurement.test.js",
-      "test:tests/integration/fr165-goods-receipt.test.js",
-      "test:tests/unit/procurement-domain.test.js",
-      "test:tests/unit/procurement-routes.test.js",
-      "code:src/app/(pm)/procurement/page.jsx",
-      "code:src/app/(pm)/procurement/purchase-orders/page.jsx",
-      "code:src/app/api/procurement/purchase-orders/route.js",
-      "code:src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
-      "code:src/app/api/procurement/purchase-orders/[id]/route.js",
-      "code:src/app/api/procurement/suppliers/route.js",
-      "code:src/app/api/procurement/suppliers/[id]/route.js",
-      "code:src/modules/procurement/application/goods-receipt-service.js",
-      "code:src/modules/procurement/application/procurement-authority.js",
-      "code:src/modules/procurement/application/purchase-order-service.js",
-      "code:src/modules/procurement/application/supplier-service.js",
-      "code:src/modules/procurement/domain/procurement.js",
-      "code:src/modules/procurement/index.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -822,6 +762,64 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "hash": "e0c09982",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "hash": "d2ab43ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "hash": "6ea7f015",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -845,6 +843,25 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "hash": "df912b63",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
@@ -859,6 +876,63 @@
         ],
         "@tested": [
           "tests/unit/line-oa-rich-menu-console.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "hash": "6b925689",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "hash": "2892bf96",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
+      "hash": "fa799f2a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
         ]
       }
     },
@@ -6015,7 +6089,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "9b9cd814",
+      "hash": "4af8ea19",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -6032,7 +6106,6 @@
           "FR-157",
           "FR-086",
           "FR-133",
-          "FR-146",
           "FR-154",
           "FR-164",
           "FR-165",
@@ -6348,7 +6421,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "3d88090d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8505,7 +8578,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
       "hash": "083fb152",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -10216,7 +10289,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "b34d39f4",
+      "hash": "d09091cd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11530,7 +11603,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "04436538",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11609,7 +11682,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "e98e3b07",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13584,7 +13657,7 @@
       "version": "1.48.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "5d3b776f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13638,7 +13711,7 @@
       "version": "1.26.0b",
       "doc_status": "Draft",
       "hash": "5081e8de",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14010,7 +14083,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "f7c09b3b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -14945,7 +15018,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "03eb8c03",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -14992,8 +15065,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "f5e2f93c",
-      "status": "changed"
+      "hash": "0578534b",
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -15087,7 +15160,7 @@
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
       "hash": "adf0acc7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PARALLEL-REVIEW-2026-09-06",
@@ -15495,7 +15568,7 @@
       "version": "1.164.0b",
       "doc_status": "Draft",
       "hash": "09f5ecf5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15505,7 +15578,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "e5bbfd88",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:prompt-engineering",
@@ -15523,7 +15596,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "cee05cfc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15559,7 +15632,7 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "6096c26f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:UI-DESIGN-SYSTEM",
@@ -15800,7 +15873,7 @@
         "asset-management"
       ],
       "hash": "d3595dcb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:commerce",
@@ -15823,7 +15896,7 @@
         "commerce"
       ],
       "hash": "e6951ec9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:crm",
@@ -15963,7 +16036,7 @@
         "inventory"
       ],
       "hash": "097cc353",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -16025,7 +16098,7 @@
         "market-intelligence"
       ],
       "hash": "4c916d04",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:marketing",
@@ -21939,11 +22012,67 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/design-studio",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/design-studio",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/edge-connection",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/edge-connection",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/live-crm",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/live-crm",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/projects",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/projects",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/line-oa/rich-menus",
       "type": "route",
       "kind": "page",
       "route": "/line-oa/rich-menus",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/settings",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/settings",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/team",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/team",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/templates",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/templates",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
       "status": "current"
     },
     {
@@ -23746,7 +23875,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "518589eb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -24299,7 +24428,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
       "hash": "d3b74557",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/commerce-domain.test.js",
@@ -24572,7 +24701,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "29f93a40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -27419,6 +27548,76 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -27468,6 +27667,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:FR-151",
       "type": "implements",
@@ -27477,6 +27697,69 @@
     {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:SDD-060",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -35163,13 +35446,6 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:FR-133",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/config/domains.js",
-      "to": "req:FR-146",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -55153,7 +55429,56 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/line-oa/design-studio",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/edge-connection",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/live-crm",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/projects",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/settings",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/team",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/templates",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -58171,13 +58496,6 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -59053,7 +59371,56 @@
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "code:src/app/(pm)/line-oa/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/templates/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -72255,13 +72622,6 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -75076,13 +75436,6 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -75882,13 +76235,6 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -79941,13 +80287,6 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -82357,13 +82696,6 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -85514,13 +85846,6 @@
     {
       "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/procurement-routes.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
