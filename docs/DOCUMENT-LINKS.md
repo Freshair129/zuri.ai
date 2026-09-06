@@ -1205,6 +1205,8 @@ Backlinks:
 
 Source: [ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path](decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md)
 
+- references: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
 Backlinks:
 
 - [CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai](change-requests/CR-017-MARKETING-ADS-ANALYTICS.md) (references)
@@ -1308,7 +1310,9 @@ Source: [ADR-062 — Candidate Server/Edge monorepo with independent releases](d
 
 Backlinks:
 
+- [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.md) (references)
 - [Zuri V2 — Product Definition](PRODUCT.md) (references)
+- [ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path](decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
 - [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
@@ -1319,6 +1323,7 @@ Backlinks:
 Source: [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.md)
 
 - references: [ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path](decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md)
+- references: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
 ## Domain — agent
 
@@ -2506,8 +2511,8 @@ Source: [Zuri V2 — Product Definition](PRODUCT.md)
 Backlinks:
 
 - [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md) (references)
-- [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md) (references)
 - [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md) (references)
+- [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md) (references)
 - [ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) (supersedes)
 
 ## Phase 1: Minimum LINE OA Business Knowledge Answer

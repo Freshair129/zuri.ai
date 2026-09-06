@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-03T21:30:00+07:00,CLAUDE"
+last_update: "2026-09-06T19:38:00+07:00,RWANG"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -96,7 +96,9 @@ D7. **Vercel artifacts are removed or kept by kind, not by name.**
 
 D8. **The later VPS step needs no application change.** `.github/workflows/
     docker-image.yml` builds the image on every deployment-layer change and
-    pushes tags to GHCR from `main`; `ZURI_WEB_IMAGE` lets a VPS
+    originally pushed tags to GHCR from `main`. Publication is now suspended by
+    [ADR-062](ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) pending private image
+    and consumer-access verification; `ZURI_WEB_IMAGE` lets a VPS
     `docker compose pull web` instead of building; replacing ngrok with a
     domain + reverse proxy is `--scale ngrok=0` plus a `PUBLIC_BASE_URL` change.
 

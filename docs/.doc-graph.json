@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2015,
-    "total_edges": 7915,
+    "total_nodes": 2017,
+    "total_edges": 7917,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 187,
+      "document": 188,
       "adr": 62,
       "domain": 11,
       "roadmap": 41,
@@ -16,7 +16,7 @@
       "route": 226,
       "model": 94,
       "requirement": 315,
-      "test": 493,
+      "test": 494,
       "code_file": 562
     },
     "coverage": {
@@ -55,10 +55,21 @@
   },
   "drift": {
     "changed": [
-      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION"
+      "doc:ARCHITECTURE",
+      "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "doc:docker-ngrok",
+      "doc:PLAN-ZURI-MONOREPO-MIGRATION",
+      "test:tests/e2e/fr077-project-inventory.spec.js"
     ],
-    "added": [],
-    "removed": []
+    "added": [
+      "doc:docs/domains/identity/SYSTEM-DIAGRAM",
+      "doc:docs/SYSTEM-DIAGRAM",
+      "test:tests/unit/docker-publication-containment.test.js"
+    ],
+    "removed": [
+      "doc:SYSTEM-DIAGRAM"
+    ]
   },
   "nodes": [
     {
@@ -11622,8 +11633,8 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "ad873073",
-      "status": "current"
+      "hash": "6b951152",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -11810,8 +11821,8 @@
       "type": "document",
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
-      "hash": "570c3551",
-      "status": "current"
+      "hash": "1dbc41bf",
+      "status": "changed"
     },
     {
       "id": "doc:docs/change-requests/README",
@@ -11850,6 +11861,19 @@
         "repository": "Freshair129/zuri.ai",
         "previous_id": "doc:SRS",
         "source_path": "docs/domains/asset-management/SRS.md"
+      }
+    },
+    {
+      "id": "doc:docs/domains/identity/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/domains/identity/SYSTEM-DIAGRAM.md",
+      "title": "Identity Domain — System Diagram & Architecture Specification",
+      "hash": "0f73075f",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/domains/identity/SYSTEM-DIAGRAM.md"
       }
     },
     {
@@ -11915,6 +11939,21 @@
         "repository": "Freshair129/zuri.ai",
         "previous_id": "doc:README",
         "source_path": "docs/roadmap/line-oa-business-agent/README.md"
+      }
+    },
+    {
+      "id": "doc:docs/SYSTEM-DIAGRAM",
+      "type": "document",
+      "path": "docs/SYSTEM-DIAGRAM.md",
+      "title": "System Diagram — zuri-ai ทั้งระบบ",
+      "version": "1.0.0",
+      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
+      "hash": "e5b570d1",
+      "status": "current",
+      "identity_migration": {
+        "repository": "Freshair129/zuri.ai",
+        "previous_id": "doc:SYSTEM-DIAGRAM",
+        "source_path": "docs/SYSTEM-DIAGRAM.md"
       }
     },
     {
@@ -13300,7 +13339,7 @@
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
       "hash": "b5736e5d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -13373,8 +13412,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Candidate monorepo migration gates",
-      "hash": "c025af6c",
-      "status": "current"
+      "hash": "8440ee7d",
+      "status": "changed"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -13448,16 +13487,6 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "79361163",
-      "status": "current"
-    },
-    {
-      "id": "doc:SYSTEM-DIAGRAM",
-      "type": "document",
-      "path": "docs/SYSTEM-DIAGRAM.md",
-      "title": "System Diagram — zuri-ai ทั้งระบบ",
-      "version": "1.0.0",
-      "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
-      "hash": "e5b570d1",
       "status": "current"
     },
     {
@@ -19987,8 +20016,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
-      "hash": "6ecbdc31",
-      "status": "current"
+      "hash": "40b2bce8",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
@@ -20019,8 +20048,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
-      "hash": "cadb6152",
-      "status": "current"
+      "hash": "04a6029e",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -20089,8 +20118,8 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "37fb96e3",
-      "status": "current"
+      "hash": "8f4b0fb2",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
@@ -21602,6 +21631,13 @@
       "type": "test",
       "path": "tests/unit/doc-views.test.js",
       "hash": "d9f3a2a9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/docker-publication-containment.test.js",
+      "type": "test",
+      "path": "tests/unit/docker-publication-containment.test.js",
+      "hash": "855a57bf",
       "status": "current"
     },
     {
@@ -40829,6 +40865,13 @@
       "status": "current"
     },
     {
+      "from": "doc:docker-ngrok",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:docs/domains/line-oa-studio/CONTEXT-MAP",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
@@ -40915,6 +40958,27 @@
     {
       "from": "doc:docs/roadmap/line-oa-business-agent/README",
       "to": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:PRODUCT",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -43442,27 +43506,6 @@
     {
       "from": "doc:SITEMAP-DOMAIN-NAV",
       "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:ARCHITECTURE-DIAGRAMS",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:SYSTEM-DIAGRAM",
-      "to": "doc:PRODUCT",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -50792,6 +50835,13 @@
     {
       "from": "spec:ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY",
       "to": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
+      "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "references",
       "source": "markdown",
       "status": "current"

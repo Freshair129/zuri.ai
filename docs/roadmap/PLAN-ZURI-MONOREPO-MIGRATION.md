@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-MONOREPO
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-06T13:26:50+07:00,RWANG"
+last_update: "2026-09-06T19:38:00+07:00,RWANG"
 attributes:
   domain: architecture
 relations:
@@ -16,6 +16,14 @@ relations:
 # Candidate monorepo migration gates
 
 No code relocation is authorized by this plan. Complete the current two-repository behavior review independently; do not delay safe LINE rollout for a filesystem move.
+
+2026-09-06 prerequisite update: Server source is PRIVATE; the legacy GHCR package
+remains PUBLIC. The owner approved build-only publication containment in ADR-062.
+Merge and verify that containment before any Edge import. Internal Server graph
+identity repair is merged (PR #258); full M3 reconciliation remains open. Private
+image destination and authenticated consumer verification are required before
+publication resumes. The observed local service uses `zuri-ai-web:local`; no
+deployment transition is bundled with these prerequisites.
 
 | Gate | Owner | Required evidence | Exit / rollback |
 |---|---|---|---|

@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-062
-version: "0.1.1b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-06T13:26:50+07:00,RWANG"
+last_update: "2026-09-06T19:38:00+07:00,RWANG"
 attributes:
   domain: architecture
   scope: server-edge-repository-topology
@@ -57,6 +57,32 @@ zuri.ai/
 
 Separate repositories with a versioned contracts artifact remain viable and are the current operational state. They preserve source-access and release boundaries at the cost of coordinated reviews. A monorepo simplifies joint contract review but adds path/CI/graph migration and shared Git visibility. One runtime/deployment is rejected: LINE must work without an online device, and Edge installation must not include the server database/application.
 
+## Approved private-source and publication prerequisite
+
+On 2026-09-06 the owner approved private-first preparation. GitHub now reports
+`Freshair129/zuri.ai` PRIVATE; authenticated Git access succeeds. Edge remains
+separate. The legacy `ghcr.io/freshair129/zuri.ai` package remains PUBLIC, with
+Actions access for this repository. Source privacy alone does not establish image
+privacy. The current local service uses `zuri-ai-web:local` and was healthy.
+
+The owner approved temporary build-only CI: retain Compose validation and Docker
+build for every existing trigger, remove registry login and package write
+permission, and set publication to literal false. Existing public image versions
+remain available, but receive no new builds. The regression contract is
+`tests/unit/docker-publication-containment.test.js`.
+
+Before any Edge import, verify containment is merged and destination source is
+still PRIVATE. Before re-enabling publication, review the private destination,
+publisher permissions, authenticated consumer pull, per-app Docker contexts and
+independent rollback. Replace the containment contract explicitly in that reviewed
+change; changing source visibility is not sufficient. No runtime restart, token
+provisioning, data migration or package deletion is part of this prerequisite.
+
+Internal Server document-ID collisions were repaired in PR #258. Full source/history
+inventory, cross-repository graph reconciliation and independent release evidence
+remain open. Keep separate app lockfiles and never make the destination public as
+a rollback after importing private Edge material.
+
 ## Approval and exit gates
 
 Approve the target layout and source-access model, inventory source/history/licensing without secrets or customer data, record exact ID and graph mappings, validate independent installs/builds/tests, verify compatibility against recorded released versions, then import with an independently reversible release plan. Detailed gates: [migration plan](../roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md). Until they pass, ADR-041 repository separation remains operational policy.
@@ -68,3 +94,4 @@ No new customer FR/FEAT or design-rule number is invented for moving directories
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Documented current requirement ownership and phase handoffs; release gates remain separate | base 4c0cbe3 | RWANG |
+| 0.2.0b | 2026-09-06 | candidate | Approved private source and build-only publication prerequisite; relocation gates remain open | base 4486be20 | RWANG |
