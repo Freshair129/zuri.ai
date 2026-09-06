@@ -80,5 +80,15 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // No control claims the menu reaches LINE, and the page says why.
   await expect(page.getByText(/ไม่ใช่การส่งขึ้น LINE/)).toBeVisible()
   await expect(page.getByText(/คิวงานแยก \(FR-152\)/)).toBeVisible()
-  await expect(page.getByRole('button', { name: /publish|เผยแพร่|ส่งขึ้น/i })).toHaveCount(0)
+
+  // FR-152 — the publish lane is present, and every one of its buttons is off
+  // with the service's own reason next to it: this account has not enabled
+  // Server transport, so nothing here can be queued yet.
+  await expect(card.getByText('งานส่งขึ้น LINE', { exact: true })).toBeVisible()
+  await expect(card.getByText(/งานถูกเข้าคิวไว้ให้ worker ทำ ไม่ได้ทำทันทีที่กด/)).toBeVisible()
+  await expect(card.getByText('ยังไม่มีงานสำหรับเมนูนี้', { exact: true })).toBeVisible()
+  for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
+    await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
+  }
+  await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
 })

@@ -60,14 +60,11 @@
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:INTERFACE-INVENTORY",
-      "code:src/config/domains.js"
-    ],
-    "added": [
-      "route:page:/line-oa/rich-menus",
       "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "test:tests/unit/line-oa-rich-menu-console.test.js",
       "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -480,8 +477,8 @@
       "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
-      "hash": "f2a84547",
-      "status": "current",
+      "hash": "46f1c3ac",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-151"
@@ -4606,7 +4603,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "6ea5495e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -11444,7 +11441,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "73d7655b",
+      "hash": "9bd4adcf",
       "status": "changed"
     },
     {
@@ -18203,8 +18200,8 @@
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "d2e528d2",
-      "status": "current"
+      "hash": "7771c50f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -20254,8 +20251,8 @@
       "id": "test:tests/unit/line-oa-rich-menu-console.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-rich-menu-console.test.js",
-      "hash": "7301a056",
-      "status": "current"
+      "hash": "1c9858df",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-oa-rich-menu-domain.test.js",

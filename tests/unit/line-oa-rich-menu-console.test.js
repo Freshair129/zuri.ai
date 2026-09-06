@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { LINE_OA_RICH_MENU_ACTIONS, LINE_OA_RICH_MENU_ACTION_TYPES, LINE_OA_RICH_MENU_LAYOUTS } from '@/lib/validation/enums'
+import { LINE_OA_RICH_MENU_ACTIONS, LINE_OA_RICH_MENU_ACTION_TYPES, LINE_OA_RICH_MENU_LAYOUTS, LINE_OA_RICH_MENU_JOB_KINDS } from '@/lib/validation/enums'
 import { DOMAINS } from '@/config/domains'
 
 // @req FR-151 — the rich menu console offers exactly the actions the service
@@ -39,7 +39,11 @@ describe('the rich menu console offers only the actions the service implements',
     // so the page must not imply it drives one, in either direction.
     const service = shipped(src(SERVICE))
     expect(service).not.toMatch(/fetch\(|Transport|api\.line\.me/)
-    expect(page).not.toMatch(/rich-menus\/\$\{[^}]*\}\/jobs|\/jobs'/)
+    // The page now drives the FR-152 lane, so it does reach /jobs. What must
+    // stay true is that it reaches it as a QUEUE — the response is a job row,
+    // not a delivery — and that no menu action pretends to publish.
+    expect(page).toMatch(/\/jobs`, 'POST'/)
+    expect(page).not.toMatch(/action:\s*'PUBLISH'/)
     // Look at what a reader can click, not at prose: the page says the words
     // "ไม่ใช่การส่งขึ้น LINE" on purpose, and a blanket text ban would forbid
     // the very sentence that keeps the page honest.
@@ -64,6 +68,7 @@ describe('the rich menu console offers only the actions the service implements',
     const jobs = 'src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js'
     expect(() => src(jobs)).not.toThrow()
     expect(src(PAGE)).not.toMatch(/ระบบยังไม่มีขั้นตอนนั้น/)
+    expect(src(PAGE)).not.toMatch(/หน้านี้ยังไม่ได้เชื่อม/)
     expect(src(PAGE)).toMatch(/คิวงานแยก \(FR-152\)/)
   })
 
@@ -121,5 +126,42 @@ describe('the nav entry matches a page that exists', () => {
     for (const item of lineOa.sub) {
       expect(() => src(`src/app/(pm)${item.path}/page.jsx`)).not.toThrow()
     }
+  })
+})
+
+describe('the publish lane is shown as a queue, never as a delivery', () => {
+  it('offers exactly the job kinds the enum declares, from the enum', () => {
+    expect(page).toMatch(/LINE_OA_RICH_MENU_JOB_KINDS/)
+    for (const kind of LINE_OA_RICH_MENU_JOB_KINDS) {
+      // Labels are allowed to be prose; the SET of kinds must come from enums.js.
+      expect(page).toMatch(new RegExp(kind))
+    }
+  })
+
+  it('says a queued job is asked-for, not done', () => {
+    expect(src(PAGE)).toMatch(/งานถูกเข้าคิวไว้ให้ worker ทำ ไม่ได้ทำทันทีที่กด/)
+  })
+
+  it('never reads ACCEPTED as proof the user saw the menu', () => {
+    // settleOutcome maps the provider's acceptance to ACCEPTED. The worker
+    // cannot know what a LINE user sees, so the page must not imply it does.
+    expect(src(PAGE)).toMatch(/ไม่ใช่หลักฐานว่าผู้ใช้เห็นเมนู/)
+    expect(page).not.toMatch(/ส่งสำเร็จแล้ว|ผู้ใช้เห็นแล้ว|delivered/i)
+  })
+
+  it('keeps an UNKNOWN job closable only behind an explicit acknowledgement', () => {
+    expect(page).toMatch(/acknowledgePossibleOutcome: true/)
+    expect(page).toMatch(/disabled=\{!acknowledged\[job\.id\]/)
+  })
+
+  it('sends the menu version to queue and the job version to acknowledge', () => {
+    // Two different compare-and-swap targets; swapping them is a 409 at best.
+    expect(page).toMatch(/'POST', \{ kind, version: menu\.version \}/)
+    expect(page).toMatch(/jobId: job\.id, version: job\.version/)
+  })
+
+  it('states a reason beside every disabled queue button', () => {
+    expect(page).toMatch(/queueBlocker/)
+    expect(page).toMatch(/disabled=\{busy \|\| Boolean\(blocker\)\}/)
   })
 })
