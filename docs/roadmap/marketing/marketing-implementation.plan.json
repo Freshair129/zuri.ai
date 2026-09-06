@@ -376,20 +376,24 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Intake, calendar, approvals and handoffs",
-          "status": "PLANNED",
+          "status": "DONE",
           "weight": 3,
           "metadata": {
             "ownerRole": "Marketing operations",
             "acceptanceCriteria": [
               "PM schedule and owner receipts are projected without duplicate tasks, conversations or stock records."
             ],
-            "evidenceRefs": [],
+            "evidenceRefs": [
+              "docs/domains/marketing/features/FR-161-operations-coordination.md",
+              "docs/roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md"
+            ],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
-              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/domains/marketing/features/FR-161-operations-coordination.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "locally verified: audited Intake CAS writes plus one aggregate over Marketing approvals, protected PM calendar and validated handoff receipts; SmartGift live import remains a separate gate",
             "interfaceIds": [
               "MKT-UI-044",
               "MKT-UI-045",

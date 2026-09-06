@@ -1,6 +1,6 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.161.0b"
+version: "1.162.0b"
 status: draft
 last_update: "2026-09-06T22:26:00+07:00,RWANG"
 relations:
@@ -19,7 +19,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.161.0b |
+| **Version** | 1.162.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -209,6 +209,7 @@ relations:
 | 1.160.1b | 2026-09-06 | RWANG | Record locally verified FR-157 delivery without changing requirement subjects. |
 | 1.161.0b | 2026-09-06 | RWANG | Restore published main Warehouse subjects FR-154, FR-155, FR-156 and FEAT-020 after abandoning this branch declarations to FR-158, FR-159, FR-160 and FEAT-021; preserve FR-157 Content and reconcile ADR-062 monorepo paths. |
 | 1.158.0b | 2026-09-06 | RWANG | Reconcile main FR-153 (LINE LIFF) and move this unpublished Marketing Strategy declaration to FR-159; retain FR-158 and SDD-086 from the user-approved Marketing design: immutable Strategy review/decision and transactional PM handoff. Local implementation in progress; no provider activation or production migration claim. |
+| 1.162.0b | 2026-09-07 | RWANG | Declare FR-161 and SDD-089 for Marketing Operations: Business-scoped intake with audited CAS writes and one aggregate projection over Marketing approvals, PM schedule and validated cross-domain handoff receipts. No duplicate PM task, conversation or stock record is introduced. |
 
 ## Referenced Standards
 
@@ -412,6 +413,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-158 | Marketing execution handoff — an exact approved Strategy revision generates a deterministic PlanEnvelope for a same-Business Workspace, previews the PM diff, then commits through the existing authorized PM importer with the reviewed hash, concurrency guard, audit and Marketing receipt in one transaction. Replays reconcile one receipt per revision/Workspace; revocation, expiry, stale content and scope mismatches prevent new execution. Action delivery progress never claims marketing KPI attainment. | 🟢 locally verified PM handoff slice; broader runtime and production gates remain open |
 | FR-160 | Marketing Campaign initiatives — a Business-scoped initiative has a distinct UUID and one versioned Strategy brief, with calendar dates, offer and conditions included in its reviewed hash. Owners create, revise, explicitly bind a valid same-plan PM handoff and close or cancel with rationale through audited optimistic transactions. Campaign list/board and Brief, Plan, Timeline, Results and Decisions views preserve scope, exact revision identity and authorized PM execution projections; metrics remain unavailable without approved evidence. | 🟠 implementation in progress from approved CR-018 |
 | FR-157 | Marketing Content and Creative — Business-scoped briefs persist immutable creative versions, exact Files references and declared rights with independent reviews and revocable time-bounded decisions. Briefs, PM production and approved Library projections plus creative/asset detail and creation views revalidate owner scope, file fingerprint and rights eligibility without duplicating bytes or PM work. | 🟠 implementation in progress from approved CR-018 |
+| FR-161 | Marketing Operations coordination — Business-scoped intake requests persist a responsible capability, objective, required date, evidence reference and accountable owner through expected-version compare-and-swap with one audit event per mutation. The Operations aggregate exposes Intake, Calendar, Approvals and Handoffs from one scope-checked DTO: Calendar reads the protected PM roadmap, Approvals reads Marketing-owned review/decision evidence, and Handoffs reads only validated owner-domain receipts. Missing or stale source evidence is explicit; Marketing never creates duplicate PM tasks, CRM conversations, Commerce stock records or provider actions. | 🟠 implementation in progress from approved CR-018 |
 
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
@@ -592,6 +594,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-086 | Marketing planning evidence is immutable and execution is owner-delegated: a Business-scoped repository stores canonical version hashes, independent reviews and append-only expiring decisions; expected-version transactions bind audit to every mutation. Handoff revalidates scope and exact approval, passes the same transaction client to PM PlanEnvelope intake and stores only its accepted execution references. Providers, binary files, goals and agent control remain with their existing owners. | FR-159; FR-158; SEC-001; SEC-003; BR-007; ADR-025 |
 | SDD-087 | Marketing initiatives reuse immutable Strategy evidence and explicit PM receipts: one scoped association model holds lifecycle and concurrency, while optional campaignBrief content stays inside canonical PlanVersion hashes without rewriting old versions. Receipt selection verifies plan, revision/hash, Workspace and Project before the authorized PM roadmap read port; closure affects only the initiative and source-less Results remain unavailable. | FR-160; FR-159; FR-158; SDD-086; SEC-001; SEC-003; ADR-025 |
 | SDD-088 | Creative content approval binds immutable intent, rights and one exact FileAsset version/hash. Marketing owns brief/review/decision evidence; Files owns bytes and PM owns work. Scoped owner read ports revalidate current usability, while atomic parent CAS and append-only revisions prevent stale approvals and partial writes. | FR-157; FR-159; SDD-086; SEC-001; SEC-003; ADR-025 |
+| SDD-089 | Marketing Operations is one Business-scoped composition boundary, not a second work system: a single aggregate DTO combines Marketing-owned intake and approval rows with bounded projections from the PM `getProjectRoadmap` owner port and validated Marketing-to-owner receipts. Every response carries source state, generation time and warnings; EMPTY, PARTIAL, STALE, UNAVAILABLE and FORBIDDEN remain distinct. Intake mutations use the Marketing authority gate, expected-version CAS and one AuditEvent. Detail routes re-check both the requested identity and Business scope, and no route writes PM, CRM, Commerce or provider records. | FR-161; FR-158; FR-159; FR-157; SDD-039; SDD-086; SEC-001; SEC-003; ADR-025 |
 
 ## 2.3 Security requirements
 

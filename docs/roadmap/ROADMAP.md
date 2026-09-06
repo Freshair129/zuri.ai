@@ -10,8 +10,8 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.41.0b"
-updated: "2026-09-06"
+version: "2.42.0b"
+updated: "2026-09-07"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -355,6 +355,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-158 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-158) | P1 | RWANG / Luna | in-progress | FR-159; SDD-086 | ../domains/marketing/features/FR-159-strategy-plans.md |
 | TASK-FR-160 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-160); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-159; FR-158; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
 | TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | done | FR-159; FR-160; SDD-088 | marketing/PHASE-CONTENT-2026-09-06.md |
+| TASK-FR-161 | PHASE-ZAI-MARKETING | task | Marketing Operations composition boundary: Business-scoped Intake, PM-owned Calendar projection, Marketing approvals and validated Handoff receipts across four tabs (FR-161) | P1 | RWANG / Luna | done (local; SmartGift live PM intake pending) | FR-157; FR-158; SDD-089 | marketing/PHASE-OPERATIONS-2026-09-07.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 

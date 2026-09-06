@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.10.0b |
+| **Version** | 1.11.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-06 |
+| **Last Updated** | 2026-09-07 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=71; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=75; operational_domain_keys=11; operational_subdomain_entries=36; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -254,6 +254,17 @@ provider measurements and automated Team refinement remain separately tracked.
 [phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md).
 The asset route uses a Content revision id. Source files and production tasks retain
 their owning Files/PM identities. Human review does not activate Team agents or publishing.
+
+### Marketing Operations slice (locally verified beta)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/operations` | MKT-UI-044–047 | Intake, Calendar, Approvals and Handoffs in one URL tab bar over one aggregate DTO | Growth visibility; source state is explicit; PM/owner projections stay read-only | FR-161 |
+| `/growth/operations/new` | MKT-UI-082 | Business-scoped Intake request form with capability, objective, required date, evidence and owner reference | Business owner; strict validation, audit and CAS on later edits | FR-161 |
+| `/growth/operations/intake/[intakeId]` | MKT-UI-069 | Intake detail, edit and archive with exact Business identity guard | Owner writes with expectedVersion; stale and archived states remain visible | FR-161 |
+| `/growth/operations/handoffs/[handoffId]` | MKT-UI-070 | Validated owner receipt and PM roadmap detail | Read-only; unavailable/partial owner evidence is distinct | FR-161 |
+
+[Operations contract](domains/marketing/features/FR-161-operations-coordination.md). Calendar reads the PM roadmap owner port; Marketing does not create duplicate work, conversations, stock or provider actions.
 
 ## 4. Runtime registry reconciliation
 
