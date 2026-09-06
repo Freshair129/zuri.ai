@@ -143,6 +143,10 @@ const SNAPSHOT_MODELS = [
   // which the model never persists in the first place.
   'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // @req FR-161 — a sales task hangs off Business, Person (assignee) and
+  // optionally Customer and Conversation, so it restores after all of them.
+  // Operating data, no secret: exported whole.
+  'salesTask',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   // @req FR-127 — analyses are derived children of Conversation and must travel

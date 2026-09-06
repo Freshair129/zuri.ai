@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.27.0b"
+version: "1.29.0b"
 status: active
-last_update: "2026-09-06T21:30:00+07:00,Claude"
+last_update: "2026-09-07T03:00:00+07:00,Claude"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0b |
+| **Version** | 1.29.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -53,6 +53,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 | FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
 | FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157, FR-162 | building |
+| FEAT-022 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-161 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -79,6 +80,8 @@ Version diff 1.24.0b → 1.25.0b (2026-09-06): FEAT-020 is declared and building
 Version diff 1.25.0b → 1.26.0b (2026-09-06): FEAT-020 gains FR-156, the recipe / bill of materials at a batch size — the legacy product's "Culinary" recipes-per-class-size relabelled as the general BOM they are (one recipe per output SKU and batch size, fixed lines that do not scale, explosion and shortages against the ledger, an atomic build that issues components FEFO and receives the output). FR-155 gains FEFO consumption. The domain's display label is Warehouse. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion, production application of the migration.
 
 Version diff 1.26.0b → 1.27.0b (2026-09-07): FEAT-021 gains FR-162 Marketing Operations coordination — Business-scoped intake with audited CAS writes and one aggregate over Marketing approvals, protected PM schedule and validated handoff receipts. No duplicate PM, CRM, Commerce or provider write path is introduced.
+Version diff 1.27.0b → 1.28.0b (2026-09-07): FEAT-022 is declared and building — Sales Tasks, the legacy ERD's "Tasks" adapted on the owner's instruction into a CRM sales activity record (ADR-064) bundling FR-161: a Business-scoped follow-up owed to a customer with a generated `TSK-YYYYMMDD-NNN` code, links to the CRM Customer and Conversation through the tenant, an assignee with a covering Membership, a status machine and a due state computed on read. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync, production application of the migration.
+Version diff 1.28.0b → 1.29.0b (2026-09-07): Reconcile published main's FEAT-022 / FR-161 CRM Sales Tasks with FEAT-021's Marketing Operations slice moved to FR-162; preserve both feature subjects and their separate domain ownership.
 
 ## Readiness Dashboard presentation metadata
 
@@ -689,6 +692,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-021",
     "primaryDomain": "marketing",
     "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt."
+  },
+  {
+    "id": "FEAT-022",
+    "primaryDomain": "crm",
+    "useCase": "ทีมขายบันทึกงานติดตามลูกค้า (โทร ส่ง LINE นัดพบ เดโม ใบเสนอราคา) ผูกกับลูกค้าและบทสนทนาใน CRM มอบหมายให้สมาชิก เห็นว่างานไหนวันนี้หรือเกินกำหนดจากหน้า /customer/sales-tasks แล้วปิดงานพร้อมผลลัพธ์ โดยไม่ปนกับงานของ Development"
   }
 ]
 ```

@@ -29,14 +29,8 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
-  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
-  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
-  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
-  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
-  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
-  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
-  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
   const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')

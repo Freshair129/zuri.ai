@@ -117,8 +117,13 @@ describe('OpenAPI document', () => {
       // and the atomic build (POST) — three paths, five operations. FR-161
       // adds Operations collection, Intake detail and Handoff detail — three
       // paths and five operations.
-      pathCount: 182,
-      operationCount: 248,
+      // and the atomic build (POST) — three paths, five operations.
+      // FR-161 adds sales tasks: the collection (GET, POST) and the item
+      // (GET, PATCH) — two paths, four operations.
+      // FR-162 adds Operations collection, Intake detail and Handoff detail —
+      // three paths and five operations.
+      pathCount: 184,
+      operationCount: 252,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

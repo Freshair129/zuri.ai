@@ -2,7 +2,7 @@
 // @spec SDD-060, SDD-061 — Unified Tab Navigation & Multi-View Workspace
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LineStudioDashboard from "./LineStudioDashboard";
 import LineStudioProjects from "./LineStudioProjects";
 import LineStudioDesignHub from "./LineStudioDesignHub";
@@ -11,6 +11,7 @@ import LineStudioEdgeConnection from "./LineStudioEdgeConnection";
 import LineStudioTemplates from "./LineStudioTemplates";
 import LineStudioTeam from "./LineStudioTeam";
 import { useScope } from "@/context/ScopeContext";
+import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Layers,
@@ -30,34 +31,40 @@ import {
 } from "lucide-react";
 
 export default function LineStudioShell({ initialTab = "dashboard" }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const scope = useScope();
   const business = scope?.shell?.activeBusiness;
 
-  const [activeTab, setActiveTab] = useState(initialTab); // 'dashboard' | 'projects' | 'design-studio' | 'live-crm' | 'edge-connection' | 'templates' | 'team' | 'settings'
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedProject, setSelectedProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const navTabs = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "projects", label: "โปรเจค & บัญชี", icon: Layers },
-    { id: "design-studio", label: "Design Studio", icon: Bot, isProjectScoped: true },
-    { id: "live-crm", label: "Live CRM & แชทสด", icon: MessageSquare },
-    { id: "edge-connection", label: "Edge & การเชื่อมต่อ", icon: Cpu },
-    { id: "templates", label: "Templates", icon: Bookmark },
-    { id: "team", label: "ทีม", icon: Users },
-    { id: "settings", label: "Settings", icon: Settings }
-  ];
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  const handleNavigate = (tabId) => {
+    setActiveTab(tabId);
+    if (tabId === "dashboard") {
+      router.push("/line-oa");
+    } else {
+      router.push(`/line-oa/${tabId}`);
+    }
+  };
 
   const handleSelectProject = (proj) => {
     setSelectedProject(proj);
-    setActiveTab("design-studio");
+    handleNavigate("design-studio");
   };
 
   return (
     <div className="flex flex-col w-full min-h-[calc(100vh-120px)] bg-transparent text-slate-900 dark:text-slate-100 font-thai">
-      {/* Top Studio Navigation Bar (Integrated cleanly without duplicating outer sidebar) */}
+      {/* Studio Header: Identity, Context & Search (Sidebar holds the primary navigation) */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200/80 dark:border-slate-800">
-        {/* Left: Studio Identity & Project Breadcrumb */}
+        {/* Left: Studio Identity & Project Context */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#06C755] to-emerald-600 flex items-center justify-center text-white shadow-sm shadow-[#06C755]/30">
             <span className="font-black text-lg">💬</span>
@@ -80,46 +87,22 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
           </div>
         </div>
 
-        {/* Center: Clean Navigation Pills (No duplicate sidebar) */}
-        <div className="flex items-center p-1 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-x-auto text-xs">
-          {navTabs.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-semibold transition-all whitespace-nowrap ${
-                  isActive
-                    ? "bg-brand-amber text-white shadow-sm shadow-brand-amber/25"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-slate-400"}`} />
-                <span>{tab.label}</span>
-                {tab.badge && (
-                  <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-                    isActive ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                  }`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Right: Search & Action */}
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="relative">
+        {/* Right: Connect Button & Search */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => handleNavigate("edge-connection")}
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 active:scale-95 text-white text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <span>💬 + เชื่อมต่อ LINE OA</span>
+          </button>
+          <div className="relative hidden sm:block">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาใน Studio... ⌘K"
-              className="w-48 pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30"
+              placeholder="ค้นหาใน LINE Studio... ⌘K"
+              className="w-48 pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30 shadow-sm"
             />
           </div>
         </div>
@@ -130,7 +113,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         {activeTab === "dashboard" && (
           <LineStudioDashboard
             onSelectProject={handleSelectProject}
-            onNavigate={(tab) => setActiveTab(tab)}
+            onNavigate={(tab) => handleNavigate(tab)}
           />
         )}
 
@@ -143,7 +126,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         {activeTab === "design-studio" && (
           <LineStudioDesignHub
             project={selectedProject}
-            onBackToProjects={() => setActiveTab("projects")}
+            onBackToProjects={() => handleNavigate("projects")}
           />
         )}
 
@@ -158,7 +141,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         {activeTab === "templates" && (
           <LineStudioTemplates
             onSelectTemplate={(tpl) => {
-              setActiveTab("design-studio");
+              handleNavigate("design-studio");
             }}
           />
         )}

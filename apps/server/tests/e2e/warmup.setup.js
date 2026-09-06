@@ -47,8 +47,14 @@ const ROUTES = [
   // tolerated its 404; that stopped being true when the console landed.
   '/line-oa',
   '/line-oa/rich-menus',
+  // main 2a1b6a81 gave LINE OA Studio a seven-entry sidebar without listing the
+  // routes here; tests/unit/e2e-warmup.test.js compares this list to the registry.
+  '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection',
+  '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
+  // @req FR-161 — the CRM sales tasks page.
+  '/customer/sales-tasks',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

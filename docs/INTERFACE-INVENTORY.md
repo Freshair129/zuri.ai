@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=75; operational_domain_keys=11; operational_subdomain_entries=36; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=83; operational_domain_keys=11; operational_subdomain_entries=44; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -118,6 +118,7 @@ page can issue a write.
 |---|---|---|---|---|---|
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
+| `/customer/sales-tasks` | CRM Sales Tasks | BusinessShell → CRM / Sales Tasks | the follow-ups the sales team owes customers: summary KPIs (open, in progress, due today, overdue, mine), filter chips, the task table with due state recomputed on load, start / complete / cancel / reopen actions, and a create form (type, priority, due day, time window, conversation, assignee) | Business and `customer` domain visibility to read; writes need Business OWNER or `SALES_REP`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/customer/sales-tasks/page.jsx`, FR-161 / ADR-064 |
 | `/customer/line-crm` | LineCRM-MCP workspace | BusinessShell → CRM / LineCRM | 12-module CRM workspace for dashboard, live chat, members, loyalty, campaigns, multi-OA, rich menu, automation, AI/MCP, member portal, audit log and settings | ready, empty, loading, forbidden, tab/query state | implemented; `src/app/(pm)/customer/line-crm/page.jsx`, `src/modules/line-crm/LineCrmShell.jsx`, FR-091, SDD-050 |
 
 ### 3.4 Market Intelligence domain
@@ -344,6 +345,7 @@ The current route evidence is:
 |---|---|---|---|---|---|
 | 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
 | 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
+| 1.11.0b | 2026-09-07 | candidate | Registered the CRM Sales Tasks page (`/customer/sales-tasks`, FR-161, ADR-064) and reconciled the marker to 72 page routes and 36 operational sub-domain entries | working-tree | Claude Fable 5.1 |
 | 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
@@ -361,7 +363,14 @@ The current route evidence is:
 | Route | Surface | Scope | Behavior |
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
+| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View and manage LINE OA accounts, associated projects, credentials status, and create new connections. |
+| `/line-oa/design-studio` | LINE OA Design Studio | Business visibility | Visual designer for Rich Menus, LIFF Apps, Flex Messages, and quick reply templates with live mobile preview. |
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
+| `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
+| `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
+| `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
+| `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
+| `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
 

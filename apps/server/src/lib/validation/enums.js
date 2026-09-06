@@ -225,6 +225,15 @@ export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
 // FR-156 — a recipe (bill of materials at one batch size) is edited or
 // archived through the same two versioned actions a product has.
 export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
+// FR-161 — sales tasks (crm): a follow-up a salesperson owes a customer,
+// distinct from project-manager's WorkItem. The legacy product's "URGENT"
+// status is a priority here, and its PROJECT task kind with milestones is
+// project-manager's, so neither appears.
+export const SALES_TASK_TYPES = ['FOLLOW_UP', 'CALL', 'LINE_MESSAGE', 'EMAIL', 'MEETING', 'DEMO', 'QUOTE']
+export const SALES_TASK_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW']
+export const SALES_TASK_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED']
+export const SALES_TASK_SCHEDULE_KINDS = ['SINGLE', 'RANGE']
+export const SALES_TASK_ACTIONS = ['UPDATE', 'ASSIGN', 'START', 'COMPLETE', 'CANCEL', 'REOPEN']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -277,6 +286,11 @@ export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
 export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
 export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
 export const zInventoryRecipeAction = z.enum(INVENTORY_RECIPE_ACTIONS)
+export const zSalesTaskType = z.enum(SALES_TASK_TYPES)
+export const zSalesTaskPriority = z.enum(SALES_TASK_PRIORITIES)
+export const zSalesTaskStatus = z.enum(SALES_TASK_STATUSES)
+export const zSalesTaskScheduleKind = z.enum(SALES_TASK_SCHEDULE_KINDS)
+export const zSalesTaskAction = z.enum(SALES_TASK_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

@@ -369,6 +369,25 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/customer/sales-tasks/page.jsx",
+      "hash": "c1091835",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-161"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/e2e/fr161-sales-tasks.spec.js",
+          "tests/unit/sales-task-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/dependencies/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/dependencies/page.jsx",
@@ -569,84 +588,6 @@
       }
     },
     {
-      "id": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "hash": "acd2376b",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "FR-158",
-          "SEC-001"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "hash": "63ae2f54",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/growth/operations/new/page.jsx",
-      "hash": "d0a0f789",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/(pm)/growth/operations/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/growth/operations/page.jsx",
-      "hash": "061029f3",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/app/(pm)/growth/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/growth/page.jsx",
@@ -724,6 +665,64 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "hash": "e0c09982",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "hash": "d2ab43ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "hash": "6ea7f015",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -747,6 +746,25 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "hash": "df912b63",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
@@ -761,6 +779,63 @@
         ],
         "@tested": [
           "tests/unit/line-oa-rich-menu-console.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "hash": "6b925689",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "hash": "2892bf96",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
+      "hash": "fa799f2a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
         ]
       }
     },
@@ -2474,6 +2549,48 @@
       }
     },
     {
+      "id": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/crm/sales-tasks/[id]/route.js",
+      "hash": "8192deae",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-161"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-routes.test.js",
+          "tests/integration/fr161-sales-task.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/crm/sales-tasks/route.js",
+      "hash": "28f7c7ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-161"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "BR-012"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-routes.test.js",
+          "tests/integration/fr161-sales-task.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/dependencies/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/dependencies/[id]/route.js",
@@ -3055,67 +3172,6 @@
         ],
         "@tested": [
           "tests/unit/marketing/marketing-content-route.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "type": "code_file",
-      "path": "apps/server/src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "hash": "2bca224d",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "FR-158",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-route.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "type": "code_file",
-      "path": "apps/server/src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "hash": "29d87cdd",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-route.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/growth/operations/route.js",
-      "type": "code_file",
-      "path": "apps/server/src/app/api/growth/operations/route.js",
-      "hash": "fc836e55",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-route.test.js"
         ]
       }
     },
@@ -5688,8 +5744,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "619ea475",
-      "status": "current",
+      "hash": "455db75f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5697,13 +5753,12 @@
           "FR-039",
           "FR-060",
           "FR-091",
+          "FR-161",
           "FR-159",
           "FR-160",
           "FR-157",
-          "FR-161",
           "FR-086",
           "FR-133",
-          "FR-146",
           "FR-154",
           "FR-124"
         ],
@@ -6015,8 +6070,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "e1fa4a75",
-      "status": "current",
+      "hash": "fe80f3a4",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -7488,6 +7543,43 @@
       }
     },
     {
+      "id": "code:src/modules/crm/sales-task-domain.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/crm/sales-task-domain.js",
+      "hash": "d1a9f9a5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-161"
+        ],
+        "@tested": [
+          "tests/unit/sales-task-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/sales-task-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/crm/sales-task-service.js",
+      "hash": "d6112eb9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-161"
+        ],
+        "@spec": [
+          "BR-001",
+          "BR-002",
+          "SEC-001",
+          "FR-061",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr161-sales-task.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/agent-tool-authorizer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/agent-tool-authorizer.js",
@@ -8018,14 +8110,15 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
-      "hash": "04df3468",
-      "status": "current",
+      "hash": "9a659c27",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-076",
           "FR-078",
           "FR-146",
-          "FR-154"
+          "FR-154",
+          "FR-161"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -9599,7 +9692,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "7b737ecd",
+      "hash": "2d1f32a2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9725,7 +9818,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "b34d39f4",
+      "hash": "d09091cd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10218,29 +10311,6 @@
       }
     },
     {
-      "id": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/application/marketing-operations-service.js",
-      "hash": "ae0fbeed",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "FR-158",
-          "FR-159",
-          "FR-157",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/integration/marketing-operations.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/marketing/application/marketing-plan-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/application/marketing-plan-service.js",
@@ -10648,103 +10718,6 @@
       }
     },
     {
-      "id": "code:src/modules/marketing/components/operations/operations-contract.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/operations/operations-contract.js",
-      "hash": "624e8b69",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "hash": "318b538b",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "hash": "13ecf481",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "FR-158",
-          "SEC-001"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "hash": "28609aa6",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "hash": "c0fd09f7",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-ui.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/marketing/components/PlanForm.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/PlanForm.jsx",
@@ -10877,26 +10850,6 @@
         ],
         "@tested": [
           "tests/unit/marketing/marketing-content-contract.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/domain/marketing-operations-contract.js",
-      "hash": "3c5e57a3",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-161"
-        ],
-        "@spec": [
-          "SDD-089",
-          "SEC-001",
-          "SEC-003"
-        ],
-        "@tested": [
-          "tests/unit/marketing/marketing-operations-contract.test.js"
         ]
       }
     },
@@ -11059,14 +11012,13 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "dfb2ecfc",
-      "status": "current",
+      "hash": "4a3e7921",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
           "FR-159",
           "FR-158",
-          "FR-161",
           "FR-157",
           "FR-149",
           "FR-150",
@@ -11077,6 +11029,7 @@
           "FR-155",
           "FR-156",
           "FR-022",
+          "FR-161",
           "FR-092",
           "FR-106",
           "FR-038",
@@ -11134,8 +11087,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "3a4044b7",
-      "status": "current",
+      "hash": "19c6e1cb",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -11159,13 +11112,13 @@
           "FR-159",
           "FR-158",
           "FR-160",
-          "FR-161",
           "FR-154",
           "FR-155",
           "FR-156",
           "FR-100",
           "FR-102",
           "FR-106",
+          "FR-161",
           "FR-127",
           "FR-133",
           "FR-134",
@@ -13105,8 +13058,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.46.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "fe220a2c",
-      "status": "current"
+      "hash": "86bcc62d",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13157,10 +13110,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.23.0b",
+      "version": "1.24.0b",
       "doc_status": "Draft",
-      "hash": "0cb29bac",
-      "status": "current"
+      "hash": "264eb71d",
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -13519,10 +13472,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.27.0b",
+      "version": "1.28.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "64c0d297",
-      "status": "current"
+      "hash": "39a61025",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -14412,11 +14365,11 @@
       "status": "current"
     },
     {
-      "id": "doc:FR-161-operations-coordination",
+      "id": "doc:FR-161-sales-tasks",
       "type": "document",
-      "path": "docs/domains/marketing/features/FR-161-operations-coordination.md",
-      "title": "FR-161 — Marketing Operations coordination",
-      "hash": "9a176d13",
+      "path": "docs/domains/crm/features/FR-161-sales-tasks.md",
+      "title": "FR-161 — Sales tasks (งานขาย)",
+      "hash": "f4704f03",
       "status": "current"
     },
     {
@@ -14424,8 +14377,8 @@
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "1ec33c03",
-      "status": "current"
+      "hash": "388dd9c1",
+      "status": "changed"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -14472,8 +14425,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.11.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d2a5a76f",
-      "status": "current"
+      "hash": "64887164",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -14738,14 +14691,6 @@
       "status": "current"
     },
     {
-      "id": "doc:PHASE-OPERATIONS-2026-09-07",
-      "type": "roadmap",
-      "path": "docs/roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md",
-      "title": "Marketing Operations phase evidence",
-      "hash": "a50c0135",
-      "status": "current"
-    },
-    {
       "id": "doc:PHASE-STRATEGY-2026-09-06",
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
@@ -14898,7 +14843,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "156a867d",
+      "hash": "45fee364",
       "status": "current"
     },
     {
@@ -14982,8 +14927,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.162.0b",
       "doc_status": "Draft",
-      "hash": "c83e5a00",
-      "status": "current"
+      "hash": "c5e51920",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -15010,8 +14955,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "c5d8e0f9",
-      "status": "current"
+      "hash": "1d09b499",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15304,7 +15249,8 @@
         "CustomerImportReviewDecision",
         "Conversation",
         "Message",
-        "ConversationAnalysis"
+        "ConversationAnalysis",
+        "SalesTask"
       ],
       "owns_routes": [],
       "owns_code": [],
@@ -15312,8 +15258,8 @@
         "crm",
         "line-crm"
       ],
-      "hash": "b588b7de",
-      "status": "current"
+      "hash": "4fb89c40",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -15506,8 +15452,7 @@
         "MarketingContentBrief",
         "MarketingContentVersion",
         "MarketingContentReview",
-        "MarketingContentDecision",
-        "MarketingOperationsIntake"
+        "MarketingContentDecision"
       ],
       "owns_routes": [
         "src/app/(pm)/growth/**",
@@ -15517,7 +15462,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "da8facd5",
+      "hash": "c136397b",
       "status": "current"
     },
     {
@@ -15740,7 +15685,14 @@
     {
       "id": "feat:FEAT-021",
       "type": "feature",
-      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain",
+      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain",
+      "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-022",
+      "type": "feature",
+      "label": "Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064)",
       "declared": "building",
       "status": "current"
     },
@@ -16025,11 +15977,6 @@
       "status": "current"
     },
     {
-      "id": "model:MarketingOperationsIntake",
-      "type": "model",
-      "status": "current"
-    },
-    {
       "id": "model:MarketingPlan",
       "type": "model",
       "status": "current"
@@ -16221,6 +16168,11 @@
     },
     {
       "id": "model:RoleBinding",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:SalesTask",
       "type": "model",
       "status": "current"
     },
@@ -18153,11 +18105,11 @@
       "id": "req:FR-161",
       "type": "requirement",
       "family": "FR",
-      "label": "Marketing Operations coordination — Business-scoped intake requests persist a responsible capability, objective, required date, evidence reference and accountable owner through expected-version compare-and-swap with one audit event per mutation. The Operations aggregate exposes Intake, Calendar, Approvals and Handoffs from one scope-checked DTO: Calendar reads the protected PM roadmap, Approvals reads Marketing-owned review/decision evidence, and Handoffs reads only validated owner-domain receipts. Missing or stale source evidence is explicit; Marketing never creates duplicate PM tasks, CRM conversations, Commerce stock records or provider actions.",
+      "label": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Marketing Operations coordination — Business-scoped intake requests persist a responsible capability, objective, required date, evidence reference and accountable owner through expected-version compare-and-swap with one audit event per mutation. The Operations aggregate exposes Intake, Calendar, Approvals and Handoffs from one scope-checked DTO: Calendar reads the protected PM roadmap, Approvals reads Marketing-owned review/decision evidence, and Handoffs reads only validated owner-domain receipts. Missing or stale source evidence is explicit; Marketing never creates duplicate PM tasks, CRM conversations, Commerce stock records or provider actions. 🟠 implementation in progress from approved CR-018 "
+      "row_text": "Sales tasks (crm) — `SalesTask`, the follow-up a salesperson owes a customer (ADR-064: the legacy ERD's \"Tasks\" adapted as a *sales* activity, deliberately not a project-manager `WorkItem`): Business-scoped, identity an internal UUID with a generated human `code` `TSK-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only and visible to the viewer (BR-001), a Conversation supplying its Customer when none is named and refusing a different one; optional `assigneePersonId` that must hold an ACTIVE Membership covering the Business; `type` (FOLLOW_UP / CALL / LINE_MESSAGE / EMAIL / MEETING / DEMO / QUOTE), `priority` (URGENT / HIGH / NORMAL / LOW — the legacy URGENT status folded here), `scheduleKind` SINGLE (one `dueDate`, optional `timeStart` / `timeEnd` window) or RANGE (`startDate` → `dueDate`), `description`, `outcome`, `cancelReason`. Status machine OPEN → IN_PROGRESS → DONE, OPEN or IN_PROGRESS → CANCELLED, DONE or CANCELLED → OPEN only via REOPEN; UPDATE and ASSIGN refused on a closed task; every action compare-and-swap on `version` with one audit row; nothing deleted. Due state (OVERDUE / TODAY / UPCOMING) and the summary (open, in progress, overdue, due today, mine, unassigned) are computed on read against the Business calendar (Asia/Bangkok), never stored. Reads need Business visibility plus the `customer` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`crm.sales-task.write`, FR-076 pattern; an honest 403 for a member holding the domain). PROJECT-kind tasks with milestones stay refused (ADR-054 D5); a Notion id would be an `ExternalRef`, not a column. 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235500_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync "
     },
     {
       "id": "req:NFR-001",
@@ -19260,16 +19212,6 @@
       "row_text": "Creative content approval binds immutable intent, rights and one exact FileAsset version/hash. Marketing owns brief/review/decision evidence; Files owns bytes and PM owns work. Scoped owner read ports revalidate current usability, while atomic parent CAS and append-only revisions prevent stale approvals and partial writes. FR-157; FR-159; SDD-086; SEC-001; SEC-003; ADR-025 "
     },
     {
-      "id": "req:SDD-089",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "Marketing Operations is one Business-scoped composition boundary, not a second work system: a single aggregate DTO combines Marketing-owned intake and approval rows with bounded projections from the PM `getProjectRoadmap` owner port and validated Marketing-to-owner receipts. Every response carries source state, generation time and warnings; EMPTY, PARTIAL, STALE, UNAVAILABLE and FORBIDDEN remain distinct. Intake mutations use the Marketing authority gate, expected-version CAS and one AuditEvent. Detail routes re-check both the requested identity and Business scope, and no route writes PM, CRM, Commerce or provider records.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "Marketing Operations is one Business-scoped composition boundary, not a second work system: a single aggregate DTO combines Marketing-owned intake and approval rows with bounded projections from the PM `getProjectRoadmap` owner port and validated Marketing-to-owner receipts. Every response carries source state, generation time and warnings; EMPTY, PARTIAL, STALE, UNAVAILABLE and FORBIDDEN remain distinct. Intake mutations use the Marketing authority gate, expected-version CAS and one AuditEvent. Detail routes re-check both the requested identity and Business scope, and no route writes PM, CRM, Commerce or provider records. FR-161; FR-158; FR-159; FR-157; SDD-039; SDD-086; SEC-001; SEC-003; ADR-025 "
-    },
-    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -19888,6 +19830,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/crm/sales-tasks",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/sales-tasks",
+      "path": "apps/server/src/app/api/crm/sales-tasks/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/sales-tasks/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/sales-tasks/[id]",
+      "path": "apps/server/src/app/api/crm/sales-tasks/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/dependencies",
       "type": "route",
       "kind": "api",
@@ -20109,30 +20067,6 @@
       "kind": "api",
       "route": "/api/growth/content/references",
       "path": "apps/server/src/app/api/growth/content/references/route.js",
-      "status": "current"
-    },
-    {
-      "id": "route:api:/api/growth/operations",
-      "type": "route",
-      "kind": "api",
-      "route": "/api/growth/operations",
-      "path": "apps/server/src/app/api/growth/operations/route.js",
-      "status": "current"
-    },
-    {
-      "id": "route:api:/api/growth/operations/handoffs/[handoffId]",
-      "type": "route",
-      "kind": "api",
-      "route": "/api/growth/operations/handoffs/[handoffId]",
-      "path": "apps/server/src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "status": "current"
-    },
-    {
-      "id": "route:api:/api/growth/operations/intake/[intakeId]",
-      "type": "route",
-      "kind": "api",
-      "route": "/api/growth/operations/intake/[intakeId]",
-      "path": "apps/server/src/app/api/growth/operations/intake/[intakeId]/route.js",
       "status": "current"
     },
     {
@@ -21072,6 +21006,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/customer/sales-tasks",
+      "type": "route",
+      "kind": "page",
+      "route": "/customer/sales-tasks",
+      "path": "apps/server/src/app/(pm)/customer/sales-tasks/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/dependencies",
       "type": "route",
       "kind": "page",
@@ -21168,38 +21110,6 @@
       "status": "current"
     },
     {
-      "id": "route:page:/growth/operations",
-      "type": "route",
-      "kind": "page",
-      "route": "/growth/operations",
-      "path": "apps/server/src/app/(pm)/growth/operations/page.jsx",
-      "status": "current"
-    },
-    {
-      "id": "route:page:/growth/operations/handoffs/[handoffId]",
-      "type": "route",
-      "kind": "page",
-      "route": "/growth/operations/handoffs/[handoffId]",
-      "path": "apps/server/src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "status": "current"
-    },
-    {
-      "id": "route:page:/growth/operations/intake/[intakeId]",
-      "type": "route",
-      "kind": "page",
-      "route": "/growth/operations/intake/[intakeId]",
-      "path": "apps/server/src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "status": "current"
-    },
-    {
-      "id": "route:page:/growth/operations/new",
-      "type": "route",
-      "kind": "page",
-      "route": "/growth/operations/new",
-      "path": "apps/server/src/app/(pm)/growth/operations/new/page.jsx",
-      "status": "current"
-    },
-    {
       "id": "route:page:/growth/strategy",
       "type": "route",
       "kind": "page",
@@ -21224,11 +21134,67 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/design-studio",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/design-studio",
+      "path": "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/edge-connection",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/edge-connection",
+      "path": "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/live-crm",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/live-crm",
+      "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/projects",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/projects",
+      "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/line-oa/rich-menus",
       "type": "route",
       "kind": "page",
       "route": "/line-oa/rich-menus",
       "path": "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/settings",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/settings",
+      "path": "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/team",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/team",
+      "path": "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa/templates",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/templates",
+      "path": "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
       "status": "current"
     },
     {
@@ -22084,6 +22050,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "type": "adr",
+      "path": "docs/decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md",
+      "title": "ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task",
+      "hash": "e6f2b10f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
@@ -22214,6 +22188,13 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
       "hash": "0e28d593",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr161-sales-tasks.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/fr161-sales-tasks.spec.js",
+      "hash": "627cac5f",
       "status": "current"
     },
     {
@@ -22665,6 +22646,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr161-sales-task.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr161-sales-task.test.js",
+      "hash": "0a0ee485",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/iam-authorization.test.js",
@@ -22910,13 +22898,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/marketing-operations.test.js",
-      "type": "test",
-      "path": "apps/server/tests/integration/marketing-operations.test.js",
-      "hash": "627dc280",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/marketing-plan.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/marketing-plan.test.js",
@@ -22941,7 +22922,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "5956507a",
+      "hash": "dd81a57a",
       "status": "changed"
     },
     {
@@ -24705,8 +24686,8 @@
       "id": "test:tests/unit/marketing-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-navigation.test.js",
-      "hash": "33f3254c",
-      "status": "changed"
+      "hash": "59f75965",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
@@ -24755,34 +24736,6 @@
       "type": "test",
       "path": "apps/server/tests/unit/marketing/marketing-content-route.test.js",
       "hash": "ddad2a01",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/marketing/marketing-operations-contract.test.js",
-      "hash": "d4823403",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/marketing/marketing-operations-route.test.js",
-      "hash": "b326d91f",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/marketing/marketing-operations-service.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/marketing/marketing-operations-service.test.js",
-      "hash": "109ed893",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "type": "test",
-      "path": "apps/server/tests/unit/marketing/marketing-operations-ui.test.js",
-      "hash": "6642d3ee",
       "status": "current"
     },
     {
@@ -25378,6 +25331,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/runtime-postgres-config.test.js",
       "hash": "eaad3529",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sales-task-domain.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/sales-task-domain.test.js",
+      "hash": "f462e4aa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sales-task-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/sales-task-routes.test.js",
+      "hash": "35fcad99",
       "status": "current"
     },
     {
@@ -29625,6 +29592,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "to": "req:FR-161",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/dependencies/page.jsx",
       "to": "req:FR-007",
       "type": "implements",
@@ -29807,104 +29788,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "to": "req:FR-158",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/page.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/page.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/growth/operations/page.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/app/(pm)/growth/page.jsx",
       "to": "req:FR-159",
       "type": "implements",
@@ -29975,6 +29858,76 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -30024,6 +29977,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:FR-151",
       "type": "implements",
@@ -30033,6 +30007,69 @@
     {
       "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/templates/page.jsx",
+      "to": "req:SDD-060",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -32663,6 +32700,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:FR-161",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:FR-161",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/sales-tasks/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/dependencies/[id]/route.js",
       "to": "req:FR-007",
       "type": "implements",
@@ -33554,97 +33647,6 @@
     {
       "from": "code:src/app/api/growth/content/route.js",
       "to": "req:SEC-008",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "to": "req:FR-158",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/route.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/route.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/route.js",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/growth/operations/route.js",
-      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -37452,13 +37454,6 @@
     },
     {
       "from": "code:src/config/domains.js",
-      "to": "req:FR-146",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/config/domains.js",
       "to": "req:FR-154",
       "type": "implements",
       "status": "current",
@@ -40265,6 +40260,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/sales-task-domain.js",
+      "to": "req:FR-161",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:FR-161",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/sales-task-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/agent-tool-authorizer.js",
       "to": "req:BR-020",
       "type": "follows",
@@ -41002,6 +41046,13 @@
     {
       "from": "code:src/modules/identity/rbac.js",
       "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-161",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -43954,55 +44005,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:FR-157",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:FR-158",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:FR-159",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/marketing/application/marketing-plan-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -44402,125 +44404,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/marketing/components/operations/operations-contract.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/operations-contract.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "to": "req:FR-158",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "to": "req:SEC-003",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/marketing/components/PlanForm.jsx",
       "to": "req:FR-159",
       "type": "implements",
@@ -44649,34 +44532,6 @@
     {
       "from": "code:src/modules/marketing/domain/marketing-content-contract.js",
       "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "to": "req:FR-161",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "to": "req:SDD-089",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "to": "req:SEC-001",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -48435,13 +48290,6 @@
     },
     {
       "from": "doc:A-api-spec",
-      "to": "doc:FR-161-operations-coordination",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:A-api-spec",
       "to": "doc:PHASE-CONTENT-2026-09-06",
       "type": "references",
       "source": "markdown",
@@ -50079,6 +49927,13 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-161-sales-tasks",
+      "to": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -50123,13 +49978,6 @@
     {
       "from": "doc:INTERFACE-INVENTORY",
       "to": "doc:FR-160-campaign-initiatives",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:INTERFACE-INVENTORY",
-      "to": "doc:FR-161-operations-coordination",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -50983,13 +50831,6 @@
     },
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
-      "to": "doc:FR-161-operations-coordination",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:MARKETING-INTERFACE-INVENTORY",
       "type": "relates",
       "status": "current",
@@ -51026,13 +50867,6 @@
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:PHASE-CONTENT-2026-09-06",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
-      "to": "doc:PHASE-OPERATIONS-2026-09-07",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -51872,13 +51706,6 @@
     },
     {
       "from": "domain:marketing",
-      "to": "doc:FR-161-operations-coordination",
-      "type": "references",
-      "source": "markdown",
-      "status": "current"
-    },
-    {
-      "from": "domain:marketing",
       "to": "doc:MARKETING-CHANNEL-CONTRACTS",
       "type": "references",
       "source": "markdown",
@@ -52354,7 +52181,7 @@
       "source": "feature-registry"
     },
     {
-      "from": "feat:FEAT-021",
+      "from": "feat:FEAT-022",
       "to": "req:FR-161",
       "type": "bundles",
       "status": "current",
@@ -52753,13 +52580,6 @@
       "source": "charter"
     },
     {
-      "from": "model:MarketingOperationsIntake",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter"
-    },
-    {
       "from": "model:MarketingPlan",
       "to": "domain:marketing",
       "type": "owned_by",
@@ -53028,6 +52848,13 @@
     {
       "from": "model:RoleBinding",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:SalesTask",
+      "to": "domain:crm",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -55245,13 +55072,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:SDD-089",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -55763,6 +55583,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/crm/sales-tasks/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/sales-tasks",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/dependencies/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -55953,27 +55787,6 @@
     },
     {
       "from": "route:api:/api/growth/content",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:api:/api/growth/operations/handoffs/[handoffId]",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:api:/api/growth/operations/intake/[intakeId]",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:api:/api/growth/operations",
       "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
@@ -56785,6 +56598,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/customer/sales-tasks",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/customer",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -56869,34 +56689,6 @@
       "source": "charter-glob"
     },
     {
-      "from": "route:page:/growth/operations/handoffs/[handoffId]",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:page:/growth/operations/intake/[intakeId]",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:page:/growth/operations/new",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:page:/growth/operations",
-      "to": "domain:marketing",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
       "from": "route:page:/growth/strategy",
       "to": "domain:marketing",
       "type": "owned_by",
@@ -56918,7 +56710,56 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/line-oa/design-studio",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/edge-connection",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/live-crm",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/projects",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/settings",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/team",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa/templates",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -59592,6 +59433,20 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK",
+      "to": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -59860,13 +59715,6 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -60720,7 +60568,56 @@
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/design-studio/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "code:src/app/(pm)/line-oa/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/projects/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/team/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/templates/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -60818,6 +60715,27 @@
     },
     {
       "from": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr161-sales-tasks.spec.js",
+      "to": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr161-sales-tasks.spec.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr161-sales-tasks.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -66732,6 +66650,76 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "code:src/modules/crm/sales-task-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr161-sales-task.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/iam-authorization.test.js",
       "to": "code:src/modules/identity/authorization-context.js",
       "type": "tests",
@@ -69071,62 +69059,6 @@
     },
     {
       "from": "test:tests/integration/marketing-content.test.js",
-      "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "code:src/modules/marketing/application/marketing-operations-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:FR-157",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:FR-158",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:FR-159",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:FR-161",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:SDD-089",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
-      "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/marketing-operations.test.js",
       "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
@@ -73215,13 +73147,6 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -75447,6 +75372,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "code:src/modules/crm/customer-import-review-store.js",
       "type": "tests",
@@ -75799,13 +75731,6 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/domain-navigation.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -76555,13 +76480,6 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78731,6 +78649,13 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -80517,13 +80442,6 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-133",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/inventory-routes.test.js",
-      "to": "req:FR-146",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -82917,13 +82835,6 @@
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
-      "to": "req:FR-146",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-154",
       "type": "verifies",
       "status": "current",
@@ -82955,7 +82866,7 @@
       "to": "req:FR-161",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
@@ -83334,216 +83245,6 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "to": "code:src/modules/marketing/domain/marketing-operations-contract.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "to": "req:FR-161",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "to": "req:SDD-089",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
-      "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "code:src/app/api/growth/operations/handoffs/[handoffId]/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "code:src/app/api/growth/operations/intake/[intakeId]/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "code:src/app/api/growth/operations/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:FR-158",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:FR-161",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:SDD-089",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-route.test.js",
-      "to": "req:SEC-008",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-service.test.js",
-      "to": "req:FR-161",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-service.test.js",
-      "to": "req:SDD-089",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/app/(pm)/growth/operations/new/page.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/app/(pm)/growth/operations/page.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/modules/marketing/components/operations/operations-contract.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/modules/marketing/components/operations/OperationsCollection.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "code:src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "req:FR-158",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "req:FR-161",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "req:SDD-089",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/marketing/marketing-operations-ui.test.js",
-      "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
     },
     {
       "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
@@ -87664,6 +87365,83 @@
     {
       "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-domain.test.js",
+      "to": "code:src/modules/crm/sales-task-domain.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-domain.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/(pm)/customer/sales-tasks/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "code:src/app/api/crm/sales-tasks/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sales-task-routes.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

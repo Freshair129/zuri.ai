@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.42.0b"
+version: "2.43.0b"
 updated: "2026-09-07"
 owner: "Owen"
 source_of_truth: true
@@ -243,6 +243,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 > Revision 2.40.0b (2026-09-06): ประกาศและส่งมอบ **FR-156** recipe / bill of materials ตาม batch size (ใน FEAT-020) จากคำสั่ง owner ให้เอา "Culinary" ของ legacy (สูตรต่อจำนวนที่นั่ง, lot วัตถุดิบ, FEFO) มาเปลี่ยน label เป็น BOM ทั่วไป: `ProductRecipe` หนึ่งแถวต่อ (SKU ผลลัพธ์, batchSize) — สูตร 10 ที่ / 20 ที่ = BOM ที่ 10 / 50 / 100 / 500 ชุด — `ProductRecipeLine` ส่วนประกอบพร้อม qty ต่อ batch และ `fixed` สำหรับบรรทัดที่ไม่ scale; explode ตามจำนวน, shortage เทียบ ledger, `maxBuildableQuantity`, และ build แบบ atomic (issue ส่วนประกอบ FEFO + receipt ผลลัพธ์ หรือไม่ทำเลย). FR-155 ได้ FEFO consumption. ป้าย domain เปลี่ยนเป็น Warehouse (key `inventory` เดิม) เพราะชนกับแท็บ Inventory ของ Project (FR-077) ใน CI. ERD reference `docs/architecture/database-erd/full-schema.md` เขียนใหม่เป็น 2.0.0 ครบ 100 model พร้อม mapping จาก legacy ERD (Order/Payment/Ads/DSB/SalesTask/Enrollment เป็น target ตาม ADR-054 D5 ยังไม่สร้าง). migration ทั้งสอง tree, SQL production **ยังไม่ apply**
 
+> Revision 2.42.0b (2026-09-07): ประกาศและส่งมอบ **FR-161** Sales Tasks (งานขาย) ใน **FEAT-022** ใหม่ ภายใต้ **ADR-064**: เอา "7. CORE: Tasks" ของ legacy ERD มาดัดแปลงตามคำสั่ง owner เป็น task ของ *sale* — งานติดตามที่พนักงานขายติดค้างลูกค้า (โทร / ส่ง LINE / อีเมล / นัดพบ / เดโม / ใบเสนอราคา) ใน crm lane แยกขาดจาก `WorkItem` ของ project-manager: `SalesTask` scope ที่ Business, ผูก Customer / Conversation ผ่าน tenant ของ Business เท่านั้น, ผู้รับผิดชอบต้องมี Membership ครอบ Business, code `TSK-YYYYMMDD-NNN` ออกให้เอง, status machine OPEN → IN_PROGRESS → DONE / CANCELLED + REOPEN, CAS บน `version`, overdue / วันนี้คำนวณตอนอ่าน (Asia/Bangkok); URGENT กลายเป็น priority, PROJECT + milestones ยังปฏิเสธ (ADR-054 D5 แคบลง ไม่กลับคำ), Notion id ไม่เป็นคอลัมน์; role `SALES_REP`, route `GET/POST /api/crm/sales-tasks` + `GET/PATCH /api/crm/sales-tasks/[id]`, หน้า `/customer/sales-tasks`; ERD §19 แถว 7 เปลี่ยนจาก target เป็น built. migration ทั้งสอง tree (`20260906235500_crm_sales_task`), SQL production **ยังไม่ apply**. ยังเปิดอยู่: สร้างงานจากแชท LINE, reminder, sync ปฏิทิน/Notion
+
 ## Phases
 
 | Phase | Goal | Exit Criteria | Status | Progress |
@@ -356,6 +358,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-160 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-160); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-159; FR-158; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
 | TASK-FR-157 | PHASE-ZAI-MARKETING | task | Six Content interfaces: immutable briefs, rights-aware approval, exact Files references and authorized PM production (FR-157) | P1 | RWANG / Luna | done | FR-159; FR-160; SDD-088 | marketing/PHASE-CONTENT-2026-09-06.md |
 | TASK-FR-162 | PHASE-ZAI-MARKETING | task | Marketing Operations composition boundary: Business-scoped Intake, PM-owned Calendar projection, Marketing approvals and validated Handoff receipts across four tabs (FR-162) | P1 | RWANG / Luna | done (local; SmartGift live PM intake pending) | FR-157; FR-158; SDD-089 | marketing/PHASE-OPERATIONS-2026-09-07.md |
+| TASK-FR-161 | PHASE-ZAI-CRM | task | FR-161 Sales Tasks (FEAT-022, ADR-064): `SalesTask` — งานติดตามที่พนักงานขายติดค้างลูกค้า scope ที่ Business, ผูก Customer / Conversation ของ tenant เดียวกันผ่าน Business เท่านั้น (Conversation บอก Customer ให้เมื่อไม่ระบุ ปฏิเสธเมื่อไม่ตรง), ผู้รับผิดชอบต้องมี Membership ACTIVE ครอบ Business, code `TSK-YYYYMMDD-NNN`, type / priority / scheduleKind (SINGLE + ช่วงเวลา, RANGE), status machine OPEN → IN_PROGRESS → DONE / CANCELLED + REOPEN, CAS บน `version`, audit ทุก action, dueState + summary คำนวณตอนอ่าน; อ่านต้องมี `customer` domain (404 ถ้าไม่มี), เขียนต้อง OWNER หรือ `SALES_REP` (403); route `GET/POST /api/crm/sales-tasks`, `GET/PATCH /api/crm/sales-tasks/[id]`; หน้า `/customer/sales-tasks` ใต้ CRM | P1 | Claude | done (local; production migration pending) | FR-161; FR-061; FR-072; FR-076; FEAT-022; ADR-064; ADR-054; BR-001; BR-002 | ../domains/crm/features/FR-161-sales-tasks.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
@@ -407,3 +410,5 @@ Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current
 Version diff 2.38.0b → 2.39.0b: add Campaign delivery row and its integrated verification evidence; existing Marketing Strategy rows retain their scope.
 
 Version diff 2.39.0b → 2.39.1b: record bounded Content task DONE with local phase evidence; full Marketing and live intake gates remain open.
+
+Version diff 2.42.0b → 2.43.0b (2026-09-07): reconcile main's CRM Sales Tasks row (FR-161) with Marketing Operations moved to FR-162; both delivery rows remain in their owning domains and SmartGift live intake remains an external gate.
