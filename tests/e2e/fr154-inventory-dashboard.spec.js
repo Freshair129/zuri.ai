@@ -13,9 +13,10 @@ test('FR-154/FR-155 — the Inventory dashboard creates catalogue rows and recor
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
 
-  // The domain is in the bar and its page belongs to it.
+  // The domain is in the bar (labelled Warehouse — a Project's own Inventory
+  // tab already owns the word) and its page belongs to it.
   const bar = page.getByRole('navigation', { name: 'Domains' })
-  await bar.getByRole('link', { name: 'Inventory' }).click()
+  await bar.getByRole('link', { name: 'Warehouse' }).click()
   await expect(page).toHaveURL(/\/inventory$/)
   await expect(page.getByRole('heading', { name: 'คลังสินค้า' })).toBeVisible()
 

@@ -102,7 +102,9 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('registers one live inventory domain with Dashboard first, reachable by Membership grant', () => {
     const domains = DOMAINS.filter((domain) => domain.key === 'inventory')
     expect(domains).toHaveLength(1)
-    expect(domains[0]).toMatchObject({ label: 'Inventory', basePath: '/inventory' })
+    // Labelled Warehouse: a Project's own Inventory section tab (FR-077) is on
+    // screen with this bar, and two links named Inventory are ambiguous.
+    expect(domains[0]).toMatchObject({ label: 'Warehouse', basePath: '/inventory' })
     expect(domains[0].soon).not.toBe(true)
     expect(domains[0].sub[0]).toMatchObject({ label: 'Dashboard', path: '/inventory' })
     expect(domainForPath('/inventory').key).toBe('inventory')

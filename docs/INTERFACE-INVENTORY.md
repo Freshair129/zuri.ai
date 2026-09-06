@@ -171,7 +171,7 @@ uncounted product shows "—", never a zero.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/inventory` | Inventory Dashboard | BusinessShell → Inventory / Dashboard | KPIs (SKUs, counted, uncounted, below safety stock), the per-SKU table with stock policy, tracking mode and recomputed on-hand; console forms that create a category, a product master and a SKU (counted / uncounted, NONE / LOT / SERIAL) and append one ledger movement (receipt, issue, adjustment with lot code or serial numbers) | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy | implemented; `src/app/(pm)/inventory/page.jsx`, FR-154, FR-155 / `docs/domains/inventory/CHARTER.md` |
+| `/inventory` | Warehouse Dashboard (domain `inventory`; labelled Warehouse because a Project's own Inventory tab, FR-077, shares the screen) | BusinessShell → Warehouse / Dashboard | KPIs (SKUs, counted, uncounted, below safety stock), the per-SKU table with stock policy, tracking mode and recomputed on-hand; console forms that create a category, a product master and a SKU (counted / uncounted, NONE / LOT / SERIAL) and append one ledger movement (receipt, issue, adjustment with lot code or serial numbers) | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy | implemented; `src/app/(pm)/inventory/page.jsx`, FR-154, FR-155 / `docs/domains/inventory/CHARTER.md` |
 
 ### 3.7 Workspace compatibility surfaces
 

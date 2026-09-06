@@ -165,9 +165,16 @@ export const DOMAINS = [
     // `inventory` is the Membership/RBAC route key; a Membership grant names it
     // through this registry (FR-061) and the FR-154/FR-155 API refuses a viewer
     // without it.
+    // The label is `Warehouse`, not `Inventory`, for the same reason Timeline
+    // and Schedule differ above: a Project already carries an `Inventory`
+    // section tab (FR-077, Project Inventory) that is on screen at the same
+    // time as this bar, and two links named Inventory are ambiguous — to a
+    // screen-reader user and to Playwright strict mode, which is what surfaced
+    // it on PR #263's first CI run. The key stays `inventory` (keys are
+    // immutable, AGENTS.md §18); คลังสินค้า is literally a warehouse anyway.
     // @spec ADR-025, SEC-001
     // @tested tests/unit/inventory-routes.test.js
-    key: 'inventory', label: 'Inventory', icon: Warehouse, basePath: '/inventory',
+    key: 'inventory', label: 'Warehouse', icon: Warehouse, basePath: '/inventory',
     sub: [
       { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard },
     ],

@@ -54,7 +54,8 @@ Stable identities:
 Product domain:   DOM-INVENTORY
 Technical owner:  TD-INVENTORY
 Route key:        inventory
-Display label:    Inventory (คลังสินค้า)
+Display label:    Warehouse (คลังสินค้า) — not "Inventory": a Project's own
+                  Inventory tab (FR-077) shares the screen with the domain bar
 ```
 
 ## The eight ids the owner asked for, and where each lives
