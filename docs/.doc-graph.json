@@ -54,11 +54,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/e2e/fr149-line-server-console.spec.js",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -9768,7 +9764,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "hash": "437c0f24",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -22257,14 +22253,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
       "hash": "c088a438",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "8c213193",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
