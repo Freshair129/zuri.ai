@@ -98,6 +98,17 @@ Charter: [docs/domains/market-intelligence/CHARTER.md](domains/market-intelligen
 | Routes owned | 3 (2 api · 1 pages) |
 | FRs implemented in lane | FR-061, FR-092, NFR-018 |
 
+## marketing
+
+Charter: [docs/domains/marketing/CHARTER.md](domains/marketing/CHARTER.md)
+
+| | |
+|---|---|
+| Modules | `src/modules/marketing` |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff |
+| Routes owned | 0 (0 api · 0 pages) |
+| FRs implemented in lane | — |
+
 ## platform-control
 
 Charter: [docs/domains/platform-control/CHARTER.md](domains/platform-control/CHARTER.md)
@@ -118,4 +129,4 @@ Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHART
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt |
 | Routes owned | 147 (104 api · 43 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, SDD-037 |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, SDD-037 |

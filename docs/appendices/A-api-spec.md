@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.41.0b |
+| **Version** | 1.42.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-06 |
 
@@ -586,3 +586,14 @@ canary evidence; those remain owner-gated release criteria.
 | POST | `/api/line-oa/connections` | Business owner; register LINE provider connection and secret reference metadata. Secrets are mounted separately. |
 
 Execution contract: `contracts/line-conversation-execution.schema.json`. Job errors are redacted; Edge validation 400, missing credentials 401, unavailable/disabled 503, invisible job 404, stale lease/version 409. Transport ownership and execution policy changes increment account epoch and cancel waiting jobs; SENDING or unacknowledged UNKNOWN blocks handoff.
+
+
+## Marketing Strategy and PM handoff (FR-153, FR-154)
+
+| Method | Path | Authority and behavior |
+|---|---|---|
+| GET / POST | `/api/growth/plans` | Business growth visibility for list; same-Business OWNER creates a strict Strategy draft. |
+| GET / PATCH | `/api/growth/plans/[id]` | Business-scoped detail/history; OWNER revision, independent review, decision or archive with expectedVersion. |
+| POST | `/api/growth/plans/[id]/handoff` | OWNER previews or commits to an authorized same-Business Workspace; exact live approval, preview hash and transactional PM receipt. |
+
+[Request/response and acceptance contract](../domains/marketing/features/FR-153-strategy-plans.md). Scope refusals are 404, stale versions or approval conflicts 409, validation 400. No provider request occurs. Version diff 1.41.0b → 1.42.0b adds this approved Marketing slice; runtime verification is recorded in the tracking plan.

@@ -76,6 +76,8 @@ model Tenant {
   lineOaRichMenus           LineOaRichMenu[]
 
   @@index([portfolioId])
+
+  marketingPlans MarketingPlan[]
 }
 
 model LegalEntity {
@@ -153,6 +155,8 @@ model Business {
   lineOaRichMenus           LineOaRichMenu[]
 
   @@index([tenantId])
+
+  marketingPlans MarketingPlan[]
 }
 
 model Branch {
@@ -534,6 +538,8 @@ model Workspace {
   @@index([portfolioId])
   @@index([tenantId])
   @@index([businessId])
+
+  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-043 - direct Business owner plus Development Space context.
@@ -585,6 +591,8 @@ model Project {
   @@index([status])
   @@index([priority])
   @@index([picPersonId])
+
+  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-089 — a Team records who works together. It is an organisational
@@ -2436,4 +2444,112 @@ model LineConversationJob {
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
+}
+
+// @req FR-153 — Business-scoped strategy identity and immutable evidence.
+// @spec SDD-086, SEC-001, SEC-003
+// @tested tests/integration/marketing-plan.test.js
+model MarketingPlan {
+  id              String    @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  title           String
+  status          String    @default("DRAFT")
+  currentRevision Int       @default(1)
+  version         Int       @default(1)
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  tenant    Tenant                 @relation(fields: [tenantId], references: [id])
+  business  Business               @relation(fields: [businessId], references: [id])
+  revisions MarketingPlanVersion[]
+  reviews   MarketingReview[]
+  decisions MarketingDecision[]
+  handoffs  MarketingHandoff[]
+
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
+}
+
+// @req FR-153 — canonical content and its hash are append-only.
+model MarketingPlanVersion {
+  id          String   @id @default(uuid())
+  planId      String
+  revision    Int
+  payloadJson String
+  payloadHash String
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  plan      MarketingPlan       @relation(fields: [planId], references: [id])
+  reviews   MarketingReview[]
+  decisions MarketingDecision[]
+  handoffs  MarketingHandoff[]
+
+  @@unique([planId, revision])
+}
+
+// @req FR-153 — independent reviewer evidence binds the exact artifact.
+model MarketingReview {
+  id            String   @id @default(uuid())
+  planId        String
+  planVersionId String
+  payloadHash   String
+  verdict       String
+  rationale     String
+  reviewerId    String
+  createdAt     DateTime @default(now())
+
+  plan        MarketingPlan        @relation(fields: [planId], references: [id])
+  planVersion MarketingPlanVersion @relation(fields: [planVersionId], references: [id])
+  decisions   MarketingDecision[]
+
+  @@index([planId, createdAt])
+}
+
+// @req FR-153 — decisions and revocations append, never overwrite approval history.
+model MarketingDecision {
+  id            String    @id @default(uuid())
+  planId        String
+  planVersionId String
+  payloadHash   String
+  reviewId      String?
+  verdict       String
+  rationale     String
+  actorId       String
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  plan        MarketingPlan        @relation(fields: [planId], references: [id])
+  planVersion MarketingPlanVersion @relation(fields: [planVersionId], references: [id])
+  review      MarketingReview?     @relation(fields: [reviewId], references: [id])
+
+  @@index([planId, createdAt])
+}
+
+// @req FR-154 — accepted PM execution references, one per revision and Workspace.
+// @spec SDD-086, BR-007
+// @tested tests/integration/marketing-pm-handoff.test.js
+model MarketingHandoff {
+  id            String   @id @default(uuid())
+  planId        String
+  planVersionId String
+  workspaceId   String
+  projectId     String
+  payloadHash   String
+  envelopeHash  String
+  receiptJson   String
+  createdBy     String
+  createdAt     DateTime @default(now())
+
+  plan        MarketingPlan        @relation(fields: [planId], references: [id])
+  planVersion MarketingPlanVersion @relation(fields: [planVersionId], references: [id])
+  workspace   Workspace            @relation(fields: [workspaceId], references: [id])
+  project     Project              @relation(fields: [projectId], references: [id])
+
+  @@unique([planVersionId, workspaceId])
+  @@index([planId])
 }

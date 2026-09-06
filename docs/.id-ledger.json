@@ -263,6 +263,8 @@
     "FR-150",
     "FR-151",
     "FR-152",
+    "FR-153",
+    "FR-154",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -370,6 +372,7 @@
     "SDD-083",
     "SDD-084",
     "SDD-085",
+    "SDD-086",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -414,6 +417,7 @@
     "FEAT-017",
     "FEAT-018",
     "FEAT-019",
+    "FEAT-020",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -2899,6 +2903,32 @@
         }
       ]
     },
+    "FR-153": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
+      "history": [
+        {
+          "anchor": "marketing strategy revision and decision",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-154": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "26e4a4eb95a48978f686abac1ab67caa32043e69d4e60f6f2c9450cc4aa23f98",
+      "history": [
+        {
+          "anchor": "marketing execution handoff",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4306,6 +4336,19 @@
         }
       ]
     },
+    "SDD-086": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cffb9442655bfa84ac5cc17b6e444b31b5a73e15d2607171d644486e4c96c1f3",
+      "history": [
+        {
+          "anchor": "marketing planning evidence is immutable and execution is",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4885,6 +4928,19 @@
       "history": [
         {
           "anchor": "server line with optional edge",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-020": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "7e0f0ca9c9559d917bc8cce8a560ec646cc7e3b6214fd201f3b65ab06638c548",
+      "history": [
+        {
+          "anchor": "marketing planning and accountable execution",
           "since": "2026-09-06",
           "reason": "declared"
         }

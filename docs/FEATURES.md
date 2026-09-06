@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.23.0b"
+version: "1.24.0b"
 status: active
 last_update: "2026-09-06T13:29:04+07:00,RWANG"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.23.0b |
+| **Version** | 1.24.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -51,6 +51,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-017 | Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash | FR-143, FR-144 | building |
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer and its server-owned publish jobs (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
+| FEAT-020 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain | FR-153, FR-154 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -669,6 +670,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-019",
     "primaryDomain": "line-oa-studio",
     "useCase": "ธุรกิจใช้ LINE และ CRM ได้โดยไม่ต้องมี Edge และเลือกใช้อุปกรณ์เฉพาะงาน local โดยไม่ย้ายสิทธิ์ส่งข้อความออกจาก server"
+  },
+  {
+    "id": "FEAT-020",
+    "primaryDomain": "marketing",
+    "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt."
   }
 ]
 ```
