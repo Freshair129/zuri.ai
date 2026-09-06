@@ -1,6 +1,6 @@
 ---
 id: ZEDGE:SYNTHETIC-QUERIES
-version: 0.2.0b
+version: 0.2.1b
 created_at: "2026-09-06T21:00:00+07:00,RWANG,a470a458"
 last_update: "2026-09-06T21:00:00+07:00,RWANG"
 status: beta
@@ -46,3 +46,6 @@ under that data root, outside the committed synthetic fixtures. It was not run.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
 | 0.2.0b | 2026-09-06 | beta | Replace customer-derived authoring with reproducible synthetic inputs and explicit evaluation limits | a470a458 (base) | RWANG |
+
+Version diff 0.2.0b → 0.2.1b: add the monorepo-qualified document metadata ID;
+query data and coverage invariants are unchanged.

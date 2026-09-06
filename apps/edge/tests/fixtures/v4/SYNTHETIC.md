@@ -1,6 +1,6 @@
 ---
 id: ZEDGE:SYNTHETIC-FIXTURES
-version: 0.1.0b
+version: 0.1.1b
 created_at: "2026-09-06T21:00:00+07:00,RWANG,a470a458"
 last_update: "2026-09-06T21:00:00+07:00,RWANG"
 status: beta
@@ -49,3 +49,6 @@ and search implementation are unchanged. See the preparation RCA in `.brain/rca/
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
 | 0.1.0b | 2026-09-06 | beta | Document approved synthetic fixture preparation and evidence boundaries | a470a458 (base) | RWANG |
+
+Version diff 0.1.0b → 0.1.1b: add the monorepo-qualified document metadata ID;
+synthetic data and coverage invariants are unchanged.
