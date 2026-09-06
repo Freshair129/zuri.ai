@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T17:40:27.847Z",
+  "generatedAt": "2026-09-06T18:14:44.118Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2210,6 +2210,13 @@
     "line-oa-studio": {
       "status": "partial",
       "requirements": [
+        {
+          "id": "FR-003",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
+        },
         {
           "id": "FR-021",
           "declared": "done",
@@ -5836,6 +5843,7 @@
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
+        "line-oa-studio",
         "project-manager"
       ],
       "useCase": "PM สร้าง แก้ไข เปิด และ archive Project โดยไม่ลบประวัติ",
@@ -5848,7 +5856,7 @@
           "id": "FR-003",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 11
         }
       ],
@@ -5856,6 +5864,7 @@
         "apps/server/src/app/(pm)/projects/page.jsx",
         "apps/server/src/app/api/projects/[id]/route.js",
         "apps/server/src/app/api/projects/route.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/project-manager/application/project-list-read-model.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",

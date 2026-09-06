@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 323,
     "routes": 179,
-    "test_files": 507
+    "test_files": 508
   },
   "summary": {
     "critical": 0,
@@ -259,7 +259,7 @@
       "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1418 column(s) across 110 model(s) against 48 migration(s)",
+      "title": "schema-migration drift checked: 1418 column(s) across 110 model(s) against 49 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

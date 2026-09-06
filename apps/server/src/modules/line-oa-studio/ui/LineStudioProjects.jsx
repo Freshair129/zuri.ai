@@ -1,9 +1,9 @@
-// @req FR-146, FR-151 — LINE Studio Enterprise Projects Directory
-// @spec SDD-060, SDD-061 — LINE OA Project Management Grid
+// @req FR-146, FR-151, FR-003 — LINE Studio Enterprise Projects Directory
+// @spec SDD-060, SDD-061 — Live LINE OA & Project Directory with API Create
 "use client";
 
-import React, { useState } from "react";
-import { MOCK_STUDIO_PROJECTS } from "./mockStudioData";
+import React, { useState, useEffect } from "react";
+import { useScope } from "@/context/ScopeContext";
 import {
   Plus,
   Search,
@@ -16,291 +16,327 @@ import {
   SlidersHorizontal,
   X,
   Sparkles,
-  CheckCircle
+  CheckCircle,
+  Radio,
+  RefreshCw
 } from "lucide-react";
 
 export default function LineStudioProjects({ onSelectProject }) {
-  const [projects, setProjects] = useState(MOCK_STUDIO_PROJECTS);
+  const scope = useScope();
+  const business = scope?.shell?.activeBusiness;
+
+  const [projects, setProjects] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeTabType, setActiveTabType] = useState("all"); // 'all' | 'line-oa' | 'projects'
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // New project form state
   const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectSlug, setNewProjectSlug] = useState("");
-  const [newProjectThai, setNewProjectThai] = useState("");
-  const [newProjectIcon, setNewProjectIcon] = useState("🤖");
-  const [newProjectCategory, setNewProjectCategory] = useState("general");
+  const [newProjectCode, setNewProjectCode] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
-  const categories = [
-    { id: "all", label: "ทั้งหมด" },
-    { id: "sports", label: "กีฬา / ฟิตเนส" },
-    { id: "f&b", label: "อาหารและเครื่องดื่ม" },
-    { id: "healthcare", label: "การแพทย์ / คลินิก" },
-    { id: "real-estate", label: "อสังหาฯ / คอนโด" },
-    { id: "finance", label: "การเงิน / บัญชี" },
-    { id: "emergency", label: "ช่วยเหลือ / ฉุกเฉิน" }
-  ];
+  const fetchData = async () => {
+    if (!business?.id) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const [projRes, accRes] = await Promise.all([
+        fetch(`/api/projects?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ projects: [] })),
+        fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ accounts: [] }))
+      ]);
 
-  const filteredProjects = projects.filter(p => {
-    const matchQuery = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       p.thaiName.includes(searchQuery) ||
-                       p.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCat = activeCategory === "all" || p.category === activeCategory;
-    return matchQuery && matchCat;
-  });
-
-  const handleCreateProject = (e) => {
-    e.preventDefault();
-    if (!newProjectName.trim()) return;
-
-    const newProj = {
-      id: `p0${projects.length + 10}`,
-      slug: newProjectSlug || `p0${projects.length + 10}-${newProjectName.toLowerCase().replace(/\s+/g, '-')}`,
-      name: newProjectName,
-      thaiName: newProjectThai || newProjectName,
-      status: "draft",
-      statusLabel: "ร่าง",
-      category: newProjectCategory,
-      icon: newProjectIcon || "🤖",
-      followers: 0,
-      flows: 1,
-      messages: 0,
-      updatedAgo: "เพิ่งสร้างเมื่อสักครู่",
-      updatedDate: "2026-09-06",
-      color: "from-brand-amber/20 to-brand-hover/20"
-    };
-
-    setProjects([newProj, ...projects]);
-    setShowCreateModal(false);
-    setNewProjectName("");
-    setNewProjectSlug("");
-    setNewProjectThai("");
+      setProjects(projRes.projects || []);
+      setAccounts(accRes.accounts || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, [business?.id]);
+
+  const handleCreateProject = async (e) => {
+    e.preventDefault();
+    if (!newProjectName.trim() || !business?.id) return;
+
+    setCreating(true);
+    setCreateError("");
+    try {
+      const payload = {
+        name: newProjectName,
+        code: newProjectCode || newProjectName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        businessId: business.id
+      };
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.issues?.join(" · ") || "Failed to create project");
+
+      setShowCreateModal(false);
+      setNewProjectName("");
+      setNewProjectCode("");
+      await fetchData();
+    } catch (err) {
+      setCreateError(err.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const combinedItems = [
+    ...accounts.map(acc => ({
+      id: acc.id,
+      name: acc.displayName || acc.code,
+      code: acc.code,
+      type: "line-oa",
+      typeLabel: "LINE OA Account",
+      status: acc.status === "CONNECTED" ? "ONLINE" : acc.status,
+      transport: acc.serverEnabled ? "Zuri Server" : "Edge Worker",
+      updatedAt: acc.updatedAt || acc.createdAt,
+      raw: acc
+    })),
+    ...projects.map(proj => ({
+      id: proj.id,
+      name: proj.name,
+      code: proj.code,
+      type: "project",
+      typeLabel: "Business Project",
+      status: proj.status || "ACTIVE",
+      transport: "Universal Core",
+      updatedAt: proj.updatedAt || proj.createdAt,
+      raw: proj
+    }))
+  ];
+
+  const filteredItems = combinedItems.filter(item => {
+    const matchQuery = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       item.code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchType = activeTabType === "all" || item.type === activeTabType;
+    return matchQuery && matchType;
+  });
+
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-thai">
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-thai flex items-center gap-2.5">
-            <span>โปรเจค LINE Official Account ทั้งหมด</span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <span>สารบัญบัญชี LINE OA และโปรเจค</span>
             <span className="px-2.5 py-0.5 rounded-full bg-brand-amber/15 text-brand-dark dark:text-brand-amber text-xs font-semibold">
-              {projects.length} โปรเจค
+              {combinedItems.length} รายการ
             </span>
           </h1>
-          <p className="text-xs text-slate-500 font-thai mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             เลือกโปรเจคเพื่อเข้าสู่ Design Studio (Flow Designer, Flex Message, Rich Menu, LIFF App)
           </p>
         </div>
 
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-sm font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2 font-thai self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ สร้างโปรเจคใหม่</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={fetchData}
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-600 transition-colors"
+            title="รีเฟรชข้อมูล"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-xs font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>สร้างโปรเจคใหม่</span>
+          </button>
+        </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-        {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none font-thai text-xs">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl font-medium transition-all whitespace-nowrap ${
-                activeCategory === cat.id
-                  ? "bg-brand-amber text-white shadow-sm shadow-brand-amber/25"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+      {/* Filter & Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        {/* Type Filter Tabs */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setActiveTabType("all")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTabType === "all"
+                ? "bg-slate-900 text-white dark:bg-slate-700"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            ทั้งหมด ({combinedItems.length})
+          </button>
+          <button
+            onClick={() => setActiveTabType("line-oa")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTabType === "line-oa"
+                ? "bg-brand-amber text-white"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>LINE OA ({accounts.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTabType("projects")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTabType === "projects"
+                ? "bg-purple-600 text-white"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>โปรเจค ({projects.length})</span>
+          </button>
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[240px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาโปรเจค..."
-            className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30 focus:border-brand-amber font-thai"
+            placeholder="ค้นหาตามชื่อหรือรหัส..."
+            className="w-full sm:w-64 pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30"
           />
         </div>
       </div>
 
-      {/* Projects Grid (matching screenshot 784215115...) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProjects.map((project) => (
-          <div
-            key={project.id}
-            onClick={() => onSelectProject(project)}
-            className="group relative rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm hover:shadow-lg hover:border-brand-amber/40 transition-all cursor-pointer flex flex-col justify-between"
-          >
-            <div>
-              {/* Header inside card */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-750 flex items-center justify-center text-2xl shadow-inner group-hover:scale-105 transition-transform">
-                    {project.icon}
+      {/* Items Grid */}
+      {loading ? (
+        <div className="p-12 text-center text-xs text-slate-400 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+          กำลังโหลดข้อมูล...
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 space-y-3">
+          <Layers className="w-8 h-8 text-slate-400 mx-auto" />
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm">ไม่พบรายการที่ตรงกับการค้นหา</h3>
+          <p className="text-xs text-slate-500">
+            ลองปรับเปลี่ยนคำค้นหา หรือสร้างโปรเจคใหม่
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => onSelectProject?.(item)}
+              className="group cursor-pointer rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-brand-amber/50 dark:hover:border-brand-amber/50 p-5 shadow-sm hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-base ${
+                      item.type === "line-oa" ? "bg-emerald-500/15 text-emerald-600" : "bg-purple-500/15 text-purple-600"
+                    }`}>
+                      {item.type === "line-oa" ? "💬" : "📁"}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-dark dark:group-hover:text-brand-amber transition-colors">
+                        {item.name}
+                      </h3>
+                      <span className="text-[11px] font-mono text-slate-400">{item.code}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-brand-dark dark:group-hover:text-brand-amber transition-colors line-clamp-1">
-                      {project.name}
-                    </h3>
-                    <span className="text-[11px] font-mono text-slate-400 block">
-                      {project.slug}
-                    </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-thai line-clamp-1 mt-0.5">
-                      {project.thaiName}
-                    </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    {item.typeLabel}
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-500 space-y-1">
+                  <div className="flex justify-between">
+                    <span>สถานะ:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">{item.status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Engine / Transport:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">{item.transport}</span>
                   </div>
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-medium border border-slate-200 dark:border-slate-700 font-thai shrink-0">
-                  {project.statusLabel}
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <span>อัปเดต: {new Date(item.updatedAt).toLocaleDateString("th-TH")}</span>
+                <span className="text-brand-dark dark:text-brand-amber font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                  <span>เปิด Design Studio</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
-
-              {/* Metric 3-box strip inside card (Followers, Flows, Messages) */}
-              <div className="grid grid-cols-3 gap-2 mt-5 p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-center font-thai">
-                <div>
-                  <div className="text-base font-bold text-slate-900 dark:text-white font-mono">
-                    {project.followers}
-                  </div>
-                  <div className="text-[10px] text-slate-500">Followers</div>
-                </div>
-                <div className="border-x border-slate-200/60 dark:border-slate-700/60">
-                  <div className="text-base font-bold text-brand-dark dark:text-brand-amber font-mono">
-                    {project.flows}
-                  </div>
-                  <div className="text-[10px] text-slate-500">Flows</div>
-                </div>
-                <div>
-                  <div className="text-base font-bold text-slate-900 dark:text-white font-mono">
-                    {project.messages}
-                  </div>
-                  <div className="text-[10px] text-slate-500">Messages</div>
-                </div>
-              </div>
             </div>
-
-            {/* Footer timestamp & button */}
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/70 flex items-center justify-between text-[11px] font-thai">
-              <span className="text-slate-400">{project.updatedAgo}</span>
-              <div className="flex items-center gap-1 text-brand-dark dark:text-brand-amber font-semibold group-hover:translate-x-0.5 transition-transform">
-                <span>เปิด Studio</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Create Project Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200 font-thai">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-brand-amber/15 text-brand-amber">
-                  <Bot className="w-5 h-5" />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-base">
-                  สร้างโปรเจค LINE OA ใหม่
-                </h3>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <Plus className="w-4 h-4 text-brand-amber" />
+                <span>สร้างโปรเจคใหม่ใน Business</span>
+              </h3>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProject} className="p-5 space-y-4">
+            {createError && (
+              <div className="p-3 rounded-xl bg-rose-50 text-rose-700 text-xs border border-rose-200">
+                {createError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateProject} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  ชื่อโปรเจค (ภาษาอังกฤษ) *
-                </label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">ชื่อโปรเจค</label>
                 <input
                   type="text"
-                  required
-                  placeholder="เช่น LINE OA Clinic Booking"
                   value={newProjectName}
-                  onChange={(e) => {
-                    setNewProjectName(e.target.value);
-                    if (!newProjectSlug) {
-                      setNewProjectSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
-                    }
-                  }}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-amber/40 focus:border-brand-amber font-sans"
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  placeholder="เช่น ระบบตอบรับและจองคิวอัตโนมัติ"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none"
+                  required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  ชื่อภาษาไทยสำหรับระบุการใช้งาน
-                </label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">รหัสโปรเจค (Code)</label>
                 <input
                   type="text"
-                  placeholder="เช่น ระบบจองคิวตรวจรักษาคลินิก"
-                  value={newProjectThai}
-                  onChange={(e) => setNewProjectThai(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-amber/40 focus:border-brand-amber"
+                  value={newProjectCode}
+                  onChange={(e) => setNewProjectCode(e.target.value)}
+                  placeholder="เช่น queue-booking-bot"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none font-mono"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    หมวดหมู่ธุรกิจ
-                  </label>
-                  <select
-                    value={newProjectCategory}
-                    onChange={(e) => setNewProjectCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-amber/40"
-                  >
-                    <option value="general">ทั่วไป</option>
-                    <option value="healthcare">คลินิก / สุขภาพ</option>
-                    <option value="f&b">อาหารและเครื่องดื่ม</option>
-                    <option value="sports">กีฬา / ฟิตเนส</option>
-                    <option value="real-estate">อสังหาฯ</option>
-                    <option value="finance">การเงิน</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    ไอคอนแสดงผล
-                  </label>
-                  <input
-                    type="text"
-                    value={newProjectIcon}
-                    onChange={(e) => setNewProjectIcon(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-base focus:outline-none focus:ring-2 focus:ring-brand-amber/40"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-brand-amber hover:bg-brand-hover text-white text-xs font-semibold shadow-md shadow-brand-amber/20 transition-all"
+                  disabled={creating}
+                  className="px-4 py-2 rounded-xl bg-brand-amber hover:bg-brand-hover text-white text-xs font-semibold shadow-sm"
                 >
-                  ยืนยันสร้างโปรเจค
+                  {creating ? "กำลังสร้าง..." : "สร้างโปรเจค"}
                 </button>
               </div>
             </form>

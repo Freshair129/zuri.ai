@@ -28,6 +28,18 @@ const ROUTES = [
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
+  // A Project's own sub-routes are separate route files and none of them was
+  // warmed, so whichever spec reached one first paid the compile inside a 10s
+  // expect — the exact shape this file's header describes. The suite navigates
+  // to seven of them; all are listed because the cost is one request each and
+  // the next spec to add one should not have to rediscover this. The id is a
+  // placeholder: `failOnStatusCode: false` below means the route module still
+  // compiles when it resolves to nothing.
+  '/projects/warmup/roadmap', '/projects/warmup/milestones', '/projects/warmup/dependencies',
+  '/projects/warmup/files', '/projects/warmup/structure', '/projects/warmup/import',
+  '/projects/warmup/inventory', '/projects/warmup/team', '/projects/warmup/board',
+  '/projects/warmup/all-work', '/projects/warmup/timeline', '/projects/warmup/repositories',
+  '/projects/warmup', '/projects/warmup/execution/DELIVERY', '/projects/new',
   '/assets', '/assets/receiving', '/assets/register', '/assets/scanner',
   // @req FR-146, FR-149, FR-151 — both LINE OA Studio pages exist now. This
   // comment used to say the slot had no page and `failOnStatusCode: false`
