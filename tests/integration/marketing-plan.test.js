@@ -49,6 +49,36 @@ const deps = (viewer, clock = () => now) => ({
   now: clock,
 })
 
+function auditFailureDb() {
+  const modelNames = [
+    'marketingPlan',
+    'marketingPlanVersion',
+    'marketingReview',
+    'marketingDecision',
+    'marketingHandoff',
+  ]
+  const db = {
+    business: prisma.business,
+    $transaction: (callback) => prisma.$transaction((tx) => callback(new Proxy(tx, {
+      get(target, property, receiver) {
+        if (property === 'auditEvent') {
+          return { create: async () => { throw new Error('forced audit failure') } }
+        }
+        return Reflect.get(target, property, receiver)
+      },
+    }))),
+  }
+  modelNames.forEach((name) => { db[name] = prisma[name] })
+  return db
+}
+
+const failingDeps = (viewer) => ({
+  db: auditFailureDb(),
+  viewer,
+  createRepository: createMarketingPlanRepository,
+  now: () => now,
+})
+
 function suffix() {
   return randomUUID().slice(0, 8).toUpperCase()
 }
@@ -122,6 +152,69 @@ describe('Marketing Strategy plan persistence (FR-153)', () => {
       { businessId: businessB.id, title: 'Cross scope', payload },
       deps(attacker),
     )).rejects.toMatchObject({ status: 404 })
+  })
+
+  it('rolls back parent and immutable children when audit persistence fails', async () => {
+    const rollbackPlan = await createMarketingPlan(
+      { businessId: businessA.id, title: 'Rollback Plan', payload },
+      deps(ownerA),
+    )
+    const failing = failingDeps(ownerA)
+
+    await expect(reviseMarketingPlan(
+      rollbackPlan.id,
+      { businessId: businessA.id, expectedVersion: 1, title: 'Rollback Revision', payload },
+      failing,
+    )).rejects.toThrow('forced audit failure')
+    expect(await prisma.marketingPlan.findUnique({ where: { id: rollbackPlan.id } }))
+      .toMatchObject({ version: 1, currentRevision: 1, title: 'Rollback Plan' })
+    expect(await prisma.marketingPlanVersion.count({ where: { planId: rollbackPlan.id } })).toBe(1)
+
+    await expect(reviewMarketingPlan(
+      rollbackPlan.id,
+      {
+        businessId: businessA.id,
+        expectedVersion: 1,
+        planVersionId: rollbackPlan.currentVersion.id,
+        payloadHash: rollbackPlan.currentVersion.payloadHash,
+        verdict: 'PASS',
+        rationale: 'This review must roll back with its audit event.',
+      },
+      failingDeps(reviewerA),
+    )).rejects.toThrow('forced audit failure')
+    expect(await prisma.marketingPlan.findUnique({ where: { id: rollbackPlan.id } }))
+      .toMatchObject({ version: 1, currentRevision: 1 })
+    expect(await prisma.marketingReview.count({ where: { planId: rollbackPlan.id } })).toBe(0)
+
+    const reviewed = await reviewMarketingPlan(
+      rollbackPlan.id,
+      {
+        businessId: businessA.id,
+        expectedVersion: 1,
+        planVersionId: rollbackPlan.currentVersion.id,
+        payloadHash: rollbackPlan.currentVersion.payloadHash,
+        verdict: 'PASS',
+        rationale: 'The control review is persisted before the decision failure.',
+      },
+      deps(reviewerA),
+    )
+    await expect(decideMarketingPlan(
+      rollbackPlan.id,
+      {
+        businessId: businessA.id,
+        expectedVersion: reviewed.version,
+        planVersionId: reviewed.currentVersion.id,
+        payloadHash: reviewed.currentVersion.payloadHash,
+        reviewId: reviewed.reviews.at(-1).id,
+        verdict: 'APPROVE',
+        rationale: 'This decision must roll back with its audit event.',
+        expiresAt: '2026-09-06T13:00:00.000Z',
+      },
+      failing,
+    )).rejects.toThrow('forced audit failure')
+    expect(await prisma.marketingPlan.findUnique({ where: { id: rollbackPlan.id } }))
+      .toMatchObject({ version: reviewed.version, currentRevision: 1, status: 'DRAFT' })
+    expect(await prisma.marketingDecision.count({ where: { planId: rollbackPlan.id } })).toBe(0)
   })
 
   it('appends an immutable revision and refuses a stale expected version', async () => {
