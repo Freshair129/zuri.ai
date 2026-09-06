@@ -1,4 +1,21 @@
+---
+id: ZAI:ARCHITECTURE
+relations:
+  - type: relates_to
+    target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-062
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+version: "0.1.0b"
+status: candidate
+last_update: "2026-09-06T13:29:04+07:00,RWANG"
+---
+
 # Architecture
+
+> Current authority (2026-09-06): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs server-owned LINE and optional Edge computation. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+
 
 > The **three-layer** and **system** diagrams live in
 > [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md). This document keeps the

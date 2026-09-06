@@ -1,3 +1,28 @@
+---
+id: ZAI:ADR-061
+version: "0.1.1b"
+status: active
+created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
+last_update: "2026-09-06T13:26:50+07:00,RWANG"
+relations:
+  - type: relates_to
+    target: ZAI:ADR-041
+  - type: relates_to
+    target: ZAI:ADR-059
+  - type: relates_to
+    target: ZAI:ADR-060
+  - type: relates_to
+    target: ZAI:FEAT-019
+  - type: relates_to
+    target: ZAI:FR-148-NOTE
+  - type: relates_to
+    target: ZAI:FR-149-NOTE
+  - type: relates_to
+    target: ZAI:FR-150-NOTE
+  - type: relates_to
+    target: ZAI:PLAN-FEAT-019-PHASES
+---
+
 # ADR-061 — Server-owned LINE and optional Edge execution
 
 **Status:** Accepted by owner instruction, 2026-09-06; implementation and activation evidence are separate.
@@ -57,3 +82,7 @@ Both repositories implement the conversation contract. The native webhook curren
 Validated locally: provider/secret policy tests, real SQLite admission/replay/scope/lease/send/erasure/backup tests, Next production build, and the LINE OA browser journey. Full verification is not certified: the Linux/Node 24 run encountered Windows filesystem cases and intermittent SQLite corruption; affected database suites passed independently. The broad browser run exposed fixture leakage from the new account test into the connector inventory test; cleanup now removes only that test's account and connection.
 
 Before activation: apply the two incremental migrations in order; provision the mounted credential entry with exact tenant/business/account/connection/destination and expiry; set `ZURI_LINE_REPLY_SEAL_KEY` (64 hex characters), `ZURI_LINE_WORKER_TOKEN` (at least 32 random characters), and the mounted file location. Use `docker-compose.line-server.yml` with the `line-server` profile. Configure scoped business knowledge before enabling SERVER computation. Upgrade the optional Edge release, stop the old LINE receiver/sender, confirm handoff in `/line-oa`, then change the provider webhook. Verify a real account/device canary before general rollout. Do not roll back to the old sender while SENDING, UNKNOWN or an unconfirmed Push remains unresolved.
+
+## Evidence refresh — 2026-09-06
+
+Server main through PR #243 passed hosted verify and E2E on Windows; the earlier Linux validation paragraph above records the original implementation run, not the current server CI result. Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence. Production and real provider/device gates remain pending unless their own receipts prove otherwise. See [[ZAI:PLAN-FEAT-019-PHASES]].
