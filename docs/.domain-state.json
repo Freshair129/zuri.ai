@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T17:18:58.552Z",
+  "generatedAt": "2026-09-06T17:49:44.077Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -874,7 +874,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -895,21 +895,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-161",
@@ -1253,7 +1253,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-148",
@@ -1639,7 +1639,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -1653,7 +1653,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "checks": {
@@ -2248,17 +2248,31 @@
           "testCount": 34
         },
         {
+          "id": "FR-091",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 14
+        },
+        {
+          "id": "FR-093",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
+        },
+        {
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 18,
-          "testCount": 25
+          "codeCount": 21,
+          "testCount": 26
         },
         {
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
+          "codeCount": 11,
           "testCount": 25
         },
         {
@@ -2272,22 +2286,22 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 16,
-          "testCount": 16
+          "codeCount": 19,
+          "testCount": 17
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 13,
+          "testCount": 17
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 13
+          "codeCount": 12,
+          "testCount": 14
         }
       ],
       "checks": {
@@ -3471,7 +3485,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -3492,21 +3506,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-154",
@@ -4461,6 +4475,7 @@
       "contributorDomains": [
         "agent",
         "crm",
+        "line-oa-studio",
         "project-manager"
       ],
       "useCase": "Operator เปิด CRM Inbox แล้วเห็นทั้งข้อความขาเข้าและข้อความขาออกที่ส่งถึงลูกค้าจริง",
@@ -4473,14 +4488,14 @@
           "id": "FR-091",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 17,
+          "codeCount": 18,
           "testCount": 14
         },
         {
           "id": "FR-093",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 7
         }
       ],
@@ -4506,6 +4521,7 @@
         "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/line-crm/LineCrmShell.jsx",
         "apps/server/src/modules/line-crm/mockData.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
@@ -5257,8 +5273,8 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 25
+          "codeCount": 30,
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -5271,25 +5287,26 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 16
+          "codeCount": 23,
+          "testCount": 17
         },
         {
           "id": "FR-152",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 16
+          "codeCount": 18,
+          "testCount": 17
         },
         {
           "id": "FR-153",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 15,
-          "testCount": 13
+          "codeCount": 17,
+          "testCount": 14
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/line-oa/page.jsx",
         "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
         "apps/server/src/app/api/line-oa/accounts/[id]/route.js",
         "apps/server/src/app/api/line-oa/accounts/route.js",
@@ -5323,9 +5340,11 @@
         "apps/server/src/modules/line-oa-studio/index.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
@@ -5337,6 +5356,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -5416,7 +5436,7 @@
           "id": "FR-149",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
+          "codeCount": 22,
           "testCount": 25
         },
         {
@@ -5454,6 +5474,7 @@
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
