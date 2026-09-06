@@ -95,6 +95,7 @@ export default function StrategyWorkspace({ businessId }) {
   // response arrives, keep mutation controls hidden rather than guessing from
   // a global role or showing a form that will inevitably fail.
   const canWrite = Boolean((plan?.canWrite ?? plans.data?.canWrite) === true)
+  const planCanWrite = canWrite && plan?.status !== 'ARCHIVED'
   const businessName = scope.shell.activeBusiness?.name || 'selected Business'
   const viewerId = viewer.data?.principal?.id || viewer.data?.personId || viewer.data?.id || null
   const hrefForTab = (nextTab) => strategyTabHref(pathname, nextTab, { planId, newPlan: nextTab === 'plans' && creating })
@@ -156,11 +157,11 @@ export default function StrategyWorkspace({ businessId }) {
           {!creating && planId && plan && !detail.error && (
             <div>
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><Link href={strategyTabHref(pathname, 'plans')} className="btn text-[11px]"><ArrowLeft size={13} aria-hidden /> Back to plans</Link><div className="flex items-center gap-2"><StatusPill status={plan.status || 'DRAFT'} />{canWrite && <button type="button" className="btn text-[11px]" onClick={archivePlan} disabled={busy || plan.status === 'ARCHIVED'}><Archive size={13} aria-hidden /> Archive</button>}</div></div>
-              {canWrite && <PlanForm plan={plan} busy={busy} onSubmit={revisePlan} />}
-              {!canWrite && <InlineNotice> this plan is read-only for the current Business grant.</InlineNotice>}
-              <PlanVersionHistory plan={plan} />
-              <PlanReviewDecision plan={plan} viewerId={viewerId} busy={busy} onReview={reviewPlan} onDecision={decidePlan} />
-              <PlanHandoff businessId={businessId} plan={plan} />
+              {planCanWrite && <PlanForm key={`form-${plan.id}`} plan={plan} busy={busy} onSubmit={revisePlan} />}
+              {!planCanWrite && <InlineNotice>{plan.status === 'ARCHIVED' ? 'Archived plans are read-only.' : 'This plan is read-only for the current Business grant.'}</InlineNotice>}
+              <PlanVersionHistory key={`versions-${plan.id}`} plan={plan} />
+              <PlanReviewDecision key={`review-${plan.id}`} plan={plan} viewerId={viewerId} canWrite={planCanWrite} busy={busy} onReview={reviewPlan} onDecision={decidePlan} />
+              <PlanHandoff key={`handoff-${plan.id}`} businessId={businessId} plan={plan} />
             </div>
           )}
           {!planId && !creating && <Card><SectionTitle caption="Create or inspect immutable revisions">Marketing plans</SectionTitle><PlanList plans={planList} planId={planId} truncated={Boolean(plans.data?.truncated || plans.data?.pagination?.truncated || plans.data?.meta?.truncated)} /></Card>}

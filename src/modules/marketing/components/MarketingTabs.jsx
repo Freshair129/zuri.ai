@@ -19,7 +19,7 @@ export function MarketingTabs({ tabs, activeKey, hrefForTab, ariaLabel = 'Market
   }
   return (
     <nav aria-label={ariaLabel} className="mb-5 overflow-x-auto border-b border-[var(--border)]">
-      <div role="tablist" className="flex min-w-max gap-1">
+      <div role="tablist" aria-label={ariaLabel} className="flex min-w-max gap-1">
         {tabs.map((tab, index) => {
           const active = tab.key === activeKey
           return (

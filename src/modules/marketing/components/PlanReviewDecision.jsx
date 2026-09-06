@@ -11,7 +11,7 @@ import { Card, Field, SectionTitle, StatusPill } from '@/components/ui'
 import { approvalState, canReviewPlan, currentPlanVersion, formatMarketingDate } from './marketing-contract'
 import { InlineNotice } from './MarketingState'
 
-export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy = false }) {
+export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, canWrite = false, busy = false }) {
   const version = currentPlanVersion(plan)
   const [reviewRationale, setReviewRationale] = useState('')
   const [reviewVerdict, setReviewVerdict] = useState('PASS')
@@ -22,13 +22,15 @@ export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy 
   const independent = canReviewPlan(plan, viewerId)
   const passReview = state.review
   const approvalReady = Boolean(passReview && expiresAt && new Date(expiresAt).getTime() > Date.now())
+  const mutable = canWrite && plan.status !== 'ARCHIVED'
 
   if (!version) return null
   return (
     <Card className="mb-4" data-testid="marketing-plan-review">
       <SectionTitle caption="Review and decision records bind to this exact revision and hash">Review and decision</SectionTitle>
-      {!independent && <InlineNotice>Independent review requires another real user than the revision author. No simulated agent can provide that review.</InlineNotice>}
-      {independent && (
+      {!mutable && <InlineNotice>Review and decision writes are unavailable for this Business grant or archived plan.</InlineNotice>}
+      {mutable && !independent && <InlineNotice>Independent review requires another real user than the revision author. No simulated agent can provide that review.</InlineNotice>}
+      {mutable && independent && (
         <form
           data-testid="marketing-independent-review"
           className="mt-3 rounded-xl border border-[var(--border)] p-3"
@@ -42,7 +44,7 @@ export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy 
           <button type="submit" className="btn btn-primary text-[11px]" disabled={busy}>Record review</button>
         </form>
       )}
-      <form
+      {mutable && <form
         data-testid="marketing-human-decision"
         className="mt-3 rounded-xl border border-[var(--border)] p-3"
         onSubmit={(event) => {
@@ -58,7 +60,7 @@ export function PlanReviewDecision({ plan, viewerId, onReview, onDecision, busy 
           <Field label="Approval expires" hint="Required only for APPROVE"><input className="input" type="datetime-local" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} disabled={busy || decisionVerdict !== 'APPROVE'} /></Field>
         </div>
         <button type="submit" className="btn btn-primary text-[11px]" disabled={busy || (decisionVerdict === 'APPROVE' && !approvalReady)}>Record decision</button>
-      </form>
+      </form>}
       {(plan.reviews || []).length > 0 && <div className="mt-4"><p className="mb-2 text-[11px] font-bold">Review history</p><ul className="space-y-1 text-[10px] text-muted">{plan.reviews.map((review) => <li key={review.id}>{review.verdict} · {formatMarketingDate(review.createdAt)} · {review.rationale}</li>)}</ul></div>}
       {(plan.decisions || []).length > 0 && <div className="mt-4"><p className="mb-2 text-[11px] font-bold">Decision history</p><ul className="space-y-1 text-[10px] text-muted">{plan.decisions.map((decision) => <li key={decision.id}><StatusPill status={decision.verdict} /> <span className="ml-1">{formatMarketingDate(decision.createdAt)} · {decision.rationale}</span></li>)}</ul></div>}
     </Card>

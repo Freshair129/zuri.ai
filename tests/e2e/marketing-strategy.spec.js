@@ -34,6 +34,7 @@ async function createPlanViaApi(page, businessId, title) {
 
 async function selectBusiness(page) {
   await loginAsOwner(page)
+  await expect(page).toHaveURL(/\/businesses/, { timeout: 15000 })
   await page.goto('/businesses')
   const business = page.getByRole('button', { name: /Open Business Business 01/i }).first()
   await expect(business).toBeVisible()
@@ -52,6 +53,7 @@ async function loginAs(page, email, password) {
   await page.getByLabel('Email or account code').fill(email)
   await page.getByLabel('Password', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await expect(page).toHaveURL(/\/businesses/, { timeout: 15000 })
 }
 
 async function selectBusinessForSignedInUser(page) {
@@ -93,7 +95,9 @@ test.describe('Marketing Strategy first functional slice', () => {
     await expect(page.getByTestId('marketing-plan-versions')).toBeVisible()
     await expect(page.getByText(/Independent review requires another real user/i)).toBeVisible()
     await page.getByLabel('Plan title').fill(`Revised browser Marketing plan ${Date.now()}`)
+    const revisePatch = page.waitForResponse((response) => response.url().includes('/api/growth/plans/') && response.request().method() === 'PATCH')
     await page.getByRole('button', { name: 'Save revision' }).click()
+    expect((await revisePatch).ok()).toBeTruthy()
     await expect(page.getByText(/Revision 2/i)).toBeVisible()
     await expect(page.getByTestId('marketing-plan-handoff')).toBeVisible()
     await expect(page.getByText(/KPI progress needs PM metric targets and observations/i)).toBeVisible()
@@ -167,7 +171,8 @@ test.describe('Marketing Strategy first functional slice', () => {
       await page.getByRole('button', { name: 'Preview PM handoff' }).click()
       expect((await previewPost).ok()).toBeTruthy()
       await expect(page.getByTestId('marketing-handoff-preview')).toBeVisible()
-      await expect(page.getByText('Inserts')).toBeVisible()
+      await expect(page.getByTestId('marketing-handoff-inserts')).toBeVisible()
+      await expect(page.getByTestId('marketing-handoff-inserts').getByRole('listitem')).toHaveCount(4)
       await expect(page.getByRole('button', { name: 'Commit verified handoff' })).toBeEnabled()
       const commitPost = page.waitForResponse((response) => response.url().includes(`/api/growth/plans/${plan.id}/handoff`) && response.request().method() === 'POST')
       await page.getByRole('button', { name: 'Commit verified handoff' }).click()
@@ -180,6 +185,9 @@ test.describe('Marketing Strategy first functional slice', () => {
       expect(detailResponse.ok()).toBeTruthy()
       const detail = await detailResponse.json()
       expect(detail.handoffs || detail.plan?.handoffs || []).not.toHaveLength(0)
+      await page.reload()
+      await expect(page.getByTestId('marketing-handoff-history')).toBeVisible()
+      await expect(page.getByTestId('marketing-handoff-receipt')).toBeVisible()
     } finally {
       await secondaryContext.close()
     }
