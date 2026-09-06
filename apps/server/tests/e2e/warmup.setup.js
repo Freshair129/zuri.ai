@@ -56,6 +56,15 @@ const ROUTES = [
   '/inventory',
   // @req FR-161 — the CRM sales tasks page.
   '/customer/sales-tasks',
+  // Route handlers compile on first request too, and a spec that POSTs to a
+  // cold one pays that cost inside its own expect. `marketing-content.spec.js`
+  // opens a second browser context and immediately POSTs here to create a
+  // reviewer; on CI that POST failed twice with `read ECONNRESET` — the dev
+  // server dropping the socket while compiling — and passed on retry, which
+  // `--fail-on-flaky` correctly refuses to call green. This route exports only
+  // POST, so the warm-up's GET compiles the module and takes a 405 back;
+  // `failOnStatusCode: false` below is what makes that fine.
+  '/api/auth/signup',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

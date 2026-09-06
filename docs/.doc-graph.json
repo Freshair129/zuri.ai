@@ -63,8 +63,6 @@
       "doc:INTERFACE-INVENTORY",
       "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
-      "test:tests/e2e/fr149-line-server-console.spec.js",
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "test:tests/e2e/navigation-reachability.spec.js",
       "test:tests/integration/openapi-docs.test.js",
       "test:tests/unit/command-palette-index.test.js",
@@ -72,7 +70,6 @@
       "code:src/config/domains.js",
       "code:src/lib/validation/enums.js",
       "code:src/modules/identity/rbac.js",
-      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "code:src/modules/project-manager/api-docs/openapi.js",
       "code:src/modules/project-manager/application/backup-service.js"
     ],
@@ -10082,7 +10079,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "hash": "437c0f24",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -22720,14 +22717,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
       "hash": "c088a438",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "8c213193",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
