@@ -1,0 +1,385 @@
+{
+  "version": "v1",
+  "types": [
+    {
+      "typeId": "power_bank",
+      "name_th": "พาวเวอร์แบงก์",
+      "name_en": "Power bank",
+      "aliases_th": [
+        "พาวเวอร์แบงค์",
+        "แบตสำรอง",
+        "แบตเตอรี่สำรอง"
+      ],
+      "aliases_en": [
+        "power bank",
+        "powerbank"
+      ]
+    },
+    {
+      "typeId": "usb_flash_drive",
+      "name_th": "แฟลชไดรฟ์",
+      "name_en": "USB flash drive",
+      "aliases_th": [
+        "แฟลชไดร์ฟ",
+        "ยูเอสบี",
+        "แฟลชไดร์ฟ์"
+      ],
+      "aliases_en": [
+        "flash drive",
+        "usb"
+      ]
+    },
+    {
+      "typeId": "charger",
+      "name_th": "ที่ชาร์จ",
+      "name_en": "Charger",
+      "aliases_th": [
+        "แท่นชาร์จ",
+        "หัวชาร์จ",
+        "สายชาร์จ"
+      ],
+      "aliases_en": [
+        "charger",
+        "charging"
+      ]
+    },
+    {
+      "typeId": "speaker",
+      "name_th": "ลำโพง",
+      "name_en": "Speaker",
+      "aliases_th": [
+        "ลำโพงบลูทูธ"
+      ],
+      "aliases_en": [
+        "speaker"
+      ]
+    },
+    {
+      "typeId": "earbuds",
+      "name_th": "หูฟังไร้สาย",
+      "name_en": "Earbuds",
+      "aliases_th": [
+        "เอียร์บัด"
+      ],
+      "aliases_en": [
+        "earbuds",
+        "tws"
+      ]
+    },
+    {
+      "typeId": "earphone",
+      "name_th": "หูฟัง",
+      "name_en": "Earphone",
+      "aliases_th": [
+        "หูฟังมีสาย"
+      ],
+      "aliases_en": [
+        "earphone"
+      ]
+    },
+    {
+      "typeId": "headset",
+      "name_th": "เฮดเซ็ต",
+      "name_en": "Headset",
+      "aliases_th": [
+        "หูฟังครอบหู",
+        "ครอบหู",
+        "แบบครอบหู",
+        "หูฟังในตัว"
+      ],
+      "aliases_en": [
+        "headset",
+        "headphone"
+      ]
+    },
+    {
+      "typeId": "mouse",
+      "name_th": "เมาส์",
+      "name_en": "Mouse",
+      "aliases_th": [
+        "เม้าส์"
+      ],
+      "aliases_en": [
+        "mouse"
+      ]
+    },
+    {
+      "typeId": "keyboard",
+      "name_th": "คีย์บอร์ด",
+      "name_en": "Keyboard",
+      "aliases_th": [
+        "แป้นพิมพ์"
+      ],
+      "aliases_en": [
+        "keyboard"
+      ]
+    },
+    {
+      "typeId": "smart_bracelet",
+      "name_th": "สายรัดข้อมืออัจฉริยะ",
+      "name_en": "Smart bracelet",
+      "aliases_th": [
+        "กำไลอัจฉริยะ",
+        "สมาร์ทวอทช์"
+      ],
+      "aliases_en": [
+        "smart bracelet",
+        "smart band"
+      ]
+    },
+    {
+      "typeId": "car_accessory",
+      "name_th": "อุปกรณ์ในรถ",
+      "name_en": "Car accessory",
+      "aliases_th": [
+        "ของใช้ในรถ"
+      ],
+      "aliases_en": [
+        "car"
+      ]
+    },
+    {
+      "typeId": "neck_massager",
+      "name_th": "เครื่องนวดคอ",
+      "name_en": "Neck massager",
+      "aliases_th": [
+        "ที่นวดคอ"
+      ],
+      "aliases_en": [
+        "neck massager"
+      ]
+    },
+    {
+      "typeId": "massage_gun",
+      "name_th": "ปืนนวด",
+      "name_en": "Massage gun",
+      "aliases_th": [],
+      "aliases_en": [
+        "massage gun"
+      ]
+    },
+    {
+      "typeId": "massage_comb",
+      "name_th": "หวีนวด",
+      "name_en": "Massage comb",
+      "aliases_th": [],
+      "aliases_en": [
+        "massage comb"
+      ]
+    },
+    {
+      "typeId": "hair_dryer",
+      "name_th": "ไดร์เป่าผม",
+      "name_en": "Hair dryer",
+      "aliases_th": [
+        "ไดร์"
+      ],
+      "aliases_en": [
+        "hair dryer"
+      ]
+    },
+    {
+      "typeId": "humidifier",
+      "name_th": "เครื่องทำความชื้น",
+      "name_en": "Humidifier",
+      "aliases_th": [
+        "เครื่องเพิ่มความชื้น"
+      ],
+      "aliases_en": [
+        "humidifier"
+      ]
+    },
+    {
+      "typeId": "fan",
+      "name_th": "พัดลม",
+      "name_en": "Fan",
+      "aliases_th": [
+        "พัดลมพกพา"
+      ],
+      "aliases_en": [
+        "fan"
+      ]
+    },
+    {
+      "typeId": "glove",
+      "name_th": "ถุงมือ",
+      "name_en": "Glove",
+      "aliases_th": [],
+      "aliases_en": [
+        "glove"
+      ]
+    },
+    {
+      "typeId": "towel",
+      "name_th": "ผ้าเช็ดตัว",
+      "name_en": "Towel",
+      "aliases_th": [
+        "ผ้าขนหนู"
+      ],
+      "aliases_en": [
+        "towel"
+      ]
+    },
+    {
+      "typeId": "nail_clipper",
+      "name_th": "กรรไกรตัดเล็บ",
+      "name_en": "Nail clipper",
+      "aliases_th": [
+        "ที่ตัดเล็บ"
+      ],
+      "aliases_en": [
+        "nail clipper"
+      ]
+    },
+    {
+      "typeId": "notebook",
+      "name_th": "สมุดโน้ต",
+      "name_en": "Notebook",
+      "aliases_th": [
+        "สมุด",
+        "สมุดโน๊ต",
+        "ไดอารี่"
+      ],
+      "aliases_en": [
+        "notebook",
+        "diary"
+      ]
+    },
+    {
+      "typeId": "notebook_refill",
+      "name_th": "ไส้สมุด",
+      "name_en": "Notebook refill",
+      "aliases_th": [
+        "ไส้ใน",
+        "แค่ไส้ใน",
+        "ไส้สมุดโน้ต"
+      ],
+      "aliases_en": [
+        "refill"
+      ]
+    },
+    {
+      "typeId": "pen",
+      "name_th": "ปากกา",
+      "name_en": "Pen",
+      "aliases_th": [],
+      "aliases_en": [
+        "pen"
+      ]
+    },
+    {
+      "typeId": "bookmark",
+      "name_th": "ที่คั่นหนังสือ",
+      "name_en": "Bookmark",
+      "aliases_th": [],
+      "aliases_en": [
+        "bookmark"
+      ]
+    },
+    {
+      "typeId": "name_card_holder",
+      "name_th": "ที่ใส่นามบัตร",
+      "name_en": "Name card holder",
+      "aliases_th": [
+        "กล่องนามบัตร"
+      ],
+      "aliases_en": [
+        "card holder"
+      ]
+    },
+    {
+      "typeId": "briefcase",
+      "name_th": "กระเป๋าเอกสาร",
+      "name_en": "Briefcase",
+      "aliases_th": [],
+      "aliases_en": [
+        "briefcase"
+      ]
+    },
+    {
+      "typeId": "key_chain",
+      "name_th": "พวงกุญแจ",
+      "name_en": "Key chain",
+      "aliases_th": [],
+      "aliases_en": [
+        "keychain",
+        "key chain"
+      ]
+    },
+    {
+      "typeId": "lighter",
+      "name_th": "ไฟแช็ก",
+      "name_en": "Lighter",
+      "aliases_th": [
+        "ไฟแช็ค"
+      ],
+      "aliases_en": [
+        "lighter"
+      ]
+    },
+    {
+      "typeId": "drinkware",
+      "name_th": "แก้วน้ำ",
+      "name_en": "Drinkware",
+      "aliases_th": [
+        "แก้ว",
+        "แก้วกาแฟ",
+        "กระบอกน้ำ",
+        "ขวดน้ำ",
+        "กระติก",
+        "กระติกน้ำ",
+        "แก้วมัค",
+        "ทัมเบลอร์"
+      ],
+      "aliases_en": [
+        "mug",
+        "cup",
+        "bottle",
+        "tumbler",
+        "flask",
+        "drinkware"
+      ]
+    },
+    {
+      "typeId": "coffee_maker",
+      "name_th": "เครื่องชงกาแฟ",
+      "name_en": "Coffee maker",
+      "aliases_th": [
+        "ชุดดริปกาแฟ",
+        "ดริปกาแฟ",
+        "ที่ดริปกาแฟ"
+      ],
+      "aliases_en": [
+        "coffee maker"
+      ]
+    },
+    {
+      "typeId": "umbrella",
+      "name_th": "ร่ม",
+      "name_en": "Umbrella",
+      "aliases_th": [
+        "ร่มพับ"
+      ],
+      "aliases_en": [
+        "umbrella"
+      ]
+    },
+    {
+      "typeId": "bag",
+      "name_th": "กระเป๋า",
+      "name_en": "Bag",
+      "aliases_th": [
+        "กระเป๋าผ้า",
+        "เป้",
+        "ล้อลาก",
+        "มีล้อลาก",
+        "กระเป๋าล้อลาก"
+      ],
+      "aliases_en": [
+        "bag",
+        "backpack",
+        "tote"
+      ]
+    }
+  ]
+}

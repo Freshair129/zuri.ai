@@ -263,7 +263,7 @@ provisioned out-of-band from the Supabase migration/admin connection. The
 - [FR-067 — Workspace invitation and scoped membership](../domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md)
 - [FR-076 — Product Owner Business assignment](../domains/identity/features/FR-076-product-owner-business-assignment.md)
 - [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md)
-- [FR-078 review queue contract v0.3.0B](../../contracts/migrations/smartgift-customer-review-queue-contract.json)
+- [FR-078 review queue contract v0.3.0B](../../apps/server/contracts/migrations/smartgift-customer-review-queue-contract.json)
 - [`zuri_workspace_system.md`](../zuri_workspace_system.md)
 
 ## CHANGELOG
