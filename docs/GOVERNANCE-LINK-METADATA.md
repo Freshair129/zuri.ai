@@ -1,10 +1,10 @@
 ---
 id: ZAI:DOC-LINK-METADATA
 title: Document link metadata
-version: "0.1.0b"
-status: candidate
+version: "0.2.0b"
+status: beta
 created_at: "2026-09-06T12:35:07+07:00,RWANG,base 436c0db"
-last_update: "2026-09-06T12:49:30+07:00,RWANG"
+last_update: "2026-09-06T18:41:54+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-025
@@ -39,6 +39,21 @@ The server graph maps `relates_to` to its existing `relates` predicate. An Edge 
 
 ## Output and migration
 
+### Document node identity (owner-approved M3, 2026-09-06)
+
+Unique existing graph IDs and canonical FR/FEAT/ADR identities remain unchanged.
+Documents with colliding basename IDs receive `doc:` plus their normalized repository-relative
+path without `.md`. Every affected node records `identity_migration` with `repository`,
+`previous_id` and `source_path`; this is provenance, not a new global requirement identity.
+Old ambiguous IDs resolve to an error, never the first or last file. Relative links resolve
+from the declaring source path, including legacy control blocks. Duplicate node IDs block
+graph publication independently of dangling endpoints. Ambiguous Markdown targets also fail;
+unresolved historical Markdown retains the existing preflight behavior.
+
+All edges are rebuilt from source assertions; the previous generated graph is not an edge
+authority. This prerequisite does not implement Edge discovery, visibility conversion or
+repository relocation. Those remain separate ADR-062 gates.
+
 `npm run govern` regenerates and checks `docs/DOCUMENT-LINKS.md`, a Markdown crosslink/backlink view keyed by the resolved nodes. Wikilinks do not render natively on GitHub; use this generated view for portable navigation. Generated outputs are excluded from link discovery, so backlinks cannot become evidence for themselves.
 
 Templates under `docs/templates/` end in `.md.template`: copy one to a real `.md`, replace every placeholder, give it a unique ID, and run governance. ADR, FR and FR-phase templates share the same relation schema. The phase template has parent/order/owner fields for documentation; automatic phase execution validation remains separate work.
@@ -54,3 +69,4 @@ Tests prove valid YAML, safe parsing, wrong relation types/targets, same-basenam
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Metadata links, templates, backward compatibility and validation contract | uncommitted | RWANG |
+| 0.2.0b | 2026-09-06 | beta | Owner-approved M3: disambiguated document node IDs, source-path lineage and duplicate publication guard | base 06cadb76 | RWANG |

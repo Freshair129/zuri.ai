@@ -84,18 +84,6 @@ Backlinks:
 
 - [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 
-## `docs/change-requests/` — intake, not governance
-
-Source: [Implementation Plan: LINE OA Business Agent](roadmap/line-oa-business-agent/README.md)
-
-- references: [Phase 1: Minimum LINE OA Business Knowledge Answer](roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md)
-- references: [Phase 2: Cloud Runtime and Operations](roadmap/line-oa-business-agent/PHASE-02-CLOUD-RUNTIME-OPERATIONS.md)
-- references: [Phase 3: Identity and Permission](roadmap/line-oa-business-agent/PHASE-03-IDENTITY-PERMISSION.md)
-- references: [Phase 4: MSP Episodic Memory](roadmap/line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md)
-- references: [Phase 5: GKS and GenesisBlockDB Semantic Memory](roadmap/line-oa-business-agent/PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY.md)
-- references: [Phase 6: LINE Group Assistant and Governed Actions](roadmap/line-oa-business-agent/PHASE-06-GROUP-ASSISTANT-ACTIONS.md)
-- references: [Phase 7: OmiChat Unified Inbox](roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md)
-
 ## ZV2-CR-004 — Supabase production tenant bootstrap
 
 Source: [ZV2-CR-004 — Supabase production tenant bootstrap](changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)
@@ -1071,6 +1059,8 @@ Backlinks:
 
 Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
 
+- references: [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md)
+- references: [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md)
 - references: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 - references: [ADR-018 — Supabase production tenant isolation](decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md)
 - references: [ADR-020 — Controlled LINE binding activation and receipt](decisions/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md)
@@ -1107,7 +1097,8 @@ Source: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/AD
 Backlinks:
 
 - [Architecture](ARCHITECTURE.md) (relates)
-- [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md) (relates)
+- [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
+- [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
 - [Features (FEAT registry)](FEATURES.md) (relates)
 - [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (relates)
 - [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
@@ -1126,7 +1117,6 @@ Backlinks:
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
-- [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
@@ -1262,6 +1252,8 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 - references: [CR-014 — Asset Management Domain Product Requirements (PRD)](change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md)
 - references: [CR-015 — Asset Evidence Intake Execution](change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
 - references: [Asset Register Import Pipeline Specification](domains/asset-management/DATA-PIPELINE.md)
+- references: [Asset Management context map](domains/asset-management/CONTEXT-MAP.md)
+- references: [SRS — Asset Management domain](domains/asset-management/SRS.md)
 - references: [FR-133..136 — Asset Management foundation](domains/asset-management/features/FR-133-asset-management-foundation.md)
 - references: [FR-137..140 — Asset Evidence Intake Execution](domains/asset-management/features/FR-137-asset-evidence-intake-execution.md)
 - references: [FR-143 — Edge-executed asset evidence extraction](domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md)
@@ -1272,11 +1264,11 @@ Source: [Domain — asset-management](domains/asset-management/CHARTER.md)
 
 ## Asset Management context map
 
-Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
+Source: [Asset Management context map](domains/asset-management/CONTEXT-MAP.md)
 
-- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
-- relates: feat:FEAT-019
-- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+Backlinks:
+
+- [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 
 ## Asset Register Import Pipeline Specification
 
@@ -1312,11 +1304,11 @@ Backlinks:
 
 ## SRS — Asset Management domain
 
-Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
+Source: [SRS — Asset Management domain](domains/asset-management/SRS.md)
 
-- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
-- relates: feat:FEAT-019
-- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+Backlinks:
+
+- [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
 
 ## Domain — crm
 
@@ -1875,6 +1867,8 @@ Backlinks:
 
 Source: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 
+- references: [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md)
+- references: [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md)
 - references: [Domain — agent](domains/agent/CHARTER.md)
 - references: [Domain — crm](domains/crm/CHARTER.md)
 - references: [Domain — identity](domains/identity/CHARTER.md)
@@ -1895,11 +1889,16 @@ Backlinks:
 
 ## Context map — LINE OA Studio
 
-Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
+Source: [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md)
 
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: feat:FEAT-019
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
 
 ## FR-149 — Server-owned LINE conversation transport
 
@@ -2021,19 +2020,16 @@ Backlinks:
 
 ## SRS — LINE OA Studio domain
 
-Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
+Source: [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md)
 
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: feat:FEAT-019
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
-## Context map — Market Intelligence
+Backlinks:
 
-Source: [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md)
-
-- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
-- relates: feat:FEAT-019
-- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
 
 ## FR-092 — Market translation core
 
@@ -2042,14 +2038,6 @@ Source: [FR-092 — Market translation core](domains/market-intelligence/feature
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
-
-## SRS — Market Intelligence Domain
-
-Source: [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md)
-
-- relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
-- relates: feat:FEAT-019
-- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## Domain — project-manager
 
@@ -2319,8 +2307,8 @@ Source: [Phase 4: MSP Episodic Memory](roadmap/line-oa-business-agent/PHASE-04-M
 
 Backlinks:
 
-- [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Implementation Plan: LINE OA Business Agent](roadmap/line-oa-business-agent/README.md) (references)
+- [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 
 ## Phase 5: GKS and GenesisBlockDB Semantic Memory
 
@@ -2395,13 +2383,13 @@ Backlinks:
 - [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (references)
 - [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
-- [Context map — Market Intelligence](domains/market-intelligence/CONTEXT-MAP.md) (relates)
+- [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
+- [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
 - [Features (FEAT registry)](FEATURES.md) (relates)
 - [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
-- [SRS — Market Intelligence Domain](domains/market-intelligence/SRS.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
