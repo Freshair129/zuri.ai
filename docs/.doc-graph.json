@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2204,
-    "total_edges": 8706,
+    "total_nodes": 2206,
+    "total_edges": 8729,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 114,
       "requirement": 323,
       "test": 516,
-      "code_file": 644
+      "code_file": 646
     },
     "coverage": {
       "requirements": 323,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (153/153)",
       "rules_anchored_in_code": "96% (131/136)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 644,
+      "annotated_code_files": 646,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -817,14 +817,19 @@
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
-      "hash": "f0ac054f",
+      "hash": "1f6d4f4a",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-149"
+          "FR-146",
+          "FR-149",
+          "FR-151",
+          "FR-152",
+          "FR-153"
         ],
         "@spec": [
-          "SEC-001"
+          "SEC-001",
+          "SDD-060"
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
@@ -9869,7 +9874,7 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "9a4e59da",
+      "hash": "6cf02ed5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9917,6 +9922,26 @@
         "@spec": [
           "SDD-060",
           "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "hash": "7b737ecd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-149",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SDD-060"
         ]
       }
     },
@@ -9972,6 +9997,25 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "hash": "080b3099",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-093",
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-050",
+          "SDD-060"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
@@ -10010,7 +10054,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "196bb4c7",
+      "hash": "a836c030",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14589,7 +14633,7 @@
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "081b3f8b",
+      "hash": "44629708",
       "status": "changed"
     },
     {
@@ -23795,7 +23839,7 @@
       "id": "test:tests/unit/commerce-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/commerce-routes.test.js",
-      "hash": "380afda7",
+      "hash": "1351f689",
       "status": "current"
     },
     {
@@ -26882,8 +26926,43 @@
     },
     {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
       "to": "req:FR-149",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -40244,6 +40323,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -40323,6 +40451,48 @@
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+      "to": "req:SDD-060",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -57766,10 +57936,45 @@
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
