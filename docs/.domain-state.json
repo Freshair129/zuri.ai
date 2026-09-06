@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T08:06:40.991Z",
+  "generatedAt": "2026-09-06T11:34:27.886Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,9 +39,9 @@
     "domainCount": 10,
     "featureCount": 116,
     "readyFeatureCount": 99,
-    "requirementCount": 152,
-    "verifiedRequirementCount": 142,
-    "progressPercent": 93.4,
+    "requirementCount": 153,
+    "verifiedRequirementCount": 143,
+    "progressPercent": 93.5,
     "gapCount": 22,
     "gaps": [
       {
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -681,7 +681,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -821,7 +821,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-078",
@@ -1042,7 +1042,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-062",
@@ -1236,7 +1236,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -1613,7 +1613,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -2057,6 +2057,13 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 12
+        },
+        {
+          "id": "FR-153",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 9
         }
       ],
       "checks": {
@@ -2080,9 +2087,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 13,
-            "inventoried": 13,
-            "openApiPaths": 153,
+            "routes": 15,
+            "inventoried": 15,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -2116,8 +2123,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 5,
-            "present": 5
+            "models": 6,
+            "present": 6
           }
         },
         "authorization": {
@@ -2133,9 +2140,9 @@
             }
           ],
           "details": {
-            "mutations": 12,
-            "guardedMutations": 7,
-            "reads": 6,
+            "mutations": 14,
+            "guardedMutations": 9,
+            "reads": 8,
             "unguardedReads": 0
           }
         },
@@ -2157,6 +2164,7 @@
         "docs/domains/line-oa-studio/features/FR-150-optional-edge-execution.md",
         "docs/domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md",
         "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
+        "docs/domains/line-oa-studio/features/FR-153-line-oa-liff-app-registry.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
@@ -2178,11 +2186,11 @@
         }
       ],
       "details": {
-        "routes": 15,
-        "apiRoutes": 13,
+        "routes": 17,
+        "apiRoutes": 15,
         "pageRoutes": 2,
-        "ownedModels": 5,
-        "featureNotes": 9
+        "ownedModels": 6,
+        "featureNotes": 10
       },
       "featureIds": [
         "FEAT-018",
@@ -2200,7 +2208,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-092",
@@ -2233,7 +2241,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -2383,7 +2391,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -2754,7 +2762,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-062",
@@ -2824,7 +2832,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-073",
@@ -3112,6 +3120,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 12
+        },
+        {
+          "id": "FR-153",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 9
         }
       ],
       "checks": {
@@ -3146,7 +3161,7 @@
           "details": {
             "routes": 104,
             "inventoried": 104,
-            "openApiPaths": 153,
+            "openApiPaths": 155,
             "missingFromOpenApi": 0
           }
         },
@@ -4730,14 +4745,15 @@
     },
     {
       "id": "FEAT-018",
-      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer and its server-owned publish jobs (ADR-060, ADR-061)",
+      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-146",
         "FR-147",
         "FR-151",
-        "FR-152"
+        "FR-152",
+        "FR-153"
       ],
       "primaryDomain": "line-oa-studio",
       "contributorDomains": [
@@ -4782,12 +4798,21 @@
           "progressPercent": 100,
           "codeCount": 7,
           "testCount": 12
+        },
+        {
+          "id": "FR-153",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 9
         }
       ],
       "evidence": [
         "src/app/(pm)/line-oa/rich-menus/page.jsx",
         "src/app/api/line-oa/accounts/[id]/route.js",
         "src/app/api/line-oa/accounts/route.js",
+        "src/app/api/line-oa/liff-apps/[id]/route.js",
+        "src/app/api/line-oa/liff-apps/route.js",
         "src/app/api/line-oa/rich-menu-worker/route.js",
         "src/app/api/line-oa/rich-menus/[id]/jobs/route.js",
         "src/app/api/line-oa/rich-menus/[id]/route.js",
@@ -4800,10 +4825,12 @@
         "src/modules/integration/application/integration-management-service.js",
         "src/modules/line-oa-studio/application/line-oa-account-authority.js",
         "src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
         "src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
         "src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
         "src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
         "src/modules/line-oa-studio/domain/line-oa-account.js",
+        "src/modules/line-oa-studio/domain/line-oa-liff-app.js",
         "src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
         "src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
         "src/modules/line-oa-studio/index.js",
@@ -4818,6 +4845,7 @@
         "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/fr151-line-oa-rich-menu.test.js",
         "tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
+        "tests/integration/fr153-line-oa-liff-app.test.js",
         "tests/integration/line-server-backup.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/integration/xlsx-intake.test.js",
@@ -4834,6 +4862,8 @@
         "tests/unit/line-oa-account-domain.test.js",
         "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/line-oa-account-schema-contract.test.js",
+        "tests/unit/line-oa-liff-app-domain.test.js",
+        "tests/unit/line-oa-liff-app-routes.test.js",
         "tests/unit/line-oa-rich-menu-console.test.js",
         "tests/unit/line-oa-rich-menu-domain.test.js",
         "tests/unit/line-oa-rich-menu-jobs-routes.test.js",
@@ -7444,7 +7474,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 30
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -7480,6 +7510,7 @@
         "tests/unit/fr061-per-business-domain-visibility.test.js",
         "tests/unit/fr076-product-owner-business-assignment.test.js",
         "tests/unit/line-oa-account-routes.test.js",
+        "tests/unit/line-oa-liff-app-routes.test.js",
         "tests/unit/line-oa-rich-menu-jobs-routes.test.js",
         "tests/unit/line-oa-rich-menu-routes.test.js",
         "tests/unit/market-intelligence/market-observation-feed.test.js",
@@ -7839,7 +7870,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 39
+          "testCount": 40
         }
       ],
       "evidence": [
@@ -7896,6 +7927,7 @@
         "tests/integration/fr089-team-scope.test.js",
         "tests/integration/fr146-line-oa-account.test.js",
         "tests/integration/fr151-line-oa-rich-menu.test.js",
+        "tests/integration/fr153-line-oa-liff-app.test.js",
         "tests/integration/project-authorization.test.js",
         "tests/integration/project-business-binding.test.js",
         "tests/integration/project-core.test.js",
