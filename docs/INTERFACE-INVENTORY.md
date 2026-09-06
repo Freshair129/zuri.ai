@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.4.0b |
+| **Version** | 1.5.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-02 |
+| **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=58; operational_domain_keys=10; operational_subdomain_entries=31; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=59; operational_domain_keys=10; operational_subdomain_entries=31; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -160,6 +160,7 @@ is operational.
 |---|---|---|---|---|---|
 | `/assets` | Asset Management Dashboard | BusinessShell → Asset Management / Dashboard | foundation readiness, intake stages, evidence/procurement/lot gates, receiving/template entry and explicit external/Finance boundaries | Business and `assets` domain visibility required, ready, forbidden, configured/snapshot/external-boundary states | implemented beta; `src/app/(pm)/assets/page.jsx`, FR-133..140 / ADR-055/056 |
 | `/assets/receiving` | Asset Receiving & Evidence Review | BusinessShell → Asset Management / Receiving | upload verified private evidence, create canonical draft, invoke OCR/Vision candidate, human accept, download/import/export Asset workbook | Business plus `assets` grant and owner/receiver/reviewer capability; idle, uploading, draft, candidate, review, error, `READY_FOR_REGISTRATION` | implemented beta; `src/app/(pm)/assets/receiving/page.jsx`, FR-137..139 / ADR-056 |
+| `/assets/register` | Asset Register Workspace | BusinessShell → Asset Management / Register | searchable asset master register, category/status/branch filters, serial/tag drawer, manual registration promote action | Business plus `assets` grant; empty, loading, error, ready, drawer active | implemented beta; `src/app/(pm)/assets/register/page.jsx`, FR-133, FR-135 / ADR-055 |
 
 ### 3.7 Workspace compatibility surfaces
 

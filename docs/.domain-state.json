@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T07:10:36.253Z",
+  "generatedAt": "2026-09-06T07:15:46.979Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -42,7 +42,7 @@
     "requirementCount": 152,
     "verifiedRequirementCount": 142,
     "progressPercent": 93.4,
-    "gapCount": 21,
+    "gapCount": 22,
     "gaps": [
       {
         "domain": "agent",
@@ -188,6 +188,13 @@
         "severity": "medium",
         "check": "runtimeContract",
         "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-002",
+        "severity": "medium",
+        "check": "authorization",
+        "summary": "At least one read route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -435,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -586,8 +593,8 @@
           "id": "FR-133",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 18
+          "codeCount": 3,
+          "testCount": 21
         },
         {
           "id": "FR-134",
@@ -600,8 +607,8 @@
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 13
+          "codeCount": 4,
+          "testCount": 16
         },
         {
           "id": "FR-136",
@@ -669,7 +676,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -1221,7 +1228,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -1598,7 +1605,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -2065,7 +2072,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -2210,7 +2217,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -2360,7 +2367,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 143,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -2996,8 +3003,8 @@
           "id": "FR-133",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 18
+          "codeCount": 6,
+          "testCount": 21
         },
         {
           "id": "FR-134",
@@ -3010,8 +3017,8 @@
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 13
+          "codeCount": 6,
+          "testCount": 16
         },
         {
           "id": "FR-136",
@@ -3108,8 +3115,8 @@
             }
           ],
           "details": {
-            "routes": 41,
-            "inventoried": 41,
+            "routes": 42,
+            "inventoried": 42,
             "missing": 0
           }
         },
@@ -3121,9 +3128,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 94,
-            "inventoried": 94,
-            "openApiPaths": 143,
+            "routes": 96,
+            "inventoried": 96,
+            "openApiPaths": 145,
             "missingFromOpenApi": 0
           }
         },
@@ -3170,16 +3177,22 @@
           }
         },
         "authorization": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "AUTH-002",
+              "severity": "medium",
+              "summary": "At least one read route lacks a recognizable request viewer seam"
+            }
+          ],
           "details": {
-            "mutations": 76,
-            "guardedMutations": 76,
-            "reads": 46,
-            "unguardedReads": 0
+            "mutations": 77,
+            "guardedMutations": 77,
+            "reads": 48,
+            "unguardedReads": 1
           }
         },
         "tests": {
@@ -3258,6 +3271,12 @@
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
         },
         {
+          "id": "AUTH-002",
+          "severity": "medium",
+          "check": "authorization",
+          "summary": "At least one read route lacks a recognizable request viewer seam"
+        },
+        {
           "id": "TEST-001",
           "severity": "medium",
           "check": "tests",
@@ -3272,9 +3291,9 @@
         }
       ],
       "details": {
-        "routes": 135,
-        "apiRoutes": 94,
-        "pageRoutes": 41,
+        "routes": 138,
+        "apiRoutes": 96,
+        "pageRoutes": 42,
         "ownedModels": 30,
         "featureNotes": 31
       },
@@ -4436,8 +4455,8 @@
           "id": "FR-133",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 18
+          "codeCount": 10,
+          "testCount": 21
         },
         {
           "id": "FR-134",
@@ -4450,8 +4469,8 @@
           "id": "FR-135",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 13
+          "codeCount": 11,
+          "testCount": 16
         },
         {
           "id": "FR-136",
@@ -4463,9 +4482,14 @@
       ],
       "evidence": [
         "src/app/(pm)/assets/page.jsx",
+        "src/app/(pm)/assets/register/page.jsx",
         "src/app/api/assets/intakes/validate/route.js",
+        "src/app/api/assets/register/[id]/route.js",
+        "src/app/api/assets/register/route.js",
         "src/config/domains.js",
         "src/lib/validation/enums.js",
+        "src/modules/asset-management/application/asset-register-service.js",
+        "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
         "src/modules/asset-management/domain/asset-intake.js",
         "src/modules/asset-management/domain/depreciation.js",
         "src/modules/asset-management/index.js",
@@ -4477,6 +4501,7 @@
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/line-server-backup.test.js",
+        "tests/integration/openapi-docs.test.js",
         "tests/integration/xlsx-intake.test.js",
         "tests/unit/asset-depreciation.test.js",
         "tests/unit/asset-management-api-ui-contract.test.js",
@@ -4485,6 +4510,8 @@
         "tests/unit/asset-management-pipeline-contract.test.js",
         "tests/unit/asset-management-schema-contract.test.js",
         "tests/unit/asset-production-activation-contract.test.js",
+        "tests/unit/asset-register-routes.test.js",
+        "tests/unit/asset-register-service.test.js",
         "tests/unit/conversation-analysis-contract.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",

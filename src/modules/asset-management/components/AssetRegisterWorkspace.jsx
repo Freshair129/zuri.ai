@@ -1,0 +1,514 @@
+'use client'
+
+// @req FR-133, FR-135 — interactive Asset Register workspace, search, filters, and QR tag preview.
+// @spec SDD-078, SDD-080, SEC-023, ADR-055
+// @tested tests/unit/asset-register-service.test.js
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import {
+  Search,
+  Filter,
+  QrCode,
+  Package,
+  Layers,
+  MapPin,
+  User,
+  Clock,
+  FileText,
+  AlertCircle,
+  ChevronRight,
+  X,
+  Copy,
+  Check,
+  RefreshCw,
+  SlidersHorizontal,
+  ArrowUpRight,
+  ShieldCheck,
+  History,
+} from 'lucide-react'
+import { Card, SectionTitle, StatusPill, EmptyState } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
+
+const CATEGORIES = [
+  { code: '', label: 'ทุกหมวดหมู่' },
+  { code: 'IT_EQUIPMENT', label: 'อุปกรณ์ไอที / คอมพิวเตอร์' },
+  { code: 'OFFICE_FURNITURE', label: 'เฟอร์นิเจอร์สำนักงาน' },
+  { code: 'OFFICE_EQUIPMENT', label: 'เครื่องใช้สำนักงาน' },
+  { code: 'VEHICLE', label: 'ยานพาหนะ' },
+  { code: 'MACHINERY', label: 'เครื่องจักร / เครื่องมือ' },
+  { code: 'ELECTRONICS', label: 'อุปกรณ์อิเล็กทรอนิกส์' },
+  { code: 'GENERAL', label: 'ทั่วไป' },
+]
+
+const STATUSES = [
+  { code: '', label: 'ทุกสถานะ' },
+  { code: 'ACTIVE', label: 'ใช้งานปกติ (ACTIVE)' },
+  { code: 'IN_USE', label: 'กำลังใช้งานในโครงการ (IN_USE)' },
+  { code: 'MAINTENANCE', label: 'ส่งซ่อม / บำรุงรักษา (MAINTENANCE)' },
+  { code: 'DISPOSED', label: 'ตัดจำหน่ายแล้ว (DISPOSED)' },
+]
+
+export default function AssetRegisterWorkspace() {
+  const scope = useScope()
+  const business = scope.shell.activeBusiness
+
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState({ items: [], stats: { total: 0, active: 0, inUse: 0, maintenance: 0 } })
+  const [search, setSearch] = useState('')
+  const [categoryCode, setCategoryCode] = useState('')
+  const [status, setStatus] = useState('')
+  const [selectedAssetId, setSelectedAssetId] = useState(null)
+  const [assetDetail, setAssetDetail] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const fetchAssets = useCallback(async () => {
+    if (!business?.id) return
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        businessId: business.id,
+      })
+      if (search.trim()) params.set('search', search.trim())
+      if (categoryCode) params.set('categoryCode', categoryCode)
+      if (status) params.set('status', status)
+
+      const res = await fetch(`/api/assets/register?${params.toString()}`)
+      if (res.ok) {
+        const json = await res.json()
+        setData(json)
+      }
+    } catch (err) {
+      console.error('Failed to fetch assets:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [business?.id, search, categoryCode, status])
+
+  useEffect(() => {
+    fetchAssets()
+  }, [fetchAssets])
+
+  const openDetail = async (id) => {
+    setSelectedAssetId(id)
+    setDetailLoading(true)
+    setAssetDetail(null)
+    try {
+      const res = await fetch(`/api/assets/register/${id}?businessId=${encodeURIComponent(business.id)}`)
+      if (res.ok) {
+        const json = await res.json()
+        setAssetDetail(json.asset)
+      }
+    } catch (err) {
+      console.error('Failed to fetch asset detail:', err)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  const copyQrUri = (code) => {
+    const uri = `zuri://assets/${business.id}/${code}?v=1`
+    navigator.clipboard.writeText(uri)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (!business) {
+    return (
+      <Card>
+        <EmptyState
+          title="กรุณาเลือก Business"
+          subtitle="เลือกธุรกิจจากเมนูด้านบนเพื่อเปิดดูทะเบียนทรัพย์สิน"
+        />
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* 1. Stats Bar */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Card>
+          <div className="flex items-center gap-2">
+            <Package size={16} className="text-muted" />
+            <p className="text-[11px] font-semibold text-muted">ทรัพย์สินทั้งหมด</p>
+          </div>
+          <p className="mt-1 text-2xl font-bold">{data.stats.total}</p>
+        </Card>
+        <Card>
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={16} style={{ color: 'var(--success)' }} />
+            <p className="text-[11px] font-semibold text-muted">สถานะปกติ (Active)</p>
+          </div>
+          <p className="mt-1 text-2xl font-bold">{data.stats.active}</p>
+        </Card>
+        <Card>
+          <div className="flex items-center gap-2">
+            <Layers size={16} style={{ color: 'var(--action-primary)' }} />
+            <p className="text-[11px] font-semibold text-muted">อยู่ในโครงการ</p>
+          </div>
+          <p className="mt-1 text-2xl font-bold">{data.stats.inUse}</p>
+        </Card>
+        <Card>
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} style={{ color: 'var(--warning)' }} />
+            <p className="text-[11px] font-semibold text-muted">ส่งซ่อม/บำรุงรักษา</p>
+          </div>
+          <p className="mt-1 text-2xl font-bold">{data.stats.maintenance}</p>
+        </Card>
+      </div>
+
+      {/* 2. Filter & Search Controls */}
+      <Card>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยรหัส AST-*, ชื่อทรัพย์สิน, Serial Number, ยี่ห้อ, รุ่น..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-2 pl-9 pr-4 text-xs focus:border-[var(--action-primary)] focus:outline-none"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Filter size={14} className="text-muted" />
+              <select
+                value={categoryCode}
+                onChange={(e) => setCategoryCode(e.target.value)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-2.5 py-2 text-xs focus:outline-none"
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-2.5 py-2 text-xs focus:outline-none"
+            >
+              {STATUSES.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={fetchAssets}
+              disabled={loading}
+              className="btn btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs"
+              title="รีเฟรชข้อมูล"
+            >
+              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              <span>รีเฟรช</span>
+            </button>
+          </div>
+        </div>
+      </Card>
+
+      {/* 3. Register Table */}
+      <Card className="overflow-hidden p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[11px] font-semibold text-muted">
+              <tr>
+                <th className="py-3 pl-4 pr-2">รหัสทรัพย์สิน</th>
+                <th className="px-3 py-3">ชื่อรายการ / สเปก</th>
+                <th className="px-3 py-3">หมวดหมู่</th>
+                <th className="px-3 py-3">สถานะ</th>
+                <th className="px-3 py-3">ผู้รับผิดชอบ / ดูแล</th>
+                <th className="px-3 py-3">สถานที่ตั้ง</th>
+                <th className="px-3 py-3">วันที่รับ</th>
+                <th className="py-3 pl-2 pr-4 text-right">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--border)]">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-muted">
+                    <RefreshCw size={24} className="mx-auto animate-spin opacity-50" />
+                    <p className="mt-2 text-xs">กำลังโหลดทะเบียนทรัพย์สิน...</p>
+                  </td>
+                </tr>
+              ) : data.items.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center">
+                    <Package size={32} className="mx-auto text-muted opacity-40" />
+                    <p className="mt-2 font-bold text-[13px]">ยังไม่พบทรัพย์สินที่ขึ้นทะเบียน</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {search || categoryCode || status
+                        ? 'ไม่พบข้อมูลที่ตรงกับตัวกรอง กรุณาลองเปลี่ยนคำค้นหา'
+                        : 'เริ่มต้นด้วยการตรวจรับอุปกรณ์และขึ้นทะเบียนจากหลักฐาน'}
+                    </p>
+                    <div className="mt-4 flex justify-center gap-2">
+                      <Link href="/assets/receiving" className="btn btn-primary text-xs">
+                        ตรวจรับอุปกรณ์ใหม่
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                data.items.map((asset) => (
+                  <tr
+                    key={asset.id}
+                    onClick={() => openDetail(asset.id)}
+                    className="group cursor-pointer transition-colors hover:bg-[var(--surface-subtle)]"
+                  >
+                    <td className="py-3 pl-4 pr-2 font-mono font-bold text-[var(--action-primary)]">
+                      <div className="flex items-center gap-1.5">
+                        <QrCode size={13} className="text-muted group-hover:text-[var(--action-primary)]" />
+                        <span>{asset.assetCode}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <p className="font-semibold text-foreground">{asset.name}</p>
+                      {(asset.brand || asset.model || asset.serialNumber) && (
+                        <p className="text-[11px] text-muted">
+                          {[asset.brand, asset.model, asset.serialNumber ? `S/N: ${asset.serialNumber}` : null]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-medium">
+                        {asset.categoryCode}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusPill status={asset.status} />
+                    </td>
+                    <td className="px-3 py-3">
+                      {asset.accountablePerson ? (
+                        <div className="flex items-center gap-1.5">
+                          <User size={12} className="text-muted" />
+                          <span>{asset.accountablePerson.displayName || asset.accountablePerson.email}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {asset.currentLocation ? (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin size={12} className="text-muted" />
+                          <span>{asset.currentLocation.locationName || asset.currentLocation.locationCode}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-muted">
+                      {asset.receivedOn ? new Date(asset.receivedOn).toLocaleDateString('th-TH') : '-'}
+                    </td>
+                    <td className="py-3 pl-2 pr-4 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openDetail(asset.id)
+                        }}
+                        className="btn btn-secondary inline-flex items-center gap-1 p-1.5 text-[11px]"
+                      >
+                        <span>ดูประวัติ</span>
+                        <ChevronRight size={13} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* 4. Asset Detail Drawer / Modal */}
+      {selectedAssetId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-xs transition-opacity">
+          <div className="relative h-full w-full max-w-xl overflow-y-auto border-l border-[var(--border)] bg-[var(--surface-elevated)] p-6 shadow-2xl">
+            <button
+              onClick={() => setSelectedAssetId(null)}
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-muted hover:bg-[var(--surface-subtle)] hover:text-foreground"
+            >
+              <X size={18} />
+            </button>
+
+            {detailLoading || !assetDetail ? (
+              <div className="flex h-full items-center justify-center">
+                <RefreshCw size={24} className="animate-spin text-muted" />
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {/* Header */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 font-mono text-xs font-bold text-[var(--action-primary)]">
+                      {assetDetail.assetCode}
+                    </span>
+                    <StatusPill status={assetDetail.status} />
+                  </div>
+                  <h2 className="mt-2 text-xl font-bold">{assetDetail.name}</h2>
+                  {assetDetail.description && <p className="mt-1 text-xs text-muted">{assetDetail.description}</p>}
+                </div>
+
+                {/* QR Tag Panel */}
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-bold text-muted uppercase">Digital QR Tag</p>
+                      <p className="mt-1 font-mono text-xs break-all">
+                        zuri://assets/{business.id}/{assetDetail.assetCode}?v=1
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => copyQrUri(assetDetail.assetCode)}
+                      className="btn btn-secondary shrink-0 flex items-center gap-1 text-xs"
+                    >
+                      {copied ? <Check size={13} style={{ color: 'var(--success)' }} /> : <Copy size={13} />}
+                      <span>{copied ? 'คัดลอกแล้ว' : 'คัดลอก URI'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Specs Grid */}
+                <div>
+                  <SectionTitle caption="ข้อมูลจำเพาะและรหัสอ้างอิงทางกายภาพ">สเปกและรายละเอียด</SectionTitle>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">ยี่ห้อ (Brand)</p>
+                      <p className="font-semibold">{assetDetail.brand || '-'}</p>
+                    </div>
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">รุ่น (Model)</p>
+                      <p className="font-semibold">{assetDetail.model || '-'}</p>
+                    </div>
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">Serial Number</p>
+                      <p className="font-mono font-semibold">{assetDetail.serialNumber || '-'}</p>
+                    </div>
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">สภาพ (Condition)</p>
+                      <p className="font-semibold">{assetDetail.condition || 'GOOD'}</p>
+                    </div>
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">ยอดจัดซื้อ (Acquisition)</p>
+                      <p className="font-semibold">
+                        {assetDetail.acquisitionAmount
+                          ? `${Number(assetDetail.acquisitionAmount).toLocaleString()} ${assetDetail.currency || 'THB'}`
+                          : '-'}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-[var(--border)] p-2.5">
+                      <p className="text-[10px] text-muted">วันที่ขึ้นทะเบียน</p>
+                      <p className="font-semibold">
+                        {assetDetail.registeredAt ? new Date(assetDetail.registeredAt).toLocaleDateString('th-TH') : '-'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Responsibilities History */}
+                <div>
+                  <SectionTitle caption="บันทึกช่วงเวลาผู้รับผิดชอบและผู้ดูแล (ไม่เขียนทับประวัติ)">
+                    ประวัติผู้รับผิดชอบ (Custody Intervals)
+                  </SectionTitle>
+                  {assetDetail.responsibilities.length === 0 ? (
+                    <p className="text-xs text-muted">ไม่มีบันทึกผู้รับผิดชอบ</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {assetDetail.responsibilities.map((r) => (
+                        <div
+                          key={r.id}
+                          className="flex items-center justify-between rounded-lg border border-[var(--border)] p-2.5 text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-md bg-[var(--surface-subtle)] px-2 py-0.5 text-[10px] font-bold">
+                              {r.role}
+                            </span>
+                            <div>
+                              <p className="font-semibold">{r.person?.displayName || r.person?.email || 'Unknown'}</p>
+                              <p className="text-[10px] text-muted">
+                                {new Date(r.effectiveFrom).toLocaleDateString('th-TH')} -{' '}
+                                {r.effectiveTo ? new Date(r.effectiveTo).toLocaleDateString('th-TH') : 'ปัจจุบัน'}
+                              </p>
+                            </div>
+                          </div>
+                          {!r.effectiveTo && (
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Locations History */}
+                <div>
+                  <SectionTitle caption="ประวัติการย้ายและสถานที่ตั้งอุปกรณ์">
+                    ประวัติตำแหน่งที่ตั้ง (Location History)
+                  </SectionTitle>
+                  {assetDetail.locations.length === 0 ? (
+                    <p className="text-xs text-muted">ไม่มีบันทึกสถานที่ตั้ง</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {assetDetail.locations.map((l) => (
+                        <div
+                          key={l.id}
+                          className="flex items-center justify-between rounded-lg border border-[var(--border)] p-2.5 text-xs"
+                        >
+                          <div>
+                            <p className="font-semibold">{l.locationName || l.locationCode}</p>
+                            {l.branch && <p className="text-[10px] text-muted">สาขา: {l.branch.name}</p>}
+                            <p className="text-[10px] text-muted">
+                              {new Date(l.effectiveFrom).toLocaleDateString('th-TH')} -{' '}
+                              {l.effectiveTo ? new Date(l.effectiveTo).toLocaleDateString('th-TH') : 'ปัจจุบัน'}
+                            </p>
+                          </div>
+                          {!l.effectiveTo && (
+                            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Evidence & Documents */}
+                <div>
+                  <SectionTitle caption="ภาพถ่ายและหลักฐานการจ่ายเงินที่ผูกติดกับทรัพย์สิน">
+                    หลักฐานที่แนบ ({assetDetail.evidence.length})
+                  </SectionTitle>
+                  {assetDetail.evidence.length === 0 ? (
+                    <p className="text-xs text-muted">ไม่มีหลักฐานแนบ</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {assetDetail.evidence.map((e) => (
+                        <div key={e.id} className="rounded-lg border border-[var(--border)] p-2.5 text-xs">
+                          <p className="text-[10px] font-bold text-[var(--action-primary)]">{e.role}</p>
+                          <p className="mt-0.5 truncate font-semibold">{e.fileAsset?.filename || 'File Asset'}</p>
+                          <p className="text-[10px] text-muted">
+                            {e.fileAsset?.sizeBytes ? `${Math.round(e.fileAsset.sizeBytes / 1024)} KB` : ''} · {e.status}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
