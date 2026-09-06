@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T07:28:39.162Z",
+  "generatedAt": "2026-09-06T07:43:30.256Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -593,8 +593,8 @@
           "id": "FR-133",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 26
+          "codeCount": 8,
+          "testCount": 28
         },
         {
           "id": "FR-134",
@@ -607,15 +607,15 @@
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 21
+          "codeCount": 10,
+          "testCount": 23
         },
         {
           "id": "FR-136",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 13
+          "codeCount": 3,
+          "testCount": 16
         },
         {
           "id": "FR-137",
@@ -676,7 +676,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -1228,7 +1228,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -1605,7 +1605,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -2072,7 +2072,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -2217,7 +2217,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -2367,7 +2367,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 151,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -3003,8 +3003,8 @@
           "id": "FR-133",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 13,
-          "testCount": 26
+          "codeCount": 14,
+          "testCount": 28
         },
         {
           "id": "FR-134",
@@ -3017,15 +3017,15 @@
           "id": "FR-135",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 13,
-          "testCount": 21
+          "codeCount": 14,
+          "testCount": 23
         },
         {
           "id": "FR-136",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 13
+          "codeCount": 4,
+          "testCount": 16
         },
         {
           "id": "FR-137",
@@ -3128,9 +3128,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 102,
-            "inventoried": 102,
-            "openApiPaths": 151,
+            "routes": 104,
+            "inventoried": 104,
+            "openApiPaths": 153,
             "missingFromOpenApi": 0
           }
         },
@@ -3189,9 +3189,9 @@
             }
           ],
           "details": {
-            "mutations": 82,
-            "guardedMutations": 82,
-            "reads": 49,
+            "mutations": 83,
+            "guardedMutations": 83,
+            "reads": 51,
             "unguardedReads": 1
           }
         },
@@ -3291,8 +3291,8 @@
         }
       ],
       "details": {
-        "routes": 145,
-        "apiRoutes": 102,
+        "routes": 147,
+        "apiRoutes": 104,
         "pageRoutes": 43,
         "ownedModels": 30,
         "featureNotes": 31
@@ -4455,8 +4455,8 @@
           "id": "FR-133",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
-          "testCount": 26
+          "codeCount": 23,
+          "testCount": 28
         },
         {
           "id": "FR-134",
@@ -4469,15 +4469,15 @@
           "id": "FR-135",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
-          "testCount": 21
+          "codeCount": 25,
+          "testCount": 23
         },
         {
           "id": "FR-136",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 13
+          "codeCount": 8,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -4487,6 +4487,8 @@
         "src/app/api/assets/intakes/validate/route.js",
         "src/app/api/assets/lookup/route.js",
         "src/app/api/assets/register/[id]/allocate/route.js",
+        "src/app/api/assets/register/[id]/depreciation/route.js",
+        "src/app/api/assets/register/[id]/maintenance/route.js",
         "src/app/api/assets/register/[id]/relocate/route.js",
         "src/app/api/assets/register/[id]/responsibility/route.js",
         "src/app/api/assets/register/[id]/return/route.js",
@@ -4495,8 +4497,10 @@
         "src/app/api/assets/register/route.js",
         "src/config/domains.js",
         "src/lib/validation/enums.js",
+        "src/modules/asset-management/application/asset-depreciation-service.js",
         "src/modules/asset-management/application/asset-lifecycle-service.js",
         "src/modules/asset-management/application/asset-lookup-service.js",
+        "src/modules/asset-management/application/asset-maintenance-service.js",
         "src/modules/asset-management/application/asset-register-service.js",
         "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
         "src/modules/asset-management/components/AssetScannerWorkspace.jsx",
@@ -4520,6 +4524,8 @@
         "tests/unit/asset-lifecycle-service.test.js",
         "tests/unit/asset-lookup-routes.test.js",
         "tests/unit/asset-lookup-service.test.js",
+        "tests/unit/asset-maintenance-routes.test.js",
+        "tests/unit/asset-maintenance-service.test.js",
         "tests/unit/asset-management-api-ui-contract.test.js",
         "tests/unit/asset-management-contract.test.js",
         "tests/unit/asset-management-navigation.test.js",

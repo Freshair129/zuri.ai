@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1883,
-    "total_edges": 7210,
+    "total_nodes": 1891,
+    "total_edges": 7252,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 35,
       "feature": 19,
-      "route": 211,
+      "route": 213,
       "model": 87,
       "requirement": 309,
-      "test": 468,
-      "code_file": 515
+      "test": 470,
+      "code_file": 519
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 515,
+      "annotated_code_files": 519,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -1584,6 +1584,48 @@
         ],
         "@tested": [
           "tests/unit/asset-lifecycle-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/depreciation/route.js",
+      "hash": "9c67b14e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-080",
+          "NFR-021",
+          "BR-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-maintenance-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/register/[id]/maintenance/route.js",
+      "hash": "edb15e55",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-maintenance-routes.test.js"
         ]
       }
     },
@@ -5810,6 +5852,26 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-depreciation-service.js",
+      "hash": "b4444830",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-080",
+          "NFR-021",
+          "BR-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-depreciation.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-evidence-service.js",
@@ -5952,6 +6014,28 @@
       }
     },
     {
+      "id": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/application/asset-maintenance-service.js",
+      "hash": "4253d1a1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-080",
+          "BR-023",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-maintenance-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/asset-management/application/asset-register-service.js",
       "type": "code_file",
       "path": "src/modules/asset-management/application/asset-register-service.js",
@@ -6020,7 +6104,7 @@
       "id": "code:src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
-      "hash": "94380846",
+      "hash": "4f3b0b20",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8647,7 +8731,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "9ad5a0ba",
+      "hash": "4a9254c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10673,9 +10757,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.40.0b",
+      "version": "1.41.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "4a06636b",
+      "hash": "fafa269b",
       "status": "current"
     },
     {
@@ -16507,6 +16591,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/assets/register/[id]/depreciation",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/depreciation",
+      "path": "src/app/api/assets/register/[id]/depreciation/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/register/[id]/maintenance",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/register/[id]/maintenance",
+      "path": "src/app/api/assets/register/[id]/maintenance/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/assets/register/[id]/relocate",
       "type": "route",
       "kind": "api",
@@ -19288,7 +19388,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "2aff15fc",
+      "hash": "54bdc8a1",
       "status": "current"
     },
     {
@@ -19611,6 +19711,20 @@
       "type": "test",
       "path": "tests/unit/asset-lookup-service.test.js",
       "hash": "c34b92f8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-maintenance-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-maintenance-routes.test.js",
+      "hash": "fc453c72",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-maintenance-service.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-maintenance-service.test.js",
+      "hash": "f3e1eeb0",
       "status": "current"
     },
     {
@@ -23979,6 +24093,76 @@
     {
       "from": "code:src/app/api/assets/register/[id]/allocate/route.js",
       "to": "req:SEC-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "to": "req:NFR-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -30487,6 +30671,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "to": "req:NFR-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/asset-management/application/asset-evidence-service.js",
       "to": "req:BR-025",
       "type": "follows",
@@ -30698,6 +30910,48 @@
     },
     {
       "from": "code:src/modules/asset-management/application/asset-lookup-service.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/application/asset-maintenance-service.js",
       "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
@@ -42695,6 +42949,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/assets/register/[id]/depreciation",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/register/[id]/maintenance",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/assets/register/[id]/relocate",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -54288,6 +54556,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-137",
       "type": "verifies",
       "status": "current",
@@ -56661,6 +56936,13 @@
     },
     {
       "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "code:src/modules/asset-management/application/asset-depreciation-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
       "to": "code:src/modules/asset-management/domain/depreciation.js",
       "type": "tests",
       "status": "current",
@@ -57494,6 +57776,132 @@
     },
     {
       "from": "test:tests/unit/asset-lookup-service.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/depreciation/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "code:src/app/api/assets/register/[id]/maintenance/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:NFR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-routes.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "code:src/modules/asset-management/application/asset-maintenance-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-maintenance-service.test.js",
       "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
