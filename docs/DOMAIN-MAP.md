@@ -84,7 +84,7 @@ Charter: [docs/domains/line-oa-studio/CHARTER.md](domains/line-oa-studio/CHARTER
 |---|---|
 | Modules | `src/modules/line-oa-studio` |
 | Models owned | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineConversationJob |
-| Routes owned | 12 (11 api · 1 pages) |
+| Routes owned | 13 (11 api · 2 pages) |
 | FRs implemented in lane | FR-022, FR-146, FR-149, FR-150, FR-151 |
 
 ## market-intelligence

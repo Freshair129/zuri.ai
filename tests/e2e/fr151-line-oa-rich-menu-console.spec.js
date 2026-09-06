@@ -1,0 +1,83 @@
+const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
+const { PrismaClient } = require('@prisma/client')
+const { e2eTarget } = require('./e2e-target')
+
+const createdNames = []
+test.afterEach(async () => {
+  // Test-owned fixture only; the rich menus go with their account.
+  const db = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
+  try {
+    const names = createdNames.splice(0)
+    const accounts = await db.lineOaAccount.findMany({ where: { connection: { name: { in: names } } }, select: { id: true } })
+    const accountIds = accounts.map((account) => account.id)
+    await db.lineOaRichMenuVersion.deleteMany({ where: { richMenu: { lineOaAccountId: { in: accountIds } } } })
+    await db.lineOaRichMenu.deleteMany({ where: { lineOaAccountId: { in: accountIds } } })
+    await db.lineOaAccount.deleteMany({ where: { connection: { name: { in: names } } } })
+    await db.integrationConnection.deleteMany({ where: { name: { in: names } } })
+  }
+  finally { await db.$disconnect() }
+})
+
+// @req FR-151 — an owner authors a rich menu in the real console: the draft
+//   persists, the version list shows what still blocks a freeze, and Freeze
+//   stays disabled until it does not.
+// @spec ADR-060 D3, D11
+// @tested tests/e2e/fr151-line-oa-rich-menu-console.spec.js
+
+test('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
+  await loginAsOwner(page)
+  await page.getByRole('button', { name: /Open Business Business 01/ }).click()
+  await expect(page).toHaveURL(/overview/)
+
+  // A rich menu belongs to an account, so make one the same way FR-149 does.
+  const tag = `rm-e2e-${Date.now()}`
+  createdNames.push(tag)
+  await page.goto('/line-oa')
+  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
+  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
+  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
+  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
+  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
+  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
+  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  await expect(page.getByRole('heading', { name: tag, exact: true })).toBeVisible()
+
+  await page.goto('/line-oa/rich-menus')
+  await expect(page.getByRole('heading', { name: 'Rich Menu' })).toBeVisible()
+  await expect(page.getByLabel('บัญชี LINE OA', { exact: true })).toBeVisible()
+  await expect(page.getByText('ยังไม่มีเมนูสำหรับบัญชีนี้', { exact: true })).toBeVisible()
+
+  const created = page.waitForResponse(response => response.request().method() === 'POST' && response.url().includes('/api/line-oa/rich-menus'))
+  await page.getByLabel('รหัสเมนู', { exact: true }).fill(tag)
+  await page.getByLabel('ชื่อเมนู', { exact: true }).fill(`${tag} menu`)
+  await page.getByLabel('ข้อความบนแถบแชท', { exact: true }).fill('เมนู')
+  // The default layout is one cell, and its MESSAGE action needs its text:
+  // zRichMenuDraft requires it, so the form requires it too and the browser
+  // refuses to submit without it.
+  await page.getByLabel('ข้อความที่ส่งแทนผู้ใช้', { exact: true }).fill('สวัสดี')
+  await page.getByRole('button', { name: 'สร้างเมนูพร้อมฉบับร่างแรก', exact: true }).click()
+  expect((await created).ok()).toBe(true)
+  await expect(page.locator('p[role="alert"]')).toHaveCount(0)
+
+  // It survives a reload, which is the only proof the row exists rather than
+  // the form having cleared itself.
+  await page.reload()
+  await expect(page.getByRole('heading', { name: `${tag} menu`, exact: true })).toBeVisible()
+  const card = page.getByRole('heading', { name: `${tag} menu`, exact: true }).locator('xpath=../../..')
+  await expect(card.getByText('v1', { exact: true })).toBeVisible()
+
+  // The service computes the blockers; the page shows them and gates on them.
+  await expect(card.getByText('Freeze ยังไม่ได้เพราะ', { exact: true })).toBeVisible()
+  // The blocker is shown twice on purpose: once against the version it belongs
+  // to, once as the reason the Freeze button is off. A disabled control with no
+  // stated reason is the thing worth avoiding here.
+  await expect(card.getByText(/image FileAsset/i)).toHaveCount(2)
+  await expect(card.getByText(/image FileAsset/i).first()).toBeVisible()
+  await expect(card.getByRole('button', { name: 'Freeze ฉบับร่างนี้', exact: true })).toBeDisabled()
+
+  // No control claims the menu reaches LINE, and the page says why.
+  await expect(page.getByText(/ไม่ใช่การส่งขึ้น LINE/)).toBeVisible()
+  await expect(page.getByRole('button', { name: /publish|เผยแพร่|ส่งขึ้น/i })).toHaveCount(0)
+})

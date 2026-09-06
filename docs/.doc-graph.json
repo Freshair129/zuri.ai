@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1828,
-    "total_edges": 6993,
+    "total_nodes": 1832,
+    "total_edges": 7001,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 35,
       "feature": 19,
-      "route": 198,
+      "route": 199,
       "model": 86,
       "requirement": 308,
-      "test": 455,
-      "code_file": 491
+      "test": 457,
+      "code_file": 492
     },
     "coverage": {
       "requirements": 308,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (141/141)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 491,
+      "annotated_code_files": 492,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -58,7 +58,8 @@
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:SRS",
+      "doc:INTERFACE-INVENTORY"
     ],
     "added": [],
     "removed": []
@@ -466,6 +467,24 @@
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "hash": "ed4837c8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-151"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-console.test.js"
         ]
       }
     },
@@ -4543,7 +4562,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "0f369963",
+      "hash": "6ea5495e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11313,8 +11332,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "a2d0b9f4",
-      "status": "current"
+      "hash": "73d7655b",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -17074,6 +17093,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/rich-menus",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/rich-menus",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/login",
       "type": "route",
       "kind": "page",
@@ -18026,6 +18053,13 @@
       "type": "test",
       "path": "tests/e2e/fr149-line-server-console.spec.js",
       "hash": "3abd6068",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "hash": "7e89a6d8",
       "status": "current"
     },
     {
@@ -20066,6 +20100,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-console.test.js",
+      "hash": "e59fbb55",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-oa-rich-menu-domain.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-rich-menu-domain.test.js",
@@ -21693,6 +21734,20 @@
     },
     {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -42132,6 +42187,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -45732,6 +45794,20 @@
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-151",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63487,6 +63563,27 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",
