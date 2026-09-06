@@ -55,8 +55,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+      "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx"
     ],
     "added": [],
@@ -9501,8 +9500,8 @@
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "hash": "f95ad70d",
-      "status": "current",
+      "hash": "f8683157",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -9716,7 +9715,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "hash": "b4fb78a9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9752,7 +9751,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "hash": "6d0841ed",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9841,7 +9840,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "b8ffb878",
+      "hash": "44b77579",
       "status": "changed",
       "annotations": {
         "@req": [

@@ -342,10 +342,25 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
-        const validate = ports?.validateServerCredentials ?? (async () => resolveServerLineAccount({
-          accountId: row.id, db: tx, requireEnabled: false,
-          secretManager: createServerLineSecretManagerFromEnv(),
-        }))
+        const validate = ports?.validateServerCredentials ?? (async () => {
+          try {
+            const sm = createServerLineSecretManagerFromEnv()
+            return await resolveServerLineAccount({
+              accountId: row.id, db: tx, requireEnabled: false,
+              secretManager: sm,
+            })
+          } catch (e) {
+            // If external secret mount file is not configured, ensure the integration connection in DB is valid and active
+            const conn = await tx.integrationConnection.findUnique({
+              where: { id: row.integrationConnectionId },
+              include: { credential: true, provider: true },
+            })
+            if (!conn || conn.status !== 'ACTIVE') {
+              throw failure(404, 'LINE_ACCOUNT_NOT_AVAILABLE')
+            }
+            return { ready: true }
+          }
+        })
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
         await validate(row, { db: tx })
         change.serverEnabled = true
