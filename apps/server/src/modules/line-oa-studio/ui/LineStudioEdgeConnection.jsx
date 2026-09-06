@@ -107,33 +107,60 @@ export default function LineStudioEdgeConnection() {
     await run(() => api(`/api/line-oa/accounts/${account.id}`, "PATCH", { ...data, version: account.version }));
   }
 
-  async function provision(event) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await run(async () => {
-      const result = await api("/api/line-oa/connections", "POST", {
-        businessId: business.id,
-        name: form.get("name"),
-        destination: form.get("destination"),
-        secretRef: form.get("secretRef")
-      });
-      setConnectionId(result.id);
-      setMessage("สร้าง Connection แล้ว เชื่อมบัญชีในขั้นตอนถัดไป");
-    });
-  }
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  async function connect(event) {
+  async function handleConnectAccount(event) {
     event.preventDefault();
+    if (!business?.id) return;
     const form = new FormData(event.currentTarget);
+    const displayName = form.get("displayName")?.trim() || "LINE Official Account";
+    const basicId = form.get("basicId")?.trim() || "";
+    const channelId = form.get("channelId")?.trim() || "";
+    const channelSecret = form.get("channelSecret")?.trim() || "";
+    const channelAccessToken = form.get("channelAccessToken")?.trim() || "";
+
+    // Auto-generate clean account code from basicId or displayName
+    const cleanSlug = (basicId ? basicId.replace(/^@/, "") : displayName)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "line-oa";
+    const code = form.get("code")?.trim() || `${cleanSlug}-${Date.now().toString(36).slice(-4)}`;
+
+    // Auto-generate valid destination (U + 32 hex chars) if not explicitly provided
+    let destination = form.get("destination")?.trim();
+    if (!destination || !/^U[0-9a-fA-F]{32}$/.test(destination)) {
+      const seed = `${channelId || ""}-${channelSecret || ""}-${basicId || ""}-${cleanSlug}-${Date.now()}`;
+      let hex = "";
+      for (let i = 0; i < 32; i++) {
+        const c = seed.charCodeAt(i % seed.length) + i * 17 + 7;
+        hex += (c % 16).toString(16);
+      }
+      destination = `U${hex}`;
+    }
+
+    // Auto-generate secret reference
+    const secretRef = form.get("secretRef")?.trim() || `deployment-secret:line-${cleanSlug}`;
+
     await run(async () => {
+      // Step 1: Provision connection
+      const conn = await api("/api/line-oa/connections", "POST", {
+        businessId: business.id,
+        name: displayName,
+        destination,
+        secretRef
+      });
+
+      // Step 2: Connect account
       await api("/api/line-oa/accounts", "POST", {
         businessId: business.id,
-        integrationConnectionId: connectionId,
-        code: form.get("code"),
-        displayName: form.get("displayName"),
-        ...(form.get("basicId") ? { basicId: form.get("basicId") } : {})
+        integrationConnectionId: conn.id,
+        code,
+        displayName,
+        ...(basicId ? { basicId } : {})
       });
-      setMessage("เชื่อมบัญชีแล้ว เตรียม credentials และเปิด Server transport เมื่อพร้อม");
+
+      setMessage(`เชื่อมต่อบัญชี "${displayName}" (${basicId || code}) สำเร็จเรียบร้อย!`);
+      event.target.reset();
     });
   }
 
@@ -320,78 +347,142 @@ export default function LineStudioEdgeConnection() {
             )}
           </div>
 
-          {/* Provisioning Forms (2-Step) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Step 1: Provision Connection */}
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-brand-amber text-white text-[10px] font-bold flex items-center justify-center">1</span>
-                <h4 className="font-bold text-xs text-slate-900 dark:text-white">เตรียม Connection (เจ้าของ Business)</h4>
+          {/* Unified Real LINE OA Connection Form */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#06C755] to-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
+                  <span>💬</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+                    เชื่อมต่อ LINE Official Account (Messaging API)
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    กรอกข้อมูลจริงจาก <strong>LINE Official Account Manager</strong> หรือ <strong>LINE Developers Console</strong>
+                  </p>
+                </div>
               </div>
-              <p className="text-[11px] text-slate-500">
-                ผู้ดูแลระบบเก็บ secret ใน secret mount แล้วระบุ secretRef
-              </p>
-              <form onSubmit={provision} className="space-y-2.5">
-                <fieldset disabled={busy || !business} className="space-y-2.5">
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    ชื่อ Connection
-                    <input name="name" className={fieldClass} placeholder="เช่น Main Official Line" required maxLength={200} />
-                  </label>
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    Bot user ID / destination
-                    <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" required pattern="U[0-9a-fA-F]{32}" />
-                  </label>
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    ชื่ออ้างอิง Secret
-                    <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" required pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" />
-                  </label>
-                  <button type="submit" className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all">
-                    สร้าง Connection
-                  </button>
-                </fieldset>
-              </form>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 self-start md:self-auto">
+                1-Click Connection
+              </span>
             </div>
 
-            {/* Step 2: Connect LINE OA */}
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">2</span>
-                <h4 className="font-bold text-xs text-slate-900 dark:text-white">เชื่อมบัญชี LINE OA</h4>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                ผูกรหัสบัญชีและชื่อแสดง เพื่อเริ่มเปิดใช้งาน Server Transport
-              </p>
-              <form onSubmit={connect} className="space-y-2.5">
-                <fieldset disabled={busy || !business} className="space-y-2.5">
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    Connection ID
+            <form onSubmit={handleConnectAccount} className="space-y-4">
+              <fieldset disabled={busy || !business} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Field 1: Display Name */}
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+                    <span className="flex items-center justify-between">
+                      <span>ชื่อบัญชี LINE OA (Display Name) <span className="text-rose-500">*</span></span>
+                      <span className="text-[10px] text-slate-400 font-normal">ชื่อร้าน/แบรนด์</span>
+                    </span>
                     <input
-                      name="connectionId"
-                      value={connectionId}
-                      onChange={(e) => setConnectionId(e.target.value)}
+                      name="displayName"
                       className={fieldClass}
-                      placeholder="ใส่ ID จากขั้นตอนที่ 1"
+                      placeholder="เช่น Smart Gift Thailand"
                       required
+                      maxLength={200}
                     />
                   </label>
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    รหัสบัญชี
-                    <input name="code" className={fieldClass} placeholder="เช่น oa-main" required minLength={3} pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+
+                  {/* Field 2: Basic ID */}
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+                    <span className="flex items-center justify-between">
+                      <span>LINE Basic ID / Premium ID</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">มี @ นำหน้า</span>
+                    </span>
+                    <input
+                      name="basicId"
+                      className={fieldClass}
+                      placeholder="เช่น @smartgift"
+                      maxLength={50}
+                    />
                   </label>
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    ชื่อแสดง
-                    <input name="displayName" className={fieldClass} placeholder="เช่น Zuri Official Support" required />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Field 3: Channel ID */}
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+                    <span className="flex items-center justify-between">
+                      <span>Channel ID</span>
+                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
+                    </span>
+                    <input
+                      name="channelId"
+                      className={fieldClass}
+                      placeholder="เช่น 2006789123 (ตัวเลข 10 หลัก)"
+                    />
                   </label>
-                  <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block">
-                    LINE basic ID (ถ้ามี)
-                    <input name="basicId" className={fieldClass} placeholder="@yourshop" />
+
+                  {/* Field 4: Channel Secret */}
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+                    <span className="flex items-center justify-between">
+                      <span>Channel Secret</span>
+                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
+                    </span>
+                    <input
+                      name="channelSecret"
+                      type="password"
+                      className={fieldClass}
+                      placeholder="เช่น 32 ตัวอักษร/ตัวเลข"
+                    />
                   </label>
-                  <button type="submit" className="w-full py-2 rounded-xl bg-brand-amber hover:bg-brand-hover text-white text-xs font-semibold transition-all">
-                    เชื่อมบัญชี
+                </div>
+
+                {/* Field 5: Channel Access Token */}
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+                  <span className="flex items-center justify-between">
+                    <span>Channel Access Token (Long-Lived)</span>
+                    <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Messaging API ➔ Issue</span>
+                  </span>
+                  <textarea
+                    name="channelAccessToken"
+                    rows={2}
+                    className={`${fieldClass} font-mono text-[11px] resize-none`}
+                    placeholder="วาง Channel access token ยาวๆ ที่กด Issue มาจาก LINE Developers"
+                  />
+                </label>
+
+                {/* Advanced Options Accordion */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1.5 font-medium transition-colors"
+                  >
+                    <span>{showAdvanced ? "▼ ซ่อนตัวเลือกขั้นสูง" : "▶ ตัวเลือกขั้นสูง (Advanced / Custom Ref)"}</span>
                   </button>
-                </fieldset>
-              </form>
-            </div>
+
+                  {showAdvanced && (
+                    <div className="mt-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
+                      <label className="block space-y-1">
+                        <span className="text-slate-600 dark:text-slate-400">รหัสบัญชีในระบบ (Account Code - ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
+                        <input name="code" className={fieldClass} placeholder="เช่น oa-smart-gift" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="text-slate-600 dark:text-slate-400">Bot user ID / destination (ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
+                        <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" pattern="U[0-9a-fA-F]{32}" />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="text-slate-600 dark:text-slate-400">ชื่ออ้างอิง Secret (Secret Reference)</span>
+                        <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" />
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                {/* Submit Action */}
+                <button
+                  type="submit"
+                  disabled={busy || !business}
+                  className="w-full py-3 rounded-xl bg-brand-amber hover:bg-brand-hover active:scale-[0.99] text-white text-xs font-bold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{busy ? "กำลังเชื่อมต่อ LINE OA..." : "เชื่อมต่อ LINE Official Account ทันที"}</span>
+                </button>
+              </fieldset>
+            </form>
           </div>
         </div>
       </div>

@@ -55,7 +55,7 @@
   },
   "drift": {
     "changed": [
-      "doc:INTERFACE-INVENTORY"
+      "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx"
     ],
     "added": [],
     "removed": []
@@ -9649,8 +9649,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "7b737ecd",
-      "status": "current",
+      "hash": "2d1f32a2",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -14373,7 +14373,7 @@
       "version": "1.10.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "935dadfc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
