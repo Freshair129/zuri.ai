@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.2.0b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-04T14:40:00+07:00,CLAUDE"
+last_update: "2026-09-06T19:38:00+07:00,RWANG"
 status: "current"
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose + ngrok
 
-**Version:** 1.1.0 · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+**Version:** 1.2.0b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
 
 This is the deployment path that replaces Vercel. Nothing about the application
 changed to make it possible except a liveness probe (`GET /api/health`) and one
@@ -247,9 +247,12 @@ over plain HTTP from another host).
 
 No application change is needed:
 
-1. `.github/workflows/docker-image.yml` pushes `ghcr.io/<owner>/<repo>:<tag>` on
-   every push to `main`. On the VPS set `ZURI_WEB_IMAGE` to that tag and
-   `docker compose pull web && docker compose up -d`.
+1. Image publication is suspended under [ADR-062](../decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md).
+   `.github/workflows/docker-image.yml` validates Compose and builds on all existing
+   triggers, but never logs into or pushes to GHCR. Existing public image versions
+   remain available; new commits do not update those tags. A later VPS deployment
+   must first verify a private image destination and authenticated pull before
+   selecting its immutable image digest with `ZURI_WEB_IMAGE`.
 2. Put a domain + TLS terminator (Caddy/Nginx/Cloudflare Tunnel) in front of
    `web:3000` and set `PUBLIC_BASE_URL=https://<domain>`.
 3. Disable the tunnel: `docker compose up -d --scale ngrok=0`, or remove the
@@ -289,3 +292,10 @@ not being Vercel. Leave it unset otherwise.
   Phase 1 runtime should use its production provider path.
 - The edge-device heartbeat registry is process-local (FR-141); one container is
   one instance, which is the simplest case.
+
+## Publication containment revision
+
+2026-09-06, version 1.1.0 → 1.2.0b: private source conversion completed; registry
+publication suspended pending private release review. The observed local service
+uses `zuri-ai-web:local` and was healthy. This change does not restart it or change
+its environment, database, ngrok configuration or existing public image versions.
