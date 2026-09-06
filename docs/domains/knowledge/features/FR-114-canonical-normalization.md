@@ -211,11 +211,11 @@ test names it; AC-114.25…29 pin five of the six by name.
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](./FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-NORMALIZE` catalog row this implements
-- [FR-113 — Entity candidate extraction from chunks and structured records](./FR-113-entity-candidate-extraction.md) — Stage 8, which imports `normalizeOrganizationName` from here
-- [FR-112 — Structural knowledge chunking with parent-child lineage](./FR-112-structural-knowledge-chunking.md)
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md)
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md)
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](FR-109-knowledge-ingestion-stage-catalog.md) — the `DPS-KI-NORMALIZE` catalog row this implements
+- [FR-113 — Entity candidate extraction from chunks and structured records](FR-113-entity-candidate-extraction.md) — Stage 8, which imports `normalizeOrganizationName` from here
+- [FR-112 — Structural knowledge chunking with parent-child lineage](FR-112-structural-knowledge-chunking.md)
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md)
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md)
 - [PRD-SDD v1.0 — FR-114, SDD-061, SDD-060, BR-021](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 4 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §9 (Stage 4) is the source requirement; §3.1 is the invariant it makes structural

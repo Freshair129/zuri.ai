@@ -1,7 +1,7 @@
 ---
 id: ZAI:PLAN-MONOREPO
-version: "0.1.1b"
-status: candidate
+version: "0.2.0b"
+status: beta
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
 last_update: "2026-09-06T19:38:00+07:00,RWANG"
 attributes:
@@ -13,9 +13,9 @@ relations:
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
 
-# Candidate monorepo migration gates
+# Monorepo migration gates
 
-No code relocation is authorized by this plan. Complete the current two-repository behavior review independently; do not delay safe LINE rollout for a filesystem move.
+The owner approved isolated snapshot relocation on 2026-09-06. [Execution evidence](../migrations/monorepo/EXECUTION.md) tracks M2–M5. Independent releases and repository retirement (M6–M7) remain open; current deployments continue unchanged.
 
 2026-09-06 prerequisite update: Server source is PRIVATE; the legacy GHCR package
 remains PUBLIC. The owner approved build-only publication containment in ADR-062.
@@ -44,3 +44,5 @@ A rejected/failed gate leaves both current repositories and deployments in place
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Documented current requirement ownership and phase handoffs; release gates remain separate | base 4c0cbe3 | RWANG |
+
+Version diff 0.1.1b → 0.2.0b: record snapshot authorization and implementation evidence; no joint deployment or repository retirement.

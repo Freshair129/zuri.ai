@@ -111,7 +111,7 @@ later reader does not have to re-derive them:
 ## Related documents
 
 - [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job
-  trace](./FR-109-knowledge-ingestion-stage-catalog.md) — names the ten
+  trace](FR-109-knowledge-ingestion-stage-catalog.md) — names the ten
   acceptance criteria this slice does not close, and why
 - [Knowledge domain charter](../CHARTER.md) — the "eight implementations are
   not a running pipeline" correction this slice answers

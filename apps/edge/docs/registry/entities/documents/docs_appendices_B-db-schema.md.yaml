@@ -1,0 +1,12 @@
+entity_id: doc:docs/appendices/B-db-schema.md
+entity_type: document
+canonical_path: docs/appendices/B-db-schema.md
+status: active
+introduced_by:
+  actor_type: agent
+  actor_id: claude-opus-5
+  tool: rwang:doc-graph
+  tool_version: 1.1.0
+  timestamp: 2026-09-05T08:55:21Z
+  source_ref: OWNER-2026-09-05-registry-bootstrap
+  approval_ref: OWNER-2026-09-05-registry-bootstrap

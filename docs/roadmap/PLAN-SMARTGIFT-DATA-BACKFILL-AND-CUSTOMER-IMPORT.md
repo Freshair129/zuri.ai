@@ -22,7 +22,7 @@ Production ได้ก่อน แล้วจึงออกแบบแล�
 ## 1. Mission identity and approval
 
 The execution is tracked by
-[`smartgift-data-migration-mission.json`](../../contracts/migrations/smartgift-data-migration-mission.json).
+[`smartgift-data-migration-mission.json`](../../apps/server/contracts/migrations/smartgift-data-migration-mission.json).
 The mission identity is separate from a future database `Project`, migration
 run, batch or audit event ID.
 
@@ -126,7 +126,7 @@ production events and reads. Historical data must not be replayed as fake live
 events because that would corrupt event meaning, audit lineage and rollback scope.
 
 For the immediate 74-row product import, the existing
-[`build_business_knowledge_import.py`](../../scripts/build_business_knowledge_import.py)
+[`build_business_knowledge_import.py`](../../apps/server/scripts/build_business_knowledge_import.py)
 generates a transaction targeting `zuri_core.business_knowledge`. The runtime read
 role remains read-only; it is not an import role. An operator-only API may start a
 backfill job later, but it must not accept unrestricted raw customer payloads from a
@@ -153,7 +153,7 @@ private Production data boundary without using the live LINE channel.
 
 - Source: SmartGift DuckDB, opened read-only.
 - Approval: one source SHA-256 in
-  [`smartgift-phase1-pilot.json`](../../contracts/approvals/smartgift-phase1-pilot.json).
+  [`smartgift-phase1-pilot.json`](../../apps/server/contracts/approvals/smartgift-phase1-pilot.json).
 - Fresh read-only exporter result: 74 rows, price publication disabled, remote-scope
   artifact hash
   `769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717` targeting
@@ -388,26 +388,26 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [FR-078 — customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md)
 - [ADR-030 — Supabase data pipeline observability and replay](../decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md)
 - [ZV2-CR-004 — production tenant bootstrap](../changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)
-- [Business knowledge record schema](../../contracts/business-knowledge-record.schema.json)
-- [Customer data contract](../../contracts/migrations/smartgift-customer-data-contract.json)
-- [Customer record schema](../../contracts/migrations/smartgift-customer-record.schema.json)
-- [Customer dry-run builder](../../scripts/build_smartgift_customer_backfill.py)
-- [Fail-closed customer importer](../../scripts/apply_smartgift_customer_backfill.py)
-- [Customer target verification](../../scripts/verify-smartgift-customer-profile-target.mjs)
-- [Customer review queue contract](../../contracts/migrations/smartgift-customer-review-queue-contract.json)
-- [Customer review queue manifest builder](../../scripts/build_smartgift_customer_review_queue.py)
+- [Business knowledge record schema](../../apps/server/contracts/business-knowledge-record.schema.json)
+- [Customer data contract](../../apps/server/contracts/migrations/smartgift-customer-data-contract.json)
+- [Customer record schema](../../apps/server/contracts/migrations/smartgift-customer-record.schema.json)
+- [Customer dry-run builder](../../apps/server/scripts/build_smartgift_customer_backfill.py)
+- [Fail-closed customer importer](../../apps/server/scripts/apply_smartgift_customer_backfill.py)
+- [Customer target verification](../../apps/server/scripts/verify-smartgift-customer-profile-target.mjs)
+- [Customer review queue contract](../../apps/server/contracts/migrations/smartgift-customer-review-queue-contract.json)
+- [Customer review queue manifest builder](../../apps/server/scripts/build_smartgift_customer_review_queue.py)
 - [Customer review queue manifest](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-review-queue-manifest.json)
-- [Customer review queue migration](../../supabase/migrations/20260818073000_customer_import_review_queue.sql)
+- [Customer review queue migration](../../apps/server/supabase/migrations/20260818073000_customer_import_review_queue.sql)
 - [Customer dry-run receipt](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
 - [Customer target verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
 - [Customer post-apply verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-post-apply-verification.json)
 - [Customer target backup](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-target-backup-before-apply.json)
 - [Customer applied-batch rollback rehearsal](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-rollback-applied-batch-rehearsal.json)
-- [Owner/security approval](../../contracts/approvals/smartgift-customer-data-owner-security-20260818.json)
+- [Owner/security approval](../../apps/server/contracts/approvals/smartgift-customer-data-owner-security-20260818.json)
 - [Apply timeout RCA](../../.brain/rca/2026-08-18-smartgift-backfill-apply-timeout.md)
-- [DuckDB exporter](../../scripts/export_smartgift_business_knowledge.py)
-- [Import SQL builder](../../scripts/build_business_knowledge_import.py)
-- [Production post-apply inventory](../../supabase/tests/production_import_post_apply_inventory.sql)
+- [DuckDB exporter](../../apps/server/scripts/export_smartgift_business_knowledge.py)
+- [Import SQL builder](../../apps/server/scripts/build_business_knowledge_import.py)
+- [Production post-apply inventory](../../apps/server/supabase/tests/production_import_post_apply_inventory.sql)
 - [Current documentation preflight](../.preflight-report.json)
 
 ## Current state

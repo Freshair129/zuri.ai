@@ -510,5 +510,5 @@ Tag model and join table are implementation work after ADR-029 approval.
 - [FR-069 — Seven execution-plan contracts](FR-069-plan-blueprint-and-intake.md)
 - [Seven Execution Modes](../../../EXECUTION-MODES.md)
 - [Sitemap domain map](../../../SITEMAP-DOMAIN-NAV.md)
-- [PlanEnvelope schema](../../../../contracts/plan-envelope.schema.json)
+- [PlanEnvelope schema](../../../../apps/server/contracts/plan-envelope.schema.json)
 - SDD-041 — execution trace, failure localization and replay lineage

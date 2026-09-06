@@ -1089,6 +1089,7 @@ Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-acco
 Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
 
 ## ADR-061 — Server-owned LINE and optional Edge execution
@@ -1127,6 +1128,7 @@ Backlinks:
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
@@ -1137,7 +1139,8 @@ Backlinks:
 
 Source: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
-- references: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+- references: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
+- references: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
 - relates: feat:FEAT-019
 - relates: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 - relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
@@ -1152,8 +1155,9 @@ Backlinks:
 - [Zuri V2 — Product Definition](PRODUCT.md) (references)
 - [ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path](decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
+- [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md) (relates)
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
-- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
 - [ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains](decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md) (relates)
 
@@ -1358,6 +1362,7 @@ Source: [Domain — crm](domains/crm/CHARTER.md)
 Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
+- [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md) (relates)
 
 ## FR-078 — Customer data backfill contract
 
@@ -1454,6 +1459,13 @@ Backlinks:
 - [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
 - [FR-149-P4 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P4-server-line-transport.md) (relates)
 - [Domain — crm](domains/crm/CHARTER.md) (relates)
+
+## LineCRM-MCP UI Specification & Architecture Guide
+
+Source: [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md)
+
+- relates: [Domain — crm](domains/crm/CHARTER.md)
+- relates: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 
 ## Domain — identity
 
@@ -1971,6 +1983,8 @@ Source: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
 Backlinks:
 
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
+- [LineCRM-MCP UI Specification & Architecture Guide](domains/crm/UI-SPEC-LINECRM-MCP.md) (relates)
 
 ## Context map — LINE OA Studio
 
@@ -2115,6 +2129,14 @@ Backlinks:
 
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+
+## UI Specification: LINE Studio Enterprise Suite
+
+Source: [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md)
+
+- relates: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
+- relates: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## FR-092 — Market translation core
 
@@ -2315,6 +2337,18 @@ Backlinks:
 - [FR-116 — Derived-object provenance and the lineage chain back to a source](domains/knowledge/features/FR-116-derived-object-provenance.md) (references)
 - [FR-117 — Deduplication and version relationships within one tenant](domains/knowledge/features/FR-117-deduplication-and-versioning.md) (references)
 
+## Monorepo snapshot execution
+
+Source: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
+
+- relates: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+- relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
+
+Backlinks:
+
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (references)
+- [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (references)
+
 ## Zuri V2 — Project Manager Module: PRD & SDD
 
 Source: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
@@ -2471,7 +2505,7 @@ Backlinks:
 - [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
 - [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
 - [Features (FEAT registry)](FEATURES.md) (relates)
-- [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
+- [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md) (relates)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (relates)
 - [Zuri V2 — Product Definition](PRODUCT.md) (relates)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (relates)
@@ -2604,16 +2638,18 @@ Backlinks:
 
 - [FR-078 — Customer data backfill contract](domains/crm/features/FR-078-customer-data-backfill-contract.md) (references)
 
-## Candidate monorepo migration gates
+## Monorepo migration gates
 
-Source: [Candidate monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
+Source: [Monorepo migration gates](roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md)
 
+- references: [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
 
 Backlinks:
 
 - [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (references)
+- [Monorepo snapshot execution](migrations/monorepo/EXECUTION.md) (relates)
 
 ## ROADMAP: zuri-ai — Live Delivery State
 

@@ -323,10 +323,10 @@ already passable.
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-047 — LINE business-knowledge pilot](./FR-047-line-business-knowledge-pilot.md)
-- [FR-109 — Knowledge ingestion stage catalog](./FR-109-knowledge-ingestion-stage-catalog.md)
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md)
-- [FR-112 — Structural knowledge chunking](./FR-112-structural-knowledge-chunking.md)
+- [FR-047 — LINE business-knowledge pilot](FR-047-line-business-knowledge-pilot.md)
+- [FR-109 — Knowledge ingestion stage catalog](FR-109-knowledge-ingestion-stage-catalog.md)
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md)
+- [FR-112 — Structural knowledge chunking](FR-112-structural-knowledge-chunking.md)
 - [PRD-SDD v1.0 — FR-111, SDD-058, SDD-062, SEC-001, SEC-009, SEC-021](../../../PRD-SDD-v1.0.md)
 - [ADR-041 — Zuri edge device topology](../../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md)
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)

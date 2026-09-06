@@ -266,10 +266,10 @@ slice carries identity, statistics and bounded evidence only.
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Knowledge ingestion stage catalog](./FR-109-knowledge-ingestion-stage-catalog.md)
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md)
-- [FR-071 — Supabase data pipeline monitor and replay](./FR-071-supabase-data-pipeline-monitor-and-replay.md)
-- [FR-047 — LINE business-knowledge pilot](./FR-047-line-business-knowledge-pilot.md)
+- [FR-109 — Knowledge ingestion stage catalog](FR-109-knowledge-ingestion-stage-catalog.md)
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md)
+- [FR-071 — Supabase data pipeline monitor and replay](FR-071-supabase-data-pipeline-monitor-and-replay.md)
+- [FR-047 — LINE business-knowledge pilot](FR-047-line-business-knowledge-pilot.md)
 - [PRD-SDD v1.0 — FR-110, SDD-057, NFR-020, BR-022](../../../PRD-SDD-v1.0.md)
 - [ADR-042 — Decoupled standalone knowledge and GraphRAG service](../../../decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md)
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)

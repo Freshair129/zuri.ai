@@ -154,7 +154,7 @@ themselves.
   hint a human left, not a claim the system can verify, and when the two carry
   different `source_id`s this classifies them `INDEPENDENT`.
 - **`DERIVED_FROM` is never assigned here.** That edge is provenance and
-  [FR-116](./FR-116-derived-object-provenance.md) owns it. Stage 6 knows
+  [FR-116](FR-116-derived-object-provenance.md) owns it. Stage 6 knows
   whether two artifacts are the same thing; it does not know what either was
   derived from.
 
@@ -213,25 +213,25 @@ proves it (18 tests).
 - **It decides nothing about what is published.** Whether a duplicate is
   dropped, a revision promoted, or a superseded artifact pulled from an index is
   the caller's decision — the publication contract is
-  [FR-110](./FR-110-published-knowledge-snapshot-contract.md)'s.
+  [FR-110](FR-110-published-knowledge-snapshot-contract.md)'s.
 - **It mints no identifiers.** The identity is derived entirely from fields the
   artifact already carries.
 - **Not provenance.** Where an artifact came from is
-  [FR-116](./FR-116-derived-object-provenance.md)'s; this says only how it
+  [FR-116](FR-116-derived-object-provenance.md)'s; this says only how it
   relates to its neighbours.
 - **Not classification or scope.** `scope.tenantId` is read as a boundary, never
   assigned — the lattice is
-  [FR-111](./FR-111-knowledge-sensitivity-lattice.md)'s.
+  [FR-111](FR-111-knowledge-sensitivity-lattice.md)'s.
 
 ## Related documents
 
 - [Knowledge domain charter](../CHARTER.md)
-- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](./FR-109-knowledge-ingestion-stage-catalog.md) — the catalog Stage 6 belongs to
-- [FR-116 — Derived-object provenance and the lineage chain back to a source](./FR-116-derived-object-provenance.md) — owns `DERIVED_FROM`, which this never assigns
-- [FR-115 — Document parsing into a structured artifact that keeps its link to the raw source](./FR-115-document-parsing.md) — Stage 2, which produces the artifact this places
-- [FR-112 — Structural knowledge chunking with parent-child lineage](./FR-112-structural-knowledge-chunking.md) — its deterministic chunk ids are what let BR-021 treat a reprocess as the same knowledge
-- [FR-111 — Knowledge sensitivity lattice](./FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from, not from here
-- [FR-110 — Published knowledge snapshot contract](./FR-110-published-knowledge-snapshot-contract.md) — the publisher that acts on these decisions
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](FR-109-knowledge-ingestion-stage-catalog.md) — the catalog Stage 6 belongs to
+- [FR-116 — Derived-object provenance and the lineage chain back to a source](FR-116-derived-object-provenance.md) — owns `DERIVED_FROM`, which this never assigns
+- [FR-115 — Document parsing into a structured artifact that keeps its link to the raw source](FR-115-document-parsing.md) — Stage 2, which produces the artifact this places
+- [FR-112 — Structural knowledge chunking with parent-child lineage](FR-112-structural-knowledge-chunking.md) — its deterministic chunk ids are what let BR-021 treat a reprocess as the same knowledge
+- [FR-111 — Knowledge sensitivity lattice](FR-111-knowledge-sensitivity-lattice.md) — where `scope` comes from, not from here
+- [FR-110 — Published knowledge snapshot contract](FR-110-published-knowledge-snapshot-contract.md) — the publisher that acts on these decisions
 - [FR-081 — Raw external ingestion boundary](../../integration/features/FR-081-raw-external-ingestion.md) — the other key, answering the other question
 - [PRD-SDD v1.0 — FR-117, SDD-065, BR-021, SEC-021, FR-081](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — its stage table puts Stage 6 in Tier 1 and names BR-021 and SEC-021 as the rules it must carry
