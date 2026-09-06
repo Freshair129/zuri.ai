@@ -1,9 +1,9 @@
 {
-  "version": "0.2.0b",
-  "status": "prepared; target instance and workspace unresolved; not imported",
+  "version": "0.3.0b",
+  "status": "local implementation in progress; PM target unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
-  "progressMeaning": "Weighted delivery including completed design; product implementation remains 0%.",
+  "progressMeaning": "Initial weighted design completion is 5%; implementation has started but no full Wave 1 completion is claimed. Actual PM percentage remains unverified.",
   "counts": {
     "workstreams": 5,
     "items": 47,
@@ -26,5 +26,16 @@
       "agents": 3,
       "result": "review complete; task references enriched; metadata enforcement caveat recorded"
     }
+  },
+  "localImplementation": {
+    "slice": "FR-153 / FR-154 Strategy revision, decision and PM handoff",
+    "status": "in progress",
+    "baselineCommit": "5044ba25",
+    "foundationCommit": "89147247",
+    "parallelModel": "gpt-5.6-luna",
+    "reasoningEffort": "max",
+    "agents": 3,
+    "productionMigrationApplied": false,
+    "fullWave1Complete": false
   }
 }

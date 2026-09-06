@@ -1,7 +1,7 @@
 ---
-version: "1.0.0b"
+version: "1.6.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-08-18T00:00:00+07:00,ATHER"
+last_update: "2026-09-06T18:54:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.5.0b |
+| **Version** | 1.6.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=60; operational_domain_keys=10; operational_subdomain_entries=32; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=62; operational_domain_keys=10; operational_subdomain_entries=32; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -206,6 +206,18 @@ and does not require an active Business selection.
 |---|---|---|---|---|---|
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
 
+### Marketing Strategy first slice
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-153; `src/app/(pm)/growth/page.jsx`; local verification in progress |
+| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-153, FR-154; `src/app/(pm)/growth/strategy/page.jsx`; local verification in progress |
+
+The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
+is a design inventory. These two native routes implement its Strategy slice;
+other Marketing screens remain planned, and automated team/provider activation
+is not implied by human review and channel intent fields.
+
 ## 4. Runtime registry reconciliation
 
 The source registry has a shell slot plus operational domains. Counts are stated
@@ -299,3 +311,5 @@ The current route evidence is:
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
+
+Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.

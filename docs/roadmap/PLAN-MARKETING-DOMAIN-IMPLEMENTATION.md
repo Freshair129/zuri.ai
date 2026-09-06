@@ -1,8 +1,8 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T14:15:00+07:00,RWANG"
-status: candidate
+last_update: "2026-09-06T18:46:00+07:00,RWANG"
+status: beta
 superseded_by: null
 attributes:
   domain: marketing
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.2.0b
+**Version:** 0.3.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -38,7 +38,7 @@ software delivery evidence. WorkItem weights are initial relative effort estimat
 Only DONE items earn completed weight. Required open gates cap their stream below completion.
 Project roll-up weights sum to 100.
 
-The initial planned roll-up is **5%**, representing completed design only. **Product implementation is 0%.**
+The initial planned roll-up is **5%**, representing completed design only. Product implementation was 0% at plan preparation; the Strategy first slice is now in progress. No additional completed weight is claimed before task acceptance.
 The persisted PM percentage must be read from the server after import before it is reported as actual PM progress.
 Mockup screenshots and governance-only checks do not complete implementation tasks.
 
@@ -69,6 +69,12 @@ recovery evidence. Design approval does not authorize a live publishing or spend
 Product verification covers tests, build, governance, e2e and architecture review. Live source access,
 MSP/GKS acceptance, production migrations and action-specific canaries are separate evidence gates.
 A missing external dependency remains visible and prevents a false complete result.
+
+## Current implementation — 2026-09-06
+
+The user authorized execution after the parallel review. Three GPT-5.6 Luna max lanes implement the Strategy data/API, PM handoff and native UI, with root integration owning schema, permissions and governance. [Native charter](../domains/marketing/CHARTER.md) and [first-slice contract](../domains/marketing/features/FR-153-strategy-plans.md) declare FR-153, FR-154, SDD-086 and FEAT-020. Seven relevant items in the import envelope are IN_PROGRESS; the tables below retain their labelled initial state. Full Wave 1 and the 100-interface implementation are not complete. The server intake flags remain false until a target instance/session/Workspace is verified.
+
+Version diff 0.2.0b → 0.3.0b: record implementation start, native contracts and partial task status; preserve all 47 task codes, 158 dependencies, weights and acceptance criteria.
 
 ## Complete WorkItem registry
 
@@ -187,3 +193,4 @@ without changing the approved 11-subdomain design.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Decompose approved design into five weighted waves with 47 tasks, complete interface coverage and explicit import evidence boundaries | See git history | RWANG |
 | 0.2.0b | 2026-09-06 | candidate | Incorporate three GPT-5.6 Luna max reviews; enrich task provenance and distinguish stored metadata from PM UI/enforcement | See git history | RWANG |
+| 0.3.0b | 2026-09-06 | beta | Begin approved Strategy implementation in three lanes; track partial task progress and native contracts | See git history | RWANG |

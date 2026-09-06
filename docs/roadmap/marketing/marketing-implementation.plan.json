@@ -16,7 +16,7 @@
   "project": {
     "code": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
     "name": "Zuri Marketing — Domain Implementation",
-    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design complete; implementation and live evidence pending.",
+    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design complete; Strategy first slice in progress. Live evidence pending.",
     "status": "ACTIVE"
   },
   "workstreams": [
@@ -163,7 +163,7 @@
           "code": "EPIC-MKT-W1",
           "subtype": "EPIC",
           "title": "Planning and team foundation",
-          "status": "PLANNED",
+          "status": "ACTIVE",
           "metadata": {
             "baseline": {
               "commit": "494a3666",
@@ -184,7 +184,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Native charter, requirements and contracts",
-          "status": "READY",
+          "status": "IN_PROGRESS",
           "weight": 3,
           "metadata": {
             "ownerRole": "Architecture",
@@ -197,9 +197,11 @@
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
               "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
               "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
-              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": []
           }
         },
@@ -208,7 +210,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Scoped persistence, versioning and audit",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Marketing engineering",
@@ -219,9 +221,11 @@
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md",
-              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": []
           }
         },
@@ -230,7 +234,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Navigation and reusable interface states",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 3,
           "metadata": {
             "ownerRole": "Frontend",
@@ -241,9 +245,11 @@
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
-              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": [
               "MKT-UI-001",
               "MKT-UI-091",
@@ -263,7 +269,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Objectives, plans and scenarios",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Marketing engineering",
@@ -274,9 +280,11 @@
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
-              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": [
               "MKT-UI-002",
               "MKT-UI-003",
@@ -402,7 +410,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Versioned proposals and independent reviews",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Agent engineering",
@@ -412,9 +420,11 @@
             "evidenceRefs": [],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
-              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": []
           }
         },
@@ -444,7 +454,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Revocable exact-version human decisions",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Identity and Marketing",
@@ -454,9 +464,11 @@
             "evidenceRefs": [],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
-              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": []
           }
         },
@@ -465,7 +477,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "PM preview and transactional handoff",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 3,
           "metadata": {
             "ownerRole": "Project Manager",
@@ -475,9 +487,11 @@
             "evidenceRefs": [],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
-              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md"
+              "docs/change-requests/marketing/MARKETING-TEAM-REFINEMENT.md",
+              "docs/domains/marketing/CHARTER.md",
+              "docs/domains/marketing/features/FR-153-strategy-plans.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "Strategy first slice in progress; full task acceptance pending",
             "interfaceIds": []
           }
         },

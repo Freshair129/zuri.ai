@@ -128,6 +128,7 @@ Backlinks:
 - [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md) (references)
 - [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) (references)
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
+- [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 - [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md) (relates)
 - [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md) (relates)
@@ -164,6 +165,7 @@ Source: [Marketing — Interface Inventory & Mockup Coverage](change-requests/ma
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) (references)
 - [Marketing — Mockup QA & Review Guide](change-requests/marketing/MARKETING-MOCKUP-QA.md) (relates)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (relates)
@@ -194,6 +196,7 @@ Source: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-N
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (relates)
 - [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md) (relates)
@@ -2215,6 +2218,10 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
 - references: [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md)
 
+Backlinks:
+
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
 ## Marketing Strategy: draft to accountable execution
 
 Source: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-153-strategy-plans.md)
@@ -2226,6 +2233,7 @@ Backlinks:
 
 - [Appendix A — API Specification](appendices/A-api-spec.md) (references)
 - [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — project-manager
@@ -2397,6 +2405,7 @@ Source: [Document link metadata](GOVERNANCE-LINK-METADATA.md)
 Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 
 - references: [Appendix A — API Specification](appendices/A-api-spec.md)
+- references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - references: [Zuri — Route and Shell Sitemap](ROUTES-SITEMAP.md)
 - references: [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md)
 - references: [UI Design System: Zuri Heritage v2](UI-DESIGN-SYSTEM.md)
@@ -2632,7 +2641,9 @@ Source: [Phase 1 proposal — verified channel onboarding](roadmap/PLAN-FR-097-V
 
 Source: [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md)
 
+- references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-153-strategy-plans.md)
 - references: [Marketing — Parallel development review](roadmap/marketing/PARALLEL-REVIEW-2026-09-06.md)
+- references: [Domain — marketing](domains/marketing/CHARTER.md)
 - relates: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
 - relates: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - relates: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
@@ -2774,6 +2785,8 @@ Backlinks:
 
 Source: [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md)
 
+- references: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
+- references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md)
 - references: [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md)
 

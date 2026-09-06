@@ -1,3 +1,8 @@
+-- @req FR-153, FR-154 — private Marketing evidence and PM receipt associations.
+-- @spec SDD-086, SEC-001, ADR-057 — same runtime-only table posture as sibling domains.
+-- Additive migration; NOT applied to production. Execute through the migration ledger.
+BEGIN;
+
 -- CreateTable
 CREATE TABLE "MarketingPlan" (
     "id" TEXT NOT NULL,
@@ -131,3 +136,31 @@ ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_workspaceId_fkey
 
 -- AddForeignKey
 ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Tenant/Business authorization is enforced by the application runtime; no direct Data API access.
+ALTER TABLE "MarketingPlan" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MarketingPlan" FORCE ROW LEVEL SECURITY;
+CREATE POLICY zuri_app_runtime_all ON "MarketingPlan" FOR ALL TO zuri_app_runtime, zuri_web_login USING (true) WITH CHECK (true);
+REVOKE ALL ON TABLE "MarketingPlan" FROM public, anon, authenticated, service_role;
+
+ALTER TABLE "MarketingPlanVersion" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MarketingPlanVersion" FORCE ROW LEVEL SECURITY;
+CREATE POLICY zuri_app_runtime_all ON "MarketingPlanVersion" FOR ALL TO zuri_app_runtime, zuri_web_login USING (true) WITH CHECK (true);
+REVOKE ALL ON TABLE "MarketingPlanVersion" FROM public, anon, authenticated, service_role;
+
+ALTER TABLE "MarketingReview" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MarketingReview" FORCE ROW LEVEL SECURITY;
+CREATE POLICY zuri_app_runtime_all ON "MarketingReview" FOR ALL TO zuri_app_runtime, zuri_web_login USING (true) WITH CHECK (true);
+REVOKE ALL ON TABLE "MarketingReview" FROM public, anon, authenticated, service_role;
+
+ALTER TABLE "MarketingDecision" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MarketingDecision" FORCE ROW LEVEL SECURITY;
+CREATE POLICY zuri_app_runtime_all ON "MarketingDecision" FOR ALL TO zuri_app_runtime, zuri_web_login USING (true) WITH CHECK (true);
+REVOKE ALL ON TABLE "MarketingDecision" FROM public, anon, authenticated, service_role;
+
+ALTER TABLE "MarketingHandoff" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MarketingHandoff" FORCE ROW LEVEL SECURITY;
+CREATE POLICY zuri_app_runtime_all ON "MarketingHandoff" FOR ALL TO zuri_app_runtime, zuri_web_login USING (true) WITH CHECK (true);
+REVOKE ALL ON TABLE "MarketingHandoff" FROM public, anon, authenticated, service_role;
+
+COMMIT;

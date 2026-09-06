@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1929,
-    "total_edges": 7520,
+    "total_nodes": 1946,
+    "total_edges": 7601,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 11,
       "roadmap": 39,
       "feature": 20,
-      "route": 213,
+      "route": 215,
       "model": 92,
       "requirement": 312,
-      "test": 472,
-      "code_file": 519
+      "test": 476,
+      "code_file": 530
     },
     "coverage": {
       "requirements": 312,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (144/144)",
       "rules_anchored_in_code": "96% (129/134)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 519,
+      "annotated_code_files": 530,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -61,10 +61,30 @@
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:FR-153-strategy-plans",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "doc:INTERFACE-INVENTORY",
+      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "doc:SITEMAP-DOMAIN-NAV",
+      "code:src/config/domains.js"
     ],
-    "added": [],
+    "added": [
+      "route:page:/growth",
+      "route:page:/growth/strategy",
+      "test:tests/e2e/marketing-strategy.spec.js",
+      "test:tests/unit/marketing-migration-policy.test.js",
+      "test:tests/unit/marketing-navigation.test.js",
+      "test:tests/unit/marketing-strategy-ui.test.js",
+      "code:src/app/(pm)/growth/page.jsx",
+      "code:src/app/(pm)/growth/strategy/page.jsx",
+      "code:src/modules/marketing/components/marketing-contract.js",
+      "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "code:src/modules/marketing/components/MarketingState.jsx",
+      "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "code:src/modules/marketing/components/PlanForm.jsx",
+      "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "code:src/modules/marketing/components/StrategyWorkspace.jsx"
+    ],
     "removed": []
   },
   "nodes": [
@@ -475,6 +495,45 @@
         ],
         "@tested": [
           "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/growth/page.jsx",
+      "hash": "116442f4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/growth/strategy/page.jsx",
+      "hash": "0f15e536",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153",
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
         ]
       }
     },
@@ -4862,8 +4921,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "aa1337ac",
-      "status": "current",
+      "hash": "60a20f4c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -4871,6 +4930,7 @@
           "FR-039",
           "FR-060",
           "FR-091",
+          "FR-153",
           "FR-086",
           "FR-133",
           "FR-146",
@@ -4885,6 +4945,7 @@
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/e2e/fr041-business-first.spec.js",
+          "tests/unit/marketing-navigation.test.js",
           "tests/unit/asset-management-navigation.test.js"
         ]
       }
@@ -8657,6 +8718,175 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/components/marketing-contract.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/marketing-contract.js",
+      "hash": "7eaf76a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153",
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/MarketingDashboard.jsx",
+      "hash": "d949af2d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingState.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/MarketingState.jsx",
+      "hash": "e6e2dad2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/MarketingTabs.jsx",
+      "hash": "5e3876aa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/PlanForm.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/PlanForm.jsx",
+      "hash": "45c5b6f0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/PlanHandoff.jsx",
+      "hash": "214e72b1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/PlanReviewDecision.jsx",
+      "hash": "8b7e0295",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/PlanVersionHistory.jsx",
+      "hash": "3d94e2fa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/StrategyWorkspace.jsx",
+      "hash": "10e3b34b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153",
+          "FR-154"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -11903,7 +12133,7 @@
       "type": "document",
       "path": "docs/domains/marketing/features/FR-153-strategy-plans.md",
       "title": "Marketing Strategy: draft to accountable execution",
-      "hash": "0114cbdf",
+      "hash": "891e961c",
       "status": "changed"
     },
     {
@@ -11957,10 +12187,10 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.5.0b",
+      "version": "1.6.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "207864d8",
-      "status": "current"
+      "hash": "049e4a1c",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12337,8 +12567,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "3cbd5d15",
-      "status": "current"
+      "hash": "c9a02e56",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -12422,7 +12652,7 @@
       "version": "1.157.0b",
       "doc_status": "Draft",
       "hash": "908f3659",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -12466,7 +12696,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "04264be0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12499,10 +12729,10 @@
       "type": "document",
       "path": "docs/SITEMAP-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.7.0",
+      "version": "0.8.0b",
       "doc_status": "Accepted",
-      "hash": "01a84952",
-      "status": "current"
+      "hash": "820b5c77",
+      "status": "changed"
     },
     {
       "id": "doc:SRS",
@@ -18095,6 +18325,22 @@
       "status": "current"
     },
     {
+      "id": "route:page:/growth",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth",
+      "path": "src/app/(pm)/growth/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/growth/strategy",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/strategy",
+      "path": "src/app/(pm)/growth/strategy/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/line-oa",
       "type": "route",
       "kind": "page",
@@ -19078,6 +19324,13 @@
       "type": "test",
       "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "7771c50f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/marketing-strategy.spec.js",
+      "type": "test",
+      "path": "tests/e2e/marketing-strategy.spec.js",
+      "hash": "1e1f44b6",
       "status": "current"
     },
     {
@@ -21391,6 +21644,27 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/marketing-migration-policy.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing-migration-policy.test.js",
+      "hash": "8fb91cf8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing-navigation.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing-navigation.test.js",
+      "hash": "3c2709ed",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing-strategy-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing-strategy-ui.test.js",
+      "hash": "d09a8ac0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/migration-version-uniqueness.test.js",
       "type": "test",
       "path": "tests/unit/migration-version-uniqueness.test.js",
@@ -22900,6 +23174,41 @@
     {
       "from": "code:src/app/(pm)/files/page.jsx",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/page.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29549,6 +29858,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -34791,6 +35107,146 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/marketing-contract.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/marketing-contract.js",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/marketing-contract.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingState.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingState.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanForm.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanForm.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "to": "req:FR-154",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -39755,6 +40211,13 @@
     },
     {
       "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
       "to": "doc:ROUTES-SITEMAP",
       "type": "references",
       "source": "markdown",
@@ -40518,6 +40981,13 @@
     },
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:FR-153-strategy-plans",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:MARKETING-INTERFACE-INVENTORY",
       "type": "relates",
       "status": "current",
@@ -40540,6 +41010,13 @@
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:PARALLEL-REVIEW-2026-09-06",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "domain:marketing",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -40983,6 +41460,20 @@
       "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:SITEMAP-DOMAIN-NAV",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:SITEMAP-DOMAIN-NAV",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -45809,6 +46300,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/growth/strategy",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/growth",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa/rich-menus",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -48694,6 +49199,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -49549,6 +50061,76 @@
     {
       "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/app/(pm)/growth/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/modules/marketing/components/PlanForm.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "req:SDD-086",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -60377,6 +60959,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -62904,6 +63493,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -63598,6 +64194,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-153",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -69138,6 +69741,244 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-migration-policy.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-migration-policy.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-migration-policy.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-migration-policy.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/app/(pm)/growth/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/app/(pm)/growth/strategy/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/marketing-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingState.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingTabs.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/PlanForm.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/PlanHandoff.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/migration-version-uniqueness.test.js",

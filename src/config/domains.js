@@ -59,11 +59,12 @@ export const DOMAINS = [
     ],
   },
   {
-    key: 'growth', label: 'Marketing', icon: Megaphone, soon: true,
+    // @req FR-153 — expose the functional Strategy slice under the existing growth grant.
+    // @tested tests/unit/marketing-navigation.test.js
+    key: 'growth', label: 'Marketing', icon: Megaphone, soon: false,
     sub: [
       { label: 'Dashboard', path: '/growth', icon: LayoutDashboard },
-      // Campaign belongs to marketing (HubSpot-style), NOT the Projects/WBS domain.
-      { label: 'Campaigns', path: '/growth/campaigns', icon: Target },
+      { label: 'Strategy', path: '/growth/strategy', icon: Target },
     ],
   },
   {

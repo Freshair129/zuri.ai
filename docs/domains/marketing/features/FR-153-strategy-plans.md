@@ -43,7 +43,9 @@ revision author. All reviewers in this initial slice are authenticated Business
 owners with the growth grant; no simulated agent can provide independence.
 Decisions are append-only APPROVE/REJECT/REVOKE records with rationale and actor.
 APPROVE requires an independent PASS review of the current exact revision/hash
-and a finite future expiry. A draft author may be the accountable approver.
+and a finite future expiry. The latest review governs: a new review returns the
+plan to DRAFT, and an older PASS cannot bypass a later CHANGES_REQUIRED review.
+A draft author may be the accountable approver.
 A newer decision, revision, expiry or revocation invalidates old approval for
 future handoffs. Historical receipts remain historical facts.
 
