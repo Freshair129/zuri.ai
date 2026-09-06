@@ -96,7 +96,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
               </span>
             </div>
             <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
-              <span>โปรเจคปัจจุบัน:</span>
+              <span>ธุรกิจ / บัญชีปัจจุบัน:</span>
               {projectsList.length > 0 ? (
                 <select
                   value={selectedProject?.id || ""}
@@ -114,7 +114,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
                 </select>
               ) : (
                 <span className="font-bold text-brand-dark dark:text-brand-amber">
-                  {selectedProject?.name || business?.name || "ยังไม่มีโปรเจค"}
+                  {selectedProject?.name || business?.name || "SmartGift"}
                 </span>
               )}
             </div>

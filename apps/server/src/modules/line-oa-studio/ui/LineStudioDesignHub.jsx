@@ -39,7 +39,7 @@ export default function LineStudioDesignHub({ project, onBackToProjects }) {
             className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-brand-dark transition-colors flex items-center gap-1.5 font-semibold"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>← {project?.name || "รวมโปรเจค"}</span>
+            <span>← {project?.name || "รวมบัญชี & กลุ่ม"}</span>
           </button>
           <span className="text-slate-400">/</span>
           <span className="font-bold text-slate-900 dark:text-white">Design Studio</span>
