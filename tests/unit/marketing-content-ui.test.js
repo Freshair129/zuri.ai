@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import {
   CONTENT_FORMATS,
   CONTENT_TABS,
+  contentDecisionInput,
   contentAssetApiPath,
   contentAssetPagePath,
   contentBriefApiPath,
@@ -105,6 +106,24 @@ describe('FR-157 Content UI contracts', () => {
     }
     expect(latestContentReview(brief, version)?.id).toBe('review-latest-changes')
     expect(latestContentPassReview(brief, version)).toBeNull()
+  })
+
+  it('serializes review binding only for approval decisions', () => {
+    const version = { id: 'version-1', payloadHash: 'hash-1' }
+    expect(contentDecisionInput(version, { verdict: 'REJECT', reviewId: 'review-1', rationale: 'Needs changes', expiresAt: '2030-01-01T00:00:00.000Z' })).toEqual({
+      contentVersionId: 'version-1',
+      payloadHash: 'hash-1',
+      verdict: 'REJECT',
+      rationale: 'Needs changes',
+    })
+    expect(contentDecisionInput(version, { verdict: 'APPROVE', reviewId: 'review-1', rationale: 'Approved', expiresAt: '2030-01-01T00:00:00.000Z' })).toEqual({
+      contentVersionId: 'version-1',
+      payloadHash: 'hash-1',
+      verdict: 'APPROVE',
+      rationale: 'Approved',
+      reviewId: 'review-1',
+      expiresAt: '2030-01-01T00:00:00.000Z',
+    })
   })
 })
 

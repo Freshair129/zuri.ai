@@ -238,6 +238,20 @@ export function latestContentPassReview(brief, version) {
   return review?.verdict === 'PASS' ? review : null
 }
 
+export function contentDecisionInput(version, { verdict, reviewId, rationale, expiresAt } = {}) {
+  const input = {
+    contentVersionId: version?.id,
+    payloadHash: version?.payloadHash,
+    verdict,
+    rationale,
+  }
+  if (verdict === 'APPROVE') {
+    if (reviewId) input.reviewId = reviewId
+    if (expiresAt) input.expiresAt = expiresAt
+  }
+  return input
+}
+
 export function productionStage(status) {
   const normalized = text(status).toUpperCase()
   if (PRODUCTION_STAGES.some((stage) => stage.key === normalized)) return normalized

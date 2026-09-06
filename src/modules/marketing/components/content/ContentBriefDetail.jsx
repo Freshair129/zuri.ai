@@ -19,6 +19,7 @@ import {
   contentFormatLabel,
   contentOwnerLabel,
   contentVersionPayload,
+  contentDecisionInput,
   currentContentVersion,
   formatContentDateTime,
   latestContentPassReview,
@@ -121,7 +122,7 @@ function DecisionForm({ brief, version, busy, onSubmit }) {
     </div>
     <Field label="Rationale"><textarea className="input min-h-24" value={rationale} onChange={(event) => setRationale(event.target.value)} required /></Field>
     {!passReviews.length && verdict === 'APPROVE' && <InlineNotice>Approval requires a current independent PASS review and an active rights window.</InlineNotice>}
-    <button type="button" className="btn btn-primary" disabled={busy || !rationale.trim() || (verdict === 'APPROVE' && (!reviewId || !expiresAt))} onClick={() => onSubmit({ contentVersionId: version.id, payloadHash: version.payloadHash, reviewId: reviewId || null, verdict, rationale, expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null })}>{busy ? 'Saving…' : 'Record decision'}</button>
+    <button type="button" className="btn btn-primary" disabled={busy || !rationale.trim() || (verdict === 'APPROVE' && (!reviewId || !expiresAt))} onClick={() => onSubmit(contentDecisionInput(version, { reviewId, verdict, rationale, expiresAt: expiresAt ? new Date(expiresAt).toISOString() : '' }))}>{busy ? 'Saving…' : 'Record decision'}</button>
   </Card>
 }
 
