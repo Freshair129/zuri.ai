@@ -11,7 +11,7 @@ import {
 import { normalizePlanEnvelope } from '@/modules/project-manager/import/plan-schema'
 import { getProjectRoadmap } from '@/modules/project-manager/application/project-roadmap-read-model'
 
-// @req FR-156 — expose a selected, receipt-bound Marketing execution roadmap
+// @req FR-160 — expose a selected, receipt-bound Marketing execution roadmap
 // without creating a second Project/Workstream/WorkItem read model.
 // @spec SDD-087, SEC-001, SEC-003 — Marketing scope, immutable version/hash
 // binding, persisted PM receipt provenance and PM-owned read authorization.

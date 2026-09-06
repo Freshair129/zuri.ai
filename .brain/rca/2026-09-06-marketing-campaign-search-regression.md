@@ -23,7 +23,7 @@ The failure reproduced on retry; it is not a flaky navigation result.
 ## Root Cause
 
 The reserved-menu test retained the pre-implementation Campaign assumption after
-FR-156 activated the native route. Root updated navigation and focused contracts
+FR-160 activated the native route. Root updated navigation and focused contracts
 but did not reconcile the existing browser assertion with that changed behavior.
 
 ## Why the issue escaped detection

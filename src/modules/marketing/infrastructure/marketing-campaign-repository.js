@@ -1,7 +1,7 @@
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 import { marketingConflict, marketingNotFound } from '@/modules/marketing/application/marketing-authority'
 
-// @req FR-156 — persist Campaign identity and explicit handoff selection behind
+// @req FR-160 — persist Campaign identity and explicit handoff selection behind
 // an injected, Business/Tenant-scoped repository.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign.test.js

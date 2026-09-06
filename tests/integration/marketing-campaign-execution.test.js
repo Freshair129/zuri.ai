@@ -11,7 +11,7 @@ import {
 import { createMarketingPmHandoffService } from '@/modules/marketing/application/marketing-pm-handoff-service'
 import { readMarketingCampaignExecution } from '@/modules/marketing/application/marketing-campaign-execution'
 
-// @req FR-156 — a selected Marketing initiative receipt projects the existing
+// @req FR-160 — a selected Marketing initiative receipt projects the existing
 // PM execution roadmap with Business scope, immutable revision and provenance.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign-execution.test.js
@@ -142,7 +142,7 @@ function expectUnavailable(result, hiddenIds = []) {
   for (const id of hiddenIds) expect(serialized).not.toContain(id)
 }
 
-describe('Marketing Campaign PM execution read adapter (FR-156)', () => {
+describe('Marketing Campaign PM execution read adapter (FR-160)', () => {
   it('projects a real approved, handed-off Strategy into the authorized PM roadmap', async () => {
     const fixture = await acceptedFixture()
 

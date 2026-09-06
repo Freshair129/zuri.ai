@@ -1,4 +1,4 @@
-// @req FR-155, FR-154, FR-156 — Marketing evidence is available through the authorized runtime only.
+// @req FR-159, FR-158, FR-160 — Marketing evidence is available through the authorized runtime only.
 // @spec SEC-001, SDD-086
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'

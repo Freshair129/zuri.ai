@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign Results never turns planning intent, PM completion or
+// @req FR-160 — Campaign Results never turns planning intent, PM completion or
 // budget into an observed Marketing measurement.
 // @spec SDD-087 — Wave 2 source readers are required before metrics are shown.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js

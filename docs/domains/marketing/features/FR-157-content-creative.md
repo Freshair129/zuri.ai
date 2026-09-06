@@ -13,7 +13,7 @@ relations:
   - type: references
     target: ZAI:FR-157
   - type: relates_to
-    target: ZAI:FEAT-020
+    target: ZAI:FEAT-021
 ---
 
 # Content and Creative — immutable briefs and approved file references

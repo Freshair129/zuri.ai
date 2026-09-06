@@ -29,7 +29,7 @@ import {
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 import { createMarketingCampaignRepository } from '@/modules/marketing/infrastructure/marketing-campaign-repository'
 
-// @req FR-156 — create and mutate a Business-scoped Campaign identity while
+// @req FR-160 — create and mutate a Business-scoped Campaign identity while
 // reusing immutable Strategy evidence and an explicitly authorized PM receipt.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign.test.js

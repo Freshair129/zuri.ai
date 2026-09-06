@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { makeViewer } from '../../factories/viewer'
 
-// @req FR-155 — route handlers resolve the trusted viewer, preserve the strict
+// @req FR-159 — route handlers resolve the trusted viewer, preserve the strict
 // request contract and delegate all persistence/authorization to the service.
 // @spec SDD-086, BR-001, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-plan-route.test.js

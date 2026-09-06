@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign detail keeps one URL-addressable tab bar over Brief,
+// @req FR-160 — Campaign detail keeps one URL-addressable tab bar over Brief,
 // Plan, Timeline, Results and Decisions, with scoped writes and receipt-bound
 // execution.
 // @spec SDD-087, SEC-001, SEC-003 — Business and initiative identity guard every

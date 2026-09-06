@@ -1,7 +1,7 @@
 'use client'
 
-// @req FR-155 — Strategy URL state composes the native Marketing planning view.
-// @req FR-154 — Plan detail includes the verified Project Manager handoff.
+// @req FR-159 — Strategy URL state composes the native Marketing planning view.
+// @req FR-158 — Plan detail includes the verified Project Manager handoff.
 // @spec SDD-086 — the child is keyed by active Business to clear stale scope data.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js
 

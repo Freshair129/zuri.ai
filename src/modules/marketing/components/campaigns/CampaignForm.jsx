@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign creation and revision use the existing immutable
+// @req FR-160 — Campaign creation and revision use the existing immutable
 // Strategy form with the required calendar, offer and conditions extension.
 // @spec SDD-087 — no mock defaults and no second campaign form schema.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js

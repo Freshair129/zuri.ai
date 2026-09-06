@@ -11,7 +11,7 @@ import {
   zMarketingPlanPayload,
 } from '@/modules/marketing/domain/marketing-plan-contract'
 
-// @req FR-156 — Campaign input keeps date-only planning semantics strict while
+// @req FR-160 — Campaign input keeps date-only planning semantics strict while
 // Strategy payloads without campaignBrief remain backward-compatible.
 // @spec SDD-087, BR-001, SEC-001
 // @tested tests/unit/marketing/marketing-campaign-contract.test.js

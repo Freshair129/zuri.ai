@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign detail addresses the initiative by UUID and preserves
+// @req FR-160 — Campaign detail addresses the initiative by UUID and preserves
 // one URL-selected tab across Back/reload.
 // @spec SDD-087, SEC-001 — Business and initiative response identity are both
 // checked before rendering or mutating.

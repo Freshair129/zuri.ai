@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — `/growth` summarizes persisted Marketing plans in the active
+// @req FR-159 — `/growth` summarizes persisted Marketing plans in the active
 // Business scope and gives a direct path into the Strategy workspace.
 // @spec SDD-086 — unsupported provider metrics are explicit unavailable states.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js

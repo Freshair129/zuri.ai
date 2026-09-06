@@ -1,4 +1,4 @@
--- @req FR-156; @spec SDD-087 — Campaign association within Marketing.
+-- @req FR-160; @spec SDD-087 — Campaign association within Marketing.
 -- CreateTable
 CREATE TABLE "MarketingInitiative" (
     "id" TEXT NOT NULL PRIMARY KEY,

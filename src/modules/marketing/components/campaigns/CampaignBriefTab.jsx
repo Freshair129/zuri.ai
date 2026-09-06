@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — the Brief tab displays and revises the current immutable
+// @req FR-160 — the Brief tab displays and revises the current immutable
 // Strategy revision, including the required Campaign brief extension.
 // @spec SDD-087 — dates describe intent and stay separate from PM scheduling
 // and measured source windows.

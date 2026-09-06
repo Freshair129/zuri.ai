@@ -142,7 +142,7 @@ test.describe('navigation reachability', () => {
     const input = page.getByLabel('Command palette search')
     await input.fill('Commerce')
     await expect(page.getByText(/No matches for/i)).toBeVisible()
-    // @req FR-156 — Campaigns is now delivered and must be reachable by search.
+    // @req FR-160 — Campaigns is now delivered and must be reachable by search.
     await input.fill('Campaigns')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/growth\/campaigns$/)

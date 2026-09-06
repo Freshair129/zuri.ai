@@ -45,8 +45,8 @@ Social, Partners, Live, Website, SEO, Analytics, Operations and Team. The comple
 and [runtime team contract](../../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
 remain the full delivery scope. A sidebar capability becomes available when its
 server contract and functional UI exist. The first slice activates Dashboard and
-Strategy, described in [the strategy contract](features/FR-155-strategy-plans.md).
-Campaign implementation follows [the initiative contract](features/FR-156-campaign-initiatives.md),
+Strategy, described in [the strategy contract](features/FR-159-strategy-plans.md).
+Campaign implementation follows [the initiative contract](features/FR-160-campaign-initiatives.md),
 adding one scoped association while preserving Strategy evidence and PM execution ownership.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,

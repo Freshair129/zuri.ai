@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign collection is a bounded Business-scoped projection
+// @req FR-160 — Campaign collection is a bounded Business-scoped projection
 // with list/board presentation, phase filtering and a native create entry.
 // @spec SDD-087, SEC-001 — no PM project or provider campaign is inferred from
 // a title, label or mockup fixture.

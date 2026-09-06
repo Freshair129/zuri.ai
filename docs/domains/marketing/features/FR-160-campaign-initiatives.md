@@ -1,5 +1,5 @@
 ---
-feature: FR-156
+feature: FR-160
 module: marketing
 domain: marketing
 source: v2-native
@@ -14,7 +14,7 @@ superseded_by: null
 
 Derived from the user-approved [CR-018](../../../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md),
 [navigation](../../../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md) and
-[Strategy contract](FR-155-strategy-plans.md). Complexity C-3; risk HIGH.
+[Strategy contract](FR-159-strategy-plans.md). Complexity C-3; risk HIGH.
 The historical design-only restriction on adding models preceded implementation
 approval. This slice adds one native association model within the approved lane.
 
@@ -45,7 +45,7 @@ with endDate >= startDate; offer and conditions are required bounded text.
 Campaign creation requires that extension. Existing Strategy payloads keep the
 extension absent: no defaults and no rewrite of old content/hashes. A revision
 cannot remove an existing campaignBrief. All brief fields, dates and budget are
-hashed and reviewed together; revisions reset approval through FR-155. Planned
+hashed and reviewed together; revisions reset approval through FR-159. Planned
 calendar dates are distinct from PM's actual startAt/targetAt schedule and from a
 measurement window. Audience is a textual planning reference, not a CRM identity.
 
@@ -89,7 +89,7 @@ may still close/cancel the initiative because that changes only its own lifecycl
 Detail DTO:
 `{id,code,businessId,tenantId,planId,handoffId,status,phase,closureReason,version,
 createdAt,updatedAt,canWrite,plan,execution,results}`.
-`plan` is the FR-155 detail DTO with immutable versions/reviews/decisions/handoffs.
+`plan` is the FR-159 detail DTO with immutable versions/reviews/decisions/handoffs.
 List summaries carry identity, title, status, phase, version, planId, currentRevision,
 budget, currency, channels and campaignBrief; no PM titles or metrics are inferred.
 

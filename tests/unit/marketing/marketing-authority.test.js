@@ -5,7 +5,7 @@ import {
   assertMarketingWriteAccess,
 } from '@/modules/marketing/application/marketing-authority'
 
-// @req FR-155 — Marketing authority is Business-local, growth-gated and
+// @req FR-159 — Marketing authority is Business-local, growth-gated and
 // owner-only for persistence writes.
 // @spec SDD-086, BR-001, SEC-001
 // @tested tests/unit/marketing/marketing-authority.test.js

@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign Plan reads the selected persisted PM handoff roadmap.
+// @req FR-160 — Campaign Plan reads the selected persisted PM handoff roadmap.
 // @spec SDD-087, FR-068 — Marketing projects work; it does not create a second
 // WorkItem store or infer execution from planning actions.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js

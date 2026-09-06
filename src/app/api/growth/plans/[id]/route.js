@@ -11,7 +11,7 @@ import {
 import { zMarketingPlanActionInput } from '@/modules/marketing/domain/marketing-plan-contract'
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 
-// @req FR-155 — address one Strategy plan by its internal UUID, re-resolving
+// @req FR-159 — address one Strategy plan by its internal UUID, re-resolving
 // Business visibility and ownership on every read or mutation.
 // @spec SDD-086, BR-001, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-plan-route.test.js,

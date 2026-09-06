@@ -208,7 +208,7 @@ The user-approved [Marketing design](change-requests/CR-018-MARKETING-DOMAIN-DES
 replaces this section's retired lifting proposal (ADR-024).
 
 1. **Dashboard** — `/growth`: real Strategy plan summaries; provider measurements remain unavailable until source-reader activation.
-2. **Strategy** — `/growth/strategy`: Situation, Objectives, Plans and Scenarios tabs; immutable revisions, independent reviews, decisions and PM preview/receipt sections (FR-155, FR-154).
+2. **Strategy** — `/growth/strategy`: Situation, Objectives, Plans and Scenarios tabs; immutable revisions, independent reviews, decisions and PM preview/receipt sections (FR-159, FR-158).
 
 The full approved target additionally includes Campaigns, Paid Media, Content,
 Social, Partners, Live, Website, SEO, Analytics, Operations and Team. Their

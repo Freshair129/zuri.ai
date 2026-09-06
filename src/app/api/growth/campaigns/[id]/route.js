@@ -8,7 +8,7 @@ import {
 import { zMarketingCampaignActionInput } from '@/modules/marketing/domain/marketing-campaign-contract'
 import { createMarketingCampaignRepository } from '@/modules/marketing/infrastructure/marketing-campaign-repository'
 
-// @req FR-156 — address one Campaign initiative by UUID, re-resolving
+// @req FR-160 — address one Campaign initiative by UUID, re-resolving
 // Business visibility and ownership on every mutation.
 // @spec SDD-087, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-campaign-route.test.js,

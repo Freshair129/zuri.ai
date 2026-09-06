@@ -11,7 +11,7 @@ import {
   zMarketingCampaignBrief,
 } from '@/modules/marketing/domain/marketing-plan-contract'
 
-// @req FR-156 — Campaign identity uses a Business-scoped initiative wrapper,
+// @req FR-160 — Campaign identity uses a Business-scoped initiative wrapper,
 // reuses the immutable Strategy brief and binds only an authorized PM receipt.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/unit/marketing/marketing-campaign-contract.test.js,

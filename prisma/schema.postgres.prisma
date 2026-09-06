@@ -2486,7 +2486,7 @@ model LineConversationJob {
   @@index([tenantId, businessId, status])
 }
 
-// @req FR-155 — Business-scoped strategy identity and immutable evidence.
+// @req FR-159 — Business-scoped strategy identity and immutable evidence.
 // @spec SDD-086, SEC-001, SEC-003
 // @tested tests/integration/marketing-plan.test.js
 model MarketingPlan {
@@ -2515,7 +2515,7 @@ model MarketingPlan {
   @@index([tenantId, businessId, status])
 }
 
-// @req FR-155 — canonical content and its hash are append-only.
+// @req FR-159 — canonical content and its hash are append-only.
 model MarketingPlanVersion {
   id          String   @id @default(uuid())
   planId      String
@@ -2533,7 +2533,7 @@ model MarketingPlanVersion {
   @@unique([planId, revision])
 }
 
-// @req FR-155 — independent reviewer evidence binds the exact artifact.
+// @req FR-159 — independent reviewer evidence binds the exact artifact.
 model MarketingReview {
   id            String   @id @default(uuid())
   planId        String
@@ -2551,7 +2551,7 @@ model MarketingReview {
   @@index([planId, createdAt])
 }
 
-// @req FR-155 — decisions and revocations append, never overwrite approval history.
+// @req FR-159 — decisions and revocations append, never overwrite approval history.
 model MarketingDecision {
   id            String    @id @default(uuid())
   planId        String
@@ -2571,7 +2571,7 @@ model MarketingDecision {
   @@index([planId, createdAt])
 }
 
-// @req FR-154 — accepted PM execution references, one per revision and Workspace.
+// @req FR-158 — accepted PM execution references, one per revision and Workspace.
 // @spec SDD-086, BR-007
 // @tested tests/integration/marketing-pm-handoff.test.js
 model MarketingHandoff {
@@ -2597,7 +2597,7 @@ model MarketingHandoff {
   @@index([planId])
 }
 
-// @req FR-156 — distinct Campaign identity associated with one Strategy plan and an explicit PM receipt.
+// @req FR-160 — distinct Campaign identity associated with one Strategy plan and an explicit PM receipt.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign.test.js
 model MarketingInitiative {

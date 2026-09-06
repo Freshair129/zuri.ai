@@ -7,7 +7,7 @@ import {
 } from '@/modules/marketing/application/marketing-campaign-service'
 import { createMarketingCampaignRepository } from '@/modules/marketing/infrastructure/marketing-campaign-repository'
 
-// @req FR-156 — expose the bounded, Business-scoped Campaign collection and
+// @req FR-160 — expose the bounded, Business-scoped Campaign collection and
 // atomically create its Strategy plan and initiative through the service.
 // @spec SDD-087, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-campaign-route.test.js,

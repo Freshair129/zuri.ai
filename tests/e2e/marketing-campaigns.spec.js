@@ -1,4 +1,4 @@
-// @req FR-156 — browser coverage for the native Campaign create flow,
+// @req FR-160 — browser coverage for the native Campaign create flow,
 // receipt-bound PM projection and persisted lifecycle controls.
 // @spec SDD-087
 // @tested tests/e2e/marketing-campaigns.spec.js

@@ -1,4 +1,4 @@
-// @req FR-156 — Campaign navigation, brief extension, PM receipt binding and
+// @req FR-160 — Campaign navigation, brief extension, PM receipt binding and
 // unavailable results are covered by executable UI contract assertions.
 // @spec SDD-087
 // @tested tests/unit/marketing-campaign-ui.test.js
@@ -50,7 +50,7 @@ const validPayload = {
   },
 }
 
-describe('FR-156 Campaign UI contracts', () => {
+describe('FR-160 Campaign UI contracts', () => {
   it('keeps the five detail tabs addressable without a collection tab bar', () => {
     expect(CAMPAIGN_TABS.map((item) => item.key)).toEqual(['brief', 'plan', 'timeline', 'results', 'decisions'])
     expect(campaignTabHref('/growth/campaigns/initiative-1', 'timeline')).toBe('/growth/campaigns/initiative-1?tab=timeline')
@@ -77,7 +77,7 @@ describe('FR-156 Campaign UI contracts', () => {
   })
 })
 
-describe('FR-156 Campaign UI integration seams', () => {
+describe('FR-160 Campaign UI integration seams', () => {
   it('uses one scope-keyed detail read and guards both Business and initiative identity', () => {
     expect(workspace).toContain('loaded?.id === initiativeId && loaded?.businessId === businessId')
     expect(workspace).toContain('[businessId, initiativeId]')

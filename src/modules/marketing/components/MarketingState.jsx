@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — Marketing pages distinguish loading, denied/error, empty, and
+// @req FR-159 — Marketing pages distinguish loading, denied/error, empty, and
 // unavailable capability states so a missing provider signal is never shown as zero.
 // @spec SDD-086 — provider metrics are outside this first native planning slice.
 // @tested tests/unit/marketing-strategy-ui.test.js

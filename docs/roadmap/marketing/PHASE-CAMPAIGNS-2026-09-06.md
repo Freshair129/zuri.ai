@@ -7,14 +7,14 @@ superseded_by: null
 attributes:
   domain: marketing
   doc_type: phase-report
-  scope: "FR-156 Campaign initiative and receipt-bound PM execution projection"
+  scope: "FR-160 Campaign initiative and receipt-bound PM execution projection"
 ---
 
 # Marketing Campaigns — phase evidence
 
 This continuation implements the Campaign slice of the already approved
 [Marketing design](../../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md).
-The binding [FR-156 contract](../../domains/marketing/features/FR-156-campaign-initiatives.md)
+The binding [FR-160 contract](../../domains/marketing/features/FR-160-campaign-initiatives.md)
 covers seven interfaces, MKT-UI-006–011 and MKT-UI-076. It does not close the full
 Marketing domain, provider ingestion or automated Team refinement.
 Complexity C-3; risk HIGH: persistence and cross-domain authorization.
@@ -34,8 +34,8 @@ verification. Primary checkout is reference-only. No production database or
 provider account is changed.
 
 Main published FR-153 for LINE LIFF while this branch's Strategy declaration was
-unpublished. The branch moved Strategy to FR-155 before merging main, preserving
-the published LINE meaning; FR-154 remains PM handoff. FR-156/SDD-087 are new
+unpublished. The branch moved Strategy to FR-159 before merging main, preserving
+the published LINE meaning; FR-158 remains PM handoff. FR-160/SDD-087 are new
 Campaign declarations, recorded through the ledger writer. No published ID was
 reassigned. PRD version 1.158.0b → 1.159.0b adds Campaign; Marketing tables 5 → 6;
 native Marketing routes 2 → 5; tracking version 0.5.0b → 0.5.1b.

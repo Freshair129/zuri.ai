@@ -1,4 +1,4 @@
-// @req FR-156 — Campaign UI binds one Marketing Initiative to one immutable
+// @req FR-160 — Campaign UI binds one Marketing Initiative to one immutable
 // Strategy plan and an explicit persisted Project Manager handoff.
 // @spec SDD-087, SEC-001, SEC-003 — Business scope, optimistic versions and
 // receipt identity stay server-authoritative.

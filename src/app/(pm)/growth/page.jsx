@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — Marketing dashboard reads the active Business scope.
+// @req FR-159 — Marketing dashboard reads the active Business scope.
 // @spec SDD-086 — Dashboard shows persisted plan state and explicit unavailable metrics.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js
 

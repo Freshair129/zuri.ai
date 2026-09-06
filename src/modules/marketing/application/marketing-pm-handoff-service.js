@@ -11,7 +11,7 @@ import {
   zMarketingPlanPayload,
 } from '@/modules/marketing/domain/marketing-plan-contract'
 
-// @req FR-154 — an approved Marketing revision can be previewed and handed to
+// @req FR-158 — an approved Marketing revision can be previewed and handed to
 // the existing PM PlanEnvelope importer exactly once per revision/Workspace.
 // @spec SDD-086, BR-007, SEC-001, SEC-003 — approval, target scope, immutable
 // hashes, transactional receipt association and replay-safe execution.

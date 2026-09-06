@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-154 — approved Marketing revisions can be previewed and committed to
+// @req FR-158 — approved Marketing revisions can be previewed and committed to
 // a same-Business Workspace through the verified handoff contract.
 // @spec SDD-086 — KPI_ATTAINMENT needs PM metric targets and observations;
 // action completion alone does not indicate Marketing success.

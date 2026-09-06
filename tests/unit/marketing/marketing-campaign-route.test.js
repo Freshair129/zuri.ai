@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { makeViewer } from '../../factories/viewer'
 
-// @req FR-156 — Campaign routes resolve the trusted viewer and delegate strict
+// @req FR-160 — Campaign routes resolve the trusted viewer and delegate strict
 // input and Business authorization to the application service.
 // @spec SDD-087, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-campaign-route.test.js

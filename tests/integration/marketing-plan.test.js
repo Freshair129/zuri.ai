@@ -17,7 +17,7 @@ import {
 import { createMarketingPlanRepository } from '@/modules/marketing/infrastructure/marketing-plan-repository'
 import { hashMarketingPlanContent } from '@/modules/marketing/domain/marketing-plan-contract'
 
-// @req FR-155 — the real SQLite persistence path proves Business/Tenant scope,
+// @req FR-159 — the real SQLite persistence path proves Business/Tenant scope,
 // immutable revisions, independent review, exact decisions, expiry/revocation,
 // archive refusal and audit/CAS behaviour.
 // @spec SDD-086, BR-001, SEC-001, SEC-003
@@ -83,7 +83,7 @@ function suffix() {
   return randomUUID().slice(0, 8).toUpperCase()
 }
 
-describe('Marketing Strategy plan persistence (FR-155)', () => {
+describe('Marketing Strategy plan persistence (FR-159)', () => {
   beforeAll(async () => {
     const id = suffix()
     const portfolio = await createPortfolio({ name: `Marketing ${id}`, code: `PF-MKT-${id}` })

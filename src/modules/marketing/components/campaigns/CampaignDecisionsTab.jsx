@@ -1,8 +1,8 @@
 'use client'
 
-// @req FR-156 — Campaign Decisions reuses Strategy review/decision evidence,
+// @req FR-160 — Campaign Decisions reuses Strategy review/decision evidence,
 // explicitly binds one persisted PM receipt, and records required closure text.
-// @spec SDD-087, FR-155 — no Campaign-specific approval history or implicit
+// @spec SDD-087, FR-159 — no Campaign-specific approval history or implicit
 // latest-receipt switching.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js
 

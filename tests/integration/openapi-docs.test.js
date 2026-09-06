@@ -105,8 +105,8 @@ describe('OpenAPI document', () => {
       // /api/assets/register/{id}/dispose (GET, POST).
       // FR-153 adds the LIFF app registry collection and item: two paths, four
       // operations.
-      // Marketing FR-155/154 add three paths and five operations.
-      // Campaign FR-156 adds two paths and four operations.
+      // Marketing FR-159/154 add three paths and five operations.
+      // Campaign FR-160 adds two paths and four operations.
       // FR-157 adds four Content paths and six scoped operations.
       pathCount: 165,
       operationCount: 218,

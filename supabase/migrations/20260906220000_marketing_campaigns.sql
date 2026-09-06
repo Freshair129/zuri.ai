@@ -1,4 +1,4 @@
--- @req FR-156; @spec SDD-087, SEC-001 — Campaign association; application-owned access.
+-- @req FR-160; @spec SDD-087, SEC-001 — Campaign association; application-owned access.
 BEGIN;
 -- CreateTable
 CREATE TABLE "MarketingInitiative" (

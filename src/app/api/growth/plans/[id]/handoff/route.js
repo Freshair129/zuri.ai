@@ -2,7 +2,7 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { commitMarketingPlanHandoff, marketingHandoffInputSchema, previewMarketingPlanHandoff } from '@/modules/marketing/application/marketing-pm-handoff-service'
 
-// @req FR-154 — expose the reviewed Marketing-to-PM preview/commit boundary.
+// @req FR-158 — expose the reviewed Marketing-to-PM preview/commit boundary.
 // @spec SDD-086, SEC-001, SEC-003 — the service owns scope, approval, CAS,
 // receipt idempotency and one transaction; this route only binds the request.
 // @tested tests/integration/marketing-pm-handoff.test.js

@@ -1,6 +1,6 @@
-// @req FR-155 — Strategy URL state, payload validation, immutable versions,
+// @req FR-159 — Strategy URL state, payload validation, immutable versions,
 // and independent review controls are covered by executable unit assertions.
-// @req FR-154 — PM handoff body, same-Business Workspace filtering, and KPI
+// @req FR-158 — PM handoff body, same-Business Workspace filtering, and KPI
 // guardrails are covered by source and contract assertions.
 // @spec SDD-086
 // @tested tests/unit/marketing-strategy-ui.test.js
@@ -38,7 +38,7 @@ const validPayload = {
   actions: [{ title: 'Publish campaign landing page' }],
 }
 
-describe('FR-155 Marketing Strategy UI contracts', () => {
+describe('FR-159 Marketing Strategy UI contracts', () => {
   it('keeps the approved four URL-addressable sections in order', () => {
     expect(STRATEGY_TABS.map((item) => item.key)).toEqual(['situation', 'objectives', 'plans', 'scenarios'])
     expect(strategyTabHref('/growth/strategy', 'plans', { planId: 'plan-1' })).toBe('/growth/strategy?tab=plans&plan=plan-1')
@@ -81,7 +81,7 @@ describe('FR-155 Marketing Strategy UI contracts', () => {
   })
 })
 
-describe('FR-155/FR-154 Marketing UI integration seams', () => {
+describe('FR-159/FR-158 Marketing UI integration seams', () => {
   it('keys Strategy reads by the shell Business and preserves plan state in the URL', () => {
     expect(strategyRoute).toContain('scope.shell.activeBusinessId')
     expect(workspace).toContain('useSearchParams()')

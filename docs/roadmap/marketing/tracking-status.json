@@ -28,7 +28,7 @@
     }
   },
   "localImplementation": {
-    "slice": "FR-155 / FR-154 Strategy revision, decision and PM handoff",
+    "slice": "FR-159 / FR-158 Strategy revision, decision and PM handoff",
     "status": "first Strategy slice locally verified; broader tasks remain in progress",
     "baselineCommit": "5044ba25",
     "foundationCommit": "89147247",
@@ -73,7 +73,7 @@
     "verified": false
   },
   "campaignImplementation": {
-    "requirement": "FR-156",
+    "requirement": "FR-160",
     "spec": "SDD-087",
     "status": "locally verified",
     "foundationCommit": "f125ff1f",

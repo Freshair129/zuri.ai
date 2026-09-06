@@ -1,7 +1,7 @@
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
-// @req FR-155 — every Marketing plan read/write resolves the trusted Business
+// @req FR-159 — every Marketing plan read/write resolves the trusted Business
 // and growth-domain grant before the repository receives a tenant scope.
 // @spec SDD-086, BR-001, SEC-001, SEC-008
 // @tested tests/unit/marketing/marketing-authority.test.js,

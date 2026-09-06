@@ -210,8 +210,8 @@ and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-155; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
-| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-155, FR-154; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-159; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-159, FR-158; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 is a design inventory. These two native routes implement its Strategy slice;
@@ -222,11 +222,11 @@ is not implied by human review and channel intent fields.
 
 | Route | Interface | Native behavior | Authority and states | Trace |
 |---|---|---|---|---|
-| `/growth/campaigns` | MKT-UI-006 | Scoped list/board, search and phase filter | Growth visibility, bounded results, loading/empty/error | FR-156 |
-| `/growth/campaigns/new` | MKT-UI-076 | New initiative plus versioned Strategy brief | Active Business owner; validation and atomic save | FR-156 |
-| `/growth/campaigns/[initiativeId]` | MKT-UI-007–011 | Brief, Plan, Timeline, Results, Decisions in one URL tab bar | Exact Business/initiative; receipt-bound PM data; absent metrics unavailable; owner writes with CAS | FR-156 |
+| `/growth/campaigns` | MKT-UI-006 | Scoped list/board, search and phase filter | Growth visibility, bounded results, loading/empty/error | FR-160 |
+| `/growth/campaigns/new` | MKT-UI-076 | New initiative plus versioned Strategy brief | Active Business owner; validation and atomic save | FR-160 |
+| `/growth/campaigns/[initiativeId]` | MKT-UI-007–011 | Brief, Plan, Timeline, Results, Decisions in one URL tab bar | Exact Business/initiative; receipt-bound PM data; absent metrics unavailable; owner writes with CAS | FR-160 |
 
-[Campaign contract](domains/marketing/features/FR-156-campaign-initiatives.md) and [local phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md).
+[Campaign contract](domains/marketing/features/FR-160-campaign-initiatives.md) and [local phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md).
 Version diff: adds three native route shapes covering seven approved interfaces;
 provider measurements and automated Team refinement remain separately tracked.
 

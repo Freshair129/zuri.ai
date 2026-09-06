@@ -1,5 +1,5 @@
 ---
-feature: FR-155
+feature: FR-159
 module: marketing
 domain: marketing
 source: v2-native
@@ -80,7 +80,7 @@ Revise supplies title and payload. Review supplies planVersionId, payloadHash,
 verdict and rationale. Decide supplies the same binding, reviewId when approving,
 verdict, rationale and expiresAt when approving. The server derives actor IDs.
 
-## PM handoff (FR-154)
+## PM handoff (FR-158)
 
 The target Workspace must belong to the same Business and pass PM's own import
 authorization. Marketing deterministically converts the reviewed revision to a

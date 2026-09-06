@@ -9,7 +9,7 @@ import { createMarketingPlan, decideMarketingPlan, reviewMarketingPlan } from '@
 import { makeViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant, createWorkspace } from '../factories/scope'
 
-// @req FR-154 — the Marketing handoff preserves exact approval, target scope,
+// @req FR-158 — the Marketing handoff preserves exact approval, target scope,
 // preview concurrency, transactional receipt association and replay semantics.
 // @spec SDD-086, BR-007, SEC-001, SEC-003
 // @tested tests/integration/marketing-pm-handoff.test.js

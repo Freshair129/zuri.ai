@@ -299,21 +299,21 @@ adds a private `SECURITY DEFINER` resolver for `supabase-vault:<uuid>` refs;
 `LineConversationJob` references the account and inbound Message, with unique account/event and inbound-message admission, immutable Push retry key/body, leased compute, sealed expiring Reply token, send status and provider acceptance receipt. Acceptance is not delivery/read. Incremental SQLite and public-schema Postgres migrations are included; production application is a separate deployment operation.
 
 
-## Marketing planning evidence (FR-155, FR-154)
+## Marketing planning evidence (FR-159, FR-158)
 
 MarketingPlan belongs to Tenant and Business with a Business-unique code and a concurrency version. MarketingPlanVersion is append-only with a unique plan/revision number and canonical title/payload hash. MarketingReview binds an independent reviewer to that version; MarketingDecision appends approval/rejection/revocation evidence and expiry. MarketingHandoff references that revision, Workspace and PM Project, unique per revision/Workspace, with the accepted receipt and envelope hash.
 
-All five models restore after their Tenant/Business/Workspace/Project parents, in plan → version → review → decision → handoff order. No provider credentials or file bytes are stored. [Contract](../domains/marketing/features/FR-155-strategy-plans.md). Additive migrations exist in both SQLite and Postgres trees; production application is not part of this source change. Version diff 1.19.0b → 1.20.0b adds these five records.
+All five models restore after their Tenant/Business/Workspace/Project parents, in plan → version → review → decision → handoff order. No provider credentials or file bytes are stored. [Contract](../domains/marketing/features/FR-159-strategy-plans.md). Additive migrations exist in both SQLite and Postgres trees; production application is not part of this source change. Version diff 1.19.0b → 1.20.0b adds these five records.
 
 
-## Marketing Campaign association (FR-156)
+## Marketing Campaign association (FR-160)
 
 MarketingInitiative references Tenant/Business, one unique MarketingPlan and an
 optional selected MarketingHandoff. It preserves its own UUID/code, optimistic
 version, OPEN/CLOSED/CANCELLED lifecycle, closure reason and actor/timestamps.
 Backup restores it after MarketingHandoff; deletion runs in the reverse order.
 Campaign date/offer/condition content lives inside immutable PlanVersion payloads,
-not mutable duplicate columns. [Contract](../domains/marketing/features/FR-156-campaign-initiatives.md).
+not mutable duplicate columns. [Contract](../domains/marketing/features/FR-160-campaign-initiatives.md).
 The additive SQLite and private PostgreSQL migrations introduce one table; no
 production migration is claimed. Schema change: five Marketing tables → six.
 

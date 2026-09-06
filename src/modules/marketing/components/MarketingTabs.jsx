@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — Strategy sections are addressable and preserve Back/reload state.
+// @req FR-159 — Strategy sections are addressable and preserve Back/reload state.
 // @spec SDD-086 — one URL-selected section bar, with no nested tab layer.
 // @tested tests/unit/marketing-strategy-ui.test.js
 

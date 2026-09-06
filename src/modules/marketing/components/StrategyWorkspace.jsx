@@ -1,8 +1,8 @@
 'use client'
 
-// @req FR-155 — Strategy is a Business-scoped native UI for Situation,
+// @req FR-159 — Strategy is a Business-scoped native UI for Situation,
 // Objectives, Plans, and honest version comparisons.
-// @req FR-154 — a reviewed revision can be previewed and committed through the
+// @req FR-158 — a reviewed revision can be previewed and committed through the
 // same-Business Project Manager handoff contract.
 // @spec SDD-086 — scope changes reset stale data; all persisted writes include
 // expectedVersion and plan detail stays addressable by URL.

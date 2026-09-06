@@ -1,6 +1,6 @@
 import { marketingConflict, marketingNotFound } from '@/modules/marketing/application/marketing-authority'
 
-// @req FR-155 — Marketing plan persistence is an injected, Business/Tenant
+// @req FR-159 — Marketing plan persistence is an injected, Business/Tenant
 // scoped repository with immutable children and optimistic parent CAS.
 // @spec SDD-086, BR-001, SEC-001, SEC-003
 // @tested tests/integration/marketing-plan.test.js

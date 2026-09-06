@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 
-// @req FR-155 — Marketing Strategy plans accept one bounded, strict payload and
+// @req FR-159 — Marketing Strategy plans accept one bounded, strict payload and
 // persist immutable revisions whose hash includes the plan identity.
 // @spec SDD-086, BR-001, SEC-001
 // @tested tests/unit/marketing/marketing-plan-contract.test.js,

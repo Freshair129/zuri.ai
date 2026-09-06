@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — plan revisions remain immutable and are inspectable with exact
+// @req FR-159 — plan revisions remain immutable and are inspectable with exact
 // changed fields, rather than appearing as an overwritten draft.
 // @spec SDD-086 — version comparison is labelled as a comparison, not a fictional scenario metric.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/unit/marketing-campaign-ui.test.js

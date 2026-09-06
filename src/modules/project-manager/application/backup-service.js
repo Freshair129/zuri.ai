@@ -108,7 +108,7 @@ const SNAPSHOT_MODELS = [
   // restores after all three. Operational state only (stage, status, the
   // external richMenuId); it holds no token, so it is exported whole.
   'lineOaRichMenuJob',
-  // @req FR-155, FR-154, FR-156 — preserve Marketing evidence after its PM and scope parents.
+  // @req FR-159, FR-158, FR-160 — preserve Marketing evidence after its PM and scope parents.
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
   'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',

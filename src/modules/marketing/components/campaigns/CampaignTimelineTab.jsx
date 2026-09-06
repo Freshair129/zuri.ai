@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign Timeline projects the selected PM receipt schedule,
+// @req FR-160 — Campaign Timeline projects the selected PM receipt schedule,
 // dependencies and gates using the authoritative roadmap read model.
 // @spec SDD-087, FR-068 — Marketing dates and PM dates remain visibly distinct.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js

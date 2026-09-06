@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-155 — authenticated human reviewers and decision actors operate on
+// @req FR-159 — authenticated human reviewers and decision actors operate on
 // exact version/hash bindings with visible stale/conflict errors.
 // @spec SDD-086 — independent review requires another real user; no simulated
 // agent can satisfy the independence rule.

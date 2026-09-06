@@ -51,7 +51,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-017 | Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash | FR-143, FR-144 | building |
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
-| FEAT-020 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain | FR-155, FR-154, FR-156, FR-157 | building |
+| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -674,7 +674,7 @@ writing one sentence here, or the governance chain stops.
     "useCase": "ธุรกิจใช้ LINE และ CRM ได้โดยไม่ต้องมี Edge และเลือกใช้อุปกรณ์เฉพาะงาน local โดยไม่ย้ายสิทธิ์ส่งข้อความออกจาก server"
   },
   {
-    "id": "FEAT-020",
+    "id": "FEAT-021",
     "primaryDomain": "marketing",
     "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt."
   }
@@ -688,4 +688,4 @@ writing one sentence here, or the governance chain stops.
 
 Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
 
-Version diff 1.25.0b → 1.26.0b: FEAT-020 includes FR-157 Content and Creative from approved CR-018.
+Version diff 1.25.0b → 1.26.0b: FEAT-021 includes FR-157 Content and Creative from approved CR-018.

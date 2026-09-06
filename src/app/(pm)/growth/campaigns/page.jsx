@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-156 — Campaign collection is rooted in the active Business shell.
+// @req FR-160 — Campaign collection is rooted in the active Business shell.
 // @spec SDD-087, SEC-001 — a URL never grants access to another Business.
 // @tested tests/unit/marketing-campaign-ui.test.js, tests/e2e/marketing-campaigns.spec.js
 

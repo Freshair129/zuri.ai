@@ -18,7 +18,7 @@ import {
 import { createMarketingPmHandoffService } from '@/modules/marketing/application/marketing-pm-handoff-service'
 import { createMarketingCampaignRepository } from '@/modules/marketing/infrastructure/marketing-campaign-repository'
 
-// @req FR-156 — real Campaign identity, immutable brief reuse, explicit PM
+// @req FR-160 — real Campaign identity, immutable brief reuse, explicit PM
 // receipt binding, Business/Tenant refusal and CAS/rollback evidence.
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign.test.js
@@ -93,7 +93,7 @@ function auditFailureDb() {
   return db
 }
 
-describe('Marketing Campaign initiative persistence (FR-156)', () => {
+describe('Marketing Campaign initiative persistence (FR-160)', () => {
   beforeAll(async () => {
     const id = suffix()
     const portfolio = await createPortfolio({ name: `Campaign ${id}`, code: `PF-CAM-${id}` })
