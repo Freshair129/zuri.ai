@@ -70,6 +70,7 @@
       "code:src/config/domains.js",
       "code:src/lib/validation/enums.js",
       "code:src/modules/identity/rbac.js",
+      "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "code:src/modules/project-manager/api-docs/openapi.js",
       "code:src/modules/project-manager/application/backup-service.js"
     ],
@@ -10026,7 +10027,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "ef2fe1af",
+      "hash": "b4fb78a9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10062,7 +10063,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "2d1f32a2",
+      "hash": "6d0841ed",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10152,8 +10153,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "e7d28eb1",
-      "status": "current",
+      "hash": "44b77579",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
