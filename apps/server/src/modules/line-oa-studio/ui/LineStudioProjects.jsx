@@ -3,6 +3,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useScope } from "@/context/ScopeContext";
 import {
   Plus,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 export default function LineStudioProjects({ onSelectProject }) {
+  const router = useRouter();
   const scope = useScope();
   const business = scope?.shell?.activeBusiness;
 
@@ -85,12 +87,31 @@ export default function LineStudioProjects({ onSelectProject }) {
 
       setShowCreateModal(false);
       setNewProjectName("");
-      setNewProjectCode("");
-      await fetchData();
-    } catch (err) {
-      setCreateError(err.message);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const [activatingId, setActivatingId] = useState(null);
+
+  const handleActivateServer = async (item, e) => {
+    e?.stopPropagation?.();
+    setActivatingId(item.id);
+    try {
+      const res = await fetch(`/api/line-oa/accounts/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ENABLE_SERVER",
+          legacyQuiesced: true,
+          version: item.raw?.version || 1
+        })
+      });
+      if (res.ok) await fetchData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActivatingId(null);
     }
   };
 
@@ -98,10 +119,11 @@ export default function LineStudioProjects({ onSelectProject }) {
     ...accounts.map(acc => ({
       id: acc.id,
       name: acc.displayName || acc.code,
-      code: acc.code,
+      code: acc.basicId || acc.code,
       type: "line-oa",
       typeLabel: "LINE OA Account",
-      status: acc.status === "CONNECTED" ? "ONLINE" : acc.status,
+      serverEnabled: acc.serverEnabled,
+      status: (acc.serverEnabled || acc.status === "CONNECTED") ? "LIVE" : "DRAFT",
       transport: acc.serverEnabled ? "Zuri Server" : "Edge Worker",
       updatedAt: acc.updatedAt || acc.createdAt,
       raw: acc
@@ -142,13 +164,19 @@ export default function LineStudioProjects({ onSelectProject }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={fetchData}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-600 transition-colors"
             title="รีเฟรชข้อมูล"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+          <button
+            onClick={() => router.push("/line-oa/edge-connection")}
+            className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5"
+          >
+            <span>💬 + เชื่อมต่อ LINE OA</span>
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -247,15 +275,28 @@ export default function LineStudioProjects({ onSelectProject }) {
                       <span className="text-[11px] font-mono text-slate-400">{item.code}</span>
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {item.typeLabel}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {item.type === "line-oa" && !item.serverEnabled && (
+                      <button
+                        onClick={(e) => handleActivateServer(item, e)}
+                        disabled={activatingId === item.id}
+                        className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-[10px] font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-1 transition-all"
+                      >
+                        <span>{activatingId === item.id ? "กำลังเปิด..." : "⚡ เปิด Server"}</span>
+                      </button>
+                    )}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      {item.typeLabel}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="text-xs text-slate-500 space-y-1">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span>สถานะ:</span>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">{item.status}</span>
+                    <span className={`font-semibold text-[11px] px-1.5 py-0.5 rounded ${
+                      item.status === "LIVE" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"
+                    }`}>{item.status}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Engine / Transport:</span>
