@@ -22,6 +22,7 @@ owns_models:
   - LineOaRichMenu
   - LineOaRichMenuVersion
   - LineOaRichMenuJob
+  - LineOaLiffApp
   - LineConversationJob
 owns_routes:
   - src/app/(pm)/line-oa/**
@@ -31,7 +32,7 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.7.0b"
+version: "0.8.0b"
 created_at: "2026-09-05T00:00:00+07:00"
 updated_at: "2026-09-06T13:29:04+07:00"
 ---
@@ -334,8 +335,12 @@ bearer, the same supervised script) claims with compare-and-set and a lease
 and fences on the account's epoch, and an unconfirmed create is UNKNOWN for a
 publisher to acknowledge. The ADR-060 `LineOaTransportJob` sketch below is
 superseded for rich menus by this lane, as the ADR-061 note above says for
-conversations. ADR-060 D14 phases the rest; each slice declares its own ids
-first and updates this charter's ownership claims in the same change.
+conversations. Slice 5 (**FR-153**, 2026-09-06) claimed `LineOaLiffApp`: the
+per-account LIFF registry with the LINE-issued `liffId` as an attribute, DRAFT
+until recorded and ACTIVE from then; FR-152's translator resolves a rich menu
+`LIFF` action through it. Creating the app on LINE waits for a LINE Login
+credential contract. ADR-060 D14 phases the rest; each slice declares its own
+ids first and updates this charter's ownership claims in the same change.
 
 ## References
 
@@ -351,6 +356,7 @@ first and updates this charter's ownership claims in the same change.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.6.0 | 2026-09-06 | phase-1-building | Slice 4: claimed `LineOaRichMenuJob` as FR-152 lands — server-owned publish jobs on ADR-061; the integration lane gains the rich menu port; the ADR-060 transport-job sketch is superseded for rich menus | working-tree | Claude Fable 5.1 |
+| 0.8.0b | 2026-09-06 | phase-1-building | Slice 5: claimed `LineOaLiffApp` as FR-153 lands — the LIFF registry; rich menu LIFF actions resolve through it; no LINE call yet | working-tree | Claude Fable 5.1 |
 | 0.7.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | base 4c0cbe3 | RWANG |
 | 0.5.0 | 2026-09-06 | phase-1-building | Slice 3: claimed `LineOaRichMenu` / `LineOaRichMenuVersion` in `owns_models` as FR-151 lands — designer data, pure rules, only writer, two routes; publishing stays with the transport-job slice | working-tree | Claude Fable 5.1 |
 | 0.4.1 | 2026-09-05 | phase-1-building | Slice 2: the account's `bindingStatus` port defaults to the agent lane's FR-147 read contract; LIVE is now reachable; the read policy's SmartGift pin recorded as the remaining gap | working-tree | Claude Fable 5.1 |
