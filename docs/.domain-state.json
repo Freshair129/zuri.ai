@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T20:50:30.249Z",
+  "generatedAt": "2026-09-06T20:58:08.156Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2599,7 +2599,7 @@
           "id": "FR-159",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 16,
+          "codeCount": 17,
           "testCount": 25
         },
         {
@@ -5669,7 +5669,7 @@
           "id": "FR-159",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
+          "codeCount": 21,
           "testCount": 25
         },
         {
@@ -5709,6 +5709,7 @@
         "apps/server/src/modules/marketing/application/marketing-plan-service.js",
         "apps/server/src/modules/marketing/application/marketing-pm-handoff-service.js",
         "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
+        "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
         "apps/server/src/modules/marketing/components/MarketingState.jsx",
         "apps/server/src/modules/marketing/components/MarketingTabs.jsx",
         "apps/server/src/modules/marketing/components/PlanForm.jsx",
