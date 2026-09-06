@@ -50,7 +50,7 @@ describe('domain state projection', () => {
     // did not catch it either: its staleness step checks FEATURE-MAP, DOMAIN-MAP,
     // TRACE and D-traceability, and .domain-state.json is not in that list.
     // `inventory` joined on 2026-09-06 (FR-154/FR-155, DOM-INVENTORY);
-    // `commerce` on 2026-09-07 (FR-162/FR-163, DOM-COMMERCE);
+    // `commerce` on 2026-09-07 (FR-166/FR-163, DOM-COMMERCE);
     // `procurement` on 2026-09-07 (FR-164/FR-165, DOM-PROCUREMENT).
     expect(Object.keys(state.domains).sort()).toEqual([
       'agent', 'asset-management', 'commerce', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'procurement', 'project-manager',

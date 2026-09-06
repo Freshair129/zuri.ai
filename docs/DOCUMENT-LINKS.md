@@ -11,6 +11,7 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
 Backlinks:
@@ -1373,8 +1374,8 @@ Source: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-C
 
 Backlinks:
 
-- [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md) (references)
 - [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md) (references)
+- [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md) (references)
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 - [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 
@@ -1563,14 +1564,14 @@ Backlinks:
 
 Source: [Domain — commerce](domains/commerce/CHARTER.md)
 
-- references: [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md)
 - references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+- references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
-## FR-162 — Sales orders (order_id)
+## FR-163 — Payments, verification and revenue (payment_id)
 
-Source: [FR-162 — Sales orders (order_id)](domains/commerce/features/FR-162-sales-orders.md)
+Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
 
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
@@ -1578,9 +1579,9 @@ Backlinks:
 
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
-## FR-163 — Payments, verification and revenue (payment_id)
+## FR-166 — Sales orders (order_id)
 
-Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+Source: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
@@ -2407,6 +2408,7 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -2465,6 +2467,17 @@ Backlinks:
 - [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md) (references)
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+- [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## FR-162 — Marketing Operations coordination
+
+Source: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+
+Backlinks:
+
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
@@ -2677,6 +2690,7 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 - references: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
@@ -2870,6 +2884,14 @@ Backlinks:
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 
+## Marketing Operations phase evidence
+
+Source: [Marketing Operations phase evidence](roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md)
+
+Backlinks:
+
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
 ## Marketing Strategy — implementation phase report
 
 Source: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
@@ -2969,9 +2991,11 @@ Source: [Marketing — Project Manager implementation tracking plan](roadmap/PLA
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Parallel development review](roadmap/marketing/PARALLEL-REVIEW-2026-09-06.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
+- references: [Marketing Operations phase evidence](roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md)
 - references: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
 - references: [Domain — marketing](domains/marketing/CHARTER.md)
 - relates: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)

@@ -1,4 +1,4 @@
--- @req FR-162, FR-163 — SalesOrder, SalesOrderLine and Payment (commerce).
+-- @req FR-166, FR-163 — SalesOrder, SalesOrderLine and Payment (commerce).
 -- Twin of supabase/migrations/20260907000000_commerce_orders_payments.sql.
 -- @spec ADR-065; BR-001; BR-002; SEC-001
 -- Additive: three new tables, their indexes and foreign keys; nothing existing changes.

@@ -21,11 +21,12 @@ const { test } = require('@playwright/test')
 // sub-domain fails there instead of becoming the next flake.
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
-  // @req FR-162 — Commerce has pages now: the dashboard and the orders console.
+  // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
   '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
   '/market',
   '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
+  '/growth/operations',
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',

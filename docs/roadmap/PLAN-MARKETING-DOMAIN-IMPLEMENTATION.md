@@ -1,7 +1,7 @@
 ---
-version: "0.6.1b"
+version: "0.7.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T22:26:00+07:00,RWANG"
+last_update: "2026-09-07T09:40:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.6.0b
+**Version:** 0.7.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -99,7 +99,7 @@ Version diff 0.2.0b → 0.3.0b: record implementation start, native contracts an
 | MKT-W1-STRATEGY | Objectives, plans and scenarios | 5 | Marketing engineering | PLANNED | Plan CRUD, objective references, immutable versions and scenario assumptions persist without spending. |
 | MKT-W1-CAMPAIGNS | Initiatives and PM-linked campaign execution | 5 | Marketing engineering | PLANNED | Initiative, provider campaign and PM container identities remain distinct; execution uses shared PM records. |
 | MKT-W1-CONTENT | Creative brief, production and library | 5 | Creative systems | PLANNED | Versions, rights, review and PM/Files owner references persist and are tested. |
-| MKT-W1-OPERATIONS | Intake, calendar, approvals and handoffs | 3 | Marketing operations | PLANNED | PM schedule and owner receipts are projected without duplicate tasks, conversations or stock records. |
+| MKT-W1-OPERATIONS | Intake, calendar, approvals and handoffs | 3 | Marketing operations | DONE | PM schedule and owner receipts are projected without duplicate tasks, conversations or stock records. See [Operations phase evidence](marketing/PHASE-OPERATIONS-2026-09-07.md). |
 | MKT-W1-MSP | MSP and Agent control-port agreement | 5 | MSP and Agent owners | PLANNED | Run/session/lease/cost/recovery authority has owner acceptance and separate integration evidence. |
 | MKT-W1-ARTIFACTS | Versioned proposals and independent reviews | 5 | Agent engineering | PLANNED | Evidence snapshots, immutable outputs, independent critique, dissent and diffs persist. |
 | MKT-W1-RUNS | Bounded refinement and recovery | 8 | Agent engineering | PLANNED | Finite rounds, parallelism, token/cost/time bounds, pause/cancel and durable recovery receipts are verified. |
@@ -229,3 +229,15 @@ cover immutable briefs, PM production and an approved Files reference library.
 MKT-W1-CONTENT is locally DONE: current counts are 5 DONE, 7 IN_PROGRESS and
 35 PLANNED. Version diff 0.6.0b → 0.6.1b records verified delivery without changing
 weights, dependencies, approved scope or the unresolved SmartGift server intake.
+
+## Operations continuation — 2026-09-07
+
+The next approved slice is [Marketing Operations](../domains/marketing/features/FR-162-operations-coordination.md),
+tracked in [phase evidence](marketing/PHASE-OPERATIONS-2026-09-07.md). The slice adds one Business-scoped
+composition boundary for Intake, Calendar, Approvals and Handoffs. MKT-W1-OPERATIONS is locally DONE after
+CAS-protected Intake writes, audited state changes, PM-owned roadmap projection and validated handoff receipts.
+SmartGift live Project Manager import remains a separate gate because no target instance, Workspace or user
+identity was provided.
+
+Version diff 0.6.1b → 0.7.0b records the Operations delivery and evidence links without changing task weights,
+dependencies, approved scope or the unresolved SmartGift server intake.

@@ -234,7 +234,7 @@ export const SALES_TASK_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW']
 export const SALES_TASK_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED']
 export const SALES_TASK_SCHEDULE_KINDS = ['SINGLE', 'RANGE']
 export const SALES_TASK_ACTIONS = ['UPDATE', 'ASSIGN', 'START', 'COMPLETE', 'CANCEL', 'REOPEN']
-// FR-162 / FR-163 — commerce: a sales order and the payments against it. The
+// FR-166 / FR-163 — commerce: a sales order and the payments against it. The
 // order's origin is where the sale came from (CHAT = attributed to a
 // Conversation, the legacy "ads revenue"); its status is the sale's, while the
 // payment state (unpaid / partial / paid …) is DERIVED from verified payments

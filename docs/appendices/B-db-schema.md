@@ -112,8 +112,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
 | ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
 | SalesTask | code (`TSK-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), assigneePersonId? → Person (SetNull), createdByPersonId?, title, description?, type, priority, status (OPEN / IN_PROGRESS / DONE / CANCELLED), scheduleKind (SINGLE / RANGE), dueDate, startDate?, timeStart?, timeEnd?, outcome?, completedAt?, completedByPersonId?, cancelledAt?, cancelReason?, version | FR-161 / ADR-064 — a sales follow-up owed to a customer (crm); not a project-manager WorkItem; overdue / due-today computed on read, never stored |
-| SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-162 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
-| SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-162 — one line; may name an Inventory SKU; price given at sale time |
+| SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-166 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
+| SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-166 — one line; may name an Inventory SKU; price given at sale time |
 | Payment | code (`PAY-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, orderId → SalesOrder (Cascade), kind (PAYMENT / REFUND), method, amountSatang, status (PENDING / VERIFIED / REJECTED), bankReference? (unique per tenant — an attribute), slipFileAssetId? → FileAsset (SetNull), note?, paidAt, verifiedAt?, verifiedByPersonId?, rejectReason?, createdByPersonId?, version | FR-163 / ADR-065 — a payment or refund; only VERIFIED money counts; the slip's bytes are the FileAsset's |
 | Supplier | code (unique per tenant), tenantId, businessId, name, taxId?, contactName?, phone?, email?, address?, paymentTerms?, leadTimeDays?, notes?, status (ACTIVE / ARCHIVED), archivedAt?, version | FR-164 / ADR-066 — an approved supplier (procurement); archived, never deleted |
 | PurchaseOrder | code (`PO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, supplierId → Supplier (Restrict), status (DRAFT / SENT / RECEIVED / SHORT_CLOSED / CANCELLED), currency, expectedAt?, notes?, orderedAt, sentAt?, receivedAt?, closedAt?, closeReason?, cancelledAt?, cancelReason?, createdByPersonId?, version | FR-164 / ADR-066 — a purchase order; **no total, received or outstanding column** — computed on read from lines and receipt lines; RECEIVED is set by the completing receipt |
@@ -184,7 +184,7 @@ Version diff 1.23.0b → 1.24.0b (2026-09-07): added `SalesTask` (FR-161, ADR-06
 CRM sales activity record) with one additive migration in each tree (`20260906235500_crm_sales_task`) in the
 same change; the Supabase SQL is written and **not applied**.
 
-Version diff 1.24.0b → 1.25.0b (2026-09-07): added `SalesOrder`, `SalesOrderLine` and `Payment` (FR-162, FR-163,
+Version diff 1.24.0b → 1.25.0b (2026-09-07): added `SalesOrder`, `SalesOrderLine` and `Payment` (FR-166, FR-163,
 ADR-065 — the Commerce lane's first slice; money in integer satang, no stored total or paid) with one additive
 migration in each tree (`20260907000000_commerce_orders_payments`) in the same change; the Supabase SQL is
 written and **not applied**.
@@ -252,6 +252,17 @@ tenant column of its own, and adding one would duplicate truth that could drift 
 its Conversation.
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
+
+## Marketing Operations (FR-162, SDD-089)
+
+`MarketingOperationsIntake { tenantId, businessId, title, capability, objective,
+requiredAt?, evidenceReference?, responsibleOwnerId?, status, version, createdBy,
+createdAt, updatedAt, deletedAt? }` is the Business-scoped Marketing request record.
+Marketing is its only writer; the backup snapshot restores it after Marketing
+content evidence. Calendar, approvals and handoffs remain projections of PM,
+Marketing review/decision and owner receipt rows, so no duplicate task,
+conversation or stock model is introduced. Production DDL is an additive,
+configuration-gated artifact until an owner applies it.
 
 The FR-078 historical backfill uses a separate private `zuri_core` target boundary
 (`person`, `customer`, `customer_import_batch`, `customer_import_provenance`,

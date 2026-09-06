@@ -29,12 +29,16 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   const tag = `oa-e2e-${Date.now()}`
   createdNames.push(tag)
+  // main repaired this spec independently, in the opposite direction: it
+  // asserted the deactivation button was visible, i.e. that creating an account
+  // puts it live. That is the behaviour the owner decided to remove, so the
+  // assertions below are the ones kept; main's tighter locators are adopted.
   // One submit provisions the connection and the account together now: the
   // display name names both, and the account code, destination and secret
   // reference are derived from it unless the advanced block overrides them.
   // Only the display name is required, so that is all this fixture fills.
-  await page.getByLabel(/ชื่อบัญชี LINE OA/).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที' }).click()
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.
   const panel = page.getByRole('heading', { name: tag }).locator('xpath=../../..')

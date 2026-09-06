@@ -57,9 +57,9 @@ Architecture decision: [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AN
 - `SalesOrder` (`order_id`) — `code` `ORD-YYYYMMDD-NNN` unique per Tenant,
   Business-scoped, optional `Customer` and `Conversation` of the same Tenant,
   `origin` CHAT / WALK_IN / ONLINE, DRAFT → CONFIRMED → COMPLETED, cancel from
-  either open state, money as integer satang (FR-162).
+  either open state, money as integer satang (FR-166).
 - `SalesOrderLine` — a line that may name an Inventory `Product` (SKU) with a
-  price given at the time of sale, a quantity and a discount (FR-162).
+  price given at the time of sale, a quantity and a discount (FR-166).
 - `Payment` (`payment_id`) — `code` `PAY-YYYYMMDD-NNN`, PAYMENT or REFUND,
   method, amount, PENDING → VERIFIED | REJECTED, `bankReference` unique per
   Tenant as an attribute, the slip as a `FileAsset` (FR-163).
@@ -112,7 +112,7 @@ verifying or rejecting a payment needs Business OWNER or `PAYMENT_VERIFIER`
 src/modules/commerce/
 ├── domain/commerce.js                          money, contracts, totals, status machines, revenue
 ├── application/commerce-authority.js           the view / order / verify ladder, FR-072 refusals
-├── application/sales-order-service.js          the only writer of orders and lines (FR-162)
+├── application/sales-order-service.js          the only writer of orders and lines (FR-166)
 ├── application/payment-service.js              the only writer of payments (FR-163)
 ├── application/revenue-read-model.js           verified revenue by origin and day (read-only)
 └── index.js                                    stable module exports
@@ -122,7 +122,7 @@ Runtime surfaces are `/commerce`, `/commerce/orders` and `/api/commerce/**`.
 
 ## Delivery state
 
-FR-162 and FR-163 are implemented locally with both migrations written
+FR-166 and FR-163 are implemented locally with both migrations written
 (`20260907000000_commerce_orders_payments`) and the production SQL **not
 applied** (an owner-instructed operator step, ADR-057). Not in this slice: the
 offer catalogue, slip OCR, invoices and receipts, store credit, LINE intake of
@@ -131,7 +131,7 @@ an order from a chat.
 ## References
 
 - [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
-- [FR-162 sales orders](features/FR-162-sales-orders.md)
+- [FR-166 sales orders](features/FR-166-sales-orders.md)
 - [FR-163 payments and revenue](features/FR-163-payments-and-revenue.md)
 - [Inventory ontology record](../inventory/ONTOLOGY.md) — the offer layer this lane still owes
 

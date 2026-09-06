@@ -1,16 +1,16 @@
 ---
 domain: commerce
-feature: FR-162
+feature: FR-166
 module: commerce
 source: legacy-prior-art
 bundle: FEAT-023
 requirements:
-  - FR-162
+  - FR-166
 version: "0.1.0"
 status: building
 ---
 
-# FR-162 — Sales orders (order_id)
+# FR-166 — Sales orders (order_id)
 
 ## Intent
 
@@ -59,9 +59,9 @@ per action, nothing deleted; the commerce domain gate then OWNER or
   writer.
 - `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`; the
   `commerce` slot leaves `soon`; the `/commerce/orders` console.
-- Tests: `tests/integration/fr162-sales-order.test.js` (AC-162.1–.6),
+- Tests: `tests/integration/fr166-sales-order.test.js` (AC-162.1–.6),
   `tests/unit/commerce-domain.test.js`, `tests/unit/commerce-routes.test.js`,
-  `tests/e2e/fr162-commerce-orders.spec.js` (shared with FR-163).
+  `tests/e2e/fr166-commerce-orders.spec.js` (shared with FR-163).
 
 ## Not in this slice
 

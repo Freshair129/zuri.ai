@@ -2076,7 +2076,7 @@ erDiagram
 | ตัดสต๊อก | COMPLETE + `issueStock` เรียก `appendMovement` ของ Inventory ใน transaction เดียวกัน (reference `ORDER:<code>`) — ขาดแล้วปฏิเสธทั้งหมด, SERIAL ปฏิเสธ, ไม่มีสิทธิ์คลังปฏิเสธ (role ของ Commerce ไม่ขยาย Inventory) |
 | ไม่มี CREDIT | store credit ของ legacy ไม่ใช่การชำระ — เป็น liability ที่จะมี FR ของตัวเอง |
 
-**Spec:** FR-162, FR-163 · FEAT-023 · ADR-065, ADR-054 D3/D4/D5 · BR-001, BR-002, SEC-001 · `docs/domains/commerce/CHARTER.md`
+**Spec:** FR-166, FR-163 · FEAT-023 · ADR-065, ADR-054 D3/D4/D5 · BR-001, BR-002, SEC-001 · `docs/domains/commerce/CHARTER.md`
 
 ---
 
@@ -2201,7 +2201,7 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 2. CORE: Auth & Employee | `Employee` (roles[], passwordHash) | `Person` / `Membership` / `Session` / `RoleBinding` (§2) | ❌ refused (ADR-054 D5) |
 | 3. CORE: Customer CRM | `Customer`, `CustomerProfile`; phone-merge identity | `Customer` (§9) + `CustomerProfile` (FR-126, target); identity merge → identity domain (FR-094) | ✅ `CustomerProfile` adopted / ❌ phone-merge refused (D4.3) |
 | 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
-| 5. CORE: Orders & Payments | `Order` (`items` JSON, `paidAmount` เก็บ, float), `Transaction` (`refNumber` UK, slip OCR, CREDIT) | **`SalesOrder` / `SalesOrderLine` / `Payment` ใน commerce (§20, FR-162/163, ADR-065)** — line แทน JSON, total/paid คำนวณตอนอ่าน, เงินเป็น satang, bank reference เป็น attribute unique ต่อ Tenant, สลิปเป็น `FileAsset`, ไม่มี CREDIT; "ROAS จาก VERIFIED เท่านั้น" คงไว้เป็นกฎรายได้ | ✅ relabelled + corrected (FR-162, FR-163) |
+| 5. CORE: Orders & Payments | `Order` (`items` JSON, `paidAmount` เก็บ, float), `Transaction` (`refNumber` UK, slip OCR, CREDIT) | **`SalesOrder` / `SalesOrderLine` / `Payment` ใน commerce (§20, FR-166/163, ADR-065)** — line แทน JSON, total/paid คำนวณตอนอ่าน, เงินเป็น satang, bank reference เป็น attribute unique ต่อ Tenant, สลิปเป็น `FileAsset`, ไม่มี CREDIT; "ROAS จาก VERIFIED เท่านั้น" คงไว้เป็นกฎรายได้ | ✅ relabelled + corrected (FR-166, FR-163) |
 | 6. CORE: Marketing & Ads | Ad, AdDailyMetric (adId เป็น FK) | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision (§19); provider ids and measurements remain in Integration owner records | ✅ native planning evidence; provider execution and metrics remain deferred |
 | 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-161, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-161) |
 | 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
