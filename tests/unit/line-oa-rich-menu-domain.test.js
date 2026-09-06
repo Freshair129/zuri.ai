@@ -1,4 +1,4 @@
-// @req FR-148 — the pure rules of the rich menu designer, proven without a
+// @req FR-151 — the pure rules of the rich menu designer, proven without a
 //   database: the input contracts, the layout grid, image-size and bounds
 //   validation, and the freeze gate.
 // @spec ADR-060 D3, D6; SRS LOS-RQ-040, LOS-RQ-041
@@ -25,7 +25,7 @@ const goodDraft = () => ({
   areas: [area(0, 0, 1250, 843), area(1250, 0, 1250, 843, { type: 'URI', uri: 'https://example.com' })],
 })
 
-describe('FR-148 rich menu domain rules', () => {
+describe('FR-151 rich menu domain rules', () => {
   it('tiles every LINE layout exactly over the image, remainder to the last column and row', () => {
     for (const layout of LINE_OA_RICH_MENU_LAYOUTS) {
       for (const size of RICH_MENU_IMAGE_SIZES) {

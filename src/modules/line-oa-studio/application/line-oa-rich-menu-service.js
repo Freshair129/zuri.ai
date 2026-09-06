@@ -13,7 +13,7 @@ import {
 } from '../domain/line-oa-rich-menu'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
 
-// @req FR-148 — the only writer of LineOaRichMenu and LineOaRichMenuVersion:
+// @req FR-151 — the only writer of LineOaRichMenu and LineOaRichMenuVersion:
 //   create a menu with its first draft, list and read menus with their
 //   versions, save a draft (in place while editable, or as the next numbered
 //   version once the last one is frozen), freeze a draft into an immutable
@@ -23,7 +23,7 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   LINE and records the external richMenuId — is the transport lane's slice,
 //   not this one; this service never talks to LINE.
 // @spec ADR-060 D3, D6, D11; SEC-001; BR-002; BR-012; FR-072; FR-045
-// @tested tests/integration/fr148-line-oa-rich-menu.test.js
+// @tested tests/integration/fr151-line-oa-rich-menu.test.js
 
 function failure(status, message, details) {
   const error = new Error(message)

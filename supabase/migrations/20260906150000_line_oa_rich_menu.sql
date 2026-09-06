@@ -1,4 +1,4 @@
--- @req FR-148 — LineOaRichMenu and LineOaRichMenuVersion: the rich menu
+-- @req FR-151 — LineOaRichMenu and LineOaRichMenuVersion: the rich menu
 -- designer's data for one LINE OA Studio account (ADR-060 D3). A menu is the
 -- identity, alias and default flag; a version is one numbered body — layout,
 -- chat-bar text, tap areas and their actions, the FileAsset image it was
@@ -6,7 +6,7 @@
 -- external richMenuId LINE assigns at deployment is recorded on the version as
 -- an attribute (BR-002), by the transport lane in a later slice.
 -- @spec ADR-060 D3, D6, D11; BR-002; SEC-001
--- @tested tests/integration/fr148-line-oa-rich-menu.test.js
+-- @tested tests/integration/fr151-line-oa-rich-menu.test.js
 --
 -- Additive only: two new tables, their indexes, foreign keys, forced RLS and
 -- the same private-application-table grant shape every table in this schema
@@ -91,8 +91,8 @@ REVOKE ALL ON TABLE "LineOaRichMenu" FROM public, anon, authenticated, service_r
 REVOKE ALL ON TABLE "LineOaRichMenuVersion" FROM public, anon, authenticated, service_role;
 
 COMMENT ON TABLE "LineOaRichMenu" IS
-  'FR-148 — rich menu of one LINE OA Studio account (ADR-060 D3): identity, alias, default flag; bodies live in LineOaRichMenuVersion.';
+  'FR-151 — rich menu of one LINE OA Studio account (ADR-060 D3): identity, alias, default flag; bodies live in LineOaRichMenuVersion.';
 COMMENT ON TABLE "LineOaRichMenuVersion" IS
-  'FR-148 — one numbered rich menu body: layout, chat-bar text, tap areas, FileAsset image; immutable once FROZEN; externalRichMenuId is an attribute set by the transport lane (BR-002).';
+  'FR-151 — one numbered rich menu body: layout, chat-bar text, tap areas, FileAsset image; immutable once FROZEN; externalRichMenuId is an attribute set by the transport lane (BR-002).';
 
 COMMIT;

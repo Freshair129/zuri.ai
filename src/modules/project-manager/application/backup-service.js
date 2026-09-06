@@ -1,3 +1,6 @@
+// @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
+// @spec ADR-061
+// @tested tests/integration/line-server-backup.test.js
 // @req FR-013 - snapshot export/import with preview and confirmation.
 // @req FR-123 - plugin auth material is installation security state, not
 // business data; restore revokes it instead of exporting or restoring it.
@@ -92,7 +95,7 @@ const SNAPSHOT_MODELS = [
   'workspace', 'project', 'planImportReceipt', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
-  // @req FR-148 — a rich menu hangs off a LINE OA account (above) and its
+  // @req FR-151 — a rich menu hangs off a LINE OA account (above) and its
   // versions reference the FileAsset image (just above), so both restore after
   // those and delete before them. Design data, no secret: exported whole.
   'lineOaRichMenu', 'lineOaRichMenuVersion',
@@ -111,6 +114,8 @@ const SNAPSHOT_MODELS = [
   // which the model never persists in the first place.
   'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // Its account and inbound Message must both exist before restoring the ledger.
+  'lineConversationJob',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',
@@ -170,7 +175,14 @@ export async function exportSnapshot({
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   const snapshot = { schemaVersion: SNAPSHOT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables: {} }
-  for (const model of SNAPSHOT_MODELS) snapshot.tables[model] = await db[model].findMany()
+  for (const model of SNAPSHOT_MODELS) {
+    const rows = await db[model].findMany()
+    // Ciphertext is still a credential capability on the installation that has
+    // its key. It has no place in a portable business snapshot.
+    snapshot.tables[model] = model === 'lineConversationJob'
+      ? rows.map(({ sealedReplyToken, ...row }) => row)
+      : rows
+  }
 
   const mounts = includeBinaryContent
     ? await db.localWorkspaceMount.findMany({ where: { status: 'ACTIVE' }, orderBy: { updatedAt: 'desc' } })
@@ -232,6 +244,26 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   return { ...base, current, wouldReplace: Object.values(current).some((count) => count > 0) }
 }
 
+/** Restore is recovery of evidence, never authorization to repeat an external send. */
+function restoredRow(model, row) {
+  if (model === 'lineOaAccount') return {
+    ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
+    version: (row.version ?? 1) + 1,
+  }
+  if (model !== 'lineConversationJob') return row
+  const { sealedReplyToken, ...rest } = row
+  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: (row.version ?? 1) + 1 }
+  // A send in progress at export may have reached LINE. Keep that uncertainty
+  // visible and blocking cutover rather than inventing a safe failure.
+  if (row.status === 'SENDING' || (row.status === 'READY' && row.firstSendAt)) return { ...restored, status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' }
+  if (row.status === 'QUEUED' || row.status === 'CLAIMED' || row.status === 'READY') {
+    return { ...restored, status: 'CANCELLED', errorCode: 'RESTORED_REQUIRES_REVIEW' }
+  }
+  // ACCEPTED is persisted provider evidence; its only next step is CRM repair.
+  // Existing UNKNOWN and all terminal outcomes remain exactly as recorded.
+  return restored
+}
+
 export async function importSnapshot(snapshot, {
   confirm = false,
   remounts = [],
@@ -257,7 +289,7 @@ export async function importSnapshot(snapshot, {
     await tx.localWorkspaceMount.deleteMany()
     for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
     for (const model of SNAPSHOT_MODELS) {
-      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: row })
+      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row) })
     }
     for (const mount of remounts) {
       const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })

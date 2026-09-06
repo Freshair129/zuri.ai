@@ -46,11 +46,11 @@ describe('FR-146 account route contract', () => {
     expect(paths['/api/line-oa/accounts/{id}']).toEqual(['GET', 'PATCH'])
   })
 
-  it('registers the line-oa domain slot as reserved, so a grant can name it and nothing renders it yet', () => {
+  it('exposes the implemented LINE OA console while preserving domain grant enforcement', () => {
     const slot = DOMAINS.find((domain) => domain.key === 'line-oa')
     expect(slot).toBeTruthy()
     expect(slot.label).toBe('LINE OA Studio')
-    expect(slot.soon).toBe(true)
+    expect(slot.soon).not.toBe(true)
     expect(slot.sub[0]).toMatchObject({ label: 'Dashboard', path: '/line-oa' })
     expect(domainForPath('/line-oa').key).toBe('line-oa')
     // FR-061: the key must be in the registry for a Membership grant to carry it.

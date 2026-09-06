@@ -5,13 +5,14 @@ import {
   LINE_OA_TRANSPORT_MODES,
 } from '@/lib/validation/enums'
 
+// @req FR-149 — server transport and optional execution policy.
 // @req FR-146 — the pure vocabulary and rules of the LineOaAccount aggregate:
 //   the input contracts, the stored status machine, the derived effective
 //   status and the transport-mode default. Nothing here opens a database; the
 //   service in application/ is the only writer and calls these.
 // @spec ADR-060 D2, D3, D5, D11 — one Business per account, many accounts per
 //   Business; LIVE is derived from the agent lane's binding and never stored;
-//   transportMode is EDGE or CLOUD and defaults from an ACTIVE edge credential.
+//   transportMode is EDGE or CLOUD; ADR-061 makes CLOUD the unconditional default.
 // @spec BR-002 — LINE identifiers (basic id, channel id, bot user id) are
 //   attributes here, never keys.
 // @tested tests/unit/line-oa-account-domain.test.js
@@ -53,7 +54,17 @@ export const zLineOaAccountAction = z.object({
   // version is a conflict, never a silent last-writer-wins (ADR-060 D5, D11).
   version: z.number().int().positive(),
   transportMode: z.enum(LINE_OA_TRANSPORT_MODES).optional(),
+  executionMode: z.enum(['SERVER', 'EDGE']).optional(),
+  modelAccess: z.enum(['LOCAL_ONLY', 'EXTERNAL_MODEL_ALLOWED']).optional(),
+  allowDelayedPush: z.boolean().optional(),
+  legacyQuiesced: z.literal(true).optional(),
 }).strict().superRefine((value, ctx) => {
+  if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
+  }
+  if (value.action === 'ENABLE_SERVER' && value.legacyQuiesced !== true) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legacyQuiesced'], message: 'Confirm the legacy LINE transport is stopped before enabling server ownership' })
+  }
   if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
   }
@@ -101,18 +112,14 @@ export function initialStoredStatus({ bindingCode } = {}) {
  * `zuri_core.line_channel_binding`, or `null` when the read model is not wired
  * (the honest answer this slice gives — see the service's health sources).
  */
-export function deriveEffectiveStatus(storedStatus, bindingStatus) {
-  if (storedStatus === 'CONNECTED' && bindingStatus === 'ACTIVE') return 'LIVE'
+export function deriveEffectiveStatus(storedStatus, bindingStatus, { serverEnabled = false, transportMode = 'CLOUD' } = {}) {
+  if (storedStatus === 'CONNECTED' && (serverEnabled && transportMode === 'CLOUD' || bindingStatus === 'ACTIVE')) return 'LIVE'
   return storedStatus
 }
 
-/**
- * ADR-060 D3 / ADR-059 D5: a Business that holds an ACTIVE Zuri Edge Device
- * credential defaults to the EDGE transport; everyone else is cloud-served.
- * A publisher may override at connect time; afterwards only the audited switch.
- */
-export function defaultTransportMode({ hasActiveEdgeCredential = false } = {}) {
-  return hasActiveEdgeCredential ? 'EDGE' : 'CLOUD'
+/** ADR-061: LINE transport defaults to the server regardless of paired workers. */
+export function defaultTransportMode() {
+  return 'CLOUD'
 }
 
 /** A stored presentation profile, or an empty one when the column cannot be trusted. */

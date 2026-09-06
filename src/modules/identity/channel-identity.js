@@ -114,7 +114,9 @@ export async function ensureChannelIdentity({
     }
     return { row, created: true }
   } catch (error) {
-    if (error?.code !== 'P2002') throw error
+    // A transaction client cannot query after a Postgres constraint failure.
+    // Its caller must retry the complete transaction, including CRM/job writes.
+    if (error?.code !== 'P2002' || typeof db.$transaction !== 'function') throw error
     const winner = await db.channelIdentity.findUnique({ where })
     if (!winner) throw error
     if (winner.tenantId !== tenantId) conflict('CHANNEL_IDENTITY_NAMESPACE_CONFLICT')

@@ -15,6 +15,12 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
+  ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
+  ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
+  ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
+  ['/api/edge/conversation-jobs/claim', ['POST']],
+  ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.

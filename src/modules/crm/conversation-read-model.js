@@ -4,6 +4,7 @@ import { CHANNELS, MESSAGE_DIRECTIONS } from '@/lib/validation/enums'
 import { seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
+// @req FR-148 — each conversation DTO identifies its channel account.
 // @req FR-091 — the CRM Conversation Inbox read model: one authorized, read-only
 //   composition over Customer/Conversation/Message, which the FR-023 ingest seam has
 //   been writing since the first LINE turn with no surface able to read them.
@@ -12,9 +13,9 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 //   tests/integration/domain-visibility-server.test.js
 //
 // **This module exports readers only, and that is the enforcement.** BR-011 gives the
-// reply to exactly one owner — the edge runtime holding the channel credential and the
-// ~30s reply token. A console that could also reply would be a second reply owner. So
-// there is no writer here to reach for: the boundary is the absence, not a comment.
+// reply to exactly one transport owner. ADR-061 makes this the server for SERVER
+// accounts and the compatibility Edge runtime for EDGE accounts. The inbox remains
+// read-only; neither it nor a browser becomes a second transport owner.
 //
 // **Query count is constant in the number of conversations** (SDD-050). The per-row
 // message count and last message come from two grouped queries over the page's ids,
@@ -145,6 +146,7 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
       id: true,
       businessId: true,
       channel: true,
+      channelAccountId: true,
       status: true,
       externalThreadId: true,
       createdAt: true,
@@ -201,6 +203,7 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
     return {
       id: conversation.id,
       channel: conversation.channel,
+      channelAccountId: conversation.channelAccountId,
       status: conversation.status,
       externalThreadId: conversation.externalThreadId,
       businessId: conversation.businessId,
@@ -257,6 +260,7 @@ export async function getConversationThread({ viewer, businessId, conversationId
       id: true,
       businessId: true,
       channel: true,
+      channelAccountId: true,
       status: true,
       externalThreadId: true,
       createdAt: true,
@@ -287,6 +291,7 @@ export async function getConversationThread({ viewer, businessId, conversationId
     conversation: {
       id: conversation.id,
       channel: conversation.channel,
+      channelAccountId: conversation.channelAccountId,
       status: conversation.status,
       externalThreadId: conversation.externalThreadId,
       businessId: conversation.businessId,

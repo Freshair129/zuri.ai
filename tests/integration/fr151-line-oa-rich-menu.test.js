@@ -1,9 +1,9 @@
-// @req FR-148 — the rich menu designer against a real database: create with a
+// @req FR-151 — the rich menu designer against a real database: create with a
 //   first draft, identity rules, image FileAsset validation, draft-in-place
 //   versus next-numbered-version, the freeze gate and immutability, archive,
 //   the authority ladder, compare-and-swap, and audit without secrets.
 // @spec ADR-060 D3, D6, D11; SEC-001; BR-002; FR-072; FR-045
-// @tested tests/integration/fr148-line-oa-rich-menu.test.js
+// @tested tests/integration/fr151-line-oa-rich-menu.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -50,7 +50,7 @@ async function audits(entityId) {
   return prisma.auditEvent.findMany({ where: { entityId }, orderBy: { occurredAt: 'asc' } })
 }
 
-describe('FR-148 LineOaRichMenu', () => {
+describe('FR-151 LineOaRichMenu', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ code: 'PF-LINE-RM', name: 'Rich Menu Group' })
     tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-LINE-RM', name: 'Rich Menu Tenant' })
@@ -73,7 +73,7 @@ describe('FR-148 LineOaRichMenu', () => {
     foreignFile = await fileAsset(otherBusiness)
   })
 
-  it('AC-148.1 — creates a menu with its first draft version and reports freeze readiness', async () => {
+  it('AC-151.1 — creates a menu with its first draft version and reports freeze readiness', async () => {
     const menu = await createRichMenu({ accountId: account.id, code: 'main-menu', name: 'Main menu', alias: 'main', draft: draft() }, { viewer: owner })
     expect(menu).toMatchObject({ code: 'main-menu', accountId: account.id, businessId: business.id, tenantId: tenant.id, alias: 'main', status: 'DRAFT', isDefault: false, version: 1, latestVersionNumber: 1 })
     expect(menu.versions).toHaveLength(1)
@@ -85,13 +85,13 @@ describe('FR-148 LineOaRichMenu', () => {
     expect(JSON.parse(created.payloadJson)).toMatchObject({ code: 'main-menu', versionNumber: 1, areas: 2, issues: 0 })
   })
 
-  it('AC-148.2 — a draft may be saved with issues, and the version reports them; a publisher may do it', async () => {
+  it('AC-151.2 — a draft may be saved with issues, and the version reports them; a publisher may do it', async () => {
     const menu = await createRichMenu({ accountId: account.id, code: 'wip-menu', name: 'Work in progress', draft: draft({ imageFileAssetId: null, imageWidth: 2500, imageHeight: 1000, areas: [area(0, 0, 2600, 1000)] }) }, { viewer: publisher })
     expect(menu.versions[0].issues.map((i) => i.code).sort()).toEqual(['AREA_OUT_OF_BOUNDS', 'IMAGE_REQUIRED', 'IMAGE_SIZE_UNSUPPORTED'])
     await expect(applyRichMenuAction(menu.id, { action: 'FREEZE', version: 1 }, { viewer: publisher })).rejects.toMatchObject({ status: 422, message: 'LINE_OA_RICH_MENU_NOT_FREEZABLE' })
   })
 
-  it('AC-148.3 — the image must be a same-Business image FileAsset within LINE\'s limits', async () => {
+  it('AC-151.3 — the image must be a same-Business image FileAsset within LINE\'s limits', async () => {
     const base = { accountId: account.id, name: 'Image rules' }
     await expect(createRichMenu({ ...base, code: 'img-foreign', draft: draft({ imageFileAssetId: foreignFile.id }) }, { viewer: owner })).rejects.toMatchObject({ status: 404, message: 'Image file not found' })
     await expect(createRichMenu({ ...base, code: 'img-missing', draft: draft({ imageFileAssetId: 'no-such-file' }) }, { viewer: owner })).rejects.toMatchObject({ status: 404 })
@@ -99,7 +99,7 @@ describe('FR-148 LineOaRichMenu', () => {
     await expect(createRichMenu({ ...base, code: 'img-big', draft: draft({ imageFileAssetId: bigFile.id }) }, { viewer: owner })).rejects.toMatchObject({ status: 422, message: 'LINE_OA_RICH_MENU_IMAGE_TOO_LARGE' })
   })
 
-  it('AC-148.4 — identity rules: one code per Tenant, one alias per account, no menu on an archived account', async () => {
+  it('AC-151.4 — identity rules: one code per Tenant, one alias per account, no menu on an archived account', async () => {
     await expect(createRichMenu({ accountId: account.id, code: 'main-menu', name: 'dup', draft: draft() }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_RICH_MENU_CODE_TAKEN' })
     await expect(createRichMenu({ accountId: account.id, code: 'alias-dup', name: 'dup', alias: 'main', draft: draft() }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_RICH_MENU_ALIAS_TAKEN' })
 
@@ -109,7 +109,7 @@ describe('FR-148 LineOaRichMenu', () => {
     await expect(createRichMenu({ accountId: archived.id, code: 'on-archived', name: 'x', draft: draft() }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_ACCOUNT_ARCHIVED' })
   })
 
-  it('AC-148.5 — the authority ladder: view needs the domain, write needs OWNER or LINE_OA_PUBLISHER, everything else is one 404', async () => {
+  it('AC-151.5 — the authority ladder: view needs the domain, write needs OWNER or LINE_OA_PUBLISHER, everything else is one 404', async () => {
     const menu = await createRichMenu({ accountId: account.id, code: 'auth-menu', name: 'Auth', draft: draft() }, { viewer: owner })
     await expect(listRichMenus({ accountId: account.id, viewer: member })).resolves.toMatchObject({ accountId: account.id })
     await expect(getRichMenu(menu.id, { viewer: member })).resolves.toMatchObject({ id: menu.id })
@@ -122,7 +122,7 @@ describe('FR-148 LineOaRichMenu', () => {
     await expect(listRichMenus({ accountId: 'no-such-account', viewer: owner })).rejects.toMatchObject({ status: 404, message: 'Business not found' })
   })
 
-  it('AC-148.6 — save edits the draft in place; freeze makes it immutable and the next save opens version 2', async () => {
+  it('AC-151.6 — save edits the draft in place; freeze makes it immutable and the next save opens version 2', async () => {
     const menu = await createRichMenu({ accountId: account.id, code: 'versioned-menu', name: 'Versioned', draft: draft() }, { viewer: owner })
 
     const edited = await applyRichMenuAction(menu.id, { action: 'SAVE_DRAFT', version: 1, name: 'Versioned v1', draft: draft({ chatBarText: 'แก้แล้ว' }) }, { viewer: owner })
@@ -150,7 +150,7 @@ describe('FR-148 LineOaRichMenu', () => {
     for (const row of menuAudits) expect(row.payloadJson).not.toMatch(/secret|token/i)
   })
 
-  it('AC-148.7 — archive retires the open draft, keeps frozen versions, and closes the menu to further actions', async () => {
+  it('AC-151.7 — archive retires the open draft, keeps frozen versions, and closes the menu to further actions', async () => {
     const menu = await createRichMenu({ accountId: account.id, code: 'archive-menu', name: 'Archive', draft: draft() }, { viewer: owner })
     const frozen = await applyRichMenuAction(menu.id, { action: 'FREEZE', version: 1 }, { viewer: owner })
     const reopened = await applyRichMenuAction(menu.id, { action: 'SAVE_DRAFT', version: frozen.version, draft: draft() }, { viewer: owner })

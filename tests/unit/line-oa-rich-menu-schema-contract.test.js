@@ -1,4 +1,4 @@
-// @req FR-148 — rich menu persistence is additive, scoped, versioned, present
+// @req FR-151 — rich menu persistence is additive, scoped, versioned, present
 //   in both provider schemas, included in recoverable snapshots after the rows
 //   it references, and shipped with a private-table production migration in
 //   the same change (docs/DB-MIGRATION-NOTES.md §Migration discipline).
@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 const read = (file) => fs.readFileSync(path.resolve(process.cwd(), file), 'utf8')
 const modelBody = (schema, name) => schema.match(new RegExp(`model ${name} \\{[\\s\\S]*?\\n\\}`))?.[0] || ''
 
-describe('FR-148 LineOaRichMenu Prisma, backup and migration contract', () => {
+describe('FR-151 LineOaRichMenu Prisma, backup and migration contract', () => {
   it('declares both models identically in both provider schemas', () => {
     const sqlite = read('prisma/schema.prisma')
     const postgres = read('prisma/schema.postgres.prisma')

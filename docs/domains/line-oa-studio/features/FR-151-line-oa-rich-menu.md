@@ -1,16 +1,16 @@
 ---
 domain: line-oa-studio
-feature: FR-148
+feature: FR-151
 module: line-oa-studio
 source: v2-native
 bundle: FEAT-018
 requirements:
-  - FR-148
+  - FR-151
 version: "0.1.0"
 status: building
 ---
 
-# FR-148 — the rich menu designer: `LineOaRichMenu` and its versions
+# FR-151 — the rich menu designer: `LineOaRichMenu` and its versions
 
 ## Intent
 
@@ -80,7 +80,7 @@ no secret and no customer content — copied from FR-146 rather than reinvented.
   only writer: create, list, get, `SAVE_DRAFT` / `FREEZE` / `ARCHIVE`.
 - `GET/POST /api/line-oa/rich-menus`, `GET/PATCH /api/line-oa/rich-menus/[id]`.
 - Snapshot coverage after the account and the file asset the version references.
-- Tests: `tests/integration/fr148-line-oa-rich-menu.test.js` (AC-148.1–.7),
+- Tests: `tests/integration/fr151-line-oa-rich-menu.test.js` (AC-151.1–.7),
   `tests/unit/line-oa-rich-menu-domain.test.js`,
   `tests/unit/line-oa-rich-menu-routes.test.js`,
   `tests/unit/line-oa-rich-menu-schema-contract.test.js`.

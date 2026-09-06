@@ -7,7 +7,7 @@ import {
 } from '@/lib/validation/enums'
 import { zLineOaAccountCode } from './line-oa-account'
 
-// @req FR-148 — the pure vocabulary and rules of the rich menu designer: the
+// @req FR-151 — the pure vocabulary and rules of the rich menu designer: the
 //   input contracts, the LINE layout grid, the image-size and bounds
 //   validation, and the freeze gate. Nothing here opens a database; the
 //   service in application/ is the only writer and calls these.

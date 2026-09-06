@@ -101,3 +101,7 @@ ADR-054. They are deliberately **not** in `owns_models` yet: that list mirrors
 `prisma/schema.prisma`, and each implementation lane adds a model there in the
 same change that adds it. Until then this paragraph is the claim, so no other
 lane designs these tables elsewhere.
+
+## Account-aware transport (ADR-061)
+
+FR-148 adds account-scoped Conversation identity and transaction-capable inbound/accepted outbound contracts. Legacy rows stay LEGACY:LINE. The server job ledger calls CRM; it never writes Message directly. Provider acceptance is not delivery or reading.

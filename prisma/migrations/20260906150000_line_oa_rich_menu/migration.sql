@@ -1,4 +1,4 @@
--- @req FR-148 — LineOaRichMenu and LineOaRichMenuVersion, the rich menu
+-- @req FR-151 — LineOaRichMenu and LineOaRichMenuVersion, the rich menu
 -- designer's data (ADR-060 D3): a menu's identity, alias and default flag, and
 -- its numbered bodies, immutable once frozen. Twin of
 -- supabase/migrations/20260906150000_line_oa_rich_menu.sql.

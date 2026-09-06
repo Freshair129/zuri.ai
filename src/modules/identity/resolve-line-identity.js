@@ -9,6 +9,7 @@ import {
   syncChannelIdentityFromExternal,
 } from './channel-identity'
 
+// @req FR-148 — the caller may include identity discovery in its CRM/enqueue transaction.
 // @req FR-021 — LINE ↔ Person identity resolution (the P3 foundation primitive).
 // @spec ADR-007 §P3 — memory/authorisation are keyed by principal, not channel;
 //   this resolver is the single place a lineUserId becomes a Person, so every
@@ -22,8 +23,6 @@ import {
 
 const PROVIDER = 'LINE'
 
-const personCodeExists = async (code) => Boolean(await prisma.person.findUnique({ where: { code } }))
-
 const whereKey = (tenantId, lineUserId) => ({
   tenantId_provider_providerSubject: { tenantId, provider: PROVIDER, providerSubject: lineUserId },
 })
@@ -36,12 +35,12 @@ const whereKey = (tenantId, lineUserId) => ({
  *
  * @returns {{ personId: string, externalIdentityId: string, created: boolean }}
  */
-export async function resolveLineIdentity(input) {
+export async function resolveLineIdentity(input, { db = prisma } = {}) {
   const { tenantId, lineUserId, channelAccountId, displayName } = zResolveLineIdentityInput.parse(input)
 
   // Guard: a positively-resolved tenant is required — never mint identity under an
   // unresolved/DEFAULT tenant (the parity scan's DEFAULT_TENANT_ID hazard).
-  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } })
+  const tenant = await db.tenant.findUnique({ where: { id: tenantId } })
   if (!tenant) {
     throw new Error('resolveLineIdentity requires an existing tenant; refusing to mint identity under an unresolved tenant')
   }
@@ -49,12 +48,12 @@ export async function resolveLineIdentity(input) {
   // The additive channel row is the forward lookup contract. ExternalIdentity is
   // consulted only to prove compatibility with the legacy resolver and to expose
   // its historical verification timestamps.
-  const channelRecord = await findChannelIdentity({ tenantId, providerSubject: lineUserId, channelAccountId })
+  const channelRecord = await findChannelIdentity({ db, tenantId, providerSubject: lineUserId, channelAccountId })
   if (channelRecord) {
     if (channelRecord.status === 'REVOKED') {
       throw new Error('This LINE identity was revoked; re-linking is required before it can resolve again')
     }
-    const legacy = await prisma.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
+    const legacy = await db.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
     if (!legacy || legacy.personId !== channelRecord.personId) {
       throw new Error('CHANNEL_IDENTITY_COMPATIBILITY_CONFLICT')
     }
@@ -62,6 +61,7 @@ export async function resolveLineIdentity(input) {
       throw new Error('This LINE identity was revoked; re-linking is required before it can resolve again')
     }
     const channelIdentity = await syncChannelIdentityFromExternal({
+      db,
       tenantId,
       personId: legacy.personId,
       channelAccountId,
@@ -80,12 +80,13 @@ export async function resolveLineIdentity(input) {
     }
   }
 
-  const existing = await prisma.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
+  const existing = await db.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
   if (existing) {
     if (existing.revokedAt) {
       throw new Error('This LINE identity was revoked; re-linking is required before it can resolve again')
     }
     const channelIdentity = await syncChannelIdentityFromExternal({
+      db,
       tenantId,
       personId: existing.personId,
       channelAccountId,
@@ -107,10 +108,9 @@ export async function resolveLineIdentity(input) {
   // First contact: create Person + ExternalIdentity atomically. The @@unique on
   // (tenantId, provider, providerSubject) makes concurrent first-contacts safe —
   // the loser gets P2002 and reads the winner's row.
-  const code = await uniqueHumanCode('PSN', displayName || lineUserId, personCodeExists)
+  const code = await uniqueHumanCode('PSN', displayName || lineUserId, async (candidate) => Boolean(await db.person.findUnique({ where: { code: candidate } })))
   try {
-    const now = new Date()
-    const result = await prisma.$transaction(async (tx) => {
+    const createIdentity = async (tx) => {
       const person = await tx.person.create({ data: { code, displayName: displayName || 'LINE user' } })
       const identity = await tx.externalIdentity.create({
         // First contact discovers a channel subject; it does not prove ownership.
@@ -132,7 +132,8 @@ export async function resolveLineIdentity(input) {
         payload: { tenantId, provider: PROVIDER, personId: person.id, verificationStatus: 'PENDING' },
       })
       return { person, identity, channelIdentity }
-    })
+    }
+    const result = await (typeof db.$transaction === 'function' ? db.$transaction(createIdentity) : createIdentity(db))
     return {
       personId: result.person.id,
       externalIdentityId: result.identity.id,
@@ -143,11 +144,13 @@ export async function resolveLineIdentity(input) {
       identityVerified: false,
     }
   } catch (err) {
-    // Lost a first-contact race: the mapping now exists — return the winner's.
-    if (err?.code === 'P2002') {
-      const row = await prisma.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
+    // A standalone client can read the winner after rollback. A caller-owned
+    // transaction propagates the conflict so its owner retries the whole unit.
+    if (err?.code === 'P2002' && typeof db.$transaction === 'function') {
+      const row = await db.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
       if (row && !row.revokedAt) {
         const channelIdentity = await syncChannelIdentityFromExternal({
+          db,
           tenantId,
           personId: row.personId,
           channelAccountId,

@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=56; operational_domain_keys=10; operational_subdomain_entries=30; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=57; operational_domain_keys=10; operational_subdomain_entries=30; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -289,3 +289,10 @@ The current route evidence is:
 | 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |
 | 0.4.0 | 2026-08-14 | beta | FR-044/FR-046 shell boundary inventory before normalization | historical | ATHER |
+
+
+## LINE OA operations (ADR-061)
+
+| Route | Surface | Scope | Behavior |
+|---|---|---|---|
+| `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
