@@ -1,0 +1,2154 @@
+{
+  "schemaVersion": "1.2",
+  "generatedBy": "RWANG / approved Marketing delivery",
+  "generatedAt": "2026-09-06T13:58:59+07:00",
+  "scope": {},
+  "trace": {
+    "correlationId": "marketing-implementation-20260906",
+    "idempotencyKey": "marketing-implementation-20260906-v1"
+  },
+  "domainBinding": {
+    "primaryDomainId": "DOM-DEVELOPMENT",
+    "supportingDomainIds": [],
+    "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+  },
+  "identityRefs": {},
+  "project": {
+    "code": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
+    "name": "Zuri Marketing — Domain Implementation",
+    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design complete; implementation and live evidence pending.",
+    "status": "ACTIVE"
+  },
+  "workstreams": [
+    {
+      "code": "WST-MKT-D",
+      "name": "D — Design agreement",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 5,
+      "containers": [
+        {
+          "code": "EPIC-MKT-D",
+          "subtype": "EPIC",
+          "title": "Design agreement",
+          "status": "ACTIVE",
+          "metadata": {
+            "baseline": {
+              "commit": "494a3666",
+              "designVersion": "1.1.0b",
+              "navigationVersion": "0.2.0b",
+              "mockupVersion": "0.1.0b",
+              "approval": "User approved design on 2026-09-06",
+              "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+            },
+            "wave": "D",
+            "completionDerivedFromItemsAndGate": true
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "MKT-D-DOMAIN",
+          "containerCode": "EPIC-MKT-D",
+          "subtype": "TASK",
+          "title": "Domain and ownership design",
+          "status": "DONE",
+          "weight": 2,
+          "metadata": {
+            "ownerRole": "Architecture",
+            "acceptanceCriteria": [
+              "11 subdomains and 13 navigation surfaces reviewed against native domain owners."
+            ],
+            "evidenceRefs": [
+              "git:494a3666",
+              "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md"
+            ],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "design evidence only",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-D-MOCKUPS",
+          "containerCode": "EPIC-MKT-D",
+          "subtype": "TASK",
+          "title": "100-interface inventory and mockups",
+          "status": "DONE",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "UX",
+            "acceptanceCriteria": [
+              "All 100 interfaces have screenshots, desktop/mobile checks and prototype evidence."
+            ],
+            "evidenceRefs": [
+              "git:494a3666",
+              "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md"
+            ],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "design evidence only",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-D-APPROVAL",
+          "containerCode": "EPIC-MKT-D",
+          "subtype": "TASK",
+          "title": "Human approval of design baseline",
+          "status": "DONE",
+          "weight": 1,
+          "metadata": {
+            "ownerRole": "Product owner",
+            "acceptanceCriteria": [
+              "User approval refers to design commit 494a3666 and its recorded document versions."
+            ],
+            "evidenceRefs": [
+              "git:494a3666",
+              "docs/change-requests/marketing/MARKETING-MOCKUP-QA.md"
+            ],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "design evidence only",
+            "interfaceIds": []
+          }
+        }
+      ],
+      "milestones": [
+        {
+          "code": "MS-MKT-D",
+          "title": "D delivery evidence complete",
+          "status": "DONE",
+          "weight": 1
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-MKT-D",
+          "title": "Approved design baseline",
+          "status": "PASSED",
+          "required": true,
+          "evidence": {
+            "commit": "494a3666",
+            "designVersion": "1.1.0b",
+            "navigationVersion": "0.2.0b",
+            "mockupVersion": "0.1.0b",
+            "approval": "User approved design on 2026-09-06",
+            "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+          }
+        }
+      ]
+    },
+    {
+      "code": "WST-MKT-W1",
+      "name": "W1 — Planning and team foundation",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 30,
+      "containers": [
+        {
+          "code": "EPIC-MKT-W1",
+          "subtype": "EPIC",
+          "title": "Planning and team foundation",
+          "status": "PLANNED",
+          "metadata": {
+            "baseline": {
+              "commit": "494a3666",
+              "designVersion": "1.1.0b",
+              "navigationVersion": "0.2.0b",
+              "mockupVersion": "0.1.0b",
+              "approval": "User approved design on 2026-09-06",
+              "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+            },
+            "wave": "W1",
+            "completionDerivedFromItemsAndGate": true
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "MKT-W1-SPEC",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Native charter, requirements and contracts",
+          "status": "READY",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Architecture",
+            "acceptanceCriteria": [
+              "Parent/peer contracts, stable requirement IDs and acceptance criteria are declared before code."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-PERSISTENCE",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Scoped persistence, versioning and audit",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Marketing engineering",
+            "acceptanceCriteria": [
+              "Repository interfaces, optimistic version checks and Business/tenant negative tests pass."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-SHELL",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Navigation and reusable interface states",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Authorized Business navigation, Back/reload, mobile and distinct error/unavailable states work."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-001",
+              "MKT-UI-091",
+              "MKT-UI-092",
+              "MKT-UI-093",
+              "MKT-UI-094",
+              "MKT-UI-095",
+              "MKT-UI-096",
+              "MKT-UI-097",
+              "MKT-UI-098",
+              "MKT-UI-099"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-STRATEGY",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Objectives, plans and scenarios",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Marketing engineering",
+            "acceptanceCriteria": [
+              "Plan CRUD, objective references, immutable versions and scenario assumptions persist without spending."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-002",
+              "MKT-UI-003",
+              "MKT-UI-004",
+              "MKT-UI-005",
+              "MKT-UI-053",
+              "MKT-UI-075"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-CAMPAIGNS",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Initiatives and PM-linked campaign execution",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Marketing engineering",
+            "acceptanceCriteria": [
+              "Initiative, provider campaign and PM container identities remain distinct; execution uses shared PM records."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-006",
+              "MKT-UI-007",
+              "MKT-UI-008",
+              "MKT-UI-009",
+              "MKT-UI-010",
+              "MKT-UI-011",
+              "MKT-UI-076"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-CONTENT",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Creative brief, production and library",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Creative systems",
+            "acceptanceCriteria": [
+              "Versions, rights, review and PM/Files owner references persist and are tested."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-016",
+              "MKT-UI-017",
+              "MKT-UI-018",
+              "MKT-UI-058",
+              "MKT-UI-059",
+              "MKT-UI-077"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-OPERATIONS",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Intake, calendar, approvals and handoffs",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Marketing operations",
+            "acceptanceCriteria": [
+              "PM schedule and owner receipts are projected without duplicate tasks, conversations or stock records."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-044",
+              "MKT-UI-045",
+              "MKT-UI-046",
+              "MKT-UI-047",
+              "MKT-UI-069",
+              "MKT-UI-070",
+              "MKT-UI-082"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-MSP",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "MSP and Agent control-port agreement",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "MSP and Agent owners",
+            "acceptanceCriteria": [
+              "Run/session/lease/cost/recovery authority has owner acceptance and separate integration evidence."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-ARTIFACTS",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Versioned proposals and independent reviews",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Agent engineering",
+            "acceptanceCriteria": [
+              "Evidence snapshots, immutable outputs, independent critique, dissent and diffs persist."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-RUNS",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Bounded refinement and recovery",
+          "status": "PLANNED",
+          "weight": 8,
+          "metadata": {
+            "ownerRole": "Agent engineering",
+            "acceptanceCriteria": [
+              "Finite rounds, parallelism, token/cost/time bounds, pause/cancel and durable recovery receipts are verified."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-DECISIONS",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Revocable exact-version human decisions",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Identity and Marketing",
+            "acceptanceCriteria": [
+              "Target, hash, scope, expiry and revocation are revalidated; changed input invalidates earlier approval."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-PM-HANDOFF",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "PM preview and transactional handoff",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Project Manager",
+            "acceptanceCriteria": [
+              "Dry-run, scope conflicts, transactional idempotency and audit use the existing PM importer."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W1-TEAM-UI",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Team, runs, reviews and decision views",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Actual role/artifact/step receipts are shown; unavailable MSP runtime stays a blocked dependency."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-048",
+              "MKT-UI-049",
+              "MKT-UI-050",
+              "MKT-UI-051",
+              "MKT-UI-071",
+              "MKT-UI-072",
+              "MKT-UI-073",
+              "MKT-UI-083",
+              "MKT-UI-084",
+              "MKT-UI-085",
+              "MKT-UI-086",
+              "MKT-UI-087",
+              "MKT-UI-088"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W1-VERIFY",
+          "containerCode": "EPIC-MKT-W1",
+          "subtype": "TASK",
+          "title": "Wave 1 complete verification",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Quality",
+            "acceptanceCriteria": [
+              "Tests, build, governance, e2e and architecture review pass; real MSP owner integration has separate evidence."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        }
+      ],
+      "milestones": [
+        {
+          "code": "MS-MKT-W1",
+          "title": "W1 delivery evidence complete",
+          "status": "PLANNED",
+          "weight": 1
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-MKT-W1",
+          "title": "W1 verification and owner acceptance",
+          "status": "OPEN",
+          "required": true,
+          "evidence": {
+            "state": "pending",
+            "requiredEvidence": "Tests, build, governance, e2e and architecture review pass; real MSP owner integration has separate evidence.",
+            "liveEvidenceIndependent": true
+          }
+        }
+      ]
+    },
+    {
+      "code": "WST-MKT-W2",
+      "name": "W2 — Required source measurement",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 25,
+      "containers": [
+        {
+          "code": "EPIC-MKT-W2",
+          "subtype": "EPIC",
+          "title": "Required source measurement",
+          "status": "PLANNED",
+          "metadata": {
+            "baseline": {
+              "commit": "494a3666",
+              "designVersion": "1.1.0b",
+              "navigationVersion": "0.2.0b",
+              "mockupVersion": "0.1.0b",
+              "approval": "User approved design on 2026-09-06",
+              "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+            },
+            "wave": "W2",
+            "completionDerivedFromItemsAndGate": true
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "MKT-W2-CONTRACTS",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Source definitions and scoped mapping",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Data architecture",
+            "acceptanceCriteria": [
+              "Grain, timezone, currency and per-source outcome definitions are explicit."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-SYNC",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Acquisition replay, correction and quality",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Paging, quotas, cursors, corrections, freshness and replay are tested; credentials remain Integration-owned."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-META",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Meta Ads hierarchy and insights",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Scoped campaign/ad set/ad reader passes contract tests and independent live-read evidence."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-TIKTOK",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "TikTok Ads reporting and hierarchy",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Advertiser/campaign/ad group/ad permissions and definitions pass scoped tests and live-read evidence."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-INSTAGRAM",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Instagram owned-media measurement",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Organic media grants and boosted associations are tested; paid and organic reach are not added."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-GA4",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "GA4 reporting and quality metadata",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Analytics",
+            "acceptanceCriteria": [
+              "Property scope, compatible dimensions/metrics and restriction metadata are retained; no fabricated user stitching."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-GSC",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Search Console performance evidence",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "SEO and Integration",
+            "acceptanceCriteria": [
+              "Property scope, query/page grains and coverage limitations pass contract and live-read checks."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W2-PAID-UI",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Paid filters and campaign-to-ad drilldown",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Provider/account/date/placement selection preserves metric grain and supports addressable object detail."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-012",
+              "MKT-UI-013",
+              "MKT-UI-014",
+              "MKT-UI-054",
+              "MKT-UI-055",
+              "MKT-UI-056"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W2-SOCIAL-UI",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Instagram organic insights view",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Organic interactions and non-additive reach remain separate from Meta paid reporting."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-021"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W2-ANALYTICS-UI",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Analytics, attribution and source health",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Source lenses stay separate, unavailable revenue is not zero, funnels require sequence-capable evidence."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-039",
+              "MKT-UI-040",
+              "MKT-UI-041",
+              "MKT-UI-042",
+              "MKT-UI-043",
+              "MKT-UI-068"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W2-SEO-UI",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "SEO performance and opportunity views",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Frontend",
+            "acceptanceCriteria": [
+              "Opportunity and report evidence preserve coverage/time and target page intent."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-035",
+              "MKT-UI-036",
+              "MKT-UI-067"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W2-VERIFY",
+          "containerCode": "EPIC-MKT-W2",
+          "subtype": "TASK",
+          "title": "Five-source readiness and Wave 2 verification",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Quality",
+            "acceptanceCriteria": [
+              "Meta, TikTok, Instagram, GA4 and GSC each have scoped tests and separate live-read receipts; missing readiness keeps this gate open."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        }
+      ],
+      "milestones": [
+        {
+          "code": "MS-MKT-W2",
+          "title": "W2 delivery evidence complete",
+          "status": "PLANNED",
+          "weight": 1
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-MKT-W2",
+          "title": "W2 verification and owner acceptance",
+          "status": "OPEN",
+          "required": true,
+          "evidence": {
+            "state": "pending",
+            "requiredEvidence": "Meta, TikTok, Instagram, GA4 and GSC each have scoped tests and separate live-read receipts; missing readiness keeps this gate open.",
+            "liveEvidenceIndependent": true
+          }
+        }
+      ]
+    },
+    {
+      "code": "WST-MKT-W3",
+      "name": "W3 — Specialist workflows",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 25,
+      "containers": [
+        {
+          "code": "EPIC-MKT-W3",
+          "subtype": "EPIC",
+          "title": "Specialist workflows",
+          "status": "PLANNED",
+          "metadata": {
+            "baseline": {
+              "commit": "494a3666",
+              "designVersion": "1.1.0b",
+              "navigationVersion": "0.2.0b",
+              "mockupVersion": "0.1.0b",
+              "approval": "User approved design on 2026-09-06",
+              "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+            },
+            "wave": "W3",
+            "completionDerivedFromItemsAndGate": true
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "MKT-W3-PARTNERS",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Affiliate and influencer programs",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Partnerships",
+            "acceptanceCriteria": [
+              "Programs, deliverables, rights and performance share a partner core; CRM/Finance retain contact and settlement."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-023",
+              "MKT-UI-024",
+              "MKT-UI-025",
+              "MKT-UI-026",
+              "MKT-UI-061",
+              "MKT-UI-062",
+              "MKT-UI-063",
+              "MKT-UI-079"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-LIVE",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Live brief, rundown, readiness and results",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Live operations",
+            "acceptanceCriteria": [
+              "Host/crew/offer evidence and execution receipts persist; missing Commerce availability blocks readiness."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-027",
+              "MKT-UI-028",
+              "MKT-UI-029",
+              "MKT-UI-030",
+              "MKT-UI-031",
+              "MKT-UI-080"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-WEBSITE",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Page inventory, journeys and owner handoff",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Website and CRO",
+            "acceptanceCriteria": [
+              "Page intent, versions, GA4/GSC mappings and website-owner delivery receipts are tested."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-032",
+              "MKT-UI-033",
+              "MKT-UI-064"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-EXPERIMENTS",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Shared paid and CRO experiments",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Experimentation",
+            "acceptanceCriteria": [
+              "Control/treatment, metric, window and guardrail precede launch; insufficient evidence cannot declare a winner."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-015",
+              "MKT-UI-034",
+              "MKT-UI-065",
+              "MKT-UI-081"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-SEO-WORK",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Technical SEO and remediation workplan",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "SEO",
+            "acceptanceCriteria": [
+              "Observation method/time, PM remediation ownership and later verification evidence remain traceable."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-037",
+              "MKT-UI-038",
+              "MKT-UI-066"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-SOCIAL",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Social planning, calendar and CRM handoff",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Social operations",
+            "acceptanceCriteria": [
+              "Approved content version and publishing intent persist; manual publication evidence is explicit before external writes."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-019",
+              "MKT-UI-020",
+              "MKT-UI-022",
+              "MKT-UI-060",
+              "MKT-UI-078"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-CREATIVE-ANALYSIS",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Creative and partner outcome analysis",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "ownerRole": "Analytics",
+            "acceptanceCriteria": [
+              "Version-specific usage rights, source windows and comparable measurement definitions are retained."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-057"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-DEBRIEF",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Measured outcomes and learning candidates",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Marketing and GKS owners",
+            "acceptanceCriteria": [
+              "Receipts, observation window, uncertainty, scope and expiry connect to reviewed learning without automatic promotion."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-052",
+              "MKT-UI-074"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W3-VERIFY",
+          "containerCode": "EPIC-MKT-W3",
+          "subtype": "TASK",
+          "title": "Specialist journeys and Wave 3 acceptance",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Quality",
+            "acceptanceCriteria": [
+              "Each capability covers planning, approved work, execution evidence, measurement and refinement with meaningful tests."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        }
+      ],
+      "milestones": [
+        {
+          "code": "MS-MKT-W3",
+          "title": "W3 delivery evidence complete",
+          "status": "PLANNED",
+          "weight": 1
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-MKT-W3",
+          "title": "W3 verification and owner acceptance",
+          "status": "OPEN",
+          "required": true,
+          "evidence": {
+            "state": "pending",
+            "requiredEvidence": "Each capability covers planning, approved work, execution evidence, measurement and refinement with meaningful tests.",
+            "liveEvidenceIndependent": true
+          }
+        }
+      ]
+    },
+    {
+      "code": "WST-MKT-W4",
+      "name": "W4 — Controlled execution and confirmed attribution",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 15,
+      "containers": [
+        {
+          "code": "EPIC-MKT-W4",
+          "subtype": "EPIC",
+          "title": "Controlled execution and confirmed attribution",
+          "status": "PLANNED",
+          "metadata": {
+            "baseline": {
+              "commit": "494a3666",
+              "designVersion": "1.1.0b",
+              "navigationVersion": "0.2.0b",
+              "mockupVersion": "0.1.0b",
+              "approval": "User approved design on 2026-09-06",
+              "threadId": "01a07540-d465-7a02-9038-912990cf0eed"
+            },
+            "wave": "W4",
+            "completionDerivedFromItemsAndGate": true
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "MKT-W4-POLICY",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Exact-action capability and readiness policy",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Identity and Integration",
+            "acceptanceCriteria": [
+              "Supported action/account/target/version/ceiling/expiry and writer authority are checked before enabling execution."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-089"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W4-PUBLISH",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Approved publication and outcome receipts",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Declared publishing adapters revalidate scope and rights; receipts, retry and reconciliation are tested."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W4-SPEND",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Approved ad and budget actions",
+          "status": "PLANNED",
+          "weight": 8,
+          "metadata": {
+            "ownerRole": "Paid Media and Integration",
+            "acceptanceCriteria": [
+              "Exact account, amount ceiling, expiry and authority are required; plan approval alone cannot authorize spend."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W4-UNKNOWN",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Ambiguous outcomes and controlled recovery",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Integration",
+            "acceptanceCriteria": [
+              "Unknown outcomes fence retries until reconciliation; duplicate effects, revoked grants and stale inputs are tested."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-100"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W4-REVENUE",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "CRM and Commerce attribution contract",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "CRM and Commerce owners",
+            "acceptanceCriteria": [
+              "Identity, consent, corrections/refunds and confirmed outcome definitions have owner acceptance."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W4-RECONCILE",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Confirmed revenue and discrepancy review",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Analytics",
+            "acceptanceCriteria": [
+              "Provider, GA4 and owner-confirmed perspectives remain separate and explainable without duplicate revenue."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W4-GKS",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Governed learning promotion",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "GKS and MSP owners",
+            "acceptanceCriteria": [
+              "Evidence, limitations, expiry, scoped policy and canonical-owner acceptance produce promotion receipts."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": [
+              "MKT-UI-090"
+            ]
+          }
+        },
+        {
+          "code": "MKT-W4-CANARY",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Action-specific live canary and recovery",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Release owner",
+            "acceptanceCriteria": [
+              "Each enabled action has separately authorized canary and recovery receipts; no blanket live spend authority is implied."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        },
+        {
+          "code": "MKT-W4-VERIFY",
+          "containerCode": "EPIC-MKT-W4",
+          "subtype": "TASK",
+          "title": "Final product verification and acceptance",
+          "status": "PLANNED",
+          "weight": 5,
+          "metadata": {
+            "ownerRole": "Quality and Product owner",
+            "acceptanceCriteria": [
+              "All wave gates, interface coverage, product verification and live owner evidence reconcile before closure."
+            ],
+            "evidenceRefs": [],
+            "designRefs": [
+              "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md"
+            ],
+            "implementationStatus": "not started",
+            "interfaceIds": []
+          }
+        }
+      ],
+      "milestones": [
+        {
+          "code": "MS-MKT-W4",
+          "title": "W4 delivery evidence complete",
+          "status": "PLANNED",
+          "weight": 1
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-MKT-W4",
+          "title": "W4 verification and owner acceptance",
+          "status": "OPEN",
+          "required": true,
+          "evidence": {
+            "state": "pending",
+            "requiredEvidence": "All wave gates, interface coverage, product verification and live owner evidence reconcile before closure.",
+            "liveEvidenceIndependent": true
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "sourceRef": "MKT-D-DOMAIN",
+      "targetRef": "MS-MKT-D",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-D-MOCKUPS",
+      "targetRef": "MS-MKT-D",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-D-APPROVAL",
+      "targetRef": "MS-MKT-D",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MS-MKT-D",
+      "targetRef": "GATE-MKT-D",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-SPEC",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-SPEC",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PERSISTENCE",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-PERSISTENCE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-SHELL",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-SHELL",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-STRATEGY",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-STRATEGY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-CAMPAIGNS",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-CAMPAIGNS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-CONTENT",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-CONTENT",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-OPERATIONS",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-OPERATIONS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-MSP",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-MSP",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-ARTIFACTS",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-ARTIFACTS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-RUNS",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-RUNS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-DECISIONS",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-DECISIONS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PM-HANDOFF",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-PM-HANDOFF",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-TEAM-UI",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-TEAM-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-VERIFY",
+      "targetRef": "MS-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-D",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MS-MKT-W1",
+      "targetRef": "GATE-MKT-W1",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-SPEC",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PERSISTENCE",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-SHELL",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-STRATEGY",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-CAMPAIGNS",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-CONTENT",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-OPERATIONS",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-MSP",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-ARTIFACTS",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-RUNS",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-DECISIONS",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PM-HANDOFF",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-TEAM-UI",
+      "targetRef": "MKT-W1-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-CONTRACTS",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-CONTRACTS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-SYNC",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-META",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-META",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-TIKTOK",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-TIKTOK",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-INSTAGRAM",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-INSTAGRAM",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GA4",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-GA4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GSC",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-GSC",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-PAID-UI",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-PAID-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SOCIAL-UI",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-SOCIAL-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-ANALYTICS-UI",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-ANALYTICS-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SEO-UI",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-SEO-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-VERIFY",
+      "targetRef": "MS-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W1",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MS-MKT-W2",
+      "targetRef": "GATE-MKT-W2",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-CONTRACTS",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-META",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-TIKTOK",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-INSTAGRAM",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GA4",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GSC",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-PAID-UI",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SOCIAL-UI",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-ANALYTICS-UI",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SEO-UI",
+      "targetRef": "MKT-W2-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-PARTNERS",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-PARTNERS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-LIVE",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-LIVE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-WEBSITE",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-WEBSITE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-EXPERIMENTS",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-EXPERIMENTS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-SEO-WORK",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-SEO-WORK",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-SOCIAL",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-SOCIAL",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-CREATIVE-ANALYSIS",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-CREATIVE-ANALYSIS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-DEBRIEF",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-DEBRIEF",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-VERIFY",
+      "targetRef": "MS-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W2",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MS-MKT-W3",
+      "targetRef": "GATE-MKT-W3",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-PARTNERS",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-LIVE",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-WEBSITE",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-EXPERIMENTS",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-SEO-WORK",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-SOCIAL",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-CREATIVE-ANALYSIS",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W3-DEBRIEF",
+      "targetRef": "MKT-W3-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-POLICY",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-POLICY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-PUBLISH",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-PUBLISH",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-SPEND",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-SPEND",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-UNKNOWN",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-UNKNOWN",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-REVENUE",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-REVENUE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-RECONCILE",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-RECONCILE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-GKS",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-GKS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-CANARY",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-CANARY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-VERIFY",
+      "targetRef": "MS-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "GATE-MKT-W3",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MS-MKT-W4",
+      "targetRef": "GATE-MKT-W4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-POLICY",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-PUBLISH",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-SPEND",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-UNKNOWN",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-REVENUE",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-RECONCILE",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-GKS",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-CANARY",
+      "targetRef": "MKT-W4-VERIFY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-SPEC",
+      "targetRef": "MKT-W1-PERSISTENCE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PERSISTENCE",
+      "targetRef": "MKT-W1-STRATEGY",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PERSISTENCE",
+      "targetRef": "MKT-W1-CAMPAIGNS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-PERSISTENCE",
+      "targetRef": "MKT-W1-CONTENT",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-MSP",
+      "targetRef": "MKT-W1-RUNS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-ARTIFACTS",
+      "targetRef": "MKT-W1-DECISIONS",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W1-DECISIONS",
+      "targetRef": "MKT-W1-PM-HANDOFF",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-CONTRACTS",
+      "targetRef": "MKT-W2-SYNC",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-META",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-TIKTOK",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-INSTAGRAM",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-GA4",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-SYNC",
+      "targetRef": "MKT-W2-GSC",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-META",
+      "targetRef": "MKT-W2-PAID-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-TIKTOK",
+      "targetRef": "MKT-W2-PAID-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-INSTAGRAM",
+      "targetRef": "MKT-W2-SOCIAL-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GA4",
+      "targetRef": "MKT-W2-ANALYTICS-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W2-GSC",
+      "targetRef": "MKT-W2-SEO-UI",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-POLICY",
+      "targetRef": "MKT-W4-PUBLISH",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-POLICY",
+      "targetRef": "MKT-W4-SPEND",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-REVENUE",
+      "targetRef": "MKT-W4-RECONCILE",
+      "type": "BLOCKS"
+    },
+    {
+      "sourceRef": "MKT-W4-UNKNOWN",
+      "targetRef": "MKT-W4-CANARY",
+      "type": "BLOCKS"
+    }
+  ]
+}

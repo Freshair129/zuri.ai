@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0b",
+  "status": "prepared; target instance and workspace unresolved; not imported",
+  "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
+  "initialPlannedProgressPercent": 5,
+  "progressMeaning": "Weighted delivery including completed design; product implementation remains 0%.",
+  "counts": {
+    "workstreams": 5,
+    "items": 47,
+    "milestones": 5,
+    "gates": 5,
+    "dependencies": 158,
+    "interfaces": 100
+  },
+  "validation": {
+    "interfaceCoverage": "100/100",
+    "dependencyGraph": "acyclic",
+    "targetVerified": false,
+    "serverDryRun": false,
+    "committed": false,
+    "strictJsonSchema": "PASS",
+    "localVocabulary": "PASS"
+  }
+}

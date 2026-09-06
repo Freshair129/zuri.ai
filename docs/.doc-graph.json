@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1832,
-    "total_edges": 6702,
+    "total_nodes": 1833,
+    "total_edges": 6706,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 167,
       "adr": 61,
       "domain": 10,
-      "roadmap": 35,
+      "roadmap": 36,
       "feature": 19,
       "route": 198,
       "model": 86,
@@ -55,12 +55,11 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-018-MARKETING-DOMAIN-DESIGN",
-      "doc:MARKETING-NAVIGATION-VIEWS",
       "doc:README",
       "doc:CONTEXT-MAP",
       "doc:CONTEXT-MAP",
-      "doc:SRS"
+      "doc:SRS",
+      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION"
     ],
     "added": [],
     "removed": []
@@ -10383,7 +10382,7 @@
       "version": "1.1.0b",
       "doc_status": "Candidate — domain documentation for review; no implementation approval",
       "hash": "cbeb56f5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -11394,7 +11393,7 @@
       "version": "0.2.0b",
       "doc_status": "Candidate; all new paths/tabs are proposed, not live routes",
       "hash": "81de5d80",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:MARKETING-TEAM-REFINEMENT",
@@ -11603,6 +11602,14 @@
       "title": "Phase 1 proposal — verified channel onboarding",
       "hash": "9794c3a2",
       "status": "current"
+    },
+    {
+      "id": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
+      "title": "Marketing — Project Manager implementation tracking plan",
+      "hash": "d37a8b57",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -36353,6 +36360,34 @@
     {
       "from": "doc:MARKETING-TEAM-REFINEMENT",
       "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:MARKETING-INTERFACE-INVENTORY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:MARKETING-TEAM-REFINEMENT",
       "type": "relates",
       "status": "current",
       "source": "control-block"
