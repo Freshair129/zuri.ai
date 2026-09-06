@@ -54,16 +54,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL",
-      "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
-      "doc:docker-ngrok",
-      "doc:PLAN-ZURI-MONOREPO-MIGRATION",
-      "test:tests/e2e/fr077-project-inventory.spec.js"
-    ],
-    "added": [
-      "test:tests/unit/docker-publication-containment.test.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -11053,7 +11045,7 @@
       "path": "docs/deployment/docker-ngrok.md",
       "title": "Deploying zuri-ai with Docker Compose + ngrok",
       "hash": "1dbc41bf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docs/change-requests/README",
@@ -12546,7 +12538,7 @@
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Candidate monorepo migration gates",
       "hash": "8440ee7d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -18959,7 +18951,7 @@
       "path": "docs/decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md",
       "title": "ADR-058 — Docker Compose + ngrok replace Vercel as the deployment path",
       "hash": "40b2bce8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION",
@@ -18991,7 +18983,7 @@
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
       "hash": "04a6029e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -19061,7 +19053,7 @@
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
       "hash": "8f4b0fb2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
