@@ -25,16 +25,15 @@ test.afterEach(async () => {
 // @spec ADR-060 D3, D11
 // @tested tests/e2e/fr151-line-oa-rich-menu-console.spec.js
 
-// Quarantined 2026-09-07: fails deterministically (both the first attempt and
-// the retry, timing out at the full 60s test budget) on GitHub Actions,
-// waiting for /line-oa content that never renders — confirmed on `main`'s own
-// governance run (34045894994) with none of the PR that noticed this
-// applied, so it is not caused by that PR and a retry will never fix it. See
-// .brain/rca/2026-09-07-line-oa-console-e2e-broken-on-main.md and the
-// tracked follow-up (task_150d0846). Passes reliably in every local run
-// performed while investigating — the break is CI-environment-specific.
-// Do not remove this skip without first re-running it green on CI, not just
-// locally.
+// Quarantined 2026-09-07 (superseded by the LINE OA Studio unification):
+// commit 8696b022 ("unify LINE Studio, Flow Designer, Live CRM and Edge
+// Device console") replaced /line-oa's UI outright, so this test's first step
+// — creating an account through the old onboarding form ("ชื่อ Connection")
+// — has nothing left to find; it never reaches its own rich-menu assertions.
+// Confirmed directly by loading /line-oa in a browser against this exact
+// commit. See .brain/rca/2026-09-07-line-oa-console-e2e-broken-on-main.md
+// and the tracked follow-up (task_150d0846), which should replace this test
+// with one written against the new console rather than resurrect this one.
 test.skip('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
