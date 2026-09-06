@@ -5745,7 +5745,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "455db75f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -6071,7 +6071,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "fe80f3a4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8111,7 +8111,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
       "hash": "9a659c27",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -9656,8 +9656,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "ef2fe1af",
-      "status": "current",
+      "hash": "b4fb78a9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9692,8 +9692,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "2d1f32a2",
-      "status": "current",
+      "hash": "6d0841ed",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9782,8 +9782,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "e7d28eb1",
-      "status": "current",
+      "hash": "b8ffb878",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -11013,7 +11013,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "4a3e7921",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11088,7 +11088,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "19c6e1cb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13059,7 +13059,7 @@
       "version": "1.46.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "86bcc62d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13113,7 +13113,7 @@
       "version": "1.24.0b",
       "doc_status": "Draft",
       "hash": "264eb71d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -13475,7 +13475,7 @@
       "version": "1.28.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "39a61025",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -14378,7 +14378,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "388dd9c1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -14426,7 +14426,7 @@
       "version": "1.11.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "64887164",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -14928,7 +14928,7 @@
       "version": "1.162.0b",
       "doc_status": "Draft",
       "hash": "c5e51920",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -14956,7 +14956,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "1d09b499",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15259,7 +15259,7 @@
         "line-crm"
       ],
       "hash": "4fb89c40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -22923,7 +22923,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "dd81a57a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",

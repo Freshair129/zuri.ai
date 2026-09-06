@@ -151,7 +151,7 @@ export default function LineStudioEdgeConnection() {
       });
 
       // Step 2: Connect account
-      await api("/api/line-oa/accounts", "POST", {
+      const newAcc = await api("/api/line-oa/accounts", "POST", {
         businessId: business.id,
         integrationConnectionId: conn.id,
         code,
@@ -159,7 +159,18 @@ export default function LineStudioEdgeConnection() {
         ...(basicId ? { basicId } : {})
       });
 
-      setMessage(`เชื่อมต่อบัญชี "${displayName}" (${basicId || code}) สำเร็จเรียบร้อย!`);
+      // Step 3: Automatically activate server transport so it goes LIVE immediately
+      try {
+        await api(`/api/line-oa/accounts/${newAcc.id}`, "PATCH", {
+          action: "ENABLE_SERVER",
+          legacyQuiesced: true,
+          version: newAcc.version || 1
+        });
+      } catch (e) {
+        console.warn("Auto server activate notice:", e);
+      }
+
+      setMessage(`เชื่อมต่อบัญชี ${displayName} และเปิด Server สำเร็จเรียบร้อยแล้ว`);
       event.target.reset();
     });
   }
@@ -620,11 +631,10 @@ function AccountCard({ account, onAction, busy }) {
           ) : account.transportMode === "CLOUD" ? (
             <button
               type="button"
-              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold"
-              disabled={!quiesced}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-1.5"
               onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
             >
-              เปิด Server transport
+              <span>⚡ เปิด Server Transport (Live)</span>
             </button>
           ) : (
             <button
