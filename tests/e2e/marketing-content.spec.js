@@ -175,7 +175,7 @@ test.describe('Marketing Content first functional slice', () => {
       await expect(assetLink).toHaveAttribute('href', `/growth/content/assets/${currentVersion.id}`)
       await assetLink.click()
       await expect(page).toHaveURL(new RegExp(`/growth/content/assets/${currentVersion.id}$`))
-      await expect(page.getByTestId('marketing-content-asset-source')).toContainText(/Open Files to inspect this source/i)
+      await expect(page.getByTestId('marketing-content-asset-source')).toContainText(/Open Files to inspect the authorized source record/i)
       await expect(page.getByTestId('marketing-content-asset-reviews')).toContainText(/Independent reviewer|Pass/i)
       await page.getByRole('link', { name: 'Back to library', exact: true }).click()
       await expect(page).toHaveURL(/\/growth\/content\?tab=library/)
