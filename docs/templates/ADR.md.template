@@ -1,0 +1,41 @@
+---
+id: ZAI:ADR-REPLACE
+title: REPLACE
+version: "0.1.0b"
+status: candidate
+created_at: REPLACE
+last_update: REPLACE
+author: REPLACE
+attributes:
+  doc_type: architecture-decision
+  domain: REPLACE
+relations:
+  - type: relates_to
+    target: ZAI:ADR-025
+---
+
+# ADR-REPLACE — REPLACE
+
+**Status:** Candidate
+
+## Context
+
+REPLACE
+
+## Decision
+
+REPLACE
+
+## Alternatives and consequences
+
+REPLACE
+
+## Verification
+
+REPLACE
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | REPLACE | candidate | Initial proposal | uncommitted | REPLACE |

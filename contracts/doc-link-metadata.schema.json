@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Zuri document link metadata v1",
+  "type": "object",
+  "required": ["id", "relations"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9_-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"},
+    "aliases": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["type", "target"],
+        "properties": {
+          "type": {"enum": ["relates_to", "references", "supersedes", "superseded_by"]},
+          "target": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

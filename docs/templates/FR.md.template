@@ -1,0 +1,36 @@
+---
+id: ZAI:FR-REPLACE-NOTE
+title: REPLACE
+feature: FR-REPLACE
+domain: REPLACE
+source: pending
+version: "0.1.0b"
+status: candidate
+created_at: REPLACE
+last_update: REPLACE
+relations:
+  - type: references
+    target: ZAI:FR-REPLACE
+  - type: relates_to
+    target: ZAI:FEAT-REPLACE
+---
+
+# FR-REPLACE — REPLACE
+
+## Behavior and ownership
+
+REPLACE
+
+## Input, output and failures
+
+REPLACE
+
+## Acceptance criteria
+
+REPLACE
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | REPLACE | candidate | Initial proposal | uncommitted | REPLACE |

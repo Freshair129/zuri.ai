@@ -12,6 +12,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
+import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
 import { generateDomainState } from './domain-state.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
@@ -26,6 +27,7 @@ const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
 const DOMAIN_MAP_PATH = path.join(ROOT, 'docs', 'DOMAIN-MAP.md')
 const TRACE_PATH = path.join(ROOT, 'docs', 'TRACE.md')
+const LINKS_PATH = path.join(ROOT, 'docs', 'DOCUMENT-LINKS.md')
 const DOMAIN_STATE_PATH = path.join(ROOT, 'docs', '.domain-state.json')
 // Tombstone guard (ADR-024): the legacy-project mirror once lived here and may
 // still exist on old checkouts. Never index it.
@@ -201,7 +203,7 @@ function build() {
   // Generator outputs are projections of this graph, not sources — indexing
   // them would make the graph depend on its own previous output and force two
   // runs to converge (the two-pass disease docs:check was cured of once).
-  const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md'])
+  const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
   const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter(
     (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)),
   )
@@ -326,7 +328,10 @@ function build() {
   for (const file of docFiles) {
     const base = path.basename(file, '.md')
     const selfId = (base.startsWith('ADR-') ? 'spec:' : 'doc:') + base
-    for (const m of read(file).matchAll(LINEAGE_LINE)) {
+    if (hasLinkMetadata(read(file))) continue
+    // Wikilinks have exact identities (including phase suffixes); the shared
+    // resolver handles them. Legacy ID regexes would truncate those suffixes.
+    for (const m of read(file).replace(/\[\[[^\]\n]+\]\]/g, '').matchAll(LINEAGE_LINE)) {
       const kind = m[1].toLowerCase()
       const targets = new Set()
       for (const l of m[2].matchAll(MD_LINK)) {
@@ -400,6 +405,9 @@ function build() {
 
   // Drop edges pointing at nodes that do not exist (e.g. @tested with a bare
   // filename): rewrite them onto the real test path when unambiguous.
+  const links = collectDocumentLinks(docFiles.map(file => ({ path: rel(file), body: read(file), nodeId: nodes.find(n => n.path === rel(file))?.id })), nodes)
+  if (links.findings.length) throw Error(links.findings.map(f => `${f.path}: ${f.message}`).join('\n'))
+  for (const e of links.edges) if (!edges.some(old => old.from === e.from && old.to === e.to && old.type === e.type)) edges.push(e)
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const testPaths = nodes.filter((n) => n.type === 'test')
   const resolved = []
@@ -628,6 +636,7 @@ const graph = {
 
 const serialized = JSON.stringify(graph, null, 2) + '\n'
 const domainStateSerialized = JSON.stringify(domainState, null, 2) + '\n'
+const linksSerialized = documentLinksView(nodes, edges)
 
 // The question --check answers is "does the committed graph still describe the
 // filesystem?" — that lives in the nodes, edges and hashes. `drift` and a node's
@@ -663,6 +672,10 @@ if (process.argv.includes('--check')) {
     process.exit(1)
   }
   console.log('doc-graph is up to date')
+  if (!existsSync(LINKS_PATH) || read(LINKS_PATH) !== linksSerialized) {
+    console.error('document links are stale — run: npm run docs:graph')
+    process.exit(1)
+  }
   process.exit(0)
 }
 
@@ -671,6 +684,7 @@ writeFileSync(MATRIX_PATH, matrix(nodes, edges, cov))
 writeFileSync(FEATURE_MAP_PATH, featureMap(nodes, edges))
 writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
 writeFileSync(TRACE_PATH, traceView(nodes, edges))
+writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
 
 console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangling.length}`)

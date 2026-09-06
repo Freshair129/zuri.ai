@@ -11,6 +11,7 @@ import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
+import { collectDocumentLinks } from './doc-links.mjs'
 import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
@@ -54,6 +55,20 @@ const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
 const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
 const specDocs = []
 const allDocs = labDocs
+
+// Read source files even when the persisted graph is stale or missing a new doc.
+{
+  const generated = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
+  const sources = allDocs.filter(f => !generated.has(path.basename(f)))
+  const saved = existsSync(GRAPH) ? JSON.parse(read(GRAPH)).nodes : []
+  const nodes = sources.map(f => {
+    const p = rel(f), base = path.basename(f, '.md')
+    return saved.find(n => n.path === p) || { id: base === 'CHARTER' && p.startsWith('docs/domains/') ? `domain:${p.split('/')[2]}` : `${base.startsWith('ADR-') ? 'spec' : 'doc'}:${base}`, path: p }
+  })
+  nodes.push(...saved.filter(n => /^(req|feat):/.test(n.id)))
+  const result = collectDocumentLinks(sources.map(f => ({ path: rel(f), body: read(f), nodeId: nodes.find(n => n.path === rel(f))?.id })), nodes)
+  for (const f of result.findings) add('critical', 'doc-link-metadata', 'Invalid document link', f.message, [f.path], 'Fix the source metadata or link target and rerun npm run govern')
+}
 
 // ---- Check 1: document control blocks ------------------------------------
 for (const f of allDocs) {
