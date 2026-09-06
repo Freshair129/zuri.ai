@@ -14,6 +14,14 @@ export const STRATEGY_TABS = [
   { key: 'scenarios', label: 'Scenarios' },
 ]
 
+export const CAMPAIGN_TABS = [
+  { key: 'brief', label: 'Brief' },
+  { key: 'plan', label: 'Plan' },
+  { key: 'timeline', label: 'Timeline' },
+  { key: 'results', label: 'Results' },
+  { key: 'decisions', label: 'Decisions' },
+]
+
 export const PLAN_CHANNELS = [
   { value: 'META_ADS', label: 'Meta Ads' },
   { value: 'TIKTOK_ADS', label: 'TikTok Ads' },
@@ -28,6 +36,23 @@ export function growthPlansPath(businessId) {
 
 export function growthPlanPath(planId, businessId) {
   return `${GROWTH_PLANS_PATH}/${encodeURIComponent(planId)}?businessId=${encodeURIComponent(businessId || '')}`
+}
+
+export const GROWTH_CAMPAIGNS_PATH = '/api/growth/campaigns'
+
+export function growthCampaignsPath(businessId) {
+  return `${GROWTH_CAMPAIGNS_PATH}?businessId=${encodeURIComponent(businessId || '')}`
+}
+
+export function growthCampaignPath(initiativeId, businessId) {
+  return `${GROWTH_CAMPAIGNS_PATH}/${encodeURIComponent(initiativeId)}?businessId=${encodeURIComponent(businessId || '')}`
+}
+
+export function campaignTabHref(pathname, tab, initiativeId) {
+  const params = new URLSearchParams()
+  params.set('tab', tab)
+  if (initiativeId) params.set('initiative', initiativeId)
+  return `${pathname}?${params.toString()}`
 }
 
 export function handoffPath(planId) {
@@ -55,13 +80,26 @@ export function emptyPlanPayload() {
   }
 }
 
+export function emptyCampaignBrief() {
+  return { startDate: '', endDate: '', offer: '', conditions: '' }
+}
+
+export function normalizeCampaignBrief(value = {}) {
+  return {
+    startDate: String(value.startDate || ''),
+    endDate: String(value.endDate || ''),
+    offer: String(value.offer || ''),
+    conditions: String(value.conditions || ''),
+  }
+}
+
 export function normalizePlanPayload(payload = {}) {
   const fallback = emptyPlanPayload()
   const channels = Array.isArray(payload.channels) ? [...new Set(payload.channels.filter(Boolean))] : []
   const actions = Array.isArray(payload.actions)
     ? payload.actions.map((action) => ({ title: String(action?.title || '') }))
     : fallback.actions
-  return {
+  const normalized = {
     objective: String(payload.objective || ''),
     situation: String(payload.situation || ''),
     audience: String(payload.audience || ''),
@@ -71,9 +109,13 @@ export function normalizePlanPayload(payload = {}) {
     successMetric: String(payload.successMetric || ''),
     actions: actions.length ? actions : fallback.actions,
   }
+  if (Object.prototype.hasOwnProperty.call(payload, 'campaignBrief')) {
+    normalized.campaignBrief = normalizeCampaignBrief(payload.campaignBrief)
+  }
+  return normalized
 }
 
-export function validatePlanPayload(payload, title = '') {
+export function validatePlanPayload(payload, title = '', options = {}) {
   const value = normalizePlanPayload(payload)
   const errors = []
   if (!String(title).trim()) errors.push('Give this plan a title.')
@@ -86,6 +128,16 @@ export function validatePlanPayload(payload, title = '') {
   if (!value.successMetric.trim()) errors.push('Describe the success metric intent.')
   if (!value.actions.length || value.actions.some((action) => !action.title.trim())) {
     errors.push('Every action needs a title.')
+  }
+  if (options.campaignBriefRequired || value.campaignBrief) {
+    const brief = value.campaignBrief || emptyCampaignBrief()
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(brief.startDate)) errors.push('Start date must use YYYY-MM-DD.')
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(brief.endDate)) errors.push('End date must use YYYY-MM-DD.')
+    if (/^\d{4}-\d{2}-\d{2}$/.test(brief.startDate) && /^\d{4}-\d{2}-\d{2}$/.test(brief.endDate) && brief.endDate < brief.startDate) {
+      errors.push('End date must be on or after the start date.')
+    }
+    if (!brief.offer.trim()) errors.push('Describe the offer.')
+    if (!brief.conditions.trim()) errors.push('Describe the campaign conditions.')
   }
   return errors
 }
@@ -132,7 +184,7 @@ export function approvalState(plan, now = new Date()) {
 export function diffPlanPayload(before = {}, after = {}) {
   const left = normalizePlanPayload(before)
   const right = normalizePlanPayload(after)
-  return Object.keys(left).filter((key) => JSON.stringify(left[key]) !== JSON.stringify(right[key]))
+  return [...new Set([...Object.keys(left), ...Object.keys(right)])].filter((key) => JSON.stringify(left[key]) !== JSON.stringify(right[key]))
 }
 
 export function formatMarketingDate(value) {
