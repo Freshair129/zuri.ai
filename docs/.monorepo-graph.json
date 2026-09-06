@@ -6188,7 +6188,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "a32bb3f6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -6519,7 +6519,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "9b5d03ad",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8676,7 +8676,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
       "hash": "efd35277",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-076",
@@ -11841,7 +11841,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "887b8aaf",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11920,7 +11920,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "0a689989",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13895,7 +13895,7 @@
       "version": "1.48.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "b49a7cd4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13949,7 +13949,7 @@
       "version": "1.26.0b",
       "doc_status": "Draft",
       "hash": "c0446ab7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14321,7 +14321,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "5caa2db5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15264,7 +15264,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "e18c7e4f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
@@ -15312,7 +15312,7 @@
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "c2f6cc6e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -15406,7 +15406,7 @@
       "path": "docs/domains/inventory/ONTOLOGY.md",
       "title": "Inventory ontology (reference)",
       "hash": "e8903acb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PARALLEL-REVIEW-2026-09-06",
@@ -15822,7 +15822,7 @@
       "version": "1.164.0b",
       "doc_status": "Draft",
       "hash": "795827d1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15832,7 +15832,7 @@
       "version": "1.2.0b",
       "doc_status": "Draft",
       "hash": "e5bbfd88",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:prompt-engineering",
@@ -15850,7 +15850,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "0f9f5776",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15886,7 +15886,7 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "6096c26f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:UI-DESIGN-SYSTEM",
@@ -16127,7 +16127,7 @@
         "asset-management"
       ],
       "hash": "d3595dcb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:commerce",
@@ -16150,7 +16150,7 @@
         "commerce"
       ],
       "hash": "161d26c1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:crm",
@@ -16290,7 +16290,7 @@
         "inventory"
       ],
       "hash": "097cc353",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -16352,7 +16352,7 @@
         "market-intelligence"
       ],
       "hash": "4c916d04",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:marketing",
@@ -23434,8 +23434,8 @@
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "66bf1f46",
-      "status": "current"
+      "hash": "d210cda2",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
@@ -24226,7 +24226,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "b358569b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -24779,7 +24779,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
       "hash": "8b20ca7e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/commerce-domain.test.js",
@@ -25052,7 +25052,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "9a8ed6e1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
