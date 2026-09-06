@@ -1,6 +1,6 @@
 ---
 id: ZAI:ADR-061
-version: "0.1.0b"
+version: "0.1.1b"
 status: active
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
 last_update: "2026-09-06T13:26:50+07:00,RWANG"
@@ -85,4 +85,4 @@ Before activation: apply the two incremental migrations in order; provision the 
 
 ## Evidence refresh — 2026-09-06
 
-Server main through PR #243 passed hosted verify and E2E on Windows; the earlier Linux validation paragraph above records the original implementation run, not the current server CI result. Edge implementation is on branch `feat/server-line-optional-edge` at `4a6e7ca`, [open PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22); Edge master `9609551` does not include that worker. Therefore “both repositories implement” describes source availability, not both default branches or installed releases. Production and real provider/device gates remain pending unless their own receipts prove otherwise. See [[ZAI:PLAN-FEAT-019-PHASES]].
+Server main through PR #243 passed hosted verify and E2E on Windows; the earlier Linux validation paragraph above records the original implementation run, not the current server CI result. Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence. Production and real provider/device gates remain pending unless their own receipts prove otherwise. See [[ZAI:PLAN-FEAT-019-PHASES]].

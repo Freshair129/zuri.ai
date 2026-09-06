@@ -1,6 +1,6 @@
 ---
 id: ZAI:FR-150-P2
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
 last_update: "2026-09-06T13:26:50+07:00,RWANG"
@@ -43,7 +43,7 @@ Next: [[ZAI:FR-150-P3]].
 
 ## Failure and acceptance
 
-No arbitrary executable, URL, SQL or tenant selection from job data. The Edge implementation remains in open PR #22, not master at the audit snapshot.
+No arbitrary executable, URL, SQL or tenant selection from job data. Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence.
 
 ## Source and validation anchors
 

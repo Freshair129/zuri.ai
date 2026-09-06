@@ -133,6 +133,13 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 
 - `src/platform/integrations/core/secret-manager.js` — provider-neutral runtime
   source vocabulary and secret resolution contract.
+- `src/platform/integrations/providers/line/server-line-rich-menu-transport.js` —
+  FR-152: the rich menu port of the server-owned LINE transport (ADR-061 D1) —
+  create a rich menu object, upload its image, set the default, set an alias —
+  one attempt per call, outcomes classified as accepted / permanent / retryable
+  / unconfirmed, provider bodies never read beyond the created id. The Studio's
+  job lane calls it with an account this lane resolved; the token never leaves
+  this lane's port.
 - `supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql` —
   private Vault resolver role/function; live application remains an operator gate.
 - `src/platform/integrations/core/integration-registry.js` — scoped provider and

@@ -1,6 +1,6 @@
 ---
 id: ZAI:PLAN-FEAT-019-PHASES
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
 last_update: "2026-09-06T13:26:50+07:00,RWANG"
@@ -64,8 +64,8 @@ The namespace and CRM operation participate in admission, not a separate uncoord
 ## Evidence and release gates
 
 - Server `main` at `4c0cbe3` includes ADR-061 and FR-148..150; PR #243 hosted verify/E2E passed. This is repository evidence, not production activation.
-- Edge `origin/master` at `9609551` does not contain the optional conversation worker. Implementation exists on `feat/server-line-optional-edge` at `4a6e7ca`, [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22), still OPEN at this review. Do not describe installed Edge/master as upgraded.
-- Review/merge the Edge change and record its released artifact and compatibility evidence before optional-device cutover. A shared branch test is not installed-version compatibility.
+- Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence.
+- Record the merged Edge release artifact and installed-version compatibility evidence before optional-device cutover. A shared branch test is not installed-version compatibility.
 - Apply and verify server migrations with the intended database roles; provision scoped server credential references; verify knowledge-reader scope separately.
 - Stop/quiesce the old sender, resolve SENDING/UNKNOWN/unconfirmed Push, authorize ownership handoff, change provider webhook, and record a real account/device canary and rollback boundary. Merging these documents performs none of those actions.
 - Monorepo is an independent candidate decision under [[ZAI:ADR-062]]; LINE rollout need not wait for repository relocation.

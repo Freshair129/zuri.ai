@@ -196,6 +196,13 @@ export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
 export const LINE_OA_RICH_MENU_VERSION_STATUSES = ['DRAFT', 'FROZEN', 'PUBLISHED', 'RETIRED']
 export const LINE_OA_RICH_MENU_ACTION_TYPES = ['MESSAGE', 'POSTBACK', 'URI', 'LIFF', 'RICHMENU_SWITCH']
 export const LINE_OA_RICH_MENU_ACTIONS = ['SAVE_DRAFT', 'FREEZE', 'ARCHIVE']
+// FR-152 — rich menu publish jobs, server-owned (ADR-061 D1, D6, D7). The job's
+// status vocabulary lives with the job (domain/line-oa-rich-menu-publish.js), as
+// LineConversationJob's does: its words (QUEUED, CLAIMED, FAILED, CANCELLED,
+// UNKNOWN) are the common job-ledger words other lanes also spell, and a
+// registry entry here would read every one of those as a hand copy.
+export const LINE_OA_RICH_MENU_JOB_KINDS = ['PUBLISH', 'SET_DEFAULT', 'SET_ALIAS']
+export const LINE_OA_RICH_MENU_JOB_STAGES = ['CREATE', 'UPLOAD', 'APPLY', 'DONE']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -236,6 +243,7 @@ export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
 export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)
 export const zLineOaRichMenuActionType = z.enum(LINE_OA_RICH_MENU_ACTION_TYPES)
 export const zLineOaRichMenuAction = z.enum(LINE_OA_RICH_MENU_ACTIONS)
+export const zLineOaRichMenuJobKind = z.enum(LINE_OA_RICH_MENU_JOB_KINDS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

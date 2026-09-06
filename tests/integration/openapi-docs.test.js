@@ -94,8 +94,10 @@ describe('OpenAPI document', () => {
       // collection (GET list, POST connect) and item (GET read, PATCH versioned
       // action — archive is an action, never a DELETE). FR-151 adds the rich
       // menu collection and item the same way: two paths, four operations.
-      pathCount: 141,
-      operationCount: 181,
+      // FR-152 adds the rich menu jobs path (GET, POST, PATCH) and the
+      // rich-menu worker tick (POST): two paths, four operations.
+      pathCount: 143,
+      operationCount: 185,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

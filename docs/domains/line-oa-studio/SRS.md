@@ -10,14 +10,14 @@ relations:
 domain: line-oa-studio
 stable_domain_id: DOM-LINE-OA-STUDIO
 status: proposed
-version: "0.4.0b"
+version: "0.4.1b"
 date: 2026-09-06
 architecture: domain-driven-modular-monolith
 ---
 
 # SRS — LINE OA Studio domain
 
-> Current conversation boundary: ADR-061 amends earlier EDGE/CLOUD topology for server-enabled conversations. Studio owns account/job state, Integration owns LINE transport, CRM owns history and Agent supplies answer contracts. FEAT-019 / FR-148..150 are distinct from FEAT-018 rich-menu/account design. [Phase and rollout map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md). Edge PR #22 remains open at this audit; no production activation is asserted.
+> Current conversation boundary: ADR-061 amends earlier EDGE/CLOUD topology for server-enabled conversations. Studio owns account/job state, Integration owns LINE transport, CRM owns history and Agent supplies answer contracts. FEAT-019 / FR-148..150 are distinct from FEAT-018 rich-menu/account design. [Phase and rollout map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md). Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence.
 
 
 **System:** Zuri AI (`zuri-ai`)

@@ -1,6 +1,6 @@
 ---
 id: ZAI:ADR-062
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
 last_update: "2026-09-06T13:26:50+07:00,RWANG"
@@ -30,7 +30,7 @@ relations:
 
 ## Context
 
-Server LINE behavior is already implemented in the server repository under ADR-061. Edge optional-compute implementation is in open PR #22, not Edge master, at the audit snapshot. The earlier unmerged ADR-062 proposal said to relocate first and then implement ADR-061; that order is now obsolete. Repository layout must not block the current two-repository rollout.
+Server LINE behavior is already implemented in the server repository under ADR-061. Edge [PR #22](https://github.com/Freshair129/zuri-edge-device/pull/22) merged into master as `b089320` on 2026-09-06; hosted verify passed for head `f7e047a`. Stateless Codex is temporarily rejected with `LOCAL_POLICY_UNAVAILABLE` before execution, without provider fallback. Installed-device and production activation require separate evidence. The earlier unmerged ADR-062 proposal said to relocate first and then implement ADR-061; that order is now obsolete. Repository layout must not block the current two-repository rollout.
 
 ## Proposed decision
 
