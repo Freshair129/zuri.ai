@@ -34,6 +34,10 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   const tag = `rm-e2e-${Date.now()}`
   createdNames.push(tag)
   await page.goto('/line-oa')
+  // FR-149's console moved behind a view toggle when LINE Studio Enterprise
+  // landed (viewMode defaults to 'studio'), so the page has to be switched
+  // before any of its headings or fields exist.
+  await page.getByRole('button', { name: /Server Transport & Job Console/ }).click()
   await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
   await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
   await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
