@@ -1,5 +1,5 @@
 ---
-version: "1.9.0b"
+version: "1.10.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-06T22:02:00+07:00,RWANG"
 status: "candidate"
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.9.0b |
+| **Version** | 1.10.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-06 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=70; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=71; operational_domain_keys=11; operational_subdomain_entries=35; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -118,6 +118,7 @@ page can issue a write.
 |---|---|---|---|---|---|
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, the selected thread oldest-first, PDPA consent status, and an owner-only "ลบข้อมูลส่วนบุคคล (PDPA)" action that requires typing ERASE before calling the FR-022 erasure trigger | ready, empty, loading, error, forbidden, no-business; explicitly no reply state; erasure confirm / counts / server refusal; a Membership without the `customer` domain receives the same 404 as an unknown Business (FR-061) | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, `POST /api/crm/customers/[customerId]/erasure`, FR-091, FR-022, FR-103 |
+| `/customer/line-crm` | LineCRM-MCP workspace | BusinessShell → CRM / LineCRM | 12-module CRM workspace for dashboard, live chat, members, loyalty, campaigns, multi-OA, rich menu, automation, AI/MCP, member portal, audit log and settings | ready, empty, loading, forbidden, tab/query state | implemented; `src/app/(pm)/customer/line-crm/page.jsx`, `src/modules/line-crm/LineCrmShell.jsx`, FR-091, SDD-050 |
 
 ### 3.4 Market Intelligence domain
 
@@ -127,7 +128,7 @@ page can issue a write.
 
 ### 3.5 People and Platform domains
 
-The operational registry has ten domain keys. Platform currently exposes nine
+The operational registry has eleven domain keys. Platform currently exposes nine
 page routes from nine navigation entries because its Dashboard and Settings entries share
 `/settings`; one route is one interface row here.
 
@@ -331,6 +332,7 @@ The current route evidence is:
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
+| 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
 | 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |

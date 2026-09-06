@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T16:03:55.753Z",
+  "generatedAt": "2026-09-06T16:41:50.903Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -450,6 +450,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -525,6 +526,7 @@
         "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
         "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -689,6 +691,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -763,6 +766,7 @@
         "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -806,7 +810,7 @@
           "id": "FR-022",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 13
         },
         {
@@ -827,21 +831,21 @@
           "id": "FR-078",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 25
         },
         {
           "id": "FR-091",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 11,
           "testCount": 14
         },
         {
           "id": "FR-093",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 7
         },
         {
@@ -855,7 +859,7 @@
           "id": "FR-103",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 11
         },
         {
@@ -866,10 +870,45 @@
           "testCount": 8
         },
         {
-          "id": "FR-148",
+          "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
+          "testCount": 25
+        },
+        {
+          "id": "FR-147",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-148",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 13
+        },
+        {
+          "id": "FR-151",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 16
+        },
+        {
+          "id": "FR-152",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 16
+        },
+        {
+          "id": "FR-153",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
           "testCount": 13
         }
       ],
@@ -888,6 +927,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -947,6 +987,7 @@
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/pipeline-mcp-transport.test.js",
@@ -1251,6 +1292,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -1345,6 +1387,7 @@
         "docs/domains/identity/features/FR-144-edge-device-credential.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1594,7 +1637,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "checks": {
@@ -1628,6 +1671,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -1709,6 +1753,7 @@
         "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1813,6 +1858,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -1874,6 +1920,7 @@
         "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -2040,6 +2087,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -2106,6 +2154,7 @@
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/pipeline-mcp-transport.test.js",
@@ -2162,6 +2211,13 @@
       "status": "partial",
       "requirements": [
         {
+          "id": "FR-021",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
           "id": "FR-022",
           "declared": "done",
           "status": "verified",
@@ -2169,10 +2225,17 @@
           "testCount": 13
         },
         {
+          "id": "FR-061",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 32
+        },
+        {
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 18,
           "testCount": 25
         },
         {
@@ -2193,22 +2256,22 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 14
+          "codeCount": 16,
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 14
+          "codeCount": 11,
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 11
+          "codeCount": 10,
+          "testCount": 13
         }
       ],
       "checks": {
@@ -2242,6 +2305,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -2316,6 +2380,7 @@
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -2394,6 +2459,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -2453,6 +2519,7 @@
         "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -2537,6 +2604,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -2601,6 +2669,7 @@
         "docs/domains/marketing/features/FR-160-campaign-initiatives.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -2692,6 +2761,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -2744,6 +2814,7 @@
         "docs/domains/platform-control/CHARTER.md",
         "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -3215,7 +3286,7 @@
           "id": "FR-091",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 14
         },
         {
@@ -3405,21 +3476,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-154",
@@ -3488,8 +3559,8 @@
             }
           ],
           "details": {
-            "routes": 43,
-            "inventoried": 43,
+            "routes": 44,
+            "inventoried": 44,
             "missing": 0
           }
         },
@@ -3511,6 +3582,7 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
+            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
@@ -3621,6 +3693,7 @@
         "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -3664,9 +3737,9 @@
         }
       ],
       "details": {
-        "routes": 148,
+        "routes": 149,
         "apiRoutes": 105,
-        "pageRoutes": 43,
+        "pageRoutes": 44,
         "ownedModels": 30,
         "featureNotes": 31
       },
@@ -4149,7 +4222,7 @@
           "id": "FR-078",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
+          "codeCount": 10,
           "testCount": 25
         }
       ],
@@ -4162,6 +4235,7 @@
         "apps/server/src/modules/crm/customer-import-review-service.js",
         "apps/server/src/modules/crm/customer-import-review-store.js",
         "apps/server/src/modules/identity/rbac.js",
+        "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -4376,19 +4450,20 @@
           "id": "FR-091",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
+          "codeCount": 17,
           "testCount": 14
         },
         {
           "id": "FR-093",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
+          "codeCount": 5,
           "testCount": 7
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
+        "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
         "apps/server/src/app/(pm)/customer/page.jsx",
         "apps/server/src/app/api/agent/line-delivery/route.js",
         "apps/server/src/app/api/agent/line-webhook/route.js",
@@ -4398,6 +4473,16 @@
         "apps/server/src/modules/agent/turn.js",
         "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/line-crm/LineCrmAiMcp.jsx",
+        "apps/server/src/modules/line-crm/LineCrmAutomation.jsx",
+        "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
+        "apps/server/src/modules/line-crm/LineCrmDashboard.jsx",
+        "apps/server/src/modules/line-crm/LineCrmHub.jsx",
+        "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
+        "apps/server/src/modules/line-crm/LineCrmLoyalty.jsx",
+        "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
+        "apps/server/src/modules/line-crm/LineCrmShell.jsx",
+        "apps/server/src/modules/line-crm/mockData.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
@@ -5131,6 +5216,7 @@
       "primaryDomain": "line-oa-studio",
       "contributorDomains": [
         "agent",
+        "crm",
         "identity",
         "integration",
         "line-oa-studio",
@@ -5148,36 +5234,36 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
+          "codeCount": 27,
           "testCount": 25
         },
         {
           "id": "FR-147",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 3
         },
         {
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 14
+          "codeCount": 20,
+          "testCount": 16
         },
         {
           "id": "FR-152",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 14
+          "codeCount": 16,
+          "testCount": 16
         },
         {
           "id": "FR-153",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 11
+          "codeCount": 15,
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -5196,6 +5282,11 @@
         "apps/server/src/modules/agent/phase1-runtime.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/integration/application/integration-management-service.js",
+        "apps/server/src/modules/line-crm/LineCrmMemberPortal.jsx",
+        "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
+        "apps/server/src/modules/line-crm/LineCrmRichMenu.jsx",
+        "apps/server/src/modules/line-crm/LineCrmShell.jsx",
+        "apps/server/src/modules/line-crm/mockData.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-authority.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
@@ -5207,6 +5298,18 @@
         "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
         "apps/server/src/modules/line-oa-studio/index.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/index.js",
+        "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
@@ -5283,7 +5386,7 @@
           "id": "FR-148",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
+          "codeCount": 5,
           "testCount": 13
         },
         {
@@ -5322,6 +5425,7 @@
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
+        "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
@@ -6504,7 +6608,8 @@
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
-        "identity"
+        "identity",
+        "line-oa-studio"
       ],
       "useCase": "LINE user คนเดิมถูก resolve เป็น Person เดิมภายใน Tenant เดิมโดยไม่สร้าง identity ซ้ำ",
       "progressPercent": 100,
@@ -6516,12 +6621,13 @@
           "id": "FR-021",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 3
         }
       ],
       "evidence": [
         "apps/server/src/modules/identity/resolve-line-identity.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/tests/integration/identity-gate.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-ingest.test.js"
@@ -6553,7 +6659,7 @@
           "id": "FR-022",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 13
         }
       ],
@@ -6566,6 +6672,7 @@
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/gate.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
@@ -8091,6 +8198,7 @@
       "contributorDomains": [
         "crm",
         "identity",
+        "line-oa-studio",
         "market-intelligence",
         "project-manager"
       ],
@@ -8104,7 +8212,7 @@
           "id": "FR-061",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
+          "codeCount": 11,
           "testCount": 32
         }
       ],
@@ -8117,6 +8225,7 @@
         "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-domains.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/src/modules/market-intelligence/application/market-observation-service.js",
         "apps/server/src/modules/people/application/people-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -9058,7 +9167,7 @@
           "id": "FR-103",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
+          "codeCount": 7,
           "testCount": 11
         }
       ],
@@ -9069,6 +9178,7 @@
         "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
+        "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-customer-consent.test.js",
