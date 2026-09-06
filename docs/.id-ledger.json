@@ -268,6 +268,10 @@
     "FR-155",
     "FR-156",
     "FR-157",
+    "FR-158",
+    "FR-159",
+    "FR-160",
+    "FR-161",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -375,6 +379,9 @@
     "SDD-083",
     "SDD-084",
     "SDD-085",
+    "SDD-086",
+    "SDD-087",
+    "SDD-088",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -421,6 +428,7 @@
     "FEAT-019",
     "FEAT-020",
     "FEAT-021",
+    "FEAT-022",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -2928,11 +2936,26 @@
       "statement_digest": "63ca31211444f4e5d1e14e7e1231db9d586323a7293f46b41f91cf21bf47099b",
       "history": [
         {
-          "anchor": "inventory catalogue identity คล งส นค า",
+          "anchor": "marketing execution handoff",
           "since": "2026-09-06",
           "reason": "declared"
+        },
+        {
+          "anchor": "marketing execution handoff",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-158. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory catalogue identity คล งส นค า",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
-      ]
+      ],
+      "retired_to": "FR-158",
+      "retired_at": "2026-09-06",
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FR-155": {
       "family": "FR",
@@ -2941,13 +2964,26 @@
       "statement_digest": "1c4805ddc93af8fbd495970bec423252fdc66cd9b91c9c8b34927fb7b2a3395f",
       "history": [
         {
-          "anchor": "inventory stock ledger",
+          "anchor": "marketing strategy revision and decision",
           "since": "2026-09-06",
           "reason": "declared"
+        },
+        {
+          "anchor": "marketing strategy revision and decision",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-159. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
+          "anchor": "inventory stock ledger",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "FR-155 keeps its subject (the Inventory stock ledger) and gains the FEFO sentence: an issue of a LOT-tracked SKU that names no lot is consumed first-expired-first-out across OPEN lots, and an issue that names a lot may not exceed that lot's on-hand"
+      "retired_to": "FR-159",
+      "retired_at": "2026-09-06",
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
     },
     "FR-156": {
       "family": "FR",
@@ -2956,13 +2992,80 @@
       "statement_digest": "d70121110dec0f7533a93f41ec0bc6dcc3193777e7176c8f6363e06c4cad010a",
       "history": [
         {
+          "anchor": "marketing campaign initiatives",
+          "since": "2026-09-06",
+          "reason": "declared"
+        },
+        {
+          "anchor": "marketing campaign initiatives",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-160. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
           "anchor": "inventory recipe bill of materials at a batch size",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
+        }
+      ],
+      "retired_to": "FR-160",
+      "retired_at": "2026-09-06",
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
+    },
+    "FR-157": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fd2dc0fc576038611cb789dee059ea3a7222fcbf74546f0926b037a45916a4a5",
+      "history": [
+        {
+          "anchor": "marketing content and creative",
           "since": "2026-09-06",
           "reason": "declared"
         }
       ]
     },
-    "FR-157": {
+    "FR-158": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "26e4a4eb95a48978f686abac1ab67caa32043e69d4e60f6f2c9450cc4aa23f98",
+      "history": [
+        {
+          "anchor": "marketing execution handoff",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-159": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1d582dc2912468c836bee30041f736f46617079407e89beabdd05a8e220668dc",
+      "history": [
+        {
+          "anchor": "marketing strategy revision and decision",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-160": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2ca17fa6180b615ae2f046d24029288e939e473c27dbd18ac44e534ec14927a2",
+      "history": [
+        {
+          "anchor": "marketing campaign initiatives",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-161": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
@@ -4382,6 +4485,45 @@
         }
       ]
     },
+    "SDD-086": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cffb9442655bfa84ac5cc17b6e444b31b5a73e15d2607171d644486e4c96c1f3",
+      "history": [
+        {
+          "anchor": "marketing planning evidence is immutable and execution is",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-087": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f4d9a5eb03320dad85fc89db4e7af499c4e348058e030d9b88655de333f3c7f",
+      "history": [
+        {
+          "anchor": "marketing initiatives reuse immutable strategy evidence and",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-088": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3afd0d05dbfacccc84db3ad9795d6a5146e08f6827783601e8a9c5c30cf9b2c9",
+      "history": [
+        {
+          "anchor": "creative content approval binds immutable intent rights and",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4973,13 +5115,41 @@
       "statement_digest": "c72c38cf8645cd8bb264f6640372c8be29b7f7da8b6beae254a289c5915b3586",
       "history": [
         {
+          "anchor": "marketing planning and accountable execution",
+          "since": "2026-09-06",
+          "reason": "declared"
+        },
+        {
+          "anchor": "marketing planning and accountable execution",
+          "since": "2026-09-06",
+          "reason": "Abandoned before merge; this branch renumbered itself to FEAT-021. Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key."
+        },
+        {
           "anchor": "inventory คล งส นค า",
+          "since": "2026-09-06",
+          "reason": "Restore published main Warehouse authority after this unpublished Marketing branch moved its own declaration to a fresh key.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
+        }
+      ],
+      "retired_to": "FEAT-021",
+      "retired_at": "2026-09-06",
+      "reason": "Published main allocated this number to Warehouse; unpublished Marketing preserves its subject under the next free key.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.161.0b"
+    },
+    "FEAT-021": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "7e0f0ca9c9559d917bc8cce8a560ec646cc7e3b6214fd201f3b65ab06638c548",
+      "history": [
+        {
+          "anchor": "marketing planning and accountable execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
       ]
     },
-    "FEAT-021": {
+    "FEAT-022": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",

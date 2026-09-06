@@ -1,23 +1,23 @@
 ---
 title: "Database Schema — Full ERD Reference"
-version: "2.1.0"
+version: "2.2.0"
 date: "2026-09-06"
 status: DRAFT
-model_count: 101
-source: "prisma/schema.prisma"
-note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.0.0 (2026-09-06): เพิ่ม §14–§18 สำหรับ 33 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, crm ConversationAnalysis) และ §19 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.1.0 (2026-09-06): SalesTask (FR-161, ADR-064) ใน §9 และ §19 แถว 7 เป็น built"
+model_count: 111
+source: "apps/server/prisma/schema.prisma"
+note: "zuri-ai standalone (ADR-024). SQLite สำหรับ dev/test, Postgres/Supabase สำหรับ production — schema.postgres.prisma generate จาก schema.prisma ตัวเดียวกัน. v2.1.0 (2026-09-06): เพิ่ม §14–§19 สำหรับ 43 model ที่เข้ามาหลัง v1.0.0 (identity plugin/edge, asset-management, line-oa-studio, inventory, marketing, crm ConversationAnalysis) และ §20 การ map จาก legacy ERD (zuri1.0) ตาม ADR-054; v2.2.0 (2026-09-07): SalesTask (FR-161, ADR-064) ใน §9 และ §20 แถว 7 เป็น built"
 ---
 
 # Database Schema — Full ERD Reference
 
-> **101 models** — นับจาก `prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
-> v2.x ครอบคลุม 34 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §9 (`ConversationAnalysis`, `SalesTask`) และ §14–§18 — และ §19 คือ
+> **111 models** — นับจาก `apps/server/prisma/schema.prisma` โดยตรง (`grep -c '^model '`)
+> v2.x ครอบคลุม 44 model ที่ v1.0.0 (67 model, 2026-08-29) ยังไม่มี — ดู §9 (`ConversationAnalysis`, `SalesTask`) และ §14–§19 — และ §20 คือ
 > สถานะของทุกหัวข้อใน ERD ของผลิตภัณฑ์เดิม (`Freshair129/zuri1.0`) ว่ายืม / เปลี่ยน label / เลื่อน / ปฏิเสธ
-> **Source of truth:** `prisma/schema.prisma` · Postgres cutover: `prisma/schema.postgres.prisma`
+> **Source of truth:** `apps/server/prisma/schema.prisma` · Postgres cutover: `apps/server/prisma/schema.postgres.prisma`
 > **Registry ย่อ:** [Appendix B](../../appendices/B-db-schema.md) · **Domain lanes:** [DOMAIN-MAP](../../DOMAIN-MAP.md)
 > **อ่านใน Obsidian / GitHub:** Mermaid diagrams render อัตโนมัติ
 
-**เอกสารนี้ไม่ใช่แหล่งความจริง** — `prisma/schema.prisma` คือแหล่งความจริง เอกสารนี้คือ
+**เอกสารนี้ไม่ใช่แหล่งความจริง** — `apps/server/prisma/schema.prisma` คือแหล่งความจริง เอกสารนี้คือ
 มุมมองที่อ่านได้ของ schema นั้น ณ วันที่ใน frontmatter ถ้าสองที่ไม่ตรงกัน schema ถูกเสมอ
 
 ---
@@ -44,6 +44,14 @@ erDiagram
     Business ||--o{ Team : "staffs"
     Business ||--o{ BusinessRoadmap : "plans"
     Business ||--o{ BusinessGoal : "targets"
+    Tenant ||--o{ MarketingPlan : "scopes"
+    Business ||--o{ MarketingPlan : "owns"
+    Business ||--o{ MarketingInitiative : "runs"
+    Business ||--o{ MarketingContentBrief : "briefs"
+    MarketingPlan ||--o{ MarketingPlanVersion : "revises"
+    MarketingPlan ||--o{ MarketingReview : "reviewed by"
+    MarketingPlan ||--o{ MarketingDecision : "decided by"
+    MarketingPlan ||--o{ MarketingHandoff : "hands off"
 
     Workspace ||--o{ Project : "hosts"
     Project ||--o{ Workstream : "splits into"
@@ -639,7 +647,7 @@ erDiagram
 | `WorkContainer.parentId` | self-relation `ContainerHierarchy` — ลึกได้หลายชั้น |
 | `deletedAt` | soft delete บน Workstream/WorkItem/Project — query ต้องกรองเอง |
 
-**Spec:** BR-006 (gate caps progress) · SDD-002 · progress calculators อยู่ที่ `src/modules/project-manager/progress/`
+**Spec:** BR-006 (gate caps progress) · SDD-002 · progress calculators อยู่ที่ `apps/server/src/modules/project-manager/progress/`
 
 ---
 
@@ -1779,7 +1787,7 @@ erDiagram
 
 | Field | หมายเหตุ |
 |---|---|
-| **ไม่มีคอลัมน์ on-hand** บน `Product` / `ProductLot` | on-hand = `SUM(StockMovement.quantity)` คำนวณทุกครั้งที่อ่าน — กฎเดียวกับ progress (§21.4): ตัวเลขที่เก็บไว้คือตัวเลขที่หน้าจอจะเถียงกันได้ |
+| **ไม่มีคอลัมน์ on-hand** บน `Product` / `ProductLot` | on-hand = `SUM(StockMovement.quantity)` คำนวณทุกครั้งที่อ่าน — กฎเดียวกับ progress (§22.4): ตัวเลขที่เก็บไว้คือตัวเลขที่หน้าจอจะเถียงกันได้ |
 | `stockPolicy` / `trackingMode` แก้ไม่ได้ | ความหมายของทุกแถว ledger ขึ้นกับสองค่านี้ — เปลี่ยนนโยบายคือ archive แล้วสร้าง SKU ใหม่ |
 | UNTRACKED | ไม่มี ledger: `recordMovement` ปฏิเสธด้วย code, summary รายงาน `onHand = null` ไม่ใช่ 0 (ศูนย์อ่านว่า "นับแล้วว่าง") |
 | FEFO (FR-155) | ISSUE ของ LOT-tracked ที่ไม่ระบุ lot ตัดจาก OPEN lot ที่ `expiresAt` เร็วสุดก่อน (ไม่ทราบวันหมดอายุ = ท้ายสุด) หนึ่งแถวต่อ lot; ระบุ lot แล้วเกินที่ lot มีถูกปฏิเสธ |
@@ -1792,7 +1800,189 @@ erDiagram
 
 ---
 
-## 19. Legacy ERD (zuri1.0) → zuri-ai: what was borrowed, relabelled, deferred, refused
+## 19. MARKETING: Strategy, Campaign & Content Evidence
+
+Marketing owns Business-scoped planning evidence, immutable revisions, review and
+decision history, the distinct Campaign association, and accepted PM handoff
+references. Project Manager remains the owner of Project, Workstream,
+WorkContainer, WorkItem, schedule and execution receipts. Files remains the owner
+of binary assets; provider identities and measurements remain in their owning
+Integration records.
+
+~~~~mermaid
+erDiagram
+    Tenant ||--o{ MarketingPlan : "scopes"
+    Business ||--o{ MarketingPlan : "plans"
+    Business ||--o{ MarketingInitiative : "runs"
+    Business ||--o{ MarketingContentBrief : "briefs"
+    MarketingPlan ||--o{ MarketingPlanVersion : "revises"
+    MarketingPlan ||--o{ MarketingReview : "reviewed by"
+    MarketingPlan ||--o{ MarketingDecision : "decided by"
+    MarketingPlan ||--o{ MarketingHandoff : "hands off"
+    MarketingPlan ||--o| MarketingInitiative : "campaign identity"
+    MarketingPlanVersion ||--o{ MarketingReview : "exact version"
+    MarketingPlanVersion ||--o{ MarketingDecision : "exact version"
+    MarketingPlanVersion ||--o{ MarketingHandoff : "exact handoff"
+    MarketingReview ||--o{ MarketingDecision : "supports"
+    MarketingHandoff }o--|| Workspace : "targets"
+    MarketingHandoff }o--|| Project : "receipt for"
+    MarketingHandoff ||--o{ MarketingInitiative : "selected by"
+    MarketingContentBrief ||--o{ MarketingContentVersion : "revises"
+    MarketingContentBrief ||--o{ MarketingContentReview : "reviewed by"
+    MarketingContentBrief ||--o{ MarketingContentDecision : "decided by"
+    MarketingContentVersion ||--o{ MarketingContentReview : "exact version"
+    MarketingContentVersion ||--o{ MarketingContentDecision : "exact version"
+    MarketingContentReview ||--o{ MarketingContentDecision : "supports"
+
+    MarketingPlan {
+        uuid id PK
+        uuid tenantId FK
+        uuid businessId FK
+        string code UK
+        string title
+        string status
+        int currentRevision
+        int version
+        string createdBy
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+
+    MarketingPlanVersion {
+        uuid id PK
+        uuid planId FK
+        int revision
+        string payloadJson
+        string payloadHash
+        string createdBy
+        datetime createdAt
+    }
+
+    MarketingReview {
+        uuid id PK
+        uuid planId FK
+        uuid planVersionId FK
+        string payloadHash
+        string verdict
+        string rationale
+        uuid reviewerId
+        datetime createdAt
+    }
+
+    MarketingDecision {
+        uuid id PK
+        uuid planId FK
+        uuid planVersionId FK
+        uuid reviewId FK
+        string payloadHash
+        string verdict
+        string rationale
+        uuid actorId
+        datetime expiresAt
+        datetime createdAt
+    }
+
+    MarketingHandoff {
+        uuid id PK
+        uuid planId FK
+        uuid planVersionId FK
+        uuid workspaceId FK
+        uuid projectId FK
+        string payloadHash
+        string envelopeHash
+        string receiptJson
+        string createdBy
+        datetime createdAt
+    }
+
+    MarketingInitiative {
+        uuid id PK
+        uuid tenantId FK
+        uuid businessId FK
+        string code
+        uuid planId UK
+        uuid handoffId FK
+        string status
+        string closureReason
+        int version
+        string createdBy
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+
+    MarketingContentBrief {
+        uuid id PK
+        uuid tenantId FK
+        uuid businessId FK
+        string code UK
+        string title
+        string status
+        int currentRevision
+        int version
+        string createdBy
+        datetime createdAt
+        datetime updatedAt
+        datetime deletedAt
+    }
+
+    MarketingContentVersion {
+        uuid id PK
+        uuid briefId FK
+        int revision
+        string payloadJson
+        string payloadHash
+        string createdBy
+        datetime createdAt
+    }
+
+    MarketingContentReview {
+        uuid id PK
+        uuid briefId FK
+        uuid contentVersionId FK
+        string payloadHash
+        int sequence
+        string verdict
+        string rationale
+        bool rightsConfirmed
+        bool brandConfirmed
+        uuid reviewerId
+        datetime createdAt
+    }
+
+    MarketingContentDecision {
+        uuid id PK
+        uuid briefId FK
+        uuid contentVersionId FK
+        int sequence
+        uuid reviewId FK
+        string payloadHash
+        string verdict
+        string rationale
+        uuid actorId
+        datetime expiresAt
+        datetime createdAt
+    }
+~~~~
+
+| Model group | Persistence contract |
+|---|---|
+| Strategy | MarketingPlan is the scoped identity; MarketingPlanVersion is append-only and hashes the canonical title/payload. MarketingReview, MarketingDecision and MarketingHandoff bind exact plan versions. |
+| Campaign | MarketingInitiative has its own UUID/code and one unique MarketingPlan; an optional MarketingHandoff selects the accepted PM receipt. PM Campaign remains a WorkContainer alias. |
+| Content | MarketingContentBrief owns immutable MarketingContentVersion rows. Review and decision rows bind exact hashes and record rights/brand evidence; file and PM references stay owner-resolved payload references. |
+
+All ten Marketing models are Business/Tenant scoped through their owning root or
+version relation. Approval or handoff evidence never creates PM tasks, provider
+actions, binary assets, stock records, or order records. Revisions remain
+immutable, and reads must revalidate referenced owner records before projecting a
+receipt or approval.
+
+**Spec:** FR-157, FR-158, FR-159, FR-160 · SDD-086, SDD-087, SDD-088 ·
+docs/domains/marketing/CHARTER.md
+
+---
+## 20. Legacy ERD (zuri1.0) → zuri-ai: what was borrowed, relabelled, deferred, refused
 
 `Freshair129/zuri1.0` — `docs/architecture/database-erd/full-schema.md` v2.0.0 (17 models) — คือ ERD
 ของผลิตภัณฑ์เดิม ADR-024 D7 บอกว่าอ่านเป็น **prior art** ได้ แต่ไม่มีอะไรสืบทอดหรือย้ายมาจากมัน และ
@@ -1806,7 +1996,7 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 3. CORE: Customer CRM | `Customer`, `CustomerProfile`; phone-merge identity | `Customer` (§9) + `CustomerProfile` (FR-126, target); identity merge → identity domain (FR-094) | ✅ `CustomerProfile` adopted / ❌ phone-merge refused (D4.3) |
 | 4. CORE: Inbox & Conversations | `Conversation`, `Message` (FB/LINE, `t_xxx` ids) | `Conversation` / `Message` (§9) — external thread id เป็น attribute ใน tenant-partitioned unique (BR-002) | ✅ native equivalent |
 | 5. CORE: Orders & Payments | `Order`, `Transaction` (slip OCR, revenue split) | **Commerce lane — target**: `Order` / `Payment` keyed on UUID, slip OCR ผ่าน evidence pattern ของ Asset (§15) | 🔜 deferred (D5); ไม่มี model |
-| 6. CORE: Marketing & Ads | `Ad`, `AdDailyMetric` (`adId` เป็น FK) | **Marketing lane (`growth` slot) — target**: provider id ใน `ExternalRef` ไม่ใช่ key (D4.1); metric derived จาก `RawExternalRecord` (§11) | 🔜 deferred (D5); ไม่มี model |
+| 6. CORE: Marketing & Ads | Ad, AdDailyMetric (adId เป็น FK) | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision (§19); provider ids and measurements remain in Integration owner records | ✅ native planning evidence; provider execution and metrics remain deferred |
 | 7. CORE: Tasks | `Task` (FOLLOW_UP / CALL / MEETING / DEMO; SINGLE / RANGE / PROJECT; URGENT เป็น status; `notionId`) | **`SalesTask` ใน crm (§9, FR-161, ADR-064)** — task ของ *sale* ผูก `Customer` / `Conversation` ผ่าน tenant, assignee `Person` ที่มี Membership; URGENT → priority, PROJECT + milestones → ยังคงเป็นของ project-manager (ADR-054 D5 แคบลง ไม่กลับคำ), `notionId` → `ExternalRef` เมื่อมี sync | ✅ relabelled (FR-161) |
 | 8. CORE: DSB (Daily Sales Brief) | `ConversationAnalysis`, `DailyBrief` | `ConversationAnalysis` (§9, FR-127, **มีแล้ว**); `DailyBrief` (FR-128, target); ไม่มี `sourceAdId` จนกว่าจะมี Ad model | ✅ adopted (ADR-054 D2) — partial |
 | 9. CORE: Products & Catalog | `Product` (course \| food \| equipment \| package, `sku`, `barcode`) | `ProductMaster` + `Product` (SKU) ใน Inventory (§18); `barcode` = attribute ในอนาคต; course/package → Commerce offer | ✅ relabelled (FR-154) |
@@ -1817,13 +2007,13 @@ ADR-054 วางกติกาการยืม: ยึด scope ของ ag
 | 13. Phase 5 shared/procurement | `Supplier`, `PurchaseOrderV2`, `POItem`, `GRN…`, `POReturn`, `CreditNote`, `Advance` | Procurement lane — target; วันนี้ `AssetProcurementRef` (§15) และ `StockMovement.reference` ถือแค่ typed string | 🔜 deferred |
 | 13. Phase 6 industry/culinary packages & certificates | `Package…`, `Certificate`, `ClassAttendance` | Commerce / Operations — target | 🔜 deferred |
 
-**กติกาที่ใช้กับทุกแถว "target"** — ยังไม่มีอะไรใน `prisma/schema.prisma` จนกว่าจะมี FR ของตัวเอง ผ่าน
+**กติกาที่ใช้กับทุกแถว "target"** — ยังไม่มีอะไรใน `apps/server/prisma/schema.prisma` จนกว่าจะมี FR ของตัวเอง ผ่าน
 ADR-054 D3/D4 (scope จาก aggregate ที่มี, external id เป็น attribute) และ charter ของเลนที่ถือ; แถวใน
 ตารางนี้จึงเป็น **ที่อยู่ในอนาคต** ไม่ใช่การอ้างว่ามีแล้ว
 
 ---
 
-## 20. Domain ownership map
+## 21. Domain ownership map
 
 preflight บังคับว่า model หนึ่งถูก claim ได้โดย charter เดียว — ตารางนี้อ่านจาก
 `docs/domains/<d>/CHARTER.md` frontmatter (`owns_models`)
@@ -1838,21 +2028,22 @@ preflight บังคับว่า model หนึ่งถูก claim ไ�
 | **asset-management** | RegisteredAsset, AssetIntake, AssetEvidence, AssetProcurementRef, AssetLot, AssetResponsibility, AssetLocationHistory, AssetProjectAllocation, AssetDepreciationCandidate, AssetExtractionJob | 10 |
 | **line-oa-studio** | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineConversationJob | 6 |
 | **inventory** | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement | 12 |
+| **marketing** | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision | 10 |
 | **agent** | — (ไม่มีโดยตั้งใจ: state อยู่ใน production Postgres `zuri_core.*` + MSP vault) | 0 |
 | **knowledge** | — (ไม่มีโดยตั้งใจ: store คือ `zuri_core.business_knowledge` หลัง knowledge port) | 0 |
 | **platform-control** | — (ไม่มีโดยตั้งใจ: projection ที่ถอดออกได้ ไม่ถือ persistence model) | 0 |
-| | **รวม** | **101** |
+| | **รวม** | **111** |
 
-> **ครบพอดี:** 101 model ใน `prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
-> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §26)
+> **ครบพอดี:** 111 model ใน `apps/server/prisma/schema.prisma` ถูก claim ครบทุกตัว ไม่มี model กำพร้า
+> และไม่มีชื่อใน charter ที่ไม่มีอยู่จริงใน schema (ตรวจซ้ำได้ด้วยสคริปต์ท้ายเอกสาร §27)
 > Pipeline ทั้ง 6 ตัวอยู่ในเลน **integration** — `docs/domains/knowledge/CHARTER.md`
 > อ้างถึงมันในเนื้อความเพราะ knowledge *เรียกใช้* `createPipelineRun` ของเลนนั้น ไม่ได้เป็นเจ้าของ
 
 ---
 
-## 21. Key Data Flows
+## 22. Key Data Flows
 
-### 21.1 LINE turn → Conversation → Agent
+### 22.1 LINE turn → Conversation → Agent
 
 ```mermaid
 flowchart LR
@@ -1868,7 +2059,7 @@ flowchart LR
 ขอบเขต production มาจาก **binding ที่ server เป็นเจ้าของเท่านั้น** — `tenantId`/`businessId`
 ที่ client ส่งมาถูกปฏิเสธก่อนงาน turn ใด ๆ จะเริ่ม (FR-052, SEC-010)
 
-### 21.2 Intake convergence — ทุก surface ลงท่อเดียว
+### 22.2 Intake convergence — ทุก surface ลงท่อเดียว
 
 ```mermaid
 flowchart TD
@@ -1888,7 +2079,7 @@ flowchart TD
 surface ใหม่เพิ่ม **converter** ไม่เคยเพิ่ม write path ที่สอง (BR-009, SDD-009)
 และ **plan คือข้อมูล ไม่ใช่คำสั่ง** — ไม่มีอะไรใน envelope ถูก execute (BR-007, SEC-002)
 
-### 21.3 External ingestion → market observation
+### 22.3 External ingestion → market observation
 
 ```mermaid
 flowchart LR
@@ -1901,7 +2092,7 @@ flowchart LR
     E -->|retry| B
 ```
 
-### 21.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
+### 22.4 Progress roll-up — ทำไม `progressCache` เชื่อไม่ได้
 
 ```mermaid
 flowchart TD
@@ -1919,7 +2110,7 @@ flowchart TD
 
 ---
 
-## 22. Index Strategy
+## 23. Index Strategy
 
 | Table | Index | Purpose |
 |---|---|---|
@@ -1955,6 +2146,11 @@ flowchart TD
 | `LineOaRichMenuJob` / `LineConversationJob` | `(status, availableAt)` · `(accountId, status)` · `retryKey` UNIQUE | worker claim งานที่ถึงเวลาแล้ว; กันส่งซ้ำ |
 | `LineOaLiffApp` | `(tenantId, code)` UNIQUE · `(lineOaAccountId, externalLiffId)` UNIQUE | liffId หนึ่งต่อบัญชี — attribute ไม่ใช่ key |
 | `ConversationAnalysis` | `(conversationId, analyzedDate)` · `(analyzedDate)` · `(state)` | brief รายวัน + กรองตาม state |
+| MarketingPlan / MarketingContentBrief | (businessId, code) UNIQUE · (tenantId, businessId, status) | scoped root lookup and lifecycle filtering |
+| MarketingPlanVersion / MarketingContentVersion | (planId, revision) UNIQUE · (briefId, revision) UNIQUE | immutable revision lookup |
+| MarketingReview / MarketingDecision | (planId, createdAt) · (briefId, sequence) UNIQUE · (briefId, createdAt) | exact-version review and decision history |
+| MarketingHandoff | (planVersionId, workspaceId) UNIQUE · (planId) | one accepted PM handoff per plan version and workspace |
+| MarketingInitiative | planId UNIQUE · (businessId, code) UNIQUE · (tenantId, businessId, status) | distinct Campaign identity and lifecycle lookup |
 | `Product` / `ProductMaster` / `InventoryCategory` / `Factory` / `ProductFamily` / `ProductBundle` / `ProductRecipe` | `(tenantId, code)` UNIQUE · `(businessId, status)` | รหัสคนอ่านออก unique ต่อ Tenant; หน้า dashboard ต่อ Business |
 | `InventoryCategory` | `(businessId, slug)` UNIQUE | slug ของ ontology ต่อ Business |
 | `ProductLot` | `(productId, code)` UNIQUE · `(businessId, status)` | เลข lot unique ต่อ SKU; FEFO อ่าน OPEN lot แล้วเรียง `expiresAt` ใน memory |
@@ -1965,7 +2161,7 @@ flowchart TD
 
 ---
 
-## 23. Naming Conventions
+## 24. Naming Conventions
 
 | Convention | Example | Rule |
 |---|---|---|
@@ -1977,18 +2173,18 @@ flowchart TD
 | Timestamps | `createdAt` / `updatedAt` | `@default(now())` / `@updatedAt` แทบทุกตาราง |
 | Soft delete | `deletedAt` | nullable DateTime — query ต้องกรองเอง |
 | Concurrency | `version` | `Int @default(1)` บน aggregate root |
-| Enum | `status`, `role`, `subtype` | **เก็บเป็น string** — source of truth คือ `src/lib/validation/enums.js` |
+| Enum | `status`, `role`, `subtype` | **เก็บเป็น string** — source of truth คือ `apps/server/src/lib/validation/enums.js` |
 | JSON | `metadataJson`, `evidenceJson`, `payloadJson` | suffix `Json`, เก็บเป็น **string** (SQLite compat) |
 | Hash / secret | `tokenHash`, `keyHash`, `payloadHash`, `sha256` | เก็บเฉพาะ digest — raw secret ไม่เคยลง DB |
 | Boolean | `required`, `retryable`, `labelAs` | ไม่มี prefix `is_` ในโปรเจกต์นี้ |
 
-**ทำไม enum เป็น string:** SQLite dev/test ไม่มี native enum และ `src/lib/validation/enums.js`
+**ทำไม enum เป็น string:** SQLite dev/test ไม่มี native enum และ `apps/server/src/lib/validation/enums.js`
 เป็นแหล่งความจริงที่ Excel dropdown, OpenAPI และ Zod validation อ่านร่วมกัน —
 อย่าคัดลอกรายการ enum ด้วยมือที่ไหนอีก
 
-### 23.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
+### 24.1 คอลัมน์ string ตัวไหน มาจาก enum ตัวไหน
 
-`src/lib/validation/enums.js` — โดเมนธุรกิจหลัก:
+`apps/server/src/lib/validation/enums.js` — โดเมนธุรกิจหลัก:
 
 | Column | Constant | Values |
 |---|---|---|
@@ -2047,7 +2243,7 @@ flowchart TD
 โดยตั้งใจ** — คำอย่าง QUEUED / CLAIMED / FAILED เป็นคำกลางของ job ledger หลายเลน และ registry จะอ่านทุก
 ที่ที่สะกดคำเหล่านั้นเป็น hand copy (preflight `enum-copy`) รายการเหล่านั้นอยู่กับ aggregate ของมันเอง
 
-`src/platform/integrations/core/pipeline-tracking-contract.js` — **แหล่ง enum ที่สอง**
+`apps/server/src/platform/integrations/core/pipeline-tracking-contract.js` — **แหล่ง enum ที่สอง**
 สำหรับ pipeline ledger:
 
 | Column | Constant | Values |
@@ -2070,28 +2266,28 @@ flowchart TD
 
 ---
 
-## 24. Snapshot coverage (backup/restore contract)
+## 25. Snapshot coverage (backup/restore contract)
 
 ทุก model ต้องอยู่ใน `SNAPSHOT_MODELS` (เรียงพ่อก่อนลูก) **หรือ** อยู่ใน
 `SNAPSHOT_EXCLUDED_MODELS` พร้อมเหตุผลว่าทำไมกู้คืนไม่ได้ ทั้งคู่อยู่ใน
-`src/modules/project-manager/application/backup-service.js`
+`apps/server/src/modules/project-manager/application/backup-service.js`
 
-preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โดยตรง —
+preflight check `snapshot-coverage` อ่าน `apps/server/prisma/schema.prisma` โดยตรง —
 **model ที่ไม่อยู่ในลิสต์ไหนเลยคือ CRITICAL** เพราะ restore จะไม่ export ไม่ลบ
 และไม่คืนตารางนั้น ผลคือ backup ที่ดูเขียวแต่กู้ข้อมูลกลับไม่ครบ
 
 ---
 
-## 25. Dev / Production parity
+## 26. Dev / Production parity
 
 | | Dev / Test | Production |
 |---|---|---|
-| Engine | SQLite (`prisma/dev.db`, `prisma/.test-dbs/`) | Postgres / Supabase |
-| Schema file | `prisma/schema.prisma` | `prisma/schema.postgres.prisma` (generated) |
+| Engine | SQLite (`apps/server/prisma/dev.db`, `apps/server/prisma/.test-dbs/`) | Postgres / Supabase |
+| Schema file | `apps/server/prisma/schema.prisma` | `apps/server/prisma/schema.postgres.prisma` (generated) |
 | Enum | string column | string column (เหมือนกันโดยตั้งใจ) |
 | JSON | string column | string column |
-| Migration ledger | `prisma/migrations/` | `supabase_migrations.schema_migrations` |
-| RLS / partial index | ไม่มี | เพิ่มด้วย DDL แยกใน `prisma/postgres/` |
+| Migration ledger | `apps/server/prisma/migrations/` | `supabase_migrations.schema_migrations` |
+| RLS / partial index | ไม่มี | เพิ่มด้วย DDL แยกใน `apps/server/prisma/postgres/` |
 
 **Gotcha:** invariant บางข้อ (active-primary connection, RLS) มีอยู่เฉพาะฝั่ง Postgres
 ในรูป DDL เพิ่มเติม — อ่าน schema Prisma อย่างเดียวจะไม่เห็น ดู
@@ -2099,22 +2295,22 @@ preflight check `snapshot-coverage` อ่าน `prisma/schema.prisma` โด�
 
 ---
 
-## 26. Keeping this document honest
+## 27. Keeping this document honest
 
-เอกสารนี้เขียนด้วยมือจาก `prisma/schema.prisma` **ไม่ใช่ไฟล์ generated** — `docs:graph`
+เอกสารนี้เขียนด้วยมือจาก `apps/server/prisma/schema.prisma` **ไม่ใช่ไฟล์ generated** — `docs:graph`
 ไม่ได้สร้างมัน แปลว่าไม่มี guard ตัวไหนจับได้ถ้ามัน drift ตรวจสามอย่างนี้เองหลังแก้ schema:
 
 ```bash
-grep -c "^model " prisma/schema.prisma
+grep -c "^model " apps/server/prisma/schema.prisma
 ```
 
-ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §20
+ตัวเลขที่ได้ต้องตรงกับ `model_count` ใน frontmatter และผลรวมในตาราง §21
 
 ```bash
-node -e "const fs=require('fs');const doms=fs.readdirSync('docs/domains');const owned=new Map();for(const d of doms){const fm=(fs.readFileSync('docs/domains/'+d+'/CHARTER.md','utf8').split('---')[1]||'');let on=false;const l=[];for(const line of fm.split(/\r?\n/)){if(/^owns_models:/.test(line)){on=!/\[\]/.test(line);continue}if(on){const m=line.match(/^  - (\w+)\s*$/);if(m)l.push(m[1]);else on=false}}owned.set(d,l)}const models=[...fs.readFileSync('prisma/schema.prisma','utf8').matchAll(/^model (\w+) \{/gm)].map(m=>m[1]);const claimed=new Set([...owned.values()].flat());for(const[d,l]of owned)console.log(d,l.length);console.log('unclaimed:',models.filter(m=>!claimed.has(m)).join(', ')||'(none)');console.log('phantom:',[...claimed].filter(m=>!models.includes(m)).join(', ')||'(none)')"
+node -e "const fs=require('fs');const doms=fs.readdirSync('docs/domains');const owned=new Map();for(const d of doms){const fm=(fs.readFileSync('docs/domains/'+d+'/CHARTER.md','utf8').split('---')[1]||'');let on=false;const l=[];for(const line of fm.split(/\r?\n/)){if(/^owns_models:/.test(line)){on=!/\[\]/.test(line);continue}if(on){const m=line.match(/^  - (\w+)\s*$/);if(m)l.push(m[1]);else on=false}}owned.set(d,l)}const models=[...fs.readFileSync('apps/server/prisma/schema.prisma','utf8').matchAll(/^model (\w+) \{/gm)].map(m=>m[1]);const claimed=new Set([...owned.values()].flat());for(const[d,l]of owned)console.log(d,l.length);console.log('unclaimed:',models.filter(m=>!claimed.has(m)).join(', ')||'(none)');console.log('phantom:',[...claimed].filter(m=>!models.includes(m)).join(', ')||'(none)')"
 ```
 
-`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §20
+`unclaimed` และ `phantom` ต้องว่างทั้งคู่ และตัวเลขต่อโดเมนต้องตรงกับ §21
 
 ```bash
 npm run govern
