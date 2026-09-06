@@ -215,8 +215,20 @@ and does not require an active Business selection.
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 is a design inventory. These two native routes implement its Strategy slice;
-other Marketing screens remain planned, and automated team/provider activation
+Campaigns is the next native slice described below; other Marketing screens remain planned, and automated team/provider activation
 is not implied by human review and channel intent fields.
+
+### Marketing Campaign slice (implementation in progress)
+
+| Route | Interface | Native behavior | Authority and states | Trace |
+|---|---|---|---|---|
+| `/growth/campaigns` | MKT-UI-006 | Scoped list/board, search and phase filter | Growth visibility, bounded results, loading/empty/error | FR-156 |
+| `/growth/campaigns/new` | MKT-UI-076 | New initiative plus versioned Strategy brief | Active Business owner; validation and atomic save | FR-156 |
+| `/growth/campaigns/[initiativeId]` | MKT-UI-007–011 | Brief, Plan, Timeline, Results, Decisions in one URL tab bar | Exact Business/initiative; receipt-bound PM data; absent metrics unavailable; owner writes with CAS | FR-156 |
+
+[Campaign contract](domains/marketing/features/FR-156-campaign-initiatives.md).
+Version diff: adds three native route shapes covering seven approved interfaces;
+provider measurements and automated Team refinement remain separately tracked.
 
 ## 4. Runtime registry reconciliation
 

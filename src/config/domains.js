@@ -59,12 +59,13 @@ export const DOMAINS = [
     ],
   },
   {
-    // @req FR-155 — expose the functional Strategy slice under the existing growth grant.
+    // @req FR-155, FR-156 — expose the functional Strategy and Campaign slices under the existing growth grant.
     // @tested tests/unit/marketing-navigation.test.js
     key: 'growth', label: 'Marketing', icon: Megaphone, soon: false,
     sub: [
       { label: 'Dashboard', path: '/growth', icon: LayoutDashboard, exact: true },
       { label: 'Strategy', path: '/growth/strategy', icon: Target },
+      { label: 'Campaigns', path: '/growth/campaigns', icon: Megaphone },
     ],
   },
   {

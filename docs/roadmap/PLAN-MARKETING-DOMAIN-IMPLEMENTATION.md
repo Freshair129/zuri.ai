@@ -1,5 +1,5 @@
 ---
-version: "0.4.0b"
+version: "0.5.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
 last_update: "2026-09-06T19:27:00+07:00,RWANG"
 status: beta
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.4.0b
+**Version:** 0.5.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -28,7 +28,8 @@ candidate labels. Decomposition below introduces no new Marketing capability.
 - [Tracking/import status](marketing/tracking-status.json): local preparation and actual server persistence evidence remain distinct.
 
 Project code: **PRJ-ZURI-MARKETING-IMPLEMENTATION**. This is product development work. It belongs in the
-user-selected development Business/Workspace, rather than the fictional SmartGift Business used by the mockups.
+user-selected Business/Workspace. The user subsequently selected **SmartGift** as the requested Business;
+the name alone does not identify an instance or Workspace.
 Target instance, login and Workspace require explicit context before intake.
 
 ## Progress and initial status
@@ -196,3 +197,14 @@ Tracking plan **0.3.0b → 0.4.0b**: attach first-slice delivery evidence and ve
 | 0.2.0b | 2026-09-06 | candidate | Incorporate three GPT-5.6 Luna max reviews; enrich task provenance and distinguish stored metadata from PM UI/enforcement | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Begin approved Strategy implementation in three lanes; track partial task progress and native contracts | See git history | RWANG |
 | 0.4.0b | 2026-09-06 | beta | Attach Strategy phase evidence; preserve full-wave and actual PM import gates | See git history | RWANG |
+
+
+## Campaign continuation — 2026-09-06
+
+The user requested continuation after Strategy delivery. [FR-156](../domains/marketing/features/FR-156-campaign-initiatives.md)
+derives the next slice from approved Campaigns interfaces. MKT-W1-CAMPAIGNS is
+IN_PROGRESS; all other incomplete wave items retain their status. Three GPT-5.6
+Luna max agents own core/API, UI and authorized PM projection lanes. Root owns
+schema/migration/backup and final integration. No additional completed weight is
+claimed until acceptance gates pass. Baseline after merging main: 3,897 tests pass,
+14 skipped. Version diff 0.4.0b → 0.5.0b adds Campaign work and clarifies SmartGift.

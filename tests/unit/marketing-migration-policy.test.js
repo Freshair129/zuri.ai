@@ -1,13 +1,13 @@
-// @req FR-155, FR-154 — Marketing evidence is available through the authorized runtime only.
+// @req FR-155, FR-154, FR-156 — Marketing evidence is available through the authorized runtime only.
 // @spec SEC-001, SDD-086
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 describe('Marketing Postgres migration security', () => {
-  it('gives every newly created table a runtime policy and removes direct Data API grants', () => {
-    const sql = readFileSync('supabase/migrations/20260906200000_marketing_strategy.sql', 'utf8')
+  it.each([['20260906200000_marketing_strategy.sql', 5], ['20260906210000_marketing_campaigns.sql', 1]])('gives every table in %s a private runtime policy', (file, count) => {
+    const sql = readFileSync(`supabase/migrations/${file}`, 'utf8')
     const tables = [...sql.matchAll(/CREATE TABLE "([^"]+)"/g)].map(match => match[1])
-    expect(tables).toHaveLength(5)
+    expect(tables).toHaveLength(count)
     for (const table of tables) {
       expect(sql).toContain(`ALTER TABLE "${table}" ENABLE ROW LEVEL SECURITY;`)
       expect(sql).toContain(`ALTER TABLE "${table}" FORCE ROW LEVEL SECURITY;`)

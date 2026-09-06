@@ -308,7 +308,7 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Initiatives and PM-linked campaign execution",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 5,
           "metadata": {
             "ownerRole": "Marketing engineering",
@@ -319,9 +319,10 @@
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
-              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md"
+              "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
+              "docs/domains/marketing/features/FR-156-campaign-initiatives.md"
             ],
-            "implementationStatus": "not started",
+            "implementationStatus": "in progress: native initiative, versioned brief and authorized PM projection",
             "interfaceIds": [
               "MKT-UI-006",
               "MKT-UI-007",

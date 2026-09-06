@@ -106,8 +106,9 @@ describe('OpenAPI document', () => {
       // FR-153 adds the LIFF app registry collection and item: two paths, four
       // operations.
       // Marketing FR-155/154 add three paths and five operations.
-      pathCount: 159,
-      operationCount: 208,
+      // Campaign FR-156 adds two paths and four operations.
+      pathCount: 161,
+      operationCount: 212,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

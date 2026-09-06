@@ -23,7 +23,7 @@ const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
   '/commerce', '/customer', '/customer/conversations',
   '/market',
-  '/growth', '/growth/strategy', '/growth/campaigns',
+  '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',

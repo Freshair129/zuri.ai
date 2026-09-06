@@ -1,4 +1,4 @@
-// @req FR-155 — Marketing routes use the existing Business-specific growth grant.
+// @req FR-155, FR-156 — Marketing routes use the existing Business-specific growth grant.
 // @spec SDD-086, SEC-001
 import { describe, expect, it } from 'vitest'
 import { DOMAINS, domainForPath } from '@/config/domains'
@@ -9,8 +9,9 @@ describe('Marketing navigation and copied URLs', () => {
   it('activates real Strategy routes under the existing growth identity', () => {
     const marketing = DOMAINS.find(domain => domain.key === 'growth')
     expect(marketing.soon).toBe(false)
-    expect(marketing.sub.map(entry => entry.path)).toEqual(['/growth', '/growth/strategy'])
+    expect(marketing.sub.map(entry => entry.path)).toEqual(['/growth', '/growth/strategy', '/growth/campaigns'])
     expect(domainForPath('/growth/strategy').key).toBe('growth')
+    expect(domainForPath('/growth/campaigns/example').key).toBe('growth')
   })
 
   it('does not carry the growth grant from Business A into a visible Business B', () => {

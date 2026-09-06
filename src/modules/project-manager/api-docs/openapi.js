@@ -18,6 +18,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-155, FR-154 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
+  ['/api/growth/campaigns', ['GET', 'POST']], ['/api/growth/campaigns/{id}', ['GET', 'PATCH']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
