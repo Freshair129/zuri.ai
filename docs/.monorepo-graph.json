@@ -333,10 +333,25 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/customer/line-crm/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
+      "hash": "77480f97",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/customer/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/customer/page.jsx",
-      "hash": "2de4f00d",
+      "hash": "b42c90fb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -456,7 +471,7 @@
       "id": "code:src/app/(pm)/line-oa/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/page.jsx",
-      "hash": "793fd636",
+      "hash": "f5c21725",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8517,6 +8532,250 @@
       }
     },
     {
+      "id": "code:src/modules/line-crm/LineCrmAiMcp.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmAiMcp.jsx",
+      "hash": "b40c92f3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
+      "hash": "45f2e443",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SEC-005",
+          "FR-022",
+          "FR-103"
+        ],
+        "@spec": [
+          "SDD-050",
+          "BR-001"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmAutomation.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmAutomation.jsx",
+      "hash": "2aa48728",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmCampaigns.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
+      "hash": "3fe980f1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-148"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmDashboard.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmDashboard.jsx",
+      "hash": "c8126ee7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmHub.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmHub.jsx",
+      "hash": "0abbc67a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
+      "hash": "ae8925f6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-093"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmLoyalty.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmLoyalty.jsx",
+      "hash": "56954807",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmMemberPortal.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmMemberPortal.jsx",
+      "hash": "a303c6e3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
+      "hash": "6e3d75c2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-078"
+        ],
+        "@spec": [
+          "SDD-050",
+          "BR-001"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmMultiOa.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
+      "hash": "221874f8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-147"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmRichMenu.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmRichMenu.jsx",
+      "hash": "5ac3a1c6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmSettings.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmSettings.jsx",
+      "hash": "f9fde262",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-001",
+          "SEC-005"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/LineCrmShell.jsx",
+      "hash": "1795d70f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-crm/mockData.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-crm/mockData.js",
+      "hash": "7459685f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091",
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-050"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
@@ -8756,15 +9015,249 @@
       "id": "code:src/modules/line-oa-studio/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/index.js",
-      "hash": "ee21f1e3",
+      "hash": "a1104b58",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-146"
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
         ],
         "@tested": [
           "tests/unit/line-oa-account-domain.test.js",
           "tests/integration/fr146-line-oa-account.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/index.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
+      "hash": "dcc68335",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "hash": "60180308",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "hash": "a83c9bf7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "hash": "ae989d43",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "hash": "0046ad2a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "hash": "bf7ae541",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "hash": "a94cee03",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "hash": "477807a7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "hash": "5ff8fbeb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-152"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "hash": "13803c4a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "hash": "d4cb960f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-021",
+          "FR-061"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "hash": "97c8861c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
+      "hash": "7b01ae09",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-152",
+          "FR-153"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
         ]
       }
     },
@@ -9478,7 +9971,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/product-readiness-read-model.js",
       "hash": "2f6d600b",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-124"
@@ -11210,7 +11703,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "e6f83a9f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -11554,7 +12047,7 @@
       "path": "docs/migrations/monorepo/EXECUTION.md",
       "title": "Monorepo snapshot execution",
       "hash": "86a03984",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:EXECUTION-MODES",
@@ -11969,7 +12462,7 @@
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
       "hash": "565f2d7e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -11977,7 +12470,7 @@
       "path": "docs/domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md",
       "title": "FR-070 — Stable execution, domain, goal, risk, tag and supporting identities",
       "hash": "5c6cbb71",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
@@ -12009,7 +12502,7 @@
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
       "hash": "04f23303",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-079-phase1-line-runtime-connection-cutover",
@@ -12173,7 +12666,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "76075229",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -12181,7 +12674,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "2fb4c508",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -12189,7 +12682,7 @@
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
       "hash": "bd731cee",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -12197,7 +12690,7 @@
       "path": "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
       "title": "FR-112 — Structural knowledge chunking with parent-child lineage",
       "hash": "c67bed21",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-113-entity-candidate-extraction",
@@ -12205,7 +12698,7 @@
       "path": "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
       "title": "FR-113 — Entity candidate extraction from chunks and structured records",
       "hash": "a1bd1a18",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-114-canonical-normalization",
@@ -12213,7 +12706,7 @@
       "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
       "title": "FR-114 — Canonical normalization that never destroys the raw value",
       "hash": "4dc054ba",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-115-document-parsing",
@@ -12221,7 +12714,7 @@
       "path": "docs/domains/knowledge/features/FR-115-document-parsing.md",
       "title": "FR-115 — Document parsing into a structured artifact that keeps its link to the raw source",
       "hash": "7eb68252",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-116-derived-object-provenance",
@@ -12229,7 +12722,7 @@
       "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
       "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
       "hash": "4e7fa5fc",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-117-deduplication-and-versioning",
@@ -12237,7 +12730,7 @@
       "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
       "title": "FR-117 — Deduplication and version relationships within one tenant",
       "hash": "852b88ae",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-118-tier1-stage-composition",
@@ -12245,7 +12738,7 @@
       "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
       "title": "FR-118 — Tier 1 stage composition",
       "hash": "6510c5d7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-120-self-serve-account-creation",
@@ -12516,7 +13009,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "573d314f",
+      "hash": "ff52e680",
       "status": "current"
     },
     {
@@ -12625,7 +13118,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
       "title": "FR-148-P1 — Account-scoped CRM conversations",
       "hash": "249e3101",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-148-P2-account-scoped-conversations",
@@ -12633,7 +13126,7 @@
       "path": "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
       "title": "FR-148-P2 — Account-scoped CRM conversations",
       "hash": "03a238f0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P1-server-line-transport",
@@ -12641,7 +13134,7 @@
       "path": "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
       "title": "FR-149-P1 — Server-owned LINE conversation transport",
       "hash": "bf083e5b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P2-server-line-transport",
@@ -12649,7 +13142,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
       "hash": "ca450ad0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P3-server-line-transport",
@@ -12657,7 +13150,7 @@
       "path": "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
       "title": "FR-149-P3 — Server-owned LINE conversation transport",
       "hash": "3f19fa1f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P4-server-line-transport",
@@ -12665,7 +13158,7 @@
       "path": "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
       "title": "FR-149-P4 — Server-owned LINE conversation transport",
       "hash": "d9fe6d5c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-149-P5-server-line-transport",
@@ -12673,7 +13166,7 @@
       "path": "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
       "title": "FR-149-P5 — Server-owned LINE conversation transport",
       "hash": "2d2cdab9",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P1-optional-edge-execution",
@@ -12681,7 +13174,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
       "title": "FR-150-P1 — Optional Edge conversation execution",
       "hash": "3a47b1b4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P2-optional-edge-execution",
@@ -12689,7 +13182,7 @@
       "path": "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
       "title": "FR-150-P2 — Optional Edge conversation execution",
       "hash": "3d4170d1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-FR-150-P3-optional-edge-execution",
@@ -12697,7 +13190,7 @@
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
       "title": "FR-150-P3 — Optional Edge conversation execution",
       "hash": "a49c99eb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
@@ -12863,7 +13356,7 @@
       "path": "docs/roadmap/PLAN-PENDING-BUSINESS-20260831.md",
       "title": "BUSINESS pending lane: reviewable decisions and next slices",
       "hash": "195d9b18",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PENDING-IDENTITY-20260831",
@@ -12879,7 +13372,7 @@
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
       "hash": "4760777d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -12903,7 +13396,7 @@
       "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
       "title": "Roadmap — SmartGift data backfill and customer import",
       "hash": "f179369d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-ZURI-MONOREPO-MIGRATION",
@@ -12911,7 +13404,7 @@
       "path": "docs/roadmap/PLAN-ZURI-MONOREPO-MIGRATION.md",
       "title": "Monorepo migration gates",
       "hash": "7510a989",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -12995,6 +13488,22 @@
       "version": "2.0.0",
       "doc_status": "Accepted",
       "hash": "6f15ca8e",
+      "status": "current"
+    },
+    {
+      "id": "doc:UI-SPEC-LINE-STUDIO-ENTERPRISE",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md",
+      "title": "UI Specification: LINE Studio Enterprise Suite",
+      "hash": "c41facb3",
+      "status": "current"
+    },
+    {
+      "id": "doc:UI-SPEC-LINECRM-MCP",
+      "type": "document",
+      "path": "docs/domains/crm/UI-SPEC-LINECRM-MCP.md",
+      "title": "LineCRM-MCP UI Specification & Architecture Guide",
+      "hash": "a6d1679e",
       "status": "current"
     },
     {
@@ -13231,9 +13740,10 @@
       "owns_routes": [],
       "owns_code": [],
       "modules": [
-        "crm"
+        "crm",
+        "line-crm"
       ],
-      "hash": "6a2cc86e",
+      "hash": "b588b7de",
       "status": "current"
     },
     {
@@ -18708,6 +19218,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/customer/line-crm",
+      "type": "route",
+      "kind": "page",
+      "route": "/customer/line-crm",
+      "path": "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/dependencies",
       "type": "route",
       "kind": "page",
@@ -19333,7 +19851,7 @@
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
       "hash": "067fe2ef",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
@@ -19373,7 +19891,7 @@
       "path": "docs/decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md",
       "title": "ADR-033 — Customer scope and Product Owner authority",
       "hash": "400efad3",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
@@ -19597,7 +20115,7 @@
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
       "hash": "81807e1c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
@@ -19605,7 +20123,7 @@
       "path": "docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md",
       "title": "ADR-062 — Candidate Server/Edge monorepo with independent releases",
       "hash": "a7cff3e8",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
@@ -20502,7 +21020,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
       "hash": "cf437d40",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/server-line-webhook.test.js",
@@ -20782,7 +21300,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/asset-production-activation-contract.test.js",
       "hash": "e5e35d05",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/asset-receiving-evidence-ui.test.js",
@@ -21041,7 +21559,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/customer-import-review-queue-script.test.js",
       "hash": "95a5857e",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/customer-import-review-service.test.js",
@@ -21139,14 +21657,14 @@
       "type": "test",
       "path": "apps/server/tests/unit/doc-graph-delivery-attribution.test.js",
       "hash": "6f720e09",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-graph-retired-rules.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/doc-graph-retired-rules.test.js",
       "hash": "7d390701",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-identities.test.js",
@@ -21160,7 +21678,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/doc-links-cli.test.js",
       "hash": "002be42c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-links.test.js",
@@ -21174,14 +21692,14 @@
       "type": "test",
       "path": "apps/server/tests/unit/doc-views.test.js",
       "hash": "0f721802",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/docker-publication-containment.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/docker-publication-containment.test.js",
       "hash": "5e79610d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/document-intake-ui.test.js",
@@ -21202,7 +21720,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
       "hash": "52e567d3",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -21699,7 +22217,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/id-anchor-stability.test.js",
       "hash": "1b52bab1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/identity/agent-tool-authorizer.test.js",
@@ -22714,7 +23232,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/schema-migration-drift.test.js",
       "hash": "070be8f1",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/scope-external-ids-migration.test.js",
@@ -22889,7 +23407,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/table-integrity.test.js",
       "hash": "35492257",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/task-intake-modal.test.js",
@@ -26900,6 +27418,20 @@
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/line-crm/page.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/line-crm/page.jsx",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38924,6 +39456,349 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-crm/LineCrmAiMcp.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAiMcp.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAuditLog.jsx",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAutomation.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmAutomation.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmCampaigns.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmCampaigns.jsx",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmCampaigns.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmDashboard.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmDashboard.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmHub.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmHub.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmLoyalty.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmLoyalty.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMemberPortal.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMemberPortal.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMembers.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMultiOa.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMultiOa.jsx",
+      "to": "req:FR-147",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmMultiOa.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmRichMenu.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmRichMenu.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmRichMenu.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmRichMenu.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmSettings.jsx",
+      "to": "req:BR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmSettings.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmSettings.jsx",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/LineCrmShell.jsx",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-crm/mockData.js",
+      "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "to": "req:FR-148",
       "type": "follows",
@@ -39193,6 +40068,461 @@
       "from": "code:src/modules/line-oa-studio/index.js",
       "to": "req:FR-146",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/index.js",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/index.js",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/index.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/index.js",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowAccount.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "to": "req:FR-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:FR-152",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:FR-153",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/mockStudioData.js",
+      "to": "req:SDD-061",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -45518,6 +46848,41 @@
       "status": "current"
     },
     {
+      "from": "doc:UI-SPEC-LINE-STUDIO-ENTERPRISE",
+      "to": "domain:line-oa-studio",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:UI-SPEC-LINE-STUDIO-ENTERPRISE",
+      "to": "spec:ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:UI-SPEC-LINE-STUDIO-ENTERPRISE",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:UI-SPEC-LINECRM-MCP",
+      "to": "domain:crm",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:UI-SPEC-LINECRM-MCP",
+      "to": "domain:line-oa-studio",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:zuri_workspace_system",
       "to": "doc:FR-076-product-owner-business-assignment",
       "type": "references",
@@ -50454,6 +51819,13 @@
     },
     {
       "from": "route:page:/customer/conversations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/customer/line-crm",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -59429,6 +60801,27 @@
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
       "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-153",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -73567,6 +74960,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/line-oa-account-routes.test.js",
       "to": "code:src/app/api/line-oa/accounts/[id]/route.js",
       "type": "tests",
@@ -82628,7 +84042,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 1989,
+    "server_nodes": 2021,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
