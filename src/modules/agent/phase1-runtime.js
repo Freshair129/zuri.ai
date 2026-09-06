@@ -96,8 +96,8 @@ export async function executeAsLineSecretRole(pool, sql, values) {
  * @spec FR-052, SEC-010 — same role, same RLS, same pool.
  * @tested tests/unit/line-binding-status.test.js
  */
-export function createLineReadQueryFromEnv(env = process.env) {
-  if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true' || !env.ZURI_LINE_DB_URL) return null
+export function createLineReadQueryFromEnv(env = process.env, { serverOwned = false } = {}) {
+  if ((!serverOwned && env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') || !env.ZURI_LINE_DB_URL) return null
   const databaseUrl = assertRuntimeDatabaseUrl(env.ZURI_LINE_DB_URL)
   const pool = runtimePool(
     databaseUrl,
@@ -131,9 +131,9 @@ function parseConnectionMetadata(connection) {
 
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
-  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager } = {},
+  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager, bindingRequired = true } = {},
 ) {
-  if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
+  if (bindingRequired && env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
   const runtimeSource = runtimeSourceFor(env)
 
@@ -143,7 +143,7 @@ export function createPhase1BusinessAgentPortsFromEnv(
 
   const required = {
     ZURI_LINE_DB_URL: env.ZURI_LINE_DB_URL,
-    ZURI_LINE_BINDING_HASH_PEPPER: env.ZURI_LINE_BINDING_HASH_PEPPER,
+    ...(bindingRequired ? { ZURI_LINE_BINDING_HASH_PEPPER: env.ZURI_LINE_BINDING_HASH_PEPPER } : {}),
   }
   if (runtimeSource !== 'PRODUCTION_LINE') {
     required.ZURI_MODEL_PROVIDER = env.ZURI_MODEL_PROVIDER
@@ -271,10 +271,12 @@ export function createPhase1BusinessAgentPortsFromEnv(
   const ports = {
     runtimeSource,
     businessKnowledge: createPostgresBusinessKnowledgeReader({ queryFn: execute }),
-    bindingResolver: createPostgresLineBindingResolver({
+    // @req FR-149 — direct signed server ingress owns account scope and does not
+    // require a legacy Edge binding or pepper. All model/DB restrictions remain.
+    bindingResolver: bindingRequired ? createPostgresLineBindingResolver({
       queryFn: execute,
       pepper: required.ZURI_LINE_BINDING_HASH_PEPPER,
-    }),
+    }) : null,
     model: legacyModel,
     resolveModel,
     close: async () => {},

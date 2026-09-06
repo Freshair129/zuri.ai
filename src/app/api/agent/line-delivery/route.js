@@ -4,6 +4,9 @@ import { createPhase1BusinessAgentPortsFromEnv, resolvePhase1RequestScope } from
 import { recordLineReply, zReplyReceipt } from '@/modules/crm/reply-record-service'
 import { logger as defaultLogger } from '@/lib/observability/logger'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
+import { assertLegacyLineTransportOwnership, resolvedLineChannelAccountId } from '@/modules/agent/legacy-line-transport-ownership'
+
+// @req FR-149 — server-enabled accounts reject legacy receipts before CRM writes.
 
 // @req FR-093 — the transport owner reports what it actually sent, and the reply
 //   becomes a row. Until this route existed the outbound half of every conversation
@@ -41,6 +44,7 @@ export function createLineDeliveryPost({
   recorder = recordLineReply,
   logger = defaultLogger,
   clock = () => Date.now(),
+  ownershipGuard = assertLegacyLineTransportOwnership,
 } = {}) {
   return async function lineDeliveryPost(request) {
     const { correlationId, source: correlationSource } = resolveCorrelationId(request.headers)
@@ -53,6 +57,7 @@ export function createLineDeliveryPost({
       try {
         const runtime = await runtimeFactory()
         scope = await resolvePhase1RequestScope({ runtime, headers: request.headers, body })
+        await ownershipGuard({ scope, destination: body.destination })
       } catch (err) {
         // A batch-level rejection is true of every receipt in it, so it still throws —
         // but never without a record naming the stage that refused it.
@@ -71,7 +76,12 @@ export function createLineDeliveryPost({
       for (const receipt of body.deliveries) {
         const receiptStartedAt = clock()
         try {
-          const recorded = await recorder({ tenantId: scope.tenantId, receipt, correlationId })
+          const recorded = await recorder({
+            tenantId: scope.tenantId,
+            businessId: scope.businessId,
+            channelAccountId: resolvedLineChannelAccountId(scope),
+            receipt, correlationId,
+          })
           logger.info('line.delivery.recorded', {
             correlationId,
             correlationSource,

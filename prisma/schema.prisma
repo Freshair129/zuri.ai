@@ -1543,6 +1543,7 @@ model Conversation {
   businessId       String?
   customerId       String
   channel          String // LINE | FACEBOOK | WEB
+  channelAccountId String   @default("LEGACY:LINE")
   externalThreadId String
   status           String   @default("OPEN")
   createdAt        DateTime @default(now())
@@ -1553,9 +1554,10 @@ model Conversation {
   analyses ConversationAnalysis[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
-  // it by tenant and channel is what makes the external namespace tenant-partitioned:
+  // it by tenant, channel and account isolates the external namespace:
   // a global unique let one tenant's thread id resolve another tenant's conversation.
-  @@unique([tenantId, channel, externalThreadId])
+  // @req FR-148 — legacy rows stay unassigned; each known OA has its own thread.
+  @@unique([tenantId, channel, channelAccountId, externalThreadId], map: "Conversation_account_thread_key")
   @@index([customerId])
   @@index([tenantId])
 }
@@ -1569,6 +1571,7 @@ model Message {
   createdAt         DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  lineJob LineConversationJob?
 
   // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
   // than to a tenant column: a Message has no tenant of its own, and denormalising one
@@ -2253,6 +2256,13 @@ model LineOaAccount {
   basicId                 String?
   status                  String    @default("DRAFT")
   transportMode           String    @default("CLOUD")
+  // @req FR-149, FR-150 — transport ownership and compute placement are independent.
+  serverEnabled           Boolean   @default(false)
+  executionMode           String    @default("SERVER")
+  modelAccess             String    @default("LOCAL_ONLY")
+  allowDelayedPush         Boolean   @default(false)
+  transportEpoch          Int       @default(1)
+  conversationJobs        LineConversationJob[]
   isDefaultForBusiness    Boolean   @default(false)
   botProfileJson          String    @default("{}")
   archivedAt              DateTime?
@@ -2267,4 +2277,49 @@ model LineOaAccount {
   @@unique([tenantId, code])
   @@unique([tenantId, bindingCode])
   @@index([businessId, status])
+}
+
+// @req FR-149, FR-150 — durable server-owned conversation execution and acceptance ledger.
+// @spec ADR-061, SEC-001 — internal identities, scoped account, cascaded with CRM erasure.
+// @tested tests/integration/server-line-jobs.test.js
+model LineConversationJob {
+  id                 String   @id @default(uuid())
+  accountId          String
+  inboundMessageId   String   @unique
+  eventId            String
+  tenantId           String
+  businessId         String
+  channelAccountId   String
+  transportEpoch     Int
+  executionMode      String
+  modelAccess        String
+  allowDelayedPush   Boolean  @default(false)
+  recipientId        String
+  sourceUserId       String
+  sealedReplyToken   String?
+  replyExpiresAt     DateTime?
+  status             String   @default("QUEUED")
+  answerText         String?
+  sendMethod         String?
+  retryKey           String   @unique @default(uuid())
+  attempts           Int      @default(0)
+  availableAt        DateTime @default(now())
+  expiresAt          DateTime
+  firstSendAt        DateTime?
+  claimantId         String?
+  leaseExpiresAt     DateTime?
+  providerRequestId  String?
+  providerMessageId  String?
+  acceptedAt         DateTime?
+  errorCode          String?
+  correlationId      String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  version            Int      @default(1)
+
+  account LineOaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  inbound Message @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  @@unique([accountId, eventId])
+  @@index([status, executionMode, availableAt])
+  @@index([tenantId, businessId, status])
 }

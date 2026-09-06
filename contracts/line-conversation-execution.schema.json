@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://zuri.ai/contracts/line-conversation-execution.v1",
+  "title": "Optional Edge conversation execution v1",
+  "description": "FR-150 / ADR-061: POST /api/edge/conversation-jobs/claim with {} and Bearer edgk_. Returns 204 or this envelope. Complete at /api/edge/conversation-jobs/{id}/complete with {version,text}; fail at /fail with {version,code}. No LINE send authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "job"],
+  "properties": {
+    "contractVersion": {"const": "1"},
+    "job": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "version", "question", "conversationKey", "policy", "leaseExpiresAt"],
+      "properties": {
+        "id": {"type": "string", "format": "uuid"},
+        "version": {"type": "integer", "minimum": 1},
+        "question": {"type": "string", "minLength": 1, "maxLength": 10000},
+        "conversationKey": {"type": "string", "minLength": 1, "maxLength": 300},
+        "leaseExpiresAt": {"type": "string", "format": "date-time"},
+        "policy": {
+          "type": "object", "additionalProperties": false,
+          "required": ["modelAccess", "role", "retainHistory"],
+          "properties": {
+            "modelAccess": {"enum": ["LOCAL_ONLY", "EXTERNAL_MODEL_ALLOWED"]},
+            "role": {"const": "sales"},
+            "retainHistory": {"const": false}
+          }
+        }
+      }
+    }
+  }
+}

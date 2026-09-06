@@ -57,6 +57,17 @@ function deterministicFallback(evidence) {
   return facts.join(' — ')
 }
 
+/** @req FR-149 — server LOCAL_ONLY answers never invoke a model provider. */
+export function createDeterministicBusinessModel() {
+  return Object.freeze({
+    provider: 'deterministic',
+    model: 'business-evidence-v1',
+    async generate({ evidence }) {
+      return { provider: 'deterministic', model: 'business-evidence-v1', status: 'ok', text: deterministicFallback(evidence) }
+    },
+  })
+}
+
 export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model }) {
   if (!businessId) throw new Error('BUSINESS_ID_REQUIRED')
   if (!question?.trim()) throw new Error('QUESTION_REQUIRED')

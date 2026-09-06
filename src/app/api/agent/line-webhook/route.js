@@ -4,6 +4,9 @@ import { createPhase1BusinessAgentPortsFromEnv, handleAgentTurn, resolvePhase1Re
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
 import { logger as defaultLogger } from '@/lib/observability/logger'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
+import { assertLegacyLineTransportOwnership, resolvedLineChannelAccountId } from '@/modules/agent/legacy-line-transport-ownership'
+
+// @req FR-149 — server-enabled accounts reject the legacy transport before effects.
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
@@ -67,6 +70,7 @@ export function createLineWebhookPost({
   evidenceRecorderFactory = createLineOaEvidenceRecorder,
   logger = defaultLogger,
   clock = () => Date.now(),
+  ownershipGuard = assertLegacyLineTransportOwnership,
 } = {}) {
   return async function lineWebhookPost(request) {
   // Resolved before anything can fail, so a rejected batch is correlated too — the
@@ -86,6 +90,7 @@ export function createLineWebhookPost({
         headers: request.headers,
         body,
       })
+      await ownershipGuard({ scope, destination: body.destination })
     } catch (err) {
       // A batch-level rejection is true of every event in it, so it still throws — but
       // it does not get to leave without a record naming the stage.
@@ -203,7 +208,7 @@ export function createLineWebhookPost({
           serverScope: {
             transportVerified: Boolean(phase1Ports),
             bindingId: scope.id ?? scope.bindingId ?? null,
-            channelAccountId: scope.channelAccountId ?? scope.code ?? scope.bindingId ?? undefined,
+            channelAccountId: resolvedLineChannelAccountId(scope),
             businessId: scope.businessId ?? null,
           },
         })

@@ -147,7 +147,7 @@ export const DOMAINS = [
     // being in the registry is what lets a Membership grant name the domain
     // (FR-061 filters grants through this list) and lets the FR-146 API refuse
     // a viewer without it. The page tree lands with the Phase 1 UI slice.
-    key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle, soon: true,
+    key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle,
     sub: [{ label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard }],
   },
   {

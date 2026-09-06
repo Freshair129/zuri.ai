@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.15.0b |
+| **Version** | 1.16.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-04 |
 
@@ -258,3 +258,10 @@ adds forced RLS and read-only `zuri_line_smartgift_ro` grants. The follow-up
 `supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
 adds a private `SECURITY DEFINER` resolver for `supabase-vault:<uuid>` refs;
 `zuri_line_runtime` receives function execute only and no direct Vault view read.
+
+
+## ADR-061 conversation transport
+
+`Conversation.channelAccountId` extends the unique thread key to Tenant/channel/account/thread; historical rows retain `LEGACY:LINE`. `LineOaAccount` adds default-off server ownership, execution mode, model-access policy, delayed Push opt-in and transport epoch.
+
+`LineConversationJob` references the account and inbound Message, with unique account/event and inbound-message admission, immutable Push retry key/body, leased compute, sealed expiring Reply token, send status and provider acceptance receipt. Acceptance is not delivery/read. Incremental SQLite and public-schema Postgres migrations are included; production application is a separate deployment operation.

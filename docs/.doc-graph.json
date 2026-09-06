@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1768,
-    "total_edges": 6453,
+    "total_nodes": 1810,
+    "total_edges": 6642,
     "dangling_edges": 0,
     "node_types": {
-      "appendix": 4,
       "document": 159,
-      "adr": 60,
+      "appendix": 4,
+      "adr": 61,
       "domain": 10,
       "roadmap": 35,
-      "feature": 18,
-      "route": 187,
-      "model": 83,
-      "requirement": 304,
-      "test": 437,
-      "code_file": 471
+      "feature": 19,
+      "route": 196,
+      "model": 84,
+      "requirement": 307,
+      "test": 448,
+      "code_file": 487
     },
     "coverage": {
-      "requirements": 304,
-      "fr_with_code": "100% (137/137)",
-      "fr_with_tests": "100% (137/137)",
+      "requirements": 307,
+      "fr_with_code": "100% (140/140)",
+      "fr_with_tests": "100% (140/140)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 471,
+      "annotated_code_files": 487,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,26 +55,17 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:README",
-      "domain:agent",
+      "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
       "doc:CONTEXT-MAP",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
-      "doc:FR-146-line-oa-account",
       "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
-      "test:tests/integration/fr146-line-oa-account.test.js",
-      "code:src/modules/agent/phase1-runtime.js",
-      "code:src/modules/line-oa-studio/application/line-oa-account-service.js"
+      "test:tests/e2e/fr149-line-server-console.spec.js",
+      "test:tests/integration/line-server-backup.test.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [
-      "req:FR-147",
-      "test:tests/unit/line-binding-status.test.js",
-      "code:src/modules/agent/line-binding-status.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -462,6 +453,24 @@
         "@tested": [
           "tests/unit/entry-routing-boundary.test.js",
           "tests/unit/business-shell-guard.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/line-oa/page.jsx",
+      "hash": "793fd636",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/e2e/fr149-line-server-console.spec.js"
         ]
       }
     },
@@ -1218,10 +1227,11 @@
       "id": "code:src/app/api/agent/line-delivery/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-delivery/route.js",
-      "hash": "b056f150",
+      "hash": "b0a2e947",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-149",
           "FR-093"
         ],
         "@spec": [
@@ -1242,10 +1252,11 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "abea824d",
+      "hash": "93ad0da4",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-149",
           "FR-050",
           "FR-093",
           "FR-028",
@@ -1992,6 +2003,63 @@
       }
     },
     {
+      "id": "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "hash": "2baa642d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "hash": "2d360619",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "type": "code_file",
+      "path": "src/app/api/edge/conversation-jobs/claim/route.js",
+      "hash": "68d9bb25",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
       "type": "code_file",
       "path": "src/app/api/edge/extraction-jobs/[id]/complete/route.js",
@@ -2503,6 +2571,24 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "hash": "f0485fb3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/line-oa/accounts/[id]/route.js",
@@ -2522,6 +2608,25 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "hash": "0838dd20",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-081"
+        ],
+        "@tested": [
+          "tests/integration/server-line-webhook.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/route.js",
       "type": "code_file",
       "path": "src/app/api/line-oa/accounts/route.js",
@@ -2537,6 +2642,62 @@
         ],
         "@tested": [
           "tests/unit/line-oa-account-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/connections/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/connections/route.js",
+      "hash": "af1f3478",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/integration/fr149-line-server-configuration.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "hash": "7f2dd4ab",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/worker/route.js",
+      "type": "code_file",
+      "path": "src/app/api/line-oa/worker/route.js",
+      "hash": "031db05b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
         ]
       }
     },
@@ -4349,7 +4510,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "959a26c5",
+      "hash": "0f369963",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4668,7 +4829,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "da31fba2",
+      "hash": "1083f095",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4869,11 +5030,12 @@
       "id": "code:src/modules/agent/grounded-business-answer.js",
       "type": "code_file",
       "path": "src/modules/agent/grounded-business-answer.js",
-      "hash": "50261e19",
+      "hash": "52a9a27a",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-049",
+          "FR-149",
           "FR-079"
         ],
         "@spec": [
@@ -4911,6 +5073,24 @@
           "tests/integration/agent-context.test.js",
           "tests/integration/agent-action-gate.test.js",
           "tests/unit/activation-readiness-integration.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/legacy-line-transport-ownership.js",
+      "type": "code_file",
+      "path": "src/modules/agent/legacy-line-transport-ownership.js",
+      "hash": "2c8cc7a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/legacy-line-transport-ownership.test.js"
         ]
       }
     },
@@ -5135,15 +5315,16 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "94b8088f",
-      "status": "changed",
+      "hash": "53d38cdc",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-047",
           "FR-048",
           "FR-052",
           "FR-080",
-          "FR-147"
+          "FR-147",
+          "FR-149"
         ],
         "@spec": [
           "SDD-025",
@@ -5190,6 +5371,26 @@
         ],
         "@tested": [
           "tests/integration/agent-multi-principal.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/server-line-answer.js",
+      "type": "code_file",
+      "path": "src/modules/agent/server-line-answer.js",
+      "hash": "946347da",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/server-line-answer.test.js"
         ]
       }
     },
@@ -5735,10 +5936,11 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
-      "hash": "c87f2a86",
+      "hash": "ebe18622",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-148",
           "FR-091",
           "FR-061",
           "FR-103",
@@ -5837,22 +6039,24 @@
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
-      "hash": "8682592d",
+      "hash": "944b2c3c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-023",
-          "FR-097"
+          "FR-097",
+          "FR-148"
         ],
         "@spec": [
-          "BR-020",
-          "SEC-018",
           "BR-001",
+          "BR-002",
           "SEC-001",
+          "SEC-018",
           "NFR-017"
         ],
         "@tested": [
-          "tests/integration/line-ingest.test.js"
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-account-isolation.test.js"
         ]
       }
     },
@@ -5860,10 +6064,11 @@
       "id": "code:src/modules/crm/reply-record-service.js",
       "type": "code_file",
       "path": "src/modules/crm/reply-record-service.js",
-      "hash": "be206ce6",
+      "hash": "99307e29",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-148",
           "FR-093"
         ],
         "@spec": [
@@ -5874,7 +6079,8 @@
         ],
         "@tested": [
           "tests/integration/line-reply-record.test.js",
-          "tests/unit/reply-record-service.test.js"
+          "tests/unit/reply-record-service.test.js",
+          "tests/integration/line-account-isolation.test.js"
         ]
       }
     },
@@ -5976,7 +6182,7 @@
       "id": "code:src/modules/identity/channel-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/channel-identity.js",
-      "hash": "fb1f2adf",
+      "hash": "43a720e5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6078,7 +6284,7 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "e39c004b",
+      "hash": "2e873de4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6091,7 +6297,8 @@
         "@tested": [
           "tests/integration/identity-erase.test.js",
           "tests/integration/crm-conversation-analysis.test.js",
-          "tests/integration/crm-customer-erasure.test.js"
+          "tests/integration/crm-customer-erasure.test.js",
+          "tests/integration/server-line-jobs.test.js"
         ]
       }
     },
@@ -6445,10 +6652,11 @@
       "id": "code:src/modules/identity/resolve-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
-      "hash": "107fdd51",
+      "hash": "b30e5067",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-148",
           "FR-021",
           "FR-097"
         ],
@@ -6779,6 +6987,25 @@
         "@tested": [
           "tests/unit/line-registry-service.test.js",
           "tests/integration/line-registry-scope.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/application/line-server-provisioning-service.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/line-server-provisioning-service.js",
+      "hash": "4bc76746",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/integration/fr149-line-server-configuration.test.js"
         ]
       }
     },
@@ -7343,6 +7570,46 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "hash": "d175b732",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
+          "FR-150"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-148"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/application/line-job-erasure.js",
+      "hash": "2baf057d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-005"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-account-authority.js",
@@ -7366,10 +7633,11 @@
       "id": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "type": "code_file",
       "path": "src/modules/line-oa-studio/application/line-oa-account-service.js",
-      "hash": "a200cb33",
-      "status": "changed",
+      "hash": "f95ad70d",
+      "status": "current",
       "annotations": {
         "@req": [
+          "FR-149",
           "FR-146"
         ],
         "@spec": [
@@ -7386,13 +7654,29 @@
       }
     },
     {
-      "id": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "id": "code:src/modules/line-oa-studio/application/server-line-runtime.js",
       "type": "code_file",
-      "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
-      "hash": "45a5816c",
+      "path": "src/modules/line-oa-studio/application/server-line-runtime.js",
+      "hash": "97da6bb7",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-149"
+        ],
+        "@tested": [
+          "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "type": "code_file",
+      "path": "src/modules/line-oa-studio/domain/line-oa-account.js",
+      "hash": "18a445d7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
           "FR-146"
         ],
         "@spec": [
@@ -7817,11 +8101,13 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "bcf585f4",
+      "hash": "99801c65",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-149",
+          "FR-150",
           "FR-143",
           "FR-144",
           "FR-146",
@@ -7883,10 +8169,11 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "8736eb74",
-      "status": "current",
+      "hash": "e84746a3",
+      "status": "changed",
       "annotations": {
         "@req": [
+          "FR-149",
           "FR-013",
           "FR-123",
           "FR-078",
@@ -7915,6 +8202,7 @@
           "SEC-008"
         ],
         "@tested": [
+          "tests/integration/line-server-backup.test.js",
           "tests/integration/backup.test.js",
           "tests/integration/crm-conversation-analysis.test.js",
           "tests/unit/fr045-backup-contract.test.js",
@@ -9779,6 +10067,25 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/providers/line/server-line-transport.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/providers/line/server-line-transport.js",
+      "hash": "02aa6ade",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/unit/platform/server-line-transport.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/storage/supabase-object-storage.js",
       "type": "code_file",
       "path": "src/platform/storage/supabase-object-storage.js",
@@ -9803,10 +10110,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.37.0b",
+      "version": "1.38.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "38c82e72",
-      "status": "changed"
+      "hash": "17bd0f61",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9857,9 +10164,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.15.0b",
+      "version": "1.16.0b",
       "doc_status": "Draft",
-      "hash": "a6234351",
+      "hash": "b97e50b6",
       "status": "current"
     },
     {
@@ -10075,10 +10382,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.20.0b",
+      "version": "1.21.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "ea2aa958",
-      "status": "changed"
+      "hash": "6dd52646",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -10869,7 +11176,7 @@
       "path": "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
       "title": "FR-146 — `LineOaAccount`, the account aggregate",
       "hash": "3f8f666d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -10916,7 +11223,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "5ebf9935",
+      "hash": "a2d0b9f4",
       "status": "current"
     },
     {
@@ -11214,10 +11521,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.151.0b",
+      "version": "1.152.0b",
       "doc_status": "Draft",
-      "hash": "7c9b8721",
-      "status": "changed"
+      "hash": "98e27368",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11260,7 +11567,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "1ad47888",
+      "hash": "d5cbf879",
       "status": "changed"
     },
     {
@@ -11520,8 +11827,8 @@
       "modules": [
         "agent"
       ],
-      "hash": "35170031",
-      "status": "changed"
+      "hash": "6a379d2e",
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -11571,7 +11878,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "44f4773c",
+      "hash": "c1364a9a",
       "status": "current"
     },
     {
@@ -11644,6 +11951,7 @@
         "src/app/(pm)/platform/integrations/**",
         "src/app/(pm)/platform/sot-pipeline/**",
         "src/app/api/platform/integrations/**",
+        "src/app/api/line-oa/connections/**",
         "src/app/api/platform/sot/**"
       ],
       "owns_code": [
@@ -11652,7 +11960,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "0ecd7f2b",
+      "hash": "a7f5c7b1",
       "status": "current"
     },
     {
@@ -11675,11 +11983,13 @@
       "path": "docs/domains/line-oa-studio/CHARTER.md",
       "title": "Domain — line-oa-studio",
       "owns_models": [
-        "LineOaAccount"
+        "LineOaAccount",
+        "LineConversationJob"
       ],
       "owns_routes": [
         "src/app/(pm)/line-oa/**",
-        "src/app/api/line-oa/**"
+        "src/app/api/line-oa/**",
+        "src/app/api/edge/conversation-jobs/**"
       ],
       "owns_code": [
         "src/modules/line-oa-studio/**"
@@ -11687,8 +11997,8 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "7f05e33d",
-      "status": "changed"
+      "hash": "ec25093c",
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -11915,6 +12225,13 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-019",
+      "type": "feature",
+      "label": "Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:ApiAccessKey",
       "type": "model",
       "status": "current"
@@ -12111,6 +12428,11 @@
     },
     {
       "id": "model:LegalEntityIdentifier",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LineConversationJob",
       "type": "model",
       "status": "current"
     },
@@ -14050,6 +14372,36 @@
       "row_text": "LINE binding status read contract — a read-only, Tenant/Business-scoped reader over the agent lane's `zuri_core.line_channel_binding` (`createPostgresLineBindingStatusReader`, `src/modules/agent/line-binding-status.js`) that answers one question, \"is there a currently valid ACTIVE binding with this code for this Tenant and Business\", and nothing else. It selects `code`, `status`, `valid_from`, `expires_at`, `rotated_at` and `version` and never a hash or credential column; runs through the same `zuri_line_smartgift_ro` read role, short transaction and forced-RLS path as the Phase 1 runtime (FR-052, SEC-010); and takes Tenant, Business and code from the caller's server-owned row (FR-146's account), never from a request. Because that role's policy exposes only ACTIVE, in-window rows of the scope it is granted for, the contract has exactly four honest labels: `ACTIVE` (a row is visible and ACTIVE), `NOT_ACTIVE` (a reader is configured and no such row is visible — pending, inactive, expired, rotated, absent and out-of-policy are indistinguishable by design), `NO_BINDING` (the account carries no binding code), and `UNKNOWN` (no reader is configured: `ZURI_LINE_BUSINESS_AGENT_ENABLED` is not `true` or `ZURI_LINE_DB_URL` is unset — the dev/test default). FR-146's account health reports the label with its source, and `effectiveStatus` reaches `LIVE` only on `ACTIVE`. The contract activates, rotates or expires nothing: ADR-020 stays the only mutation path. 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the SmartGift Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then "
     },
     {
+      "id": "req:FR-148",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Account-scoped CRM conversations — Conversation identity includes the trusted channel account; historical rows retain LEGACY:LINE without guessed attribution. Inbound and accepted outbound writes support a shared transaction, enforce Tenant/Business/account scope and preserve message idempotency.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Account-scoped CRM conversations — Conversation identity includes the trusted channel account; historical rows retain LEGACY:LINE without guessed attribution. Inbound and accepted outbound writes support a shared transaction, enforce Tenant/Business/account scope and preserve message idempotency. 🟠 implementing ADR-061 "
+    },
+    {
+      "id": "req:FR-149",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+    },
+    {
+      "id": "req:FR-150",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Optional Edge conversation execution — account execution placement is SERVER or EDGE independently of LINE transport. Business-authenticated devices pull versioned, leased, minimized conversation jobs and return text; they receive no LINE credentials, recipient identifiers or send authority. Offline Edge leaves durable waiting work; no automatic transfer to an external model.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Optional Edge conversation execution — account execution placement is SERVER or EDGE independently of LINE transport. Business-authenticated devices pull versioned, leased, minimized conversation jobs and return text; they receive no LINE credentials, recipient identifiers or send authority. Offline Edge leaves durable waiting work; no automatic transfer to an external model. 🟠 implementing ADR-061 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -15674,6 +16026,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/edge/conversation-jobs/[id]/complete",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/conversation-jobs/[id]/complete",
+      "path": "src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/conversation-jobs/[id]/fail",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/conversation-jobs/[id]/fail",
+      "path": "src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/conversation-jobs/claim",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/conversation-jobs/claim",
+      "path": "src/app/api/edge/conversation-jobs/claim/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/edge/extraction-jobs/[id]/complete",
       "type": "route",
       "kind": "api",
@@ -15879,6 +16255,46 @@
       "kind": "api",
       "route": "/api/line-oa/accounts/[id]",
       "path": "src/app/api/line-oa/accounts/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts/[id]/jobs",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts/[id]/jobs",
+      "path": "src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts/[id]/webhook",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts/[id]/webhook",
+      "path": "src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/connections",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/connections",
+      "path": "src/app/api/line-oa/connections/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/jobs/[id]/acknowledge-unknown",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/jobs/[id]/acknowledge-unknown",
+      "path": "src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/worker",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/worker",
+      "path": "src/app/api/line-oa/worker/route.js",
       "status": "current"
     },
     {
@@ -16519,6 +16935,14 @@
       "kind": "page",
       "route": "/files",
       "path": "src/app/(pm)/files/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/line-oa",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa",
+      "path": "src/app/(pm)/line-oa/page.jsx",
       "status": "current"
     },
     {
@@ -17350,6 +17774,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
+      "title": "ADR-061 — Server-owned LINE and optional Edge execution",
+      "hash": "6b2f0324",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -17460,6 +17892,13 @@
       "path": "tests/e2e/fr130-connector-catalog.spec.js",
       "hash": "6bec9222",
       "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr149-line-server-console.spec.js",
+      "hash": "3abd6068",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -17836,8 +18275,15 @@
       "id": "test:tests/integration/fr146-line-oa-account.test.js",
       "type": "test",
       "path": "tests/integration/fr146-line-oa-account.test.js",
-      "hash": "e1bfb783",
-      "status": "changed"
+      "hash": "46c9c08d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "type": "test",
+      "path": "tests/integration/fr149-line-server-configuration.test.js",
+      "hash": "898ba007",
+      "status": "current"
     },
     {
       "id": "test:tests/integration/iam-authorization.test.js",
@@ -17907,6 +18353,13 @@
       "type": "test",
       "path": "tests/integration/knowledge-query.test.js",
       "hash": "196a9af4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-account-isolation.test.js",
+      "type": "test",
+      "path": "tests/integration/line-account-isolation.test.js",
+      "hash": "7fe701b8",
       "status": "current"
     },
     {
@@ -17994,6 +18447,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-server-backup.test.js",
+      "type": "test",
+      "path": "tests/integration/line-server-backup.test.js",
+      "hash": "79d3f675",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
       "type": "test",
       "path": "tests/integration/line-webhook-transport-contract.test.js",
@@ -18046,7 +18506,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "67e0cb91",
+      "hash": "5a87d9a2",
       "status": "current"
     },
     {
@@ -18152,6 +18612,20 @@
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
       "hash": "831f4b6e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/server-line-jobs.test.js",
+      "type": "test",
+      "path": "tests/integration/server-line-jobs.test.js",
+      "hash": "c1518f72",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/server-line-webhook.test.js",
+      "type": "test",
+      "path": "tests/integration/server-line-webhook.test.js",
+      "hash": "34eb7db2",
       "status": "current"
     },
     {
@@ -18530,6 +19004,13 @@
       "type": "test",
       "path": "tests/unit/conversation-analysis-contract.test.js",
       "hash": "170bb68f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/conversation-channel-account-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/conversation-channel-account-migration.test.js",
+      "hash": "8947c7c1",
       "status": "current"
     },
     {
@@ -19359,6 +19840,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/legacy-line-transport-ownership.test.js",
+      "type": "test",
+      "path": "tests/unit/legacy-line-transport-ownership.test.js",
+      "hash": "489eb048",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/line-activation-contract.test.js",
@@ -19411,14 +19899,14 @@
       "id": "test:tests/unit/line-oa-account-domain.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-account-domain.test.js",
-      "hash": "fee13442",
+      "hash": "542bd02a",
       "status": "current"
     },
     {
       "id": "test:tests/unit/line-oa-account-routes.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-account-routes.test.js",
-      "hash": "ca156d8a",
+      "hash": "af98b0a0",
       "status": "current"
     },
     {
@@ -19884,6 +20372,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/platform/server-line-transport.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/server-line-transport.test.js",
+      "hash": "4585b983",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/playwright-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/playwright-database-bootstrap.test.js",
@@ -20139,7 +20634,7 @@
       "id": "test:tests/unit/scope-external-ids-migration.test.js",
       "type": "test",
       "path": "tests/unit/scope-external-ids-migration.test.js",
-      "hash": "92ff0f9d",
+      "hash": "0429e1d2",
       "status": "current"
     },
     {
@@ -20154,6 +20649,20 @@
       "type": "test",
       "path": "tests/unit/self-plan-generator.test.js",
       "hash": "64fa8fdc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/server-line-answer.test.js",
+      "type": "test",
+      "path": "tests/unit/server-line-answer.test.js",
+      "hash": "5cc38af2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/server-line-worker-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/server-line-worker-routes.test.js",
+      "hash": "4b60f5db",
       "status": "current"
     },
     {
@@ -20994,6 +21503,20 @@
     {
       "from": "code:src/app/(pm)/layout.jsx",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -21931,6 +22454,13 @@
     },
     {
       "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
       "to": "req:NFR-017",
       "type": "follows",
       "status": "current",
@@ -22016,6 +22546,13 @@
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-149",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -23253,6 +23790,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/edge/extraction-jobs/[id]/complete/route.js",
       "to": "req:BR-025",
       "type": "follows",
@@ -24121,6 +24721,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/[id]/route.js",
       "to": "req:BR-012",
       "type": "follows",
@@ -24142,6 +24756,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/route.js",
       "to": "req:BR-012",
       "type": "follows",
@@ -24157,6 +24792,62 @@
     },
     {
       "from": "code:src/app/api/line-oa/accounts/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/connections/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/connections/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/connections/route.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/worker/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/worker/route.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/worker/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -27748,6 +28439,13 @@
     },
     {
       "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
       "to": "req:SDD-025",
       "type": "follows",
       "status": "current",
@@ -27833,6 +28531,20 @@
     {
       "from": "code:src/modules/agent/index.js",
       "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/legacy-line-transport-ownership.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/legacy-line-transport-ownership.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28161,6 +28873,13 @@
     },
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SDD-025",
       "type": "follows",
       "status": "current",
@@ -28218,6 +28937,34 @@
     {
       "from": "code:src/modules/agent/scoped-memory.js",
       "to": "req:SDD-030",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/server-line-answer.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/server-line-answer.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/server-line-answer.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/server-line-answer.js",
+      "to": "req:SEC-010",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29043,6 +29790,13 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
@@ -29169,7 +29923,7 @@
     },
     {
       "from": "code:src/modules/crm/line-ingest-service.js",
-      "to": "req:BR-020",
+      "to": "req:BR-002",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29184,6 +29938,13 @@
     {
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:FR-148",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -29219,6 +29980,13 @@
     {
       "from": "code:src/modules/crm/reply-record-service.js",
       "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
+      "to": "req:FR-148",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -30030,6 +30798,13 @@
     },
     {
       "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:FR-148",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -30520,6 +31295,27 @@
     },
     {
       "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-server-provisioning-service.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-server-provisioning-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-server-provisioning-service.js",
       "to": "req:SEC-016",
       "type": "follows",
       "status": "current",
@@ -31142,6 +31938,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "to": "req:FR-148",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/application/line-oa-account-authority.js",
       "to": "req:BR-020",
       "type": "follows",
@@ -31213,8 +32065,22 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-oa-account-service.js",
       "to": "req:SEC-001",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/server-line-runtime.js",
+      "to": "req:FR-149",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -31228,6 +32094,13 @@
     {
       "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
+      "to": "req:FR-149",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -31730,6 +32603,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -31921,6 +32808,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-149",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -34985,6 +35879,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/providers/line/server-line-transport.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/server-line-transport.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/server-line-transport.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/storage/supabase-object-storage.js",
       "to": "req:FR-137",
       "type": "implements",
@@ -35363,6 +36278,27 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-019",
+      "to": "req:FR-148",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-019",
+      "to": "req:FR-149",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-019",
+      "to": "req:FR-150",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -35638,6 +36574,13 @@
     {
       "from": "model:LegalEntityIdentifier",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LineConversationJob",
+      "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -37183,6 +38126,27 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-148",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-149",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-150",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -38387,6 +39351,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/edge/conversation-jobs/[id]/complete",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/conversation-jobs/[id]/fail",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/conversation-jobs/claim",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/edge/extraction-jobs/[id]/complete",
       "to": "domain:asset-management",
       "type": "owned_by",
@@ -38555,6 +39540,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/line-oa/accounts/[id]/jobs",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/accounts/[id]/webhook",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/line-oa/accounts/[id]",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -38563,6 +39562,27 @@
     },
     {
       "from": "route:api:/api/line-oa/accounts",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/connections",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/jobs/[id]/acknowledge-unknown",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/worker",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -39117,6 +40137,13 @@
     {
       "from": "route:page:/files",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/line-oa",
+      "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -42237,6 +43264,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "code:src/app/(pm)/line-oa/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr149-line-server-console.spec.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
       "to": "req:FR-001",
       "type": "verifies",
@@ -43610,6 +44665,13 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
       "status": "current",
@@ -43877,6 +44939,13 @@
     {
       "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44177,6 +45246,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -44269,6 +45345,13 @@
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -46445,6 +47528,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -47159,6 +48249,13 @@
     },
     {
       "from": "test:tests/integration/fr146-line-oa-account.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr146-line-oa-account.test.js",
       "to": "req:SDD-044",
       "type": "verifies",
       "status": "current",
@@ -47191,6 +48288,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "to": "code:src/app/api/line-oa/connections/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "to": "code:src/modules/integration/application/line-server-provisioning-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr149-line-server-configuration.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -47426,6 +48558,13 @@
     {
       "from": "test:tests/integration/identity-resolve.test.js",
       "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -47718,6 +48857,104 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "code:src/modules/crm/line-ingest-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "code:src/modules/crm/reply-record-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:SDD-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-account-isolation.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/line-binding-activation.postgres.test.js",
       "to": "code:src/modules/agent/line-operator.js",
       "type": "tests",
@@ -47803,7 +49040,7 @@
     },
     {
       "from": "test:tests/integration/line-ingest.test.js",
-      "to": "req:BR-020",
+      "to": "req:BR-002",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -47825,6 +49062,13 @@
     {
       "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -48000,6 +49244,13 @@
     {
       "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
       "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -48265,6 +49516,20 @@
     },
     {
       "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
       "status": "current",
@@ -48301,6 +49566,195 @@
     {
       "from": "test:tests/integration/line-reply-record.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:SEC-016",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -48647,6 +50101,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -49865,6 +51333,174 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/edge/conversation-jobs/claim/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/app/api/line-oa/worker/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/modules/identity/erase-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "code:src/modules/line-oa-studio/application/server-line-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-webhook.test.js",
+      "to": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-webhook.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-webhook.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-webhook.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-webhook.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
@@ -53304,6 +54940,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/conversation-channel-account-migration.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-channel-account-migration.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-channel-account-migration.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "code:src/modules/crm/conversation-read-model.js",
       "type": "tests",
@@ -53341,6 +54998,13 @@
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:FR-148",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -54937,6 +56601,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -57862,6 +59533,13 @@
     },
     {
       "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
       "to": "req:SDD-025",
       "type": "verifies",
       "status": "current",
@@ -58792,6 +60470,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/legacy-line-transport-ownership.test.js",
+      "to": "code:src/modules/agent/legacy-line-transport-ownership.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/legacy-line-transport-ownership.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/legacy-line-transport-ownership.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-activation-contract.test.js",
       "to": "code:src/modules/agent/line-activation-contract.js",
       "type": "tests",
@@ -59003,6 +60702,13 @@
     },
     {
       "from": "test:tests/unit/line-binding-status.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-status.test.js",
       "to": "req:SDD-025",
       "type": "verifies",
       "status": "current",
@@ -59154,6 +60860,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-account-domain.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-oa-account-routes.test.js",
@@ -60670,6 +62383,13 @@
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:FR-147",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -62257,6 +63977,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/platform/server-line-transport.test.js",
+      "to": "code:src/platform/integrations/providers/line/server-line-transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/server-line-transport.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/server-line-transport.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/server-line-transport.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/playwright-database-bootstrap.test.js",
       "to": "req:FR-046",
       "type": "verifies",
@@ -63651,6 +65399,13 @@
     },
     {
       "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
       "to": "req:SDD-048",
       "type": "verifies",
       "status": "current",
@@ -63952,6 +65707,13 @@
     },
     {
       "from": "test:tests/unit/scope-external-ids-migration.test.js",
+      "to": "req:FR-148",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-external-ids-migration.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -64128,6 +65890,76 @@
     {
       "from": "test:tests/unit/self-plan-generator.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "code:src/modules/agent/server-line-answer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-routes.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-routes.test.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-routes.test.js",
+      "to": "req:SEC-025",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

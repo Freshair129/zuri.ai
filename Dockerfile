@@ -59,6 +59,7 @@ ENV HOSTNAME=0.0.0.0
 # ZURI_LINE_DB_CA_FILE / ZURI_CUSTOMER_REVIEW_DB_CA_FILE point at a path that exists
 # inside the container (docker-compose.yml sets both).
 COPY --from=builder --chown=node:node /app/certs ./certs
+COPY --from=builder --chown=node:node /app/scripts/server-line-worker.mjs ./scripts/server-line-worker.mjs
 # src/modules/integration/application/sot-plan.js reads contracts/sot-pipeline-plan.v1.json
 # from process.cwd() at request time, so the tracer cannot see it — ship the folder.
 COPY --from=builder --chown=node:node /app/contracts ./contracts

@@ -2,6 +2,7 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
 import { redactConversationContentForCustomers } from '@/modules/crm/conversation-redaction-service'
+import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 
 // @req FR-022, FR-095 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
@@ -19,7 +20,7 @@ import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/
 //   `tombstoneRawRecordsForExternalIds` (integration).
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
-// @tested tests/integration/crm-customer-erasure.test.js
+// @tested tests/integration/crm-customer-erasure.test.js, tests/integration/server-line-jobs.test.js
 
 const REDACTED = '[erased]'
 
@@ -95,6 +96,7 @@ export async function erasePrincipal(input) {
         select: { externalMessageId: true },
       })
       : []
+    const { redactedLineJobs } = await redactLineConversationJobs(tx, { tenantId, conversationIds: conversations.map(conversation => conversation.id) })
     const { redactedMessages } = await redactConversationContentForCustomers(tx, { tenantId, customerIds })
 
     // Which raw records belong to this person. Two families, and nothing else:
@@ -147,6 +149,7 @@ export async function erasePrincipal(input) {
         erasedCustomers: activeCustomers.length,
         erasedAnalyses: analyses.count,
         redactedMessages,
+        redactedLineJobs,
         tombstonedRawRecords,
         personRedacted,
       },
@@ -160,6 +163,7 @@ export async function erasePrincipal(input) {
       erasedCustomers: activeCustomers.length,
       erasedAnalyses: analyses.count,
       redactedMessages,
+      redactedLineJobs,
       tombstonedRawRecords,
       personRedacted,
     }

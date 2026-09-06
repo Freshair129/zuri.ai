@@ -144,7 +144,8 @@ describe('20260819120000_scope_external_ids_by_tenant', () => {
 
   it('matches the indexes the generated Postgres schema declares', () => {
     const generated = readFileSync(path.join(ROOT, 'prisma', 'postgres', '0001_init.sql'), 'utf8')
-    expect(generated).toContain('"Conversation_tenantId_channel_externalThreadId_key"')
+    // FR-148 supersedes the historical index with an account-aware namespace.
+    expect(generated).toContain('"Conversation_account_thread_key"')
     expect(generated).toContain('"Message_conversationId_externalMessageId_key"')
     // a fresh database must never be created with the constraints we just removed
     expect(generated).not.toContain('"Conversation_externalThreadId_key"')
