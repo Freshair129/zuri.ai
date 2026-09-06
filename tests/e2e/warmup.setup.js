@@ -38,6 +38,8 @@ const ROUTES = [
   '/inventory',
   // @req FR-157 — the CRM sales tasks page.
   '/customer/sales-tasks',
+  // @req FR-160 — the Procurement dashboard and the purchase-orders console.
+  '/procurement', '/procurement/purchase-orders',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

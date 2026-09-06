@@ -84,7 +84,7 @@ Asset Management (DOM-ASSET-MANAGEMENT)
 | Concept | Authority | Asset behavior |
 |---|---|---|
 | `FileAsset` bytes/storage metadata | existing file-management authority | reference only |
-| Supplier, PR, PO, GRN and procurement return | future Commerce/Procurement | typed reference only |
+| Supplier, PR, PO, GRN and procurement return | Procurement (`docs/domains/procurement/CHARTER.md`, FR-160 / FR-161 — `Supplier`, `PurchaseOrder`, `GoodsReceipt` exist since 2026-09-07); PR and returns still future | typed reference only — `AssetProcurementRef.value` may name a Procurement code, but stays a string until a later FR resolves it |
 | Person, Membership and employment status | Identity/People | read reference only |
 | Department/Org Unit master | future People organization authority | external typed ref until one exists |
 | Branch master | Business hierarchy | read reference only |

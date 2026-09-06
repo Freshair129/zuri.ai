@@ -145,6 +145,7 @@ The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only short
 | Replacing V1 | `docs/replacement/` |
 | Decisions | `docs/decisions/ADR-00*.md` |
 | Delivery state | `docs/roadmap/ROADMAP.md` |
+| ERP module map — which lane and FRs answer each ERP module the owner names (SCM: Warehouse · Inventory · Procurement · Order Management; more rows as they arrive) | `docs/ERP-MODULE-MAP.md` |
 
 ## 5. Delivery state (2026-08-12)
 

@@ -451,6 +451,7 @@ Backlinks:
 - [ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces](decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (references)
 - [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 - [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) (relates)
 - [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) (relates)
 - [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) (relates)
@@ -1017,6 +1018,7 @@ Backlinks:
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (relates)
 - [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (relates)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (relates)
 
 ## ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle
 
@@ -1195,6 +1197,21 @@ Backlinks:
 - [FR-158 — Sales orders (order_id)](domains/commerce/features/FR-158-sales-orders.md) (references)
 - [FR-159 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-159-payments-and-revenue.md) (references)
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
+
+## ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
+
+Source: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
+
+Backlinks:
+
+- [FR-160 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-160-suppliers-and-purchase-orders.md) (references)
+- [FR-161 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-161-goods-receipts.md) (references)
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -1705,6 +1722,10 @@ Source: [Domain — inventory](domains/inventory/CHARTER.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
 ## FR-154 — Inventory catalogue identity (คลังสินค้า)
 
 Source: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
@@ -2171,6 +2192,36 @@ Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
 
+## Domain — procurement
+
+Source: [Domain — procurement](domains/procurement/CHARTER.md)
+
+- references: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
+- references: [FR-160 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-160-suppliers-and-purchase-orders.md)
+- references: [FR-161 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-161-goods-receipts.md)
+- references: [Domain — inventory](domains/inventory/CHARTER.md)
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+## FR-160 — Suppliers and purchase orders (po_id)
+
+Source: [FR-160 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-160-suppliers-and-purchase-orders.md)
+
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
+## FR-161 — Goods receipts into the stock ledger (grn_id)
+
+Source: [FR-161 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-161-goods-receipts.md)
+
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
 ## Domain — project-manager
 
 Source: [Domain — project-manager](domains/project-manager/CHARTER.md)
@@ -2300,6 +2351,14 @@ Backlinks:
 - [FR-069 — Plan Blueprint and Human/Agent intake with stable references](domains/project-manager/features/FR-069-plan-blueprint-and-intake.md) (references)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references](decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md) (relates)
+
+## ERP module map — where each module the owner names lives
+
+Source: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
 
 ## Seven Execution Modes
 

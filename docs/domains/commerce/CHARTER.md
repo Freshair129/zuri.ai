@@ -79,7 +79,7 @@ rule progress and stock on-hand follow.
 | Slip OCR | a later candidate extraction (the Asset evidence rule: a candidate never verifies itself) | a human verifies; `PAYMENT_VERIFIER` or the owner |
 | Invoices, receipts, tax documents, store credit | future Finance / Commerce FRs | not modelled |
 | Ads, ROAS, attribution to an ad | future Marketing lane | `origin` CHAT and `conversationId` are the hook; no ad id is stored (ADR-054 D5) |
-| Purchase orders, suppliers | future Procurement | not modelled |
+| Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-160 / FR-161) | the buy side; Commerce is the sell side. Both meet only in the Inventory ledger (a receipt adds, a fulfilled order removes) |
 
 ## Scope and authorization
 

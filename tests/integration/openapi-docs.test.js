@@ -116,8 +116,8 @@ describe('OpenAPI document', () => {
       // FR-158/FR-159 add commerce: orders (GET, POST), the order item (GET,
       // PATCH), its payments (GET, POST), the payment item (GET, PATCH) and
       // the revenue summary (GET) — five paths, nine operations.
-      pathCount: 177,
-      operationCount: 241,
+      pathCount: 182,
+      operationCount: 251,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

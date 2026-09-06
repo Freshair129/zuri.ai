@@ -143,6 +143,12 @@ const SNAPSHOT_MODELS = [
   // and the slip FileAsset — all restored above this line, so these restore
   // here and delete in the reverse. Money and slip references, no secret.
   'salesOrder', 'salesOrderLine', 'payment',
+  // @req FR-160, FR-161 — a supplier hangs off Tenant and Business, a purchase
+  // order off the supplier, its lines off the order and Product, a goods
+  // receipt off the order and its lines off the receipt and the order lines —
+  // parents first, so these restore here and delete in the reverse. Contact
+  // and cost data, no secret: exported whole.
+  'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   // @req FR-127 — analyses are derived children of Conversation and must travel

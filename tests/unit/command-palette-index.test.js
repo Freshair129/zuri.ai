@@ -25,6 +25,9 @@ describe('command palette route index', () => {
     expect(routePaths).toContain('/customer/conversations')
     expect(routePaths).toContain('/commerce')
     expect(routePaths).toContain('/commerce/orders')
+    // @req FR-160 — `procurement` landed live on 2026-09-07 with both pages.
+    expect(routePaths).toContain('/procurement')
+    expect(routePaths).toContain('/procurement/purchase-orders')
     expect(routePaths).not.toContain('/growth')
     expect(routePaths).not.toContain('/operations')
     expect(routePaths.filter((path) => path === '/settings')).toHaveLength(1)

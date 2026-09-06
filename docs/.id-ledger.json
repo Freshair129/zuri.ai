@@ -270,6 +270,8 @@
     "FR-157",
     "FR-158",
     "FR-159",
+    "FR-160",
+    "FR-161",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -424,6 +426,7 @@
     "FEAT-020",
     "FEAT-021",
     "FEAT-022",
+    "FEAT-023",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -577,6 +580,7 @@
     "ADR-063",
     "ADR-064",
     "ADR-065",
+    "ADR-066",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3005,6 +3009,32 @@
         }
       ]
     },
+    "FR-160": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2b8adb25cefbcf17eae03fcf1088e0d744a4c172f1a0778bdb7af7837ddb7e03",
+      "history": [
+        {
+          "anchor": "suppliers and purchase orders procurement",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-161": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "56be062569de1b1d7ee9a6eb3d364de48bbc64da9edd7387c9537f97a30dbcd4",
+      "history": [
+        {
+          "anchor": "goods receipts into the stock ledger procurement",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5035,6 +5065,19 @@
         }
       ]
     },
+    "FEAT-023": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "f0d6289848480c8608bf4a8f76e160e2f85a31b8a67c20f105f5162f6b3bd084",
+      "history": [
+        {
+          "anchor": "procurement จ ดซ อ",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -7029,6 +7072,19 @@
       "history": [
         {
           "anchor": "the commerce lane",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-066": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "851e86ff9ec3306fabfbd738b82612dc5ff18c15095359fb48b6f0179e144af2",
+      "history": [
+        {
+          "anchor": "the procurement lane",
           "since": "2026-09-06",
           "reason": "declared"
         }

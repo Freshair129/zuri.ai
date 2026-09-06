@@ -88,6 +88,9 @@ model Tenant {
   salesTasks                SalesTask[]
   salesOrders               SalesOrder[]
   payments                  Payment[]
+  suppliers                 Supplier[]
+  purchaseOrders            PurchaseOrder[]
+  goodsReceipts             GoodsReceipt[]
 
   @@index([portfolioId])
 }
@@ -179,6 +182,9 @@ model Business {
   salesTasks                SalesTask[]
   salesOrders               SalesOrder[]
   payments                  Payment[]
+  suppliers                 Supplier[]
+  purchaseOrders            PurchaseOrder[]
+  goodsReceipts             GoodsReceipt[]
 
   @@index([tenantId])
 }
@@ -2644,6 +2650,7 @@ model Product {
   recipes       ProductRecipe[]
   recipeLines   ProductRecipeLine[]
   salesOrderLines SalesOrderLine[]
+  purchaseOrderLines PurchaseOrderLine[]
 
   @@unique([tenantId, code])
   @@index([businessId, status])
@@ -2965,4 +2972,131 @@ model Payment {
   @@unique([tenantId, bankReference])
   @@index([orderId, status])
   @@index([businessId, status, paidAt])
+}
+
+// ── Procurement — FR-160 suppliers & purchase orders, FR-161 goods receipts ──
+// @req FR-160 — the buy side (ADR-066): a Supplier of the Business (code
+//   unique per Tenant, archived never deleted) and a PurchaseOrder against it
+//   with lines that may name an Inventory SKU at the agreed unit cost (integer
+//   satang). No stored total or received quantity: both are computed on read
+//   from the lines and the receipt lines.
+// @req FR-161 — a GoodsReceipt posts what arrived against a SENT order; each
+//   of its lines names one order line, and a line naming a counted SKU writes
+//   RECEIPT rows into the Inventory ledger in the same transaction with
+//   `PO:<code>/GRN:<code>` as the reference. A receipt is never edited.
+// @spec ADR-066; ADR-054 D3/D4; BR-001; BR-002; SEC-001
+model Supplier {
+  id           String    @id @default(uuid())
+  code         String
+  tenantId     String
+  businessId   String
+  name         String
+  taxId        String?
+  contactName  String?
+  phone        String?
+  email        String?
+  address      String?
+  paymentTerms String?
+  leadTimeDays Int?
+  notes        String?
+  status       String    @default("ACTIVE")
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(1)
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchaseOrders PurchaseOrder[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+}
+
+model PurchaseOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  supplierId        String
+  status            String    @default("DRAFT")
+  currency          String    @default("THB")
+  expectedAt        DateTime?
+  notes             String?
+  orderedAt         DateTime  @default(now())
+  sentAt            DateTime?
+  receivedAt        DateTime?
+  closedAt          DateTime?
+  closeReason       String?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  lines    PurchaseOrderLine[]
+  receipts GoodsReceipt[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status, orderedAt])
+  @@index([supplierId])
+}
+
+model PurchaseOrderLine {
+  id              String  @id @default(uuid())
+  purchaseOrderId String
+  productId       String?
+  description     String
+  qty             Int
+  unitCostSatang  Int
+  sortOrder       Int     @default(0)
+
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
+  receiptLines  GoodsReceiptLine[]
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+model GoodsReceipt {
+  id                String   @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  purchaseOrderId   String
+  supplierReference String?
+  notes             String?
+  receivedAt        DateTime @default(now())
+  postedByPersonId  String?
+  createdAt         DateTime @default(now())
+
+  tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  lines         GoodsReceiptLine[]
+
+  @@unique([tenantId, code])
+  @@index([purchaseOrderId])
+  @@index([businessId, receivedAt])
+}
+
+model GoodsReceiptLine {
+  id                  String    @id @default(uuid())
+  receiptId           String
+  purchaseOrderLineId String
+  qty                 Int
+  lotCode             String?
+  expiresAt           DateTime?
+  serialNosJson       String?
+
+  receipt           GoodsReceipt      @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  purchaseOrderLine PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+  @@index([purchaseOrderLineId])
 }
