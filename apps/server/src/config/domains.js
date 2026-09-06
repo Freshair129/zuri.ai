@@ -7,6 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse,
+  Layers, Bot, Cpu, Bookmark,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -158,19 +159,17 @@ export const DOMAINS = [
     ],
   },
   {
-    // @req FR-146 — LINE OA Studio (ADR-060, `DOM-LINE-OA-STUDIO`). A reserved
-    // slot on purpose: `soon` keeps it out of the bar and the palette (ADR-060
-    // D12 — no fake clickable surface before its pages exist), while the key
-    // being in the registry is what lets a Membership grant name the domain
-    // (FR-061 filters grants through this list) and lets the FR-146 API refuse
-    // a viewer without it. The page tree lands with the Phase 1 UI slice.
     key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle,
     sub: [
-      { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard },
-      // FR-151 — the rich menu designer's own page. Listed only now that it
-      // exists: the note above is about not advertising a route before its
-      // page lands, and this one has landed.
+      { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard, exact: true },
+      { label: 'โปรเจค & บัญชี', path: '/line-oa/projects', icon: Layers },
+      { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
       { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
+      { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
+      { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
+      { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },
+      { label: 'ทีม', path: '/line-oa/team', icon: Users },
+      { label: 'Settings', path: '/line-oa/settings', icon: Settings },
     ],
   },
   {
