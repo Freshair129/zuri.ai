@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T06:30:21.953Z",
+  "generatedAt": "2026-09-06T06:49:27.253Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -409,7 +409,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-150",
@@ -1565,14 +1565,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "checks": {
@@ -2018,7 +2018,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-150",
@@ -2031,15 +2031,15 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 12
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "checks": {
@@ -2050,8 +2050,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 2,
+            "inventoried": 2,
             "missing": 0
           }
         },
@@ -2155,9 +2155,9 @@
         }
       ],
       "details": {
-        "routes": 14,
+        "routes": 15,
         "apiRoutes": 13,
-        "pageRoutes": 1,
+        "pageRoutes": 2,
         "ownedModels": 5,
         "featureNotes": 3
       },
@@ -3067,7 +3067,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-150",
@@ -3081,14 +3081,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "checks": {
@@ -4707,18 +4707,19 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 10
+          "codeCount": 6,
+          "testCount": 12
         },
         {
           "id": "FR-152",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "evidence": [
+        "src/app/(pm)/line-oa/rich-menus/page.jsx",
         "src/app/api/line-oa/accounts/[id]/route.js",
         "src/app/api/line-oa/accounts/route.js",
         "src/app/api/line-oa/rich-menu-worker/route.js",
@@ -4744,6 +4745,7 @@
         "src/modules/project-manager/application/backup-service.js",
         "src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
         "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
@@ -4766,6 +4768,7 @@
         "tests/unit/line-oa-account-domain.test.js",
         "tests/unit/line-oa-account-routes.test.js",
         "tests/unit/line-oa-account-schema-contract.test.js",
+        "tests/unit/line-oa-rich-menu-console.test.js",
         "tests/unit/line-oa-rich-menu-domain.test.js",
         "tests/unit/line-oa-rich-menu-jobs-routes.test.js",
         "tests/unit/line-oa-rich-menu-publish.test.js",
@@ -4815,7 +4818,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-150",
@@ -4855,6 +4858,7 @@
         "src/modules/project-manager/application/backup-service.js",
         "src/platform/integrations/providers/line/server-line-transport.js",
         "tests/e2e/fr149-line-server-console.spec.js",
+        "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "tests/integration/agent-webhook-route.test.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",

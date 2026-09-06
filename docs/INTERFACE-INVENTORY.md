@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=57; operational_domain_keys=10; operational_subdomain_entries=30; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=58; operational_domain_keys=10; operational_subdomain_entries=31; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -296,3 +296,4 @@ The current route evidence is:
 | Route | Surface | Scope | Behavior |
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
+| `/line-oa/rich-menus` | Rich menu designer (FR-151) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. No control sends a menu to LINE, because the lane has no such action. |

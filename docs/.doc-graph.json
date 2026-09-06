@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1843,
-    "total_edges": 7029,
+    "total_nodes": 1847,
+    "total_edges": 7039,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 10,
       "roadmap": 35,
       "feature": 19,
-      "route": 200,
+      "route": 201,
       "model": 87,
       "requirement": 309,
-      "test": 459,
-      "code_file": 497
+      "test": 461,
+      "code_file": 498
     },
     "coverage": {
       "requirements": 309,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (142/142)",
       "rules_anchored_in_code": "96% (128/133)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 497,
+      "annotated_code_files": 498,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,38 +55,18 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
       "doc:README",
       "doc:CONTEXT-MAP",
-      "domain:integration",
-      "domain:line-oa-studio",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "doc:INTERFACE-INVENTORY",
+      "code:src/config/domains.js"
     ],
     "added": [
-      "doc:FR-152-line-oa-rich-menu-publish-jobs",
-      "route:api:/api/line-oa/rich-menu-worker",
-      "route:api:/api/line-oa/rich-menus/[id]/jobs",
-      "model:LineOaRichMenuJob",
-      "req:FR-152",
-      "test:tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
-      "test:tests/unit/line-oa-rich-menu-jobs-routes.test.js",
-      "test:tests/unit/line-oa-rich-menu-publish.test.js",
-      "test:tests/unit/platform/server-line-rich-menu-transport.test.js",
-      "code:src/app/api/line-oa/rich-menu-worker/route.js",
-      "code:src/app/api/line-oa/rich-menus/[id]/jobs/route.js",
-      "code:src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
-      "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
-      "code:src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
-      "code:src/platform/integrations/providers/line/server-line-rich-menu-transport.js"
+      "route:page:/line-oa/rich-menus",
+      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
     ],
     "removed": []
   },
@@ -493,6 +473,24 @@
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "hash": "f2a84547",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-151"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/line-oa-rich-menu-console.test.js"
         ]
       }
     },
@@ -4607,8 +4605,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "0f369963",
-      "status": "current",
+      "hash": "6ea5495e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -4927,7 +4925,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "08c88794",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -8284,7 +8282,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "a2ff6620",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -8352,7 +8350,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "6325afd6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10312,7 +10310,7 @@
       "version": "1.38.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "4804401a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -10366,7 +10364,7 @@
       "version": "1.19.0b",
       "doc_status": "Draft",
       "hash": "859ccf9c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -10584,7 +10582,7 @@
       "version": "1.22.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "9f453ce6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -11446,8 +11444,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.4.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "a2d0b9f4",
-      "status": "current"
+      "hash": "73d7655b",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -11747,7 +11745,7 @@
       "version": "1.155.0b",
       "doc_status": "Draft",
       "hash": "cad91565",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -11791,7 +11789,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "20e5077e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -12184,7 +12182,7 @@
         "integration"
       ],
       "hash": "2401793e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -12224,7 +12222,7 @@
         "line-oa-studio"
       ],
       "hash": "f8364217",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -17239,6 +17237,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/line-oa/rich-menus",
+      "type": "route",
+      "kind": "page",
+      "route": "/line-oa/rich-menus",
+      "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/login",
       "type": "route",
       "kind": "page",
@@ -18194,6 +18200,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "hash": "d2e528d2",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
@@ -18814,7 +18827,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "cb224829",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -20235,6 +20248,13 @@
       "type": "test",
       "path": "tests/unit/line-oa-account-schema-contract.test.js",
       "hash": "c04182ea",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "type": "test",
+      "path": "tests/unit/line-oa-rich-menu-console.test.js",
+      "hash": "7301a056",
       "status": "current"
     },
     {
@@ -21886,6 +21906,20 @@
     },
     {
       "from": "code:src/app/(pm)/line-oa/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -42430,6 +42464,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/line-oa/rich-menus",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/line-oa",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -46030,6 +46071,27 @@
     {
       "from": "test:tests/e2e/fr149-line-server-console.spec.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "to": "req:FR-152",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -63848,6 +63910,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:FR-152",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-oa-rich-menu-domain.test.js",
