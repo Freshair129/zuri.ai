@@ -22,4 +22,8 @@ The test reduces an HTTP response to a boolean and never asserts the fixture res
 
 Add status-only diagnostics and explicit fixture-resolution success/id assertions to this one E2E test. Do not log cookies, tokens, environment values or response payloads. Preserve the existing retry policy and fail-on-flaky gate. Run targeted reproduction with the same seeded fixture, then inspect final-head full CI. Only propose a behavior fix after evidence supports its cause. Do not rerun the unchanged failed job merely to obtain a green result.
 
-No application/test remediation has been implemented. User approval is needed for the diagnostic code scope under R5; the approved workflow containment is already committed and pushed.
+The owner approved this diagnostic scope on 2026-09-06. The test now checks resolver
+HTTP success and a nonempty string id, and includes Inventory HTTP status in its
+success assertion. No retry setting or application behavior changed. Targeted
+repetition and full CI are required; a green run does not explain the earlier
+unobserved status or establish an underlying behavior fix.
