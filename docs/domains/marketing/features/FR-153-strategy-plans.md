@@ -65,6 +65,8 @@ comparisons are labelled as comparisons rather than invented model simulations.
 Plan details use sections, avoiding another nested tab layer. Loading, empty,
 denied, error and unavailable capability states are explicit. Changing Business
 clears the old scope's data and pending drafts before the new response can render.
+The Marketing Dashboard sidebar entry matches its root URL exactly, so Strategy
+is the sole selected sidebar entry while a Strategy tab or plan is open.
 
 | Endpoint | Input / result |
 |---|---|

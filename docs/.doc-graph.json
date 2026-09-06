@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1962,
-    "total_edges": 7680,
+    "total_nodes": 1963,
+    "total_edges": 7686,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 185,
       "adr": 62,
       "domain": 11,
-      "roadmap": 39,
+      "roadmap": 40,
       "feature": 20,
       "route": 218,
       "model": 92,
@@ -60,8 +60,8 @@
       "doc:SRS",
       "doc:CONTEXT-MAP",
       "doc:SRS",
-      "test:tests/unit/command-palette-index.test.js",
-      "test:tests/unit/domain-state.test.js"
+      "doc:INTERFACE-INVENTORY",
+      "doc:PHASE-STRATEGY-2026-09-06"
     ],
     "added": [],
     "removed": []
@@ -4895,11 +4895,12 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "83b1e9c6",
+      "hash": "268c9120",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-039"
+          "FR-039",
+          "FR-153"
         ],
         "@spec": [
           "SDD-018"
@@ -4962,7 +4963,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "60a20f4c",
+      "hash": "478608f3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8762,7 +8763,7 @@
       "id": "code:src/modules/marketing/application/marketing-authority.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-authority.js",
-      "hash": "daa304ed",
+      "hash": "7b08ec3a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8783,7 +8784,7 @@
       "id": "code:src/modules/marketing/application/marketing-plan-service.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-plan-service.js",
-      "hash": "c46ee971",
+      "hash": "18fee3af",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8804,7 +8805,7 @@
       "id": "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-pm-handoff-service.js",
-      "hash": "956a3c38",
+      "hash": "afa683ca",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8844,7 +8845,7 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "d949af2d",
+      "hash": "8b4812b4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8881,7 +8882,7 @@
       "id": "code:src/modules/marketing/components/MarketingTabs.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/MarketingTabs.jsx",
-      "hash": "5e3876aa",
+      "hash": "81ded584",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8918,7 +8919,7 @@
       "id": "code:src/modules/marketing/components/PlanHandoff.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanHandoff.jsx",
-      "hash": "214e72b1",
+      "hash": "646e212c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8937,7 +8938,7 @@
       "id": "code:src/modules/marketing/components/PlanReviewDecision.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanReviewDecision.jsx",
-      "hash": "8b7e0295",
+      "hash": "f47346c6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8974,7 +8975,7 @@
       "id": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/StrategyWorkspace.jsx",
-      "hash": "10e3b34b",
+      "hash": "7587e071",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12280,7 +12281,7 @@
       "type": "document",
       "path": "docs/domains/marketing/features/FR-153-strategy-plans.md",
       "title": "Marketing Strategy: draft to accountable execution",
-      "hash": "891e961c",
+      "hash": "3860ef36",
       "status": "current"
     },
     {
@@ -12336,8 +12337,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.6.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "049e4a1c",
-      "status": "current"
+      "hash": "66697604",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12570,6 +12571,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PHASE-STRATEGY-2026-09-06",
+      "type": "roadmap",
+      "path": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
+      "title": "Marketing Strategy — implementation phase report",
+      "hash": "a8ad6b1b",
+      "status": "changed"
+    },
+    {
       "id": "doc:PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ASSET-EVIDENCE-INTAKE-4-PHASES.md",
@@ -12714,7 +12723,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "c9a02e56",
+      "hash": "9db21466",
       "status": "current"
     },
     {
@@ -19501,7 +19510,7 @@
       "id": "test:tests/e2e/marketing-strategy.spec.js",
       "type": "test",
       "path": "tests/e2e/marketing-strategy.spec.js",
-      "hash": "1e1f44b6",
+      "hash": "eea5df9a",
       "status": "current"
     },
     {
@@ -20117,21 +20126,21 @@
       "id": "test:tests/integration/marketing-backup.test.js",
       "type": "test",
       "path": "tests/integration/marketing-backup.test.js",
-      "hash": "6a1e0470",
+      "hash": "a69947bd",
       "status": "current"
     },
     {
       "id": "test:tests/integration/marketing-plan.test.js",
       "type": "test",
       "path": "tests/integration/marketing-plan.test.js",
-      "hash": "59bb23a5",
+      "hash": "a781411a",
       "status": "current"
     },
     {
       "id": "test:tests/integration/marketing-pm-handoff.test.js",
       "type": "test",
       "path": "tests/integration/marketing-pm-handoff.test.js",
-      "hash": "074ea25d",
+      "hash": "5282043b",
       "status": "current"
     },
     {
@@ -20678,7 +20687,7 @@
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
       "hash": "573c21b9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/connection-health.test.js",
@@ -20923,7 +20932,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "d67040d7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -21846,7 +21855,7 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "tests/unit/marketing-strategy-ui.test.js",
-      "hash": "d09a8ac0",
+      "hash": "d17b36c8",
       "status": "current"
     },
     {
@@ -29981,6 +29990,13 @@
     {
       "from": "code:src/components/layouts/Sidebar.jsx",
       "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Sidebar.jsx",
+      "to": "req:FR-153",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -40704,6 +40720,13 @@
     },
     {
       "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:PHASE-STRATEGY-2026-09-06",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
       "to": "doc:ROUTES-SITEMAP",
       "type": "references",
       "source": "markdown",
@@ -41340,6 +41363,20 @@
       "status": "current"
     },
     {
+      "from": "doc:PHASE-STRATEGY-2026-09-06",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-STRATEGY-2026-09-06",
+      "to": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "to": "doc:FR-148-account-scoped-conversations",
       "type": "relates",
@@ -41496,6 +41533,13 @@
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:PARALLEL-REVIEW-2026-09-06",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:PHASE-STRATEGY-2026-09-06",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -75113,6 +75157,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:FR-153",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",

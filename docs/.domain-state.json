@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T12:10:27.183Z",
+  "generatedAt": "2026-09-06T12:31:26.719Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2329,7 +2329,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-154",
@@ -3249,8 +3249,8 @@
           "id": "FR-153",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 20
+          "codeCount": 4,
+          "testCount": 21
         },
         {
           "id": "FR-154",
@@ -5144,8 +5144,8 @@
           "id": "FR-153",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 20
+          "codeCount": 20,
+          "testCount": 21
         },
         {
           "id": "FR-154",
@@ -5161,6 +5161,7 @@
         "src/app/api/growth/plans/[id]/handoff/route.js",
         "src/app/api/growth/plans/[id]/route.js",
         "src/app/api/growth/plans/route.js",
+        "src/components/layouts/Sidebar.jsx",
         "src/config/domains.js",
         "src/modules/marketing/application/marketing-authority.js",
         "src/modules/marketing/application/marketing-plan-service.js",
@@ -5198,7 +5199,8 @@
         "tests/unit/marketing-strategy-ui.test.js",
         "tests/unit/marketing/marketing-authority.test.js",
         "tests/unit/marketing/marketing-plan-contract.test.js",
-        "tests/unit/marketing/marketing-plan-route.test.js"
+        "tests/unit/marketing/marketing-plan-route.test.js",
+        "tests/unit/sidebar-visible-subdomains.test.js"
       ]
     },
     {

@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T18:46:00+07:00,RWANG"
+last_update: "2026-09-06T19:27:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.3.0b
+**Version:** 0.4.0b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -73,6 +73,8 @@ A missing external dependency remains visible and prevents a false complete resu
 ## Current implementation — 2026-09-06
 
 The user authorized execution after the parallel review. Three GPT-5.6 Luna max lanes implement the Strategy data/API, PM handoff and native UI, with root integration owning schema, permissions and governance. [Native charter](../domains/marketing/CHARTER.md) and [first-slice contract](../domains/marketing/features/FR-153-strategy-plans.md) declare FR-153, FR-154, SDD-086 and FEAT-020. Seven relevant items in the import envelope are IN_PROGRESS; the tables below retain their labelled initial state. Full Wave 1 and the 100-interface implementation are not complete. The server intake flags remain false until a target instance/session/Workspace is verified.
+
+The [Strategy phase report](marketing/PHASE-STRATEGY-2026-09-06.md) records delivered behavior, verification, architecture review and remaining gates. Task metadata links to this partial delivery evidence without changing full-task completion or inventing server progress.
 
 Version diff 0.2.0b → 0.3.0b: record implementation start, native contracts and partial task status; preserve all 47 task codes, 158 dependencies, weights and acceptance criteria.
 
@@ -179,13 +181,12 @@ services to record evidence and status at meaningful delivery/verification check
 
 The user requested GPT-5.6 Luna with max reasoning for parallel work. Three bounded agents independently reviewed the PM import plan, Wave 1 persistence/authorization contracts and Wave 1 interface contracts. Root reconciles shared schema, registry and shell changes. This is the development team configuration; no Marketing runtime model selection or permission was changed.
 
-[Parallel review and lane decisions](marketing/PARALLEL-REVIEW-2026-09-06.md) records findings and the first functional slice. All 47 task identities/statuses/weights and 100 interface mappings are preserved. Task-specific design references now include applicable Navigation, Inventory, Channel and Team documents. No server import has occurred, so the initial idempotency key is retained; it must not be changed on a transport retry.
+[Parallel review and lane decisions](marketing/PARALLEL-REVIEW-2026-09-06.md) records findings and the first functional slice. At that review, all 47 initial task statuses were preserved. Execution subsequently moved seven tasks to IN_PROGRESS; identities, weights and all 100 interface mappings remain unchanged. Task-specific design references include applicable Navigation, Inventory, Channel and Team documents. No server import has occurred, so the initial idempotency key is retained; it must not be changed on a transport retry.
 
 ## Version diff
 
 Approved domain design remains 1.1.0b / commit 494a3666.
-Tracking plan **0.1.0b → 0.2.0b**: parallel review, task-specific provenance and explicit PM UI/enforcement limits. This records approval and delivery tracking
-without changing the approved 11-subdomain design.
+Tracking plan **0.3.0b → 0.4.0b**: attach first-slice delivery evidence and verified local checks while preserving seven partial tasks, the five-wave plan and the unresolved server import. The approved 11-subdomain design is unchanged.
 
 ## CHANGELOG
 
@@ -194,3 +195,4 @@ without changing the approved 11-subdomain design.
 | 0.1.0b | 2026-09-06 | candidate | Decompose approved design into five weighted waves with 47 tasks, complete interface coverage and explicit import evidence boundaries | See git history | RWANG |
 | 0.2.0b | 2026-09-06 | candidate | Incorporate three GPT-5.6 Luna max reviews; enrich task provenance and distinguish stored metadata from PM UI/enforcement | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Begin approved Strategy implementation in three lanes; track partial task progress and native contracts | See git history | RWANG |
+| 0.4.0b | 2026-09-06 | beta | Attach Strategy phase evidence; preserve full-wave and actual PM import gates | See git history | RWANG |

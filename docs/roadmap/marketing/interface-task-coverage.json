@@ -14,7 +14,7 @@
       "designKey": "dashboard/overview",
       "implementationTaskCode": "MKT-W1-SHELL",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "partial: native plan dashboard; provider performance unavailable"
     },
     {
       "interfaceId": "MKT-UI-002",
@@ -22,7 +22,7 @@
       "designKey": "strategy/situation",
       "implementationTaskCode": "MKT-W1-STRATEGY",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "partial: native read-only Business Strategy projection"
     },
     {
       "interfaceId": "MKT-UI-003",
@@ -30,7 +30,7 @@
       "designKey": "strategy/objectives",
       "implementationTaskCode": "MKT-W1-STRATEGY",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "partial: native Business goals projection; Marketing goal binding pending"
     },
     {
       "interfaceId": "MKT-UI-004",
@@ -38,7 +38,7 @@
       "designKey": "strategy/plans",
       "implementationTaskCode": "MKT-W1-STRATEGY",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "partial: native immutable Strategy plans, review, decision and PM handoff"
     },
     {
       "interfaceId": "MKT-UI-005",
@@ -46,7 +46,7 @@
       "designKey": "strategy/scenarios",
       "implementationTaskCode": "MKT-W1-STRATEGY",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "partial: explicit unavailable scenarios; saved revision comparison only"
     },
     {
       "interfaceId": "MKT-UI-006",

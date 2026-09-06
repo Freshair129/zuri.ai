@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0b",
-  "status": "local implementation in progress; PM target unresolved; not imported",
+  "version": "0.4.0b",
+  "status": "Strategy first slice implemented locally; full delivery in progress; PM target unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
   "progressMeaning": "Initial weighted design completion is 5%; implementation has started but no full Wave 1 completion is claimed. Actual PM percentage remains unverified.",
@@ -29,13 +29,40 @@
   },
   "localImplementation": {
     "slice": "FR-153 / FR-154 Strategy revision, decision and PM handoff",
-    "status": "in progress",
+    "status": "first Strategy slice locally verified; broader tasks remain in progress",
     "baselineCommit": "5044ba25",
     "foundationCommit": "89147247",
     "parallelModel": "gpt-5.6-luna",
     "reasoningEffort": "max",
     "agents": 3,
     "productionMigrationApplied": false,
-    "fullWave1Complete": false
+    "fullWave1Complete": false,
+    "phaseReport": "docs/roadmap/marketing/PHASE-STRATEGY-2026-09-06.md",
+    "fullTest": {
+      "passed": 3872,
+      "skipped": 14,
+      "failed": 0
+    },
+    "existingBrowserRegression": {
+      "passed": 99,
+      "skipped": 4,
+      "flaky": 0
+    },
+    "marketingBrowser": {
+      "passed": 6,
+      "skipped": 0,
+      "flaky": 0,
+      "finalSidebarCheck": "PASS"
+    },
+    "integrationBaseCommit": "ecbe27e0",
+    "build": "PASS",
+    "planValidation": "PASS: 47 tasks, 158 acyclic dependencies, 100 interface mappings",
+    "visualReview": "PASS: desktop 1440x1000; mobile 390x844 with scroll-to-submit and keyboard tabs",
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    }
   }
 }

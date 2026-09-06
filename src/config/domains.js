@@ -63,7 +63,7 @@ export const DOMAINS = [
     // @tested tests/unit/marketing-navigation.test.js
     key: 'growth', label: 'Marketing', icon: Megaphone, soon: false,
     sub: [
-      { label: 'Dashboard', path: '/growth', icon: LayoutDashboard },
+      { label: 'Dashboard', path: '/growth', icon: LayoutDashboard, exact: true },
       { label: 'Strategy', path: '/growth/strategy', icon: Target },
     ],
   },

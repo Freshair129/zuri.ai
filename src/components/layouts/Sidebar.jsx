@@ -33,7 +33,8 @@ export default function Sidebar() {
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 [scrollbar-width:none]" aria-label={`${domain.label} sections`}>
           {domain.sub.map((item, index) => {
             const Icon = item.icon
-            const active = pathname === item.path || pathname.startsWith(`${item.path}/`)
+            // @req FR-153 — Marketing's root dashboard must not select itself on Strategy.
+            const active = pathname === item.path || (!item.exact && pathname.startsWith(`${item.path}/`))
             // A header marks where a scope group starts. Several Development
             // entries share names with a Project's own Work views on purpose
             // (the global half of the same view) — the header is what tells the

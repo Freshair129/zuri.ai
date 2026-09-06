@@ -64,6 +64,36 @@ async function selectBusinessForSignedInUser(page) {
 }
 
 test.describe('Marketing Strategy first functional slice', () => {
+  test('supports keyboard sections and a usable mobile plan form', async ({ page }, testInfo) => {
+    const pageErrors = []
+    page.on('pageerror', (error) => pageErrors.push(error.message))
+    await selectBusiness(page)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.getByRole('tab', { name: 'Plans', exact: true }).focus()
+    await page.keyboard.press('Home')
+    await expect(page).toHaveURL(/tab=situation/)
+    await expect(page.getByRole('tab', { name: 'Situation', exact: true })).toBeFocused()
+    await page.keyboard.press('End')
+    await expect(page).toHaveURL(/tab=scenarios/)
+    await page.keyboard.press('ArrowLeft')
+    await expect(page).toHaveURL(/tab=plans/)
+    const navigation = page.getByRole('navigation', { name: 'Marketing sections', exact: true })
+    await expect(navigation.locator('[aria-current="page"]')).toHaveCount(1)
+    await expect(navigation.getByRole('link', { name: 'Strategy', exact: true })).toHaveAttribute('aria-current', 'page')
+    await page.getByRole('link', { name: /New plan/i }).click()
+    await expect(page.getByLabel('Plan title', { exact: true })).toBeVisible()
+    await expect(page.getByRole('checkbox', { name: 'Meta Ads', exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath('strategy-mobile.png'), fullPage: true })
+    await page.getByRole('button', { name: 'Create plan', exact: true }).scrollIntoViewIfNeeded()
+    await expect(page.getByRole('button', { name: 'Create plan', exact: true })).toBeInViewport()
+    await page.screenshot({ path: testInfo.outputPath('strategy-mobile-actions.png'), fullPage: true })
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.getByLabel('Plan title', { exact: true }).scrollIntoViewIfNeeded()
+    await page.screenshot({ path: testInfo.outputPath('strategy-desktop.png'), fullPage: true })
+    expect(pageErrors).toEqual([])
+  })
+
   test('keeps Strategy sections addressable and presents explicit unavailable provider metrics', async ({ page }) => {
     await selectBusiness(page)
     await expect(page).toHaveURL(/\/growth\/strategy\?tab=plans/)
