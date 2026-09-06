@@ -16,7 +16,7 @@
   "project": {
     "code": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
     "name": "Zuri Marketing — Domain Implementation",
-    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design complete; Strategy first slice in progress. Live evidence pending.",
+    "description": "Approved Marketing domain delivery: planning/team foundation, Meta Ads, TikTok Ads, Instagram, GA4, SEO, specialist workflows and controlled execution. Design and bounded Campaign initiative task complete locally; Strategy broader tasks remain in progress. Live evidence pending.",
     "status": "ACTIVE"
   },
   "workstreams": [
@@ -308,21 +308,26 @@
           "containerCode": "EPIC-MKT-W1",
           "subtype": "TASK",
           "title": "Initiatives and PM-linked campaign execution",
-          "status": "IN_PROGRESS",
+          "status": "DONE",
           "weight": 5,
           "metadata": {
             "ownerRole": "Marketing engineering",
             "acceptanceCriteria": [
               "Initiative, provider campaign and PM container identities remain distinct; execution uses shared PM records."
             ],
-            "evidenceRefs": [],
+            "evidenceRefs": [
+              "docs/roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md",
+              "tests/integration/marketing-campaign.test.js",
+              "tests/e2e/marketing-campaigns.spec.js",
+              "tests/e2e/navigation-reachability.spec.js"
+            ],
             "designRefs": [
               "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
               "docs/change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md",
               "docs/change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md",
               "docs/domains/marketing/features/FR-156-campaign-initiatives.md"
             ],
-            "implementationStatus": "in progress: native initiative, versioned brief and authorized PM projection",
+            "implementationStatus": "locally verified: distinct initiative identity, versioned brief, explicit authorized PM receipt and seven native interfaces; provider measurement remains later-wave scope",
             "interfaceIds": [
               "MKT-UI-006",
               "MKT-UI-007",

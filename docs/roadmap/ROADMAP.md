@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.38.0b"
+version: "2.39.0b"
 updated: "2026-09-06"
 owner: "Owen"
 source_of_truth: true
@@ -345,6 +345,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-153 | PHASE-ZAI-LINE-OA-STUDIO | task | FR-153 LIFF app registry (FEAT-018, SRS LOS-RQ-070, BR-002): `LineOaLiffApp` ต่อบัญชี — `code` unique ต่อ Tenant, ชื่อ, view size, endpoint https, scope allow-list, bot prompt, และ `liffId` ที่ LINE Developers ออกให้ (ตรวจรูปแบบ unique ต่อบัญชี เป็น attribute ไม่ใช่ key); DRAFT จนกว่าจะ `RECORD_LIFF_ID` แล้วเป็น ACTIVE, `UPDATE` / `ARCHIVE`, CAS บน `version`, เขียนได้เฉพาะ OWNER หรือ `LINE_OA_PUBLISHER`; route `GET/POST /api/line-oa/liff-apps`, `GET/PATCH /api/line-oa/liff-apps/[id]`; translator ของ FR-152 resolve action LIFF ของ rich menu ผ่าน app ที่ ACTIVE เป็น `https://liff.line.me/{liffId}{path}` ทั้งตอนคิวและตอน worker รัน ปฏิเสธด้วย code เมื่อไม่มี app หรือยังไม่ ACTIVE. **ส่งมอบใน local 2026-09-06** migration ทั้งสอง tree (production ยังไม่ apply); ไม่มีการเรียก LINE (สร้าง app บน LINE Login ต้องมี credential contract แยก) | P1 | Claude | done (local; LINE Login job and production migration pending) | FR-153; FR-151; FR-152; FEAT-018; ADR-060; BR-002 | ../domains/line-oa-studio/features/FR-153-line-oa-liff-app-registry.md |
 | TASK-FR-155 | PHASE-ZAI-MARKETING | task | Marketing Strategy immutable revisions, independent review and exact human decisions (FR-155) | P1 | RWANG / Luna | in-progress | Approved CR-018; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
 | TASK-FR-154 | PHASE-ZAI-MARKETING | task | Marketing approved revision to same-Business PM preview and transactional receipt (FR-154) | P1 | RWANG / Luna | in-progress | FR-155; SDD-086 | ../domains/marketing/features/FR-155-strategy-plans.md |
+| TASK-FR-156 | PHASE-ZAI-MARKETING | task | Marketing Campaign initiative, versioned brief, explicit PM receipt binding and live authorized execution roadmap (FR-156); seven approved interfaces | P1 | RWANG / Luna | done (local Campaign slice; provider measurement and production activation pending) | FR-155; FR-154; SDD-087 | marketing/PHASE-CAMPAIGNS-2026-09-06.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
@@ -392,3 +393,5 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 [FR-148 / FR-149 / FR-150 domain phase map](PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
 
 Version diff 2.35.0 → 2.36.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
+
+Version diff 2.38.0b → 2.39.0b: add Campaign delivery row and its integrated verification evidence; existing Marketing Strategy rows retain their scope.

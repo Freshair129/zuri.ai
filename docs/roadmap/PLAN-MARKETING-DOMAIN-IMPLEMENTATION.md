@@ -1,7 +1,7 @@
 ---
-version: "0.5.0b"
+version: "0.5.1b"
 created_at: "2026-09-06T13:58:59+07:00,RWANG,494a3666"
-last_update: "2026-09-06T19:27:00+07:00,RWANG"
+last_update: "2026-09-06T21:03:55+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Marketing — Project Manager implementation tracking plan
 
-**Version:** 0.5.0b
+**Version:** 0.5.1b
 **Status:** Prepared for PM intake; target instance and Workspace remain unresolved. No server records claimed.
 
 **Relates to:** [Design baseline](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md), [Navigation](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md), [Interface inventory](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md), [Team refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -39,7 +39,7 @@ software delivery evidence. WorkItem weights are initial relative effort estimat
 Only DONE items earn completed weight. Required open gates cap their stream below completion.
 Project roll-up weights sum to 100.
 
-The initial planned roll-up is **5%**, representing completed design only. Product implementation was 0% at plan preparation; the Strategy first slice is now in progress. No additional completed weight is claimed before task acceptance.
+The initial planned roll-up is **5%**, representing completed design only. Product implementation was 0% at plan preparation. The bounded Campaign initiative task now meets local acceptance; broader Strategy tasks remain in progress. This initial snapshot is not current server progress.
 The persisted PM percentage must be read from the server after import before it is reported as actual PM progress.
 Mockup screenshots and governance-only checks do not complete implementation tasks.
 
@@ -187,7 +187,7 @@ The user requested GPT-5.6 Luna with max reasoning for parallel work. Three boun
 ## Version diff
 
 Approved domain design remains 1.1.0b / commit 494a3666.
-Tracking plan **0.3.0b → 0.4.0b**: attach first-slice delivery evidence and verified local checks while preserving seven partial tasks, the five-wave plan and the unresolved server import. The approved 11-subdomain design is unchanged.
+Tracking plan **0.5.0b → 0.5.1b**: attach verified Campaign delivery and one bounded DONE transition while preserving seven partial tasks, the five-wave plan and the unresolved server import. The approved 11-subdomain design is unchanged.
 
 ## CHANGELOG
 
@@ -198,14 +198,23 @@ Tracking plan **0.3.0b → 0.4.0b**: attach first-slice delivery evidence and ve
 | 0.3.0b | 2026-09-06 | beta | Begin approved Strategy implementation in three lanes; track partial task progress and native contracts | See git history | RWANG |
 | 0.4.0b | 2026-09-06 | beta | Attach Strategy phase evidence; preserve full-wave and actual PM import gates | See git history | RWANG |
 | 0.5.0b | 2026-09-06 | beta | Continue Campaign implementation from approved design and retain SmartGift target gate | See git history | RWANG |
+| 0.5.1b | 2026-09-06 | beta | Record locally verified Campaign slice and one bounded task completion | See git history | RWANG |
 
 
 ## Campaign continuation — 2026-09-06
 
-The user requested continuation after Strategy delivery. [FR-156](../domains/marketing/features/FR-156-campaign-initiatives.md) and [phase evidence](marketing/PHASE-CAMPAIGNS-2026-09-06.md)
-derives the next slice from approved Campaigns interfaces. MKT-W1-CAMPAIGNS is
-IN_PROGRESS; all other incomplete wave items retain their status. Three GPT-5.6
-Luna max agents own core/API, UI and authorized PM projection lanes. Root owns
-schema/migration/backup and final integration. No additional completed weight is
-claimed until acceptance gates pass. Baseline after merging main: 3,897 tests pass,
-14 skipped. Version diff 0.4.0b → 0.5.0b adds Campaign work and clarifies SmartGift.
+[FR-156](../domains/marketing/features/FR-156-campaign-initiatives.md) and
+[phase evidence](marketing/PHASE-CAMPAIGNS-2026-09-06.md) record the delivered
+Campaign slice from the approved design. MKT-W1-CAMPAIGNS is locally DONE:
+initiative identity stays distinct, and Plan/Timeline read authorized shared PM
+records through an explicit receipt. Seven Campaign interfaces are verified.
+Results remains unavailable pending the later measurement wave.
+
+Three GPT-5.6 Luna max agents delivered core/API, UI and PM adapter work. Root
+integrated schema/migration/backup and verified 3,930 full tests, 16 unit tests
+after the final UI correction, build and 106 browser passes (4 skipped, no flaky).
+The plan has 4 DONE, 7 IN_PROGRESS and 36 PLANNED items. Wave 1 gates and SmartGift
+server intake remain open; task codes, weights and dependencies are preserved.
+
+Version diff 0.5.0b → 0.5.1b: attach Campaign verification and one bounded DONE
+transition; preserve the full domain scope and pending live integration gates.

@@ -1,9 +1,9 @@
 {
-  "version": "0.5.0b",
-  "status": "Strategy first slice verified locally; Campaign implementation in progress; SmartGift instance and Workspace unresolved; not imported",
+  "version": "0.5.1b",
+  "status": "Strategy first slice and Campaign initiative slice verified locally; SmartGift instance and Workspace unresolved; not imported",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
-  "progressMeaning": "Initial weighted design completion is 5%; implementation has started but no full Wave 1 completion is claimed. Actual PM percentage remains unverified.",
+  "progressMeaning": "Initial 5% is the design preparation snapshot. Campaign initiative task is now locally DONE with evidence; full Wave 1 remains open. Actual PM percentage is unverified because no server import occurred.",
   "counts": {
     "workstreams": 5,
     "items": 47,
@@ -75,7 +75,7 @@
   "campaignImplementation": {
     "requirement": "FR-156",
     "spec": "SDD-087",
-    "status": "in progress",
+    "status": "locally verified",
     "foundationCommit": "f125ff1f",
     "baseCommit": "a7b5d9ed",
     "parallelModel": "gpt-5.6-luna",
@@ -86,6 +86,40 @@
       "skipped": 14,
       "failed": 0
     },
-    "productionMigrationApplied": false
+    "productionMigrationApplied": false,
+    "applicationCommit": "e44d482b",
+    "schemaCommit": "1fd2e75e",
+    "phaseReport": "docs/roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md",
+    "fullTest": {
+      "passed": 3930,
+      "skipped": 14,
+      "failed": 0,
+      "note": "Full schema-integrated run before final bounded UI navigation correction; 16 relevant unit tests passed afterward"
+    },
+    "finalUiTests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "fullBrowser": {
+      "passed": 106,
+      "skipped": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "build": "PASS",
+    "visualReview": "PASS: desktop 1440px, mobile 390px, no horizontal overflow, Campaign detail keyboard tabs and no page errors",
+    "fullWave1Complete": false,
+    "governance": {
+      "status": "PASS",
+      "critical": 0,
+      "warnings": 0,
+      "baselineInfo": 23
+    },
+    "planValidation": "PASS: 47 tasks, 158 acyclic dependencies, 100 unique interface mappings"
+  },
+  "localTaskCounts": {
+    "DONE": 4,
+    "IN_PROGRESS": 7,
+    "PLANNED": 36
   }
 }

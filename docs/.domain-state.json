@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T12:40:43.313Z",
+  "generatedAt": "2026-09-06T14:04:39.660Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,9 +39,9 @@
     "domainCount": 11,
     "featureCount": 117,
     "readyFeatureCount": 99,
-    "requirementCount": 155,
-    "verifiedRequirementCount": 145,
-    "progressPercent": 93.5,
+    "requirementCount": 156,
+    "verifiedRequirementCount": 146,
+    "progressPercent": 93.6,
     "gapCount": 22,
     "gaps": [
       {
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -681,7 +681,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -1236,7 +1236,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -1613,7 +1613,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -2089,7 +2089,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -2241,7 +2241,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -2344,7 +2344,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 21
+          "testCount": 23
+        },
+        {
+          "id": "FR-156",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 18,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -2355,8 +2362,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 5,
+            "inventoried": 5,
             "missing": 0
           }
         },
@@ -2368,9 +2375,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
-            "openApiPaths": 159,
+            "routes": 5,
+            "inventoried": 5,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -2406,8 +2413,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 5,
-            "present": 5
+            "models": 6,
+            "present": 6
           }
         },
         "authorization": {
@@ -2417,9 +2424,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 3,
-            "guardedMutations": 3,
-            "reads": 2,
+            "mutations": 5,
+            "guardedMutations": 5,
+            "reads": 4,
             "unguardedReads": 0
           }
         },
@@ -2438,6 +2445,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/marketing/CHARTER.md",
         "docs/domains/marketing/features/FR-155-strategy-plans.md",
+        "docs/domains/marketing/features/FR-156-campaign-initiatives.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -2448,11 +2456,11 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 5,
-        "apiRoutes": 3,
-        "pageRoutes": 2,
-        "ownedModels": 5,
-        "featureNotes": 1
+        "routes": 10,
+        "apiRoutes": 5,
+        "pageRoutes": 5,
+        "ownedModels": 6,
+        "featureNotes": 2
       },
       "featureIds": [
         "FEAT-020"
@@ -2523,7 +2531,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -2936,7 +2944,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-069",
@@ -3272,7 +3280,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 23
+        },
+        {
+          "id": "FR-156",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -3307,7 +3322,7 @@
           "details": {
             "routes": 105,
             "inventoried": 105,
-            "openApiPaths": 159,
+            "openApiPaths": 161,
             "missingFromOpenApi": 0
           }
         },
@@ -3744,7 +3759,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-069",
@@ -3775,6 +3790,7 @@
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/e2e/fr040-project-work.spec.js",
+        "tests/e2e/marketing-campaigns.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/external-ref-import.test.js",
         "tests/integration/import-target-authorization.test.js",
@@ -3786,6 +3802,7 @@
         "tests/unit/contract-plan-artifacts.test.js",
         "tests/unit/domain-state.test.js",
         "tests/unit/human-plan-builder.test.js",
+        "tests/unit/marketing-campaign-ui.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/plan-schema.test.js",
         "tests/unit/plan-status-vocabulary.test.js",
@@ -5160,7 +5177,8 @@
       "registryStatus": "building",
       "requirementIds": [
         "FR-154",
-        "FR-155"
+        "FR-155",
+        "FR-156"
       ],
       "primaryDomain": "marketing",
       "contributorDomains": [
@@ -5187,18 +5205,32 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 21
+          "testCount": 23
+        },
+        {
+          "id": "FR-156",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 20,
+          "testCount": 20
         }
       ],
       "evidence": [
+        "src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+        "src/app/(pm)/growth/campaigns/new/page.jsx",
+        "src/app/(pm)/growth/campaigns/page.jsx",
         "src/app/(pm)/growth/page.jsx",
         "src/app/(pm)/growth/strategy/page.jsx",
+        "src/app/api/growth/campaigns/[id]/route.js",
+        "src/app/api/growth/campaigns/route.js",
         "src/app/api/growth/plans/[id]/handoff/route.js",
         "src/app/api/growth/plans/[id]/route.js",
         "src/app/api/growth/plans/route.js",
         "src/components/layouts/Sidebar.jsx",
         "src/config/domains.js",
         "src/modules/marketing/application/marketing-authority.js",
+        "src/modules/marketing/application/marketing-campaign-execution.js",
+        "src/modules/marketing/application/marketing-campaign-service.js",
         "src/modules/marketing/application/marketing-plan-service.js",
         "src/modules/marketing/application/marketing-pm-handoff-service.js",
         "src/modules/marketing/components/MarketingDashboard.jsx",
@@ -5209,18 +5241,33 @@
         "src/modules/marketing/components/PlanReviewDecision.jsx",
         "src/modules/marketing/components/PlanVersionHistory.jsx",
         "src/modules/marketing/components/StrategyWorkspace.jsx",
+        "src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+        "src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+        "src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+        "src/modules/marketing/components/campaigns/CampaignForm.jsx",
+        "src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+        "src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+        "src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+        "src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+        "src/modules/marketing/components/campaigns/campaign-contract.js",
         "src/modules/marketing/components/marketing-contract.js",
+        "src/modules/marketing/domain/marketing-campaign-contract.js",
         "src/modules/marketing/domain/marketing-plan-contract.js",
+        "src/modules/marketing/infrastructure/marketing-campaign-repository.js",
         "src/modules/marketing/infrastructure/marketing-plan-repository.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/marketing-campaigns.spec.js",
         "tests/e2e/marketing-strategy.spec.js",
+        "tests/e2e/navigation-reachability.spec.js",
         "tests/integration/backup.test.js",
         "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/line-server-backup.test.js",
         "tests/integration/marketing-backup.test.js",
+        "tests/integration/marketing-campaign-execution.test.js",
+        "tests/integration/marketing-campaign.test.js",
         "tests/integration/marketing-plan.test.js",
         "tests/integration/marketing-pm-handoff.test.js",
         "tests/integration/openapi-docs.test.js",
@@ -5229,10 +5276,13 @@
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
         "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/marketing-campaign-ui.test.js",
         "tests/unit/marketing-migration-policy.test.js",
         "tests/unit/marketing-navigation.test.js",
         "tests/unit/marketing-strategy-ui.test.js",
         "tests/unit/marketing/marketing-authority.test.js",
+        "tests/unit/marketing/marketing-campaign-contract.test.js",
+        "tests/unit/marketing/marketing-campaign-route.test.js",
         "tests/unit/marketing/marketing-plan-contract.test.js",
         "tests/unit/marketing/marketing-plan-route.test.js",
         "tests/unit/sidebar-visible-subdomains.test.js"

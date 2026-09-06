@@ -135,15 +135,18 @@ test.describe('navigation reachability', () => {
   // Distinct from `smoke.spec.js:93`, which proves one *label* ("Overview")
   // matches nothing. This proves a reserved *domain* is never offered — a
   // different way for the palette to strand a user.
-  test('search never offers a reserved domain that has no page', async ({ page }) => {
+  test('search hides reserved Commerce and opens delivered Campaigns', async ({ page }) => {
     await chooseBusiness(page)
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
-    for (const reserved of ['Commerce', 'Campaigns']) {
-      await input.fill(reserved)
-      await expect(page.getByText(/No matches for/i)).toBeVisible()
-    }
+    await input.fill('Commerce')
+    await expect(page.getByText(/No matches for/i)).toBeVisible()
+    // @req FR-156 — Campaigns is now delivered and must be reachable by search.
+    await input.fill('Campaigns')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/growth\/campaigns$/)
+    await expect(page.getByRole('heading', { name: 'Campaigns', exact: true })).toBeVisible()
   })
 })
 

@@ -3,9 +3,9 @@ feature: FR-156
 module: marketing
 domain: marketing
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-06T20:00:00+07:00,RWANG,a7b5d9ed"
-last_update: "2026-09-06T20:00:00+07:00,RWANG"
+last_update: "2026-09-06T21:03:55+07:00,RWANG"
 status: beta
 superseded_by: null
 ---
@@ -83,6 +83,8 @@ PM import or accepts a raw projectId. The receipt can refer to an older revision
 the DTO identifies that historical revision and whether it differs from the
 current brief. Changing selection requires a fresh explicit action, never silently
 switching to the latest receipt. Close/cancel add reason (1–4000 characters).
+Archived Strategy plans reject Campaign revision and receipt binding; an owner
+may still close/cancel the initiative because that changes only its own lifecycle.
 
 Detail DTO:
 `{id,code,businessId,tenantId,planId,handoffId,status,phase,closureReason,version,
@@ -99,6 +101,9 @@ PM's `getProjectRoadmap(projectId,{db,viewer})`. It preserves EXECUTION_ROADMAP
 schema 1.0 including explicit unavailable fields and its own PM authorization.
 Missing/deleted/cross-scope links expose neither PM identity nor payload. Unexpected
 infrastructure failures propagate as errors instead of becoming fake empty data.
+The same adapter validates every receipt exposed in `plan.handoffs` and the
+selected receipt used to derive collection phase. The roadmap is a live Project
+view, not a frozen receipt snapshot: later handoffs may add work to that Project.
 
 `results` is always `{status:'UNAVAILABLE',reasonCode:'NO_APPROVED_SOURCE',
 measurementWindow:null,sources:[],metrics:[]}` in this slice. Success-metric prose,
@@ -134,8 +139,12 @@ RLS migration parity without claiming production application. Browser tests cove
 all seven interfaces and a real accepted handoff projected after reload. Full tests,
 build, governance and browser regression are required before local completion.
 
+Local verification and remaining live gates are recorded in the
+[Campaign phase report](../../../roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md).
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | beta | Pin native Campaign identity, versioned brief, PM projection and acceptance from approved design | See git history | RWANG |
+| 0.1.1b | 2026-09-06 | beta | Clarify archived plan binding and live PM scope; attach verified phase evidence | See git history | RWANG |

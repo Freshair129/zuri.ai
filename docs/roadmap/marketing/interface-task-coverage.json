@@ -54,7 +54,7 @@
       "designKey": "campaigns/list",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-007",
@@ -62,7 +62,7 @@
       "designKey": "campaigns/brief",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-008",
@@ -70,7 +70,7 @@
       "designKey": "campaigns/plan",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-009",
@@ -78,7 +78,7 @@
       "designKey": "campaigns/timeline",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-010",
@@ -86,7 +86,7 @@
       "designKey": "campaigns/results",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: explicit unavailable Results until approved measurement source exists"
     },
     {
       "interfaceId": "MKT-UI-011",
@@ -94,7 +94,7 @@
       "designKey": "campaigns/decisions",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-012",
@@ -614,7 +614,7 @@
       "designKey": "campaigns/new",
       "implementationTaskCode": "MKT-W1-CAMPAIGNS",
       "mockupStatus": "verified design only",
-      "implementationStatus": "not started"
+      "implementationStatus": "native verified: Campaign initiative slice; see PHASE-CAMPAIGNS-2026-09-06.md"
     },
     {
       "interfaceId": "MKT-UI-077",

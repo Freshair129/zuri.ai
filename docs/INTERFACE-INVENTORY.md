@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=62; operational_domain_keys=10; operational_subdomain_entries=32; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=65; operational_domain_keys=10; operational_subdomain_entries=33; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 

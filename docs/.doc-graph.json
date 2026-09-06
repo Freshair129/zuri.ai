@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1981,
-    "total_edges": 7758,
+    "total_nodes": 2015,
+    "total_edges": 7915,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 186,
+      "document": 187,
       "adr": 62,
       "domain": 11,
-      "roadmap": 40,
+      "roadmap": 41,
       "feature": 20,
-      "route": 221,
-      "model": 93,
-      "requirement": 313,
-      "test": 487,
-      "code_file": 544
+      "route": 226,
+      "model": 94,
+      "requirement": 315,
+      "test": 493,
+      "code_file": 562
     },
     "coverage": {
-      "requirements": 313,
-      "fr_with_code": "100% (145/145)",
-      "fr_with_tests": "100% (145/145)",
-      "rules_anchored_in_code": "96% (129/134)",
+      "requirements": 315,
+      "fr_with_code": "100% (146/146)",
+      "fr_with_tests": "100% (146/146)",
+      "rules_anchored_in_code": "96% (130/135)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 544,
+      "annotated_code_files": 562,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,78 +55,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "doc:SITEMAP-DOMAIN-NAV",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/command-palette-index.test.js",
-      "test:tests/unit/domain-state.test.js",
-      "code:src/components/layouts/Sidebar.jsx",
-      "code:src/config/domains.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION"
     ],
-    "added": [
-      "doc:CR-017-MARKETING-ADS-ANALYTICS",
-      "doc:CR-018-MARKETING-DOMAIN-DESIGN",
-      "doc:MARKETING-CHANNEL-CONTRACTS",
-      "doc:MARKETING-INTERFACE-INVENTORY",
-      "doc:MARKETING-MOCKUP-QA",
-      "doc:MARKETING-NAVIGATION-VIEWS",
-      "doc:MARKETING-TEAM-REFINEMENT",
-      "domain:marketing",
-      "doc:FR-155-strategy-plans",
-      "doc:PARALLEL-REVIEW-2026-09-06",
-      "doc:PHASE-STRATEGY-2026-09-06",
-      "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
-      "feat:FEAT-020",
-      "route:page:/growth",
-      "route:page:/growth/strategy",
-      "route:api:/api/growth/plans",
-      "route:api:/api/growth/plans/[id]/handoff",
-      "route:api:/api/growth/plans/[id]",
-      "model:MarketingPlan",
-      "model:MarketingPlanVersion",
-      "model:MarketingReview",
-      "model:MarketingDecision",
-      "model:MarketingHandoff",
-      "req:FR-155",
-      "req:FR-154",
-      "req:SDD-086",
-      "test:tests/e2e/marketing-strategy.spec.js",
-      "test:tests/integration/marketing-backup.test.js",
-      "test:tests/integration/marketing-plan.test.js",
-      "test:tests/integration/marketing-pm-handoff.test.js",
-      "test:tests/unit/marketing/marketing-authority.test.js",
-      "test:tests/unit/marketing/marketing-plan-contract.test.js",
-      "test:tests/unit/marketing/marketing-plan-route.test.js",
-      "test:tests/unit/marketing-migration-policy.test.js",
-      "test:tests/unit/marketing-navigation.test.js",
-      "test:tests/unit/marketing-strategy-ui.test.js",
-      "code:src/app/(pm)/growth/page.jsx",
-      "code:src/app/(pm)/growth/strategy/page.jsx",
-      "code:src/app/api/growth/plans/route.js",
-      "code:src/app/api/growth/plans/[id]/handoff/route.js",
-      "code:src/app/api/growth/plans/[id]/route.js",
-      "code:src/modules/marketing/application/marketing-authority.js",
-      "code:src/modules/marketing/application/marketing-plan-service.js",
-      "code:src/modules/marketing/application/marketing-pm-handoff-service.js",
-      "code:src/modules/marketing/components/marketing-contract.js",
-      "code:src/modules/marketing/components/MarketingDashboard.jsx",
-      "code:src/modules/marketing/components/MarketingState.jsx",
-      "code:src/modules/marketing/components/MarketingTabs.jsx",
-      "code:src/modules/marketing/components/PlanForm.jsx",
-      "code:src/modules/marketing/components/PlanHandoff.jsx",
-      "code:src/modules/marketing/components/PlanReviewDecision.jsx",
-      "code:src/modules/marketing/components/PlanVersionHistory.jsx",
-      "code:src/modules/marketing/components/StrategyWorkspace.jsx",
-      "code:src/modules/marketing/domain/marketing-plan-contract.js",
-      "code:src/modules/marketing/infrastructure/marketing-plan-repository.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -537,6 +468,67 @@
         ],
         "@tested": [
           "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "hash": "e5049d4e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/growth/campaigns/new/page.jsx",
+      "hash": "73ff827d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/growth/campaigns/page.jsx",
+      "hash": "7f9561fd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
         ]
       }
     },
@@ -2809,6 +2801,46 @@
       }
     },
     {
+      "id": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/growth/campaigns/[id]/route.js",
+      "hash": "85fb7023",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-campaign-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/campaigns/route.js",
+      "type": "code_file",
+      "path": "src/app/api/growth/campaigns/route.js",
+      "hash": "f3cb7d0b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-campaign-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/growth/plans/[id]/handoff/route.js",
       "type": "code_file",
       "path": "src/app/api/growth/plans/[id]/handoff/route.js",
@@ -5019,7 +5051,7 @@
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
       "hash": "d2dd2f90",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
@@ -5086,8 +5118,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "3859e132",
-      "status": "changed",
+      "hash": "4b0fdb1f",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5096,6 +5128,7 @@
           "FR-060",
           "FR-091",
           "FR-155",
+          "FR-156",
           "FR-086",
           "FR-133",
           "FR-146",
@@ -8959,10 +8992,50 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/application/marketing-campaign-execution.js",
+      "hash": "121c6cf3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-campaign-execution.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/application/marketing-campaign-service.js",
+      "hash": "4cdda8da",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-campaign.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/application/marketing-plan-service.js",
       "type": "code_file",
       "path": "src/modules/marketing/application/marketing-plan-service.js",
-      "hash": "b6c00d0d",
+      "hash": "23fdec8e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9001,10 +9074,188 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/campaign-contract.js",
+      "hash": "49a0e05b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "hash": "9c58ec3a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "hash": "f9bd12aa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "hash": "05323960",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "FR-155"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "hash": "7f2e7f6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "hash": "2414df8f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "FR-068"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "hash": "0f309680",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "hash": "cd067d07",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "FR-068"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "type": "code_file",
+      "path": "src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "hash": "837b31cc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing-campaign-ui.test.js",
+          "tests/e2e/marketing-campaigns.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/components/marketing-contract.js",
-      "hash": "2e9cd098",
+      "hash": "4239796d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9078,7 +9329,7 @@
       "id": "code:src/modules/marketing/components/PlanForm.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanForm.jsx",
-      "hash": "ccdadbbf",
+      "hash": "b32db984",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9135,7 +9386,7 @@
       "id": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
       "type": "code_file",
       "path": "src/modules/marketing/components/PlanVersionHistory.jsx",
-      "hash": "69c6a556",
+      "hash": "8461547b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9145,7 +9396,8 @@
           "SDD-086"
         ],
         "@tested": [
-          "tests/unit/marketing-strategy-ui.test.js"
+          "tests/unit/marketing-strategy-ui.test.js",
+          "tests/unit/marketing-campaign-ui.test.js"
         ]
       }
     },
@@ -9170,10 +9422,30 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/domain/marketing-campaign-contract.js",
+      "hash": "c08b98e9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-campaign-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/domain/marketing-plan-contract.js",
       "type": "code_file",
       "path": "src/modules/marketing/domain/marketing-plan-contract.js",
-      "hash": "c4e13b3c",
+      "hash": "da091fce",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9186,6 +9458,26 @@
         ],
         "@tested": [
           "tests/unit/marketing/marketing-plan-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "type": "code_file",
+      "path": "src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "hash": "5c203c9a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-156"
+        ],
+        "@spec": [
+          "SDD-087",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-campaign.test.js"
         ]
       }
     },
@@ -9287,8 +9579,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "f87d9237",
-      "status": "changed",
+      "hash": "aa89b0e6",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -9357,8 +9649,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "7105440c",
-      "status": "changed",
+      "hash": "6b08687c",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -9380,6 +9672,7 @@
           "FR-152",
           "FR-155",
           "FR-154",
+          "FR-156",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -11319,10 +11612,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.42.0b",
+      "version": "1.43.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "11633f62",
-      "status": "changed"
+      "hash": "f61210e5",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11373,10 +11666,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.20.0b",
+      "version": "1.21.0b",
       "doc_status": "Draft",
-      "hash": "393a157c",
-      "status": "changed"
+      "hash": "d74efa86",
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -11699,10 +11992,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.24.0b",
+      "version": "1.25.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "aa03d23b",
-      "status": "changed"
+      "hash": "f8feba87",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -12552,6 +12845,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-156-campaign-initiatives",
+      "type": "document",
+      "path": "docs/domains/marketing/features/FR-156-campaign-initiatives.md",
+      "title": "Campaign initiatives and receipt-bound execution",
+      "hash": "66e9e788",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -12602,10 +12903,10 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.6.0b",
+      "version": "1.7.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d8b952c5",
-      "status": "changed"
+      "hash": "e8ba0f6d",
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12755,6 +13056,14 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
       "title": "Phase 7: OmiChat Unified Inbox",
       "hash": "a320a862",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-CAMPAIGNS-2026-09-06",
+      "type": "roadmap",
+      "path": "docs/roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md",
+      "title": "Marketing Campaigns — phase evidence",
+      "hash": "25af2e2e",
       "status": "current"
     },
     {
@@ -12990,8 +13299,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
       "title": "Marketing — Project Manager implementation tracking plan",
-      "hash": "a694e810",
-      "status": "current"
+      "hash": "b5736e5d",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -13072,10 +13381,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.158.0b",
+      "version": "1.159.0b",
       "doc_status": "Draft",
-      "hash": "6889ee4f",
-      "status": "changed"
+      "hash": "cc0f900a",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13102,8 +13411,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ba63bac5",
-      "status": "changed"
+      "hash": "b56668a3",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -13139,7 +13448,7 @@
       "version": "0.8.0b",
       "doc_status": "Accepted",
       "hash": "79361163",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SYSTEM-DIAGRAM",
@@ -13554,7 +13863,8 @@
         "MarketingPlanVersion",
         "MarketingReview",
         "MarketingDecision",
-        "MarketingHandoff"
+        "MarketingHandoff",
+        "MarketingInitiative"
       ],
       "owns_routes": [
         "src/app/(pm)/growth/**",
@@ -13564,7 +13874,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "2b22fec7",
+      "hash": "d21baa73",
       "status": "current"
     },
     {
@@ -14026,6 +14336,11 @@
     },
     {
       "id": "model:MarketingHandoff",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingInitiative",
       "type": "model",
       "status": "current"
     },
@@ -16047,7 +16362,17 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state. 🟠 implementation in progress from approved CR-018 "
+      "row_text": "Marketing Strategy revision and decision — Business-scoped MarketingPlan drafts append immutable canonical title/payload versions; independent human PASS reviews and expiring, append-only human decisions bind the exact current revision/hash. Growth visibility gates reads; Business ownership gates writes, with expected-version compare-and-swap and atomic audit. Dashboard and Strategy provide real plan CRUD, revision comparison, review and decision controls with scope-safe URL state. 🟢 locally verified beta from approved CR-018; production activation pending "
+    },
+    {
+      "id": "req:FR-156",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Marketing Campaign initiatives — a Business-scoped initiative has a distinct UUID and one versioned Strategy brief, with calendar dates, offer and conditions included in its reviewed hash. Owners create, revise, explicitly bind a valid same-plan PM handoff and close or cancel with rationale through audited optimistic transactions. Campaign list/board and Brief, Plan, Timeline, Results and Decisions views preserve scope, exact revision identity and authorized PM execution projections; metrics remain unavailable without approved evidence.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Marketing Campaign initiatives — a Business-scoped initiative has a distinct UUID and one versioned Strategy brief, with calendar dates, offer and conditions included in its reviewed hash. Owners create, revise, explicitly bind a valid same-plan PM handoff and close or cancel with rationale through audited optimistic transactions. Campaign list/board and Brief, Plan, Timeline, Results and Decisions views preserve scope, exact revision identity and authorized PM execution projections; metrics remain unavailable without approved evidence. 🟠 implementation in progress from approved CR-018 "
     },
     {
       "id": "req:NFR-001",
@@ -17130,6 +17455,16 @@
       "row_text": "Marketing planning evidence is immutable and execution is owner-delegated: a Business-scoped repository stores canonical version hashes, independent reviews and append-only expiring decisions; expected-version transactions bind audit to every mutation. Handoff revalidates scope and exact approval, passes the same transaction client to PM PlanEnvelope intake and stores only its accepted execution references. Providers, binary files, goals and agent control remain with their existing owners. FR-155; FR-154; SEC-001; SEC-003; BR-007; ADR-025 "
     },
     {
+      "id": "req:SDD-087",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Marketing initiatives reuse immutable Strategy evidence and explicit PM receipts: one scoped association model holds lifecycle and concurrency, while optional campaignBrief content stays inside canonical PlanVersion hashes without rewriting old versions. Receipt selection verifies plan, revision/hash, Workspace and Project before the authorized PM roadmap read port; closure affects only the initiative and source-less Results remain unavailable.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Marketing initiatives reuse immutable Strategy evidence and explicit PM receipts: one scoped association model holds lifecycle and concurrency, while optional campaignBrief content stays inside canonical PlanVersion hashes without rewriting old versions. Receipt selection verifies plan, revision/hash, Workspace and Project before the authorized PM roadmap read port; closure affects only the initiative and source-less Results remain unavailable. FR-156; FR-155; FR-154; SDD-086; SEC-001; SEC-003; ADR-025 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -17921,6 +18256,22 @@
       "kind": "api",
       "route": "/api/gates/[id]",
       "path": "src/app/api/gates/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/campaigns",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/campaigns",
+      "path": "src/app/api/growth/campaigns/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/campaigns/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/campaigns/[id]",
+      "path": "src/app/api/growth/campaigns/[id]/route.js",
       "status": "current"
     },
     {
@@ -18777,6 +19128,30 @@
       "kind": "page",
       "route": "/growth",
       "path": "src/app/(pm)/growth/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/growth/campaigns",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/campaigns",
+      "path": "src/app/(pm)/growth/campaigns/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/growth/campaigns/[initiativeId]",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/campaigns/[initiativeId]",
+      "path": "src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/growth/campaigns/new",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/campaigns/new",
+      "path": "src/app/(pm)/growth/campaigns/new/page.jsx",
       "status": "current"
     },
     {
@@ -19774,6 +20149,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/marketing-campaigns.spec.js",
+      "type": "test",
+      "path": "tests/e2e/marketing-campaigns.spec.js",
+      "hash": "fe2670e8",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/marketing-strategy.spec.js",
       "type": "test",
       "path": "tests/e2e/marketing-strategy.spec.js",
@@ -19784,7 +20166,7 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
-      "hash": "4a53d1e9",
+      "hash": "7e7eb183",
       "status": "current"
     },
     {
@@ -20400,7 +20782,21 @@
       "id": "test:tests/integration/marketing-backup.test.js",
       "type": "test",
       "path": "tests/integration/marketing-backup.test.js",
-      "hash": "40475606",
+      "hash": "1b23e0ad",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/marketing-campaign-execution.test.js",
+      "type": "test",
+      "path": "tests/integration/marketing-campaign-execution.test.js",
+      "hash": "423d201a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/marketing-campaign.test.js",
+      "type": "test",
+      "path": "tests/integration/marketing-campaign.test.js",
+      "hash": "8a68c04a",
       "status": "current"
     },
     {
@@ -20428,8 +20824,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "c52b6455",
-      "status": "changed"
+      "hash": "241c78f0",
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -20975,7 +21371,7 @@
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
       "hash": "09bc724f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/connection-health.test.js",
@@ -21227,7 +21623,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "d67040d7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/domain-visibility-server-enforcement.test.js",
@@ -22147,17 +22543,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/marketing-campaign-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing-campaign-ui.test.js",
+      "hash": "70f88326",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/marketing-migration-policy.test.js",
       "type": "test",
       "path": "tests/unit/marketing-migration-policy.test.js",
-      "hash": "8e0aa5bf",
+      "hash": "14aa5207",
       "status": "current"
     },
     {
       "id": "test:tests/unit/marketing-navigation.test.js",
       "type": "test",
       "path": "tests/unit/marketing-navigation.test.js",
-      "hash": "519784fb",
+      "hash": "8f8cf1ba",
       "status": "current"
     },
     {
@@ -22172,6 +22575,20 @@
       "type": "test",
       "path": "tests/unit/marketing/marketing-authority.test.js",
       "hash": "4b9d8da4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing/marketing-campaign-contract.test.js",
+      "hash": "4d53f4d2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "type": "test",
+      "path": "tests/unit/marketing/marketing-campaign-route.test.js",
+      "hash": "56d6a58c",
       "status": "current"
     },
     {
@@ -23698,6 +24115,76 @@
     {
       "from": "code:src/app/(pm)/files/page.jsx",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -27127,6 +27614,62 @@
     },
     {
       "from": "code:src/app/api/gates/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/route.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/route.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/campaigns/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -30572,6 +31115,13 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:FR-156",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35918,6 +36468,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/application/marketing-plan-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -35988,6 +36594,188 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "to": "req:FR-155",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "to": "req:FR-068",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "to": "req:FR-068",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/marketing-contract.js",
       "to": "req:FR-154",
       "type": "implements",
@@ -36123,6 +36911,34 @@
     {
       "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
       "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -36151,6 +36967,34 @@
     {
       "from": "code:src/modules/marketing/domain/marketing-plan-contract.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "to": "req:SDD-087",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -36599,6 +37443,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-156",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -39726,6 +40577,13 @@
       "status": "current"
     },
     {
+      "from": "doc:A-api-spec",
+      "to": "doc:FR-156-campaign-initiatives",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:ARCHITECTURE-DIAGRAMS",
       "to": "doc:ARCHITECTURE",
       "type": "references",
@@ -39805,6 +40663,13 @@
     {
       "from": "doc:B-db-schema",
       "to": "doc:FR-155-strategy-plans",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:B-db-schema",
+      "to": "doc:FR-156-campaign-initiatives",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -41224,6 +42089,34 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-156-campaign-initiatives",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-156-campaign-initiatives",
+      "to": "doc:FR-155-strategy-plans",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-156-campaign-initiatives",
+      "to": "doc:MARKETING-NAVIGATION-VIEWS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-156-campaign-initiatives",
+      "to": "doc:PHASE-CAMPAIGNS-2026-09-06",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -41254,6 +42147,13 @@
     {
       "from": "doc:INTERFACE-INVENTORY",
       "to": "doc:A-api-spec",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:FR-156-campaign-initiatives",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -41460,6 +42360,20 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "doc:PHASE-CAMPAIGNS-2026-09-06",
+      "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-CAMPAIGNS-2026-09-06",
+      "to": "doc:FR-156-campaign-initiatives",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
     },
     {
       "from": "doc:PHASE-FR-148-P1-account-scoped-conversations",
@@ -42058,6 +42972,13 @@
     },
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:FR-156-campaign-initiatives",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:MARKETING-INTERFACE-INVENTORY",
       "type": "relates",
       "status": "current",
@@ -42080,6 +43001,13 @@
     {
       "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "to": "doc:PARALLEL-REVIEW-2026-09-06",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
+      "to": "doc:PHASE-CAMPAIGNS-2026-09-06",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -42856,6 +43784,13 @@
     },
     {
       "from": "domain:marketing",
+      "to": "doc:FR-156-campaign-initiatives",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:marketing",
       "to": "doc:MARKETING-CHANNEL-CONTRACTS",
       "type": "references",
       "source": "markdown",
@@ -43296,6 +44231,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-020",
+      "to": "req:FR-156",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -43633,6 +44575,13 @@
     },
     {
       "from": "model:MarketingHandoff",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingInitiative",
       "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
@@ -45242,6 +46191,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-156",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -45998,6 +46954,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-087",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -46658,6 +47621,20 @@
     {
       "from": "route:api:/api/gates",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/campaigns/[id]",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/campaigns",
+      "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -47393,6 +48370,27 @@
     {
       "from": "route:page:/files",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/growth/campaigns/[initiativeId]",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/growth/campaigns/new",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/growth/campaigns",
+      "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -50318,6 +51316,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -51178,6 +52183,125 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/marketing-campaigns.spec.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/e2e/marketing-strategy.spec.js",
       "to": "code:src/app/(pm)/growth/page.jsx",
       "type": "tests",
@@ -51278,6 +52402,13 @@
     {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
       "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -52943,6 +54074,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -53273,6 +54411,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -55590,6 +56735,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -57941,6 +59093,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -58312,6 +59471,13 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -58330,6 +59496,83 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign-execution.test.js",
+      "to": "code:src/modules/marketing/application/marketing-campaign-execution.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign-execution.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign-execution.test.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign-execution.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign-execution.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "code:src/modules/marketing/application/marketing-campaign-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "code:src/modules/marketing/infrastructure/marketing-campaign-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-campaign.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/marketing-plan.test.js",
@@ -58691,6 +59934,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -62365,6 +63615,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -64913,6 +66170,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -65620,6 +66884,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -65915,6 +67186,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -71226,6 +72504,146 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/app/(pm)/growth/campaigns/new/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/app/(pm)/growth/campaigns/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignCollection.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignForm.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignPlanTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignResultsTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignTimelineTab.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/campaigns/CampaignWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "code:src/modules/marketing/components/PlanVersionHistory.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-campaign-ui.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/marketing-migration-policy.test.js",
       "to": "req:FR-154",
       "type": "verifies",
@@ -71235,6 +72653,13 @@
     {
       "from": "test:tests/unit/marketing-migration-policy.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-migration-policy.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -71326,6 +72751,13 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-156",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -71504,6 +72936,90 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "code:src/modules/marketing/domain/marketing-campaign-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "code:src/app/api/growth/campaigns/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "code:src/app/api/growth/campaigns/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "req:SDD-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-campaign-route.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/marketing/marketing-plan-contract.test.js",
