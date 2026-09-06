@@ -60,6 +60,32 @@ failure this section exists to prevent. If you are not certain which directory
 is this machine's primary checkout, `git worktree list` names it; if another
 session might be relying on it staying still, say so before refreshing it.
 
+**Before deleting a shared resource, check who is *in* it — not whether it is
+tidy.** This generalises the sentence above, which was written about the primary
+checkout and therefore got applied to nothing else. It covers every resource
+another session can be inside: a worktree, a container, a volume, a `.vhdx`. On
+2026-09-06 a worktree was removed after three checks that were all true and all
+beside the point — merged into `origin/main`, `git status` clean, no
+`node_modules` junction — while nine live processes were running `gh run watch`
+inside it; the same session had already deleted Docker's live data disk that
+morning after reading its absence from the WSL distro registry (which lists
+**OS** disks only) as proof it was an orphan
+([RCA](.brain/rca/2026-09-06-deleted-two-resources-that-were-in-use.md)). Merge
+status and cleanliness answer "is unsaved work stored here?"; deletion safety
+depends on "is anyone using this right now?". Ask the process table, and prefer
+asking a person over inferring:
+
+```powershell
+Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*<path>*' } |
+  Select-Object ProcessId, CreationDate, CommandLine
+```
+
+A live disk image **refuses an exclusive open and accepts a shared read** —
+exclusive-open success is not proof of disuse. And `git worktree remove` can
+half-succeed: it deletes the files, fails the final directory removal, and still
+drops the admin entry, so `git worktree list` shows the clean end state over a
+stripped directory. Look at the directory, not only the listing.
+
 **A worktree isolates git, not Docker.** `docker-compose.yml` pins
 `name: zuri-ai` explicitly (not the directory basename), so `docker compose
 up`/`build` run from *any* worktree of this repo resolve to the **same**
