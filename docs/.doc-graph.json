@@ -56,16 +56,16 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:DB-MIGRATION-NOTES",
       "doc:CONTEXT-MAP",
       "doc:SRS",
       "doc:CONTEXT-MAP",
-      "doc:FR-152-line-oa-rich-menu-publish-jobs",
-      "doc:SRS"
+      "doc:SRS",
+      "doc:INTERFACE-INVENTORY",
+      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+      "test:tests/unit/line-oa-rich-menu-console.test.js",
+      "code:src/app/(pm)/line-oa/rich-menus/page.jsx"
     ],
-    "added": [
-      "test:tests/unit/migration-version-uniqueness.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -520,8 +520,8 @@
       "id": "code:src/app/(pm)/line-oa/rich-menus/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/line-oa/rich-menus/page.jsx",
-      "hash": "f2a84547",
-      "status": "current",
+      "hash": "46f1c3ac",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-151"
@@ -10955,7 +10955,7 @@
       "version": "1.0.8",
       "doc_status": "Approved",
       "hash": "a3b2bbe4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:docker-ngrok",
@@ -11874,7 +11874,7 @@
       "path": "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
       "title": "FR-152 — rich menu publish jobs, server-owned",
       "hash": "9b5aa028",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -11929,8 +11929,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.5.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "4486f11f",
-      "status": "current"
+      "hash": "207864d8",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -18896,8 +18896,8 @@
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "d2e528d2",
-      "status": "current"
+      "hash": "7771c50f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -21010,8 +21010,8 @@
       "id": "test:tests/unit/line-oa-rich-menu-console.test.js",
       "type": "test",
       "path": "tests/unit/line-oa-rich-menu-console.test.js",
-      "hash": "7301a056",
-      "status": "current"
+      "hash": "1c9858df",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-oa-rich-menu-domain.test.js",

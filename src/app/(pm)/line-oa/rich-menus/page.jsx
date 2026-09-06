@@ -7,6 +7,7 @@ import { useScope } from '@/context/ScopeContext'
 import {
   LINE_OA_RICH_MENU_LAYOUTS,
   LINE_OA_RICH_MENU_ACTION_TYPES,
+  LINE_OA_RICH_MENU_JOB_KINDS,
 } from '@/lib/validation/enums'
 import { RICH_MENU_IMAGE_SIZES, RICH_MENU_CHAT_BAR_MAX, layoutAreas } from '@/modules/line-oa-studio/domain/line-oa-rich-menu'
 
@@ -18,14 +19,20 @@ import { RICH_MENU_IMAGE_SIZES, RICH_MENU_CHAT_BAR_MAX, layoutAreas } from '@/mo
 //   and a menu the caller may not see answers exactly like an unknown one.
 // @tested tests/unit/line-oa-rich-menu-console.test.js
 //
-// Publishing is NOT one of this page's controls, and the reason changed while
-// this page was in review. `applyRichMenuAction` still accepts exactly three
-// actions and none of them talks to LINE — but FR-152 (#244) added a separate
-// lane that does: `POST /api/line-oa/rich-menus/:id/jobs` queues PUBLISH,
-// SET_DEFAULT or SET_ALIAS and a worker carries it out. So the honest statement
-// is no longer "the system cannot do this"; it is "this page does not drive
-// that lane yet". The copy below says exactly that, because the first version
-// of it said the capability did not exist, and by merge time that was false.
+// Two lanes, deliberately kept apart on screen because they are apart in the
+// code. `applyRichMenuAction` (FR-151) edits the menu and never talks to LINE:
+// SAVE_DRAFT, FREEZE, ARCHIVE. `queueRichMenuJob` (FR-152) queues PUBLISH,
+// SET_DEFAULT or SET_ALIAS, and a worker — not this request — carries it out.
+//
+// So a queued job means "asked", never "done", and the page must not blur that:
+// every control here reports the job's own status, and ACCEPTED is the
+// provider's acceptance, not proof a user sees the menu. UNKNOWN is a real
+// outcome the operator has to close by hand, which is why that control exists.
+//
+// Every refusal shown next to a disabled button is a condition the SERVICE
+// enforces (a frozen version to publish, a published one to set default or
+// alias, an alias to set, a server-owned account, no other job open). The page
+// restates them so a disabled button explains itself; it does not decide them.
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -142,7 +149,66 @@ function Version({ version }) {
   </div>
 }
 
-function Menu({ menu, onAction, busy }) {
+/**
+ * Why a kind cannot be queued right now, in the service's own terms, or null.
+ * Mirrors `queueRichMenuJob`'s refusals so a disabled button can say why —
+ * the service remains the one that decides; a stale answer here only makes the
+ * button optimistic, and the POST still refuses with the same code.
+ */
+function queueBlocker(kind, { menu, account, openJob }) {
+  if (menu.status === 'ARCHIVED') return 'เมนูถูกเก็บเข้าคลังแล้ว'
+  if (!account?.serverEnabled) return 'บัญชีนี้ยังไม่ได้เปิด Server transport'
+  if (openJob) return `มีงาน ${openJob.kind} ค้างอยู่ (${openJob.status})`
+  const versions = menu.versions ?? []
+  if (kind === 'PUBLISH') {
+    return versions.some(version => version.status === 'FROZEN') ? null : 'ต้อง Freeze ฉบับร่างก่อน'
+  }
+  if (!versions.some(version => version.status === 'PUBLISHED' && version.externalRichMenuId)) return 'ยังไม่มีเวอร์ชันที่ส่งขึ้น LINE สำเร็จ'
+  if (kind === 'SET_ALIAS' && !menu.alias) return 'เมนูนี้ยังไม่ได้ตั้ง alias'
+  return null
+}
+
+const JOB_KIND_LABELS = { PUBLISH: 'ส่งขึ้น LINE', SET_DEFAULT: 'ตั้งเป็นเมนูหลัก', SET_ALIAS: 'ผูก alias' }
+
+function JobLedger({ menu, account, jobs, onQueue, onAcknowledge, busy }) {
+  const [acknowledged, setAcknowledged] = useState({})
+  const openJob = jobs?.find(job => ['QUEUED', 'CLAIMED'].includes(job.status)) ?? null
+  return <div className="mt-4 border-t border-[var(--border)] pt-3">
+    <p className="text-xs font-semibold">งานส่งขึ้น LINE</p>
+    <p className="mt-1 text-xs text-muted">งานถูกเข้าคิวไว้ให้ worker ทำ ไม่ได้ทำทันทีที่กด — สถานะด้านล่างคือสิ่งที่เกิดขึ้นจริง</p>
+    <div className="mt-2 flex flex-wrap gap-2">
+      {LINE_OA_RICH_MENU_JOB_KINDS.map(kind => {
+        const blocker = queueBlocker(kind, { menu, account, openJob })
+        return <button key={kind} className="btn" disabled={busy || Boolean(blocker)} title={blocker ?? undefined} onClick={() => onQueue(menu, kind)}>
+          {JOB_KIND_LABELS[kind] ?? kind}
+        </button>
+      })}
+    </div>
+    <ul className="mt-2 grid gap-1 text-xs text-muted">
+      {LINE_OA_RICH_MENU_JOB_KINDS.map(kind => {
+        const blocker = queueBlocker(kind, { menu, account, openJob })
+        return blocker ? <li key={kind}>· {JOB_KIND_LABELS[kind] ?? kind}: {blocker}</li> : null
+      })}
+    </ul>
+    {jobs?.length ? <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-xs">
+      <thead><tr><th className="p-1">เวลา</th><th className="p-1">งาน</th><th className="p-1">ขั้น</th><th className="p-1">สถานะ</th><th className="p-1">รายละเอียด</th></tr></thead>
+      <tbody>{jobs.map(job => <tr key={job.id} className="border-t border-[var(--border)]">
+        <td className="p-1">{new Date(job.createdAt).toLocaleString()}</td>
+        <td className="p-1">{job.kind}</td>
+        <td className="p-1">{job.stage}</td>
+        <td className="p-1">{job.status}{job.attempts > 1 ? ` ·${job.attempts}` : ''}</td>
+        <td className="p-1">
+          {job.errorCode || (job.status === 'ACCEPTED' ? 'LINE รับคำสั่งแล้ว — ไม่ใช่หลักฐานว่าผู้ใช้เห็นเมนู' : '')}
+          {job.status === 'UNKNOWN' && <div className="mt-2 grid max-w-sm gap-2">
+            <label className="flex items-start gap-2"><input type="checkbox" checked={Boolean(acknowledged[job.id])} onChange={e => setAcknowledged(previous => ({ ...previous, [job.id]: e.target.checked }))} /><span>ตรวจสอบฝั่ง LINE แล้วและรับทราบว่าคำสั่งนี้อาจมีผลไปแล้ว ระบบจะปิดงานและไม่ทำซ้ำ</span></label>
+            <button className="btn" disabled={!acknowledged[job.id] || busy} onClick={() => onAcknowledge(menu, job)}>รับทราบว่าอาจมีผลแล้ว และปิดงาน</button>
+          </div>}
+        </td>
+      </tr>)}</tbody></table></div> : <p className="mt-2 text-xs text-muted">ยังไม่มีงานสำหรับเมนูนี้</p>}
+  </div>
+}
+
+function Menu({ menu, account, jobs, onAction, onQueue, onAcknowledge, busy }) {
   const latest = menu.versions?.[menu.versions.length - 1]
   const editable = latest && latest.status === 'DRAFT' && menu.status !== 'ARCHIVED'
   const [open, setOpen] = useState(false)
@@ -165,6 +231,7 @@ function Menu({ menu, onAction, busy }) {
       </div>
       {editable && blockers.length > 0 && <div><p className="text-xs font-semibold">Freeze ยังไม่ได้เพราะ</p><Issues issues={blockers} /></div>}
     </fieldset>}
+    <JobLedger menu={menu} account={account} jobs={jobs} onQueue={onQueue} onAcknowledge={onAcknowledge} busy={busy} />
   </Card>
 }
 
@@ -195,6 +262,7 @@ export default function LineOaRichMenusPage() {
   const [accounts, setAccounts] = useState([])
   const [accountId, setAccountId] = useState('')
   const [menus, setMenus] = useState([])
+  const [jobsByMenu, setJobsByMenu] = useState({})
   const [includeArchived, setIncludeArchived] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -210,7 +278,12 @@ export default function LineOaRichMenusPage() {
   const loadMenus = useCallback(async () => {
     if (!accountId) { setMenus([]); return }
     const result = await api(`/api/line-oa/rich-menus?accountId=${encodeURIComponent(accountId)}${includeArchived ? '&includeArchived=true' : ''}`)
-    setMenus(result.richMenus ?? [])
+    const richMenus = result.richMenus ?? []
+    setMenus(richMenus)
+    // The ledger is a second read per menu. Fetched together so the queue
+    // buttons can see an open job before offering to add another.
+    const ledgers = await Promise.all(richMenus.map(async menu => [menu.id, (await api(`/api/line-oa/rich-menus/${menu.id}/jobs`)).jobs ?? []]))
+    setJobsByMenu(Object.fromEntries(ledgers))
   }, [accountId, includeArchived])
 
   useEffect(() => { setError(''); setMessage(''); loadAccounts().catch(err => setError(err.message)) }, [loadAccounts])
@@ -223,6 +296,11 @@ export default function LineOaRichMenusPage() {
     finally { setBusy(false) }
   }
   const action = (menu, data) => run(() => api(`/api/line-oa/rich-menus/${menu.id}`, 'PATCH', { ...data, version: menu.version }))
+  // The menu row's version is the compare-and-swap for queueing; the job row's
+  // own version is the one for closing an UNKNOWN. They are different numbers
+  // and sending the wrong one is a 409, not a silent overwrite.
+  const queue = (menu, kind) => run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'POST', { kind, version: menu.version }), 'เข้าคิวแล้ว — worker จะทำงานและสถานะจะอัปเดตในตาราง')
+  const acknowledge = (menu, job) => run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'PATCH', { jobId: job.id, version: job.version, acknowledgePossibleOutcome: true }))
   const create = (body) => run(() => api('/api/line-oa/rich-menus', 'POST', body), 'สร้างเมนูแล้ว')
 
   return <div>
@@ -241,9 +319,9 @@ export default function LineOaRichMenusPage() {
           <Select label="บัญชี LINE OA" value={accountId} onChange={e => setAccountId(e.target.value)} options={accounts.map(a => ({ value: a.id, label: `${a.displayName} (${a.code})` }))} />
           <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeArchived} onChange={e => setIncludeArchived(e.target.checked)} />แสดงเมนูที่เก็บเข้าคลังแล้ว</label>
         </div>
-        <p className="mt-3 text-xs text-muted">Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE — การส่งขึ้น LINE เป็นคิวงานแยก (FR-152) ที่หน้านี้ยังไม่ได้เชื่อม</p>
+        <p className="mt-3 text-xs text-muted">Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE — การส่งขึ้น LINE เป็นคิวงานแยก (FR-152) ที่สั่งได้จากการ์ดของแต่ละเมนูด้านล่าง</p>
       </Card>
-      <div className="mb-4 grid gap-4 xl:grid-cols-2">{menus.map(menu => <Menu key={menu.id} menu={menu} onAction={action} busy={busy} />)}</div>
+      <div className="mb-4 grid gap-4 xl:grid-cols-2">{menus.map(menu => <Menu key={menu.id} menu={menu} account={accounts.find(a => a.id === accountId) ?? null} jobs={jobsByMenu[menu.id]} onAction={action} onQueue={queue} onAcknowledge={acknowledge} busy={busy} />)}</div>
       {menus.length === 0 && !error && <Card className="mb-4"><p className="text-sm">ยังไม่มีเมนูสำหรับบัญชีนี้</p></Card>}
       <CreateMenu accountId={accountId} onCreate={create} busy={busy} />
     </>}
