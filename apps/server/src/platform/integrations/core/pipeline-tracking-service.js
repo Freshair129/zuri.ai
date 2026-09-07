@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { recordAudit, safeParse } from '@/modules/project-manager/application/audit'
-import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, isSotDataPlaneFor, seesBusiness } from '@/modules/identity/viewer-authority'
 import {
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
   IDENTITY_REFS_EMPTY,
   KNOWLEDGE_INGESTION_DEFINITION_ID,
+  KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS,
   KNOWLEDGE_QUALITY_GATE_STAGE_ID,
   RUN_STATUSES,
   STEP_STATUSES,
@@ -51,6 +52,49 @@ function requireVisible(viewer, businessId) {
   if (!isInstallationOperator(viewer) && !seesBusiness(viewer, businessId)) {
     throw serviceError(404, 'Pipeline run is outside your visible Business scope')
   }
+}
+
+// ADR-067 D1 — the one non-operator identity that may write this ledger: the
+// FR-102 data-plane key, reporting the stages ADR-050 assigns to GKS and
+// GenesisBlockDB onto a knowledge ingestion run of its own Tenant.
+//
+// The rule sits in the writer and not only in the receiver that calls it, for
+// the reason SDD-066 put stage validation in the envelope: a check held by
+// whichever caller remembers to make it is not a boundary. What the key may
+// write is exactly the evidence the external tiers owe (Stages 9–16, the
+// Stage 17 gate, and the run's close) and nothing a Tier 1 executor or an
+// operator writes — it cannot create a run, replay one, or report a Tier 1
+// stage, and it cannot touch a run of any other definition however its
+// envelope is shaped.
+const REPORTER_EVENT_TYPES = new Set(['STEP_STARTED', 'STEP_HEARTBEAT', 'STEP_SUCCEEDED', 'STEP_FAILED', 'GATE_UPDATED', 'RUN_FINISHED'])
+const REPORTER_STAGE_IDS = new Set([...KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS, KNOWLEDGE_QUALITY_GATE_STAGE_ID])
+
+function isKnowledgeReporterFor(viewer, run) {
+  return run.dataPipelineDefinitionId === KNOWLEDGE_INGESTION_DEFINITION_ID && isSotDataPlaneFor(viewer, run.tenantId)
+}
+
+function requireLedgerWriter(viewer) {
+  if (isInstallationOperator(viewer) || viewer?.isSotDataPlane === true) return
+  throw serviceError(403, 'Pipeline mutation requires an installation operator')
+}
+
+function requireLedgerWriterForRun(viewer, run, event) {
+  if (isInstallationOperator(viewer)) return
+  if (!isKnowledgeReporterFor(viewer, run)) {
+    throw serviceError(403, 'A data-plane key reports only onto knowledge ingestion runs of its own Tenant (ADR-067 D1)')
+  }
+  if (!REPORTER_EVENT_TYPES.has(event.eventType)) {
+    throw serviceError(403, `A data-plane key cannot write ${event.eventType} (ADR-067 D1)`)
+  }
+  if (event.pipelineStageId && !REPORTER_STAGE_IDS.has(event.pipelineStageId)) {
+    throw serviceError(403, `${event.pipelineStageId} is a Tier 1 stage and is not reportable from outside Tier 1 (ADR-050 D3)`)
+  }
+}
+
+function ledgerActor(viewer) {
+  return isInstallationOperator(viewer)
+    ? { actorType: 'PIPELINE_OPERATOR', actorId: viewer?.principal?.id || null }
+    : { actorType: 'PIPELINE_REPORTER', actorId: viewer?.serviceAccountId || null }
 }
 
 async function transaction(db, callback) {
@@ -401,7 +445,7 @@ export async function recordPipelineEvent(input, {
   now = () => new Date(),
   idFactory = defaultIdFactory,
 } = {}) {
-  requireOperator(viewer)
+  requireLedgerWriter(viewer)
   const event = parsePipelineEvent(input)
   const eventHash = hashContractPayload(event)
   const at = resolveNow(now)
@@ -409,6 +453,7 @@ export async function recordPipelineEvent(input, {
   return transaction(db, async (tx) => {
     const run = await tx.pipelineRun.findUnique({ where: { executionRunId: event.executionRunId } })
     if (!run) throw serviceError(404, 'Pipeline run not found')
+    requireLedgerWriterForRun(viewer, run, event)
 
     // The envelope validated this event's stage against the event's OWN
     // definition (SDD-066). That is internal consistency, and it is only half of
@@ -466,6 +511,15 @@ export async function recordPipelineEvent(input, {
       if (step && event.attemptId && step.attemptId !== event.attemptId) {
         throw serviceError(409, 'Pipeline step attempt does not match executionStepId')
       }
+      // ADR-067 D2 — a step is looked up by its id, so until this line an
+      // event could name Stage 9's step id under Stage 15's stage id and pass
+      // every check: the envelope validates the stage against the catalog, the
+      // attempt against the step, and nothing validated the two against each
+      // other. An external reporter is the first caller that does not also
+      // hold the row it is describing, which is when that gap starts to matter.
+      if (step && event.pipelineStageId && step.pipelineStageId !== event.pipelineStageId) {
+        throw serviceError(409, 'Pipeline step belongs to a different stage than the event names')
+      }
     }
 
     // FR-110 Stage 17 is a decision over the canonical quality-gate occurrence,
@@ -490,8 +544,7 @@ export async function recordPipelineEvent(input, {
       entityType: event.pipelineRecordId ? 'PIPELINE_RECORD' : event.executionStepId ? 'PIPELINE_STEP' : 'PIPELINE_RUN',
       entityId: event.pipelineRecordId || event.executionStepId || event.executionRunId,
       action: `PIPELINE_${event.eventType}`,
-      actorType: 'PIPELINE_OPERATOR',
-      actorId: viewer?.principal?.id || null,
+      ...ledgerActor(viewer),
       payload: safePayload,
     })
 
@@ -677,7 +730,11 @@ export async function getPipelineMonitor(executionRunId, {
 } = {}) {
   const run = await db.pipelineRun.findUnique({ where: { executionRunId } })
   if (!run) throw serviceError(404, 'Pipeline run not found')
-  requireVisible(viewer, run.businessId)
+  // ADR-067 D1 — the reporter reads the run it reports onto: the materialised
+  // step and attempt identities it must name are on this monitor and nowhere
+  // else. Same 404 shape as every other refusal here; a key for another
+  // Tenant learns nothing about whether the run exists.
+  if (!isKnowledgeReporterFor(viewer, run)) requireVisible(viewer, run.businessId)
   const [steps, records, reconciliations, gates] = await Promise.all([
     db.pipelineStep.findMany({ where: { runId: run.id }, orderBy: { sequence: 'asc' } }),
     db.pipelineRecordEvent.findMany({ where: { runId: run.id }, orderBy: { occurredAt: 'desc' }, take: 500 }),

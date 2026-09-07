@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T04:30:37.338Z",
+  "generatedAt": "2026-09-07T04:36:43.823Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -324,8 +324,8 @@
           "id": "FR-057",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 10
         },
         {
           "id": "FR-079",
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -683,7 +683,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -844,7 +844,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -1460,7 +1460,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -1666,7 +1666,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 22
         },
         {
           "id": "FR-079",
@@ -1728,29 +1728,29 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 20
+          "codeCount": 5,
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 7
+          "codeCount": 4,
+          "testCount": 23
         },
         {
           "id": "FR-118",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-119",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-125",
@@ -1839,7 +1839,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -1880,8 +1880,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 15,
-            "present": 15
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -1961,7 +1961,7 @@
         "routes": 11,
         "apiRoutes": 7,
         "pageRoutes": 4,
-        "ownedModels": 15,
+        "ownedModels": 16,
         "featureNotes": 11
       },
       "featureIds": [
@@ -2026,7 +2026,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -2161,21 +2161,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 22
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 7
+          "codeCount": 2,
+          "testCount": 23
         },
         {
           "id": "FR-111",
@@ -2231,14 +2231,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-119",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-131",
@@ -2494,7 +2494,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -2648,7 +2648,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -2759,7 +2759,7 @@
           "id": "FR-159",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 17,
+          "codeCount": 16,
           "testCount": 27
         },
         {
@@ -2800,7 +2800,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -2958,7 +2958,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -3084,7 +3084,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 194,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -3526,7 +3526,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 22
         },
         {
           "id": "FR-072",
@@ -3700,8 +3700,15 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 20
+          "codeCount": 3,
+          "testCount": 25
+        },
+        {
+          "id": "FR-110",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 23
         },
         {
           "id": "FR-123",
@@ -3944,9 +3951,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 107,
-            "inventoried": 107,
-            "openApiPaths": 194,
+            "routes": 112,
+            "inventoried": 112,
+            "openApiPaths": 199,
             "missingFromOpenApi": 0
           }
         },
@@ -4006,9 +4013,9 @@
             }
           ],
           "details": {
-            "mutations": 86,
-            "guardedMutations": 86,
-            "reads": 54,
+            "mutations": 90,
+            "guardedMutations": 90,
+            "reads": 55,
             "unguardedReads": 1
           }
         },
@@ -4109,8 +4116,8 @@
         }
       ],
       "details": {
-        "routes": 152,
-        "apiRoutes": 107,
+        "routes": 157,
+        "apiRoutes": 112,
         "pageRoutes": 45,
         "ownedModels": 30,
         "featureNotes": 31
@@ -5170,15 +5177,15 @@
           "id": "FR-109",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 20
+          "codeCount": 9,
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 7
+          "codeCount": 13,
+          "testCount": 23
         },
         {
           "id": "FR-111",
@@ -5189,30 +5196,50 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+        "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+        "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+        "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+        "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr109-ingestion-run-identity.test.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
+        "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
+        "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
+        "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
@@ -6006,7 +6033,7 @@
           "id": "FR-159",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
+          "codeCount": 20,
           "testCount": 27
         },
         {
@@ -6061,7 +6088,6 @@
         "apps/server/src/modules/marketing/application/marketing-plan-service.js",
         "apps/server/src/modules/marketing/application/marketing-pm-handoff-service.js",
         "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-        "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
         "apps/server/src/modules/marketing/components/MarketingState.jsx",
         "apps/server/src/modules/marketing/components/MarketingTabs.jsx",
         "apps/server/src/modules/marketing/components/PlanForm.jsx",
@@ -8767,8 +8793,8 @@
           "id": "FR-057",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -8776,6 +8802,7 @@
         "apps/server/src/modules/agent/context.js",
         "apps/server/src/modules/agent/memory-port.js",
         "apps/server/src/modules/agent/msp-memory-port.js",
+        "apps/server/src/modules/agent/msp-stdio-transport.js",
         "apps/server/src/modules/agent/msp-vault-resolver.js",
         "apps/server/src/modules/agent/scoped-memory.js",
         "apps/server/tests/integration/agent-context.test.js",
@@ -8783,8 +8810,10 @@
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js"
       ]
     },
@@ -9214,7 +9243,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 19
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -9232,10 +9261,13 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
+        "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",
+        "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
@@ -10282,13 +10314,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
         "apps/server/src/modules/knowledge/stage-runner.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js"
@@ -10318,7 +10351,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -10326,6 +10359,7 @@
         "apps/server/src/modules/knowledge/stage-runner.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/unit/knowledge-quarantine.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",

@@ -591,6 +591,8 @@
     "ADR-064",
     "ADR-065",
     "ADR-066",
+    "ADR-067",
+    "ADR-068",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7286,6 +7288,32 @@
         {
           "anchor": "the procurement lane",
           "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-067": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
+      "status": "current",
+      "statement_digest": "9591e0dfa9879ce1c0e474f73f748492d8cd047245be54de6092b63bdd3a67a5",
+      "history": [
+        {
+          "anchor": "the knowledge ingestion reporter",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-068": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
+      "status": "current",
+      "statement_digest": "907ff5f489d9399775d6d956c81ce90253c6dd45c702c59828d4925ff70a2b76",
+      "history": [
+        {
+          "anchor": "tier 3 stage evidence is pulled",
+          "since": "2026-09-07",
           "reason": "declared"
         }
       ]

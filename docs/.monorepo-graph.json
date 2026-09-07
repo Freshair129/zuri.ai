@@ -4463,6 +4463,87 @@
       }
     },
     {
+      "id": "code:src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "hash": "3165abc6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-reporter-routes.test.js",
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "hash": "412fa245",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-reporter-routes.test.js",
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "hash": "88ea3eac",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-109",
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-reporter-routes.test.js",
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "hash": "f6527e38",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-reporter-routes.test.js",
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "hash": "13d780fc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-evidence-importer.test.js",
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/pipelines/runs/[executionRunId]/events/route.js",
@@ -6965,6 +7046,22 @@
       }
     },
     {
+      "id": "code:src/modules/agent/msp-stdio-transport.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/msp-stdio-transport.js",
+      "hash": "5afd2852",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-057"
+        ],
+        "@tested": [
+          "tests/unit/msp-stdio-transport.test.js",
+          "tests/integration/fr110-knowledge-evidence-chain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/msp-vault-resolver.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/msp-vault-resolver.js",
@@ -9406,12 +9503,13 @@
       "id": "code:src/modules/knowledge/ingestion-job.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/ingestion-job.js",
-      "hash": "5bee2de1",
-      "status": "current",
+      "hash": "2756b234",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-109",
-          "FR-071"
+          "FR-071",
+          "FR-110"
         ],
         "@spec": [
           "SDD-067",
@@ -9536,8 +9634,8 @@
       "id": "code:src/modules/knowledge/published-snapshot-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/published-snapshot-contract.js",
-      "hash": "a0a9f5a9",
-      "status": "current",
+      "hash": "136d247f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-110"
@@ -11239,8 +11337,8 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "ac172cea",
-      "status": "changed",
+      "hash": "dd1403df",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11258,8 +11356,8 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "071bf885",
-      "status": "changed",
+      "hash": "ff0e1238",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159"
@@ -11270,24 +11368,6 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
-      "hash": "7d42cc35",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-159"
-        ],
-        "@spec": [
-          "SDD-086"
-        ],
-        "@tested": [
-          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -11858,8 +11938,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "887b8aaf",
-      "status": "current",
+      "hash": "05344b30",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -11881,6 +11961,8 @@
           "FR-164",
           "FR-165",
           "FR-092",
+          "FR-110",
+          "FR-109",
           "FR-106",
           "FR-038",
           "FR-123"
@@ -11937,8 +12019,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "0a689989",
-      "status": "current",
+      "hash": "120689f5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -11966,6 +12048,7 @@
           "FR-154",
           "FR-155",
           "FR-156",
+          "FR-110",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -13598,15 +13681,37 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "type": "code_file",
+      "path": "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
+      "hash": "359ed071",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110",
+          "FR-109"
+        ],
+        "@spec": [
+          "SDD-057",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/fr110-knowledge-evidence-importer.test.js",
+          "tests/integration/fr110-knowledge-evidence-chain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "2256ed62",
-      "status": "current",
+      "hash": "2b90843a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-109",
           "FR-118",
+          "FR-110",
           "NFR-020",
           "FR-119",
           "BR-022"
@@ -13622,7 +13727,8 @@
         ],
         "@tested": [
           "tests/integration/fr109-knowledge-ingestion-executor.test.js",
-          "tests/integration/fr119-knowledge-ingestion-quarantine.test.js"
+          "tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+          "tests/integration/fr110-knowledge-reporter-receiver.test.js"
         ]
       }
     },
@@ -13683,8 +13789,8 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "f9388c39",
-      "status": "current",
+      "hash": "9606e158",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-071",
@@ -13910,10 +14016,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.48.0b",
+      "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "b49a7cd4",
-      "status": "current"
+      "hash": "e3c402c5",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -13964,10 +14070,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.26.0b",
+      "version": "1.27.0b",
       "doc_status": "Draft",
-      "hash": "c0446ab7",
-      "status": "current"
+      "hash": "86d97c4b",
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14913,16 +15019,16 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "76075229",
-      "status": "current"
+      "hash": "63eaae40",
+      "status": "changed"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
-      "hash": "2fb4c508",
-      "status": "current"
+      "hash": "ea1f2168",
+      "status": "changed"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -15797,8 +15903,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
-      "hash": "4760777d",
-      "status": "current"
+      "hash": "c7362d44",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -15837,10 +15943,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.164.0b",
+      "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "795827d1",
-      "status": "current"
+      "hash": "549c66b6",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -15867,8 +15973,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "0f9f5776",
-      "status": "current"
+      "hash": "5bbcf008",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -16260,7 +16366,8 @@
         "PipelineEventReceipt",
         "PipelineRecordEvent",
         "PipelineReconciliation",
-        "PipelineGateDecision"
+        "PipelineGateDecision",
+        "KnowledgeEvidenceCursor"
       ],
       "owns_routes": [
         "src/app/(pm)/platform/integrations/**",
@@ -16275,8 +16382,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "5c3d8354",
-      "status": "current"
+      "hash": "8b595a8d",
+      "status": "changed"
     },
     {
       "id": "domain:inventory",
@@ -16321,8 +16428,8 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "d9d6bc92",
-      "status": "current"
+      "hash": "5beac479",
+      "status": "changed"
     },
     {
       "id": "domain:line-oa-studio",
@@ -16878,6 +16985,11 @@
     },
     {
       "id": "model:InventoryCategory",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeEvidenceCursor",
       "type": "model",
       "status": "current"
     },
@@ -18609,7 +18721,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29 — 6 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.3 (`RawExternalRecord.artifactId` — nullable, indexed — plus a scoped `findByArtifactId` read, so a knowledge-ingestion run's `artifact_id` resolves back to the raw payload FR-081 already stores; proven against the real database), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic). The remaining seven: AC-109.5 waits on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. AC-109.3 added one nullable, indexed column to FR-081's own `RawExternalRecord` — not a new model, and not one the knowledge domain owns (its `owns_models` stays empty, ADR-050 D4); 37 unit tests, three real-database integration suites for the Tier 1 execution slice, plus 7 new unit tests and one new real-database integration test for AC-109.3's binding "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29, extended 2026-09-07 — 8 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.3 (`RawExternalRecord.artifactId` — nullable, indexed — plus a scoped `findByArtifactId` read, so a knowledge-ingestion run's `artifact_id` resolves back to the raw payload FR-081 already stores; proven against the real database), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic), and AC-109.11 (ADR-067 D4, 2026-09-07 — `knowledgeJobState` derives the §5 job state from the run's stored status, the step board and the newest Stage 17 decision with no clock, so `PUBLISHED` has one derivation: a run closed `SUCCEEDED` behind an `APPROVED`, publishable gate; served by `GET /api/pipelines/knowledge/{executionRunId}`), and AC-109.12 (ADR-067 + ADR-068 — the receiver, and the pull that feeds it: `pullKnowledgeStageEvidence` reads GKS's `gks_stage_evidence_export` through MSP's relay and applies it through the receiver; proven live across the three repositories with a Stage 9 execution in the real GKS landing as `DPS-KI-ENTITY-RESOLVE` on the run that asked for it; stages 10–14 report the same way once GKS builds them, and zuri-ai executes none of the nine). The remaining five: AC-109.5 waits on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020's two metrics that have no ledger column plus GKS building stages 10–14, and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. AC-109.3 added one nullable, indexed column to FR-081's own `RawExternalRecord` — not a new model, and not one the knowledge domain owns (its `owns_models` stays empty, ADR-050 D4); 37 unit tests, three real-database integration suites for the Tier 1 execution slice, plus 7 new unit tests and one new real-database integration test for AC-109.3's binding "
     },
     {
       "id": "req:FR-110",
@@ -18619,7 +18731,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 partial local implementation 2026-08-31 — strict snapshot and Stage 9–16 aggregate-report contracts, Stage 17 evidence/quality guard and server-run scope binding; external reporter authorization, atomic publication and retrieval remain open "
+      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 partial — 2026-08-31: strict snapshot and Stage 9–16 aggregate-report contracts, Stage 17 evidence/quality guard and server-run scope binding; 2026-09-07 (ADR-067, owner-decided reporter credential): the reporter receiver — Stage 9–16 reports carrying outcome, BR-022 failure and execution times, the Stage 17 decision recorded as gate evidence on the run's materialised step (AC-110.4 closed), the run close derived from the ledger and never declared by a caller, the job read, and four routes under `/api/pipelines/knowledge/{executionRunId}` authenticating the run's Tenant's FR-102 data-plane key; proven against the real database and end to end through the route handlers; 2026-09-07 (ADR-068): the pull half — the spawned-MSP transport, `KnowledgeEvidenceCursor` (per-scope cursor, advanced only past rows that landed), `pullKnowledgeStageEvidence` with four-way row attribution and `POST /api/pipelines/knowledge/evidence/pull` — proven live across zuri-ai → MSP → GKS with Stage 9 evidence from the real GKS on this ledger. Atomic publication, retrieval and GraphRAG readiness remain GKS/GenesisBlockDB's "
     },
     {
       "id": "req:FR-111",
@@ -21590,6 +21702,46 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/pipelines/knowledge/[executionRunId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/knowledge/[executionRunId]",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/knowledge/[executionRunId]/finish",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/knowledge/[executionRunId]/finish",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/knowledge/[executionRunId]/gate",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/knowledge/[executionRunId]/gate",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/knowledge/[executionRunId]/stages",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/knowledge/[executionRunId]/stages",
+      "path": "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/knowledge/evidence/pull",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/knowledge/evidence/pull",
+      "path": "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/pipelines/runs",
       "type": "route",
       "kind": "api",
@@ -23174,8 +23326,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md",
       "title": "ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant",
-      "hash": "a0914ff0",
-      "status": "current"
+      "hash": "700942ff",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
@@ -23327,6 +23479,22 @@
       "path": "docs/decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md",
       "title": "ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts",
       "hash": "91d309e1",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
+      "title": "ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported",
+      "hash": "75134b77",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "type": "adr",
+      "path": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
+      "title": "ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named",
+      "hash": "cf3bb5f5",
       "status": "current"
     },
     {
@@ -23834,6 +24002,34 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "hash": "b81b6339",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "hash": "7737e6d0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "hash": "f31df392",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "hash": "f8877c56",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
@@ -24243,8 +24439,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "b358569b",
-      "status": "current"
+      "hash": "e899ad26",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -25654,11 +25850,18 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-ingestion-job-state.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
+      "hash": "6aad01d3",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/knowledge-ingestion-job.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-ingestion-job.test.js",
-      "hash": "087dace3",
-      "status": "current"
+      "hash": "29b57e23",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/knowledge-normalization.test.js",
@@ -25685,8 +25888,8 @@
       "id": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
-      "hash": "ba3ec6d6",
-      "status": "current"
+      "hash": "13372ca9",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/knowledge-quarantine.test.js",
@@ -26028,8 +26231,8 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "95d0cec8",
-      "status": "changed"
+      "hash": "ea794705",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
@@ -26155,6 +26358,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/monorepo-layout.test.js",
       "hash": "f7fbc637",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/msp-stdio-transport.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/msp-stdio-transport.test.js",
+      "hash": "371b4f41",
       "status": "current"
     },
     {
@@ -36758,6 +36968,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
       "to": "req:FR-071",
       "type": "implements",
@@ -40629,6 +40881,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/msp-stdio-transport.js",
+      "to": "req:FR-057",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/msp-vault-resolver.js",
       "to": "req:FR-057",
       "type": "implements",
@@ -44193,6 +44452,13 @@
     },
     {
       "from": "code:src/modules/knowledge/ingestion-job.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/ingestion-job.js",
       "to": "req:SDD-057",
       "type": "follows",
       "status": "current",
@@ -46572,20 +46838,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "to": "req:FR-159",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "to": "req:SDD-086",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/marketing/components/MarketingState.jsx",
       "to": "req:FR-159",
       "type": "implements",
@@ -47308,6 +47560,20 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-123",
       "type": "implements",
       "status": "current",
@@ -47568,6 +47834,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-107",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-110",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50317,6 +50590,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "to": "req:SDD-057",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:BR-021",
       "type": "follows",
@@ -50340,6 +50641,13 @@
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:FR-110",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -55224,6 +55532,13 @@
       "source": "charter"
     },
     {
+      "from": "model:KnowledgeEvidenceCursor",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:LegalEntity",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -59025,6 +59340,41 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/pipelines/knowledge/[executionRunId]/finish",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/knowledge/[executionRunId]/gate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/knowledge/[executionRunId]/stages",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/knowledge/[executionRunId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/knowledge/evidence/pull",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/pipelines/runs/[executionRunId]/events",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -61657,6 +62007,13 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
       "to": "req:FR-075",
       "type": "relates",
@@ -62487,6 +62844,83 @@
       "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -65774,6 +66208,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-123",
       "type": "verifies",
       "status": "current",
@@ -66174,6 +66615,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -68567,6 +69015,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-123",
       "type": "verifies",
       "status": "current",
@@ -68959,6 +69414,13 @@
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "to": "req:FR-118",
       "type": "verifies",
       "status": "current",
@@ -69021,6 +69483,244 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "code:src/modules/agent/msp-stdio-transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:BR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:BR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-118",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:SDD-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "to": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "tests",
@@ -69044,6 +69744,13 @@
     {
       "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -71682,6 +72389,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:FR-123",
       "type": "verifies",
       "status": "current",
@@ -72123,6 +72837,13 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:FR-123",
       "type": "verifies",
       "status": "current",
@@ -72488,6 +73209,13 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -72963,6 +73691,41 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/knowledge/evidence/pull/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
       "type": "tests",
       "status": "current",
@@ -73065,6 +73828,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -80852,6 +81622,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-123",
       "type": "verifies",
       "status": "current",
@@ -84841,6 +85618,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/knowledge-ingestion-job-state.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-ingestion-job-state.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-ingestion-job-state.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-ingestion-job-state.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/knowledge-ingestion-job.test.js",
       "to": "code:src/modules/knowledge/ingestion-job.js",
       "type": "tests",
@@ -84867,6 +85672,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/knowledge-ingestion-job.test.js",
@@ -84996,6 +85808,13 @@
     },
     {
       "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:BR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
       "to": "req:FR-071",
       "type": "verifies",
       "status": "current",
@@ -85062,7 +85881,7 @@
       "to": "req:SDD-073",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
@@ -87166,13 +87985,6 @@
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
-      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingState.jsx",
       "type": "tests",
       "status": "current",
@@ -87853,6 +88665,20 @@
     {
       "from": "test:tests/unit/model-provider-port.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/msp-stdio-transport.test.js",
+      "to": "code:src/modules/agent/msp-stdio-transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/msp-stdio-transport.test.js",
+      "to": "req:FR-057",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -96191,7 +97017,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2293,
+    "server_nodes": 2313,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
