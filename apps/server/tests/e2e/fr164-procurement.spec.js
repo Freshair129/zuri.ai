@@ -58,8 +58,10 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   await expect(status).toContainText(`สร้างผู้ขาย ${supplierCode} แล้ว`)
   await expect(page.getByRole('row').filter({ hasText: supplierCode })).toContainText('5 วัน')
 
-  // The purchase order: five boxes at 20 and a freight line at 100.
-  await page.getByRole('link', { name: 'Purchase Orders' }).click()
+  // The purchase order: five boxes at 20 and a freight line at 100. Scoped to
+  // the sidebar (`<aside>`): FR-170's in-canvas tab bar repeats this exact
+  // label, so an unscoped locator is now ambiguous between the two.
+  await page.locator('aside').getByRole('link', { name: 'Purchase Orders' }).click()
   await expect(page).toHaveURL(/\/procurement\/purchase-orders$/)
   await expect(page.getByRole('heading', { name: 'ใบสั่งซื้อ (Purchase Orders)', exact: true })).toBeVisible()
   await page.getByLabel('ผู้ขาย', { exact: true }).selectOption({ label: `${supplierCode} · ผู้ขาย e2e` })

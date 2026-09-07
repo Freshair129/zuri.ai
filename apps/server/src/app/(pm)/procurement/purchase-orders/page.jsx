@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
+import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
+import { PROCUREMENT_TABS } from '@/lib/module-tabs'
 import { useScope } from '@/context/ScopeContext'
 import { PURCHASE_ORDER_ACTIONS } from '@/lib/validation/enums'
 
@@ -141,6 +142,7 @@ export default function PurchaseOrdersPage() {
   const anyQty = Object.values(receipt.lines).some((v) => Number(v.qty) > 0)
 
   return <div>
+    <ModuleTabs tabs={PROCUREMENT_TABS} />
     <PageHeader
       eyebrow="Procurement · FEAT-024"
       title="ใบสั่งซื้อ (Purchase Orders)"
