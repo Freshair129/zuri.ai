@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-171-NOTE
-version: "1.1.0"
+version: "1.2.0"
 status: accepted
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-08T00:26:00+07:00,RWANG"
+last_update: "2026-09-08T01:59:00+07:00,RWANG"
 domain: agent
 feature: FR-171
 module: agent
@@ -32,6 +32,8 @@ relations:
     target: ZAI:FR-171-P1
   - type: relates_to
     target: ZAI:FR-171-P2
+  - type: relates_to
+    target: ZAI:FR-171-P3
 ---
 
 # FR-171 — Execution Trace & Replay v0.3
@@ -149,6 +151,9 @@ emitters or validators are all implemented in Zuri today.
 [P2](PHASE-FR-171-P2-memory-provenance.md) preserves API-009 memory revisions
 and observed write responses through the authorized context seam; private
 per-call injection and the remaining adapters are still gated.
+[P3](PHASE-FR-171-P3-memory-journal-linkage.md) validates reference-only memory
+write events against stored context/action parents and marks incomplete external
+authority in playback; it does not add a production memory-write producer.
 
 | Reference | Required identity and provenance |
 |---|---|
@@ -322,5 +327,6 @@ verified. Those are named phase and rollout gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-09-08 | accepted | Link typed memory journal validation and explicit producer gates | pending | RWANG |
 | 1.1.0 | 2026-09-08 | accepted | Link approved P2 memory provenance implementation and remaining authority gates | pending | RWANG |
 | 1.0.0 | 2026-09-07 | accepted | Approved Execution Trace & Replay v0.3 feature contract and unverified acceptance tests | uncommitted | RWANG |

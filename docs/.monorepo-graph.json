@@ -6866,7 +6866,7 @@
       "id": "code:src/modules/agent/execution-trace.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/execution-trace.js",
-      "hash": "28c344fd",
+      "hash": "dee69d9f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7127,6 +7127,24 @@
         ],
         "@tested": [
           "tests/integration/agent-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/memory-trace-contract.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/memory-trace-contract.js",
+      "hash": "03ada670",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-171"
+        ],
+        "@spec": [
+          "FR-057"
+        ],
+        "@tested": [
+          "tests/integration/memory-trace-linkage.test.js"
         ]
       }
     },
@@ -15607,8 +15625,8 @@
       "type": "document",
       "path": "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
       "title": "FR-171 — Execution Trace & Replay v0.3",
-      "hash": "94645639",
-      "status": "current"
+      "hash": "9b793d51",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -15937,6 +15955,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PHASE-FR-171-P3-memory-journal-linkage",
+      "type": "document",
+      "path": "docs/domains/agent/features/PHASE-FR-171-P3-memory-journal-linkage.md",
+      "title": "FR-171-P3 — Validate memory journal causality",
+      "hash": "89fdf7d0",
+      "status": "changed"
+    },
+    {
       "id": "doc:PHASE-MONOREPO-2026-09-06",
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
@@ -16217,8 +16243,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "571ba1aa",
-      "status": "current"
+      "hash": "eadb7379",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -24773,6 +24799,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/marketing-pm-handoff.test.js",
       "hash": "d9a9cc3e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/memory-trace-linkage.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/memory-trace-linkage.test.js",
+      "hash": "e30b4aa3",
       "status": "current"
     },
     {
@@ -41431,6 +41464,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/memory-trace-contract.js",
+      "to": "req:FR-057",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/memory-trace-contract.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/model-provider-catalog.js",
       "to": "req:FR-048",
       "type": "implements",
@@ -53640,6 +53687,13 @@
     },
     {
       "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "doc:PHASE-FR-171-P3-memory-journal-linkage",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
       "to": "req:FR-057",
       "type": "relates",
       "source": "metadata",
@@ -54508,6 +54562,34 @@
     },
     {
       "from": "doc:PHASE-FR-171-P2-memory-provenance",
+      "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P3-memory-journal-linkage",
+      "to": "doc:PHASE-FR-171-P2-memory-provenance",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P3-memory-journal-linkage",
+      "to": "req:FR-057",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P3-memory-journal-linkage",
+      "to": "req:FR-171",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P3-memory-journal-linkage",
       "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
       "type": "relates",
       "source": "metadata",
@@ -74949,6 +75031,27 @@
     {
       "from": "test:tests/integration/marketing-pm-handoff.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/memory-trace-linkage.test.js",
+      "to": "code:src/modules/agent/memory-trace-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/memory-trace-linkage.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/memory-trace-linkage.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -99107,7 +99210,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2349,
+    "server_nodes": 2352,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
