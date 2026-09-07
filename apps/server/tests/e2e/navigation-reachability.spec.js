@@ -135,18 +135,31 @@ test.describe('navigation reachability', () => {
   // Distinct from `smoke.spec.js:93`, which proves one *label* ("Overview")
   // matches nothing. This proves a reserved *domain* is never offered — a
   // different way for the palette to strand a user.
-  test('search hides reserved Commerce and opens delivered Campaigns', async ({ page }) => {
+  //
+  // @req FR-166 — this probe used to type "Commerce" and expect no match; the
+  // Commerce slot is delivered now, so the palette must find it instead.
+  test('search never offers a reserved domain that has no page, and finds the delivered ones', async ({ page }) => {
     await chooseBusiness(page)
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
-    await input.fill('Commerce')
-    await expect(page.getByText(/No matches for/i)).toBeVisible()
-    // @req FR-160 — Campaigns is now delivered and must be reachable by search.
+    // "Operations" also names an execution view, so the word finds a result;
+    // the proof is that the reserved slot's own entry is never among them.
+    await input.fill('Operations')
+    await expect(page.getByRole('button', { name: /Operations view/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Operations · Dashboard/ })).toHaveCount(0)
+    // @req FR-160 — Campaigns is delivered (Marketing) and must be reachable by search.
     await input.fill('Campaigns')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/growth\/campaigns$/)
     await expect(page.getByRole('heading', { name: 'Campaigns', exact: true })).toBeVisible()
+    // The delivered Commerce slot is offered and opens too.
+    await page.goto('/overview')
+    await page.getByRole('button', { name: /Open command palette/i }).click()
+    await input.fill('Commerce · Orders')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/commerce\/orders$/)
+    await expect(page.getByRole('heading', { name: 'ออเดอร์ (Orders)', exact: true })).toBeVisible()
   })
 })
 

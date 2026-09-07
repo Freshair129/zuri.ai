@@ -41,7 +41,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 //       Record a retirement. The anchor does not move — a retirement stops a
 //       statement, it never hands its key to another one (the SEC-004 shape).
 //
-//   node scripts/id-ledger.mjs --abandon <ID> --to <NEW-ID> --reason "<sentence>"
+//   node scripts/id-ledger.mjs --abandon <ID> --to <NEW-ID> --reason "<sentence>" [--declared-in <doc>#<version>]
 //       This branch declared <ID>, main took the number first, and the branch is
 //       renumbering ITSELF to <NEW-ID>. Main is the published trunk, so the later
 //       declaration is the one that moves (the af0a6f0d1 and FR-093/SDD-051
@@ -418,7 +418,15 @@ if (abandonId) {
   entry.retired_to = to
   entry.retired_at = TODAY
   entry.reason = reason
-  entry.history.push({ anchor: currentAnchor(entry), since: TODAY, reason: `Abandoned before merge; this branch renumbered itself to ${to}. ${reason}` })
+  entry.history.push({ anchor: currentAnchor(entry), since: TODAY, reason: `Abandoned before merge; this branch renumbered itself to ${to}. ${reason}`, ...(declaredIn ? { declared_in: declaredIn } : {}) })
+  // An abandon IS a move, and preflight's id-stability check reads every move
+  // for a pointer at the revision row that states it. Without this the writer
+  // produced a ledger its own gate rejects, with no flag that could fix it:
+  // --declared-in was accepted by --declare, --reword and --supersede but
+  // silently dropped here, so the only way out was hand-editing the file the
+  // ledger exists to keep hands out of.
+  if (declaredIn) entry.declared_in = declaredIn
+  else if (needVersionPointer(entry)) fail(`${abandonId} lives in a registry with a version history — pass --declared-in <doc>#<version> naming the revision row that states this move.`)
 }
 
 if (distinctId) {
