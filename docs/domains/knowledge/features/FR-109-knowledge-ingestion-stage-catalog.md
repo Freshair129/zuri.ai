@@ -35,6 +35,33 @@ calls.
 
 ## Identity contract
 
+### Approved GenesisRAG17 TEST extension
+
+The 2026-09-07 implementation wave adds a real Tier 1 raw entrypoint while
+keeping the seventeen-stage catalog and the FR-071 run identity. The entrypoint
+persists an immutable `KnowledgeRawArtifact`, its immutable
+`KnowledgeParsedArtifact` and exact-offset `KnowledgeChunk` rows before
+delivering one `genesisrag17.v1` batch for the materialized Stage 9 attempt.
+Every Stage 9–17 report is attributed by the complete
+`runId`/`pipelineStageId`/`executionStepId`/`attemptId` tuple. A repeated
+delivery reuses the same Stage 9 batch and idempotency key; a new attempt never
+closes through an older evidence row. The six frozen metrics are persisted for
+each terminal evidence row, and Stage 17 cannot close the run without the
+matching publication receipt.
+
+An FR-071 reprocess names its queued execution run explicitly as
+`replayRunId`. The entrypoint verifies that run's knowledge definition,
+scope-bound source/artifact hashes and raw artifact reference before executing
+its newly materialized stage attempts. Replaying a completed source run is
+refused, and the original raw, parsed and chunk rows remain unchanged.
+
+The knowledge lane owns only this Tier 1 lineage and bounded evidence state.
+GKS facts, canonical entity payloads, embeddings, indexes and retrieval
+contents remain external. Source submission, evidence pull and durable source
+worker start/stop/resume calls go through MSP's source credential boundary.
+The full request and response shapes are in the frozen
+[`GenesisRAG17 contract`](../../../plans/GENESISRAG17-CONTRACT.md).
+
 FR-109 adds no new identity family. It binds the specification's trace
 vocabulary onto the identities FR-071 already defines:
 

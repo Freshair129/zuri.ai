@@ -336,7 +336,7 @@ describe('FR-110 — the Stage 9–17 reporter receiver', () => {
     }), { viewer: reporter })).rejects.toThrow(/scope/)
   })
 
-  it('closes the run only from what was reported: refused with the list until then, SUCCEEDED and PUBLISHED after, UNCHANGED thereafter', async () => {
+  it('keeps a legacy successful run open until an attempt-bound publication receipt arrives', async () => {
     const run = await ingest('v-finish')
     await expect(finishKnowledgeIngestionRun(finish(run), { viewer: reporter })).rejects.toMatchObject({
       status: 409,
@@ -348,19 +348,18 @@ describe('FR-110 — the Stage 9–17 reporter receiver', () => {
     })
     await recordKnowledgeStage17Decision(await decision(run), { viewer: reporter })
 
-    const closed = await finishKnowledgeIngestionRun(finish(run), { viewer: reporter })
-    expect(closed).toMatchObject({ status: 'CREATED', terminal: 'SUCCEEDED' })
+    await expect(finishKnowledgeIngestionRun(finish(run), { viewer: reporter })).rejects.toMatchObject({
+      status: 409,
+      message: 'Successful finish requires an attempt-bound publication receipt; legacy evidence remains readable',
+    })
     const row = await prisma.pipelineRun.findUnique({ where: { executionRunId: run.executionRunId } })
-    expect(row.status).toBe('SUCCEEDED')
-    expect(row.finishedAt.toISOString()).toBe(T1)
+    expect(row).toMatchObject({ status: 'RUNNING', finishedAt: null })
 
     const job = await readKnowledgeIngestionJob(run.executionRunId, { viewer: operator })
-    expect(job.job).toMatchObject({ state: 'PUBLISHED', reason: 'RUN_SUCCEEDED_BEHIND_APPROVED_GATE' })
+    expect(job.job).toMatchObject({ state: 'READY_TO_PUBLISH' })
     expect(job.pipelineJobId).toBe(run.executionRunId)
     expect(job.stages).toHaveLength(17)
     expect(job.stages.every((s) => s.executionStepId && s.attemptId)).toBe(true)
-
-    expect(await finishKnowledgeIngestionRun(finish(run), { viewer: reporter })).toMatchObject({ status: 'UNCHANGED', terminal: 'SUCCEEDED' })
   })
 
   it('a FAIL verdict rejects and closes FAILED; a QUARANTINE verdict holds', async () => {

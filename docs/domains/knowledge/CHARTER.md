@@ -1,7 +1,14 @@
 ---
 domain: knowledge
 module: src/modules/knowledge
-owns_models: []
+owns_models:
+  - KnowledgeRawArtifact
+  - KnowledgeParsedArtifact
+  - KnowledgeChunk
+  - GenesisRag17Batch
+  - GenesisRag17StageEvidence
+  - GenesisRag17EvidenceCursor
+  - GenesisRag17PublicationReceipt
 ---
 
 # Domain charter — knowledge
@@ -19,10 +26,12 @@ external systems with their own repositories and are never zuri-ai domains
 
 ## Boundaries
 
-- **Owns no Prisma models.** Its store is the production runtime's
-  `zuri_core.business_knowledge` behind the knowledge port
+- **Owns no canonical production knowledge store.** Its store is the production
+  runtime's `zuri_core.business_knowledge` behind the knowledge port
   (`postgres-business-knowledge`), plus the governed import built by
-  `scripts/build_business_knowledge_import.py`.
+  `scripts/build_business_knowledge_import.py`. The approved GenesisRAG17 TEST
+  slice adds the local lineage and bounded evidence models named in this
+  charter; they are execution records, not canonical GKS knowledge.
 - Knowledge enters through governed import/approval — never automatically from
   conversation (spec §19: MSP → candidate → validation → GKS, in that order).
 - Serves grounded answers to the agent domain through the knowledge contract;
@@ -41,22 +50,50 @@ external systems with their own repositories and are never zuri-ai domains
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 
+### Approved GenesisRAG17 TEST implementation boundary (2026-09-07)
+
+The approved `genesisrag17.v1` TEST slice changes the Tier 1 boundary for the
+raw-to-batch handoff. This is an additive implementation boundary: the
+knowledge lane owns the immutable local lineage needed to prove the raw
+entrypoint — `KnowledgeRawArtifact → KnowledgeParsedArtifact →
+KnowledgeChunk` — and the bounded delivery records needed to resume one
+Stage 9 attempt without inventing a second run. It also owns the local
+Stage 9–17 evidence cursor, publication-receipt reference and durable Stage 9
+batch state. These records hold source identity, hashes, offsets, counts and
+redacted details; they do not hold GKS facts, canonical entities, embeddings,
+index payloads or GenesisBlockDB data.
+
+One raw entry creates one document and one execution run. Stage 1 records real
+raw persistence evidence before the local parser runs. Stages 2–8 preserve
+exact source offsets and source-mention occurrences, and the Stage 9 batch is
+created once for the materialized Stage 9 `executionStepId` + `attemptId`.
+Stages 9–17 remain external execution: Tier 1 sends and receives only the
+frozen MSP pipeline contract, maps evidence by all four stage identities and
+never selects a latest step as a fallback. A successful close requires the
+matching publication receipt. Start, stop and resume are durable MSP calls;
+Tier 1 never writes an MSP, GKS or GenesisBlockDB store directly.
+
+The wire contract is recorded in
+[`docs/plans/GENESISRAG17-CONTRACT.md`](../../plans/GENESISRAG17-CONTRACT.md)
+for this implementation wave. Root-owned governance reconciles its final
+canonical document location and generated views.
+
 - Holds the **declaration** of the seventeen-stage knowledge ingestion
   pipeline: the stage catalog (`DPL-KNOWLEDGE-INGEST-V1`, seventeen stable
   `DPS-KI-*` stage ids), the end-to-end job trace, the published-snapshot
   contract and the sensitivity/processing-policy classification lattice.
-- **Declares and monitors ingestion; never executes it.** The stages ADR-050
-  assigns to GKS (Tier 3) and GenesisBlockDB (Tier 4) run there. This domain
-  registers the definition, records the run, holds the Stage 17 gate decision
-  and consumes the resulting snapshot — Tier 1 is not a substrate writer
-  (ADR-043 D2.1), and serving stays behind the interim contract (ADR-046).
-- **Declares no new Prisma models for this.** The FR-071 execution ledger is
-  reused unchanged (SDD-057), so `owns_models` stays empty — and it stayed
-  empty when the catalog was registered on 2026-08-28. A knowledge ingestion
-  run is created by calling the integrations lane's `createPipelineRun`; this
-  domain's contribution is `knowledgeIngestionRunInput`, a pure function that
-  returns the input and writes nothing. One write path, owned where the models
-  are owned.
+- **Declares and monitors ingestion; the TEST entrypoint executes and persists
+  Tier 1 stages 1–8.** The stages ADR-050 assigns to GKS (Tier 3) and
+  GenesisBlockDB (Tier 4) remain external. This domain registers the
+  definition, records the run, holds the Stage 17 gate decision and consumes
+  the resulting snapshot — Tier 1 is not a substrate writer (ADR-043 D2.1),
+  and serving stays behind the interim contract (ADR-046).
+- The FR-071 execution ledger is reused unchanged (SDD-057), while the
+approved TEST slice adds the additive raw/parsed/chunk lineage, bounded
+evidence, receipt reference and durable Stage 9 batch/cursor records listed in
+`owns_models`. A knowledge ingestion run is still created through the
+  integrations lane's `createPipelineRun`; these extra rows never become a
+  second canonical knowledge store.
 
 ### Built here — the eight Tier 1 stages, their composition, and the run identity
 
@@ -64,7 +101,8 @@ ADR-050 D2 assigns eight of the seventeen stages to Tier 1, and all eight have
 code: ingestion (FR-081), parsing (FR-115), provenance capture (FR-116),
 normalization (FR-114), classification (FR-111), deduplication (FR-117),
 chunking (FR-112) and entity extraction (FR-113). Every one is a pure
-calculator; none opens a database.
+calculator; the executor composes those calculators with the canonical raw
+ingestion repository and persists the TEST lineage/evidence rows.
 
 **Eight implementations were not a running pipeline, and on 2026-08-28 that
 stopped being true of seven of them.** `runKnowledgeIngestionStages` (FR-118)

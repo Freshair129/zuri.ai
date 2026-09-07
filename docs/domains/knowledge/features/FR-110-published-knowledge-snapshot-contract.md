@@ -183,6 +183,22 @@ effect of a query.
 
 ## Acceptance criteria
 
+### Approved GenesisRAG17 TEST extension
+
+The approved TEST pipeline supplies the missing receipt-backed handoff for the
+FR-110 boundary. Tier 1 records the external Stage 17 evidence and the
+immutable publication receipt reference, but does not publish a snapshot or
+write a retrieval substrate. The run-close path requires exact equality of
+`runId`, `decisionId`, `decisionHash`, `snapshotId`, `generation` and
+`receiptHash` between the Stage 17 evidence and the publication receipt. A
+missing, mismatched or security-invalid receipt leaves the run open or failed.
+
+The retrieval query remains an MSP-relayed contract. Its response is accepted
+only when the response scope and cited source/chunk provenance match the
+request; Tier 1 does not select candidate generations or infer a published
+pointer. The wire shapes and source-worker batch/cursor durability rules are frozen in
+[`GENESISRAG17-CONTRACT.md`](../../../plans/GENESISRAG17-CONTRACT.md).
+
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
 what FR-110 owns — the gate, the publication and the snapshot. The KNO-01
 contract slice and the zuri-ai half of KNO-02 — the reporter receiver, the
