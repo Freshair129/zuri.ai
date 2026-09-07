@@ -48,8 +48,6 @@ export default function LineCrmMembers() {
   const isLive = dataMode === 'demo' ? false : hasRealMembers
 
   const members = useMemo(() => {
-    if (!isLive) return CRM_MEMBERS_DIRECTORY
-
     const list = []
     registeredUsers.forEach((u, i) => {
       list.push({
@@ -91,8 +89,8 @@ export default function LineCrmMembers() {
       }
     })
 
-    return list.length > 0 ? list : CRM_MEMBERS_DIRECTORY
-  }, [isLive, registeredUsers, realCustomers])
+    return list
+  }, [registeredUsers, realCustomers])
 
   const filteredMembers = members.filter((m) => {
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,19 +108,9 @@ export default function LineCrmMembers() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               สมาชิก CRM (Member 360°)
             </h1>
-            {isLive ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB ({members.length})
-              </span>
-            ) : (
-              <button
-                onClick={() => setDataMode(dataMode === 'demo' ? 'auto' : 'demo')}
-                className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100"
-                title="คลิกเพื่อสลับโหมด"
-              >
-                🟡 Demo Mode ({members.length})
-              </button>
-            )}
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB ({members.length})
+            </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             รายชื่อสมาชิก ฐานข้อมูลลูกค้าประวัติการสะสมแต้ม และยอดใช้จ่ายสะสม
@@ -185,7 +173,17 @@ export default function LineCrmMembers() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredMembers.map((m) => (
+            {filteredMembers.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-600 dark:text-slate-300">ยังไม่มีรายชื่อสมาชิกในระบบ</p>
+                    <p className="text-[11px] text-slate-400">เมื่อมีการลงทะเบียนพนักงานหรือลูกค้าทักแชทเข้ามา รายชื่อสมาชิก 360° จะปรากฏที่นี่</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              filteredMembers.map((m) => (
               <tr
                 key={m.id}
                 onClick={() => setActiveMember(m)}
@@ -238,6 +236,7 @@ export default function LineCrmMembers() {
                 </td>
               </tr>
             ))}
+            )}
           </tbody>
         </table>
       </div>
