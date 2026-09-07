@@ -54,9 +54,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -23372,7 +23370,7 @@
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
-      "hash": "1160e6dc",
+      "hash": "b2779343",
       "status": "current"
     },
     {
@@ -23492,7 +23490,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "hash": "d210cda2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
