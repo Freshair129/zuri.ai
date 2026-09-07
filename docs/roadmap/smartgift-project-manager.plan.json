@@ -1,0 +1,486 @@
+{
+  "schemaVersion": "1.2",
+  "generatedBy": "RWANG / SmartGift roadmap adapter",
+  "generatedAt": "2026-09-07T00:00:00+07:00",
+  "scope": {
+    "portfolioCode": "PF-001",
+    "tenantCode": "TNT-001",
+    "businessCode": "BUS-001",
+    "workspaceCode": "WS-B01-MIG"
+  },
+  "trace": {
+    "correlationId": "smartgift-delivery-20260907",
+    "idempotencyKey": "smartgift-delivery-20260907-v1"
+  },
+  "domainBinding": {
+    "primaryDomainId": "DOM-DEVELOPMENT",
+    "supportingDomainIds": [],
+    "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+  },
+  "identityRefs": {},
+  "project": {
+    "code": "PRJ-B01-SMARTGIFT-DELIVERY",
+    "name": "Business 01 SmartGift — Delivery",
+    "description": "Project Manager tracking plan adapted from the approved Business-01 SmartGift roadmap. The local scope is a preview target until a user-owned Zuri instance and workspace are confirmed.",
+    "type": "BUSINESS_EXECUTION",
+    "status": "ACTIVE",
+    "externalRefs": [
+      { "system": "ROADMAP", "id": "ROADMAP-BUSINESS01-SMARTGIFT", "labelAs": false }
+    ]
+  },
+  "workstreams": [
+    {
+      "code": "WST-SG-FOUNDATION",
+      "name": "SmartGift foundation and identity",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 2,
+      "containers": [
+        {
+          "code": "EPIC-SG-FOUNDATION",
+          "subtype": "EPIC",
+          "title": "Shared foundation and identity",
+          "status": "ACTIVE",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-FOUNDATION",
+            "roadmapProgress": 100,
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-MSP-EXTRACT",
+          "containerCode": "EPIC-SG-FOUNDATION",
+          "subtype": "TASK",
+          "title": "Extract MSP foundation and pass Gate A",
+          "status": "DONE",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-MSP-EXTRACT", "priority": "P0", "owner": "Codex" }
+        },
+        {
+          "code": "SG-IDENTITY-PRIM",
+          "containerCode": "EPIC-SG-FOUNDATION",
+          "subtype": "TASK",
+          "title": "Create tenant-scoped LINE identity primitive",
+          "status": "DONE",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-IDENTITY-PRIM", "priority": "P0", "owner": "Claude" }
+        },
+        {
+          "code": "SG-BACKEND-SLICE",
+          "containerCode": "EPIC-SG-FOUNDATION",
+          "subtype": "TASK",
+          "title": "Deliver CRM backend slice for customer, conversation and message ingest",
+          "status": "DONE",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-BACKEND-SLICE", "priority": "P0", "owner": "Claude" }
+        },
+        {
+          "code": "SG-IDENTITY-P3",
+          "containerCode": "EPIC-SG-FOUNDATION",
+          "subtype": "TASK",
+          "title": "Complete P3 linking, erase, revoke and staff/customer split gate",
+          "status": "DONE",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-IDENTITY-P3", "priority": "P0", "owner": "Claude" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-FOUNDATION", "title": "Foundation accepted", "status": "DONE", "weight": 1 }
+      ],
+      "gates": [
+        {
+          "code": "GATE-SG-FOUNDATION",
+          "title": "Foundation and identity test gate",
+          "status": "PASSED",
+          "required": true,
+          "evidence": { "source": "ROADMAP-BUSINESS01-SMARTGIFT", "phaseProgress": 100 }
+        }
+      ]
+    },
+    {
+      "code": "WST-SG-DATA",
+      "name": "SmartGift source-of-truth migration",
+      "executionMode": "DATA_MIGRATION",
+      "executionModeId": "EXM-DATA-MIGRATION",
+      "executionContractId": "EXC-DATA-MIGRATION-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "RECORD_VALIDATION",
+      "progressWeight": 2,
+      "containers": [
+        {
+          "code": "MIG-SG-SOT",
+          "subtype": "MIGRATION_STAGE",
+          "title": "Business-01 DuckDB source of truth",
+          "status": "ACTIVE",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-DATA",
+            "roadmapProgress": 100,
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-DATA-SOT",
+          "containerCode": "MIG-SG-SOT",
+          "subtype": "DATASET",
+          "title": "Business documents and customer records in the SmartGift SoT",
+          "status": "DONE",
+          "metrics": {
+            "recordsTotal": 11854,
+            "processed": 11854,
+            "success": 11854,
+            "failed": 0,
+            "validated": 11854,
+            "reconciled": 11854
+          },
+          "metadata": {
+            "roadmapId": "SG-DATA-SOT",
+            "sourceCounts": "8,285 documents; 3,569 customers",
+            "financialCoverage": "quotes 1.29B THB; bills 78M THB",
+            "priority": "P0"
+          }
+        },
+        {
+          "code": "SG-DATA-PIPE",
+          "containerCode": "MIG-SG-SOT",
+          "subtype": "VALIDATION",
+          "title": "D0–D8 migration pipeline and migration ledger",
+          "status": "DONE",
+          "metadata": { "roadmapId": "SG-DATA-PIPE", "priority": "P0", "owner": "Agent" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-DATA", "title": "SmartGift SoT validated", "status": "DONE", "weight": 1 }
+      ],
+      "gates": [
+        {
+          "code": "GATE-SG-DATA",
+          "title": "Source-of-truth provenance gate",
+          "status": "PASSED",
+          "required": true,
+          "evidence": { "source": "ROADMAP-BUSINESS01-SMARTGIFT", "phaseProgress": 100 }
+        }
+      ]
+    },
+    {
+      "code": "WST-SG-GRAPH",
+      "name": "Knowledge graph and retrieval projection",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 3,
+      "containers": [
+        {
+          "code": "EPIC-SG-GRAPH",
+          "subtype": "EPIC",
+          "title": "GenesisBlockDB projection and read-only MCP",
+          "status": "ACTIVE",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-GRAPH",
+            "roadmapProgress": 92,
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-GRAPH-SYNC",
+          "containerCode": "EPIC-SG-GRAPH",
+          "subtype": "TASK",
+          "title": "Project SmartGift SoT into the knowledge graph",
+          "status": "DONE",
+          "weight": 4,
+          "metadata": { "roadmapId": "SG-GRAPH-SYNC", "priority": "P0", "owner": "Agent" }
+        },
+        {
+          "code": "SG-GRAPH-MCP",
+          "containerCode": "EPIC-SG-GRAPH",
+          "subtype": "TASK",
+          "title": "Expose fail-closed read-only knowledge MCP tools",
+          "status": "DONE",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-GRAPH-MCP", "priority": "P1", "owner": "Agent" }
+        },
+        {
+          "code": "SG-GRAPH-P54",
+          "containerCode": "EPIC-SG-GRAPH",
+          "subtype": "BUG",
+          "title": "Complete Document to Product line-item edges",
+          "status": "BLOCKED",
+          "weight": 1,
+          "metadata": { "roadmapId": "SG-GRAPH-P54", "priority": "P2", "owner": "Agent" }
+        },
+        {
+          "code": "SG-KG-PROJECTION",
+          "containerCode": "EPIC-SG-GRAPH",
+          "subtype": "TASK",
+          "title": "Project Zuri relations into GKS without copying live facts",
+          "status": "DONE",
+          "weight": 4,
+          "metadata": { "roadmapId": "SG-KG-PROJECTION", "priority": "P1", "owner": "Claude" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-GRAPH", "title": "Graph retrieval acceptance", "status": "IN_PROGRESS", "weight": 1 }
+      ],
+      "gates": [
+        {
+          "code": "GATE-SG-GRAPH",
+          "title": "Graph evaluation and line-item edge gate",
+          "status": "OPEN",
+          "required": true,
+          "evidence": { "roadmapProgress": 92 }
+        }
+      ]
+    },
+    {
+      "code": "WST-SG-COPILOT",
+      "name": "LINE SmartGift copilot",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 4,
+      "containers": [
+        {
+          "code": "EPIC-SG-COPILOT",
+          "subtype": "EPIC",
+          "title": "LINE copilot over SmartGift evidence",
+          "status": "ACTIVE",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-COPILOT",
+            "roadmapProgress": 45,
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-COP-SEAM",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Connect LINE command agent to real SmartGift SoT queries",
+          "status": "IN_PROGRESS",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-COP-SEAM", "priority": "P0", "owner": "Claude" }
+        },
+        {
+          "code": "SG-COP-FIXTURE",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "BUG",
+          "title": "Remove hardcoded revenue fixture and fail closed on unknown queries",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-COP-FIXTURE", "priority": "P0", "owner": "Claude" }
+        },
+        {
+          "code": "SG-COP-QUERIES",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Add monthly sales, top customer, tier and pipeline read queries",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-COP-QUERIES", "priority": "P1", "owner": "Claude" }
+        },
+        {
+          "code": "SG-AGENT-CONTEXT",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Assemble identity, memory, graph and read-only agent context",
+          "status": "DONE",
+          "weight": 5,
+          "metadata": { "roadmapId": "SG-AGENT-CONTEXT", "priority": "P1", "owner": "Claude" }
+        },
+        {
+          "code": "SG-AGENT-WRITE",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Enforce audited RBAC and sensitivity action gate",
+          "status": "DONE",
+          "weight": 4,
+          "metadata": { "roadmapId": "SG-AGENT-WRITE", "priority": "P1", "owner": "Claude" }
+        },
+        {
+          "code": "SG-COP-MEMORY",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Replace in-memory copilot memory with principal-keyed MSP memory",
+          "status": "PLANNED",
+          "weight": 1,
+          "metadata": { "roadmapId": "SG-COP-MEMORY", "priority": "P1", "owner": "Claude" }
+        },
+        {
+          "code": "SG-COP-PROD",
+          "containerCode": "EPIC-SG-COPILOT",
+          "subtype": "TASK",
+          "title": "Move the copilot to the production LINE runtime",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-COP-PROD", "priority": "P2", "owner": "Owen" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-COPILOT", "title": "LINE answers from cited SmartGift data", "status": "IN_PROGRESS", "weight": 1 }
+      ],
+      "gates": [
+        {
+          "code": "GATE-SG-COPILOT",
+          "title": "Copilot contract and fail-closed gate",
+          "status": "OPEN",
+          "required": true,
+          "evidence": { "roadmapProgress": 45 }
+        }
+      ]
+    },
+    {
+      "code": "WST-SG-CLOUD",
+      "name": "Cloud mirror and dashboard readiness",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "EPIC-SG-CLOUD",
+          "subtype": "EPIC",
+          "title": "Cloud mirror and dashboard",
+          "status": "PLANNED",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-CLOUD",
+            "roadmapProgress": 0,
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
+            "completedPrerequisites": ["SG-CLOUD-PDPA", "SG-CLOUD-ZURI-PG"]
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-CLOUD-PDPA",
+          "containerCode": "EPIC-SG-CLOUD",
+          "subtype": "TASK",
+          "title": "Record the PDPA decision for cloud data handling",
+          "status": "DONE",
+          "weight": 0,
+          "metadata": { "roadmapId": "SG-CLOUD-PDPA", "priority": "P0", "owner": "Owen" }
+        },
+        {
+          "code": "SG-CLOUD-ZURI-PG",
+          "containerCode": "EPIC-SG-CLOUD",
+          "subtype": "TASK",
+          "title": "Prepare the Zuri Postgres and Supabase-ready boundary",
+          "status": "DONE",
+          "weight": 0,
+          "metadata": { "roadmapId": "SG-CLOUD-ZURI-PG", "priority": "P0", "owner": "Claude" }
+        },
+        {
+          "code": "SG-CLOUD-MIRROR",
+          "containerCode": "EPIC-SG-CLOUD",
+          "subtype": "TASK",
+          "title": "Mirror aggregate SmartGift SoT data to Supabase",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-CLOUD-MIRROR", "priority": "P1", "owner": "Agent" }
+        },
+        {
+          "code": "SG-CLOUD-DASH",
+          "containerCode": "EPIC-SG-CLOUD",
+          "subtype": "TASK",
+          "title": "Connect the Vercel dashboard to the cloud mirror",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-CLOUD-DASH", "priority": "P1", "owner": "Agent" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-CLOUD", "title": "Cloud mirror available", "status": "PLANNED", "weight": 1 }
+      ],
+      "gates": []
+    },
+    {
+      "code": "WST-SG-SCALE",
+      "name": "Business onboarding pipeline",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "EPIC-SG-SCALE",
+          "subtype": "EPIC",
+          "title": "Reuse the SmartGift data and graph pipeline for the next businesses",
+          "status": "PLANNED",
+          "metadata": {
+            "roadmapPhase": "PHASE-SG-SCALE",
+            "roadmapProgress": 0,
+            "roadmapExecutionMode": "BUSINESS_EXPANSION",
+            "source": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
+            "modeNote": "Kept as SOFTWARE_SPRINT in this envelope because the current domain binding contract is project-level; the work is pipeline implementation, not a site launch."
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "SG-SCALE-B02",
+          "containerCode": "EPIC-SG-SCALE",
+          "subtype": "TASK",
+          "title": "Onboard Business-02 with the SmartGift pipeline",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": { "roadmapId": "SG-SCALE-B02", "priority": "P2", "owner": "Agent" }
+        },
+        {
+          "code": "SG-SCALE-B03",
+          "containerCode": "EPIC-SG-SCALE",
+          "subtype": "TASK",
+          "title": "Onboard Business-03 with the shared pipeline",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-SCALE-B03", "priority": "P2", "owner": "Agent" }
+        },
+        {
+          "code": "SG-SCALE-B04",
+          "containerCode": "EPIC-SG-SCALE",
+          "subtype": "TASK",
+          "title": "Onboard Business-04 with the shared pipeline",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": { "roadmapId": "SG-SCALE-B04", "priority": "P2", "owner": "Agent" }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-SG-SCALE", "title": "Three-business onboarding complete", "status": "PLANNED", "weight": 1 }
+      ],
+      "gates": []
+    }
+  ],
+  "dependencies": [
+    { "sourceRef": "SG-DATA-SOT", "targetRef": "SG-DATA-PIPE", "type": "FINISH_BEFORE" },
+    { "sourceRef": "SG-DATA-SOT", "targetRef": "SG-GRAPH-SYNC", "type": "BLOCKS" },
+    { "sourceRef": "SG-GRAPH-SYNC", "targetRef": "SG-GRAPH-MCP", "type": "BLOCKS" },
+    { "sourceRef": "SG-GRAPH-SYNC", "targetRef": "SG-GRAPH-P54", "type": "BLOCKS" },
+    { "sourceRef": "SG-BACKEND-SLICE", "targetRef": "SG-KG-PROJECTION", "type": "BLOCKS" },
+    { "sourceRef": "SG-COP-SEAM", "targetRef": "SG-COP-FIXTURE", "type": "BLOCKS" },
+    { "sourceRef": "SG-COP-SEAM", "targetRef": "SG-COP-QUERIES", "type": "BLOCKS" },
+    { "sourceRef": "SG-AGENT-CONTEXT", "targetRef": "SG-AGENT-WRITE", "type": "BLOCKS" },
+    { "sourceRef": "SG-AGENT-CONTEXT", "targetRef": "SG-COP-MEMORY", "type": "BLOCKS" },
+    { "sourceRef": "SG-COP-QUERIES", "targetRef": "SG-COP-PROD", "type": "BLOCKS" },
+    { "sourceRef": "SG-CLOUD-PDPA", "targetRef": "SG-CLOUD-MIRROR", "type": "BLOCKS" },
+    { "sourceRef": "SG-CLOUD-MIRROR", "targetRef": "SG-CLOUD-DASH", "type": "BLOCKS" },
+    { "sourceRef": "SG-DATA-PIPE", "targetRef": "SG-SCALE-B02", "type": "BLOCKS" },
+    { "sourceRef": "SG-SCALE-B02", "targetRef": "SG-SCALE-B03", "type": "BLOCKS" },
+    { "sourceRef": "SG-SCALE-B03", "targetRef": "SG-SCALE-B04", "type": "BLOCKS" }
+  ]
+}
