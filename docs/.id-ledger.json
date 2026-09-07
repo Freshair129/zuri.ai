@@ -278,6 +278,9 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-168",
+    "FR-169",
+    "FR-170",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3171,6 +3174,45 @@
         }
       ]
     },
+    "FR-168": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5b87b2a654b1dc5bd3c132759bac8993468df98802a30338988432f163bd4338",
+      "history": [
+        {
+          "anchor": "a product declares one of three natures and they differ in",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-169": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dda24bc0f5ca31633ea98e88828c94ec154d8f6634c19fa4d460387fb62d22eb",
+      "history": [
+        {
+          "anchor": "a business declares feature capabilities business",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-170": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "562be980d567f541729c4ca9875677777e4624ec73143d72f4cc48896ace0180",
+      "history": [
+        {
+          "anchor": "a sub domain module with more than one page renders them as",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4197,14 +4239,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "755306dfbb770e31902c7bde38241a46491071dbfa9f8372ba232b919c9bb11a",
+      "statement_digest": "71c6dd73ce82b1b0074c332de80b9ebd82b4eee88a7c8632d818df272fc09bc8",
       "history": [
         {
           "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Review the approved ADR-070 scope clarification: FR-071 remains the execution ledger while the isolated adapter adds lineage, batch, evidence, cursor and receipt persistence."
     },
     "SDD-058": {
       "family": "SDD",
@@ -4223,14 +4267,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "4d56725ca23906aadd63a03fe27c4c48bd771d97a65251907c26afe551433c8e",
+      "statement_digest": "80b61b4a1fb49241e1e0b1b1b8e352a3e8d7eb83c1b7a41b8676d3f5a74b16ae",
       "history": [
         {
           "anchor": "chunking is a pure calculator in the knowledge lane with no",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Review the approved ADR-070 scope clarification: chunking remains a pure calculator and the separate repository adapter now persists versioned raw, parsed and chunk lineage."
     },
     "SDD-060": {
       "family": "SDD",
@@ -5125,14 +5171,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "2eb3b8cf812a3a450c5be785a8481e82358273778a23c7a161adbe4b290d8fc0",
+      "statement_digest": "463961acf9f23deca7a1e85698942adb7c6c36c6359a280766006e1aa7feb699",
       "history": [
         {
           "anchor": "knowledge ingestion governance",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Review the approved GenesisRAG17 isolated execution delivery and extension map; the Knowledge Ingestion Governance feature retains its existing requirement bundle and subject."
     },
     "FEAT-014": {
       "family": "FEAT",

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ClipboardList, RefreshCw } from 'lucide-react'
-import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
+import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
+import { PROCUREMENT_TABS } from '@/lib/module-tabs'
 import { useScope } from '@/context/ScopeContext'
 import { SUPPLIER_ACTIONS } from '@/lib/validation/enums'
 
@@ -98,6 +99,7 @@ export default function ProcurementDashboardPage() {
   ]
 
   return <div>
+    <ModuleTabs tabs={PROCUREMENT_TABS} />
     <PageHeader
       eyebrow="Procurement · FEAT-024"
       title="จัดซื้อและผู้ขาย"

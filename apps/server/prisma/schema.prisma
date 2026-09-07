@@ -130,6 +130,13 @@ model Business {
   legalEntityId String?
   name          String
   status        String   @default("ACTIVE")
+  // @req FR-169 — feature capabilities this Business has turned on, keyed by
+  // name (`{"physicalStock": true}`). A capability differs from a domain grant
+  // (Membership.domainKeysJson): a grant says WHO may open a module, a
+  // capability says whether the module APPLIES to this Business at all. Absent
+  // keys default per-capability in code, never here, so adding a new
+  // capability is never a migration.
+  capabilitiesJson String @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   version       Int      @default(1)

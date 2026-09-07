@@ -20,10 +20,10 @@ test('FR-166/FR-163 — an order is created, paid, verified and completed on the
   await page.getByRole('link', { name: 'Order Management', exact: true }).click()
   await expect(page).toHaveURL(/\/commerce$/)
   await expect(page.getByRole('heading', { name: /ยอดขายและการชำระเงิน/ })).toBeVisible()
-  // exact: the SCM sidebar also lists Procurement's `Purchase Orders`, and a
-  // substring match resolves to both (ADR-069). The two names are distinct to
-  // a reader; it was the loose locator that was ambiguous.
-  await page.getByRole('link', { name: 'Orders', exact: true }).click()
+  // Scoped to the sidebar (`<aside>`): FR-170's in-canvas tab bar repeats this
+  // exact label too, so `exact: true` alone (which only rules out a substring
+  // match against `Purchase Orders`, ADR-069) is no longer enough on its own.
+  await page.locator('aside').getByRole('link', { name: 'Orders', exact: true }).click()
   await expect(page).toHaveURL(/\/commerce\/orders$/)
   await expect(page.getByRole('heading', { name: 'ออเดอร์ (Orders)', exact: true })).toBeVisible()
 

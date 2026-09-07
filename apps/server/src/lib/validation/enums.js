@@ -210,13 +210,34 @@ export const LINE_OA_LIFF_VIEW_SIZES = ['COMPACT', 'TALL', 'FULL']
 export const LINE_OA_LIFF_SCOPES = ['profile', 'openid', 'email', 'chat_message.write']
 export const LINE_OA_LIFF_BOT_PROMPTS = ['NONE', 'NORMAL', 'AGGRESSIVE']
 export const LINE_OA_LIFF_APP_ACTIONS = ['UPDATE', 'RECORD_LIFF_ID', 'ARCHIVE']
-// FR-154 / FR-155 — Inventory (คลังสินค้า) vocabularies. A Product (SKU) is
-// either counted (TRACKED — every movement is a ledger row and on-hand is the
-// sum of them) or not counted (UNTRACKED — a catalogue identity with no stock
-// ledger at all: services, made-to-order, print-on-demand). A counted product
-// additionally says how its units are identified: as an anonymous quantity
-// (NONE), per manufacturing lot (LOT) or per individual serial number (SERIAL).
-export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED']
+// FR-154 / FR-155 / FR-168 — Inventory (คลังสินค้า) vocabularies. A Product
+// (SKU) declares which of three natures it has, and the three differ in
+// accounting, not only in bookkeeping convenience:
+//
+//   TRACKED   สินค้านับสต๊อก — a good the Business counts. Every movement is a
+//             ledger row, on-hand is their sum, and the cost sits in stock
+//             until the goods leave.
+//   UNTRACKED สินค้าไม่นับสต๊อก — still a good, and it can still be bought and
+//             received, but the Business has decided not to carry a perpetual
+//             count of it (consumables, made-to-order, print-on-demand). It has
+//             no ledger and therefore no on-hand — never a zero, which would
+//             read as "counted and empty".
+//   SERVICE   บริการ — not a good at all. Nothing is ever received into a
+//             warehouse, so it carries no stock fields, cannot appear on a
+//             goods receipt, and is a service line rather than a goods line
+//             wherever that distinction is made.
+//
+// SERVICE was folded into UNTRACKED until 2026-09-07 (FR-168). That conflated
+// "we do not count this good" with "this is not a good", which is a difference
+// an accountant cares about, and it left every service line on a purchase order
+// as free text with no catalogue identity.
+//
+// A counted product additionally says how its units are identified: as an
+// anonymous quantity (NONE), per manufacturing lot (LOT) or per individual
+// serial number (SERIAL).
+export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED', 'SERVICE']
+/** The natures that have no stock ledger: no on-hand, no lot, no serial. */
+export const INVENTORY_UNSTOCKED_POLICIES = ['UNTRACKED', 'SERVICE']
 export const INVENTORY_TRACKING_MODES = ['NONE', 'LOT', 'SERIAL']
 export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE']
 export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
