@@ -309,7 +309,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/orders/page.jsx",
       "hash": "adc4ecc9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-166",
@@ -329,7 +329,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/page.jsx",
       "hash": "d1fa7d9e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-163",
@@ -1242,7 +1242,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/page.jsx",
       "hash": "2b42e373",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1262,7 +1262,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
       "hash": "bb8cd746",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1642,7 +1642,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/settings/page.jsx",
       "hash": "bbb9f16d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020",
@@ -6114,7 +6114,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
       "hash": "5159befd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6227,7 +6227,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
       "hash": "db93ba95",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
@@ -6277,7 +6277,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/ui/index.jsx",
       "hash": "dbe3ddf9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -6299,7 +6299,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "d96537e2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -12061,7 +12061,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "ac576933",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -14142,7 +14142,7 @@
       "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "6c5c2507",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14568,7 +14568,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "b8ea8341",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -16068,7 +16068,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "92265959",
+      "hash": "09b9037b",
       "status": "changed"
     },
     {
@@ -16096,7 +16096,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "70684bf1",
+      "hash": "8d022be7",
       "status": "changed"
     },
     {
@@ -19444,7 +19444,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration (not applied to production; ADR-057), `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle "
+      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration, `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle; 2026-09-07: production migration `20260907150000_business_capabilities` applied and recorded in `supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-057) "
     },
     {
       "id": "req:FR-170",
@@ -23821,14 +23821,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
       "hash": "671813dc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
       "hash": "062b3f1a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/marketing-campaigns.spec.js",
@@ -24626,7 +24626,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "83262421",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
