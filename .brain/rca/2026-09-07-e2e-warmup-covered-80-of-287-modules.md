@@ -137,16 +137,27 @@ Two smaller things sat underneath and were fixed on the way here:
 
   **Re-measured (PR #287).** `tests/e2e/step-timings-reporter.js` now records
   every `expect` and `pw:api` step's duration; the e2e job keeps the file as
-  the `e2e-step-timings` artifact on every run. First CI run with it
-  (34122807288, windows-latest, three other lanes' suites on the runner pool
-  in the same half hour): 885 passed expects, p50 4ms, p90 895ms, p99 1.9s,
-  **max 1.95s**, none over 2s, none failed; `page.goto` max 3.95s. Locally:
-  max 394ms. The test `f0d032d8` cited — smoke "dependencies view renders
-  edges" — spent 1,889ms in its slowest assertion on CI; its "8.8s warm"
-  had been the whole test (sign-in, business click, `goto`, two expects)
-  after a first attempt that compiled `/api/dependencies`. The budget went
-  back to 10s: five times the slowest assertion seen under load. A passed
-  expect over 5s in the artifact is the signal to look at what got slower.
+  the `e2e-step-timings` artifact on every run, pass or fail, for 14 days.
+  Two CI runs on windows-latest, other lanes' suites on the runner pool in
+  the same hour:
+
+  | run | passed expects | p50 | p90 | p99 | max | >2s | >5s |
+  |---|---|---|---|---|---|---|---|
+  | 34122807288 (30s budget) | 885 | 4ms | 895ms | 1.91s | 1.95s | 0 | 0 |
+  | 34125892613 (10s budget) | 887 | 4ms | 899ms | 1.93s | 2.94s | 4 | 0 |
+
+  Two runs because one sample cannot show the tail's spread — and it moved a
+  full second between them, on a different test each time (`fr151` rich menu,
+  then `navigation-reachability` search). Locally: max 394ms. `page.goto`
+  reached 6.1s, which the expect budget does not cover.
+
+  The test `f0d032d8` cited — smoke "dependencies view renders edges" — spent
+  1,889ms in its slowest assertion on CI, warm; its "8.8s warm" had been the
+  whole test (sign-in, business click, `goto`, two expects) after a first
+  attempt that compiled `/api/dependencies`. The budget went back to 10s:
+  ~3.4x the slowest assertion measured under load, with headroom because the
+  tail moves. A passed expect over 5s in the artifact is the signal to look at
+  what got slower — not to raise the number.
 
 ## Local measurement
 

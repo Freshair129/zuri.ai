@@ -69,15 +69,22 @@ module.exports = defineConfig({
   // .brain/rca/2026-09-07-e2e-warmup-covered-80-of-287-modules.md).
   //
   // Then measured, on windows-latest, with every module compiled up front and
-  // three other lanes' suites running on the same runner pool (run
-  // 34122807288, tests/e2e/step-timings-reporter.js, artifact
-  // `e2e-step-timings`): 885 passed expects, p50 4ms, p90 895ms, p99 1.9s,
-  // max 1.95s, none over 2s; page.goto max 3.95s, which the expect budget
-  // does not cover anyway. The 1.9s tail is Playwright's poll cadence crossing
-  // its 1s interval, not the product taking two seconds. Locally the max is
-  // 394ms. So 10s is five times the slowest assertion seen under load; the
-  // 30s figure was fifteen times, and what it bought was thirty seconds of
-  // waiting before a broken assertion reported.
+  // other lanes' suites running on the same runner pool
+  // (tests/e2e/step-timings-reporter.js, artifact `e2e-step-timings`):
+  //
+  //   run 34122807288  885 passed expects  p50 4ms  p90 895ms  p99 1.91s  max 1.95s
+  //   run 34125892613  887 passed expects  p50 4ms  p90 899ms  p99 1.93s  max 2.94s
+  //
+  // Two runs rather than one because the tail is the number that matters and
+  // one sample cannot show its spread: the slowest assertion moved by a
+  // second between them, and it was a different test each time. Neither run
+  // had an expect over 5s. `page.goto` reached 6.1s, which this budget does
+  // not cover. Locally the max is 394ms.
+  //
+  // So 10s is roughly 3.4x the slowest assertion measured under load, and the
+  // headroom is deliberate — the tail moves. The 30s figure was ten times
+  // that again, and what it bought was thirty seconds of waiting before a
+  // broken assertion reported.
   //
   // Every CI run keeps that artifact for 14 days. A passed expect over 5s in
   // it is the signal to look at what got slower — not to raise this number.
