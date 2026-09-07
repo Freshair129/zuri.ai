@@ -25,6 +25,7 @@ const ROUTES = [
   '/market',
   '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
+  '/growth/operations',
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
@@ -48,7 +49,7 @@ const ROUTES = [
   '/line-oa/rich-menus',
   // main 2a1b6a81 gave LINE OA Studio a seven-entry sidebar without listing the
   // routes here; tests/unit/e2e-warmup.test.js compares this list to the registry.
-  '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection',
+  '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection', '/line-oa/integrations',
   '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',

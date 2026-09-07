@@ -112,6 +112,9 @@ const SNAPSHOT_MODELS = [
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
   'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
+  // @req FR-161 — Business-scoped Marketing intake is recoverable request
+  // evidence; owner-domain PM/CRM/Commerce rows remain in their own tables.
+  'marketingOperationsIntake',
   // @req FR-154, FR-155 — the Inventory domain hangs off Tenant and Business
   // (top of this list). Catalogue parents first — category, family and factory
   // before the master that references them, the master before its products,
