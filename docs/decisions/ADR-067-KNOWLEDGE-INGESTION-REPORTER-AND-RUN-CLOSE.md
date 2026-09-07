@@ -93,6 +93,7 @@ Three consequences the rule fixes rather than leaves to interpretation. **Stage 
 - The routes are `GET /api/pipelines/knowledge/{executionRunId}` and `POST …/stages`, `…/gate`, `…/finish`, each trying the bearer key first and falling through to the session exactly as ADR-047 D3 describes. Handing GKS a key is `scripts/mint-sot-data-plane-key.mjs`, an operator command, and is not performed by this change.
 - ADR-047's "two routes" consequence is widened to six; its text is a dated record and gains one pointer line rather than a rewrite (the ADR-063 precedent).
 - A reviewer can read the writer's rule in one place (`requireLedgerWriterForRun`) and expect the receiver tests to fail if it loosens: a Tier 1 stage id, a record event, a run of another definition and a run of another Tenant are each refused under a real key resolved through the real bearer resolver.
+- **Read the same day against GKS's own decisions, this is half an answer** — GKS never calls outward, so its evidence leaves as a pull, not a push. [ADR-068](ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) builds that half on top of this one: the importer calls the receiver functions above, and the four routes remain the route for a tier that may call outward (GenesisBlockDB's own half of Stages 13/15/16/17).
 
 ## CHANGELOG
 

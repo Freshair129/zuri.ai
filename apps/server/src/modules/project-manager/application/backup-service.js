@@ -127,6 +127,12 @@ const SNAPSHOT_MODELS = [
   'productLot', 'serialUnit', 'stockMovement',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
+  // @req FR-110 — the evidence importer's per-scope cursor into GKS's export
+  // (ADR-068 D2). No relation to any row here — its scope columns are GKS's
+  // KnowledgeScope, not foreign keys — so it restores anywhere after the
+  // ledger it feeds; a lost cursor only replays a page the receiver's
+  // idempotency already makes harmless. Bookkeeping, no secret: exported whole.
+  'knowledgeEvidenceCursor',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
   // so it restores after them and deletes before them, alongside the pipeline
   // evidence it gates.

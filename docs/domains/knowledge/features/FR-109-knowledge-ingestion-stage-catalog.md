@@ -3,7 +3,7 @@ domain: knowledge
 feature: FR-109
 module: knowledge
 source: v2-native
-version: "0.3.0b"
+version: "0.4.0b"
 status: "partial"
 ---
 
@@ -210,9 +210,10 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-109 owns — the catalog, the trace and the evidence. **Seven of the
+what FR-109 owns — the catalog, the trace and the evidence. **Eight of the
 thirteen are built** — AC-109.1, AC-109.2, AC-109.3, AC-109.8, AC-109.9,
-AC-109.10 and, since ADR-067 (2026-09-07), AC-109.11.
+AC-109.10 and, since ADR-067 and ADR-068 (2026-09-07), AC-109.11 and
+AC-109.12.
 
 The persistence half this note used to call unnamed now has one:
 `ingestKnowledgeDocument` (SDD-069) calls FR-118's seven-stage composition and
@@ -234,13 +235,11 @@ functions are pure and deterministic; an ambiguous value already declines via
 `canonical: null` rather than throwing, per FR-114/SDD-061), and no object is
 silently dropped.
 
-Of the remaining six: three name a **declared id** — NFR-020 (AC-109.6),
+Of the remaining five: three name a **declared id** — NFR-020 (AC-109.6),
 FR-110's Published Snapshot (AC-109.7) and SDD-059's charter change
-(AC-109.5). Two name the same boundary from two sides — AC-109.4 and
-AC-109.12 wait on GKS and GenesisBlockDB reporting, which ADR-050 D3 assigns
-there and which, since ADR-067, has a receiver here to report to. AC-109.13
-names a decision nothing has made yet: acting differently on a `REVISION_OF`
-result than on a fresh one.
+(AC-109.5). AC-109.4 waits on persisted derived objects, which SDD-059
+declines. AC-109.13 names a decision nothing has made yet: acting differently
+on a `REVISION_OF` result than on a fresh one.
 
 AC-109.3 closed the same way its own note predicted — a column, not a
 subsystem: `RawExternalRecord.artifactId` (nullable, indexed) plus
@@ -365,17 +364,22 @@ one database.
       and never emitted (AC-109.13). Served by `readKnowledgeIngestionJob`
       and `GET /api/pipelines/knowledge/{executionRunId}`, which also carry
       the seventeen step identities a reporter must echo.
-- [ ] **AC-109.12** Stages executed outside Tier 1 still report their evidence
+- [x] **AC-109.12** Stages executed outside Tier 1 still report their evidence
       onto the ledger, and zuri-ai executes no stage the tier boundary assigns
       to GKS or GenesisBlockDB.
-      The receiving half exists since ADR-067: `recordKnowledgeStageReport`,
-      `recordKnowledgeStage17Decision` and `finishKnowledgeIngestionRun`
-      accept the FR-110 envelopes under the run's Tenant's FR-102 data-plane
-      key, and a Tier 1 stage id from that key is refused twice — by the
-      envelope and by `recordPipelineEvent` itself. Still waits on **GKS and
-      GenesisBlockDB actually reporting**: ADR-050 D3 assigns those nine
-      stages elsewhere, and the half zuri-ai owns — executing none of them,
-      and now receiving all of them — holds today.
+      Closed by ADR-067 + ADR-068 (2026-09-07), for every external stage that
+      exists. The receiving half: `recordKnowledgeStageReport`,
+      `recordKnowledgeStage17Decision`, `finishKnowledgeIngestionRun` (a Tier 1
+      stage id from a reporter is refused by the envelope and by
+      `recordPipelineEvent` itself). The fetching half, in the direction both
+      tier boundaries allow: `pullKnowledgeStageEvidence` reads GKS's
+      `gks_stage_evidence_export` through MSP's relay, owns its cursor per
+      scope, and applies each row through the receiver. Proven live across
+      the three repositories: a Stage 9 execution in the real GKS lands as
+      `DPS-KI-ENTITY-RESOLVE` on the run that asked for it
+      (`tests/integration/fr110-knowledge-evidence-chain.test.js`). Stages
+      10–14 report through the same path once GKS builds them; nothing here
+      changes for that. zuri-ai still executes none of the nine.
 - [ ] **AC-109.13** A new source artifact updates only the affected entities,
       facts, graph regions and indexes; rebuilding the whole knowledge graph is
       not the normal path (spec §30).
@@ -394,14 +398,14 @@ one database.
   that decision rather than implementing it. The 2026-08-28 slice added a
   catalog constant, a definition registry and a pure input builder — no model,
   no migration, no route.
-- **Not the whole trace and not the monitor.** Seven of the thirteen
-  acceptance criteria are built now; six are not, and none of the six wait on
-  ledger-writing wiring, on failure attribution, on a job-state derivation or
-  on a receiver for the external tiers any more — all four exist (SDD-069,
-  SDD-072, ADR-067) and gave the remaining criteria real evidence without
-  closing them. Reading this note as "FR-109 is done" would still overstate
-  it, now by six criteria rather than nine, each waiting on something
-  specific and named above.
+- **Not the whole trace and not the monitor.** Eight of the thirteen
+  acceptance criteria are built now; five are not, and none of the five wait
+  on ledger-writing wiring, on failure attribution, on a job-state
+  derivation, on a receiver for the external tiers or on a way for their
+  evidence to arrive any more — all five exist (SDD-069, SDD-072, ADR-067,
+  ADR-068). Reading this note as "FR-109 is done" would still overstate it,
+  now by five criteria rather than nine, each waiting on something specific
+  and named above.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation
   governance stay with GKS (spec §37); vector, lexical, graph, structured,

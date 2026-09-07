@@ -77,6 +77,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // report, the Stage 17 decision, and the close — four paths, four operations.
   ['/api/pipelines/knowledge/{executionRunId}', ['GET']], ['/api/pipelines/knowledge/{executionRunId}/stages', ['POST']],
   ['/api/pipelines/knowledge/{executionRunId}/gate', ['POST']], ['/api/pipelines/knowledge/{executionRunId}/finish', ['POST']],
+  // @req FR-110 — the pull half (ADR-068): one operator tick of the evidence
+  // importer, zuri-ai → MSP → gks_stage_evidence_export. One path, one operation.
+  ['/api/pipelines/knowledge/evidence/pull', ['POST']],
   ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
   // @req FR-106 — GET lists key metadata for the Tenants the caller may govern
   // (never key material); POST mints; DELETE revokes.

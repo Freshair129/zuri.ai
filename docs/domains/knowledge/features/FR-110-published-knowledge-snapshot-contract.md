@@ -3,7 +3,7 @@ domain: knowledge
 feature: FR-110
 module: knowledge
 source: v2-native
-version: "0.3.0b"
+version: "0.4.0b"
 status: "partial"
 ---
 
@@ -279,6 +279,23 @@ attempt + outcome so a retry replays and a conflicting retry is refused, and
 the writer refuses a Tier 1 stage id from a reporter key whatever the
 receiver did.
 
+**The pull half of KNO-02 (ADR-068, 2026-09-07, the same day).** Read against
+GKS's own accepted `ADR-GKS-LEDGER-REPORTING`, the receiver above was half an
+answer: GKS never calls outward, so its evidence leaves as a cursor pull.
+`pullKnowledgeStageEvidence` (`knowledge-evidence-importer.js`, integration
+lane) calls MSP's relay `msp_knowledge_evidence_export` over the spawned-MSP
+transport (`src/modules/agent/msp-stdio-transport.js`), owns the cursor per
+`KnowledgeScope` in `KnowledgeEvidenceCursor`, and applies every attributable
+row through `recordKnowledgeStageReport` — or names why it cannot
+(`unattributed`, `held`, `blocked`). Fronted by
+`POST /api/pipelines/knowledge/evidence/pull`, installation operator only.
+Proven live across three repositories: a Stage 9 execution in the real GKS,
+reached through the real MSP with the run named, lands as
+`DPS-KI-ENTITY-RESOLVE` on that run here
+(`tests/integration/fr110-knowledge-evidence-chain.test.js`). GKS's export,
+its port version 3 and its backfill, and MSP's relay were built the same day in
+their own repositories.
+
 The remaining acceptance criteria are still external or later slices: atomic
 publication, immutable snapshot storage, retrieval, citation and GraphRAG
 readiness. The knowledge domain owns no Prisma model; the snapshot is produced
@@ -291,6 +308,7 @@ decision rather than making one.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-09-07 | partial | ADR-068: the pull half — spawned-MSP transport, `KnowledgeEvidenceCursor`, `pullKnowledgeStageEvidence` with four-way row attribution, `POST /api/pipelines/knowledge/evidence/pull`; proven live against the real MSP and GKS (Stage 9 evidence on this ledger) | working-tree | Claude Fable 5.1 |
 | 0.3.0b | 2026-09-07 | partial | ADR-067: reporter receiver for Stages 9–16, Stage 17 decision writer (AC-110.4 closed), derived run close, job read, four routes under the FR-102 data-plane key; envelopes gain outcome/failure/times | working-tree | Claude Fable 5.1 |
 | 0.2.0b | 2026-08-31 | partial | Implemented the KNO-01 strict Stage 9–16 aggregate report, FR-110 snapshot allow-list, Stage 17 decision/evidence projection, scope binding and publication precondition evaluator; atomic publication remains out of scope | working-tree | ATHER |
 

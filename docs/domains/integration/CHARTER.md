@@ -36,6 +36,7 @@ owns_models:
   - PipelineRecordEvent
   - PipelineReconciliation
   - PipelineGateDecision
+  - KnowledgeEvidenceCursor
 owns_code:
   - src/platform/integrations/**
 ---
@@ -190,6 +191,15 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   The only file in this lane that imports from `src/modules/knowledge/`, and
   it imports pure functions only (`knowledgeJobState`, `knowledgeRunOutcome`
   included).
+- `src/platform/integrations/core/knowledge-evidence-importer.js` —
+  `pullKnowledgeStageEvidence` (FR-110, ADR-068): the pull half. Reads GKS's
+  `gks_stage_evidence_export` through MSP's `msp_knowledge_evidence_export`
+  over the agent domain's spawned-MSP transport, owns the cursor per
+  `KnowledgeScope` in **`KnowledgeEvidenceCursor`** — this lane's model, its
+  bookkeeping for one scheduled pull and not a ledger table — and applies each
+  attributable row through `recordKnowledgeStageReport`, naming every row it
+  cannot apply (`unattributed`, `held`, `blocked`). Installation operator only;
+  fronted by `src/app/api/pipelines/knowledge/evidence/pull`.
 - **The one non-operator writer this ledger admits is the FR-102 data-plane
   key, and what it may write is held in `recordPipelineEvent`**
   (`requireLedgerWriterForRun`, ADR-067 D1), not in the receiver that calls

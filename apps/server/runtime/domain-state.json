@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-06T20:22:58.827Z",
+  "generatedAt": "2026-09-06T21:25:46.547Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -324,8 +324,8 @@
           "id": "FR-057",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 10
         },
         {
           "id": "FR-079",
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -683,7 +683,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -1300,7 +1300,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -1506,7 +1506,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-079",
@@ -1568,15 +1568,15 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 23
+          "codeCount": 5,
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 14
+          "codeCount": 4,
+          "testCount": 23
         },
         {
           "id": "FR-118",
@@ -1679,7 +1679,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -1720,8 +1720,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 15,
-            "present": 15
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -1801,7 +1801,7 @@
         "routes": 11,
         "apiRoutes": 7,
         "pageRoutes": 4,
-        "ownedModels": 15,
+        "ownedModels": 16,
         "featureNotes": 11
       },
       "featureIds": [
@@ -1866,7 +1866,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2001,21 +2001,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 23
         },
         {
           "id": "FR-111",
@@ -2334,7 +2334,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2488,7 +2488,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2633,7 +2633,7 @@
           "details": {
             "routes": 9,
             "inventoried": 9,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -2790,7 +2790,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 185,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -3226,7 +3226,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-072",
@@ -3401,14 +3401,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 14
+          "codeCount": 7,
+          "testCount": 23
         },
         {
           "id": "FR-123",
@@ -3623,9 +3623,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 111,
-            "inventoried": 111,
-            "openApiPaths": 185,
+            "routes": 112,
+            "inventoried": 112,
+            "openApiPaths": 186,
             "missingFromOpenApi": 0
           }
         },
@@ -3685,8 +3685,8 @@
             }
           ],
           "details": {
-            "mutations": 89,
-            "guardedMutations": 89,
+            "mutations": 90,
+            "guardedMutations": 90,
             "reads": 55,
             "unguardedReads": 1
           }
@@ -3788,8 +3788,8 @@
         }
       ],
       "details": {
-        "routes": 156,
-        "apiRoutes": 111,
+        "routes": 157,
+        "apiRoutes": 112,
         "pageRoutes": 45,
         "ownedModels": 30,
         "featureNotes": 31
@@ -4842,15 +4842,15 @@
           "id": "FR-109",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 23
+          "codeCount": 9,
+          "testCount": 25
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 14
+          "codeCount": 13,
+          "testCount": 23
         },
         {
           "id": "FR-111",
@@ -4865,30 +4865,42 @@
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+        "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr109-ingestion-run-identity.test.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
@@ -8244,8 +8256,8 @@
           "id": "FR-057",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -8253,6 +8265,7 @@
         "apps/server/src/modules/agent/context.js",
         "apps/server/src/modules/agent/memory-port.js",
         "apps/server/src/modules/agent/msp-memory-port.js",
+        "apps/server/src/modules/agent/msp-stdio-transport.js",
         "apps/server/src/modules/agent/msp-vault-resolver.js",
         "apps/server/src/modules/agent/scoped-memory.js",
         "apps/server/tests/integration/agent-context.test.js",
@@ -8260,8 +8273,10 @@
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js"
       ]
     },
@@ -8689,7 +8704,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -8707,6 +8722,7 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",

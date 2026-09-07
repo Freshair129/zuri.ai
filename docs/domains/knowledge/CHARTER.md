@@ -173,10 +173,13 @@ Still open, and still not authorized by this charter:
 - No route or caller invokes `evaluateKnowledgePublication` in production; it
   has unit-test callers only. Publication is the external tiers' act; the
   receiver records their decision rather than making one.
-- No external tier has yet written to the receiver — the nine stages ADR-050
-  assigns to GKS/GenesisBlockDB now have somewhere to report, and have not
-  (verified against their repositories on 2026-09-07: GKS's own ledger-reporting
-  ADR is accepted "before any code exists").
+- GKS's evidence now arrives, by pull (ADR-068): the integration lane's
+  `pullKnowledgeStageEvidence` reads `gks_stage_evidence_export` through
+  MSP's relay and applies it through the receiver, and Stage 9's evidence from
+  the real GKS has landed on this ledger in a live three-repository test.
+  Stages 10–14 report the same way once GKS builds them — its Stage 10 and 12
+  designs were still `proposed` on 2026-09-07 — and GenesisBlockDB's half of
+  13/15/16/17 still has no route in its own repository.
 - Atomic publication (the write that makes a snapshot the one a retrieval
   reads) is not built here or anywhere in this repository.
 - No model. The four reporter routes are authorized by ADR-067; nothing else

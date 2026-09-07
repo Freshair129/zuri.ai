@@ -582,6 +582,7 @@
     "ADR-063",
     "ADR-064",
     "ADR-067",
+    "ADR-068",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7157,6 +7158,19 @@
       "history": [
         {
           "anchor": "the knowledge ingestion reporter",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-068": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
+      "status": "current",
+      "statement_digest": "907ff5f489d9399775d6d956c81ce90253c6dd45c702c59828d4925ff70a2b76",
+      "history": [
+        {
+          "anchor": "tier 3 stage evidence is pulled",
           "since": "2026-09-06",
           "reason": "declared"
         }

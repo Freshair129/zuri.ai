@@ -1,5 +1,5 @@
 ---
-version: "0.1.1b"
+version: "0.1.2b"
 created_at: "2026-08-31T03:43:30+07:00,ATHER,424f5fab525d20fdf1180fabee4c8cf9d16dd994"
 last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
 status: "candidate"
@@ -155,7 +155,7 @@ Stage17 `PASS` หรือ `PASS_WITH_WARNINGS` เป็นเพียงเ�
 | Label | AC / SC ที่ต้องพิสูจน์ | เจ้าของหลักฐาน | สถานะก่อนอนุมัติ |
 |---|---|---|---|
 | KNO-01 | FR-110 envelope strict; versions/snapshot/stats/scope ครบ; external stage payload ถูกปฏิเสธ เหลือ aggregate counters ตาม D4 | Knowledge + Integration | delivered 2026-08-31; envelopes gain `outcome`/`failure`/`startedAt`/`finishedAt` 2026-09-07 (ADR-067 D2); unit tests green |
-| KNO-02 | Stage9–16 report ครบตาม owner, idempotent, conflict/quarantine ถูกต้อง | GKS + Genesis + Integration | **ครึ่ง zuri-ai delivered 2026-09-07 (ADR-067)** — `recordKnowledgeStageReport`/`recordKnowledgeStage17Decision` บน real DB + 4 routes: idempotent replay `UNCHANGED`, conflicting retry 409, Tier 1 stage id ปฏิเสธที่ envelope และ writer, cross-tenant key 403/404; ฝั่ง GKS/Genesis ส่งจริง `NOT_VERIFIED` |
+| KNO-02 | Stage9–16 report ครบตาม owner, idempotent, conflict/quarantine ถูกต้อง | GKS + Genesis + Integration | **delivered ทั้งสองครึ่ง 2026-09-07 (ADR-067 + ADR-068)** — receiver + 4 routes (ADR-067) และสาย pull: GKS `gks_stage_evidence_export` (port v3, migration 0005, Stage 9 เขียน evidence ทุก promote/human decision + backfill), MSP relay `msp_knowledge_evidence_export`, zuri-ai `pullKnowledgeStageEvidence` + `KnowledgeEvidenceCursor`; **พิสูจน์สดข้ามสาม repo** (`fr110-knowledge-evidence-chain.test.js`): Stage 9 จาก GKS จริงถึง ledger จริง. ฝั่ง Genesis (13/15/16/17 half) ยัง `NOT_VERIFIED` |
 | KNO-03 | Stage17 5 dimensions; security critical blocks; only policy-approved verdict may publish | GKS + Genesis | `NOT_VERIFIED` |
 | KNO-03 / publication | atomic publish, immutable ID, correction creates new revision, failed gate has no visible publish | GKS/Genesis; Zuri observes | `NOT_VERIFIED` |
 | KNO-02 / finalization | run remains non-terminal until external evidence; final state and audit correlation consistent | Integration | delivered 2026-09-07 (ADR-067 D3): `finishKnowledgeIngestionRun` derives terminal status from the ledger, refuses with the blocking list, audit actor `PIPELINE_REPORTER` under a key |
@@ -193,6 +193,7 @@ Handoff packet ต้องส่งให้เจ้าของ MSP/GKS/Genes
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.2b | 2026-09-07 | candidate | KNO-02 delivered in full (ADR-068): GKS export + backfill, MSP relay, zuri-ai pull importer with per-scope cursor, proven live across the three repositories; MSP-01 gains one real exercise of the MSP transport (the chain test) without settling API-010; KNO-03, SOT-01, EVD-01 unchanged | working-tree | Claude Fable 5.1 |
 | 0.1.1b | 2026-09-07 | candidate | D2 decided by the owner (ADR-067); KNO-01 envelopes extended; the zuri-ai half of KNO-02 (receiver, Stage 17 writer, derived finalization, job read, routes) delivered and proven; KNO-03, MSP-*, SOT-01, EVD-01 unchanged | working-tree | Claude Fable 5.1 |
 | 0.1.0b | 2026-08-31 | candidate | Initial reviewable C-3/HIGH knowledge/MSP/GKS/SoT plan; R5 stop before implementation | 424f5fab525d20fdf1180fabee4c8cf9d16dd994 | ATHER |
 

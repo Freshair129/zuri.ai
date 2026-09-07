@@ -1864,6 +1864,32 @@ model PipelineGateDecision {
   @@index([gateId])
 }
 
+// @req FR-110 — the puller's own cursor into GKS's `gks_stage_evidence_export`,
+// one row per KnowledgeScope pulled (ADR-068 D2): cursor ownership is
+// zuri-ai's, per scope with no wildcard scope, and it advances only after a
+// page's ledger writes have committed — so a crash mid-page replays from the
+// last durable cursor and the receiver's idempotency makes the replay a no-op.
+// Not a ledger model: the ledger stays the six Pipeline* tables (ADR-050 D4);
+// this is the integration lane's bookkeeping for one scheduled pull.
+// @spec ADR-068 D2, ADR-050 D3, SDD-057, SEC-001
+// @tested tests/integration/fr110-knowledge-evidence-importer.test.js
+model KnowledgeEvidenceCursor {
+  id           String    @id @default(uuid())
+  portfolioId  String
+  tenantId     String
+  businessId   String
+  workspaceId  String
+  projectId    String
+  sharing      String
+  cursor       Int       @default(0)
+  lastPulledAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([portfolioId, tenantId, businessId, workspaceId, projectId, sharing])
+  @@index([tenantId])
+}
+
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
