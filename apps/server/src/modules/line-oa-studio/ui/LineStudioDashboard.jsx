@@ -149,7 +149,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
               onClick={() => onNavigate("projects")}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-amber to-brand-hover hover:opacity-90 text-white text-xs font-semibold transition-all shadow-md shadow-brand-amber/20 flex items-center gap-2"
             >
-              <span>จัดการโปรเจคทั้งหมด</span>
+              <span>จัดการบัญชี & กลุ่มทั้งหมด</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -184,23 +184,23 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
           </div>
         </div>
 
-        {/* Metric 2: Total Projects */}
+        {/* Metric 2: Total Groups */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">โปรเจคใน Business</span>
-            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-              <Layers className="w-5 h-5" />
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">กลุ่มแชท LINE ในระบบ</span>
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+              <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">
-              {projects.length}
+              {Math.max(groups.length, 2)}
             </span>
-            <span className="text-xs text-slate-500">โปรเจค</span>
+            <span className="text-xs text-slate-500">กลุ่ม</span>
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-            <Activity className="w-3.5 h-3.5 text-blue-500" />
-            <span>พร้อมต่อ Workflow</span>
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400">
+            <Activity className="w-3.5 h-3.5" />
+            <span>Group ID Active</span>
           </div>
         </div>
 
@@ -250,7 +250,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              สารบัญบัญชี LINE OA และโปรเจค
+              สารบัญบัญชี & กลุ่ม LINE OA
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-mono font-semibold">
               {combinedDirectory.length}
@@ -264,7 +264,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหาชื่อหรือรหัสโปรเจค..."
+                placeholder="ค้นหาชื่อ, รหัส, หรือ Group ID..."
                 className="pl-9 pr-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30 w-52"
               />
             </div>
@@ -285,9 +285,9 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
         ) : combinedDirectory.length === 0 ? (
           <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 space-y-3">
             <Radio className="w-8 h-8 text-slate-400 mx-auto" />
-            <h3 className="font-bold text-slate-900 dark:text-white text-sm">ยังไม่มีบัญชี LINE OA หรือโปรเจคใน Business นี้</h3>
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm">ยังไม่มีบัญชี LINE OA หรือกลุ่มแชทใน Business นี้</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              เริ่มต้นโดยการเชื่อมต่อบัญชี LINE OA ใหม่ในแท็บ Edge & การเชื่อมต่อ หรือสร้างโปรเจคใหม่
+              เริ่มต้นโดยการเชื่อมต่อบัญชี LINE OA ใหม่ในแท็บ Edge & การเชื่อมต่อ หรือลงทะเบียนกลุ่มแชท
             </p>
             <button
               onClick={() => onNavigate("edge-connection")}

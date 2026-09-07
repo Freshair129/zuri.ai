@@ -21,10 +21,12 @@ const { test } = require('@playwright/test')
 // sub-domain fails there instead of becoming the next flake.
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
-  '/commerce', '/customer', '/customer/conversations',
+  // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
+  '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
   '/market',
   '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
+  '/growth/operations',
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
@@ -48,12 +50,24 @@ const ROUTES = [
   '/line-oa/rich-menus',
   // main 2a1b6a81 gave LINE OA Studio a seven-entry sidebar without listing the
   // routes here; tests/unit/e2e-warmup.test.js compares this list to the registry.
+  // main c41502b9 added the eighth, Integrations & AI, the same way.
   '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection',
-  '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
+  '/line-oa/integrations', '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
   // @req FR-161 — the CRM sales tasks page.
   '/customer/sales-tasks',
+  // @req FR-164 — the Procurement dashboard and the purchase-orders console.
+  '/procurement', '/procurement/purchase-orders',
+  // Route handlers compile on first request too, and a spec that POSTs to a
+  // cold one pays that cost inside its own expect. `marketing-content.spec.js`
+  // opens a second browser context and immediately POSTs here to create a
+  // reviewer; on CI that POST failed twice with `read ECONNRESET` — the dev
+  // server dropping the socket while compiling — and passed on retry, which
+  // `--fail-on-flaky` correctly refuses to call green. This route exports only
+  // POST, so the warm-up's GET compiles the module and takes a 405 back;
+  // `failOnStatusCode: false` below is what makes that fine.
+  '/api/auth/signup',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

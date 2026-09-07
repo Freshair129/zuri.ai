@@ -85,7 +85,13 @@ model Tenant {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
+  salesOrders               SalesOrder[]
+  payments                  Payment[]
+  suppliers                 Supplier[]
+  purchaseOrders            PurchaseOrder[]
+  goodsReceipts             GoodsReceipt[]
 
   @@index([portfolioId])
 
@@ -178,7 +184,13 @@ model Business {
   productBundles            ProductBundle[]
   stockMovements            StockMovement[]
   productRecipes            ProductRecipe[]
+  marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
+  salesOrders               SalesOrder[]
+  payments                  Payment[]
+  suppliers                 Supplier[]
+  purchaseOrders            PurchaseOrder[]
+  goodsReceipts             GoodsReceipt[]
 
   @@index([tenantId])
 
@@ -1068,6 +1080,7 @@ model FileAsset {
   links         FileLink[]
   assetEvidence AssetEvidence[]
   lineOaRichMenuVersions LineOaRichMenuVersion[]
+  paymentSlips  Payment[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -1473,6 +1486,7 @@ model Customer {
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
+  salesOrders           SalesOrder[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1601,6 +1615,7 @@ model Conversation {
   messages Message[]
   analyses ConversationAnalysis[]
   salesTasks SalesTask[]
+  salesOrders SalesOrder[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -2754,6 +2769,34 @@ model MarketingContentDecision {
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
+
+// @req FR-162 — Business-scoped Marketing Operations intake request; Marketing
+// is the only writer and PM/CRM/Commerce/provider records remain projections.
+// @spec SDD-089, SEC-001, SEC-003
+// @tested tests/integration/marketing-operations.test.js
+model MarketingOperationsIntake {
+  id                  String   @id @default(uuid())
+  tenantId            String
+  businessId          String
+  title               String
+  capability          String
+  objective           String
+  requiredAt          DateTime?
+  evidenceReference   String?
+  responsibleOwnerId  String?
+  status              String   @default("NEW")
+  version             Int      @default(1)
+  createdBy           String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@index([tenantId, businessId, status])
+  @@index([businessId, requiredAt])
+}
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),
 //   the factory that makes it and the bundle that packs several SKUs. Every row
@@ -2891,6 +2934,8 @@ model Product {
   movements     StockMovement[]
   recipes       ProductRecipe[]
   recipeLines   ProductRecipeLine[]
+  salesOrderLines SalesOrderLine[]
+  purchaseOrderLines PurchaseOrderLine[]
 
   @@unique([tenantId, code])
   @@index([businessId, status])
@@ -3112,4 +3157,231 @@ model SalesTask {
   @@index([assigneePersonId, status])
   @@index([customerId])
   @@index([conversationId])
+}
+
+// ── Commerce — FR-166 sales orders, FR-163 payments ─────────────────────────
+// @req FR-166 — a sales order (order_id) is what a Business sold: lines that
+//   may name an inventory SKU, an optional Customer and the Conversation the
+//   sale came from (chat-first attribution), a status machine, and money kept
+//   as integer satang. Totals, paid, balance and payment state are computed
+//   on read from the lines and the verified payments — never stored.
+// @req FR-163 — a payment (or refund) against an order, PENDING until a
+//   verifier confirms the slip; the bank reference is an attribute unique per
+//   Tenant (BR-002), the slip image is a FileAsset of the same Business.
+// @spec ADR-065; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
+// @tested tests/integration/fr166-sales-order.test.js,
+//   tests/integration/fr163-payment.test.js
+
+model SalesOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  customerId        String?
+  conversationId    String?
+  origin            String    @default("WALK_IN")
+  status            String    @default("DRAFT")
+  currency          String    @default("THB")
+  discountSatang    Int       @default(0)
+  notes             String?
+  orderedAt         DateTime  @default(now())
+  confirmedAt       DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  stockIssuedAt     DateTime?
+  closedByPersonId  String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation Conversation?    @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  lines        SalesOrderLine[]
+  payments     Payment[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status, orderedAt])
+  @@index([customerId])
+  @@index([conversationId])
+}
+
+model SalesOrderLine {
+  id              String  @id @default(uuid())
+  orderId         String
+  productId       String?
+  description     String
+  qty             Int
+  unitPriceSatang Int
+  discountSatang  Int     @default(0)
+  sortOrder       Int     @default(0)
+
+  order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id                 String    @id @default(uuid())
+  code               String
+  tenantId           String
+  businessId         String
+  orderId            String
+  kind               String    @default("PAYMENT")
+  method             String
+  amountSatang       Int
+  status             String    @default("PENDING")
+  bankReference      String?
+  slipFileAssetId    String?
+  note               String?
+  paidAt             DateTime  @default(now())
+  verifiedAt         DateTime?
+  verifiedByPersonId String?
+  rejectReason       String?
+  createdByPersonId  String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  version            Int       @default(1)
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  order    SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  slip     FileAsset? @relation(fields: [slipFileAssetId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, bankReference])
+  @@index([orderId, status])
+  @@index([businessId, status, paidAt])
+}
+
+// ── Procurement — FR-164 suppliers & purchase orders, FR-165 goods receipts ──
+// @req FR-164 — the buy side (ADR-066): a Supplier of the Business (code
+//   unique per Tenant, archived never deleted) and a PurchaseOrder against it
+//   with lines that may name an Inventory SKU at the agreed unit cost (integer
+//   satang). No stored total or received quantity: both are computed on read
+//   from the lines and the receipt lines.
+// @req FR-165 — a GoodsReceipt posts what arrived against a SENT order; each
+//   of its lines names one order line, and a line naming a counted SKU writes
+//   RECEIPT rows into the Inventory ledger in the same transaction with
+//   `PO:<code>/GRN:<code>` as the reference. A receipt is never edited.
+// @spec ADR-066; ADR-054 D3/D4; BR-001; BR-002; SEC-001
+model Supplier {
+  id           String    @id @default(uuid())
+  code         String
+  tenantId     String
+  businessId   String
+  name         String
+  taxId        String?
+  contactName  String?
+  phone        String?
+  email        String?
+  address      String?
+  paymentTerms String?
+  leadTimeDays Int?
+  notes        String?
+  status       String    @default("ACTIVE")
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(1)
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchaseOrders PurchaseOrder[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+}
+
+model PurchaseOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  supplierId        String
+  status            String    @default("DRAFT")
+  currency          String    @default("THB")
+  expectedAt        DateTime?
+  notes             String?
+  orderedAt         DateTime  @default(now())
+  sentAt            DateTime?
+  receivedAt        DateTime?
+  closedAt          DateTime?
+  closeReason       String?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  lines    PurchaseOrderLine[]
+  receipts GoodsReceipt[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status, orderedAt])
+  @@index([supplierId])
+}
+
+model PurchaseOrderLine {
+  id              String  @id @default(uuid())
+  purchaseOrderId String
+  productId       String?
+  description     String
+  qty             Int
+  unitCostSatang  Int
+  sortOrder       Int     @default(0)
+
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
+  receiptLines  GoodsReceiptLine[]
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+model GoodsReceipt {
+  id                String   @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  purchaseOrderId   String
+  supplierReference String?
+  notes             String?
+  receivedAt        DateTime @default(now())
+  postedByPersonId  String?
+  createdAt         DateTime @default(now())
+
+  tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  lines         GoodsReceiptLine[]
+
+  @@unique([tenantId, code])
+  @@index([purchaseOrderId])
+  @@index([businessId, receivedAt])
+}
+
+model GoodsReceiptLine {
+  id                  String    @id @default(uuid())
+  receiptId           String
+  purchaseOrderLineId String
+  qty                 Int
+  lotCode             String?
+  expiresAt           DateTime?
+  serialNosJson       String?
+
+  receipt           GoodsReceipt      @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  purchaseOrderLine PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+  @@index([purchaseOrderLineId])
 }

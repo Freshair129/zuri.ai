@@ -272,6 +272,11 @@
     "FR-159",
     "FR-160",
     "FR-161",
+    "FR-162",
+    "FR-163",
+    "FR-164",
+    "FR-165",
+    "FR-166",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -382,6 +387,7 @@
     "SDD-086",
     "SDD-087",
     "SDD-088",
+    "SDD-089",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -429,6 +435,8 @@
     "FEAT-020",
     "FEAT-021",
     "FEAT-022",
+    "FEAT-023",
+    "FEAT-024",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -581,6 +589,8 @@
     "ADR-062",
     "ADR-063",
     "ADR-064",
+    "ADR-065",
+    "ADR-066",
     "ADR-067",
     "ADR-068",
     "ZV2-CR-001",
@@ -3080,6 +3090,71 @@
         }
       ]
     },
+    "FR-162": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "095881026bd7cb4179d8e71e4de4eb13d40b62a0674b325ac8ca88016599fe84",
+      "history": [
+        {
+          "anchor": "marketing operations coordination",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-163": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0eceb3134ae285c5137926c04ca90652c1684b9bb5dfa785bc83a21aa32667dd",
+      "history": [
+        {
+          "anchor": "payments verification and revenue commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-164": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e8d702588494d1ba19bee746e3d440ddb021817c809adbcba93fd0fcdf2aa8f",
+      "history": [
+        {
+          "anchor": "suppliers and purchase orders procurement",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-165": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "56be062569de1b1d7ee9a6eb3d364de48bbc64da9edd7387c9537f97a30dbcd4",
+      "history": [
+        {
+          "anchor": "goods receipts into the stock ledger procurement",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-166": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "677eea73e454e2845568821a5c3692f4bcb85f46b957e7e327b0b99116c87272",
+      "history": [
+        {
+          "anchor": "sales orders commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4526,6 +4601,19 @@
         }
       ]
     },
+    "SDD-089": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d4dfe1b1edb2891fc451dbdaf73793ed3bc43e1db0831efcc42dcbf911ce67f",
+      "history": [
+        {
+          "anchor": "marketing operations is one business scoped composition",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5142,14 +5230,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "7e0f0ca9c9559d917bc8cce8a560ec646cc7e3b6214fd201f3b65ab06638c548",
+      "statement_digest": "8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445",
       "history": [
         {
           "anchor": "marketing planning and accountable execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-06",
+      "statement_digest_reason": "Reconcile the published CRM Sales Tasks feature with Marketing Operations retained under FR-162."
     },
     "FEAT-022": {
       "family": "FEAT",
@@ -5159,6 +5249,32 @@
       "history": [
         {
           "anchor": "sales tasks งานขาย",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-023": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "2bba43869ab1862b4fb547dd1e73ca81ac5c81650856911c99d41ad07adb3dfa",
+      "history": [
+        {
+          "anchor": "commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-024": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "f0d6289848480c8608bf4a8f76e160e2f85a31b8a67c20f105f5162f6b3bd084",
+      "history": [
+        {
+          "anchor": "procurement จ ดซ อ",
           "since": "2026-09-06",
           "reason": "declared"
         }
@@ -7150,6 +7266,32 @@
         }
       ]
     },
+    "ADR-065": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "622ba9daf9b4f51d6da6a07be7dec8e9f92eb065554a1f7c54b00a9274a60705",
+      "history": [
+        {
+          "anchor": "the commerce lane",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-066": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "851e86ff9ec3306fabfbd738b82612dc5ff18c15095359fb48b6f0179e144af2",
+      "history": [
+        {
+          "anchor": "the procurement lane",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "ADR-067": {
       "family": "ADR",
       "source": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
@@ -7158,7 +7300,7 @@
       "history": [
         {
           "anchor": "the knowledge ingestion reporter",
-          "since": "2026-09-06",
+          "since": "2026-09-07",
           "reason": "declared"
         }
       ]
@@ -7171,7 +7313,7 @@
       "history": [
         {
           "anchor": "tier 3 stage evidence is pulled",
-          "since": "2026-09-06",
+          "since": "2026-09-07",
           "reason": "declared"
         }
       ]

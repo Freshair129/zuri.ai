@@ -11,6 +11,7 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
 Backlinks:
@@ -610,6 +611,8 @@ Backlinks:
 - [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md) (references)
 - [ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces](decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (references)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 - [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) (relates)
 - [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) (relates)
 - [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) (relates)
@@ -1195,6 +1198,8 @@ Backlinks:
 - [CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai](change-requests/CR-017-MARKETING-ADS-ANALYTICS.md) (references)
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (relates)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (relates)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (relates)
 
 ## ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle
 
@@ -1370,6 +1375,36 @@ Source: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](
 Backlinks:
 
 - [FR-161 — Sales tasks (งานขาย)](domains/crm/features/FR-161-sales-tasks.md) (references)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (references)
+
+## ADR-065 — The Commerce Lane: Orders and Payments
+
+Source: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- references: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md)
+- relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
+
+Backlinks:
+
+- [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md) (references)
+- [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md) (references)
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
+
+## ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
+
+Source: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
+
+Backlinks:
+
+- [FR-164 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-164-suppliers-and-purchase-orders.md) (references)
+- [FR-165 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-165-goods-receipts.md) (references)
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
 
 ## ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported
 
@@ -1567,6 +1602,35 @@ Source: [SRS — Asset Management domain](domains/asset-management/SRS.md)
 Backlinks:
 
 - [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
+
+## Domain — commerce
+
+Source: [Domain — commerce](domains/commerce/CHARTER.md)
+
+- references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+- references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+## FR-163 — Payments, verification and revenue (payment_id)
+
+Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
+
+## FR-166 — Sales orders (order_id)
+
+Source: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
+
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
 ## Domain — crm
 
@@ -1891,6 +1955,10 @@ Source: [Domain — inventory](domains/inventory/CHARTER.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
 ## FR-154 — Inventory catalogue identity (คลังสินค้า)
 
 Source: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
@@ -1923,6 +1991,7 @@ Backlinks:
 
 - [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md) (references)
 - [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md) (references)
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Domain — knowledge
@@ -2382,6 +2451,7 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -2442,6 +2512,47 @@ Backlinks:
 - [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## FR-162 — Marketing Operations coordination
+
+Source: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+
+Backlinks:
+
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+- [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## Domain — procurement
+
+Source: [Domain — procurement](domains/procurement/CHARTER.md)
+
+- references: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
+- references: [FR-164 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-164-suppliers-and-purchase-orders.md)
+- references: [FR-165 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-165-goods-receipts.md)
+- references: [Domain — inventory](domains/inventory/CHARTER.md)
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+## FR-164 — Suppliers and purchase orders (po_id)
+
+Source: [FR-164 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-164-suppliers-and-purchase-orders.md)
+
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
+## FR-165 — Goods receipts into the stock ledger (grn_id)
+
+Source: [FR-165 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-165-goods-receipts.md)
+
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
 
 ## Domain — project-manager
 
@@ -2574,6 +2685,14 @@ Backlinks:
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references](decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md) (relates)
 
+## ERP module map — where each module the owner names lives
+
+Source: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
+
+Backlinks:
+
+- [Domain — procurement](domains/procurement/CHARTER.md) (references)
+
 ## Seven Execution Modes
 
 Source: [Seven Execution Modes](EXECUTION-MODES.md)
@@ -2614,6 +2733,7 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 - references: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
@@ -2807,6 +2927,14 @@ Backlinks:
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
 
+## Marketing Operations phase evidence
+
+Source: [Marketing Operations phase evidence](roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md)
+
+Backlinks:
+
+- [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
 ## Marketing Strategy — implementation phase report
 
 Source: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
@@ -2906,9 +3034,11 @@ Source: [Marketing — Project Manager implementation tracking plan](roadmap/PLA
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
+- references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
 - references: [Marketing — Parallel development review](roadmap/marketing/PARALLEL-REVIEW-2026-09-06.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
+- references: [Marketing Operations phase evidence](roadmap/marketing/PHASE-OPERATIONS-2026-09-07.md)
 - references: [Marketing Strategy — implementation phase report](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md)
 - references: [Domain — marketing](domains/marketing/CHARTER.md)
 - relates: [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)

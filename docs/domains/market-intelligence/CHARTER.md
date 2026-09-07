@@ -36,9 +36,9 @@ Target route key: market
 - **Integration owns acquisition evidence.** `IntegrationProvider`, `IntegrationConnection`, `IntegrationCredential`, `IngestionRun`, `RawExternalRecord`, `SyncCursor`, `ExternalEntityRef` and `DeadLetterRecord` remain owned by the Integration domain / FR-081.
 - Source-specific Facebook/retailer/marketplace acquisition logic is an Integration adapter. This domain consumes eligible raw-record references through a translation contract; it never creates a second raw-ingestion/secret/cursor/dead-letter stack.
 - **Knowledge/GKS owns canonical knowledge.** Canonical Product/Brand/Category identity and governed aliases are resolved through the Knowledge contract. A market observation may remain unresolved and may emit a KnowledgeCandidate; it never silently promotes itself.
-- **Commerce owns operational commerce state.** Internal Product/SKU, Inventory, approved Vendor and Procurement execution remain Commerce authority.
-- `SupplierCandidate` is external market evidence, not an approved Vendor.
-- `Procurement Intelligence` is downstream under Commerce/Procurement and may consume this domain's read contracts. This domain never creates RFQ/PO/GRN or changes stock.
+- **Operational state belongs to the lanes that were chartered for it (2026-09-07).** Internal Product/SKU and stock are Inventory's (`docs/domains/inventory/CHARTER.md`), the approved `Supplier`, `PurchaseOrder` and `GoodsReceipt` are Procurement's (`docs/domains/procurement/CHARTER.md`), sales orders and payments are Commerce's (`docs/domains/commerce/CHARTER.md`). None of them is this domain's.
+- `SupplierCandidate` is external market evidence, not an approved `Supplier`.
+- `Procurement Intelligence` is downstream under Procurement and may consume this domain's read contracts. This domain never creates RFQ/PO/GRN or changes stock.
 - Marketing may consume competitor/demand/category signals but does not own them merely because a campaign uses them.
 - Business Home may project read-only Market health/opportunity signals but owns none of the underlying records.
 - Agent may query/operate only through explicit tools/application contracts and is never a database superuser.

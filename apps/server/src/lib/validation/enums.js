@@ -234,6 +234,35 @@ export const SALES_TASK_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW']
 export const SALES_TASK_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED']
 export const SALES_TASK_SCHEDULE_KINDS = ['SINGLE', 'RANGE']
 export const SALES_TASK_ACTIONS = ['UPDATE', 'ASSIGN', 'START', 'COMPLETE', 'CANCEL', 'REOPEN']
+// FR-166 / FR-163 — commerce: a sales order and the payments against it. The
+// order's origin is where the sale came from (CHAT = attributed to a
+// Conversation, the legacy "ads revenue"); its status is the sale's, while the
+// payment state (unpaid / partial / paid …) is DERIVED from verified payments
+// and lives with the aggregate, never here or in a column. A payment is
+// PENDING until a verifier confirms the slip; the legacy "CREDIT" kind (store
+// credit) is not a payment and does not appear.
+export const SALES_ORDER_ORIGINS = ['CHAT', 'WALK_IN', 'ONLINE']
+export const SALES_ORDER_STATUSES = ['DRAFT', 'CONFIRMED', 'COMPLETED', 'CANCELLED']
+export const SALES_ORDER_ACTIONS = ['UPDATE', 'CONFIRM', 'COMPLETE', 'CANCEL']
+export const PAYMENT_KINDS = ['PAYMENT', 'REFUND']
+export const PAYMENT_METHODS = ['TRANSFER', 'CASH', 'QR', 'CARD', 'OTHER']
+export const PAYMENT_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED']
+export const PAYMENT_ACTIONS = ['VERIFY', 'REJECT']
+
+// @req FR-164, FR-165 — Procurement (ADR-066), the buy side. A supplier is
+// ACTIVE until archived (the row stays). A purchase order is DRAFT until SENT
+// to the supplier; RECEIVED is set by the goods receipt that completes every
+// line, SHORT_CLOSED is a short-close of a SENT order with lines outstanding,
+// CANCELLED is possible only while nothing has been received. "Partially
+// received" is NOT a status: it is the `receiptState` (NONE / PARTIAL /
+// COMPLETE) derived on read from the receipt lines against the ordered
+// quantities, and lives with the aggregate, never in a column. A goods
+// receipt has no status of its own — it is posted by its creation and never
+// edited; a wrong receipt is corrected by an Inventory ADJUSTMENT.
+export const SUPPLIER_STATUSES = ['ACTIVE', 'ARCHIVED']
+export const SUPPLIER_ACTIONS = ['UPDATE', 'ARCHIVE']
+export const PURCHASE_ORDER_STATUSES = ['DRAFT', 'SENT', 'RECEIVED', 'SHORT_CLOSED', 'CANCELLED']
+export const PURCHASE_ORDER_ACTIONS = ['UPDATE', 'SEND', 'CLOSE', 'CANCEL']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
@@ -291,6 +320,17 @@ export const zSalesTaskPriority = z.enum(SALES_TASK_PRIORITIES)
 export const zSalesTaskStatus = z.enum(SALES_TASK_STATUSES)
 export const zSalesTaskScheduleKind = z.enum(SALES_TASK_SCHEDULE_KINDS)
 export const zSalesTaskAction = z.enum(SALES_TASK_ACTIONS)
+export const zSalesOrderOrigin = z.enum(SALES_ORDER_ORIGINS)
+export const zSalesOrderStatus = z.enum(SALES_ORDER_STATUSES)
+export const zSalesOrderAction = z.enum(SALES_ORDER_ACTIONS)
+export const zPaymentKind = z.enum(PAYMENT_KINDS)
+export const zPaymentMethod = z.enum(PAYMENT_METHODS)
+export const zPaymentStatus = z.enum(PAYMENT_STATUSES)
+export const zPaymentAction = z.enum(PAYMENT_ACTIONS)
+export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
+export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
+export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)
+export const zPurchaseOrderAction = z.enum(PURCHASE_ORDER_ACTIONS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

@@ -17,10 +17,11 @@ owns_models:
   - MarketingContentVersion
   - MarketingContentReview
   - MarketingContentDecision
+  - MarketingOperationsIntake
 technical_owner: TD-MARKETING
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
-last_update: "2026-09-06T18:35:00+07:00,RWANG"
+last_update: "2026-09-07T09:00:00+07:00,RWANG"
 status: beta
 superseded_by: null
 ---
@@ -48,6 +49,9 @@ server contract and functional UI exist. The first slice activates Dashboard and
 Strategy, described in [the strategy contract](features/FR-159-strategy-plans.md).
 Campaign implementation follows [the initiative contract](features/FR-160-campaign-initiatives.md),
 adding one scoped association while preserving Strategy evidence and PM execution ownership.
+Operations follows [the coordination contract](features/FR-162-operations-coordination.md):
+Marketing owns intake requests and composes approval, PM schedule and validated handoff
+receipts without creating a second work or stock system.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
@@ -91,3 +95,4 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | 0.1.0b | 2026-09-06 | beta | Activate the approved Marketing lane and first Strategy slice | See git history | RWANG |
 | 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |
+| 0.4.0b | 2026-09-07 | beta | Add Operations intake ownership and the PM/approval/handoff projection boundary | See git history | RWANG |

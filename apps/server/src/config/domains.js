@@ -6,7 +6,7 @@ import {
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
-  Warehouse,
+  Warehouse, Truck, ClipboardList,
   Layers, Bot, Cpu, Bookmark,
 } from 'lucide-react'
 
@@ -40,8 +40,15 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/overview', icon: LayoutDashboard }],
   },
   {
-    key: 'commerce', label: 'Commerce', icon: ShoppingCart, soon: true,
-    sub: [{ label: 'Dashboard', path: '/commerce', icon: LayoutDashboard }],
+    // @req FR-166, FR-163 — the slot stops being reserved (ADR-065): sales
+    // orders and the payments against them, with revenue counted from verified
+    // payments only. `commerce` is the Membership/RBAC route key; the pages
+    // exist, so the palette and the bar may now find it.
+    key: 'commerce', label: 'Commerce', icon: ShoppingCart, basePath: '/commerce',
+    sub: [
+      { label: 'Dashboard', path: '/commerce', icon: LayoutDashboard },
+      { label: 'Orders', path: '/commerce/orders', icon: ClipboardCheck },
+    ],
   },
   {
     // @req FR-091 — the slot stops being reserved. `Customer`, `Conversation` and
@@ -74,6 +81,9 @@ export const DOMAINS = [
       { label: 'Campaigns', path: '/growth/campaigns', icon: Megaphone },
       // @req FR-157 — Content owns creative intent; Files/PM remain referenced owners.
       { label: 'Content & Creative', path: '/growth/content', icon: FolderOpen },
+      // @req FR-161 — Operations composes Marketing intake, approvals and
+      // owner projections without opening a second work system.
+      { label: 'Operations', path: '/growth/operations', icon: ClipboardCheck },
     ],
   },
   {
@@ -155,11 +165,12 @@ export const DOMAINS = [
     key: 'line-oa', label: 'LINE OA Studio', icon: MessageCircle,
     sub: [
       { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard, exact: true },
-      { label: 'โปรเจค & บัญชี', path: '/line-oa/projects', icon: Layers },
+      { label: 'บัญชี & กลุ่ม LINE OA', path: '/line-oa/projects', icon: Layers },
       { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
       { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
       { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
+      { label: 'Integrations & AI', path: '/line-oa/integrations', icon: PlugZap },
       { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },
       { label: 'ทีม', path: '/line-oa/team', icon: Users },
       { label: 'Settings', path: '/line-oa/settings', icon: Settings },
@@ -184,6 +195,24 @@ export const DOMAINS = [
     key: 'inventory', label: 'Warehouse', icon: Warehouse, basePath: '/inventory',
     sub: [
       { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard },
+    ],
+  },
+  {
+    // @req FR-164, FR-165 — Procurement (`DOM-PROCUREMENT`, ADR-066): the buy
+    // side — suppliers, purchase orders and the goods receipts that post
+    // RECEIPT rows into the Inventory ledger. `procurement` is the
+    // Membership/RBAC route key; a Membership grant names it through this
+    // registry (FR-061) and the FR-164/FR-165 API refuses a viewer without it.
+    // Listed after Warehouse on purpose: a receipt is the one thing that
+    // increases what the warehouse holds, and the two bars read left to right
+    // as "what we hold" → "what we are buying". Commerce (the sell side) stays
+    // where it is; the three lanes meet only in the ledger.
+    // @spec ADR-025, SEC-001
+    // @tested tests/unit/procurement-routes.test.js
+    key: 'procurement', label: 'Procurement', icon: Truck, basePath: '/procurement',
+    sub: [
+      { label: 'Dashboard', path: '/procurement', icon: LayoutDashboard },
+      { label: 'Purchase Orders', path: '/procurement/purchase-orders', icon: ClipboardList },
     ],
   },
   {
