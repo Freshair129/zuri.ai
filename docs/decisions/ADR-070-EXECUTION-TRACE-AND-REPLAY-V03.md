@@ -3,7 +3,7 @@ id: ZAI:ADR-070
 version: "1.0.0"
 status: accepted
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-07T23:18:03+07:00,RWANG"
+last_update: "2026-09-07T23:50:41+07:00,RWANG"
 attributes:
   domain: agent
   doc_type: architecture-decision
@@ -66,29 +66,31 @@ that answer cannot be replayed because a snapshot expired, was excluded by
 policy or was erased. A row that is merely missing evidence cannot be reported
 as a successful deterministic replay.
 
-The four-tier boundary is already binding. MSP owns Soul memory sessions and
-runtime context assembly; GKS owns canonical retrieval and its versioned
-knowledge references; the optional Edge runtime owns its local execution
-adapter; Zuri owns the business execution client and its local journal. Zuri
-must not write a foreign MSP or GKS database directly, and a trace design must
-not create a second memory, knowledge or delivery authority.
+The four-tier boundary is already binding. MSP owns Soul, session and memory
+authority and policy; Zuri runtime assembles the actual context used by the
+native SERVER path; GKS owns canonical retrieval and its versioned knowledge
+references; and the optional Edge runtime owns its local execution adapter.
+Zuri must not write a foreign MSP or GKS database directly, and a trace design
+must not create a second memory, knowledge or delivery authority.
 
 ## Decision
 
 ### D1 — One local journal model, one event per observable execution occurrence
 
 The agent domain owns one `AgentTraceEvent` model in the Zuri application
-database. It is a scoped, append-only journal for these event kinds:
+database. It is a scoped, append-only journal for these concrete event kinds:
 
 | Event kind | Meaning | Required evidence |
 |---|---|---|
-| `TURN_INPUT` | The server-owned input admitted for one turn | `turnId`, `instanceId`, exact input snapshot or an explicit retention state, and hash |
-| `MODEL_CALL` | One provider/model request or response observation | `executionId`, `instanceId`, provider/model identity, input snapshot/hash and nullable usage |
-| `TOOL_INVOCATION` | One tool or action request, result or failure | `executionId`, `instanceId`, stable tool/action attempt reference, input snapshot/hash and outcome |
-| `RETRIEVAL` | A retrieval request or returned evidence reference | context reference, retrieval version reference and query snapshot/hash when retained |
-| `MEMORY` | A memory read/write reference supplied by MSP | opaque MSP session and memory version references, or an explicit exclusion state |
-| `DELIVERY` | A delivery attempt or transport receipt observation | stable delivery attempt reference, recipient evidence state and receipt evidence |
-| `EXECUTION_STATE` | A server-owned start, finish, failure, cancellation or policy fence | execution identity, status, truthful UTC timestamp and failure/evidence reference |
+| `TURN_RECEIVED` | The server-owned input admitted for one turn | `turnId`, canonical semantic input snapshot or an explicit retention state, and `requestHash`/`inputHash` |
+| `MODEL_COMPLETED` / `MODEL_FAILED` | One provider/model response observation | `executionId`, `modelCallId`, runtime `instanceId`, provider/model identity, input snapshot/hash and nullable `usage` with source fields |
+| `TOOL_INVOKED` / `TOOL_RESULT` / `ACTION_STARTED` / `ACTION_RESULT` | One tool or action request, result or failure | `executionId`, `toolInvocationId`, stable `toolId`/`actionId`, runtime `instanceId`, input snapshot/hash and outcome |
+| `EVIDENCE_SELECTED` | A retrieval request or returned evidence reference | retrieval run/version reference and query/evidence snapshot/hash; subsequent context links to this retrieval run |
+| `MEMORY_WRITTEN` | A memory reference supplied by MSP | opaque MSP session and `memory` references, or `privateContextDisposition` exclusion state |
+| `SEND_STARTED` / `SEND_RESULT` / `OUTBOUND_RECORDED` | A delivery attempt or transport receipt observation | fresh `sendAttemptId`, recipient evidence state and receipt evidence |
+| `EXECUTION_STARTED` / `CONTEXT_COMMITTED` / `ANSWER_READY` / `EXECUTION_FAILED` / `RETENTION_TOMBSTONE` | A server-owned start, context, finish, failure, cancellation or retention observation | execution identity, typed payload, truthful UTC timestamp and failure/evidence reference |
+
+The evidence column includes references joined through the execution and context events; fields such as runtime `instanceId` and request snapshots are not duplicated on each result. Tool/action/memory/artifact kinds are reserved for follow-on typed adapters.
 
 The model is the journal. The design does not add separate Turn, Execution,
 ExecutionInstance, Context, ToolAttempt, ActionAttempt, Retrieval,
@@ -98,8 +100,8 @@ FR-093 delivery writer remain their owning records. The journal stores typed
 references and immutable evidence around those records instead of copying
 their authority.
 
-The semantic kinds above are projected into the native SERVER implementation's
-concrete `AgentTraceEvent.kind` vocabulary: `TURN_RECEIVED`,
+The kinds above are the native SERVER implementation's concrete
+`AgentTraceEvent.kind` vocabulary: `TURN_RECEIVED`,
 `EXECUTION_STARTED`, `CONTEXT_COMMITTED`, `EVIDENCE_SELECTED`,
 `MODEL_COMPLETED`, `MODEL_FAILED`, `ANSWER_READY`, `EXECUTION_FAILED`,
 `SEND_STARTED`, `SEND_RESULT`, `OUTBOUND_RECORDED`, `TOOL_INVOKED`,
@@ -112,10 +114,13 @@ authority models.
 The native SERVER LINE path reuses `LineConversationJob.id` as `turnId` and
 uses its CRM `inboundMessageId` and derived `conversationId` as conversation
 references. No second turn row is created. `LineConversationJob.executionId`
-may remain null until a server execution starts; once assigned, it identifies
-the logical execution and is carried on its trace events. The first event for
-an invocation receives a fresh `instanceId`; a retry receives a new
-`instanceId` and never overwrites the prior event.
+may remain null until a server execution starts; each claimed execution
+attempt receives a new `executionId`, which is carried on that attempt's trace
+events. `EXECUTION_STARTED` persists the runtime process `instanceId`; that
+value is stable across the model, tool and send attempts handled by that
+process. Each actual model call, tool invocation and send attempt receives a
+fresh `modelCallId`, `toolInvocationId` or `sendAttemptId`, and retries never
+overwrite prior events.
 
 ### D2 — Separate transient execution identity from stable lineage references
 
@@ -125,15 +130,19 @@ The contract keeps these identities distinct:
 |---|---|---|
 | `eventId` | One journal row; Zuri | UUID primary identity; never reused or updated into another event |
 | `turnId` | One admitted turn; existing Line job | Native SERVER value is `LineConversationJob.id`; no new turn table |
-| `executionId` | One logical agent execution; Zuri | UUID, nullable before execution starts; retries stay in the same logical execution only when the job's fence permits it |
-| `instanceId` | One actual input, model call or tool invocation; Zuri | Fresh UUID for every occurrence and every retry |
+| `executionId` | One claimed execution attempt; Zuri | Fresh UUID for each actual execution attempt; nullable before a job is claimed |
+| `instanceId` | One runtime process/worker instance; Zuri | Persisted on `EXECUTION_STARTED` and stable across multiple attempts handled by that process |
+| `modelCallId` | One provider/model call attempt; Zuri | Fresh UUID for every actual model call or retry |
+| `toolInvocationId` | One tool invocation attempt; Zuri or the approved tool adapter | Fresh UUID for every actual invocation or retry; native P1 carries this only when an adapter emits it |
 | `sessionId` | One MSP Soul session; MSP | Opaque external reference; nullable when MSP is not in the path; never locally minted as an MSP id |
-| `ctxId` | One assembled runtime context; the assembling authority | UUID/reference for the concrete context supplied to an occurrence; no context authority is created in the journal |
-| `toolAttemptId` / `actionAttemptId` | One stable logical tool/action attempt; the executing contract | Reused across lifecycle events and retries so a retry has new `instanceId` but remains the same attempted action |
+| `ctxId` | One context assembled by the Zuri runtime; Zuri | UUID/reference for the concrete context supplied to an occurrence; MSP remains the Soul/session/memory authority |
+| `toolId` | Stable registered tool identity; tool registry | Does not identify an attempt or replace `toolInvocationId` |
+| `actionId` | Stable action intent identity; action contract | Does not identify an attempt or replace `toolInvocationId` |
+| `actionAttemptId` | One execution attempt of the stable action intent; action adapter | Fresh per actual attempt; native tool/action adapter remains a follow-on gate |
 | document/artifact version refs | Versioned source evidence; owning document/artifact service | Carry stable id, version and hash/reference; do not copy source bytes into the journal |
 | retrieval refs | One GKS retrieval/evidence version; GKS | Carry opaque retrieval id and corpus/snapshot/index version; Zuri does not become the knowledge authority |
 | memory refs | One MSP memory/session version; MSP | Carry opaque memory id/version and policy result; Zuri does not write MSP storage |
-| `deliveryAttemptId` | One immutable outbound attempt lineage; transport owner | Reused across receipt callbacks for that attempt; new attempts receive a new id only when the transport creates a new provider attempt |
+| `sendAttemptId` | One outbound transport attempt; transport owner | Fresh UUID for each send attempt; receipt callbacks reference the attempt they evidence |
 | receipt refs | Evidence from the transport/provider; transport owner | Record provider request/acceptance/receipt references without turning acceptance into delivery or read confirmation |
 
 Business, CRM, provider, document, artifact, retrieval and memory references
@@ -142,16 +151,24 @@ attributes or opaque references under BR-002 and the owning contract.
 
 ### D3 — Snapshot exact inputs, hash them, and report retention truthfully
 
-Every `TURN_INPUT`, `MODEL_CALL`, `TOOL_INVOCATION` and retained `RETRIEVAL`
-event carries the exact canonical JSON input used at that boundary and a
-SHA-256 hash of the exact UTF-8 snapshot bytes. The snapshot is immutable and
-bounded to 1 MiB. It is never truncated, normalized after hashing or rebuilt
-from a later request. Transient credentials such as a LINE reply token or a
-channel access token are outside the approved semantic input and never enter a
-snapshot, journal row or audit payload under ADR-061 and FR-093.
+Every `TURN_RECEIVED`, `CONTEXT_COMMITTED`, model result
+(`MODEL_COMPLETED`/`MODEL_FAILED`), tool/action observation
+(`TOOL_INVOKED`/`TOOL_RESULT`/`ACTION_STARTED`/`ACTION_RESULT`) and retained
+`EVIDENCE_SELECTED` event carries the canonical semantic JSON input used at
+that boundary when it is retained, or an explicit retention state when it is
+not, and a `requestHash`/`inputHash` computed as SHA-256 over the canonical
+semantic JSON bytes. Canonicalization happens before hashing; the stored
+`requestBody` or semantic snapshot is that canonical representation. It is
+immutable and bounded to 1 MiB. This is not a promise to retain an exact HTTP
+wire body. Transient credentials such as a LINE reply token or a channel access
+token are outside the approved semantic input and never enter a snapshot,
+journal row or audit payload under ADR-061 and FR-093.
 
-The event records a `snapshotState` of `RETAINED`, `EXPIRED`, `REDACTED`,
-`EXCLUDED_BY_POLICY` or `TOO_LARGE`. An excluded, expired, redacted or oversized
+The contract distinguishes retained, expired, redacted, excluded and oversized
+snapshots. Native P1 retains the canonical request, rejects oversized events
+without a truncated replacement, records policy disposition, and uses a
+retention tombstone for erasure. A unified `snapshotState` adapter vocabulary
+and scheduled expiry remain follow-on work. An excluded, expired, redacted or oversized
 snapshot keeps its hash and reason when policy permits, but it does not support
 deterministic playback. A writer must not claim that a hash alone is a replay.
 Retention policy is therefore part of the trace response, and a playback with
@@ -174,6 +191,11 @@ ordered event chain, identity references, snapshot states, hashes, usage,
 receipt evidence and a computed `playbackStatus` of `REPLAY_COMPLETE`,
 `REPLAY_INCOMPLETE` or `UNAVAILABLE`.
 
+The response orders stored rows by `occurredAt`, then `createdAt`, then `id`;
+there is no `turnSequence` field or causal-order guarantee. The explicit
+`ctxId`, model-call, execution and attempt links reconstruct lineage
+independently of event ordering.
+
 The endpoint is a playback/read operation. It never calls a model, tool, MSP,
 GKS, Edge device or LINE provider; it never creates a new attempt, delivery,
 receipt or trace row; and it never mutates the job, CRM conversation, memory or
@@ -182,21 +204,24 @@ to display the recorded execution is present, not that the original external
 side effects can be safely repeated. A response marked `REPLAY_INCOMPLETE` explains
 the missing retention or external evidence and does not invent a result.
 
-Late callbacks are accepted only when the current execution/lease/epoch fence
-still matches the owning job. A stale callback is denied and recorded as a
-policy outcome without replacing the earlier event; playback shows that the
-callback was fenced.
+Historical model output or usage may append evidence under its original
+`executionId` after the current execution has advanced, but it cannot settle
+the current job or trigger a current send. Actionable settle and send paths
+remain lease- and epoch-fenced. A stale actionable callback is denied and
+recorded as a policy outcome without replacing the earlier event. PDPA erasure
+denies payload writes and cannot be restored by a late callback.
 
 ### D5 — MSP, GKS and Edge remain external authorities
 
 The reusable journal and contract live in Zuri, while adapter work is staged
 behind explicit ports:
 
-- MSP owns the Soul memory session, memory policy and runtime context assembly.
-  Native SERVER v0.3 intentionally has no private memory adapter, so
-  `sessionId` is null, memory version refs are `[]`, and the event carries
-  `memoryStatus: EXCLUDED_BY_POLICY`. Zuri never fabricates an MSP session or
-  memory version to make a trace look complete.
+- MSP owns the Soul/session/memory authority and policy. Zuri runtime assembles
+  the actual native SERVER context. Native SERVER v0.3 intentionally has no
+  private memory adapter, so
+  `sessionId` is null, `memory` is `[]`, and the event carries
+  `privateContextDisposition: EXCLUDED_BY_POLICY`. Zuri never fabricates an MSP
+  session or memory version to make a trace look complete.
 - GKS owns retrieval, canonical knowledge identity and corpus/index versions.
   The Zuri journal records opaque retrieval references returned by an approved
   GKS adapter; it does not write a GKS or GenesisBlockDB store directly.
@@ -212,9 +237,12 @@ and are not implied by this ADR.
 
 ### D6 — Usage, time and recipient fields are nullable and truthful
 
-Provider usage is recorded only when the provider reports it. Input, output,
-total, cached-input and reasoning-token subsets are each nullable; Zuri does
-not estimate missing values or infer reasoning/caching from a model name.
+Provider usage is represented by nullable `usage`, `usageSource` and
+`totalTokensSource` fields. Input, output, total, cached-input and
+reasoning-token subsets are each nullable. `usageSource` records
+`PROVIDER_REPORTED` or `UNAVAILABLE`; `totalTokensSource` may be
+`PROVIDER_REPORTED`, `DERIVED_FROM_PROVIDER_COUNTS` or `UNAVAILABLE`. Zuri
+does not invent counts or infer reasoning/caching from a model name.
 
 The journal stores server-recorded UTC timestamps and provider/executor UTC
 timestamps only when their source is trustworthy. Missing start, finish or

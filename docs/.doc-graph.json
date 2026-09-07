@@ -55,39 +55,12 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "domain:agent",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "code:src/modules/agent/grounded-business-answer.js",
-      "code:src/modules/agent/model-provider.js",
-      "code:src/modules/agent/server-line-answer.js",
-      "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "code:src/modules/line-oa-studio/application/line-job-erasure.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/platform/integrations/llm/provider-catalog.js"
-    ],
-    "added": [
       "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
       "doc:FR-171-execution-trace-and-replay",
       "doc:PHASE-FR-171-P1-native-server-line-journal",
-      "route:api:/api/line-oa/jobs/[id]/trace",
-      "model:AgentTraceEvent",
-      "req:FR-171",
-      "test:tests/integration/execution-trace.test.js",
-      "test:tests/integration/server-line-trace.test.js",
-      "test:tests/unit/line-trace-route.test.js",
-      "test:tests/unit/model-provider-trace.test.js",
-      "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
-      "code:src/modules/agent/execution-trace.js",
-      "code:src/modules/agent/line-execution-trace.js",
-      "code:src/modules/agent/model-provider-catalog.js"
+      "doc:PRD-SDD-v1.0"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4180,7 +4153,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "hash": "34886270",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149"
@@ -6991,7 +6964,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/agent/grounded-business-answer.js",
       "hash": "5dd836c6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-049",
@@ -7240,7 +7213,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/agent/model-provider.js",
       "hash": "cdc08787",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-048",
@@ -7395,7 +7368,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/agent/server-line-answer.js",
       "hash": "4aa26382",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10300,7 +10273,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "hash": "615360fe",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -10321,7 +10294,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
       "hash": "2a0e2d51",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -12228,7 +12201,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "725b0a6e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -12310,7 +12283,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "dff77e26",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -14188,7 +14161,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/llm/provider-catalog.js",
       "hash": "fbd56858",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-048"
@@ -14309,7 +14282,7 @@
       "version": "1.52.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "39d92f9c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14363,7 +14336,7 @@
       "version": "1.28.0b",
       "doc_status": "Draft",
       "hash": "417bb1e9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14735,7 +14708,7 @@
       "version": "1.31.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "4070a635",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15677,8 +15650,8 @@
       "type": "document",
       "path": "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
       "title": "FR-171 — Execution Trace & Replay v0.3",
-      "hash": "7d85ac77",
-      "status": "current"
+      "hash": "9482daf4",
+      "status": "changed"
     },
     {
       "id": "doc:full-schema",
@@ -15995,8 +15968,8 @@
       "type": "document",
       "path": "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
       "title": "FR-171-P1 — Native SERVER LINE journal and playback",
-      "hash": "f1fb051d",
-      "status": "current"
+      "hash": "5d541f07",
+      "status": "changed"
     },
     {
       "id": "doc:PHASE-MONOREPO-2026-09-06",
@@ -16249,9 +16222,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.168.0b",
+      "version": "1.170.0b",
       "doc_status": "Draft",
-      "hash": "62419b51",
+      "hash": "1e8c822b",
       "status": "changed"
     },
     {
@@ -16279,8 +16252,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8c55172b",
-      "status": "changed"
+      "hash": "94f6da7a",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -16532,7 +16505,7 @@
         "agent"
       ],
       "hash": "ea5560af",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:asset-management",
@@ -19650,11 +19623,11 @@
       "id": "req:FR-171",
       "type": "requirement",
       "family": "FR",
-      "label": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool/action attempts, document/artifact versions, retrieval/memory references and delivery attempts/receipts. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session assembly, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
+      "label": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool/action attempts, document/artifact versions, retrieval/memory references and delivery attempts/receipts. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session assembly, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes. 🟡 approved for implementation under ADR-070 — declaration only; model, route, migration, tests and external adapter evidence remain pending "
+      "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes. 🟡 native SERVER P1 implemented locally under ADR-070; tool/document/artifact/MSP/GKS/Edge adapters and live migration/canary evidence remain pending "
     },
     {
       "id": "req:NFR-001",
@@ -23889,8 +23862,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
       "title": "ADR-070 — Execution Trace & Replay v0.3",
-      "hash": "f2a56d48",
-      "status": "current"
+      "hash": "388a5ccd",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -24849,7 +24822,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "550a04b4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",

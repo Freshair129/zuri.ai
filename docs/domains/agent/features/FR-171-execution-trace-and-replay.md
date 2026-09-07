@@ -3,7 +3,7 @@ id: ZAI:FR-171-NOTE
 version: "1.0.0"
 status: accepted
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-07T23:18:03+07:00,RWANG"
+last_update: "2026-09-07T23:50:41+07:00,RWANG"
 domain: agent
 feature: FR-171
 module: agent
@@ -67,9 +67,9 @@ events and a read-only playback projection for that job.
 The native SERVER path reuses the existing `LineConversationJob.id` as
 `turnId`; it does not create a Turn table. The job's existing inbound message
 and derived CRM conversation remain the conversation references. A nullable
-`LineConversationJob.executionId` is filled only when a logical server
-execution starts. The journal does not replace the job, CRM, AuditEvent or
-FR-093 receipt owners.
+`LineConversationJob.executionId` is filled only when a server execution
+attempt is claimed; each claimed attempt receives a fresh `executionId`. The
+journal does not replace the job, CRM, AuditEvent or FR-093 receipt owners.
 
 ## Journal shape
 
@@ -83,25 +83,25 @@ hash. The implementation must maintain SQLite and Postgres schema parity.
 | `tenantId`, `businessId`, `accountId` | Derived server-side scope; the event writer never accepts these as authority from model, tool or client input |
 | `conversationId`, `messageId` | Existing CRM references; a Message inherits Tenant/Business scope through its Conversation |
 | `turnId` | Required turn lineage; native SERVER is the existing `LineConversationJob.id` |
-| `executionId` | UUID for one logical execution; nullable before execution starts and never invented for a job that has not run |
-| `instanceId` | Fresh UUID for one actual input, model call or tool invocation; every retry gets a new value |
+| `executionId` | UUID for one claimed execution attempt; nullable before a job is claimed and never invented for a job that has not run |
+| `instanceId` | Runtime process/worker instance persisted by `EXECUTION_STARTED`; stable across multiple attempts handled by that process |
+| `modelCallId` | Fresh UUID for one actual provider/model call attempt, including a retry |
+| `toolInvocationId` | Fresh UUID for one actual tool invocation attempt, including a retry; native P1 carries it only when an approved adapter emits it |
 | `sessionId` | Opaque MSP Soul session reference; nullable outside the MSP adapter |
-| `ctxId` | UUID or opaque reference for the concrete runtime context assembled for an occurrence; never a local replacement for MSP context authority |
-| `eventKind` | `TURN_INPUT`, `MODEL_CALL`, `TOOL_INVOCATION`, `RETRIEVAL`, `MEMORY`, `DELIVERY` or `EXECUTION_STATE` |
-| `eventStatus` | `STARTED`, `SUCCEEDED`, `FAILED`, `UNKNOWN`, `EXCLUDED_BY_POLICY` or `FENCED`; status is evidence, never inferred success |
-| `turnSequence` | Immutable monotonic order within a `turnId`; playback uses it before timestamps when concurrent events share a clock value |
-| `toolAttemptId` / `actionAttemptId` | Stable logical tool/action attempt references; reused by lifecycle rows and retries, while `instanceId` changes per occurrence |
+| `ctxId` | UUID/reference for the concrete context assembled by the Zuri runtime; MSP remains the Soul/session/memory authority |
+| `eventKind` | Concrete `AgentTraceEvent.kind` such as `TURN_RECEIVED`, `EXECUTION_STARTED`, `MODEL_COMPLETED`, `MODEL_FAILED`, `SEND_STARTED`, `SEND_RESULT` and other approved lifecycle kinds |
+| `toolId` / `actionId` | Stable registered tool identity and stable action intent identity; neither identifies an attempt |
 | `documentVersionRefs` / `artifactVersionRefs` | Arrays of stable owning-service references with version and hash/reference; no source body copy |
 | `retrievalRefs` | Opaque GKS retrieval/evidence references with retrieval, corpus, snapshot or index version where supplied |
-| `memoryVersionRefs` | Opaque MSP memory references with memory id/version and policy result where supplied |
-| `memoryStatus` | `USED`, `NOT_USED`, `EXCLUDED_BY_POLICY` or `UNAVAILABLE`; native SERVER uses empty refs plus `EXCLUDED_BY_POLICY` when no private memory adapter is configured |
-| `deliveryAttemptId` / `receiptRefs` | Stable transport attempt lineage and evidence references; acceptance, delivery and read remain separate states |
-| `inputSnapshotJson` | Exact canonical semantic input bytes, maximum 1 MiB, immutable and never truncated; absent only with an explicit snapshot state |
-| `inputSha256` | SHA-256 of the exact UTF-8 snapshot bytes, or of the exact input bytes when retention prevents keeping the body |
-| `snapshotState` | `RETAINED`, `EXPIRED`, `REDACTED`, `EXCLUDED_BY_POLICY` or `TOO_LARGE` |
+| `memory` | Opaque MSP memory/session references, including version data where supplied; native SERVER uses an empty array when no private memory adapter is configured |
+| `privateContextDisposition` | MSP context/memory policy disposition; native SERVER uses `EXCLUDED_BY_POLICY` with `memory: []` |
+| `sendAttemptId` / `receiptRefs` | Fresh transport attempt identity and evidence references; receipt callbacks reference the attempt they evidence, while acceptance, delivery and read remain separate states |
+| `requestBody` / semantic snapshot | Canonical semantic JSON input, maximum 1 MiB, immutable and never silently truncated; absent only with an explicit snapshot state |
+| `requestHash` / `inputHash` | SHA-256 of the canonical semantic JSON bytes; this is not an exact HTTP wire-body hash |
+| retention disposition | Native P1 uses retained request bodies, explicit private-context exclusion, fail-closed oversized event rejection and erasure tombstones; unified `snapshotState`/scheduled expiry is a follow-on adapter |
 | `provider` / `providerModel` / `providerRequestRef` | Nullable provider evidence; no provider credential, access token or LINE reply token |
-| `providerUsage` | Nullable reported subsets: `inputTokens`, `outputTokens`, `totalTokens`, `cachedInputTokens`, `reasoningTokens`; no estimates |
-| `startedAtUtc`, `finishedAtUtc`, `occurredAtUtc`, `recordedAtUtc` | Source timestamps are nullable unless truthful; `recordedAtUtc` is the server append time, persisted as UTC |
+| `usage` / `usageSource` / `totalTokensSource` | Nullable subsets: `inputTokens`, `outputTokens`, `totalTokens`, `cachedInputTokens`, `reasoningTokens`; sources are `PROVIDER_REPORTED`, `DERIVED_FROM_PROVIDER_COUNTS` for a computed total, or `UNAVAILABLE`; no invented counts |
+| `startedAt`, `finishedAt`, `occurredAt`, `createdAt` | Provider-call start/end are runtime observations; event occurrence and append times are UTC. Unavailable external timestamps stay null; `durationMs` uses a monotonic clock |
 | `recipientStatus` / `recipientRef` | `UNKNOWN` by default; a reference is populated only from trustworthy transport/provider evidence |
 | `redactionState` / `redactedAtUtc` | One-way PDPA retention state and UTC redaction time; no replacement content after erasure |
 
@@ -115,13 +115,12 @@ concrete `kind` vocabulary: `TURN_RECEIVED`, `EXECUTION_STARTED`,
 in typed `payloadJson` on the one journal model; this vocabulary does not add
 separate trace tables.
 
-The event kind determines which fields are required. A model call and tool
-invocation require `executionId`, `instanceId`, input hash and snapshot state;
-retrieval and memory events require their reference arrays and policy result;
-delivery events require delivery lineage and receipt state. An execution-state
-event may carry a null `instanceId` when it describes the execution as a whole.
-The validator rejects a missing required field instead of filling it with a
-placeholder.
+The event kind determines the evidence carried by each typed payload. Native
+P1 validates journal scope, concrete kind, safe JSON bounds and the canonical
+semantic request hash where it records an input. Tool, document, artifact,
+memory and GKS typed adapters and their validators are follow-on phase work;
+native P1 does not claim those validators are built and does not fabricate
+their references.
 
 ## Identity and lineage rules
 
@@ -129,29 +128,64 @@ The contract distinguishes transient occurrence identity from stable lineage:
 
 | Identity family | Rule |
 |---|---|
-| Turn/execution/instance/session/context | `turnId` follows the existing job; `executionId`, `instanceId` and `ctxId` are UUID/reference values for the actual occurrence; `sessionId` belongs to MSP and is nullable here |
-| Tool/action attempts | `toolAttemptId` and `actionAttemptId` identify the logical attempt across start/result/failure and retries; a retry never overwrites an event and receives a new `instanceId` |
+| Turn/execution/instance/session/context | `turnId` follows the existing job; `executionId` is fresh per claimed execution attempt; runtime `instanceId` is stable for the process; `ctxId` identifies the context assembled by Zuri runtime; `sessionId` belongs to MSP and is nullable here |
+| Model/tool/send attempts | `modelCallId`, `toolInvocationId` and `sendAttemptId` are fresh per actual attempt; `toolId` is a stable registry identity and `actionId` is a stable action intent, neither a stable attempt id |
 | Document/artifact versions | References include the owner id, version and hash or immutable URI. A changed source is a different version even when its filename is unchanged |
 | Retrieval versions | GKS owns the retrieval and corpus/index identity. Zuri stores an opaque reference and does not copy a knowledge graph or query result into an authority table |
 | Memory versions | MSP owns the session and memory policy. Zuri stores the opaque version refs it returns or an explicit exclusion state |
-| Delivery attempts and receipts | One transport attempt keeps one `deliveryAttemptId`; receipt callbacks append evidence tied to it. A new provider attempt receives a new delivery id |
+| Delivery attempts and receipts | Each transport attempt receives a fresh `sendAttemptId`; receipt callbacks append evidence tied to it |
 
 `turnId`, `executionId`, `instanceId`, `sessionId` and `ctxId` are never
 interchanged with a business `WorkItem`, CRM external thread id, provider
 request id, document id, artifact id or GKS/MSP authority id.
 
+## Typed adapter handoff (approved design; pending runtime integration)
+
+The native P1 payloads above remain their actual wire shape. The following
+adapter requirements complete the v0.3 lineage design without claiming their
+emitters or validators are implemented in Zuri today.
+
+| Reference | Required identity and provenance |
+|---|---|
+| Soul/persona | MSP `soulId`, immutable version/hash and policy receipt; separate from the runtime system-prompt template id/version |
+| Memory read | MSP `memoryId`, immutable memory version/snapshot and session reference; link every selected item to `ctxId` |
+| Memory write | Stable memory id with a new version, producing `executionId`, action/attempt reference, commit time and owning MSP receipt; a later write never changes an earlier context snapshot |
+| Chat history | Source message ids/versions and ordered selected message content; summaries need their own version plus source-message range/hash; no silent replacement with current history |
+| Tool | Stable registry `toolId`, schema version/hash and implementation version; fresh `toolInvocationId`; model call id, provider call reference, parent invocation and input/result hashes |
+| Action | Stable `actionId` for business intent, fresh `actionAttemptId` for each attempt, linked tool invocation, authorization/approval receipt, idempotency key and effect outcome; a timeout is an unknown outcome until reconciled |
+| Attached document | Owning-service `docId`, immutable version, content hash, MIME type and authorized blob reference; extracted text/chunks retain parser version and source lineage |
+| Generated artifact | Owning-service `artifactId`, immutable version/hash, MIME type and storage reference; producing execution/model/tool/action attempt and source doc/knowledge references |
+| Retrieval | Actual GKS retrieval run id, retriever/config version, query hash, corpus/index snapshot and ordered selected chunk/entity ids with source versions; local BUSINESS_QUERY observations are labelled separately |
+| Context | Fresh `ctxId` for each actual model input; ordered entries with role, source type/id/version/hash, disposition (included/excluded/truncated), exact included content or authorized immutable snapshot, and assembler version |
+
+Context commits link the exact authorized inputs before each provider call.
+Tool results entering a later call require a new context id. Document content,
+retrieved text and tool results remain untrusted data rather than system-level
+instructions; provenance does not grant permission. Runtime resolves scope and
+policy, while MSP/GKS supply their own authoritative references through ports.
+
+Historical inspection is subject to current reader authorization and erasure.
+An old authorization receipt explains what was allowed then; it never grants a
+new action today. Read-only playback cannot dispatch actions. Any future
+re-execution creates new execution/call/attempt ids, references its origin, and
+rechecks current policy and side-effect authorization. Exact stored input is
+replay evidence, not a guarantee that a nondeterministic provider reproduces the
+same text.
+
 ## Exact input and retention contract
 
-The writer takes the exact canonical semantic input at each input, model and
-tool boundary. It stores the exact JSON bytes up to 1 MiB and hashes those same
-bytes with SHA-256. The writer never truncates a body, reserializes it after
-hashing or reconstructs it from a later state. The semantic boundary already
-excludes transient LINE credentials and reply tokens, which must never appear
-in a trace or audit payload.
+The writer takes the canonical semantic JSON input at each input, model and
+tool boundary. It stores that canonical representation up to 1 MiB and
+computes `requestHash`/`inputHash` as SHA-256 over its canonical semantic JSON
+bytes. Canonicalization happens before hashing; this contract does not promise
+an exact HTTP wire snapshot. The semantic boundary excludes transient LINE
+credentials and reply tokens, which must never appear in a trace or audit
+payload.
 
 When a snapshot is too large, excluded by policy, expired or redacted, the
-event keeps the hash and reason when policy allows and sets the corresponding
-`snapshotState`. It does not pretend to have a replayable body. A retained
+event keeps the hash and reason when policy allows and exposes the corresponding
+retention disposition. Native P1 rejects oversized events and records the
+execution failure; it does not create a truncated snapshot or expiry scheduler. It does not pretend to have a replayable body. A retained
 snapshot is immutable until PDPA erasure performs the documented one-way
 redaction.
 
@@ -174,16 +208,19 @@ and never inferred from a sibling event.
 
 - derives the account, Business and Tenant from `LineConversationJob`;
 - requires Business ownership and `line-oa` domain visibility;
-- returns only events within that job's scope, ordered by `turnSequence`;
+- returns only events within that job's scope, ordered by stored `occurredAt`,
+  `createdAt` and `id`;
 - includes hashes, references, snapshot states, nullable usage, truthful UTC
   times, recipient evidence and the computed playback status;
 - performs no model, tool, retrieval, memory, Edge or LINE call;
 - creates no event, attempt, receipt or outbound CRM message; and
 - does not mutate the job, conversation, memory or knowledge stores.
 
-Late external callbacks are accepted only while the job's execution/lease/
-transport epoch fence still matches. A stale callback is refused or marked
-`FENCED` and cannot replace the earlier event or receipt.
+Historical model output or usage may append evidence under its old
+`executionId`, but it cannot settle the current job or trigger a current send.
+Actionable settle and send paths remain lease- and transport-epoch fenced. A
+stale actionable callback is refused or marked `FENCED`; a callback after
+PDPA erasure is denied for payload writes and cannot restore erased content.
 
 ## Authority and adapter boundary
 
@@ -191,26 +228,30 @@ The first implementation is deliberately narrow:
 
 | Authority | v0.3 contract | Implementation status |
 |---|---|---|
-| Zuri native SERVER | Writes the local journal and serves scoped playback for the LINE job path | Initial implementation lane; no completion claim in this document |
-| MSP | Owns Soul memory session, memory policy and runtime context assembly | External adapter and cross-repository evidence pending |
+| Zuri native SERVER | Writes the local journal and serves scoped playback for the LINE job path | Implemented native P1; see phase report for executed evidence and external limits |
+| MSP | Owns Soul/session/memory authority and policy | External adapter and cross-repository evidence pending |
+| Zuri runtime | Assembles the actual native SERVER context and records `ctxId` | Native context assembly is part of the local runtime; no MSP authority is duplicated |
 | GKS | Owns canonical retrieval, corpus and index versions | External adapter and cross-repository evidence pending |
 | Edge | Owns optional local execution under ADR-061 and returns bounded callbacks | External adapter, installed-device proof and canary pending |
-| LINE transport | Owns provider calls and factual delivery receipts under FR-093 | Existing transport contract is referenced; trace integration is a phase gate |
+| LINE transport | Owns provider calls and factual delivery receipts under FR-093 | Native send-attempt integration implemented; live delivery/canary evidence pending |
 
 Native SERVER v0.3 has no private memory adapter. Its trace therefore records
-`sessionId: null`, `memoryVersionRefs: []` and `memoryStatus:
-EXCLUDED_BY_POLICY`. It never mints a fake MSP id. Zuri never writes an MSP,
-GKS or GenesisBlockDB database directly; each future adapter returns typed
-references through a port.
+`sessionId: null`, `memory: []` and
+`privateContextDisposition: EXCLUDED_BY_POLICY`. It never mints a fake MSP id.
+Zuri never writes an MSP, GKS or GenesisBlockDB database directly; each future
+adapter returns typed references through a port.
 
 ## Delivery and usage truth
 
-Provider usage is nullable per field. If a provider reports only output tokens,
-the other fields remain null. Cached and reasoning subsets are recorded only
-when explicitly reported, and Zuri never derives them from billing estimates or
-the model name.
+Provider usage is nullable per field and is carried in `usage` with
+`usageSource` and `totalTokensSource`. If a provider reports only output
+tokens, the other fields remain null. A total may be
+`DERIVED_FROM_PROVIDER_COUNTS` when it is computed from provider-reported
+counts; cached and reasoning subsets remain null unless explicitly reported.
+Zuri never invents counts or infers them from billing estimates or the model
+name.
 
-`recordedAtUtc` is server truth. Provider and executor start/finish times are
+`createdAt` is the journal append time; `occurredAt` is the event observation time. Provider and executor start/finish times are
 stored only with a trustworthy UTC source. Missing times remain null. A reader
 may display Bangkok time, but the journal never stores a local display time as
 the event's truth.
@@ -230,29 +271,30 @@ after erasure fails the execution fence and cannot restore redacted content.
 
 ## Acceptance criteria
 
-All rows below are approved tests for implementation. None is reported as
-passed by this documentation change.
+Rows below preserve the approved acceptance contract. The phase report maps
+executed native P1 evidence to these criteria and explicitly leaves external
+adapter and live Postgres criteria open.
 
 | ID | Given / when / then | Evidence status |
 |---|---|---|
-| AC-171.1 | Given a native SERVER LINE job, when the first event is written, then `turnId` equals the existing `LineConversationJob.id` and no Turn model is created | 🔜 approved; not verified |
-| AC-171.2 | Given one input, model call, tool invocation and retry, when the journal is read, then each actual occurrence has one event and each retry has a new `instanceId` without overwriting history | 🔜 approved; not verified |
-| AC-171.3 | Given the v0.3 schema, when the model inventory is inspected, then `AgentTraceEvent` is the only new trace model and no separate turn, context, tool, retrieval, memory or delivery authority exists | 🔜 approved; not verified |
-| AC-171.4 | Given an input at or below 1 MiB, when it is recorded, then the stored snapshot is exact and `inputSha256` hashes those exact bytes | 🔜 approved; not verified |
-| AC-171.5 | Given an oversized or policy-excluded input, when it is recorded, then it is never silently truncated and playback is `REPLAY_INCOMPLETE` with the reason | 🔜 approved; not verified |
-| AC-171.6 | Given retries and lifecycle events, when stable tool/action ids are compared, then the logical attempt id is stable while the occurrence `instanceId` changes | 🔜 approved; not verified |
-| AC-171.7 | Given document, artifact, retrieval and memory references, when a source version changes, then the journal preserves the old version reference and never copies foreign authority data | 🔜 approved; not verified |
-| AC-171.8 | Given native SERVER with no private memory adapter, when the trace is read, then session and memory refs are empty/null with `EXCLUDED_BY_POLICY`, never a fabricated MSP id | 🔜 approved; not verified |
-| AC-171.9 | Given a provider that omits usage or timestamps, when the event is recorded, then the corresponding fields remain null and no estimate or local-time substitute is written | 🔜 approved; not verified |
-| AC-171.10 | Given a delivery without a trustworthy recipient or receipt, when playback is read, then recipient remains `UNKNOWN` and acceptance is not reported as delivery/read | 🔜 approved; not verified |
-| AC-171.11 | Given an owner with `line-oa` visibility, when `GET /api/line-oa/jobs/{id}/trace` is called, then only the job's Business-scoped events are returned | 🔜 approved; not verified |
-| AC-171.12 | Given a non-owner, a viewer without `line-oa` visibility or a cross-scope job id, when the route is called, then no trace is disclosed and the existing scoped refusal contract is used | 🔜 approved; not verified |
-| AC-171.13 | Given any visible job, when playback is requested, then no provider, tool, MSP, GKS, Edge or LINE call occurs and no row, attempt, receipt, job or CRM message changes | 🔜 approved; not verified |
-| AC-171.14 | Given an expired, excluded, redacted or unavailable required reference, when playback is requested, then status is `REPLAY_INCOMPLETE` and the missing reason is explicit | 🔜 approved; not verified |
-| AC-171.15 | Given a PDPA erasure, when `redactTraceTurn` runs, then snapshots and sensitive payload are redacted once, lineage remains, and playback becomes `REPLAY_INCOMPLETE` without replacement content | 🔜 approved; not verified |
-| AC-171.16 | Given a late callback after a lease, epoch or erasure fence changes, when it arrives, then it is denied or marked `FENCED` and cannot replace an earlier result or restore erased data | 🔜 approved; not verified |
-| AC-171.17 | Given an MSP/GKS/Edge adapter, when it is implemented, then it returns references through a port and performs no direct foreign-database write from zuri-ai | 🔜 external phase gate; not verified |
-| AC-171.18 | Given SQLite and Postgres schemas, when migrations and contract tests run, then the journal shape and append/redaction semantics agree in both providers | 🔜 approved; not verified |
+| AC-171.1 | Given a native SERVER LINE job, when the first event is written, then `turnId` equals the existing `LineConversationJob.id` and no Turn model is created | Native P1 verified locally; see phase report |
+| AC-171.2 | Given one input, model call, tool invocation and retry, when the journal is read, then each actual occurrence has one event, each execution/model/tool/send retry has a fresh attempt id, and the runtime process `instanceId` remains stable across attempts it handles | Native P1 coverage recorded; adapter/retention limits in phase report |
+| AC-171.3 | Given the v0.3 schema, when the model inventory is inspected, then `AgentTraceEvent` is the only new trace model and no separate turn, context, tool, retrieval, memory or delivery authority exists | Native P1 verified locally; see phase report |
+| AC-171.4 | Given canonical semantic input at or below 1 MiB, when it is recorded, then the retained semantic snapshot is exact and `requestHash`/`inputHash` hashes its canonical JSON bytes | Native P1 coverage recorded; adapter/retention limits in phase report |
+| AC-171.5 | Given an oversized or policy-excluded input, when it is recorded, then it is never silently truncated and playback is `REPLAY_INCOMPLETE` with the reason | Native P1 coverage recorded; adapter/retention limits in phase report |
+| AC-171.6 | Given retries and lifecycle events, when stable `toolId`/`actionId` values are compared, then those registry/intent ids remain stable while `toolInvocationId` and other attempt ids are fresh and the runtime `instanceId` remains process-stable | Follow-on typed adapter evidence pending |
+| AC-171.7 | Given document, artifact, retrieval and memory references, when a source version changes, then the journal preserves the old version reference and never copies foreign authority data | Follow-on typed adapter evidence pending |
+| AC-171.8 | Given native SERVER with no private memory adapter, when the trace is read, then `sessionId` is null, `memory` is empty and `privateContextDisposition` is `EXCLUDED_BY_POLICY`, never a fabricated MSP id | Native P1 verified locally; see phase report |
+| AC-171.9 | Given a provider that omits usage or timestamps, when the event is recorded, then the corresponding `usage` fields remain null, source fields state unavailable (or a total is explicitly `DERIVED_FROM_PROVIDER_COUNTS`), and no estimate or local-time substitute is written | Native P1 verified locally; see phase report |
+| AC-171.10 | Given a delivery without a trustworthy recipient or receipt, when playback is read, then recipient remains `UNKNOWN` and acceptance is not reported as delivery/read | Native P1 verified locally; see phase report |
+| AC-171.11 | Given an owner with `line-oa` visibility, when `GET /api/line-oa/jobs/{id}/trace` is called, then only the job's Business-scoped events are returned | Native P1 verified locally; see phase report |
+| AC-171.12 | Given a non-owner, a viewer without `line-oa` visibility or a cross-scope job id, when the route is called, then no trace is disclosed and the existing scoped refusal contract is used | Native P1 verified locally; see phase report |
+| AC-171.13 | Given any visible job, when playback is requested, then no provider, tool, MSP, GKS, Edge or LINE call occurs and no row, attempt, receipt, job or CRM message changes | Native P1 verified locally; see phase report |
+| AC-171.14 | Given an expired, excluded, redacted or unavailable required reference, when playback is requested, then status is `REPLAY_INCOMPLETE` and the missing reason is explicit | Native P1 coverage recorded; adapter/retention limits in phase report |
+| AC-171.15 | Given a PDPA erasure, when `redactTraceTurn` runs, then snapshots and sensitive payload are redacted once, lineage remains, and playback becomes `REPLAY_INCOMPLETE` without replacement content | Native P1 verified locally; see phase report |
+| AC-171.16 | Given a late callback after a lease, epoch or erasure fence changes, when it arrives, then historical model output/usage may append under its old execution for evidence, but it cannot settle the current job, trigger a current send or restore erased data; actionable paths remain fenced | Native P1 verified locally; see phase report |
+| AC-171.17 | Given an MSP/GKS/Edge adapter, when it is implemented, then it returns references through a port and performs no direct foreign-database write from zuri-ai; typed tool/document/artifact/memory/GKS validators remain follow-on adapter gates | Follow-on typed adapter evidence pending |
+| AC-171.18 | Given SQLite and Postgres schemas, when migrations and contract tests run, then the journal shape and append/redaction semantics agree in both providers | SQLite and schema parity verified; live Postgres pending |
 
 ## Scope exclusions and evidence boundary
 
