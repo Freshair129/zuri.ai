@@ -14329,7 +14329,7 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "a3b2bbe4",
+      "hash": "cf40ad91",
       "status": "current"
     },
     {
@@ -16069,7 +16069,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "09b9037b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -16097,7 +16097,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "8d022be7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
