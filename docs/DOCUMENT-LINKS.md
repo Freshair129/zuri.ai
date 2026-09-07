@@ -652,6 +652,7 @@ Backlinks:
 - [ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope](decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md) (relates)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (relates)
 - [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
+- [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (relates)
 
 ## ADR-026 — Agent Topology for the Visual Office
 
@@ -1391,6 +1392,7 @@ Backlinks:
 - [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md) (references)
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 - [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
+- [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
 
 ## ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
 
@@ -1405,6 +1407,7 @@ Backlinks:
 - [FR-164 — Suppliers and purchase orders (po_id)](domains/procurement/features/FR-164-suppliers-and-purchase-orders.md) (references)
 - [FR-165 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-165-goods-receipts.md) (references)
 - [Domain — procurement](domains/procurement/CHARTER.md) (references)
+- [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
 
 ## ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported
 
@@ -1435,6 +1438,18 @@ Source: [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_s
 Backlinks:
 
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
+
+## ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management
+
+Source: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+- relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+
+Backlinks:
+
+- [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2688,6 +2703,8 @@ Backlinks:
 ## ERP module map — where each module the owner names lives
 
 Source: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
+
+- references: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
 
 Backlinks:
 

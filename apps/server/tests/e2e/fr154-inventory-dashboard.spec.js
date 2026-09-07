@@ -13,10 +13,10 @@ test('FR-154/FR-155 — the Inventory dashboard creates catalogue rows and recor
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
 
-  // The domain is in the bar (labelled Warehouse — a Project's own Inventory
-  // tab already owns the word) and its page belongs to it.
+  // The domain sits under the SCM slot in the bar since ADR-069; the slot
+  // lands on Inventory, its first child that is built.
   const bar = page.getByRole('navigation', { name: 'Domains' })
-  await bar.getByRole('link', { name: 'Warehouse' }).click()
+  await bar.getByRole('link', { name: 'SCM' }).click()
   await expect(page).toHaveURL(/\/inventory$/)
   await expect(page.getByRole('heading', { name: 'คลังสินค้า' })).toBeVisible()
 
