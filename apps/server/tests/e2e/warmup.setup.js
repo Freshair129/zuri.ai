@@ -76,6 +76,17 @@ const ROUTES = [
   // POST, so the warm-up's GET compiles the module and takes a 405 back;
   // `failOnStatusCode: false` below is what makes that fine.
   '/api/auth/signup',
+  // Same class as /api/auth/signup just above: marketing-campaigns.spec.js
+  // and marketing-content.spec.js each POST to one of these on their very
+  // first navigation of the run, paying a cold route-handler compile inside
+  // the fixed 10s expect (or the 60s test timeout on a bad day) and flaking
+  // on CI while never reproducing locally. Warming the pages under
+  // /growth/campaigns and /growth/content above compiles the page
+  // components, not these separate API route-handler modules.
+  '/api/growth/campaigns',
+  '/api/growth/content',
+  '/api/growth/content/briefs/warmup',
+  '/api/growth/content/references',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]
