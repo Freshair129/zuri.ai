@@ -14426,7 +14426,7 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.8",
       "doc_status": "Approved",
-      "hash": "a3b2bbe4",
+      "hash": "cf40ad91",
       "status": "current"
     },
     {
@@ -15934,7 +15934,7 @@
       "path": "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
       "title": "FR-171-P2 — Preserve authorized MSP memory provenance",
       "hash": "bd340fa2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PHASE-MONOREPO-2026-09-06",
