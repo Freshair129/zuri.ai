@@ -14,10 +14,16 @@ test('FR-166/FR-163 — an order is created, paid, verified and completed on the
   await expect(page).toHaveURL(/\/overview$/)
 
   const bar = page.getByRole('navigation', { name: 'Domains' })
-  await bar.getByRole('link', { name: 'Commerce' }).click()
+  // ADR-069: the bar holds one SCM slot that opens on Inventory; Order
+  // Management is a sibling in the sidebar beside it.
+  await bar.getByRole('link', { name: 'SCM' }).click()
+  await page.getByRole('link', { name: 'Order Management', exact: true }).click()
   await expect(page).toHaveURL(/\/commerce$/)
   await expect(page.getByRole('heading', { name: /ยอดขายและการชำระเงิน/ })).toBeVisible()
-  await page.getByRole('link', { name: 'Orders' }).click()
+  // Scoped to the sidebar (`<aside>`): FR-170's in-canvas tab bar repeats this
+  // exact label too, so `exact: true` alone (which only rules out a substring
+  // match against `Purchase Orders`, ADR-069) is no longer enough on its own.
+  await page.locator('aside').getByRole('link', { name: 'Orders', exact: true }).click()
   await expect(page).toHaveURL(/\/commerce\/orders$/)
   await expect(page.getByRole('heading', { name: 'ออเดอร์ (Orders)', exact: true })).toBeVisible()
 
@@ -58,8 +64,10 @@ test('FR-166/FR-163 — an order is created, paid, verified and completed on the
   await expect(row()).toContainText('เสร็จสิ้น')
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
 
-  // The dashboard counts the verified money today.
-  await page.getByRole('link', { name: 'Dashboard' }).click()
+  // The dashboard counts the verified money today. Under SCM each child's
+  // Dashboard entry is named after the child, so four of them can share one
+  // menu without four links called Dashboard (ADR-069).
+  await page.getByRole('link', { name: 'Order Management', exact: true }).click()
   await expect(page).toHaveURL(/\/commerce$/)
   await page.getByRole('button', { name: 'วันนี้', exact: true }).click()
   await expect(page.getByText('รายได้ที่ตรวจสอบแล้ว (สุทธิ)')).toBeVisible()

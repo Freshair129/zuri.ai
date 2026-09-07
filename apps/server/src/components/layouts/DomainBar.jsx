@@ -12,7 +12,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { DOMAINS, domainForPath, isDomainVisible } from '@/config/domains'
+import { domainBarSlots, domainForPath, isDomainVisible } from '@/config/domains'
 import { domainsForBusiness } from '@/modules/identity/viewer-domains'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
@@ -42,6 +42,10 @@ export default function DomainBar() {
   // exactly as before FR-061.
   const scope = useScope()
   const granted = viewer.data ? domainsForBusiness(viewer.data, scope.selection?.businessId) : undefined
+  // @req FR-169 — Warehouse's slot is capability-gated on top of being grant-gated;
+  // `domainBarSlots` reads `scope.shell.activeBusiness` itself to decide whether
+  // the Business has turned `physicalStock` on, independently of who may open it.
+  const business = scope.shell.activeBusiness
 
   return (
     <nav
@@ -49,7 +53,40 @@ export default function DomainBar() {
       className="flex h-14 shrink-0 items-center gap-1 overflow-x-auto border-b border-black/25 px-3 text-white"
       style={{ background: '#2b3646' }}
     >
-      {DOMAINS.filter((domain) => isDomainVisible(domain.key, granted)).map((d) => {
+      {/* @req FR-167 — a group stands in the bar for its children (ADR-069 D1).
+          It is visible when any child is, because the group itself is never a
+          grant (D6); it is active when the path resolves to any child, because
+          `domainForPath` answers with the LEAF, which is also the key the route
+          guard checks; and it links to the first child a viewer may actually
+          open, so the slot never lands on a domain they will be refused. */}
+      {domainBarSlots(business).map((slot) => {
+        if (slot.kind === 'group') {
+          const { group, children } = slot
+          const visibleChildren = children.filter((child) => isDomainVisible(child.key, granted))
+          if (visibleChildren.length === 0) return null
+          const target = visibleChildren.find((child) => !child.soon)
+          if (!target) return null
+          const isActive = children.some((child) => child.key === activeKey)
+          const Icon = group.icon
+          const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            isActive
+              ? 'bg-[rgba(232,130,12,0.18)] text-[var(--brand)]'
+              : 'text-white/55 hover:bg-white/10 hover:text-white'
+          }`
+          return (
+            <Link
+              key={group.key}
+              href={target.basePath || target.sub[0].path}
+              className={cls}
+              aria-current={isActive ? 'page' : undefined}
+              title={group.caption}
+            >
+              <Icon size={15} aria-hidden /> {group.label}
+            </Link>
+          )
+        }
+        const d = slot.domain
+        if (!isDomainVisible(d.key, granted)) return null
         const Icon = d.icon
         const isActive = d.key === activeKey
         const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${

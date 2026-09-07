@@ -23,6 +23,8 @@ import { describe, expect, it } from 'vitest'
 
 const DIR = 'supabase/migrations'
 const REVOKE = '20260906235000_revoke_service_role_on_public.sql'
+const REVOKE_FN = '20260907130000_revoke_execute_on_public_functions.sql'
+const API_ROLES = ['service_role', 'anon', 'authenticated']
 const read = (name) => readFileSync(resolve(process.cwd(), DIR, name), 'utf8')
 const stripComments = (sql) => sql.replace(/--[^\n]*/g, '')
 const migrations = () => readdirSync(resolve(process.cwd(), DIR)).filter((f) => f.endsWith('.sql')).sort()
@@ -63,5 +65,51 @@ describe('no later migration hands the grant back', () => {
     // A migration that deleted the revoke rather than superseding it would pass
     // the check above by having nothing to find.
     expect(migrations()).toContain(REVOKE)
+  })
+})
+
+describe('the function revoke closes the door the table revoke left open', () => {
+  const sql = stripComments(read(REVOKE_FN))
+
+  it('revokes the EXECUTE default from all three API roles', () => {
+    // This is the load-bearing half: `public` holds no functions today, so the
+    // only thing this migration can affect is the first one somebody adds.
+    for (const role of API_ROLES) {
+      expect(sql).toMatch(new RegExp(`ALTER\\s+DEFAULT\\s+PRIVILEGES\\s+IN\\s+SCHEMA\\s+public\\s+REVOKE\\s+EXECUTE\\s+ON\\s+FUNCTIONS\\s+FROM\\s+${role}\\b`, 'i'))
+    }
+  })
+
+  it('also revokes on existing functions, so it stays correct if one lands first', () => {
+    for (const role of API_ROLES) {
+      expect(sql).toMatch(new RegExp(`REVOKE\\s+EXECUTE\\s+ON\\s+ALL\\s+FUNCTIONS\\s+IN\\s+SCHEMA\\s+public\\s+FROM\\s+${role}\\b`, 'i'))
+    }
+  })
+
+  it('touches no schema other than public', () => {
+    for (const schema of ['storage', 'realtime', 'vault', 'auth', 'extensions']) {
+      expect(sql).not.toMatch(new RegExp(`SCHEMA\\s+${schema}\\b`, 'i'))
+    }
+  })
+
+  it('leaves the supabase_admin-owned default alone', () => {
+    // Altering it would need to run as that role, and nothing here creates
+    // objects that way. A migration that tried would fail on production rather
+    // than in review, which is the worst place to find out.
+    expect(sql).not.toMatch(/FOR\s+ROLE\s+supabase_admin/i)
+  })
+})
+
+describe('no later migration hands EXECUTE back', () => {
+  it('contains no GRANT EXECUTE to an API role after the function revoke', () => {
+    const after = migrations().filter((name) => name > REVOKE_FN)
+    const offenders = after.filter((name) => {
+      const sql = stripComments(read(name))
+      return API_ROLES.some((role) => new RegExp(`GRANT[\\s\\S]{0,200}?EXECUTE[\\s\\S]{0,200}?\\b${role}\\b`, 'i').test(sql))
+    })
+    expect(offenders).toEqual([])
+  })
+
+  it('the function revoke is still present', () => {
+    expect(migrations()).toContain(REVOKE_FN)
   })
 })

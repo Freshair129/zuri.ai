@@ -30,6 +30,36 @@ export const PLAN_CHANNELS = [
   { value: 'SEO', label: 'SEO' },
 ]
 
+// Provider performance descriptors. These name the metrics the approved
+// Dashboard reserves space for; they deliberately carry no value, no default
+// and no zero. A number may only ever come from a connected provider reader
+// owned by Integration, so the shape of this list cannot express a measurement.
+export const PROVIDER_METRICS = [
+  { key: 'spend', label: 'Ad spend', help: 'Billed by the ad provider' },
+  { key: 'revenue', label: 'Revenue (attributed)', help: 'Attributed by the analytics provider' },
+  { key: 'roas', label: 'ROAS', help: 'Return on ad spend' },
+  { key: 'cpl', label: 'Cost per lead', help: 'Spend divided by qualified leads' },
+  { key: 'ctr', label: 'CTR', help: 'Clicks divided by served views' },
+  { key: 'served', label: 'Served views', help: 'Counted by the ad provider' },
+  { key: 'clicks', label: 'Clicks', help: 'Counted by the ad provider' },
+  { key: 'leads', label: 'Leads', help: 'Qualified by CRM, not by the ad provider' },
+]
+
+// Trend panels reserved by the same approved layout. A panel renders a chart
+// only when its provider reader exists; this slice has none, so no chart
+// library is a dependency yet.
+export const PROVIDER_PANELS = [
+  { key: 'spend-vs-revenue', label: 'Ad spend vs revenue', help: 'Needs an ad provider and an attribution source' },
+  { key: 'ctr-trend', label: 'CTR trend', help: 'Needs an ad provider reader' },
+]
+
+// The single place that decides whether a measurement may be displayed.
+// Anything falsy means no reader is connected, so the caller must render an
+// unavailable state instead of a value.
+export function providerReaderConnected(source) {
+  return Boolean(source && source.connected === true && source.providerName)
+}
+
 export function growthPlansPath(businessId) {
   return `${GROWTH_PLANS_PATH}?businessId=${encodeURIComponent(businessId || '')}`
 }

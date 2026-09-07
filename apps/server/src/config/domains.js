@@ -9,6 +9,7 @@ import {
   Warehouse, Truck, ClipboardList,
   Layers, Bot, Cpu, Bookmark,
 } from 'lucide-react'
+import { businessHasCapability } from '@/lib/business-capabilities'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
@@ -44,7 +45,11 @@ export const DOMAINS = [
     // orders and the payments against them, with revenue counted from verified
     // payments only. `commerce` is the Membership/RBAC route key; the pages
     // exist, so the palette and the bar may now find it.
-    key: 'commerce', label: 'Commerce', icon: ShoppingCart, basePath: '/commerce',
+    // @req FR-167 — labelled `Order Management` since ADR-069: that is the
+    // module the owner's SCM row names, and this lane is the one that
+    // implements it. The key stays `commerce` (AGENTS.md §18), and the charter
+    // is still DOM-COMMERCE.
+    key: 'commerce', label: 'Order Management', icon: ShoppingCart, basePath: '/commerce',
     sub: [
       { label: 'Dashboard', path: '/commerce', icon: LayoutDashboard },
       { label: 'Orders', path: '/commerce/orders', icon: ClipboardCheck },
@@ -183,19 +188,43 @@ export const DOMAINS = [
     // `inventory` is the Membership/RBAC route key; a Membership grant names it
     // through this registry (FR-061) and the FR-154/FR-155 API refuses a viewer
     // without it.
-    // The label is `Warehouse`, not `Inventory`, for the same reason Timeline
-    // and Schedule differ above: a Project already carries an `Inventory`
-    // section tab (FR-077, Project Inventory) that is on screen at the same
-    // time as this bar, and two links named Inventory are ambiguous — to a
-    // screen-reader user and to Playwright strict mode, which is what surfaced
-    // it on PR #263's first CI run. The key stays `inventory` (keys are
-    // immutable, AGENTS.md §18); คลังสินค้า is literally a warehouse anyway.
-    // @spec ADR-025, SEC-001
-    // @tested tests/unit/inventory-routes.test.js
-    key: 'inventory', label: 'Warehouse', icon: Warehouse, basePath: '/inventory',
+    // @req FR-167 — the label went back to `Inventory` when SCM became the slot
+    // in the bar (ADR-069 D4). It read `Warehouse` from PR #263 because a
+    // Project's own `Inventory` section tab (FR-077) sat on screen beside the
+    // bar and two links of that name are ambiguous to a screen reader and to
+    // Playwright strict mode. Under SCM this list is only on screen while SCM
+    // is the selected domain, so the collision is gone — and leaving
+    // `Warehouse` on the lane whose warehouse half is the UNBUILT one (see the
+    // reserved slot below) was the more confusing of the two names. The key
+    // stays `inventory`: keys are immutable (AGENTS.md §18).
+    // @spec ADR-025, ADR-069, SEC-001
+    // @tested tests/unit/inventory-routes.test.js, tests/unit/scm-group-navigation.test.js
+    key: 'inventory', label: 'Inventory', icon: Warehouse, basePath: '/inventory',
     sub: [
       { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard },
     ],
+  },
+  {
+    // @req FR-167 — Warehouse proper: locations, bins, transfers between them
+    // and stocktake campaigns. Reserved, not built: `inventory` above holds one
+    // Business-wide stock position per SKU, which is the whole of what exists
+    // today (`docs/ERP-MODULE-MAP.md` says so in the SCM row). It is declared
+    // rather than left out because the owner's SCM row names four modules and a
+    // reader looking for Warehouse should find out where it stands here, not by
+    // inferring it from an absence. Same shape as the `operations` slot: a
+    // reserved key grants nothing while `soon`, and needs no module and no
+    // charter until someone builds it.
+    // @req FR-169 — additionally gated by the `physicalStock` Business
+    // capability (`capability` below), hidden from every menu, not merely
+    // disabled, when the Business has turned it off: a service-only Business
+    // never runs a warehouse, and a visible-but-reserved slot for a module it
+    // will never use is noise, not information — unlike `operations` above,
+    // whose slot is reserved because Zuri has not built it yet, not because a
+    // Business opted out.
+    // @spec ADR-069 D3
+    // @tested tests/unit/scm-group-navigation.test.js, tests/unit/business-capability-navigation.test.js
+    key: 'warehouse', label: 'Warehouse', icon: LayoutGrid, soon: true, capability: 'physicalStock',
+    sub: [{ label: 'Dashboard', path: '/warehouse', icon: LayoutDashboard }],
   },
   {
     // @req FR-164, FR-165 — Procurement (`DOM-PROCUREMENT`, ADR-066): the buy
@@ -232,6 +261,127 @@ export const DOMAINS = [
     ],
   },
 ]
+
+// @req FR-167 — the owner's ERP row "Supply Chain Management (SCM) — Warehouse,
+// Inventory, Procurement, Order Management" as one slot in the bar, with those
+// four under it (ADR-069).
+//
+// It is a SEPARATE declaration on purpose, not a nesting of DOMAINS. `DOMAINS`
+// is the flat, authoritative list every other consumer walks — above all
+// `VIEWER_DOMAINS = DOMAINS.map(d => d.key)`, which FILTERS each Membership's
+// persisted grant: a key that stopped appearing there would revoke itself
+// silently, on a change that was only ever about navigation. So the group names
+// its children by key and the tree is derived, which also means the two cannot
+// disagree.
+//
+// `scm` is a container, never a grant. It is deliberately absent from DOMAINS,
+// so it can never reach `domainKeysJson`, the permission checkboxes, or the
+// route guard — the guard keeps resolving a path to the LEAF domain and asking
+// about that key.
+// @spec ADR-069 D1, D2, D6
+// @tested tests/unit/scm-group-navigation.test.js
+export const DOMAIN_GROUPS = [
+  {
+    key: 'scm',
+    label: 'SCM',
+    caption: 'ซัพพลายเชน',
+    icon: Layers,
+    childKeys: ['inventory', 'warehouse', 'procurement', 'commerce'],
+  },
+]
+
+const GROUP_BY_CHILD_KEY = new Map(
+  DOMAIN_GROUPS.flatMap((group) => group.childKeys.map((key) => [key, group])),
+)
+
+/** The group a domain belongs to, or null for a domain that stands on its own. */
+export function groupForDomainKey(domainKey) {
+  return GROUP_BY_CHILD_KEY.get(domainKey) || null
+}
+
+/**
+ * Whether a domain applies to `business` at all — distinct from
+ * `isDomainVisible`, which asks whether THIS VIEWER may open a domain the
+ * Business already has. `business` is the raw row (or undefined while it has
+ * not loaded); `businessHasCapability` reads its default when it is either,
+ * so a domain with no `capability` field is always allowed and one with an
+ * unloaded Business is allowed exactly as often as the capability's own
+ * default says (FR-169).
+ */
+export function isDomainAllowedForBusiness(domain, business) {
+  return !domain.capability || businessHasCapability(business, domain.capability)
+}
+
+/**
+ * A group's children, in the order the group names them, skipping unknown
+ * keys and any child `business` has not turned on (FR-169). `business` is
+ * optional so every existing caller — and every test fixture that predates
+ * FR-169 — keeps seeing every child, exactly as `groupChildren(group)` always
+ * has.
+ */
+export function groupChildren(group, business) {
+  return group.childKeys
+    .map((key) => DOMAINS.find((d) => d.key === key))
+    .filter(Boolean)
+    .filter((d) => isDomainAllowedForBusiness(d, business))
+}
+
+/**
+ * The bar's slots: every domain that belongs to no group, in registry order,
+ * with each group standing in one place for all of its children — the position
+ * of the first child, so the bar's left-to-right reading order is unchanged.
+ */
+export function domainBarSlots(business) {
+  const slots = []
+  const placed = new Set()
+  for (const domain of DOMAINS) {
+    const group = groupForDomainKey(domain.key)
+    if (!group) {
+      slots.push({ kind: 'domain', domain })
+      continue
+    }
+    if (placed.has(group.key)) continue
+    placed.add(group.key)
+    slots.push({ kind: 'group', group, children: groupChildren(group, business) })
+  }
+  return slots
+}
+
+/**
+ * What the sidebar lists for a path. For a grouped domain that is the whole
+ * group — every sibling, each child's label as the section header over its own
+ * pages — because a child reached from the bar has to be able to reach the
+ * other three. For everything else it is the domain itself, unchanged.
+ *
+ * The `group` field on each item is the same one the sidebar already renders
+ * section headers from, so this needs no new rendering concept. `business` is
+ * optional for the same reason it is on `groupChildren` (FR-169): every
+ * existing caller keeps its old, unfiltered behaviour.
+ */
+export function sidebarDomainForPath(pathname, business) {
+  const domain = domainForPath(pathname)
+  const group = groupForDomainKey(domain.key)
+  if (!group) return domain
+  return {
+    key: group.key,
+    label: group.label,
+    caption: group.caption,
+    icon: group.icon,
+    // A child's `Dashboard` is renamed to the child. Every domain's first
+    // sub-entry is called Dashboard (ADR-036 D1), so flattening four of them
+    // into one menu would put four links called Dashboard in it — ambiguous to
+    // a screen reader and to Playwright strict mode, which is the same defect
+    // that made this lane's bar label `Warehouse` in the first place.
+    sub: groupChildren(group, business).flatMap((child) =>
+      child.sub.map((item) => ({
+        ...item,
+        label: item.label === 'Dashboard' ? child.label : item.label,
+        group: child.label,
+        soon: child.soon || item.soon,
+      })),
+    ),
+  }
+}
 
 /**
  * Whether a viewer may see a domain.

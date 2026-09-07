@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T04:44:28.475Z",
+  "generatedAt": "2026-09-07T18:45:49.848Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 121,
-    "readyFeatureCount": 99,
-    "requirementCount": 166,
-    "verifiedRequirementCount": 156,
-    "progressPercent": 94,
+    "featureCount": 125,
+    "readyFeatureCount": 103,
+    "requirementCount": 170,
+    "verifiedRequirementCount": 160,
+    "progressPercent": 94.1,
     "gapCount": 22,
     "gaps": [
       {
@@ -442,7 +442,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -601,7 +601,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-134",
@@ -683,7 +683,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -811,14 +811,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 25
+          "testCount": 27
         }
       ],
       "checks": {
@@ -844,7 +844,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -971,7 +971,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-093",
@@ -1048,7 +1048,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 23
         }
       ],
       "checks": {
@@ -1259,7 +1259,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-076",
@@ -1399,42 +1399,42 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 23
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 27
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 27
         }
       ],
       "checks": {
@@ -1460,7 +1460,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -1839,7 +1839,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -1986,7 +1986,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-155",
@@ -2001,6 +2001,13 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 11
+        },
+        {
+          "id": "FR-168",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 4
         }
       ],
       "checks": {
@@ -2026,7 +2033,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -2112,10 +2119,13 @@
         "featureNotes": 3
       },
       "featureIds": [
-        "FEAT-020"
+        "FEAT-020",
+        "FR-167",
+        "FR-168",
+        "FR-169"
       ],
-      "featureCount": 1,
-      "readyFeatureCount": 0,
+      "featureCount": 4,
+      "readyFeatureCount": 3,
       "progressPercent": 100
     },
     "knowledge": {
@@ -2411,7 +2421,7 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 15
         },
         {
@@ -2419,7 +2429,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-093",
@@ -2432,7 +2442,7 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 29,
+          "codeCount": 30,
           "testCount": 20
         },
         {
@@ -2453,7 +2463,7 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
+          "codeCount": 22,
           "testCount": 17
         },
         {
@@ -2494,7 +2504,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -2648,7 +2658,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -2746,7 +2756,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-158",
@@ -2759,15 +2769,15 @@
           "id": "FR-159",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 16,
-          "testCount": 27
+          "codeCount": 17,
+          "testCount": 29
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-162",
@@ -2800,7 +2810,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -2911,7 +2921,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-095",
@@ -2925,7 +2935,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 9
         },
         {
           "id": "FR-142",
@@ -2958,7 +2968,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -3051,14 +3061,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 25
+          "testCount": 27
+        },
+        {
+          "id": "FR-168",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
         }
       ],
       "checks": {
@@ -3084,7 +3101,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 199,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -3169,10 +3186,11 @@
         "featureNotes": 2
       },
       "featureIds": [
-        "FEAT-024"
+        "FEAT-024",
+        "FR-170"
       ],
-      "featureCount": 1,
-      "readyFeatureCount": 0,
+      "featureCount": 2,
+      "readyFeatureCount": 1,
       "progressPercent": 100
     },
     "project-manager": {
@@ -3211,7 +3229,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-006",
@@ -3274,7 +3292,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-015",
@@ -3309,7 +3327,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-022",
@@ -3379,7 +3397,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-040",
@@ -3400,7 +3418,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 19
         },
         {
           "id": "FR-043",
@@ -3421,7 +3439,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-046",
@@ -3456,7 +3474,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-061",
@@ -3554,7 +3572,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-077",
@@ -3589,7 +3607,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-087",
@@ -3624,7 +3642,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-092",
@@ -3673,7 +3691,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 9
         },
         {
           "id": "FR-106",
@@ -3722,7 +3740,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-127",
@@ -3736,7 +3754,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-134",
@@ -3841,7 +3859,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-155",
@@ -3862,7 +3880,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-158",
@@ -3876,49 +3894,63 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 27
+          "testCount": 29
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 23
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 27
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 27
+        },
+        {
+          "id": "FR-167",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 12
+        },
+        {
+          "id": "FR-169",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -3951,9 +3983,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 112,
-            "inventoried": 112,
-            "openApiPaths": 199,
+            "routes": 113,
+            "inventoried": 113,
+            "openApiPaths": 200,
             "missingFromOpenApi": 0
           }
         },
@@ -4013,8 +4045,8 @@
             }
           ],
           "details": {
-            "mutations": 90,
-            "guardedMutations": 90,
+            "mutations": 91,
+            "guardedMutations": 91,
             "reads": 55,
             "unguardedReads": 1
           }
@@ -4116,8 +4148,8 @@
         }
       ],
       "details": {
-        "routes": 157,
-        "apiRoutes": 112,
+        "routes": 158,
+        "apiRoutes": 113,
         "pageRoutes": 45,
         "ownedModels": 30,
         "featureNotes": 31
@@ -4208,7 +4240,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-058",
@@ -4268,6 +4300,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -4285,7 +4318,8 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/project-file-service.test.js"
+        "apps/server/tests/unit/project-file-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -4321,7 +4355,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 28
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -4349,6 +4383,7 @@
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/business-strategy-route.test.js",
         "apps/server/tests/unit/business-strategy-service.test.js",
@@ -4368,6 +4403,7 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/shell-mode.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
       ]
@@ -4493,7 +4529,7 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 15
         }
       ],
@@ -4510,6 +4546,7 @@
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-registry-service.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/platform/integrations/core/connection-health.js",
         "apps/server/src/platform/integrations/core/connector-catalog.js",
         "apps/server/src/platform/integrations/core/credential-vault.js",
@@ -4732,7 +4769,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-087",
@@ -4790,6 +4827,7 @@
         "apps/server/tests/integration/projects-dashboard.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -4804,6 +4842,7 @@
         "apps/server/tests/unit/projects-dashboard-read-model.test.js",
         "apps/server/tests/unit/projects-dashboard-schema-migration.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -4837,7 +4876,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-093",
@@ -4882,6 +4921,7 @@
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-webhook-transport-contract.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
@@ -4890,7 +4930,8 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -5345,7 +5386,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-134",
@@ -5430,6 +5471,7 @@
         "apps/server/tests/unit/asset-register-routes.test.js",
         "apps/server/tests/unit/asset-register-service.test.js",
         "apps/server/tests/unit/asset-scanner-ui.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -5441,7 +5483,8 @@
         "apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "apps/server/tests/unit/platform/pipeline-tracking-contract.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -5643,7 +5686,7 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 37,
+          "codeCount": 38,
           "testCount": 20
         },
         {
@@ -5657,7 +5700,7 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
+          "codeCount": 26,
           "testCount": 17
         },
         {
@@ -5724,6 +5767,7 @@
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
@@ -5920,7 +5964,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-155",
@@ -5978,6 +6022,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
@@ -5987,7 +6032,8 @@
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6020,7 +6066,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-158",
@@ -6033,15 +6079,15 @@
           "id": "FR-159",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 27
+          "codeCount": 21,
+          "testCount": 29
         },
         {
           "id": "FR-160",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 23
+          "testCount": 25
         },
         {
           "id": "FR-162",
@@ -6088,6 +6134,7 @@
         "apps/server/src/modules/marketing/application/marketing-plan-service.js",
         "apps/server/src/modules/marketing/application/marketing-pm-handoff-service.js",
         "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
+        "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
         "apps/server/src/modules/marketing/components/MarketingState.jsx",
         "apps/server/src/modules/marketing/components/MarketingTabs.jsx",
         "apps/server/src/modules/marketing/components/PlanForm.jsx",
@@ -6145,6 +6192,7 @@
         "apps/server/tests/integration/marketing-pm-handoff.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -6168,6 +6216,7 @@
         "apps/server/tests/unit/marketing/marketing-plan-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-plan-route.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
       ]
     },
@@ -6198,7 +6247,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 21
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -6222,6 +6271,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -6231,7 +6281,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/sales-task-domain.test.js",
-        "apps/server/tests/unit/sales-task-routes.test.js"
+        "apps/server/tests/unit/sales-task-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6262,14 +6313,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-166",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -6303,6 +6354,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
         "apps/server/tests/unit/commerce-routes.test.js",
@@ -6314,7 +6366,8 @@
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6345,14 +6398,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-165",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -6387,6 +6440,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
@@ -6399,7 +6453,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6595,7 +6650,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -6623,6 +6678,7 @@
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/design-system.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
+        "apps/server/tests/unit/module-tabs.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/project-roadmap-ui.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
@@ -7009,7 +7065,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -7023,7 +7079,8 @@
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
-        "apps/server/tests/unit/design-system.test.js"
+        "apps/server/tests/unit/design-system.test.js",
+        "apps/server/tests/unit/module-tabs.test.js"
       ]
     },
     {
@@ -7251,7 +7308,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -7269,8 +7326,10 @@
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
+        "apps/server/tests/integration/fr169-business-capability.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
@@ -7967,7 +8026,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -7983,12 +8042,14 @@
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/breadcrumb-switcher.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -8074,7 +8135,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -8089,6 +8150,7 @@
         "apps/server/tests/e2e/fr059-strategy-edit.spec.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -8101,7 +8163,8 @@
         "apps/server/tests/unit/people-directory.test.js",
         "apps/server/tests/unit/people-route.test.js",
         "apps/server/tests/unit/people-service.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -9512,7 +9575,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 30
+          "testCount": 32
         }
       ],
       "evidence": [
@@ -9537,6 +9600,7 @@
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr169-business-capability.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -9544,6 +9608,7 @@
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -9963,7 +10028,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 7
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -9978,6 +10043,8 @@
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/fr169-business-capability.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
@@ -10566,7 +10633,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -10579,6 +10646,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -10586,7 +10654,8 @@
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -10855,6 +10924,176 @@
       "evidence": [
         "apps/server/src/lib/db.js",
         "apps/server/tests/unit/db-runtime-config.test.js"
+      ]
+    },
+    {
+      "id": "FR-167",
+      "title": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-167"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้กดช่อง SCM ช่องเดียวในแถบโดเมน แล้วเห็น Inventory, Warehouse, Procurement และ Order Management เรียงเป็นสี่กลุ่มในเมนูด้านซ้าย จึงข้ามจากคลังไปจัดซื้อไปคำสั่งขายได้โดยไม่ต้องกลับขึ้นแถบบน ส่วน Warehouse ที่ยังไม่ได้สร้างจะแสดงเป็นช่องที่กดไม่ได้ แทนที่จะหายไปเฉย ๆ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-167",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "apps/server/src/components/layouts/DomainBar.jsx",
+        "apps/server/src/components/layouts/Sidebar.jsx",
+        "apps/server/src/config/domains.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/profile-permission-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
+      ]
+    },
+    {
+      "id": "FR-168",
+      "title": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-168"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "inventory",
+        "procurement"
+      ],
+      "useCase": "เจ้าของธุรกิจสร้าง SKU แล้วเลือกได้ว่าเป็นสินค้านับสต๊อก สินค้าไม่นับสต๊อก หรือบริการ พอเลือกบริการหรือไม่นับสต๊อก ฟอร์มจะตัดช่องการระบุหน่วยและ safety stock ออกทันทีเพราะใช้ไม่ได้ และระบบจะปฏิเสธการรับของเข้าคลังสำหรับบริการ เพราะบริการเป็นสิ่งที่ทำให้ ไม่ใช่ของที่ส่งมอบเข้าคลัง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-168",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
+        "apps/server/src/modules/inventory/domain/inventory.js",
+        "apps/server/src/modules/procurement/application/goods-receipt-service.js",
+        "apps/server/tests/integration/fr154-inventory-catalog.test.js",
+        "apps/server/tests/integration/fr165-goods-receipt.test.js",
+        "apps/server/tests/unit/inventory-domain.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js"
+      ]
+    },
+    {
+      "id": "FR-169",
+      "title": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-169"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "เจ้าของธุรกิจที่ขายเฉพาะบริการเข้าไปที่ตั้งค่า แล้วปิดสวิตช์ Physical Stock ทันทีที่ปิด โมดูล Warehouse หายไปจากแถบเมนูบนและเมนูซ้ายของ SCM ทั้งหมด ไม่ใช่แค่กดไม่ได้ ธุรกิจอื่นที่มีสต๊อกจริงยังเห็น Warehouse เหมือนเดิมเพราะค่าเริ่มต้นเปิดไว้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-169",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 18
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/settings/page.jsx",
+        "apps/server/src/app/api/businesses/[id]/capabilities/route.js",
+        "apps/server/src/components/layouts/DomainBar.jsx",
+        "apps/server/src/components/layouts/Sidebar.jsx",
+        "apps/server/src/config/domains.js",
+        "apps/server/src/lib/business-capabilities.js",
+        "apps/server/src/modules/business/application/business-capability-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/fr169-business-capability.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capabilities.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/platform-control-guard.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/profile-permission-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
+      ]
+    },
+    {
+      "id": "FR-170",
+      "title": "A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-170"
+      ],
+      "primaryDomain": "procurement",
+      "contributorDomains": [],
+      "useCase": "ผู้ใช้เปิดหน้าจัดซื้อแล้วเห็นแท็บ Dashboard กับ Purchase Orders อยู่ในกรอบเดียวกันด้านบน กดสลับแท็บเพื่อดูใบสั่งซื้อโดยไม่ต้องกลับไปที่เมนูซ้าย เช่นเดียวกับหน้า Order Management ที่มีแท็บ Dashboard กับ Orders สลับกันได้ในกรอบเดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-170",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "apps/server/src/components/ui/index.jsx",
+        "apps/server/src/lib/module-tabs.js",
+        "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
+        "apps/server/tests/unit/design-system.test.js",
+        "apps/server/tests/unit/module-tabs.test.js"
       ]
     }
   ]

@@ -89,7 +89,12 @@ describe('both consumers use one predicate', () => {
   // change that kept the two consumers perfectly in step.
   it('DomainBar filters through isDomainVisible, not a local Set', () => {
     const source = readSource('src/components/layouts/DomainBar.jsx')
-    expect(source).toMatch(/isDomainVisible\(domain\.key,/)
+    // The predicate is what FR-060 decided; the name of the variable holding
+    // the domain is not. ADR-069 gave the bar a second call — one for a plain
+    // slot, one per child of a group — and pinning `domain.key` failed on that
+    // rename while the two consumers stayed exactly in step, which is the same
+    // over-specification the comment above already records once.
+    expect(source).toMatch(/isDomainVisible\(\w+\.key,/)
     expect(source).not.toContain('visibleDomains.has(')
   })
 

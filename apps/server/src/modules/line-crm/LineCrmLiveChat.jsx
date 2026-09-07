@@ -21,8 +21,6 @@ import {
   UserCheck,
   Plus
 } from 'lucide-react'
-import { CHAT_CONVERSATIONS } from './mockData'
-
 // @req FR-091, FR-093 — LineCRM-MCP 3-Column Live Chat with AI Assist & Member 360°
 // @spec SDD-050, ADR-060, ADR-061
 
@@ -31,33 +29,28 @@ import { useFetch } from '@/modules/project-manager/components/useApi'
 
 export default function LineCrmLiveChat() {
   const { businessId, selectedBusiness } = useScope()
-  const [dataMode, setDataMode] = useState('auto') // 'auto' | 'demo'
-  const [selectedChatId, setSelectedChatId] = useState('conv-1')
+  const [selectedChatId, setSelectedChatId] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [inputText, setInputText] = useState('')
   const [aiAutoReply, setAiAutoReply] = useState(true)
   const [aiActionMessage, setAiActionMessage] = useState(null)
-  const [localConversations, setLocalConversations] = useState([])
+  const [simulating, setSimulating] = useState(false)
 
   // Live DB Fetch
   const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : '/api/crm/conversations'
   const liveInbox = useFetch(convPath, [businessId])
 
-  const hasRealData = Array.isArray(liveInbox.data?.conversations) && liveInbox.data.conversations.length > 0
-  const isLive = dataMode === 'demo' ? false : hasRealData
+  const rawConversations = useMemo(() => liveInbox.data?.conversations || [], [liveInbox.data])
 
   // Real Thread Fetch for active chat
-  const threadPath = (isLive && selectedChatId && !selectedChatId.startsWith('conv-'))
+  const threadPath = (selectedChatId && rawConversations.some(c => c.id === selectedChatId))
     ? `/api/crm/conversations/${encodeURIComponent(selectedChatId)}?businessId=${encodeURIComponent(businessId || '')}`
     : null
   const liveThread = useFetch(threadPath, [selectedChatId, businessId])
 
   const conversations = useMemo(() => {
-    if (!isLive) {
-      return localConversations.length > 0 ? localConversations : CHAT_CONVERSATIONS
-    }
-    return liveInbox.data.conversations.map((c, idx) => {
+    return rawConversations.map((c, idx) => {
       const initials = (c.customer?.displayName || 'User').slice(0, 2).toUpperCase()
       return {
         id: c.id,
@@ -80,7 +73,7 @@ export default function LineCrmLiveChat() {
         messages: []
       }
     })
-  }, [isLive, liveInbox.data, localConversations])
+  }, [rawConversations])
 
   useEffect(() => {
     if (conversations.length > 0 && (!selectedChatId || !conversations.some(c => c.id === selectedChatId))) {
@@ -89,8 +82,9 @@ export default function LineCrmLiveChat() {
   }, [conversations, selectedChatId])
 
   const activeChat = useMemo(() => {
-    const found = conversations.find((c) => c.id === selectedChatId) || conversations[0] || CHAT_CONVERSATIONS[0]
-    if (isLive && liveThread.data?.messages) {
+    if (conversations.length === 0) return null
+    const found = conversations.find((c) => c.id === selectedChatId) || conversations[0]
+    if (liveThread.data?.messages) {
       const mappedMessages = liveThread.data.messages.map((m) => ({
         id: m.id,
         sender: m.direction === 'INBOUND' ? 'customer' : 'agent',
@@ -110,7 +104,7 @@ export default function LineCrmLiveChat() {
       }
     }
     return found
-  }, [conversations, selectedChatId, isLive, liveThread.data])
+  }, [conversations, selectedChatId, liveThread.data])
 
   const filteredChats = conversations.filter((c) => {
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -118,6 +112,43 @@ export default function LineCrmLiveChat() {
     if (filterCategory === 'all') return matchesSearch
     return matchesSearch && c.category === filterCategory
   })
+
+  // Function to simulate a real incoming message from LINE Webhook
+  const handleSimulateIncomingMessage = async () => {
+    setSimulating(true)
+    try {
+      const res = await fetch('/api/agent/line-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination: selectedBusiness?.code || 'U_SMARTGIFT',
+          events: [
+            {
+              type: 'message',
+              message: {
+                id: `msg-sim-${Date.now()}`,
+                type: 'text',
+                text: 'สวัสดีครับ สนใจสอบถามรายละเอียดสินค้าและโปรโมชั่น SmartGift ครับ 🎁'
+              },
+              timestamp: Date.now(),
+              source: {
+                type: 'user',
+                userId: 'U2962d3754b3390ec16c5a74ea154f742'
+              },
+              replyToken: `nHuySimToken_${Date.now()}`
+            }
+          ]
+        })
+      })
+      if (res.ok) {
+        liveInbox.reload?.()
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSimulating(false)
+    }
+  }
 
   const handleSendMessage = (e) => {
     e?.preventDefault()
@@ -172,19 +203,9 @@ export default function LineCrmLiveChat() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-800 dark:text-white">กล่องข้อความ ({conversations.length})</span>
-              {isLive ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB
-                </span>
-              ) : (
-                <button
-                  onClick={() => setDataMode(dataMode === 'demo' ? 'auto' : 'demo')}
-                  className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100"
-                  title="คลิกเพื่อสลับโหมด"
-                >
-                  🟡 Demo Mode (ไม่มีแชทจริงใน DB)
-                </button>
-              )}
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live DB
+              </span>
             </div>
             <button
               onClick={() => liveInbox.reload?.()}
@@ -208,9 +229,9 @@ export default function LineCrmLiveChat() {
           <div className="mt-2 flex gap-1 overflow-x-auto text-[11px] pb-1">
             {[
               { id: 'all', label: 'ทั้งหมด', count: conversations.length },
-              { id: 'pending', label: 'รอดำเนินการ', count: 1 },
-              { id: 'followup', label: 'ติดตามผล', count: 1 },
-              { id: 'closed', label: 'ปิดตัว', count: 1 },
+              { id: 'pending', label: 'รอดำเนินการ', count: conversations.length > 0 ? 1 : 0 },
+              { id: 'followup', label: 'ติดตามผล', count: 0 },
+              { id: 'closed', label: 'ปิดตัว', count: 0 },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -228,65 +249,97 @@ export default function LineCrmLiveChat() {
         </div>
 
         {/* Conversation List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
-          {filteredChats.map((chat) => (
-            <div
-              key={chat.id}
-              onClick={() => setSelectedChatId(chat.id)}
-              className={`flex cursor-pointer items-start gap-3 p-3 transition-colors ${
-                selectedChatId === chat.id
-                  ? 'bg-purple-50/80 dark:bg-purple-950/40 border-l-4 border-purple-600'
-                  : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
-              }`}
-            >
-              <div className="relative">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${chat.avatarBg}`}>
-                  {chat.avatar}
+        <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 flex flex-col">
+          {conversations.length === 0 ? (
+            <div className="p-6 text-center space-y-3 my-auto">
+              <MessageSquare className="w-8 h-8 text-slate-300 mx-auto" />
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200">ยังไม่มีข้อความแชทในฐานข้อมูล</h4>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                เมื่อมีลูกค้าทักเข้ามาใน LINE OA หรือส่ง Webhook เข้ามา รายชื่อห้องแชทจะปรากฏที่นี่โดยอัตโนมัติ
+              </p>
+              <button
+                onClick={handleSimulateIncomingMessage}
+                disabled={simulating}
+                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{simulating ? 'กำลังจำลอง...' : '🚀 ทดลองส่งแชทจำลองเข้า DB'}</span>
+              </button>
+            </div>
+          ) : (
+            filteredChats.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => setSelectedChatId(chat.id)}
+                className={`flex cursor-pointer items-start gap-3 p-3 transition-colors ${
+                  selectedChatId === chat.id
+                    ? 'bg-purple-50/80 dark:bg-purple-950/40 border-l-4 border-purple-600'
+                    : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                }`}
+              >
+                <div className="relative">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${chat.avatarBg}`}>
+                    {chat.avatar}
+                  </div>
+                  {chat.status === 'online' && (
+                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+                  )}
                 </div>
-                {chat.status === 'online' && (
-                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate text-xs font-bold text-slate-800 dark:text-white">{chat.name}</span>
+                      <span className="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                        {chat.tier}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-400">{chat.time}</span>
+                  </div>
+                  <p className="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">{chat.lastMessage}</p>
+                </div>
+                {chat.unread > 0 && (
+                  <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-purple-600 text-[9px] font-bold text-white">
+                    {chat.unread}
+                  </span>
                 )}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="truncate text-xs font-bold text-slate-800 dark:text-white">{chat.name}</span>
-                    <span className="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      {chat.tier}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400">{chat.time}</span>
-                </div>
-                <p className="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">{chat.lastMessage}</p>
-              </div>
-              {chat.unread > 0 && (
-                <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-purple-600 text-[9px] font-bold text-white">
-                  {chat.unread}
-                </span>
-              )}
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      {/* Column 2: Active Chat Stream & Composer (Flex) */}
-      <div className="flex flex-1 flex-col bg-slate-50/40 dark:bg-slate-900/40">
-        {/* Chat Stream Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-white/90 p-3.5 px-5 dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ${activeChat.avatarBg}`}>
-              {activeChat.avatar}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">{activeChat.name}</h2>
-                <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  {activeChat.tier}
-                </span>
-                <span className="flex items-center gap-1 text-[10px] text-emerald-600">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> ออนไลน์
-                </span>
+      {/* Column 2 & 3: Active Chat Stream & Member Drawer */}
+      {!activeChat ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-3 bg-slate-50/40 dark:bg-slate-900/40">
+          <div className="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600">
+            <MessageSquare className="w-7 h-7" />
+          </div>
+          <h3 className="font-bold text-sm text-slate-800 dark:text-white">ยังไม่ได้เลือกห้องแชท</h3>
+          <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
+            เลือกห้องแชทจากกล่องข้อความทางด้านซ้าย หรือกดปุ่ม <strong>"ทดลองส่งแชทจำลองเข้า DB"</strong> เพื่อทดสอบส่งข้อความเข้ามาในระบบ
+          </p>
+        </div>
+      ) : (
+        // Columns 2 and 3 are siblings and both dereference `activeChat`, so
+        // they share this branch and need a fragment to be one expression.
+        <>
+        <div className="flex flex-1 flex-col bg-slate-50/40 dark:bg-slate-900/40">
+          {/* Chat Stream Header */}
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white/90 p-3.5 px-5 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ${activeChat.avatarBg}`}>
+                {activeChat.avatar}
               </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">{activeChat.name}</h2>
+                  <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    {activeChat.tier}
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> ออนไลน์
+                  </span>
+                </div>
               <p className="text-[10px] text-slate-400 font-mono">{activeChat.lineUserId}</p>
             </div>
           </div>
@@ -546,6 +599,8 @@ export default function LineCrmLiveChat() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   )
 }

@@ -1,9 +1,7 @@
 {
-  "generated_at": "2026-09-07T04:44:28.508Z",
+  "generated_at": "2026-09-07T18:45:49.900Z",
   "note": "Diagnostic only — what changed since the previous docs/.doc-graph.json regeneration. Never read by --check, docs:preflight or monorepo-graph.mjs; excluded from every staleness/consistency check by design.",
-  "changed": [
-    "test:tests/e2e/fr040-project-work.spec.js"
-  ],
+  "changed": [],
   "added": [],
   "removed": []
 }
