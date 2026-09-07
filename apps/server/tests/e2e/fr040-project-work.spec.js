@@ -1,6 +1,10 @@
 // @req FR-040, FR-068 — Project Work views expose Structure Plan, Dependency
 // Map and the Human-visible Execution Roadmap.
 // @spec SDD-019, ADR-012, ADR-028
+// Regression check for the doc-graph drift-self-invalidation fix (see
+// .brain/rca/2026-09-07-monorepo-graph-stale-on-fresh-checkout.md): editing
+// this comment changes this file's hash, which used to bake a non-empty
+// drift.changed entry into the committed docs/.doc-graph.json.
 
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
