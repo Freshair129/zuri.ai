@@ -81,3 +81,10 @@ installation, for every Business, forever, until someone thought to look.
   Business, a read-only export-only key) is a new field and a new predicate
   clause, not a redesign — YAGNI held it back until a second consumer actually
   needs it.
+- **Widened by [ADR-067](ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md)
+  (2026-09-07, owner decision).** The second consumer arrived: the same key —
+  still Tenant-bound, still not an operator — also authenticates the four
+  knowledge ingestion reporter verbs under `/api/pipelines/knowledge/{executionRunId}`,
+  so the "two routes" of D3 are six. What it may write there is held in
+  `recordPipelineEvent` (`requireLedgerWriterForRun`), not in this decision's
+  text, which stays as the dated record of the first consumer.

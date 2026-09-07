@@ -32,6 +32,7 @@ export {
 const zId = z.string().trim().min(1).max(500)
 const zMetricCount = z.number().finite().int().nonnegative()
 const zMetricDuration = z.number().finite().nonnegative()
+const zIsoTime = z.string().datetime({ offset: true })
 const zKnowledgeScope = z.object({
   tenantId: zId,
   businessId: zId,
@@ -46,9 +47,39 @@ const zKnowledgeStageMetrics = z.object({
   retry_count: zMetricCount,
 }).strict()
 
+/** What a stage occurrence reports about itself: it ran to completion, or it did not. */
+export const KNOWLEDGE_STAGE_OUTCOMES = Object.freeze(['SUCCEEDED', 'FAILED'])
+
+// BR-022's envelope as the ledger can hold it: a stable code, a redacted
+// reference and the retryable flag. The raw error message is deliberately not
+// a member — the FR-071 ledger is append-only and redacted (SDD-073), and a
+// reporter that wants the message kept keeps it in its own tier.
+const zKnowledgeStageFailure = z.object({
+  failureCode: z.string().trim().min(1).max(200),
+  errorRef: z.string().trim().min(1).max(200),
+  retryable: z.boolean(),
+}).strict()
+
+// ADR-067 D2 — a report names when the stage ran, not when it was reported.
+// The ledger's step timestamps are written from these, so `processing_time`
+// is recoverable from the rows rather than only from the counter.
+function refineReportedInterval(value, ctx) {
+  if (Date.parse(value.finishedAt) < Date.parse(value.startedAt)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['finishedAt'],
+      message: 'finishedAt precedes startedAt',
+    })
+  }
+}
+
 /**
  * Control metadata plus aggregate-only evidence for a Stage 9–16 report.
  * Entity/fact/embedding/index rows and receipts remain in their owning tier.
+ *
+ * `outcome` and `failure` (ADR-067 D2): a stage that did not complete says so
+ * with BR-022's envelope, and a stage that completed carries none — the two
+ * are refined together so a report cannot be both, or neither.
  */
 export const zKnowledgeStageReport = z.object({
   dataPipelineDefinitionId: z.literal(KNOWLEDGE_INGESTION_DEFINITION_ID),
@@ -58,8 +89,28 @@ export const zKnowledgeStageReport = z.object({
   executionStepId: zId,
   attemptId: zId,
   scope: zKnowledgeScope,
+  outcome: z.enum([...KNOWLEDGE_STAGE_OUTCOMES]),
+  failure: zKnowledgeStageFailure.nullable(),
+  startedAt: zIsoTime,
+  finishedAt: zIsoTime,
   metrics: zKnowledgeStageMetrics,
-}).strict()
+}).strict().superRefine((value, ctx) => {
+  if (value.outcome === 'FAILED' && value.failure === null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['failure'],
+      message: 'a FAILED stage report requires its BR-022 failure envelope',
+    })
+  }
+  if (value.outcome === 'SUCCEEDED' && value.failure !== null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['failure'],
+      message: 'a SUCCEEDED stage report carries no failure envelope',
+    })
+  }
+  refineReportedInterval(value, ctx)
+})
 
 const zKnowledgeStage17Decision = z.object({
   dataPipelineDefinitionId: z.literal(KNOWLEDGE_INGESTION_DEFINITION_ID),
@@ -75,7 +126,27 @@ const zKnowledgeStage17Decision = z.object({
   verdict: z.enum([...KNOWLEDGE_GATE_VERDICTS]),
   snapshot: zKnowledgeSnapshot.nullable(),
   dimensions: zKnowledgeStage17Dimensions,
+  startedAt: zIsoTime,
+  finishedAt: zIsoTime,
+}).strict().superRefine(refineReportedInterval)
+
+/**
+ * The request to close a knowledge ingestion run. It names the run and its
+ * scope and nothing else — in particular no terminal status: the run's final
+ * state is derived from the ledger by the receiver (ADR-067 D3), never
+ * declared by whoever asks for it.
+ */
+const zKnowledgeRunFinish = z.object({
+  dataPipelineDefinitionId: z.literal(KNOWLEDGE_INGESTION_DEFINITION_ID),
+  executionContractId: z.literal(KNOWLEDGE_INGESTION_CONTRACT_ID),
+  executionRunId: zId,
+  scope: zKnowledgeScope,
+  finishedAt: zIsoTime,
 }).strict()
+
+export function parseKnowledgeRunFinish(input) {
+  return zKnowledgeRunFinish.parse(input)
+}
 
 function assertSnapshotScope(value) {
   if (value.snapshot === null) return
