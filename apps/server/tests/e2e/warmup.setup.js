@@ -72,6 +72,13 @@ const ROUTES = [
   // POST, so the warm-up's GET compiles the module and takes a 405 back;
   // `failOnStatusCode: false` below is what makes that fine.
   '/api/auth/signup',
+  // Same shape, found the same way: fr091's "CRM Dashboard reconciles with the
+  // list" reads both of these through `page.request.get` inside its own
+  // assertion, and on CI the first one died with `read ECONNRESET` — the dev
+  // server dropping the socket while it compiled the handler — then passed on
+  // retry, which `--fail-on-flaky` refuses to call green (run 34101244617).
+  // Both export GET, so the warm-up's GET compiles them for real.
+  '/api/scope', '/api/crm/conversations',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]
