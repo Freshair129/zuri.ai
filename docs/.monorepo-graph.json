@@ -25341,6 +25341,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-step-timings-reporter.test.js",
+      "hash": "0f9cb328",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/e2e-warmup.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/e2e-warmup.test.js",
@@ -80958,6 +80965,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/e2e-warmup.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
@@ -97425,7 +97439,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2318,
+    "server_nodes": 2319,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
