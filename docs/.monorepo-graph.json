@@ -6090,7 +6090,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
       "hash": "02c9b00f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6202,7 +6202,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
       "hash": "fe5171ef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
@@ -6271,7 +6271,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "6b353626",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -9903,8 +9903,8 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "9a8fff48",
-      "status": "current",
+      "hash": "3b5b4a9d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9949,8 +9949,8 @@
       "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
-      "hash": "0a95ba2a",
-      "status": "current",
+      "hash": "98e9992c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
@@ -11359,8 +11359,8 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "dd1403df",
-      "status": "current",
+      "hash": "ac172cea",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11378,8 +11378,8 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "ff0e1238",
-      "status": "current",
+      "hash": "071bf885",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159"
@@ -11390,6 +11390,24 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
+      "hash": "7d42cc35",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-159"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -14405,7 +14423,7 @@
       "version": "1.0.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
       "hash": "11c7c61b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ethics-governance",
@@ -14467,7 +14485,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "4a24bb75",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15458,7 +15476,7 @@
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "72cc4fcb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -15968,7 +15986,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "54782be2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15996,7 +16014,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "05a962f0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -23591,7 +23609,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr060-business-home.spec.js",
       "hash": "be110e35",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr066-waiting-room.spec.js",
@@ -23668,7 +23686,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
       "hash": "9be8d760",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr161-sales-tasks.spec.js",
@@ -23682,14 +23700,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
       "hash": "a35e5c94",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
       "hash": "b27c874a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/marketing-campaigns.spec.js",
@@ -23717,7 +23735,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
       "hash": "5de44954",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -25544,7 +25562,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/fr060-business-home-visibility.test.js",
       "hash": "4658458c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -25859,7 +25877,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/inventory-routes.test.js",
       "hash": "2e6a864c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-chunking.test.js",
@@ -26271,8 +26289,8 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "ea794705",
-      "status": "current"
+      "hash": "95d0cec8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
@@ -46935,6 +46953,20 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
@@ -88172,6 +88204,13 @@
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingState.jsx",
       "type": "tests",
       "status": "current",
@@ -97386,7 +97425,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2317,
+    "server_nodes": 2318,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
