@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-068
-version: "1.0.0"
+version: "1.0.1"
 status: accepted
 created_at: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
-last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 attributes:
   domain: knowledge
   doc_type: architecture-decision
@@ -22,6 +22,8 @@ relations:
 ---
 
 # ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named
+
+> **Current execution overlay (2026-09-08):** [ADR-070](ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) implements the isolated pipeline beyond this historical slice. Use the [17-stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [actual flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md). GKS is passive; the worker pulls through MSP, sends graph receipt before GKS Stage 14, then final write and publication receipts. New evidence carries all six metrics and exact attempt identity. Successful finish requires publication receipt. Older statements here about unbuilt stages, no new models, or direct Tier 4 reporting describe the scope at the original decision date, not the current GenesisRAG17 path.
 
 **Status:** Accepted by owner instruction, 2026-09-07 ("สาย pull ทั้งสาย GKS→MSP→zuri-ai", chosen from four scoped options).
 **Date:** 2026-09-07
@@ -81,3 +83,6 @@ The blocking rule is GKS's CR draft's own ("an unmappable one is logged and bloc
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | accepted | The pull half: spawned-MSP transport, per-scope cursor model, four-way row attribution, and the live three-repository proof; GKS export and MSP relay built the same day in their own repositories | Claude Fable 5.1 |
+
+
+Documentation revision 2026-09-08: identify the ADR-070 execution overlay and extension map while preserving the original decision history (RWANG, base b64b46df).

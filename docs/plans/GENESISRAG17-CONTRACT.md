@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.2.0b"
+version: "1.2.1b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-07T23:00:00+07:00,RWANG"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -15,7 +15,14 @@ relations:
 
 # Approved GenesisRAG17 implementation contract
 
-User approval: explicit implementation request in this task, 2026-09-07. C-3 / HIGH. Synthetic input and isolated databases only. No deployment, LLM extraction, new UI, multiple concurrent input sources or production quality claim. This execution contract implements FR-109 / FR-110 and preserves FR-071 attempt semantics. The existing RCA is `.brain/rca/2026-09-07-genesisrag-17-stage-incomplete.md` in the primary checkout.
+Version 1.2.1b is a documentation clarification; wire `genesisrag17.v1` is unchanged.
+Read [the stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
+[execution/extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) before adding fields
+or changing a stage. All nine tools are defined here: the seven entries below plus
+`graph_receipt` and `stage_failure` in their dedicated sections. Those amendments
+are required parts of the current contract, not optional future operations.
+
+User approval: explicit implementation request in this task, 2026-09-07. C-3 / HIGH. Synthetic input and isolated databases only. No deployment, LLM extraction, new UI, multiple concurrent input sources or production quality claim. This execution contract implements FR-109 / FR-110 and preserves FR-071 attempt semantics. The [RCA](../../.brain/rca/2026-09-07-genesisrag-17-stage-incomplete.md) records the original incomplete-pipeline investigation.
 
 ## Authority and immutable lineage
 
@@ -25,7 +32,7 @@ Tier 1 owns versioned RawExternalRecord -> ParsedArtifact -> Chunk persistence a
 
 All new pipeline messages use camelCase and `schemaVersion: "genesisrag17.v1"`. Legacy promotion/evidence APIs remain readable and unchanged. JSON SHA256 uses recursively sorted object keys, arrays in original order, UTF-8, no whitespace. Hash helpers must reject non-JSON numbers. Text hashes are SHA256 of exact UTF-8 content. Times are ISO UTC. Pipeline scope is the six-field shape `{portfolioId,tenantId,businessId,workspaceId,agentId,visibility}`; all fields are explicit strings (unused workspace/agent empty), visibility private for acceptance. Equality is exact across all six fields. At the legacy GKS resolver boundary, preserve workspaceId, set projectId to empty and map visibility to sharing; agentId is never a projectId. Never derive identity/authorization from caller `actor`.
 
-Every request has `{schemaVersion,scope,...}` plus `credential` at the MSP boundary. Runtime `MSP_PIPELINE_PRINCIPALS` is a JSON array of `{credential,principalId,role,scope}`, roles `source` or `worker`; deny unknown credentials/scope/role before provider invocation. MSP removes the caller credential/actor and adds `relayCredential` configured by `MSP_GKS_PIPELINE_CREDENTIAL`; GKS checks against `GKS_PIPELINE_RELAY_CREDENTIAL`. The worker query server has a separate runtime token configured as `MSP_PIPELINE_WORKER_TOKEN` / `GENESIS_WORKER_QUERY_TOKEN`. No defaults to privileged identities; tests use explicit isolated credentials. Caller roles allow: source submit/evidence/query; worker claim/writeReceipt/gate/publicationReceipt/query. Authenticated identity may be journaled; payloads/credentials may not.
+Every request has `{schemaVersion,scope,...}` plus `credential` at the MSP boundary. Runtime `MSP_PIPELINE_PRINCIPALS` is a JSON array of `{credential,principalId,role,scope}`, roles `source` or `worker`; deny unknown credentials/scope/role before provider invocation. MSP removes the caller credential/actor and adds `relayCredential` configured by `MSP_GKS_PIPELINE_CREDENTIAL`; GKS checks against `GKS_PIPELINE_RELAY_CREDENTIAL`. The worker query server has a separate runtime token configured as `MSP_PIPELINE_WORKER_TOKEN` / `GENESIS_WORKER_QUERY_TOKEN`. No defaults to privileged identities; tests use explicit isolated credentials. Caller roles allow: source submit/evidence/query; worker claim/graph_receipt/write_receipt/stage_failure/gate/publication_receipt/query. Authenticated identity may be journaled; payloads/credentials may not.
 
 Stage identity is `{runId,pipelineStageId,executionStepId,attemptId}`. `runId` is the zuri executionRunId exposed by its API, not a database row ID. A batch carries `stages`, an array of these identities for stages 9–17, and `stageNumber` on each. Stage IDs come from the existing catalog, not generated strings. Every run/step/attempt must be internally consistent. A new real execution receives a new attempt using FR-071; delivery retry retains the identical batch/idempotency key.
 
@@ -38,12 +45,12 @@ MSP names below relay to the same suffix with `gks_` replacing `msp_`. Provider 
 3. `msp_pipeline_write_receipt`: `{receipt}` -> `{accepted:true,receiptHash}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,stages,snapshotId,generation,model,transaction,readback,laneManifest,metrics,benchmark}`. `model` = `{id:"intfloat/multilingual-e5-small",revision:"614241f622f53c4eeff9890bdc4f31cfecc418b3",dimensions:384,metric:"cosine",artifactHashes:{path:sha256}}`. `transaction` = `{id,frontier,checkpoint}` (actual native values represented as JSON-safe strings). `readback` = `{ok,nodeCount,edgeCount,vectorCount,citationCount}` from actual reads. laneManifest has vector,lexical,graph,sqlite,bitemporal,provenance each `{status:"ready"|"not_applicable"|"unsupported",reason,objects}`. Unsupported required capability fails gate. `metrics` maps stage numbers 13,15,16 to all six counters. `benchmark` = `{fixtureVersion,queryCount,recallAt5,mrr,citationCorrectness,crossTenantLeaks}` derived from real queries on frozen fixtures. Runtime identity supplied by authenticated MSP is reporter authority.
 4. `msp_pipeline_gate`: `{decisionId,decisionHash}` -> `{verdict}`. Verdict = `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,verdict:"PASS"|"WARN"|"FAIL",allowPublication,dimensions}`. Each dimension data,graph,knowledge,security,retrieval has `{result:"PASS"|"WARN"|"FAIL",critical:boolean,reasons:[]}`. GKS evaluates immutable source/facts/policy and matching physical receipt; missing receipt cannot pass. Recall@5 >= .80, MRR >= .65, citation correctness == 1, cross tenant leaks == 0. No inferred success or synthesized zero metrics.
 5. `msp_pipeline_publication_receipt`: `{receipt}` -> `{accepted:true}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,publishedAt,pointerHash,modelRevision,transactionFrontier,readback:{ok:true}}`. GKS checks against exact allowed verdict/write receipt before storing, then emits Stage17 terminal evidence. Duplicate identical receipt succeeds; different content for same identity conflicts.
-6. `msp_pipeline_evidence`: `{runId,afterCursor:0,limit:100}` -> `{rows,nextCursor}`. Rows are `{cursor,schemaVersion,scope,runId,pipelineStageId,executionStepId,attemptId,stageNumber,outcome:"SUCCEEDED"|"FAILED",startedAt,finishedAt,metrics,details}`. Metrics exact keys `records_in,records_out,records_quarantined,error_count,retry_count,duration_ms`, all nonnegative finite numbers. One terminal per stage/attempt; stage13 only after write receipt, stage17 only after publication receipt. Stage17 details carry verdict and publicationReceipt; other details counts/digests only. Cursor advances only after durable ledger writes; invalid row stops page consumption. Old legacy evidence never closes a new attempt.
+6. `msp_pipeline_evidence`: `{runId,afterCursor:0,limit:100}` -> `{rows,nextCursor}`. Rows are `{cursor,schemaVersion,scope,runId,pipelineStageId,executionStepId,attemptId,stageNumber,outcome:"SUCCEEDED"|"FAILED",startedAt,finishedAt,metrics,details}`. Metrics exact keys `records_in,records_out,records_quarantined,error_count,retry_count,duration_ms`, all nonnegative finite numbers. One terminal per stage/attempt; successful stage13 only after graph receipt, successful stage17 only after publication receipt; failed terminals follow the failure rules below. Stage17 details carry verdict and publicationReceipt; other details counts/digests only. Cursor advances only after durable ledger writes; invalid row stops page consumption. Old legacy evidence never closes a new attempt.
 7. `msp_pipeline_query` relays to Tier4's loopback POST `/query` (not GKS): `{schemaVersion,scope,query,topK:5,snapshotId?}` -> `{schemaVersion,scope,snapshotId,generation,results:[{id,score,text,citation:{sourceId,rawArtifactId,parsedArtifactId,chunkId,contentHash}}]}`. MSP authenticates source/worker, rejects response scope mismatch. Worker requires bearer runtime token and exact scope. Missing snapshotId selects published pointer exactly once for the entire query; named historical snapshot must match scope. No visible candidate generations. Worker port/address explicit runtime `MSP_PIPELINE_WORKER_URL`; only loopback permitted in this test implementation.
 
 MSP forwards `authenticatedPrincipal: {principalId,role,scope}` from its runtime grant, replacing any caller value. GKS verifies the relay credential and the required role as well as exact scope. The shared scope key uses JSON array serialization of the ordered six values, never an unescaped delimiter join. Source/chunk/mention offsets are UTF-16 code-unit indices as used by JavaScript String.slice; hashes always cover UTF-8 bytes. `laneManifest[lane].objects` is a nonnegative integer count, not an array. Facts and held rows use `id` and `sourceReferences` (one reference object); derived summaries use `id` and `sourceReferences` (array of actual reference objects). A held record need not have canonical endpoints and is never written as a verified assertion. Receipt metric maps contain only keys 13, 15 and 16.
 
-The frozen integration corpus is `apps/server/tests/fixtures/genesisrag17-corpus-v1.json`: eight markdown sections, repeated mentions, five natural-language queries with predeclared relevant texts, and a version-two correction. Tier4 evaluates actual results against those gold texts; it must not generate expected answers from its own ranking output. A worker-local SQLite FTS5 derived index supplies lexical retrieval if the pinned native API has no standalone text index; its manifest identifies that implementation explicitly.
+The frozen integration corpus is `apps/server/tests/fixtures/genesisrag17-corpus-v1.json`: eight markdown sections, repeated mentions, five natural-language queries with predeclared relevant texts, and a version-two correction. Tier4 evaluates actual results against those gold texts; it must not generate expected answers from its own ranking output. The current worker-local SQLite FTS5 derived index supplies lexical retrieval because the pinned native API has no standalone text index; its manifest reason is `worker_sqlite_fts5`.
 
 ## Fixed processing baseline
 
@@ -75,6 +82,7 @@ Acceptance begins at raw Tier1 entrypoint, with multiple chunks and repeated men
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.2.1b | 2026-09-08 | active | Consolidate current nine-operation authority, graph receipt ordering and extension navigation; wire unchanged | RWANG |
 | 1.0.0b | 2026-09-07 | active | User-approved isolated execution and wire freeze | RWANG |
 | 1.1.0b | 2026-09-07 | active | Separate graph acknowledgement preserves actual 13 -> 14 -> 15 -> 16 execution order and operation timestamps | RWANG |
 | 1.2.0b | 2026-09-07 | active | Authenticated stage failures terminate honestly; publication receipt required only for successful completion | RWANG |

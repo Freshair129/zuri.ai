@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T17:09:06.214Z",
+  "generatedAt": "2026-09-07T17:59:31.344Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1726,7 +1726,7 @@
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
           "testCount": 38
@@ -2166,7 +2166,7 @@
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
           "testCount": 38
@@ -3706,7 +3706,7 @@
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
           "testCount": 38
@@ -5171,7 +5171,7 @@
     },
     {
       "id": "FEAT-013",
-      "title": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-070; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [

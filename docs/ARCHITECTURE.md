@@ -7,12 +7,20 @@ relations:
     target: ZAI:ADR-062
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
-version: "0.2.1b"
+version: "0.2.2b"
 status: candidate
-last_update: "2026-09-06T15:40:00+07:00,CLAUDE"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 ---
 
 # Architecture
+
+> Knowledge execution update (2026-09-08): [ADR-070](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+> implements the isolated GenesisRAG17 profile across four repositories. The
+> [spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
+> [execution flow / extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) are the
+> architecture entrypoints for adding ingestion or retrieval capabilities:
+> zuri 1–8, MSP authentication/relay, passive GKS decisions/gate, separate
+> GenesisBlock worker writes/publication. This adds no production authorization.
 
 > Current authority (2026-09-06): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs server-owned LINE and optional Edge computation. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) governs the approved `apps/server` / `apps/edge` source layout; runtime and release boundaries remain independent.
 

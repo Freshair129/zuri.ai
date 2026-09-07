@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-116
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-116 — Derived-object provenance and the lineage chain back to a source
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 3 and downstream provenance: GenesisRAG17 persists raw/parsed/chunk lineage and carries fact/derived source references through physical graph and citation readback. Extend evidence location fields across owners, not only this pure validator.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -232,3 +238,6 @@ Each criterion is checked when a test in
 - [PRD-SDD v1.0 — FR-116, SDD-064, FR-071, SDD-042](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 3 in Tier 1 and names FR-071 / SDD-042 as the existing piece
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §8 (Stage 3) is the source requirement: the ten fields, the chain diagram and the invariant
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

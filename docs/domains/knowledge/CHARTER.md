@@ -1,5 +1,8 @@
 ---
 domain: knowledge
+version: "1.1.0b"
+status: beta
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 module: src/modules/knowledge
 owns_models:
   - KnowledgeRawArtifact
@@ -12,6 +15,15 @@ owns_models:
 ---
 
 # Domain charter — knowledge
+
+Current GenesisRAG17 execution and extension authority:
+[17-stage spec](../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
+[flow / stage-to-feature map](../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md),
+[ADR-070](../../decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md).
+The isolated profile runs all 17 stages across four repositories; this domain owns
+only Tier 1 preparation, durable lineage and receipt-bound evidence. Existing pure
+FR-111–118 modules retain their own contracts; the GenesisRAG17 adapter uses the
+specific text/private-policy profile described in the flow, not every target capability.
 
 Canonical business knowledge (GKS): what the system knows as governed fact —
 product identity, business rules, approved answers. Distinct by authority, not
@@ -206,22 +218,23 @@ derives what closing a run may write; neither opens a database. The envelopes
 in `published-snapshot-contract.js` gained `outcome`, `failure`, `startedAt`
 and `finishedAt`.
 
-Still open, and still not authorized by this charter:
+Current isolated execution and remaining production boundary (ADR-070):
 
 - No route or caller invokes `evaluateKnowledgePublication` in production; it
   has unit-test callers only. Publication is the external tiers' act; the
   receiver records their decision rather than making one.
-- GKS's evidence now arrives, by pull (ADR-068): the integration lane's
-  `pullKnowledgeStageEvidence` reads `gks_stage_evidence_export` through
-  MSP's relay and applies it through the receiver, and Stage 9's evidence from
-  the real GKS has landed on this ledger in a live three-repository test.
-  Stages 10–14 report the same way once GKS builds them — its Stage 10 and 12
-  designs were still `proposed` on 2026-09-07 — and GenesisBlockDB's half of
-  13/15/16/17 still has no route in its own repository.
-- Atomic publication (the write that makes a snapshot the one a retrieval
-  reads) is not built here or anywhere in this repository.
-- No model. The four reporter routes are authorized by ADR-067; nothing else
-  beyond the validation module is authorized by FR-110.
+- ADR-068's legacy `gks_stage_evidence_export` path remains distinct. The new
+  `genesisrag17.v1` source worker submits one batch per Stage 9 attempt and pulls
+  exact-attempt evidence through MSP. GKS 9–14 and the quality gate, plus the
+  separate GenesisBlock worker's physical 13/15/16/publication, are implemented
+  and exercised in the isolated [acceptance report](../../../.brain/reports/GENESISRAG17-ACCEPTANCE.md).
+  Legacy evidence without attempt identity cannot close a new attempt.
+- Atomic publication lives in the GenesisBlock worker. Tier 1 imports its
+  matching receipt and refuses successful finish without it; Tier 1 never
+  owns or mutates the published pointer or candidate indexes.
+- ADR-070 authorizes seven local lineage/batch/evidence/cursor/receipt models
+  listed in this charter and the source worker. This supersedes the historical
+  no-new-model slice limit, not the prohibition on a Tier 1 canonical fact store.
 
 ## Public contract
 
@@ -237,3 +250,10 @@ ingestion lane above, never here.
   purpose and SDD-062 pins why: widening what knowledge may CARRY must not
   widen what knowledge is SERVED, and the filter is not stale code awaiting a
   matching update.
+
+
+## Documentation version diff — 2026-09-08
+
+| Version | Change | Runtime impact |
+|---|---|---|
+| unversioned → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

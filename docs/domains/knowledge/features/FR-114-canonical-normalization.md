@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-114
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-114 — Canonical normalization that never destroys the raw value
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 4: GenesisRAG17 computes canonical and raw text hashes with the normalization helper. It retains original text for parsing/chunks rather than rewriting it; transformed text needs a versioned provenance/offset contract.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -219,3 +225,6 @@ test names it; AC-114.25…29 pin five of the six by name.
 - [PRD-SDD v1.0 — FR-114, SDD-061, SDD-060, BR-021](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 4 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §9 (Stage 4) is the source requirement; §3.1 is the invariant it makes structural
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

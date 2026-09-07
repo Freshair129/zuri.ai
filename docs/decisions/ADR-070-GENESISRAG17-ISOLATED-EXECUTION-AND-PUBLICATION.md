@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-070
 title: GenesisRAG17 isolated execution and publication
-version: "1.0.0b"
+version: "1.1.0b"
 status: beta
 created_at: "2026-09-07T22:19:00+07:00,RWANG,base b17e7258"
-last_update: "2026-09-07T22:19:00+07:00,RWANG"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -84,10 +84,18 @@ The detailed wire contract is an architecture-support document under `docs/plans
 
 ## Verification
 
+The [specification](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) now marks the actual
+profile at each stage; the [execution flow and extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+names owners, inputs/outputs, terminal receipts and code/test locations for future
+changes. [Recorded acceptance](../../.brain/reports/GENESISRAG17-ACCEPTANCE.md) contains
+the implementation run evidence. This documentation revision does not change the
+wire schema, pins, scope or production authorization.
+
 Acceptance starts at raw entrypoint, never direct promotion or stage-result injection. Required evidence includes all17 stages/six metrics, repeated mentions/multiple chunks, real retrieval citations and restart lineage, duplicate/reply-loss/crash/replay/cursor tests, wrong-tenant/policy rejection, pointer crash recovery, correction with old citations, and receipt-required finish. Frozen test fixture thresholds are Recall@5 >= .80, MRR >= .65, citation correctness 1.00 and cross-tenant leakage zero. They are test-corpus results, not production quality claims. All repo tests/build/checks, non-skipped integration and governance must pass before completion.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-09-08 | beta | Link actual per-stage profile, extension map and recorded acceptance without changing runtime scope | base b64b46df | RWANG |
 | 1.0.0b | 2026-09-07 | beta | Approved isolated durable 17-stage execution and receipt-bound atomic publication | base b17e7258 | RWANG |

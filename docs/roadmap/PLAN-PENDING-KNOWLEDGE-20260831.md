@@ -1,7 +1,7 @@
 ---
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-08-31T03:43:30+07:00,ATHER,424f5fab525d20fdf1180fabee4c8cf9d16dd994"
-last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -17,6 +17,10 @@ attributes:
 # แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop
 
 เอกสารนี้เป็นข้อเสนอระดับ **C-3 / HIGH** สำหรับช่วงที่เหลือของ knowledge ingestion และการเชื่อมต่อข้าม Tier โดยตั้งใจให้ parent นำไปวางที่ `docs/roadmap/` หลัง review. เป็นแผนตรวจสอบสัญญา เจ้าของ และหลักฐาน ไม่ใช่การประกาศว่า external runtime หรือ production พร้อมแล้ว
+
+## สถานะส่วน GenesisRAG17 ณ 2026-09-08
+
+ข้อเสนอ Stage 10–17 ในเอกสารนี้มี implementation สำหรับ isolated test profile แล้วตาม [ADR-070](../decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md), [spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md), [flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) และ [acceptance report](../../.brain/reports/GENESISRAG17-ACCEPTANCE.md). รายการ pending และ checkout paths เดิมด้านล่างเป็นบริบทตอนเสนอแผน ไม่ใช้เป็นหลักฐานว่าทุก stage ยังไม่สร้าง; production, broader SoT loop และความสามารถนอก profile ไม่ได้ปิดตามไปด้วย.
 
 ## ขอบเขตและกติกาการหยุด
 

@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-118
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-118 — Tier 1 stage composition
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stages 1–8: the original pure synchronous composition below remains separate. ADR-070 adds genesisrag17-executor.js, which persists each stage and reports its actual failing attempt before its durable Stage 9 handoff. Historical statements below about the next wiring slice describe this original composition, not absence of the new executor.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -118,3 +124,6 @@ later reader does not have to re-derive them:
 - [PRD-SDD v1.0 — FR-118, SDD-068](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage
   Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

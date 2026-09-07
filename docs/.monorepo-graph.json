@@ -14169,7 +14169,7 @@
       "path": "docs/.rwang-progress.md",
       "title": "GenesisRAG17 implementation progress",
       "hash": "d7733331",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:A-api-spec",
@@ -14186,7 +14186,7 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "e6f83a9f",
+      "hash": "a4d061c5",
       "status": "current"
     },
     {
@@ -14194,9 +14194,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE-DIAGRAMS.md",
       "title": "Architecture Diagrams — Zuri V2",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "doc_status": "Draft",
-      "hash": "d81f905f",
+      "hash": "f3dc449d",
       "status": "current"
     },
     {
@@ -14499,9 +14499,9 @@
       "type": "document",
       "path": "docs/SYSTEM-DIAGRAM.md",
       "title": "System Diagram — zuri-ai ทั้งระบบ",
-      "version": "1.0.0",
+      "version": "1.1.0b",
       "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
-      "hash": "e5b570d1",
+      "hash": "bd50ce16",
       "status": "current",
       "identity_migration": {
         "repository": "Freshair129/zuri.ai",
@@ -14604,7 +14604,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "4a24bb75",
+      "hash": "66d5e539",
       "status": "current"
     },
     {
@@ -15179,7 +15179,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "8a0fff3d",
+      "hash": "cd34a9ef",
       "status": "current"
     },
     {
@@ -15187,7 +15187,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
-      "hash": "4b5ade5f",
+      "hash": "29a19bd4",
       "status": "current"
     },
     {
@@ -15195,7 +15195,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
-      "hash": "bd731cee",
+      "hash": "e16bb5e7",
       "status": "current"
     },
     {
@@ -15203,7 +15203,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
       "title": "FR-112 — Structural knowledge chunking with parent-child lineage",
-      "hash": "c67bed21",
+      "hash": "91ebee00",
       "status": "current"
     },
     {
@@ -15211,7 +15211,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
       "title": "FR-113 — Entity candidate extraction from chunks and structured records",
-      "hash": "a1bd1a18",
+      "hash": "abf258b3",
       "status": "current"
     },
     {
@@ -15219,7 +15219,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
       "title": "FR-114 — Canonical normalization that never destroys the raw value",
-      "hash": "4dc054ba",
+      "hash": "53639e0c",
       "status": "current"
     },
     {
@@ -15227,7 +15227,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-115-document-parsing.md",
       "title": "FR-115 — Document parsing into a structured artifact that keeps its link to the raw source",
-      "hash": "7eb68252",
+      "hash": "182aac64",
       "status": "current"
     },
     {
@@ -15235,7 +15235,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
       "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
-      "hash": "4e7fa5fc",
+      "hash": "0ebd952c",
       "status": "current"
     },
     {
@@ -15243,7 +15243,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
       "title": "FR-117 — Deduplication and version relationships within one tenant",
-      "hash": "852b88ae",
+      "hash": "983b57b1",
       "status": "current"
     },
     {
@@ -15251,7 +15251,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
       "title": "FR-118 — Tier 1 stage composition",
-      "hash": "6510c5d7",
+      "hash": "8c56006e",
       "status": "current"
     },
     {
@@ -15565,7 +15565,7 @@
       "type": "document",
       "path": "docs/plans/GENESISRAG17-CONTRACT.md",
       "title": "Approved GenesisRAG17 implementation contract",
-      "hash": "fea3e2cb",
+      "hash": "b3ef2bc6",
       "status": "current"
     },
     {
@@ -15607,13 +15607,21 @@
       "status": "current"
     },
     {
+      "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "document",
+      "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "title": "GenesisRAG17 — execution flow and extension map",
+      "hash": "da0de1b4",
+      "status": "current"
+    },
+    {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
       "title": "Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "version": "1.0.0",
-      "doc_status": "Draft — adopted as the source specification by ADR-050",
-      "hash": "4685378c",
+      "version": "1.1.0b",
+      "doc_status": "Beta — product specification with verified isolated execution profile",
+      "hash": "067c9544",
       "status": "current"
     },
     {
@@ -16071,7 +16079,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
-      "hash": "c7362d44",
+      "hash": "ffac913f",
       "status": "current"
     },
     {
@@ -16113,7 +16121,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "54782be2",
+      "hash": "6aae737a",
       "status": "current"
     },
     {
@@ -16141,7 +16149,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "05a962f0",
+      "hash": "c531cc1d",
       "status": "current"
     },
     {
@@ -16604,7 +16612,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "40425afe",
+      "hash": "f0f282a8",
       "status": "current"
     },
     {
@@ -16873,7 +16881,7 @@
     {
       "id": "feat:FEAT-013",
       "type": "feature",
-      "label": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "label": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-070; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
       "declared": "building",
       "status": "current"
     },
@@ -18930,9 +18938,9 @@
       "family": "FR",
       "label": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29, extended 2026-09-07 — 8 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.3 (`RawExternalRecord.artifactId` — nullable, indexed — plus a scoped `findByArtifactId` read, so a knowledge-ingestion run's `artifact_id` resolves back to the raw payload FR-081 already stores; proven against the real database), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic), and AC-109.11 (ADR-067 D4, 2026-09-07 — `knowledgeJobState` derives the §5 job state from the run's stored status, the step board and the newest Stage 17 decision with no clock, so `PUBLISHED` has one derivation: a run closed `SUCCEEDED` behind an `APPROVED`, publishable gate; served by `GET /api/pipelines/knowledge/{executionRunId}`), and AC-109.12 (ADR-067 + ADR-068 — the receiver, and the pull that feeds it: `pullKnowledgeStageEvidence` reads GKS's `gks_stage_evidence_export` through MSP's relay and applies it through the receiver; proven live across the three repositories with a Stage 9 execution in the real GKS landing as `DPS-KI-ENTITY-RESOLVE` on the run that asked for it; stages 10–14 report the same way once GKS builds them, and zuri-ai executes none of the nine). The remaining five: AC-109.5 waits on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020's two metrics that have no ledger column plus GKS building stages 10–14, and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. AC-109.3 added one nullable, indexed column to FR-081's own `RawExternalRecord` — not a new model, and not one the knowledge domain owns (its `owns_models` stays empty, ADR-050 D4); 37 unit tests, three real-database integration suites for the Tier 1 execution slice, plus 7 new unit tests and one new real-database integration test for AC-109.3's binding "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). 🟠 product-wide partial; isolated GenesisRAG17 implemented under ADR-070 (2026-09-07), documentation reconciled 2026-09-08. The existing FR-071 catalog/ledger is reused; seven separate lineage/batch/evidence/cursor/receipt models add immutable raw → parsed → chunk storage, one Stage 9 batch per attempt, all six wire metrics and exact-attempt import. Actual GKS 9–14 plus GenesisBlock physical 13/15/16 and receipt-backed 17 run through MSP. Duplicate delivery, replay, late evidence, restart lineage and source-to-published citations are covered in the [acceptance report](../.brain/reports/GENESISRAG17-ACCEPTANCE.md). The [stage flow](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) maps extension points; the FR note preserves earlier AC/slice history and broader product gaps. No production deployment or complete product-wide AC claim. "
     },
     {
       "id": "req:FR-110",
@@ -18942,7 +18950,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 partial — 2026-08-31: strict snapshot and Stage 9–16 aggregate-report contracts, Stage 17 evidence/quality guard and server-run scope binding; 2026-09-07 (ADR-067, owner-decided reporter credential): the reporter receiver — Stage 9–16 reports carrying outcome, BR-022 failure and execution times, the Stage 17 decision recorded as gate evidence on the run's materialised step (AC-110.4 closed), the run close derived from the ledger and never declared by a caller, the job read, and four routes under `/api/pipelines/knowledge/{executionRunId}` authenticating the run's Tenant's FR-102 data-plane key; proven against the real database and end to end through the route handlers; 2026-09-07 (ADR-068): the pull half — the spawned-MSP transport, `KnowledgeEvidenceCursor` (per-scope cursor, advanced only past rows that landed), `pullKnowledgeStageEvidence` with four-way row attribution and `POST /api/pipelines/knowledge/evidence/pull` — proven live across zuri-ai → MSP → GKS with Stage 9 evidence from the real GKS on this ledger. Atomic publication, retrieval and GraphRAG readiness remain GKS/GenesisBlockDB's "
+      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 product-wide partial; legacy strict snapshot/reporter/pull contracts remain. ADR-070 isolated acceptance additionally verifies GKS five-dimension gate, native worker atomic publication, scoped MSP query/citations, retained historical snapshots and finish requiring the exact publication receipt. Quality PASS without policy permission or receipt cannot close success. The new genesisrag17.v1 receipt/query profile is distinct from the full legacy snapshot/GraphRAG readiness contract; production and broader query orchestration are not claimed. See [spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md), [flow](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) and [recorded acceptance](../.brain/reports/GENESISRAG17-ACCEPTANCE.md). "
     },
     {
       "id": "req:FR-111",
@@ -19710,9 +19718,9 @@
       "family": "NFR",
       "label": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. ✅ implemented 2026-08-28 for four of six per-stage metrics — `records_in`/`records_out`/`records_failed` (SDD-070, reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns, unwritten since FR-071) and `processing_time` (already computed as `durationMs` in `getPipelineMonitor`'s stage timeline from timestamps SDD-069 already sets — no new field needed). `records_quarantined` and `retry_count` stay unwired: BR-022 and replay-within-run don't exist for knowledge ingestion, so there is nothing real to report, and a stored 0 would repeat the exact defect this same slice found and fixed on `PipelineRun` — see the note below. All seven pipeline-level metrics stay declined: six need FR-110, GKS or GenesisBlockDB; `ingestion_lag` looked cheap (`run.createdAt` minus the artifact's own `ingested_at`) until checking found `PipelineRun` stores no such field — computing it would add one, which is schema growth this slice did not set out to do. spec §32; carried on the FR-109 job trace; declared 2026-08-27 "
+      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. 🟠 partial overall. The legacy ledger computes four metrics; ADR-070 GenesisRAG17StageEvidence additionally persists all six frozen wire counters: records_in, records_out, records_quarantined, error_count, retry_count, duration_ms with actual operation timestamps. The wire names error_count/duration_ms are not a rename of this requirement's records_failed/processing_time, and this isolated proof does not establish every product-wide pipeline aggregate listed here. See the [wire contract](plans/GENESISRAG17-CONTRACT.md) and acceptance report for measured evidence; earlier two-unwired-counter limitation describes the legacy slice only. "
     },
     {
       "id": "req:NFR-021",
@@ -20298,11 +20306,11 @@
       "id": "req:SDD-057",
       "type": "requirement",
       "family": "SDD",
-      "label": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it.",
+      "label": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. Current scope clarification (ADR-070, 2026-09-08): the contract/catalog parameterization is implemented. The prohibition is on a second execution ledger; the approved isolated slice adds seven lineage/batch/evidence/cursor/receipt models without replacing FR-071. Historical present-tense statements above describe the declaration baseline.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. FR-109; FR-071, SDD-042, ADR-030, ADR-050 "
+      "row_text": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. Current scope clarification (ADR-070, 2026-09-08): the contract/catalog parameterization is implemented. The prohibition is on a second execution ledger; the approved isolated slice adds seven lineage/batch/evidence/cursor/receipt models without replacing FR-071. Historical present-tense statements above describe the declaration baseline. FR-109; FR-071, SDD-042, ADR-030, ADR-050 "
     },
     {
       "id": "req:SDD-058",
@@ -20318,11 +20326,11 @@
       "id": "req:SDD-059",
       "type": "requirement",
       "family": "SDD",
-      "label": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known.",
+      "label": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. Current scope clarification (ADR-070, 2026-09-08): chunking.js remains pure. The approved separate GenesisRAG17 adapter now persists KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk through repository interfaces; the charter lists its seven models. The historical owns_models-empty and persistence-pending statements apply to this original calculator slice, not the current adapter.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
+      "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. Current scope clarification (ADR-070, 2026-09-08): chunking.js remains pure. The approved separate GenesisRAG17 adapter now persists KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk through repository interfaces; the charter lists its seven models. The historical owns_models-empty and persistence-pending statements apply to this original calculator slice, not the current adapter. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
     },
     {
       "id": "req:SDD-060",
@@ -23571,7 +23579,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
-      "hash": "acd5da12",
+      "hash": "5dfe64c4",
       "status": "current"
     },
     {
@@ -23707,7 +23715,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
       "title": "ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported",
-      "hash": "492ab36c",
+      "hash": "2e83efa8",
       "status": "current"
     },
     {
@@ -23715,7 +23723,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
       "title": "ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named",
-      "hash": "068cbed2",
+      "hash": "14188702",
       "status": "current"
     },
     {
@@ -23731,8 +23739,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
       "title": "ADR-070 — GenesisRAG17 isolated execution and publication",
-      "hash": "743fc356",
-      "status": "changed"
+      "hash": "31d6e08a",
+      "status": "current"
     },
     {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
@@ -51696,6 +51704,27 @@
     },
     {
       "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:docs/SYSTEM-DIAGRAM",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
       "to": "doc:PRODUCT",
       "type": "references",
       "source": "markdown",
@@ -51738,6 +51767,20 @@
     },
     {
       "from": "doc:ARCHITECTURE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
@@ -51762,6 +51805,13 @@
       "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -52054,6 +52104,20 @@
     {
       "from": "doc:docs/SYSTEM-DIAGRAM",
       "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52501,6 +52565,13 @@
     },
     {
       "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -52565,6 +52636,13 @@
     {
       "from": "doc:FR-110-published-knowledge-snapshot-contract",
       "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52641,6 +52719,13 @@
     },
     {
       "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -52704,6 +52789,13 @@
     },
     {
       "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -52754,6 +52846,13 @@
     {
       "from": "doc:FR-113-entity-candidate-extraction",
       "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52817,6 +52916,13 @@
     {
       "from": "doc:FR-114-canonical-normalization",
       "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52886,6 +52992,13 @@
     },
     {
       "from": "doc:FR-115-document-parsing",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -52950,6 +53063,13 @@
     {
       "from": "doc:FR-116-derived-object-provenance",
       "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -53033,6 +53153,13 @@
     },
     {
       "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -53055,6 +53182,20 @@
     {
       "from": "doc:FR-117-deduplication-and-versioning",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -53383,6 +53524,20 @@
     },
     {
       "from": "doc:GENESISRAG17-CONTRACT",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-CONTRACT",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-CONTRACT",
       "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "relates",
       "source": "metadata",
@@ -53487,10 +53642,66 @@
       "status": "current"
     },
     {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "req:FR-109",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "req:FR-110",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "type": "references",
-      "source": "markdown",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -54447,6 +54658,20 @@
     },
     {
       "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
       "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
       "type": "references",
       "source": "markdown",
@@ -54504,6 +54729,13 @@
     {
       "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -54643,6 +54875,27 @@
     },
     {
       "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
@@ -54714,6 +54967,20 @@
     {
       "from": "doc:PRODUCT",
       "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -55057,6 +55324,27 @@
     {
       "from": "domain:inventory",
       "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -62714,6 +63002,20 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "domain:knowledge",
       "type": "references",
       "source": "markdown",
@@ -63428,6 +63730,20 @@
     },
     {
       "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
       "source": "metadata",
@@ -63471,6 +63787,20 @@
     {
       "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "to": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -63541,6 +63871,20 @@
     {
       "from": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -98136,7 +98480,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2340,
+    "server_nodes": 2341,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

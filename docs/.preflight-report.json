@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 342,
+    "docs": 343,
     "routes": 199,
     "test_files": 540
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 23,
+    "info": 25,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -76,23 +76,12 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/knowledge/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I7",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
         "docs/domains/market-intelligence/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I8",
+      "id": "I7",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -103,7 +92,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I9",
+      "id": "I8",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -114,7 +103,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I10",
+      "id": "I9",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -125,7 +114,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -136,7 +125,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I12",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -147,7 +136,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "I12",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -158,7 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I14",
+      "id": "I13",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -169,7 +158,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I15",
+      "id": "I14",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -180,7 +169,93 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
+      "id": "I15",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "FEAT-013 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 2eb3b8cf812a3a450c5be785a8481e82358273778a23c7a161adbe4b290d8fc0 → 463961acf9f23deca7a1e85698942adb7c6c36c6359a280766006e1aa7feb699 · citation files: docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md, docs/GAP-ANALYSIS-ZURI-GOVIBE.md, docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md, docs/PRD-SDD-v1.0.md, docs/roadmap/ROADMAP.md, docs/SYSTEM-DIAGRAM.md, docs/TRACE.md",
+      "files": [
+        "docs/FEATURES.md",
+        "docs/.id-ledger.json",
+        "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
+        "docs/GAP-ANALYSIS-ZURI-GOVIBE.md",
+        "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+        "docs/PRD-SDD-v1.0.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/SYSTEM-DIAGRAM.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-013 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
       "id": "I16",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "SDD-057 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 755306dfbb770e31902c7bde38241a46491071dbfa9f8372ba232b919c9bb11a → 71c6dd73ce82b1b0074c332de80b9ebd82b4eee88a7c8632d818df272fc09bc8 · citation files: src/modules/knowledge/ingestion-job.js, src/modules/knowledge/published-snapshot-contract.js, src/platform/integrations/core/knowledge-evidence-importer.js, src/platform/integrations/core/knowledge-ingestion-executor.js, src/platform/integrations/core/pipeline-tracking-contract.js, tests/integration/fr109-knowledge-ingestion-executor.test.js, tests/integration/fr110-knowledge-evidence-importer.test.js, tests/unit/knowledge-ingestion-job-state.test.js, tests/unit/knowledge-ingestion-job.test.js, tests/unit/knowledge-published-snapshot-contract.test.js, tests/unit/platform/knowledge-ingestion-catalog.test.js, prisma/schema.postgres.prisma",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/modules/knowledge/ingestion-job.js",
+        "src/modules/knowledge/published-snapshot-contract.js",
+        "src/platform/integrations/core/knowledge-evidence-importer.js",
+        "src/platform/integrations/core/knowledge-ingestion-executor.js",
+        "src/platform/integrations/core/pipeline-tracking-contract.js",
+        "tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "tests/integration/fr110-knowledge-evidence-importer.test.js",
+        "tests/unit/knowledge-ingestion-job-state.test.js",
+        "tests/unit/knowledge-ingestion-job.test.js",
+        "tests/unit/knowledge-published-snapshot-contract.test.js",
+        "tests/unit/platform/knowledge-ingestion-catalog.test.js",
+        "prisma/schema.postgres.prisma",
+        "prisma/schema.prisma",
+        "supabase/migrations/20260906090000_raw_external_record_artifact_id.sql",
+        "supabase/migrations/20260907120000_knowledge_evidence_cursor.sql",
+        "docs/appendices/D-traceability.md",
+        "docs/change-requests/CR-003-ACCEPTED-SHAPE.md",
+        "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
+        "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
+        "docs/domains/knowledge/CHARTER.md",
+        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
+        "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
+        "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
+        "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+        "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+        "docs/FEATURE-MAP.md",
+        "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-057 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I17",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "SDD-059 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 4d56725ca23906aadd63a03fe27c4c48bd771d97a65251907c26afe551433c8e → 80b61b4a1fb49241e1e0b1b1b8e352a3e8d7eb83c1b7a41b8676d3f5a74b16ae · citation files: src/modules/knowledge/chunking.js, src/modules/knowledge/genesisrag17-source.js, tests/unit/genesisrag17-source.test.js, prisma/schema.postgres.prisma, prisma/schema.prisma, docs/appendices/D-traceability.md, docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md, docs/domains/knowledge/CHARTER.md, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md, docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md, docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/modules/knowledge/chunking.js",
+        "src/modules/knowledge/genesisrag17-source.js",
+        "tests/unit/genesisrag17-source.test.js",
+        "prisma/schema.postgres.prisma",
+        "prisma/schema.prisma",
+        "docs/appendices/D-traceability.md",
+        "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
+        "docs/domains/knowledge/CHARTER.md",
+        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
+        "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
+        "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+        "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-059 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I18",
       "severity": "info",
       "check": "id-stability",
       "title": "520 id(s) pinned across 10 families",
@@ -191,7 +266,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I17",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -202,7 +277,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I18",
+      "id": "I20",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -213,7 +288,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I19",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -224,10 +299,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 342 document(s)",
+      "title": "table integrity checked in 343 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -235,7 +310,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I21",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -247,7 +322,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I22",
+      "id": "I24",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 75 file(s) that write audit events",
@@ -256,7 +331,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I25",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1698 column(s) across 128 model(s) against 55 migration(s)",

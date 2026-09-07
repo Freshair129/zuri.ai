@@ -21,6 +21,16 @@ not a version of, and shares nothing with, the legacy zuri project.
 - [ADR / FR / phase templates](docs/templates/) — copy a `.md.template`, replace placeholders, then run `npm run govern`
 - [Document crosslinks and backlinks](docs/DOCUMENT-LINKS.md) — generated navigation
 
+## GenesisRAG17 documentation
+
+The isolated 17-stage ingestion pipeline has its own [specification](docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
+[execution flow and extension map](docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md),
+[wire contract](docs/plans/GENESISRAG17-CONTRACT.md) and
+[acceptance evidence](.brain/reports/GENESISRAG17-ACCEPTANCE.md).
+Start with the extension map to choose the stage and owning repo for a new feature.
+It distinguishes the implemented synthetic test profile from the broader product target;
+production deployment remains a separate task.
+
 ## Planning import contracts
 
 Project Manager keeps one canonical per-Project intake contract:

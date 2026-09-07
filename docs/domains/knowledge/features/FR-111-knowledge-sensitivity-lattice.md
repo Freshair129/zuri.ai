@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-111
 module: knowledge
 source: v2-native
-version: "0.1.1b"
+version: "0.1.2b"
 status: "implemented"
 ---
 
 # FR-111 — Knowledge sensitivity lattice and processing policy
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 5: the GenesisRAG17 adapter currently records exact private scope and allowEmbedding/allowPublication flags. This pure sensitivity lattice remains a broader contract; adding sensitivity requires coordinated MSP, GKS, worker and query enforcement.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -333,3 +339,6 @@ already passable.
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §3.3, §10 (Stage 5), §34, §35 are the sections
   this note elaborates
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

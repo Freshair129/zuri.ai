@@ -3,13 +3,21 @@ domain: knowledge
 feature: FR-110
 module: knowledge
 source: v2-native
-version: "0.4.0b"
+version: "0.5.0b"
 status: "partial"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 ---
 
 # FR-110 — Published knowledge snapshot contract
 
 ## Intent
+
+**Current execution profile:** the [17-stage flow](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+and [spec](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) distinguish the implemented
+isolated pipeline from this product-wide snapshot contract. GKS decides the gate;
+the separate GenesisBlock worker publishes and serves scoped queries through MSP;
+Tier 1 records receipts and enforces finish. The older KNO reporter/evidence slices
+below remain historical context, not the complete current runtime surface.
 
 FR-110 makes published knowledge readable only as a whole, identified
 publication. A consumer must be able to name the corpus an answer came from,
@@ -193,9 +201,12 @@ write a retrieval substrate. The run-close path requires exact equality of
 `receiptHash` between the Stage 17 evidence and the publication receipt. A
 missing, mismatched or security-invalid receipt leaves the run open or failed.
 
-The retrieval query remains an MSP-relayed contract. Its response is accepted
-only when the response scope and cited source/chunk provenance match the
-request; Tier 1 does not select candidate generations or infer a published
+The retrieval query remains an MSP-relayed contract. Tier 1 validates response
+scope, the strict citation shape and an explicitly requested snapshot identity;
+the separate `resolveGenesisRag17RawLineage` call verifies cited raw/parsed/chunk
+parents, source substrings and content hashes. The acceptance suite exercises
+that resolution after restart; query shape validation alone is not lineage
+resolution. Tier 1 does not select candidate generations or infer a published
 pointer. The wire shapes and source-worker batch/cursor durability rules are frozen in
 [`GENESISRAG17-CONTRACT.md`](../../../plans/GENESISRAG17-CONTRACT.md).
 
@@ -203,7 +214,12 @@ Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
 what FR-110 owns — the gate, the publication and the snapshot. The KNO-01
 contract slice and the zuri-ai half of KNO-02 — the reporter receiver, the
 Stage 17 decision writer and the derived run close (ADR-067, 2026-09-07) —
-are implemented; publication and retrieval remain open.
+are implemented. ADR-070 additionally proves native atomic publication and scoped
+retrieval in the isolated profile. The unchecked criteria below retain their
+broader product-wide scope (including the legacy snapshot shape); they are not
+an assertion that the tested pipeline lacks publication or query. See the
+[acceptance report](../../../../.brain/reports/GENESISRAG17-ACCEPTANCE.md) for the
+exact evidence and deployment limits.
 
 - [ ] **AC-110.1** A published snapshot carries `knowledge_snapshot_id`,
       `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`,
@@ -324,6 +340,7 @@ decision rather than making one.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0b | 2026-09-08 | partial | Reconcile isolated publication/query/finish proof with product-wide acceptance; add stage extension navigation | base b64b46df | RWANG |
 | 0.4.0b | 2026-09-07 | partial | ADR-068: the pull half — spawned-MSP transport, `KnowledgeEvidenceCursor`, `pullKnowledgeStageEvidence` with four-way row attribution, `POST /api/pipelines/knowledge/evidence/pull`; proven live against the real MSP and GKS (Stage 9 evidence on this ledger) | working-tree | Claude Fable 5.1 |
 | 0.3.0b | 2026-09-07 | partial | ADR-067: reporter receiver for Stages 9–16, Stage 17 decision writer (AC-110.4 closed), derived run close, job read, four routes under the FR-102 data-plane key; envelopes gain outcome/failure/times | working-tree | Claude Fable 5.1 |
 | 0.2.0b | 2026-08-31 | partial | Implemented the KNO-01 strict Stage 9–16 aggregate report, FR-110 snapshot allow-list, Stage 17 decision/evidence projection, scope binding and publication precondition evaluator; atomic publication remains out of scope | working-tree | ATHER |

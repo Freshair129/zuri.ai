@@ -42,6 +42,9 @@ Backlinks:
 Source: [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md)
 
 - references: [Architecture](ARCHITECTURE.md)
+- references: [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Product Definition](PRODUCT.md)
 - references: [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md)
 - references: [ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates](decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md)
@@ -68,7 +71,10 @@ Backlinks:
 Source: [Architecture](ARCHITECTURE.md)
 
 - references: [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 - relates: [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
@@ -1107,6 +1113,8 @@ Backlinks:
 
 Source: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 - references: [ADR-030 — Supabase data pipeline observability and replay](decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md)
@@ -1422,6 +1430,8 @@ Backlinks:
 
 Source: [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md)
 - references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - relates: [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
@@ -1440,6 +1450,8 @@ Backlinks:
 
 Source: [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - relates: [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
 - relates: [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md)
@@ -1469,6 +1481,8 @@ Backlinks:
 Source: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 
 - references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [req:FR-109](PRD-SDD-v1.0.md)
 - references: [req:FR-110](PRD-SDD-v1.0.md)
 - relates: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
@@ -1477,7 +1491,12 @@ Source: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/
 
 Backlinks:
 
+- [Architecture](ARCHITECTURE.md) (references)
 - [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
+- [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
+- [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
 - [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
@@ -2046,6 +2065,10 @@ Backlinks:
 
 Source: [Domain — knowledge](domains/knowledge/CHARTER.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+- references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+
 Backlinks:
 
 - [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md) (references)
@@ -2104,6 +2127,7 @@ Source: [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job tr
 - references: [FR-071 — Supabase data pipeline monitor and replay](domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md)
 - references: [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md)
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2130,6 +2154,7 @@ Source: [FR-110 — Published knowledge snapshot contract](domains/knowledge/fea
 - references: [FR-071 — Supabase data pipeline monitor and replay](domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md)
 - references: [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md)
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2156,6 +2181,7 @@ Source: [FR-111 — Knowledge sensitivity lattice and processing policy](domains
 - references: [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md)
 - references: [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md)
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2181,6 +2207,7 @@ Source: [FR-112 — Structural knowledge chunking with parent-child lineage](dom
 - references: [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md)
 - references: [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md)
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2203,6 +2230,7 @@ Source: [FR-113 — Entity candidate extraction from chunks and structured recor
 - references: [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md)
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2223,6 +2251,7 @@ Source: [FR-114 — Canonical normalization that never destroys the raw value](d
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
 - references: [FR-113 — Entity candidate extraction from chunks and structured records](domains/knowledge/features/FR-113-entity-candidate-extraction.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2237,6 +2266,7 @@ Source: [FR-115 — Document parsing into a structured artifact that keeps its l
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
 - references: [FR-113 — Entity candidate extraction from chunks and structured records](domains/knowledge/features/FR-113-entity-candidate-extraction.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2256,6 +2286,7 @@ Source: [FR-116 — Derived-object provenance and the lineage chain back to a so
 - references: [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md)
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
 - references: [FR-113 — Entity candidate extraction from chunks and structured records](domains/knowledge/features/FR-113-entity-candidate-extraction.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2276,6 +2307,7 @@ Source: [FR-117 — Deduplication and version relationships within one tenant](d
 - references: [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md)
 - references: [FR-115 — Document parsing into a structured artifact that keeps its link to the raw source](domains/knowledge/features/FR-115-document-parsing.md)
 - references: [FR-116 — Derived-object provenance and the lineage chain back to a source](domains/knowledge/features/FR-116-derived-object-provenance.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
@@ -2285,6 +2317,8 @@ Source: [FR-117 — Deduplication and version relationships within one tenant](d
 
 Source: [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 - references: [Domain — knowledge](domains/knowledge/CHARTER.md)
 - references: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
@@ -2793,14 +2827,21 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 - references: [UI Design System: Zuri Heritage v2](UI-DESIGN-SYSTEM.md)
 - references: [ZV2-CR-007 — Interface Inventory normalization and responsibility split](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md)
 
-## Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification
+## GenesisRAG17 — execution flow and extension map
 
-Source: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+Source: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 
-- references: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
+- references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+- references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- relates: [req:FR-109](PRD-SDD-v1.0.md)
+- relates: [req:FR-110](PRD-SDD-v1.0.md)
 
 Backlinks:
 
+- [Architecture](ARCHITECTURE.md) (references)
+- [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md) (references)
+- [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md) (references)
 - [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md) (references)
 - [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md) (references)
 - [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md) (references)
@@ -2810,6 +2851,52 @@ Backlinks:
 - [FR-115 — Document parsing into a structured artifact that keeps its link to the raw source](domains/knowledge/features/FR-115-document-parsing.md) (references)
 - [FR-116 — Derived-object provenance and the lineage chain back to a source](domains/knowledge/features/FR-116-derived-object-provenance.md) (references)
 - [FR-117 — Deduplication and version relationships within one tenant](domains/knowledge/features/FR-117-deduplication-and-versioning.md) (references)
+- [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
+- [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
+- [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
+- [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
+- [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
+- [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
+- [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
+- [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
+- [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
+
+## Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification
+
+Source: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
+- references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- relates: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+
+Backlinks:
+
+- [Architecture](ARCHITECTURE.md) (references)
+- [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md) (references)
+- [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md) (references)
+- [FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace](domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md) (references)
+- [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md) (references)
+- [FR-111 — Knowledge sensitivity lattice and processing policy](domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md) (references)
+- [FR-112 — Structural knowledge chunking with parent-child lineage](domains/knowledge/features/FR-112-structural-knowledge-chunking.md) (references)
+- [FR-113 — Entity candidate extraction from chunks and structured records](domains/knowledge/features/FR-113-entity-candidate-extraction.md) (references)
+- [FR-114 — Canonical normalization that never destroys the raw value](domains/knowledge/features/FR-114-canonical-normalization.md) (references)
+- [FR-115 — Document parsing into a structured artifact that keeps its link to the raw source](domains/knowledge/features/FR-115-document-parsing.md) (references)
+- [FR-116 — Derived-object provenance and the lineage chain back to a source](domains/knowledge/features/FR-116-derived-object-provenance.md) (references)
+- [FR-117 — Deduplication and version relationships within one tenant](domains/knowledge/features/FR-117-deduplication-and-versioning.md) (references)
+- [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
+- [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
+- [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
+- [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
+- [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
+- [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
+- [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
+- [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
+- [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
+- [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
 
 ## Monorepo snapshot execution
 
@@ -2827,16 +2914,24 @@ Backlinks:
 
 Source: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - relates: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 
 Backlinks:
 
+- [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (relates)
 
 ## Zuri V2 — Project Manager Module: PRD & SDD
 
 Source: [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md)
 
+- references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
@@ -3156,6 +3251,8 @@ Source: [แผนรออนุมัติ: Knowledge / MSP / GKS และ S
 
 - references: [FR-057 — Authorized agent context and vault resolution](domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md)
 - references: [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Phase 4: MSP Episodic Memory](roadmap/line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md)
 - references: [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md)
 - references: [Domain — integration](domains/integration/CHARTER.md)
@@ -3165,6 +3262,7 @@ Source: [แผนรออนุมัติ: Knowledge / MSP / GKS และ S
 - references: [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md)
 - references: [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md)
 - references: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
+- references: [ADR-070 — GenesisRAG17 isolated execution and publication](decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 
 Backlinks:
 
@@ -3222,6 +3320,8 @@ Backlinks:
 
 Source: [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md)
 
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31](roadmap/PLAN-PENDING-PARALLEL-20260831.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
@@ -3265,7 +3365,13 @@ Source: [System Diagram — zuri-ai ทั้งระบบ](SYSTEM-DIAGRAM.md)
 
 - references: [Architecture](ARCHITECTURE.md)
 - references: [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md)
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [Zuri V2 — Product Definition](PRODUCT.md)
+
+Backlinks:
+
+- [Architecture Diagrams — Zuri V2](ARCHITECTURE-DIAGRAMS.md) (references)
 
 ## UI Design System: Zuri Heritage v2
 
