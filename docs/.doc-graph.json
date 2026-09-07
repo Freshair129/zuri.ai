@@ -54,7 +54,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/service-role-grant-baseline.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -27100,8 +27102,8 @@
       "id": "test:tests/unit/service-role-grant-baseline.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
-      "hash": "d86648c9",
-      "status": "current"
+      "hash": "4da79ae5",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/shell-mode.test.js",
