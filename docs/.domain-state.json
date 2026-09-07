@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T16:51:02.838Z",
+  "generatedAt": "2026-09-07T17:28:11.975Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -325,7 +325,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-079",
@@ -429,8 +429,8 @@
           "id": "FR-171",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 9
+          "codeCount": 8,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -540,6 +540,7 @@
         "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
         "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
         "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
+        "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -586,7 +587,7 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 1,
-        "featureNotes": 12
+        "featureNotes": 13
       },
       "featureIds": [
         "FR-025",
@@ -2502,7 +2503,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 15
         }
       ],
       "checks": {
@@ -8885,7 +8886,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -8904,6 +8905,7 @@
         "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js"
       ]
@@ -11147,20 +11149,28 @@
           "id": "FR-171",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 9
+          "codeCount": 11,
+          "testCount": 15
         }
       ],
       "evidence": [
         "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
+        "apps/server/src/modules/agent/context.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/model-provider.js",
+        "apps/server/src/modules/agent/msp-memory-evidence.js",
+        "apps/server/src/modules/agent/msp-memory-port.js",
         "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+        "apps/server/tests/integration/agent-context.test.js",
+        "apps/server/tests/integration/agent-msp-port.test.js",
+        "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
+        "apps/server/tests/integration/msp-memory-lineage.test.js",
+        "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
@@ -11168,6 +11178,7 @@
         "apps/server/tests/unit/line-trace-route.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
+        "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"
       ]
     }

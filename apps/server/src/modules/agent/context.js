@@ -96,7 +96,9 @@ export async function assembleAgentContext({
 
   return {
     identity,
-    memory: { key: mem.key ?? scopedKey, legacyKey: key, entries: mem.entries },
+    memory: { key: mem.key ?? scopedKey, legacyKey: key, entries: mem.entries,
+      // @req FR-171 — retain source revisions only from the policy-authorized recall.
+      evidence: policy.privateMemoryAllowed ? mem.evidence ?? null : null },
     knowledge,
     tools: toolList,
     capabilities: { readOnly: true, gate: 'E' },

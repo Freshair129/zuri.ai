@@ -1481,6 +1481,7 @@ Backlinks:
 
 - [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 - [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) (relates)
+- [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
@@ -1557,6 +1558,7 @@ Source: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171
 - references: [FR-057 — Authorized agent context and vault resolution](domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md)
 - references: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-reply-delivery-receipt.md)
 - relates: [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md)
+- relates: [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md)
 - relates: [req:FR-057](PRD-SDD-v1.0.md)
 - relates: [req:FR-091](PRD-SDD-v1.0.md)
 - relates: [req:FR-093](PRD-SDD-v1.0.md)
@@ -1571,6 +1573,7 @@ Backlinks:
 
 - [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
 - [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) (relates)
+- [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 
 ## FR-149-P3 — Server-owned LINE conversation transport
@@ -1627,6 +1630,19 @@ Source: [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/fe
 Backlinks:
 
 - [Domain — agent](domains/agent/CHARTER.md) (references)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
+
+## FR-171-P2 — Preserve authorized MSP memory provenance
+
+Source: [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md)
+
+- relates: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
+- relates: [req:FR-057](PRD-SDD-v1.0.md)
+- relates: [req:FR-171](PRD-SDD-v1.0.md)
+- relates: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
+
+Backlinks:
+
 - [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 
 ## Domain — asset-management

@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-171-NOTE
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-07T23:50:41+07:00,RWANG"
+last_update: "2026-09-08T00:26:00+07:00,RWANG"
 domain: agent
 feature: FR-171
 module: agent
@@ -30,6 +30,8 @@ relations:
     target: ZAI:FR-150
   - type: relates_to
     target: ZAI:FR-171-P1
+  - type: relates_to
+    target: ZAI:FR-171-P2
 ---
 
 # FR-171 — Execution Trace & Replay v0.3
@@ -139,11 +141,14 @@ The contract distinguishes transient occurrence identity from stable lineage:
 interchanged with a business `WorkItem`, CRM external thread id, provider
 request id, document id, artifact id or GKS/MSP authority id.
 
-## Typed adapter handoff (approved design; pending runtime integration)
+## Typed adapter handoff (approved design; phased runtime integration)
 
 The native P1 payloads above remain their actual wire shape. The following
 adapter requirements complete the v0.3 lineage design without claiming their
-emitters or validators are implemented in Zuri today.
+emitters or validators are all implemented in Zuri today.
+[P2](PHASE-FR-171-P2-memory-provenance.md) preserves API-009 memory revisions
+and observed write responses through the authorized context seam; private
+per-call injection and the remaining adapters are still gated.
 
 | Reference | Required identity and provenance |
 |---|---|
@@ -308,6 +313,7 @@ verified. Those are named phase and rollout gates.
 
 - [ADR-070 — Execution Trace & Replay v0.3](../../../decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
 - [FR-171-P1 — native SERVER journal and playback checklist](PHASE-FR-171-P1-native-server-line-journal.md)
+- [FR-171-P2 — authorized MSP memory provenance](PHASE-FR-171-P2-memory-provenance.md)
 - [ADR-061 — server-owned LINE and optional Edge](../../../decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 - [FR-093 — LINE reply delivery receipt](../../crm/features/FR-093-reply-delivery-receipt.md)
 - [FR-057 — authorized agent context and vault resolution](FR-057-authorized-agent-context-and-vault-resolution.md)
@@ -316,4 +322,5 @@ verified. Those are named phase and rollout gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-08 | accepted | Link approved P2 memory provenance implementation and remaining authority gates | pending | RWANG |
 | 1.0.0 | 2026-09-07 | accepted | Approved Execution Trace & Replay v0.3 feature contract and unverified acceptance tests | uncommitted | RWANG |
