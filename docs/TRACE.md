@@ -1355,3 +1355,11 @@
 - **Code:** `src/components/layouts/DomainBar.jsx` · `src/components/layouts/Sidebar.jsx` · `src/config/domains.js`
 - **Follows:** FR-038, SDD-017, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-018, SDD-034, SDD-078, SEC-001, SEC-023
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/asset-management-navigation.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/inventory-routes.test.js` · `tests/unit/marketing-navigation.test.js` · `tests/unit/procurement-routes.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/scm-group-navigation.test.js` · `tests/unit/sidebar-visible-subdomains.test.js`
+
+### FR-168 — A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply.
+
+- **Status:** n/a
+- **Surface:** `/inventory` (page)
+- **Code:** `src/app/(pm)/inventory/page.jsx` · `src/modules/inventory/application/inventory-catalog-service.js` · `src/modules/inventory/domain/inventory.js` · `src/modules/procurement/application/goods-receipt-service.js`
+- **Follows:** BR-002, FR-072, FR-155, SEC-001
+- **Tests:** `tests/integration/fr154-inventory-catalog.test.js` · `tests/integration/fr165-goods-receipt.test.js` · `tests/unit/inventory-domain.test.js` · `tests/unit/inventory-routes.test.js`
