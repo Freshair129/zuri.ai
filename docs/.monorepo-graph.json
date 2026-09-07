@@ -9504,7 +9504,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/ingestion-job.js",
       "hash": "2756b234",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -9635,7 +9635,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/published-snapshot-contract.js",
       "hash": "136d247f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-110"
@@ -11337,8 +11337,8 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "dd1403df",
-      "status": "current",
+      "hash": "ac172cea",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11356,8 +11356,8 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "ff0e1238",
-      "status": "current",
+      "hash": "071bf885",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159"
@@ -11368,6 +11368,24 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
+      "hash": "7d42cc35",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-159"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -11939,7 +11957,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "05344b30",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -12020,7 +12038,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "120689f5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13706,7 +13724,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
       "hash": "2b90843a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -13790,7 +13808,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
       "hash": "9606e158",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -14019,7 +14037,7 @@
       "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "e3c402c5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14073,7 +14091,7 @@
       "version": "1.27.0b",
       "doc_status": "Draft",
       "hash": "86d97c4b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -15020,7 +15038,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "63eaae40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -15028,7 +15046,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "ea1f2168",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -15904,7 +15922,7 @@
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
       "hash": "c7362d44",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -15946,7 +15964,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "549c66b6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15974,7 +15992,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "5bbcf008",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -16383,7 +16401,7 @@
         "integration"
       ],
       "hash": "8b595a8d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:inventory",
@@ -16429,7 +16447,7 @@
         "knowledge"
       ],
       "hash": "5beac479",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:line-oa-studio",
@@ -23327,7 +23345,7 @@
       "path": "docs/decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md",
       "title": "ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant",
       "hash": "700942ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
@@ -24440,7 +24458,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "e899ad26",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -25861,7 +25879,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-ingestion-job.test.js",
       "hash": "29b57e23",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-normalization.test.js",
@@ -25889,7 +25907,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
       "hash": "13372ca9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-quarantine.test.js",
@@ -26231,8 +26249,8 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "ea794705",
-      "status": "current"
+      "hash": "95d0cec8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
@@ -46832,6 +46850,20 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
@@ -87985,6 +88017,13 @@
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingState.jsx",
       "type": "tests",
       "status": "current",
@@ -97017,7 +97056,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2313,
+    "server_nodes": 2314,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
