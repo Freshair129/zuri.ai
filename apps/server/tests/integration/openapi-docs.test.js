@@ -127,9 +127,13 @@ describe('OpenAPI document', () => {
       // (GET) — five paths, nine operations. FR-164/FR-165 add procurement on
       // top: suppliers (GET, POST), the supplier item (GET, PATCH), purchase
       // orders (GET, POST), the order item (GET, PATCH) and its receipts
-      // (GET, POST) — five more paths and ten more operations.
-      pathCount: 194,
-      operationCount: 271,
+      // (GET, POST) — five more paths and ten more operations (194 / 271).
+      // FR-110 (ADR-067) adds the knowledge ingestion reporter surface: the
+      // job read (GET) and the stage, gate and finish verbs (POST each) —
+      // four paths, four operations. FR-110 (ADR-068) adds the pull tick
+      // (POST /api/pipelines/knowledge/evidence/pull): one path, one operation.
+      pathCount: 199,
+      operationCount: 276,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
