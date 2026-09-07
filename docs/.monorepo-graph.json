@@ -309,7 +309,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/orders/page.jsx",
       "hash": "adc4ecc9",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-166",
@@ -329,7 +329,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/page.jsx",
       "hash": "d1fa7d9e",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-163",
@@ -1241,7 +1241,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/page.jsx",
       "hash": "2b42e373",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1261,7 +1261,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
       "hash": "bb8cd746",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1641,7 +1641,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/settings/page.jsx",
       "hash": "bbb9f16d",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-020",
@@ -6113,7 +6113,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
       "hash": "5159befd",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6226,7 +6226,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
       "hash": "db93ba95",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-039",
@@ -6276,7 +6276,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/ui/index.jsx",
       "hash": "dbe3ddf9",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -6298,7 +6298,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "d96537e2",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -14138,7 +14138,7 @@
       "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "6c5c2507",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14564,7 +14564,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "867f532d",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -16065,7 +16065,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "61ef6b18",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -16093,7 +16093,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "b1c44967",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
