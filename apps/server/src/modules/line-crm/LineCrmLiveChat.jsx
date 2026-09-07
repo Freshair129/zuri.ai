@@ -320,6 +320,8 @@ export default function LineCrmLiveChat() {
           </p>
         </div>
       ) : (
+        // Columns 2 and 3 are siblings and both dereference `activeChat`, so
+        // they share this branch and need a fragment to be one expression.
         <>
         <div className="flex flex-1 flex-col bg-slate-50/40 dark:bg-slate-900/40">
           {/* Chat Stream Header */}
