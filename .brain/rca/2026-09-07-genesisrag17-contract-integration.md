@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-07T23:30:00+07:00,RWANG"
-last_update: "2026-09-07T23:30:00+07:00,RWANG"
-status: draft
+last_update: "2026-09-08T00:08:00+07:00,RWANG"
+status: beta
 attributes:
   domain: knowledge
   doc_type: root-cause-analysis
@@ -34,4 +34,4 @@ Subsystem fixtures were authored against their own implementation. They did not 
 
 ## Proposed prevention
 
-Use the frozen contract and one real integration corpus across all repositories. Compare exact physical counts separately from canonical decisions. Keep strict hash checks, serialize integer-looking keys consistently, test explicit temporal applicability, and require published-history membership for named snapshots. The acceptance suite kills the actual worker at native-commit and pointer boundaries and requires resolvable historical citations after restart. Completion remains pending until the full non-skipping suite and repository checks pass.
+Use the frozen contract and one real integration corpus across all repositories. Compare exact physical counts separately from canonical decisions. Keep strict hash checks, serialize integer-looking keys consistently, test explicit temporal applicability, and require published-history membership for named snapshots. The acceptance suite kills the actual worker at native-commit and pointer boundaries and requires resolvable historical citations after restart. The full native acceptance now passes17/17 with no skips, including publication-policy denial; final repository checks and their unrelated exclusions are recorded in the acceptance report.

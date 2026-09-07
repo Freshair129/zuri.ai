@@ -9963,7 +9963,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
       "hash": "10598b21",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -10009,7 +10009,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
       "hash": "691d095c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -14168,7 +14168,7 @@
       "type": "document",
       "path": "docs/.rwang-progress.md",
       "title": "GenesisRAG17 implementation progress",
-      "hash": "be8de953",
+      "hash": "d7733331",
       "status": "changed"
     },
     {
@@ -15566,7 +15566,7 @@
       "path": "docs/plans/GENESISRAG17-CONTRACT.md",
       "title": "Approved GenesisRAG17 implementation contract",
       "hash": "fea3e2cb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVERNANCE-LINK-METADATA",
@@ -23731,8 +23731,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
       "title": "ADR-070 — GenesisRAG17 isolated execution and publication",
-      "hash": "10fc6956",
-      "status": "current"
+      "hash": "743fc356",
+      "status": "changed"
     },
     {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",

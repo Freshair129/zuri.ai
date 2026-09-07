@@ -56,21 +56,25 @@ sequenceDiagram
     M->>G: Validate, resolve, extract, map stages 9-12
     W->>M: Claim immutable graph decision
     M->>G: Claim within authenticated scope
-    G-->>W: Decision through MSP
+    G-->>M: Immutable decision
+    M-->>W: Scoped decision
     W->>W: Stage 13 native graph transaction/readback
     W->>M: Graph receipt
     M->>G: Complete 13, enrich 14
-    G-->>W: Derived objects/hash through MSP
+    G-->>M: Derived objects/hash
+    M-->>W: Scoped enrichment result
     W->>W: Embeddings 15, indexes/checkpoint/readback 16
     W->>M: Final receipt and gate request
     M->>G: Evaluate five quality dimensions and policy
-    G-->>W: Bound verdict through MSP
+    G-->>M: Bound verdict
+    M-->>W: Publication permission
     W->>W: Atomic publication if permitted
     W->>M: Publication receipt
     M->>G: Complete successful stage 17
     Z->>M: Pull exact attempt evidence
     M->>G: Read committed evidence page
-    G-->>Z: Evidence through MSP
+    G-->>M: Committed evidence
+    M-->>Z: Scoped evidence page
     Z->>Z: Commit evidence/cursor, receipt-required finish
 ```
 
