@@ -55,9 +55,20 @@
   },
   "drift": {
     "changed": [
-      "domain:inventory"
+      "domain:inventory",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/unit/inventory-domain.test.js",
+      "code:src/app/(pm)/inventory/page.jsx",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "code:src/modules/inventory/domain/inventory.js",
+      "code:src/modules/procurement/application/goods-receipt-service.js"
     ],
-    "added": [],
+    "added": [
+      "req:FR-168"
+    ],
     "removed": []
   },
   "nodes": [
@@ -806,7 +817,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/inventory/page.jsx",
       "hash": "9c75b34b",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-154",
@@ -6662,7 +6673,7 @@
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
       "hash": "ca9f904f",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -9339,7 +9350,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
       "hash": "89f2d7fb",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-154",
@@ -9400,7 +9411,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory.js",
       "hash": "c2cdef9a",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-154",
@@ -11920,7 +11931,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
       "hash": "f6945b36",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-165",
@@ -14546,7 +14557,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "dca8314c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -16047,7 +16058,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "c3b0b141",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -16075,7 +16086,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "5010b24c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -25941,7 +25952,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/inventory-domain.test.js",
       "hash": "1bf46214",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/inventory-routes.test.js",
@@ -27116,7 +27127,7 @@
       "id": "test:tests/unit/service-role-grant-baseline.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
-      "hash": "d86648c9",
+      "hash": "4da79ae5",
       "status": "current"
     },
     {

@@ -259,7 +259,7 @@
       "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1582 column(s) across 121 model(s) against 55 migration(s)",
+      "title": "schema-migration drift checked: 1582 column(s) across 121 model(s) against 56 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
