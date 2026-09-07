@@ -10304,7 +10304,7 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "6cf02ed5",
+      "hash": "b925f05c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10482,10 +10482,28 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "hash": "9d871dd5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-080"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "1ffa77ec",
+      "hash": "51e34d46",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10522,7 +10540,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
-      "hash": "9e4a8803",
+      "hash": "9bfa1050",
       "status": "current",
       "annotations": {
         "@req": [
@@ -45768,6 +45786,41 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
       "to": "req:SDD-061",
       "type": "follows",
       "status": "current",
@@ -97017,7 +97070,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2313,
+    "server_nodes": 2314,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

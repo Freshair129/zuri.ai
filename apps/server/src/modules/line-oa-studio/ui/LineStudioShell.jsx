@@ -10,6 +10,7 @@ import LineStudioLiveCrm from "./LineStudioLiveCrm";
 import LineStudioEdgeConnection from "./LineStudioEdgeConnection";
 import LineStudioTemplates from "./LineStudioTemplates";
 import LineStudioTeam from "./LineStudioTeam";
+import LineStudioSettings from "./LineStudioSettings";
 import { useScope } from "@/context/ScopeContext";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -185,15 +186,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         )}
 
         {activeTab === "settings" && (
-          <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <Sparkles className="w-8 h-8 text-brand-amber mx-auto mb-3" />
-            <h3 className="font-bold text-slate-900 dark:text-white text-base">
-              LINE Studio Settings
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              เชื่อมต่อกับ Zuri AI Cloud & Edge Runtime สำหรับการจัดเก็บไฟล์และกุญแจความปลอดภัย Messaging API
-            </p>
-          </div>
+          <LineStudioSettings />
         )}
       </div>
     </div>
