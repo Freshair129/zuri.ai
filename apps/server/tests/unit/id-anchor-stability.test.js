@@ -749,7 +749,18 @@ describe('the committed ledger describes the tree it was generated from', () => 
   it('exists and is the witness, not a debt baseline', () => {
     expect(existsSync(LEDGER_PATH)).toBe(true)
     expect(ledger.purpose).toContain('AGENTS.md §18')
-    expect(Object.keys(ledger.ids)).toHaveLength(declared.size)
+    // Every declared id is pinned, and the only entries without a declaration
+    // are the numbers this ledger is keeping burnt. A flat count equality held
+    // only while no id had ever been abandoned after being pinned: `--abandon`
+    // removes the declaration and deliberately keeps the entry, so the equality
+    // failed on the first real renumber — a Commerce sales-order requirement
+    // moving to a fresh number — reporting the ledger doing its job as a
+    // defect. (Ids are named without their dash here, per this file header.)
+    const pinned = Object.keys(ledger.ids)
+    expect([...declared.keys()].filter((id) => !ledger.ids[id])).toEqual([])
+    const undeclared = pinned.filter((id) => !declared.has(id))
+    expect(undeclared.filter((id) => ledger.ids[id].status === 'current')).toEqual([])
+    expect(pinned).toHaveLength(declared.size + undeclared.length)
   })
 
   it('carries a roster naming every id it has ever pinned', () => {
@@ -784,9 +795,22 @@ describe('the committed ledger describes the tree it was generated from', () => 
   it('gives every retirement it records a reason, and marks the ones that predate it', () => {
     for (const [id, e] of Object.entries(ledger.ids)) {
       if (e.status === 'current') continue
-      const first = e.history[0]
-      expect(first.reason.length, `${id} records a retirement with no explanation`).toBeGreaterThanOrEqual(40)
-      expect(first.pre_ledger, `${id} is retired but not marked as predating the ledger`).toBe(true)
+      // The line that records the retirement is the last one, not the first.
+      // Reading history[0] was right only while every retired entry had been
+      // pinned already-retired; an id declared here and retired later — which is
+      // what `--abandon` writes — carries the plain "declared" line first, and
+      // the assertion read that 8-character word as a missing explanation.
+      const retirement = e.history[e.history.length - 1]
+      expect(retirement.reason.length, `${id} records a retirement with no explanation`).toBeGreaterThanOrEqual(40)
+      // pre_ledger marks a retirement that has no revision row to point at
+      // because it predates this file. That is only claimable when the entry was
+      // retired at its first pin; a later retirement owes a declared_in instead,
+      // which preflight's id-stability check is the one to enforce.
+      if (e.history.length === 1) {
+        expect(retirement.pre_ledger, `${id} is retired but not marked as predating the ledger`).toBe(true)
+      } else {
+        expect(retirement.pre_ledger, `${id} was retired after this ledger existed and cannot predate it`).toBeUndefined()
+      }
     }
   })
 })

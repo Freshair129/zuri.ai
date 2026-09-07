@@ -49,9 +49,10 @@ describe('domain state projection', () => {
     // and this assertion kept passing against a file that had stopped being true. CI
     // did not catch it either: its staleness step checks FEATURE-MAP, DOMAIN-MAP,
     // TRACE and D-traceability, and .domain-state.json is not in that list.
-    // `inventory` joined on 2026-09-06 (FR-154/FR-155, DOM-INVENTORY).
+    // `inventory` joined on 2026-09-06 (FR-154/FR-155, DOM-INVENTORY);
+    // `commerce` on 2026-09-07 (FR-166/FR-163, DOM-COMMERCE).
     expect(Object.keys(state.domains).sort()).toEqual([
-      'agent', 'asset-management', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'project-manager',
+      'agent', 'asset-management', 'commerce', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'project-manager',
     ])
   })
 
@@ -257,7 +258,14 @@ describe('domain state projection', () => {
 
 it('retains requirement membership when code paths move under apps/server', () => {
   const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
-  const before = buildDomainState({ nodes, edges })
-  const after = buildDomainState({ nodes: relocated, edges })
+  // Both builds are stamped with the same instant on purpose. `buildDomainState`
+  // defaults `generatedAt` to `new Date()`, so two calls straddling a
+  // millisecond produced states that differed only in that field — and the
+  // comparison below is over the whole JSON, so the test failed for the clock
+  // rather than for the relocation it exists to check. It did exactly that on
+  // PR #268 (…38.567Z against …38.568Z) while passing on the same tree locally.
+  const generatedAt = '2026-09-07T00:00:00.000Z'
+  const before = buildDomainState({ nodes, edges, generatedAt })
+  const after = buildDomainState({ nodes: relocated, edges, generatedAt })
   expect(JSON.stringify(after).replaceAll('apps/server/', '')).toEqual(JSON.stringify(before))
 })

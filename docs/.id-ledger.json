@@ -273,6 +273,8 @@
     "FR-160",
     "FR-161",
     "FR-162",
+    "FR-163",
+    "FR-166",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -431,6 +433,7 @@
     "FEAT-020",
     "FEAT-021",
     "FEAT-022",
+    "FEAT-023",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -583,6 +586,7 @@
     "ADR-062",
     "ADR-063",
     "ADR-064",
+    "ADR-065",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3093,6 +3097,32 @@
         }
       ]
     },
+    "FR-163": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0eceb3134ae285c5137926c04ca90652c1684b9bb5dfa785bc83a21aa32667dd",
+      "history": [
+        {
+          "anchor": "payments verification and revenue commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-166": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "677eea73e454e2845568821a5c3692f4bcb85f46b957e7e327b0b99116c87272",
+      "history": [
+        {
+          "anchor": "sales orders commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5192,6 +5222,19 @@
         }
       ]
     },
+    "FEAT-023": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "2bba43869ab1862b4fb547dd1e73ca81ac5c81650856911c99d41ad07adb3dfa",
+      "history": [
+        {
+          "anchor": "commerce",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -7173,6 +7216,19 @@
       "history": [
         {
           "anchor": "sales tasks are a crm activity record not a project task",
+          "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-065": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "622ba9daf9b4f51d6da6a07be7dec8e9f92eb065554a1f7c54b00a9274a60705",
+      "history": [
+        {
+          "anchor": "the commerce lane",
           "since": "2026-09-06",
           "reason": "declared"
         }

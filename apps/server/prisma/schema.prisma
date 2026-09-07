@@ -80,6 +80,8 @@ model Tenant {
   productRecipes            ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
+  salesOrders               SalesOrder[]
+  payments                  Payment[]
 
   @@index([portfolioId])
 
@@ -174,6 +176,8 @@ model Business {
   productRecipes            ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
   salesTasks                SalesTask[]
+  salesOrders               SalesOrder[]
+  payments                  Payment[]
 
   @@index([tenantId])
 
@@ -1063,6 +1067,7 @@ model FileAsset {
   links         FileLink[]
   assetEvidence AssetEvidence[]
   lineOaRichMenuVersions LineOaRichMenuVersion[]
+  paymentSlips  Payment[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -1468,6 +1473,7 @@ model Customer {
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
+  salesOrders           SalesOrder[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1596,6 +1602,7 @@ model Conversation {
   messages Message[]
   analyses ConversationAnalysis[]
   salesTasks SalesTask[]
+  salesOrders SalesOrder[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -2888,6 +2895,7 @@ model Product {
   movements     StockMovement[]
   recipes       ProductRecipe[]
   recipeLines   ProductRecipeLine[]
+  salesOrderLines SalesOrderLine[]
 
   @@unique([tenantId, code])
   @@index([businessId, status])
@@ -3109,4 +3117,104 @@ model SalesTask {
   @@index([assigneePersonId, status])
   @@index([customerId])
   @@index([conversationId])
+}
+
+// ── Commerce — FR-166 sales orders, FR-163 payments ─────────────────────────
+// @req FR-166 — a sales order (order_id) is what a Business sold: lines that
+//   may name an inventory SKU, an optional Customer and the Conversation the
+//   sale came from (chat-first attribution), a status machine, and money kept
+//   as integer satang. Totals, paid, balance and payment state are computed
+//   on read from the lines and the verified payments — never stored.
+// @req FR-163 — a payment (or refund) against an order, PENDING until a
+//   verifier confirms the slip; the bank reference is an attribute unique per
+//   Tenant (BR-002), the slip image is a FileAsset of the same Business.
+// @spec ADR-065; ADR-054 D3/D4/D5; BR-001; BR-002; SEC-001
+// @tested tests/integration/fr166-sales-order.test.js,
+//   tests/integration/fr163-payment.test.js
+
+model SalesOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  customerId        String?
+  conversationId    String?
+  origin            String    @default("WALK_IN")
+  status            String    @default("DRAFT")
+  currency          String    @default("THB")
+  discountSatang    Int       @default(0)
+  notes             String?
+  orderedAt         DateTime  @default(now())
+  confirmedAt       DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  stockIssuedAt     DateTime?
+  closedByPersonId  String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation Conversation?    @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  lines        SalesOrderLine[]
+  payments     Payment[]
+
+  @@unique([tenantId, code])
+  @@index([businessId, status, orderedAt])
+  @@index([customerId])
+  @@index([conversationId])
+}
+
+model SalesOrderLine {
+  id              String  @id @default(uuid())
+  orderId         String
+  productId       String?
+  description     String
+  qty             Int
+  unitPriceSatang Int
+  discountSatang  Int     @default(0)
+  sortOrder       Int     @default(0)
+
+  order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id                 String    @id @default(uuid())
+  code               String
+  tenantId           String
+  businessId         String
+  orderId            String
+  kind               String    @default("PAYMENT")
+  method             String
+  amountSatang       Int
+  status             String    @default("PENDING")
+  bankReference      String?
+  slipFileAssetId    String?
+  note               String?
+  paidAt             DateTime  @default(now())
+  verifiedAt         DateTime?
+  verifiedByPersonId String?
+  rejectReason       String?
+  createdByPersonId  String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  version            Int       @default(1)
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  order    SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  slip     FileAsset? @relation(fields: [slipFileAssetId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, bankReference])
+  @@index([orderId, status])
+  @@index([businessId, status, paidAt])
 }

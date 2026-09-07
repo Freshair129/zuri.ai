@@ -611,6 +611,7 @@ Backlinks:
 - [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md) (references)
 - [ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces](decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (references)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (references)
 - [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) (relates)
 - [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) (relates)
 - [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) (relates)
@@ -1188,6 +1189,7 @@ Backlinks:
 - [CR-017 — Marketing / Ads Analytics สำหรับ zuri-ai](change-requests/CR-017-MARKETING-ADS-ANALYTICS.md) (references)
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
 - [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md) (relates)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (relates)
 
 ## ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle
 
@@ -1358,6 +1360,21 @@ Source: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](
 Backlinks:
 
 - [FR-161 — Sales tasks (งานขาย)](domains/crm/features/FR-161-sales-tasks.md) (references)
+- [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md) (references)
+
+## ADR-065 — The Commerce Lane: Orders and Payments
+
+Source: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+- references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+- references: [ADR-064 — Sales Tasks Are a CRM Activity Record, Not a Project Task](decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md)
+- relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
+
+Backlinks:
+
+- [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md) (references)
+- [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md) (references)
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -1525,6 +1542,35 @@ Source: [SRS — Asset Management domain](domains/asset-management/SRS.md)
 Backlinks:
 
 - [Domain — asset-management](domains/asset-management/CHARTER.md) (references)
+
+## Domain — commerce
+
+Source: [Domain — commerce](domains/commerce/CHARTER.md)
+
+- references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+- references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
+- references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+## FR-163 — Payments, verification and revenue (payment_id)
+
+Source: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
+
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
+
+## FR-166 — Sales orders (order_id)
+
+Source: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
+
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
 
 ## Domain — crm
 
@@ -1881,6 +1927,7 @@ Backlinks:
 
 - [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md) (references)
 - [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md) (references)
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Domain — knowledge

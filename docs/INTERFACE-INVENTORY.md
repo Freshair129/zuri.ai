@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=84; operational_domain_keys=11; operational_subdomain_entries=45; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=86; operational_domain_keys=11; operational_subdomain_entries=46; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -104,6 +104,17 @@ the Business Home slot is excluded from this count.
 | `/milestones` | Milestones and Gates | BusinessShell → Development / Milestones & Gates | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
 | `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
 | `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
+
+### 3.2b Commerce domain
+
+The `commerce` domain key stopped being a reserved slot on 2026-09-07 (FR-166,
+FR-163, ADR-065). Every money figure on both pages comes from the server's
+read — totals from lines, paid from verified payments — never from the page.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/commerce` | Commerce Dashboard | BusinessShell → Commerce / Dashboard | verified revenue (net of verified refunds) for today / this month / all time, by origin (chat, walk-in, online) and by day, pending money beside it, open and completed order counts | Business and `commerce` domain visibility; no-business, loading, error, ready | implemented; `src/app/(pm)/commerce/page.jsx`, FR-163 / ADR-065 |
+| `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-166, FR-163 / ADR-065 |
 
 ### 3.3 CRM domain
 
@@ -347,6 +358,7 @@ The current route evidence is:
 | 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
 | 1.12.0b | 2026-09-07 | candidate | Registered LINE OA Integrations & AI (`/line-oa/integrations`) from main and reconciled the marker to 84 page routes and 45 operational sub-domain entries | working-tree | RWANG |
 | 1.11.0b | 2026-09-07 | candidate | Registered the CRM Sales Tasks page (`/customer/sales-tasks`, FR-161, ADR-064) and reconciled the marker to 72 page routes and 36 operational sub-domain entries | working-tree | Claude Fable 5.1 |
+| 1.12.0b | 2026-09-07 | candidate | Registered the Commerce Dashboard and Orders console (§3.2b, `/commerce`, `/commerce/orders`, FR-166, FR-163, ADR-065); marker reconciled to 74 page routes and 37 operational sub-domain entries | working-tree | Claude Fable 5.1 |
 | 1.8.0b | 2026-09-06 | candidate | Add four Content routes covering six interfaces; reconcile 69 pages and 34 operational navigation entries | See git history | RWANG |
 | 1.5.0b | 2026-09-05 | beta | Registered the reserved `line-oa` domain slot (FR-146, ADR-060); reconciled the marker to 10 operational domains and 30 sub-domain entries; page routes unchanged at 56 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
