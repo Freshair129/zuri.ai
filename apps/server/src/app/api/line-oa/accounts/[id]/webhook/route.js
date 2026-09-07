@@ -33,6 +33,7 @@ const DETERMINISTIC = [400, 403, 404, 409, 413]
 export function createServerLineWebhookPost({ db = prisma, ports = serverLinePorts,
   evidenceFactory = createLineOaEvidenceRecorder, admit = admitLineConversation } = {}) {
   return async (request, { params }) => {
+    const ingressReceivedAt = new Date()
     const { correlationId } = resolveCorrelationId(request.headers)
     try {
       const account = await ports().resolveAccount(params?.id)
@@ -55,7 +56,7 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       for (const event of body.events) {
         try {
           await evidence.record({ body, event })
-          await admit({ db, account, event, correlationId })
+          await admit({ db, account, event, correlationId, ingressReceivedAt })
         } catch (error) {
           if (DETERMINISTIC.includes(error?.status)) skipped += 1
           else unresolved += 1

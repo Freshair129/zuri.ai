@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0b |
+| **Version** | 1.28.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-07 |
 
@@ -33,6 +33,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
+| AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |
 | LegalEntity / LegalEntityIdentifier | portfolioId; (country,type,value) unique | external identifier ไม่ใช่ PK (BR-002) |

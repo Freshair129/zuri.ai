@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.30.0b"
+version: "1.31.0b"
 status: active
 last_update: "2026-09-07T03:00:00+07:00,Claude"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.31.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -110,6 +110,11 @@ writing one sentence here, or the governance chain stops.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-171",
+    "primaryDomain": "agent",
+    "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects."
+  },
   {
     "id": "FEAT-001",
     "primaryDomain": "project-manager",
