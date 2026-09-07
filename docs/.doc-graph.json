@@ -9954,7 +9954,7 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "993faa97",
+      "hash": "9a8fff48",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10000,7 +10000,7 @@
       "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
-      "hash": "d619bd4e",
+      "hash": "0a95ba2a",
       "status": "current",
       "annotations": {
         "@req": [
