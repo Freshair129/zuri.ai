@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T06:25:14.169Z",
+  "generatedAt": "2026-09-07T17:00:56.074Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1666,7 +1666,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-079",
@@ -1728,15 +1728,15 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 25
+          "codeCount": 8,
+          "testCount": 38
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 23
+          "codeCount": 8,
+          "testCount": 27
         },
         {
           "id": "FR-118",
@@ -2162,21 +2162,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 25
+          "codeCount": 4,
+          "testCount": 38
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 23
+          "codeCount": 3,
+          "testCount": 27
         },
         {
           "id": "FR-111",
@@ -2291,9 +2291,15 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 7,
+            "present": 7
+          }
         },
         "authorization": {
           "status": "not_applicable",
@@ -2330,6 +2336,7 @@
         "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
@@ -2362,7 +2369,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 0,
+        "ownedModels": 7,
         "featureNotes": 13
       },
       "featureIds": [
@@ -3527,7 +3534,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-072",
@@ -3701,15 +3708,15 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 25
+          "codeCount": 4,
+          "testCount": 38
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 27
         },
         {
           "id": "FR-123",
@@ -5190,15 +5197,15 @@
           "id": "FR-109",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 25
+          "codeCount": 16,
+          "testCount": 38
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 23
+          "codeCount": 18,
+          "testCount": 27
         },
         {
           "id": "FR-111",
@@ -5217,16 +5224,24 @@
         "apps/server/src/app/api/pipelines/runs/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
+        "apps/server/src/modules/knowledge/genesisrag17-contract.js",
+        "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+        "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-importer.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-publication.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
         "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -5239,6 +5254,7 @@
         "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -5249,6 +5265,10 @@
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/genesisrag17-contract.test.js",
+        "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+        "apps/server/tests/unit/genesisrag17-source.test.js",
+        "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
@@ -9265,7 +9285,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 22
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -9282,10 +9302,12 @@
         "apps/server/src/platform/integrations/core/document-intake-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",

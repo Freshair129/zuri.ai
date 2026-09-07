@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0b |
+| **Version** | 1.28.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-07 |
 
@@ -397,3 +397,17 @@ children. MarketingContentReview and MarketingContentDecision append exact-versi
 rights/review/decision history. Files and PM references live in canonical versioned
 payloads and revalidate through their owners; no binary or PM task is copied.
 [Contract](../domains/marketing/features/FR-157-content-creative.md).
+
+## GenesisRAG17 isolated durability (FR-109, FR-110)
+
+Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-070](../decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
+
+| Model | Identity / retained evidence | Restore order |
+|---|---|---|
+| KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
+| KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
+| GenesisRag17Batch | One immutable dispatch batch per Stage 9 attempt; durable retry acknowledgement | After PipelineRun |
+| GenesisRag17StageEvidence | One terminal per run/stage/step/attempt, six metrics and bounded external evidence | After PipelineRun |
+| GenesisRag17PublicationReceipt | Scope, decision, snapshot/generation, model and physical publication proof | After PipelineRun |
+| GenesisRag17EvidenceCursor | Exact scoped run cursor advanced with the imported evidence transaction | After pipeline evidence |

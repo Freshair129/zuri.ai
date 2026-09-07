@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { assertGenesisRag17Publication } from './genesisrag17-publication'
 import { isInstallationOperator, isSotDataPlaneFor } from '@/modules/identity/viewer-authority'
 import {
   knowledgeIngestionRunInput,
@@ -677,6 +678,12 @@ export async function finishKnowledgeIngestionRun(input, { db = prisma, viewer, 
     const error = serviceError(409, `Knowledge ingestion run cannot be closed yet: ${outcome.blocking.join(', ')}`)
     error.details = outcome.blocking
     throw error
+  }
+
+  if (outcome.status === 'SUCCEEDED') {
+    const batch = await db.genesisRag17Batch.findFirst({ where: { executionRunId: run.executionRunId } })
+    if (!batch) throw serviceError(409, 'Successful finish requires an attempt-bound publication receipt; legacy evidence remains readable')
+    await assertGenesisRag17Publication({ schemaVersion: 'genesisrag17.v1', executionRunId: run.executionRunId, scope: JSON.parse(batch.scopeJson) }, { db, viewer })
   }
 
   const result = await recordPipelineEvent({

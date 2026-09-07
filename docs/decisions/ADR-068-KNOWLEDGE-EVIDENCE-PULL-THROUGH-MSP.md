@@ -37,6 +37,11 @@ The lawful direction is fixed twice over — `Zuri / GoVibe -> MSP -> GKS` in GK
 
 ## Decision
 
+[ADR-070](ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) adds the
+approved isolated forward worker and exact-attempt v1 evidence path on top of
+this legacy pull slice. Cursor advancement still follows durable writes; a
+legacy row without an attempt never completes a newer attempt.
+
 ### D1 — zuri-ai reaches MSP by spawning it, from deployment configuration, and fails closed without it
 
 `src/modules/agent/msp-stdio-transport.js` is the transport: Node built-ins only, MSP's own NDJSON JSON-RPC framing (`initialize` → `notifications/initialized` → `tools/call`), one child process per call closed in `finally`, and the `(name, input) => Promise<structuredContent>` shape `createMspMemoryPort` already accepts — so the memory port (API-009) and the evidence pull share one transport rather than each inventing one. It is built from `ZURI_MSP_COMMAND` / `ZURI_MSP_ARGS` / `ZURI_MSP_CWD`; when the command is unset the factory returns `null` and the route answers 503 at its own boundary, never a silent empty pull. Nothing here imports from the MSP repository; the wire is the contract, and the live chain test is what holds the two sides to it.

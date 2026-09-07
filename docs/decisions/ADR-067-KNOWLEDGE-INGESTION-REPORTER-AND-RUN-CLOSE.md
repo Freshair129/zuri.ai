@@ -43,6 +43,12 @@ Meanwhile the external side had moved (verified 2026-09-07 against the three rep
 
 ## Decision
 
+[ADR-070](ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) strengthens
+this historical slice: the isolated pipeline persists all six metrics, records
+actual Stage1 receipt evidence, and requires a matching physical publication
+receipt before successful finish. A gate-only success is no longer sufficient
+for that versioned pipeline. Legacy evidence remains readable.
+
 ### D1 — The reporter authenticates with the FR-102 `SotDataPlaneKey`, Tenant-bound, on a knowledge run of its own Tenant only
 
 The owner chose reuse over a new credential type. The key already has the properties the reporter needs and ADR-047 already argued for: high-entropy secret stored only as a SHA-256 lookup hash, bound to exactly one Tenant, revoked with no grace period, minted by an operator command, and — decisively — **not** an installation operator. `isSotDataPlaneFor(viewer, tenantId)` stays its own predicate; `isInstallationOperator` is untouched.

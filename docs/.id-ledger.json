@@ -595,6 +595,7 @@
     "ADR-067",
     "ADR-068",
     "ADR-069",
+    "ADR-070",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7341,6 +7342,19 @@
       "history": [
         {
           "anchor": "scm is a parent domain over warehouse inventory procurement",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-070": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "history": [
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-07",
           "reason": "declared"
         }

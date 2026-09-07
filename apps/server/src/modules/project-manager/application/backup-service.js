@@ -136,6 +136,10 @@ const SNAPSHOT_MODELS = [
   // ledger it feeds; a lost cursor only replays a page the receiver's
   // idempotency already makes harmless. Bookkeeping, no secret: exported whole.
   'knowledgeEvidenceCursor',
+  // @req FR-109, FR-110 — restore versioned lineage after RawExternalRecord,
+  // then the attempt outbox, terminal evidence and publication proof.
+  'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
+  'genesisRag17Batch', 'genesisRag17StageEvidence', 'genesisRag17PublicationReceipt', 'genesisRag17EvidenceCursor',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
   // so it restores after them and deletes before them, alongside the pipeline
   // evidence it gates.

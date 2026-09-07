@@ -27,6 +27,11 @@ This ADR therefore adopts the stage vocabulary and, in the same act, fixes the b
 
 ## Decision
 
+The no-runtime/no-new-model limits below describe this ADR's original slice.
+[ADR-070](ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) authorizes
+isolated durable source/chunk execution, all-six metrics and publication receipts.
+Tier ownership remains binding; GKS evaluates the combined gate and Tier4 publishes.
+
 ### D1 — The 17 stages are adopted as the canonical stage vocabulary
 
 The stage names below are the only names used, in code, docs and any future catalog constant, for knowledge ingestion:

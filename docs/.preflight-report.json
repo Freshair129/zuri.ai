@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 339,
+    "docs": 342,
     "routes": 199,
-    "test_files": 534
+    "test_files": 540
   },
   "summary": {
     "critical": 0,
@@ -183,8 +183,8 @@
       "id": "I16",
       "severity": "info",
       "check": "id-stability",
-      "title": "519 id(s) pinned across 10 families",
-      "details": "ADR 69 · BR 25 · FEAT 24 · FR 167 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 519",
+      "title": "520 id(s) pinned across 10 families",
+      "details": "ADR 70 · BR 25 · FEAT 24 · FR 167 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 520",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -227,7 +227,7 @@
       "id": "I20",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 339 document(s)",
+      "title": "table integrity checked in 342 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -259,7 +259,7 @@
       "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1582 column(s) across 121 model(s) against 54 migration(s)",
+      "title": "schema-migration drift checked: 1698 column(s) across 128 model(s) against 55 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
