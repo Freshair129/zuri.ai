@@ -12,3 +12,4 @@ export { default as LineStudioTemplates } from './LineStudioTemplates';
 export { default as LineStudioTeam } from './LineStudioTeam';
 export { default as LineStudioLiveCrm } from './LineStudioLiveCrm';
 export { default as LineStudioEdgeConnection } from './LineStudioEdgeConnection';
+export { default as LineStudioSettings } from './LineStudioSettings';

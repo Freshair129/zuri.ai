@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2316,
-    "total_edges": 9210,
+    "total_nodes": 2317,
+    "total_edges": 9215,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 121,
       "requirement": 328,
       "test": 534,
-      "code_file": 688
+      "code_file": 689
     },
     "coverage": {
       "requirements": 328,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (157/157)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 688,
+      "annotated_code_files": 689,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,9 +55,27 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/fr060-business-home-visibility.test.js"
+      "doc:ERP-MODULE-MAP",
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/e2e/fr060-business-home.spec.js",
+      "test:tests/e2e/fr154-inventory-dashboard.spec.js",
+      "test:tests/e2e/fr164-procurement.spec.js",
+      "test:tests/e2e/fr166-commerce-orders.spec.js",
+      "test:tests/e2e/navigation-reachability.spec.js",
+      "test:tests/unit/fr060-business-home-visibility.test.js",
+      "test:tests/unit/inventory-routes.test.js",
+      "code:src/components/layouts/DomainBar.jsx",
+      "code:src/components/layouts/Sidebar.jsx",
+      "code:src/config/domains.js"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "req:FR-167",
+      "test:tests/unit/scm-group-navigation.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -6147,7 +6165,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
       "hash": "02c9b00f",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6259,7 +6277,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
       "hash": "fe5171ef",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-039",
@@ -6328,7 +6346,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "6b353626",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -10365,7 +10383,7 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "6cf02ed5",
+      "hash": "b925f05c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10543,10 +10561,28 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "hash": "9d871dd5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-080"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "1ffa77ec",
+      "hash": "51e34d46",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10583,7 +10619,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
-      "hash": "9e4a8803",
+      "hash": "9bfa1050",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14444,7 +14480,7 @@
       "version": "1.0.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
       "hash": "11c7c61b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ethics-governance",
@@ -14506,7 +14542,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "4a24bb75",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15497,7 +15533,7 @@
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "72cc4fcb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -16007,7 +16043,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "54782be2",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -16035,7 +16071,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "05a962f0",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -23630,7 +23666,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr060-business-home.spec.js",
       "hash": "be110e35",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr066-waiting-room.spec.js",
@@ -23707,7 +23743,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
       "hash": "9be8d760",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr161-sales-tasks.spec.js",
@@ -23721,14 +23757,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
       "hash": "a35e5c94",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
-      "hash": "15a9923b",
-      "status": "current"
+      "hash": "b27c874a",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/marketing-campaigns.spec.js",
@@ -23756,7 +23792,7 @@
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
       "hash": "5de44954",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -25898,7 +25934,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/inventory-routes.test.js",
       "hash": "2e6a864c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/knowledge-chunking.test.js",
@@ -42543,6 +42579,41 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
       "to": "req:SDD-061",
       "type": "follows",
       "status": "current",
