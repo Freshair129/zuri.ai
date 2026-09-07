@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T04:36:43.823Z",
+  "generatedAt": "2026-09-07T05:05:25.856Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2411,7 +2411,7 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 15
         },
         {
@@ -2432,7 +2432,7 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 29,
+          "codeCount": 30,
           "testCount": 20
         },
         {
@@ -2453,7 +2453,7 @@
           "id": "FR-151",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
+          "codeCount": 22,
           "testCount": 17
         },
         {
@@ -4493,7 +4493,7 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 15
         }
       ],
@@ -4510,6 +4510,7 @@
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-registry-service.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/platform/integrations/core/connection-health.js",
         "apps/server/src/platform/integrations/core/connector-catalog.js",
         "apps/server/src/platform/integrations/core/credential-vault.js",
@@ -5643,7 +5644,7 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 37,
+          "codeCount": 38,
           "testCount": 20
         },
         {
@@ -5657,7 +5658,7 @@
           "id": "FR-151",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
+          "codeCount": 26,
           "testCount": 17
         },
         {
@@ -5724,6 +5725,7 @@
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
