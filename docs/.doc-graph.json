@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 2314,
-    "total_edges": 9172,
+    "total_edges": 9174,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -55,12 +55,12 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/marketing-strategy-ui.test.js",
-      "code:src/modules/marketing/components/marketing-contract.js",
-      "code:src/modules/marketing/components/MarketingDashboard.jsx"
+      "code:src/modules/line-oa-studio/ui/index.js",
+      "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx"
     ],
     "added": [
-      "code:src/modules/marketing/components/MarketingPerformance.jsx"
+      "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx"
     ],
     "removed": []
   },
@@ -10365,8 +10365,8 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "6cf02ed5",
-      "status": "current",
+      "hash": "b925f05c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10543,11 +10543,29 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "hash": "9d871dd5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-146",
+          "FR-151",
+          "FR-080"
+        ],
+        "@spec": [
+          "SDD-060",
+          "SDD-061"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "1ffa77ec",
-      "status": "current",
+      "hash": "51e34d46",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10583,8 +10601,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
-      "hash": "9e4a8803",
-      "status": "current",
+      "hash": "9bfa1050",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -11398,8 +11416,8 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "ac172cea",
-      "status": "changed",
+      "hash": "dd1403df",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11417,8 +11435,8 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "071bf885",
-      "status": "changed",
+      "hash": "ff0e1238",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159"
@@ -11429,24 +11447,6 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
-      "hash": "7d42cc35",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-159"
-        ],
-        "@spec": [
-          "SDD-086"
-        ],
-        "@tested": [
-          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -26310,8 +26310,8 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "95d0cec8",
-      "status": "changed"
+      "hash": "ea794705",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
@@ -42521,6 +42521,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-146",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "to": "req:FR-146",
       "type": "implements",
@@ -43579,20 +43614,6 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
-      "to": "req:SDD-086",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
-      "to": "req:FR-159",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
@@ -84740,13 +84761,6 @@
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingDashboard.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/marketing-strategy-ui.test.js",
-      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
