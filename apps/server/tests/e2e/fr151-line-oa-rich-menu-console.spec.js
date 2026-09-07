@@ -38,14 +38,11 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
   await page.goto('/line-oa?tab=edge-connection')
-  await page.getByLabel('ชื่อ Connection', { exact: true }).fill(tag)
-  await page.getByLabel('Bot user ID / destination').fill(`U${require('node:crypto').randomBytes(16).toString('hex')}`)
-  await page.getByLabel('ชื่ออ้างอิง Secret').fill(`deployment-secret:${tag}`)
-  await page.getByRole('button', { name: 'สร้าง Connection', exact: true }).click()
-  await expect(page.getByLabel('Connection ID', { exact: true })).not.toHaveValue('')
-  await page.getByLabel('รหัสบัญชี', { exact: true }).fill(tag)
-  await page.getByLabel('ชื่อแสดง', { exact: true }).fill(tag)
-  await page.getByRole('button', { name: 'เชื่อมบัญชี', exact: true }).click()
+  // One submit provisions the connection and the account together now (see
+  // FR-149's spec): the display name names both, so the cleanup above still
+  // finds the connection by it.
+  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')
@@ -94,5 +91,10 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   for (const label of ['ส่งขึ้น LINE', 'ตั้งเป็นเมนูหลัก', 'ผูก alias']) {
     await expect(card.getByRole('button', { name: label, exact: true })).toBeDisabled()
   }
+  // The blocker the service reports first is the account's, not the draft's:
+  // this account has not enabled Server transport, because creating one no
+  // longer does it on the operator's behalf (FR-149). main asserts the freeze
+  // blocker here instead, which is only what you see once the account is
+  // already live.
   await expect(card.getByText(/บัญชีนี้ยังไม่ได้เปิด Server transport/).first()).toBeVisible()
 })
