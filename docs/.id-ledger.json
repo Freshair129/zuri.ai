@@ -277,6 +277,7 @@
     "FR-164",
     "FR-165",
     "FR-166",
+    "FR-167",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -593,6 +594,7 @@
     "ADR-066",
     "ADR-067",
     "ADR-068",
+    "ADR-069",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3151,6 +3153,19 @@
         {
           "anchor": "sales orders commerce",
           "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-167": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "90c6096797a4e2bb18bf43f2a5cc5bb6e8cad8af99d1c6860cb87a19b2843593",
+      "history": [
+        {
+          "anchor": "supply chain navigation groups its four modules under one",
+          "since": "2026-09-07",
           "reason": "declared"
         }
       ]
@@ -7313,6 +7328,19 @@
       "history": [
         {
           "anchor": "tier 3 stage evidence is pulled",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-069": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md",
+      "status": "current",
+      "statement_digest": "bff1bf3dc65ec5abcba9714277d95c948547a3db0dbc7141908592b06851c1db",
+      "history": [
+        {
+          "anchor": "scm is a parent domain over warehouse inventory procurement",
           "since": "2026-09-07",
           "reason": "declared"
         }

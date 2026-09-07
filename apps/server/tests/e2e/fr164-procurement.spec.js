@@ -19,8 +19,9 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   const status = page.getByRole('status')
   const tag = `${Date.now()}`.slice(-6)
 
-  // A counted SKU to buy, created on the Warehouse dashboard (FR-154).
-  await bar.getByRole('link', { name: 'Warehouse' }).click()
+  // A counted SKU to buy, created on the Inventory dashboard (FR-154). The bar
+  // holds one SCM slot since ADR-069, and it opens on Inventory.
+  await bar.getByRole('link', { name: 'SCM' }).click()
   await expect(page).toHaveURL(/\/inventory$/)
   const category = `buy-${tag}`
   const master = `PM-BUY-${tag}`
@@ -42,8 +43,9 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   await page.getByRole('button', { name: 'สร้าง SKU', exact: true }).click()
   await expect(status).toContainText(`สร้าง SKU ${sku} (นับสต๊อก) แล้ว`)
 
-  // The supplier, on the Procurement dashboard.
-  await bar.getByRole('link', { name: 'Procurement' }).click()
+  // The supplier, on the Procurement dashboard — a sibling of Inventory in the
+  // SCM sidebar rather than its own slot in the bar (ADR-069).
+  await page.getByRole('link', { name: 'Procurement', exact: true }).click()
   await expect(page).toHaveURL(/\/procurement$/)
   await expect(page.getByRole('heading', { name: 'จัดซื้อและผู้ขาย', exact: true })).toBeVisible()
   const supplierCode = `SUP-${tag}`
@@ -102,8 +104,9 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
   await page.screenshot({ path: 'output/playwright/fr164-procurement.png', fullPage: true })
 
-  // The Warehouse counts what the two receipts posted, recomputed from the ledger.
-  await bar.getByRole('link', { name: 'Warehouse' }).click()
+  // Inventory counts what the two receipts posted, recomputed from the ledger.
+  // It is a sibling of Procurement under SCM, so the sidebar reaches it.
+  await page.getByRole('link', { name: 'Inventory', exact: true }).click()
   await expect(page).toHaveURL(/\/inventory$/)
   await expect(page.getByRole('row').filter({ hasText: sku })).toContainText('5 EA')
 })

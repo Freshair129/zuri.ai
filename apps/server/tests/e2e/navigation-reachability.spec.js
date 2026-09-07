@@ -153,10 +153,11 @@ test.describe('navigation reachability', () => {
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/growth\/campaigns$/)
     await expect(page.getByRole('heading', { name: 'Campaigns', exact: true })).toBeVisible()
-    // The delivered Commerce slot is offered and opens too.
+    // The delivered Order Management slot (the Commerce lane, relabelled by
+    // ADR-069) is offered and opens too.
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
-    await input.fill('Commerce · Orders')
+    await input.fill('Order Management · Orders')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/commerce\/orders$/)
     await expect(page.getByRole('heading', { name: 'ออเดอร์ (Orders)', exact: true })).toBeVisible()
