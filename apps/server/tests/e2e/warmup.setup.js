@@ -72,6 +72,23 @@ const ROUTES = [
   // POST, so the warm-up's GET compiles the module and takes a 405 back;
   // `failOnStatusCode: false` below is what makes that fine.
   '/api/auth/signup',
+  // @req FR-149 — `fr149-line-server-console.spec.js` is the first spec (file
+  // order, and `workers: 1` makes that the real order) to touch any
+  // `/api/line-oa/*` route handler. Its account-creation flow chains a real
+  // POST /api/line-oa/connections, a real POST /api/line-oa/accounts, and a
+  // client-side re-fetch (GET /api/line-oa/accounts) before the assertion
+  // that a run of CI flakes traced to: `expect(heading).toBeVisible()` timing
+  // out at exactly the 10s `expect` budget, always this test, always right
+  // after that round trip, always passing on immediate retry once the module
+  // graph is warm. That is the exact shape this file's header describes for
+  // pages, just paid by an API route instead — three uncompiled route modules
+  // stacked serially inside one `expect`. `accounts/warmup` and
+  // `accounts/warmup/jobs` compile the `[id]` route handlers the same way
+  // `/projects/warmup/...` above compiles dynamic page routes; the 404 they
+  // return for a nonexistent account is fine, `failOnStatusCode: false` below
+  // tolerates it exactly as it does for the entries above.
+  '/api/line-oa/connections', '/api/line-oa/accounts',
+  '/api/line-oa/accounts/warmup', '/api/line-oa/accounts/warmup/jobs',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]

@@ -9904,7 +9904,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
       "hash": "3b5b4a9d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9950,7 +9950,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
       "hash": "98e9992c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -11360,7 +11360,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
       "hash": "ac172cea",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11379,7 +11379,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
       "hash": "071bf885",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-159"
@@ -26290,7 +26290,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
       "hash": "95d0cec8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
