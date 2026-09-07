@@ -108,9 +108,11 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('registers one live inventory domain with Dashboard first, reachable by Membership grant', () => {
     const domains = DOMAINS.filter((domain) => domain.key === 'inventory')
     expect(domains).toHaveLength(1)
-    // Labelled Warehouse: a Project's own Inventory section tab (FR-077) is on
-    // screen with this bar, and two links named Inventory are ambiguous.
-    expect(domains[0]).toMatchObject({ label: 'Warehouse', basePath: '/inventory' })
+    // Labelled Inventory again since ADR-069: SCM holds the bar slot, so this
+    // list is only on screen while SCM is selected and the old collision with a
+    // Project's own Inventory section tab (FR-077) cannot happen. `Warehouse`
+    // is now the reserved sibling that owns locations, transfers and stocktake.
+    expect(domains[0]).toMatchObject({ label: 'Inventory', basePath: '/inventory' })
     expect(domains[0].soon).not.toBe(true)
     expect(domains[0].sub[0]).toMatchObject({ label: 'Dashboard', path: '/inventory' })
     expect(domainForPath('/inventory').key).toBe('inventory')

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T06:02:21.563Z",
+  "generatedAt": "2026-09-07T06:25:14.169Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 121,
-    "readyFeatureCount": 99,
-    "requirementCount": 166,
-    "verifiedRequirementCount": 156,
+    "featureCount": 122,
+    "readyFeatureCount": 100,
+    "requirementCount": 167,
+    "verifiedRequirementCount": 157,
     "progressPercent": 94,
     "gapCount": 22,
     "gaps": [
@@ -601,7 +601,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-134",
@@ -811,14 +811,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "checks": {
@@ -971,7 +971,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-093",
@@ -1048,7 +1048,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "checks": {
@@ -1399,42 +1399,42 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "checks": {
@@ -1986,7 +1986,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-155",
@@ -2112,10 +2112,11 @@
         "featureNotes": 3
       },
       "featureIds": [
-        "FEAT-020"
+        "FEAT-020",
+        "FR-167"
       ],
-      "featureCount": 1,
-      "readyFeatureCount": 0,
+      "featureCount": 2,
+      "readyFeatureCount": 1,
       "progressPercent": 100
     },
     "knowledge": {
@@ -2419,7 +2420,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-093",
@@ -2746,7 +2747,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-158",
@@ -2760,14 +2761,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-162",
@@ -3051,14 +3052,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "checks": {
@@ -3379,7 +3380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-040",
@@ -3400,7 +3401,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-043",
@@ -3421,7 +3422,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-046",
@@ -3456,7 +3457,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-061",
@@ -3589,7 +3590,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-087",
@@ -3624,7 +3625,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-092",
@@ -3722,7 +3723,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-127",
@@ -3736,7 +3737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-134",
@@ -3841,7 +3842,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-155",
@@ -3862,7 +3863,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-158",
@@ -3876,49 +3877,56 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
+        },
+        {
+          "id": "FR-167",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -4208,7 +4216,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-058",
@@ -4285,7 +4293,8 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/project-file-service.test.js"
+        "apps/server/tests/unit/project-file-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -4321,7 +4330,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 28
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -4368,6 +4377,7 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/shell-mode.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
       ]
@@ -4733,7 +4743,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-087",
@@ -4805,6 +4815,7 @@
         "apps/server/tests/unit/projects-dashboard-read-model.test.js",
         "apps/server/tests/unit/projects-dashboard-schema-migration.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -4838,7 +4849,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-093",
@@ -4891,7 +4902,8 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -5346,7 +5358,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-134",
@@ -5442,7 +5454,8 @@
         "apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "apps/server/tests/unit/platform/pipeline-tracking-contract.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -5922,7 +5935,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-155",
@@ -5989,7 +6002,8 @@
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6022,7 +6036,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-158",
@@ -6036,14 +6050,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-160",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-162",
@@ -6170,6 +6184,7 @@
         "apps/server/tests/unit/marketing/marketing-plan-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-plan-route.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
       ]
     },
@@ -6200,7 +6215,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -6233,7 +6248,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/sales-task-domain.test.js",
-        "apps/server/tests/unit/sales-task-routes.test.js"
+        "apps/server/tests/unit/sales-task-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6264,14 +6280,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-166",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -6316,7 +6332,8 @@
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -6347,14 +6364,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-165",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -6401,7 +6418,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -7969,7 +7987,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -7991,6 +8009,7 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -8076,7 +8095,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -8103,7 +8122,8 @@
         "apps/server/tests/unit/people-directory.test.js",
         "apps/server/tests/unit/people-route.test.js",
         "apps/server/tests/unit/people-service.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -10568,7 +10588,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -10588,7 +10608,8 @@
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/procurement-routes.test.js"
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
     {
@@ -10857,6 +10878,49 @@
       "evidence": [
         "apps/server/src/lib/db.js",
         "apps/server/tests/unit/db-runtime-config.test.js"
+      ]
+    },
+    {
+      "id": "FR-167",
+      "title": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-167"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้กดช่อง SCM ช่องเดียวในแถบโดเมน แล้วเห็น Inventory, Warehouse, Procurement และ Order Management เรียงเป็นสี่กลุ่มในเมนูด้านซ้าย จึงข้ามจากคลังไปจัดซื้อไปคำสั่งขายได้โดยไม่ต้องกลับขึ้นแถบบน ส่วน Warehouse ที่ยังไม่ได้สร้างจะแสดงเป็นช่องที่กดไม่ได้ แทนที่จะหายไปเฉย ๆ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-167",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "apps/server/src/components/layouts/DomainBar.jsx",
+        "apps/server/src/components/layouts/Sidebar.jsx",
+        "apps/server/src/config/domains.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/profile-permission-service.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
       ]
     }
   ]

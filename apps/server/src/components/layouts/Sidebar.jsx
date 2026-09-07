@@ -3,16 +3,22 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { domainForPath } from '@/config/domains'
+import { sidebarDomainForPath } from '@/config/domains'
 
 // @req FR-039 — sidebar exposes the active Business domain's sub-domains.
 // @spec SDD-018, ADR-011, SITEMAP-V2-DOMAIN-NAV §3
 // @tested tests/unit/sidebar-visible-subdomains.test.js
 // Tier 3 (SITEMAP-V2): the active domain's labelled sub-domains. Desktop keeps this
 // in-flow menu open; the compact icon-only form is reserved for mobile.
+// @req FR-167 — for a domain that belongs to a group this lists the WHOLE group
+// (ADR-069 D1): each sibling's label as a section header over its own pages, so
+// a child reached from the bar can reach the other three. The section header is
+// the same `group` field this file already renders, so the group costs no new
+// rendering concept. `domainForPath` is untouched and still answers with the
+// leaf, which is what the route guard asks about.
 export default function Sidebar() {
   const pathname = usePathname()
-  const domain = domainForPath(pathname)
+  const domain = sidebarDomainForPath(pathname)
 
   return (
     <aside
@@ -47,6 +53,22 @@ export default function Sidebar() {
                     {item.group}
                   </p>
                 )}
+              {item.soon ? (
+                /* @req FR-167 — a reserved sibling is listed and disabled, never
+                   linked: it has no page, and a link that 404s is worse than a
+                   slot that says it is not built yet (ADR-069 D3). */
+                <span
+                  aria-label={item.label}
+                  aria-disabled="true"
+                  title="Reserved — not available yet"
+                  className="group relative flex cursor-default items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-white/25 max-md:justify-center"
+                >
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden />
+                  <span className="truncate font-bold max-md:pointer-events-none max-md:opacity-0">
+                    {item.label}
+                  </span>
+                </span>
+              ) : (
               <Link
                 href={item.path}
                 aria-label={item.label}
@@ -62,6 +84,7 @@ export default function Sidebar() {
                   {item.label}
                 </span>
               </Link>
+              )}
               </Fragment>
             )
           })}

@@ -55,6 +55,10 @@ const ROUTES = [
   '/line-oa/integrations', '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
+  // @req FR-167 — the reserved Warehouse slot under SCM. It has no page yet, so
+  // this request 404s and `failOnStatusCode: false` below tolerates it, exactly
+  // as it does for the `operations` slot above.
+  '/warehouse',
   // @req FR-161 — the CRM sales tasks page.
   '/customer/sales-tasks',
   // @req FR-164 — the Procurement dashboard and the purchase-orders console.
