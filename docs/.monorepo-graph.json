@@ -25344,7 +25344,7 @@
       "id": "test:tests/unit/e2e-warmup.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/e2e-warmup.test.js",
-      "hash": "96105e8a",
+      "hash": "4c1a9f8d",
       "status": "current"
     },
     {
@@ -27046,7 +27046,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
       "hash": "4da79ae5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/shell-mode.test.js",
