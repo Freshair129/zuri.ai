@@ -844,7 +844,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
       "hash": "4dee4be0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -5900,7 +5900,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "c1c4469d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -9388,7 +9388,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
       "hash": "993faa97",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9434,7 +9434,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
       "hash": "d619bd4e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9812,7 +9812,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "hash": "18abb83c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9829,7 +9829,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
       "hash": "6997dcb0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9847,7 +9847,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "6d0841ed",
+      "hash": "437c0f24",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9938,7 +9938,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "hash": "8f40e9ac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -9974,7 +9974,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "hash": "1ffa77ec",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10011,7 +10011,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "hash": "9e4a8803",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -22574,15 +22574,15 @@
       "id": "test:tests/e2e/fr149-line-server-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-      "hash": "398b259c",
+      "hash": "c116d62e",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
-      "hash": "3fb7cfb4",
-      "status": "current"
+      "hash": "d210cda2",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
