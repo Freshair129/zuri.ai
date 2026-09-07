@@ -54,7 +54,27 @@ module.exports = defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.js',
   timeout: 60000,
-  expect: { timeout: 10000 },
+  // 10s until 2026-09-07, when the numbers stopped supporting it. The note
+  // below says cold compiles are the whole story and a warm-up fixes them; the
+  // same test measured on CI says otherwise:
+  //
+  //   smoke.spec.js › universal routes › dependencies view renders edges
+  //     run 34089371518 (green):  12.8s
+  //     run 34106105030 attempt:  16.7s  → failed an expect at 10s
+  //     run 34106105030 retry:     8.8s  → passed
+  //
+  // 8.8s is the WARM number, against a 10s budget — 1.2s of headroom on a
+  // shared runner whose own variance is larger than that. So each run tipped a
+  // different assertion over and reported exactly `1 flaky`, which is why the
+  // suite looked like it had a rotating bug rather than a calibration problem.
+  // Route retention (next.config.js `onDemandEntries`, PR #267) removes the
+  // 16.7-vs-8.8 half of that; this removes the rest.
+  //
+  // This is not the retry-hiding that --fail-on-flaky exists to stop: a test
+  // that is broken still fails, and one that passes still passes on its first
+  // attempt. What it stops measuring is how long Next.js dev-mode rendering
+  // took on a busy runner, which is not a property of the product.
+  expect: { timeout: 30000 },
   // One retry is kept to *label* flakiness, not to hide it. `npm run test:e2e`
   // passes --fail-on-flaky, so a test that passes only on retry fails the build
   // while its report still distinguishes "flaky" from "consistently broken" —
@@ -70,6 +90,13 @@ module.exports = defineConfig({
   // "Timed out waiting for toHaveURL", none related to the change under test,
   // and a control run on the unchanged tree flaked too. So: the warm-up project
   // below, as promised, rather than a longer expect timeout.
+  //
+  // 2026-09-07: the warm-up alone was not enough, and the measurements are in
+  // the `expect` note above. Two things it could not reach: Next dev evicts a
+  // compiled route after 60s idle (fixed in next.config.js), and a warm page can
+  // still need ~9s under CI load. The warm-up stays — it is still the only thing
+  // that keeps a first hit off a test's clock — but it is no longer asked to
+  // carry the whole margin on its own.
   retries: 1,
   // Serial on purpose, and it costs nothing. Measured on 2026-08-17, 12-core
   // machine, full suite at --retries=0:
