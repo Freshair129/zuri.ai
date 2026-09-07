@@ -74,6 +74,13 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],
   ['/api/commerce/orders/{id}/payments', ['GET', 'POST']], ['/api/commerce/payments/{id}', ['GET', 'PATCH']],
   ['/api/commerce/revenue', ['GET']],
+  // @req FR-164, FR-165 — procurement: suppliers (list + create; archive is
+  // an action, never a DELETE), purchase orders (list + create, read +
+  // versioned action) and the goods receipts of one order (list + post —
+  // never edited, so no PATCH).
+  ['/api/procurement/suppliers', ['GET', 'POST']], ['/api/procurement/suppliers/{id}', ['GET', 'PATCH']],
+  ['/api/procurement/purchase-orders', ['GET', 'POST']], ['/api/procurement/purchase-orders/{id}', ['GET', 'PATCH']],
+  ['/api/procurement/purchase-orders/{id}/receipts', ['GET', 'POST']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.

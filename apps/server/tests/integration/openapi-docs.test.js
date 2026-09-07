@@ -124,9 +124,12 @@ describe('OpenAPI document', () => {
       // detail) at 184 paths / 252 operations. FR-166/FR-163 add commerce on
       // top: orders (GET, POST), the order item (GET, PATCH), its payments
       // (GET, POST), the payment item (GET, PATCH) and the revenue summary
-      // (GET) — five paths, nine operations.
-      pathCount: 189,
-      operationCount: 261,
+      // (GET) — five paths, nine operations. FR-164/FR-165 add procurement on
+      // top: suppliers (GET, POST), the supplier item (GET, PATCH), purchase
+      // orders (GET, POST), the order item (GET, PATCH) and its receipts
+      // (GET, POST) — five more paths and ten more operations.
+      pathCount: 194,
+      operationCount: 271,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

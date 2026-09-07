@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.25.0b |
+| **Version** | 1.26.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-07 |
 
@@ -115,6 +115,11 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-166 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
 | SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-166 — one line; may name an Inventory SKU; price given at sale time |
 | Payment | code (`PAY-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, orderId → SalesOrder (Cascade), kind (PAYMENT / REFUND), method, amountSatang, status (PENDING / VERIFIED / REJECTED), bankReference? (unique per tenant — an attribute), slipFileAssetId? → FileAsset (SetNull), note?, paidAt, verifiedAt?, verifiedByPersonId?, rejectReason?, createdByPersonId?, version | FR-163 / ADR-065 — a payment or refund; only VERIFIED money counts; the slip's bytes are the FileAsset's |
+| Supplier | code (unique per tenant), tenantId, businessId, name, taxId?, contactName?, phone?, email?, address?, paymentTerms?, leadTimeDays?, notes?, status (ACTIVE / ARCHIVED), archivedAt?, version | FR-164 / ADR-066 — an approved supplier (procurement); archived, never deleted |
+| PurchaseOrder | code (`PO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, supplierId → Supplier (Restrict), status (DRAFT / SENT / RECEIVED / SHORT_CLOSED / CANCELLED), currency, expectedAt?, notes?, orderedAt, sentAt?, receivedAt?, closedAt?, closeReason?, cancelledAt?, cancelReason?, createdByPersonId?, version | FR-164 / ADR-066 — a purchase order; **no total, received or outstanding column** — computed on read from lines and receipt lines; RECEIVED is set by the completing receipt |
+| PurchaseOrderLine | purchaseOrderId → PurchaseOrder (Cascade), productId? → Product (SetNull), description, qty, unitCostSatang, sortOrder | FR-164 — one line; may name an Inventory SKU; the cost agreed for this purchase |
+| GoodsReceipt | code (`GRN-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, purchaseOrderId → PurchaseOrder (Cascade), supplierReference?, notes?, receivedAt, postedByPersonId? | FR-165 / ADR-066 — a goods receipt; no status, no version — never edited; its stock effect is the Inventory ledger rows with reference `PO:<code>/GRN:<code>` |
+| GoodsReceiptLine | receiptId → GoodsReceipt (Cascade), purchaseOrderLineId → PurchaseOrderLine (Cascade), qty, lotCode?, expiresAt?, serialNosJson? | FR-165 — one received quantity against one order line, with the lot, expiry and serials it carried into the ledger |
 | ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
 | SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
 | StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
@@ -183,6 +188,11 @@ Version diff 1.24.0b → 1.25.0b (2026-09-07): added `SalesOrder`, `SalesOrderLi
 ADR-065 — the Commerce lane's first slice; money in integer satang, no stored total or paid) with one additive
 migration in each tree (`20260907000000_commerce_orders_payments`) in the same change; the Supabase SQL is
 written and **not applied**.
+
+Version diff 1.25.0b → 1.26.0b (2026-09-07): added `Supplier`, `PurchaseOrder`, `PurchaseOrderLine`, `GoodsReceipt` and
+`GoodsReceiptLine` (FR-164, FR-165, ADR-066 — the Procurement lane's first slice; cost in integer satang, no stored total
+or received quantity, the receipt never edited) with one additive migration in each tree (`20260907010000_procurement`)
+in the same change; the Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

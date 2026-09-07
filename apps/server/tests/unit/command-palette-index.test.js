@@ -28,6 +28,9 @@ describe('command palette route index', () => {
     // FR-159 activates Growth Dashboard and Strategy; Operations stays reserved.
     expect(routePaths).toContain('/growth')
     expect(routePaths).toContain('/growth/strategy')
+    // @req FR-164 — `procurement` landed live on 2026-09-07 with both pages.
+    expect(routePaths).toContain('/procurement')
+    expect(routePaths).toContain('/procurement/purchase-orders')
     expect(routePaths).not.toContain('/operations')
     expect(routePaths.filter((path) => path === '/settings')).toHaveLength(1)
   })

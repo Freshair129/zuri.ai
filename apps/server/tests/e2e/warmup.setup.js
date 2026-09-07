@@ -57,6 +57,8 @@ const ROUTES = [
   '/inventory',
   // @req FR-161 — the CRM sales tasks page.
   '/customer/sales-tasks',
+  // @req FR-164 — the Procurement dashboard and the purchase-orders console.
+  '/procurement', '/procurement/purchase-orders',
   // Route handlers compile on first request too, and a spec that POSTs to a
   // cold one pays that cost inside its own expect. `marketing-content.spec.js`
   // opens a second browser context and immediately POSTs here to create a

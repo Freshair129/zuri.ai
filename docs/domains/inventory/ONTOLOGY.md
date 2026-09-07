@@ -95,7 +95,7 @@ instruction was to **take the label off**: a recipe for 10 seats and one for
 | `CourseMenu` (Product → Recipe) | `ProductRecipe.productId` (the output SKU) | an UNTRACKED output (a course, a service) consumes components and produces nothing to stock |
 | `StockDeductionLog` (ADR-038 flow) | `StockMovement` rows written by `POST /api/inventory/recipes/[id]/build` (reference `RECIPE:<code>`) | atomic: every component or none |
 | `Package` / `PackageCourse` / `PackageGift` / price tiers | Commerce (deferred) | a bundle (FR-154) holds the goods; the offer holds the price |
-| `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` | Procurement (deferred) | a movement's `reference` carries the PO / GRN string only |
+| `MarketPrice`, `PurchaseRequest`, `PurchaseRequestItem` | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165 since 2026-09-07 — `Supplier`, `PurchaseOrder` and `GoodsReceipt` exist; requests and market prices are still deferred inside that lane) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference |
 | `Enrollment`, `CourseSchedule`, `ClassAttendance`, `Certificate` | Operations / Commerce (deferred) | scheduling and attendance are not stock |
 
 What did not survive the border, and why: `Ingredient.currentStock` (a stored
