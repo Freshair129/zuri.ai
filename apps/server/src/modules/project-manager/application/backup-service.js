@@ -166,6 +166,7 @@ const SNAPSHOT_MODELS = [
   'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
+  'agentTraceEvent',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',

@@ -278,6 +278,7 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-171",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -595,6 +596,7 @@
     "ADR-067",
     "ADR-068",
     "ADR-069",
+    "ADR-070",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3169,6 +3171,21 @@
           "reason": "declared"
         }
       ]
+    },
+    "FR-171": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "35a45d3d72762dfd493292a34ae024e8a5f5ee322f42e4cb572fdf703a71c346",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Reviewed the approved trace contract wording after documenting native SERVER scope, truthful missing external references, and the owner-only playback endpoint; the subject is unchanged."
     },
     "NFR-001": {
       "family": "NFR",
@@ -7341,6 +7358,19 @@
       "history": [
         {
           "anchor": "scm is a parent domain over warehouse inventory procurement",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-070": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
+      "status": "current",
+      "statement_digest": "ebae89e541e877e77c4b5fb5bf2f69b7f6d78f35f40d5c18e84a97d0c0c0ada9",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
           "since": "2026-09-07",
           "reason": "declared"
         }

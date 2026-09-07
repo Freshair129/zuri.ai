@@ -1688,6 +1688,28 @@ model AuditEvent {
   @@index([occurredAt])
 }
 
+// @req FR-149 — one scope-bound, append-only execution journal for Agent turns.
+// @spec ADR-061, SEC-001 — tenant/business are stored explicitly so trace reads
+// never infer isolation through an external conversation or provider identifier.
+// @tested tests/integration/execution-trace.test.js
+model AgentTraceEvent {
+  id             String   @id @default(uuid())
+  tenantId       String
+  businessId     String
+  turnId         String
+  executionId    String?
+  kind           String
+  idempotencyKey String
+  payloadJson    String
+  occurredAt     DateTime
+  createdAt      DateTime @default(now())
+  version        Int      @default(1)
+
+  @@unique([tenantId, businessId, idempotencyKey], map: "AgentTraceEvent_scope_idempotency_key")
+  @@index([tenantId, businessId, turnId, occurredAt])
+  @@index([tenantId, businessId, turnId, createdAt])
+}
+
 // @req FR-071 — server-owned full data-pipeline execution ledger.
 // @spec ADR-030 D2-D6, SDD-042, SEC-003, SEC-008
 // @tested tests/unit/platform/pipeline-tracking-service.test.js, tests/unit/platform/pipeline-tracking-migration.test.js
@@ -2517,6 +2539,7 @@ model LineConversationJob {
   eventId            String
   tenantId           String
   businessId         String
+  executionId        String?
   channelAccountId   String
   transportEpoch     Int
   executionMode      String

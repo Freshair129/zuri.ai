@@ -17,9 +17,9 @@ Charter: [docs/domains/agent/CHARTER.md](domains/agent/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/agent` |
-| Models owned | — (state lives outside the shared schema by design) |
+| Models owned | AgentTraceEvent |
 | Routes owned | 4 (4 api · 0 pages) |
-| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144, FR-147, FR-149, FR-150 |
+| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144, FR-147, FR-149, FR-150, FR-171 |
 
 ## asset-management
 
@@ -106,8 +106,8 @@ Charter: [docs/domains/line-oa-studio/CHARTER.md](domains/line-oa-studio/CHARTER
 |---|---|
 | Modules | `src/modules/line-oa-studio` |
 | Models owned | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineConversationJob |
-| Routes owned | 25 (15 api · 10 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-061, FR-080, FR-091, FR-093, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153 |
+| Routes owned | 26 (16 api · 10 pages) |
+| FRs implemented in lane | FR-021, FR-022, FR-061, FR-080, FR-091, FR-093, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-171 |
 
 ## market-intelligence
 

@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.46.0b"
+version: "2.47.0b"
 updated: "2026-09-07"
 owner: "Owen"
 source_of_truth: true
@@ -282,6 +282,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TASK-FR-171 | PHASE-ZAI-RUNTIME | task | Exact per-call context and usage journal, attempt lineage, owner-only playback and erasure for native SERVER LINE | P0 | RWANG | in-progress (local implementation; verification and external adapters tracked separately) | FR-171; FR-149; FR-057; ADR-070 | ../domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md |
 | TASK-FR-127-LOCAL | PHASE-ZAI-CRM-ANALYSIS-LOCAL | task | FR-127 local ConversationAnalysis increment: owner writes, visible Business reads, current consent and tenant binding, private raw output, erasure including already-deleted Customer and snapshot restore. Whole FR-127 remains partial; no runtime producer or production migration. | P2 | ATHER | done | FR-023; FR-103; ADR-054 | ../domains/crm/features/FR-127-conversation-intelligence-analysis.md |
 | TASK-FR-133-136 | PHASE-ZAI-ASSET-FOUNDATION | task | FR-133..136 Asset Management foundation: implement the locally provable slice frozen by ZV2-CR-009 Phase 2. One strict envelope covers Web/API/Sheet/Agent/LINE metadata; payment proof + PR/PO + expiry lot gates; temporal responsibility/location/allocation; straight-line Finance-review preview; distinct pipeline definition; additive schema/backup; guarded dashboard. Never report external OCR, LINE binary retrieval, live Sheet sync, Procurement lookup, Finance posting or Project Inventory projection as complete. | P1 | Codex | done (local foundation) | FR-133; FR-134; FR-135; FR-136; ADR-055; SEC-023 | ../domains/asset-management/features/FR-133-asset-management-foundation.md |
 | TASK-FR-137-140 | PHASE-ZAI-ASSET-EVIDENCE | task | FR-137..140 Asset evidence execution: authorize and upload verified private evidence; create provider candidates with separate human review; convert Excel and bounded Google Sheets snapshots through the canonical envelope; accept trusted LINE staged FileAsset IDs; persist idempotent intake readiness only. Do not issue Asset IDs or write Procurement/Finance. | P1 | RWANG | done (local beta) | FR-137; FR-138; FR-139; FR-140; ADR-056; SEC-024 | ../domains/asset-management/features/FR-137-asset-evidence-intake-execution.md |
