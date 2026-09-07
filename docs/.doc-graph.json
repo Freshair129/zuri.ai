@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2318,
-    "total_edges": 9218,
+    "total_nodes": 2319,
+    "total_edges": 9227,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,14 +15,14 @@
       "feature": 24,
       "route": 287,
       "model": 121,
-      "requirement": 328,
+      "requirement": 329,
       "test": 534,
       "code_file": 690
     },
     "coverage": {
-      "requirements": 328,
-      "fr_with_code": "100% (157/157)",
-      "fr_with_tests": "100% (157/157)",
+      "requirements": 329,
+      "fr_with_code": "100% (158/158)",
+      "fr_with_tests": "100% (158/158)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 690,
@@ -803,12 +803,13 @@
       "id": "code:src/app/(pm)/inventory/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/inventory/page.jsx",
-      "hash": "400e0398",
+      "hash": "9c75b34b",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
-          "FR-155"
+          "FR-155",
+          "FR-168"
         ],
         "@spec": [
           "SEC-001"
@@ -6658,7 +6659,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "9b5d03ad",
+      "hash": "ca9f904f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9335,11 +9336,12 @@
       "id": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
-      "hash": "c63f9ecb",
+      "hash": "89f2d7fb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-154"
+          "FR-154",
+          "FR-168"
         ],
         "@spec": [
           "BR-002",
@@ -9395,12 +9397,13 @@
       "id": "code:src/modules/inventory/domain/inventory.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory.js",
-      "hash": "5b774145",
+      "hash": "c2cdef9a",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
           "FR-155",
+          "FR-168",
           "FR-156"
         ],
         "@spec": [
@@ -11914,11 +11917,12 @@
       "id": "code:src/modules/procurement/application/goods-receipt-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
-      "hash": "a84be7cc",
+      "hash": "f6945b36",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-165"
+          "FR-165",
+          "FR-168"
         ],
         "@spec": [
           "BR-002",
@@ -14539,7 +14543,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "4a24bb75",
+      "hash": "dca8314c",
       "status": "current"
     },
     {
@@ -16040,7 +16044,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "54782be2",
+      "hash": "c3b0b141",
       "status": "current"
     },
     {
@@ -16068,7 +16072,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "05a962f0",
+      "hash": "5010b24c",
       "status": "current"
     },
     {
@@ -16509,7 +16513,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "097cc353",
+      "hash": "9f171eab",
       "status": "current"
     },
     {
@@ -19397,6 +19401,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built. 🟠 implemented locally 2026-09-07 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/scm-group-navigation.test.js` "
+    },
+    {
+      "id": "req:FR-168",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply. 🟠 implemented locally 2026-09-07 — enum + domain rules + catalogue service + the two refusals; no schema column, because `stockPolicy` is already a free TEXT column (`enums.js`, `inventory/domain/inventory.js`, `procurement/application/goods-receipt-service.js`, `tests/unit/inventory-domain.test.js`) "
     },
     {
       "id": "req:NFR-001",
@@ -25924,7 +25938,7 @@
       "id": "test:tests/unit/inventory-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/inventory-domain.test.js",
-      "hash": "f361666a",
+      "hash": "1bf46214",
       "status": "current"
     },
     {
@@ -28347,6 +28361,13 @@
     {
       "from": "code:src/app/(pm)/inventory/page.jsx",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:FR-168",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -41009,6 +41030,13 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-168",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -41094,6 +41122,13 @@
     {
       "from": "code:src/modules/inventory/domain/inventory.js",
       "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-168",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -44223,6 +44258,13 @@
     {
       "from": "code:src/modules/procurement/application/goods-receipt-service.js",
       "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/procurement/application/goods-receipt-service.js",
+      "to": "req:FR-168",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -54323,6 +54365,13 @@
     },
     {
       "from": "req:FR-167",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-168",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -67350,6 +67399,13 @@
     },
     {
       "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -67844,6 +67900,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr165-goods-receipt.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr165-goods-receipt.test.js",
@@ -82119,6 +82182,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/app/(pm)/inventory/page.jsx",
       "type": "tests",
@@ -82401,6 +82471,13 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-168",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
