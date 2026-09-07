@@ -235,7 +235,7 @@ export default function LineCrmMembers() {
                   </button>
                 </td>
               </tr>
-            ))
+              ))
             )}
           </tbody>
         </table>

@@ -137,6 +137,13 @@ model Business {
   legalEntityId String?
   name          String
   status        String   @default("ACTIVE")
+  // @req FR-169 — feature capabilities this Business has turned on, keyed by
+  // name (`{"physicalStock": true}`). A capability differs from a domain grant
+  // (Membership.domainKeysJson): a grant says WHO may open a module, a
+  // capability says whether the module APPLIES to this Business at all. Absent
+  // keys default per-capability in code, never here, so adding a new
+  // capability is never a migration.
+  capabilitiesJson String @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   version       Int      @default(1)
@@ -1688,8 +1695,8 @@ model AuditEvent {
   @@index([occurredAt])
 }
 
-// @req FR-149 — one scope-bound, append-only execution journal for Agent turns.
-// @spec ADR-061, SEC-001 — tenant/business are stored explicitly so trace reads
+// @req FR-149, FR-171 — one scope-bound, append-only execution journal for Agent turns.
+// @spec ADR-061, ADR-070, SEC-001 — tenant/business are stored explicitly so trace reads
 // never infer isolation through an external conversation or provider identifier.
 // @tested tests/integration/execution-trace.test.js
 model AgentTraceEvent {

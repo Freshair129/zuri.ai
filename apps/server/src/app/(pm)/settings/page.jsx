@@ -138,6 +138,58 @@ function PlatformControlCard() {
   )
 }
 
+// @req FR-169 — the Physical Stock toggle. OWNER-only in the UI, matching the
+//   route's own OWNER + ownsBusiness check: a non-owner viewer never sees a
+//   control they would be refused for pressing. Turning it off hides the
+//   Warehouse slot from the domain bar and the SCM sidebar entirely, not
+//   merely disables it — DomainBar and Sidebar both read it from the same
+//   Business object this card writes to, via /api/scope's next refresh.
+// @spec ADR-069 D3
+// @tested tests/unit/business-capability-navigation.test.js, tests/integration/fr169-business-capability.test.js
+function PhysicalStockCard({ scope }) {
+  const business = scope.shell.activeBusiness
+  const viewer = useFetch('/api/viewer')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(null)
+  if (!business) return null
+  // @spec SEC-008 — per-Business, not the global `role` label (the same
+  // OWNER-of-A-is-not-OWNER-of-B distinction business-strategy-mutation-service.js
+  // documents at length): a display-only gate, since the route re-checks
+  // OWNER + ownsBusiness itself either way.
+  const isOwner = viewer.data?.ownedBusinessIds?.includes(business.id) ?? false
+  const enabled = business.capabilitiesJson ? JSON.parse(business.capabilitiesJson).physicalStock !== false : true
+
+  const toggle = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      await api(`/api/businesses/${business.id}/capabilities`, {
+        method: 'PATCH',
+        body: { version: business.version, capability: 'physicalStock', enabled: !enabled },
+      })
+      await scope.refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card>
+      <SectionTitle caption="เมื่อปิด โมดูล Warehouse จะหายไปจากแถบเมนูบนและเมนูซ้ายของ SCM ทั้งหมด — ธุรกิจที่ขายเฉพาะบริการมักไม่ต้องใช้">
+        Physical Stock
+      </SectionTitle>
+      <label className="flex items-center gap-2 text-xs">
+        <input type="checkbox" checked={enabled} disabled={busy || !isOwner} onChange={toggle} aria-label="Physical Stock" />
+        {enabled ? 'เปิดใช้ — Warehouse แสดงเป็นสล็อตสำรองใน SCM' : 'ปิดใช้ — ซ่อน Warehouse ออกจากเมนูทั้งหมด'}
+      </label>
+      {!isOwner && <p className="mt-2 text-[10px] text-muted">เฉพาะ OWNER ของ Business นี้ที่ปรับได้</p>}
+      {error && <p role="alert" className="mt-2 text-[11px] text-red-700">{error}</p>}
+    </Card>
+  )
+}
+
 export default function SettingsPage() {
   const scope = useScope()
   return (
@@ -145,6 +197,7 @@ export default function SettingsPage() {
       <PageHeader eyebrow="Settings" title="Settings" subtitle="Authenticated account, execution-mode reference, and data utilities." />
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <AddBusinessCard scope={scope} />
+        <PhysicalStockCard scope={scope} />
         <PlatformControlCard />
         <Card>
           <SectionTitle caption="Your account and current Business memberships">Identity</SectionTitle>

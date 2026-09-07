@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2331,
-    "total_edges": 9292,
+    "total_nodes": 2345,
+    "total_edges": 9392,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,19 +13,19 @@
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
-      "route": 288,
+      "route": 289,
       "model": 122,
-      "requirement": 329,
-      "test": 538,
-      "code_file": 693
+      "requirement": 332,
+      "test": 543,
+      "code_file": 698
     },
     "coverage": {
-      "requirements": 329,
-      "fr_with_code": "100% (158/158)",
-      "fr_with_tests": "100% (158/158)",
+      "requirements": 332,
+      "fr_with_code": "100% (161/161)",
+      "fr_with_tests": "100% (161/161)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 693,
+      "annotated_code_files": 698,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,13 +56,37 @@
   "drift": {
     "changed": [
       "doc:A-api-spec",
+      "doc:B-db-schema",
+      "domain:agent",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
-      "test:tests/integration/server-line-trace.test.js",
-      "code:src/modules/agent/execution-trace.js",
-      "code:src/modules/line-oa-studio/application/line-conversation-jobs.js"
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
+      "code:src/modules/agent/grounded-business-answer.js",
+      "code:src/modules/agent/model-provider.js",
+      "code:src/modules/agent/server-line-answer.js",
+      "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js",
+      "code:src/platform/integrations/llm/provider-catalog.js"
     ],
     "added": [
-      "test:tests/unit/line-trace-route.test.js"
+      "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "doc:FR-171-execution-trace-and-replay",
+      "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "route:api:/api/line-oa/jobs/[id]/trace",
+      "model:AgentTraceEvent",
+      "req:FR-171",
+      "test:tests/integration/execution-trace.test.js",
+      "test:tests/integration/server-line-trace.test.js",
+      "test:tests/unit/line-trace-route.test.js",
+      "test:tests/unit/model-provider-trace.test.js",
+      "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "code:src/modules/agent/execution-trace.js",
+      "code:src/modules/agent/line-execution-trace.js",
+      "code:src/modules/agent/model-provider-catalog.js"
     ],
     "removed": []
   },
@@ -371,7 +395,7 @@
       "id": "code:src/app/(pm)/commerce/orders/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/orders/page.jsx",
-      "hash": "f1470ed7",
+      "hash": "adc4ecc9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -391,7 +415,7 @@
       "id": "code:src/app/(pm)/commerce/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/page.jsx",
-      "hash": "f58dcfb0",
+      "hash": "d1fa7d9e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -811,12 +835,13 @@
       "id": "code:src/app/(pm)/inventory/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/inventory/page.jsx",
-      "hash": "400e0398",
+      "hash": "9c75b34b",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
-          "FR-155"
+          "FR-155",
+          "FR-168"
         ],
         "@spec": [
           "SEC-001"
@@ -1303,7 +1328,7 @@
       "id": "code:src/app/(pm)/procurement/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/page.jsx",
-      "hash": "00cbd518",
+      "hash": "2b42e373",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1323,7 +1348,7 @@
       "id": "code:src/app/(pm)/procurement/purchase-orders/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
-      "hash": "91db47fc",
+      "hash": "bb8cd746",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1703,21 +1728,25 @@
       "id": "code:src/app/(pm)/settings/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/settings/page.jsx",
-      "hash": "770fadf4",
+      "hash": "bbb9f16d",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-020",
           "FR-105",
-          "FR-075"
+          "FR-075",
+          "FR-169"
         ],
         "@spec": [
-          "SEC-020"
+          "SEC-020",
+          "SEC-008"
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js",
           "tests/integration/adaptive-shell.test.js",
-          "tests/unit/platform-control-guard.test.js"
+          "tests/unit/platform-control-guard.test.js",
+          "tests/unit/business-capability-navigation.test.js",
+          "tests/integration/fr169-business-capability.test.js"
         ]
       }
     },
@@ -2655,6 +2684,25 @@
         "@tested": [
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/unit/business-strategy-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/businesses/[id]/capabilities/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/businesses/[id]/capabilities/route.js",
+      "hash": "d1cfdfb7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-169"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/fr169-business-capability.test.js"
         ]
       }
     },
@@ -4132,7 +4180,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "hash": "34886270",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149"
@@ -6170,12 +6218,13 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
-      "hash": "02c9b00f",
+      "hash": "5159befd",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
           "FR-061",
+          "FR-169",
           "FR-167"
         ],
         "@spec": [
@@ -6282,12 +6331,13 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
-      "hash": "fe5171ef",
+      "hash": "db93ba95",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
           "FR-167",
+          "FR-169",
           "FR-159"
         ],
         "@spec": [
@@ -6331,11 +6381,12 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/ui/index.jsx",
-      "hash": "b338f26c",
+      "hash": "dbe3ddf9",
       "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
+          "FR-170",
           "FR-005",
           "FR-014"
         ],
@@ -6343,7 +6394,8 @@
           "SDD-010"
         ],
         "@tested": [
-          "tests/unit/design-system.test.js"
+          "tests/unit/design-system.test.js",
+          "tests/unit/module-tabs.test.js"
         ]
       }
     },
@@ -6351,7 +6403,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "6b353626",
+      "hash": "d96537e2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6370,6 +6422,7 @@
           "FR-086",
           "FR-133",
           "FR-154",
+          "FR-169",
           "FR-164",
           "FR-165",
           "FR-124"
@@ -6388,6 +6441,7 @@
           "tests/unit/asset-management-navigation.test.js",
           "tests/unit/inventory-routes.test.js",
           "tests/unit/scm-group-navigation.test.js",
+          "tests/unit/business-capability-navigation.test.js",
           "tests/unit/procurement-routes.test.js"
         ]
       }
@@ -6456,6 +6510,21 @@
           "tests/unit/scope-view-context.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/e2e/fr046-entry-contract.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/business-capabilities.js",
+      "type": "code_file",
+      "path": "apps/server/src/lib/business-capabilities.js",
+      "hash": "6810b4e7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-169"
+        ],
+        "@tested": [
+          "tests/unit/business-capabilities.test.js"
         ]
       }
     },
@@ -6566,6 +6635,21 @@
         ],
         "@tested": [
           "tests/unit/ids.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/module-tabs.js",
+      "type": "code_file",
+      "path": "apps/server/src/lib/module-tabs.js",
+      "hash": "69e4e0cd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-170"
+        ],
+        "@tested": [
+          "tests/unit/module-tabs.test.js"
         ]
       }
     },
@@ -6684,7 +6768,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "9b5d03ad",
+      "hash": "ca9f904f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6868,8 +6952,8 @@
       "id": "code:src/modules/agent/execution-trace.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/execution-trace.js",
-      "hash": "03355eff",
-      "status": "changed",
+      "hash": "28c344fd",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -6907,7 +6991,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/agent/grounded-business-answer.js",
       "hash": "5dd836c6",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-049",
@@ -7080,7 +7164,7 @@
       "id": "code:src/modules/agent/line-execution-trace.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/line-execution-trace.js",
-      "hash": "56b31a08",
+      "hash": "5714e8d9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7155,8 +7239,8 @@
       "id": "code:src/modules/agent/model-provider.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/model-provider.js",
-      "hash": "7dd177d2",
-      "status": "current",
+      "hash": "cdc08787",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-048",
@@ -7310,8 +7394,8 @@
       "id": "code:src/modules/agent/server-line-answer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/server-line-answer.js",
-      "hash": "3eb2890f",
-      "status": "current",
+      "hash": "4aa26382",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -8020,6 +8104,25 @@
         ],
         "@tested": [
           "tests/unit/asset-evidence-extractor-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/business/application/business-capability-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/business/application/business-capability-service.js",
+      "hash": "33f0a30a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-169"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/fr169-business-capability.test.js"
         ]
       }
     },
@@ -9421,11 +9524,12 @@
       "id": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
-      "hash": "c63f9ecb",
+      "hash": "89f2d7fb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-154"
+          "FR-154",
+          "FR-168"
         ],
         "@spec": [
           "BR-002",
@@ -9481,12 +9585,13 @@
       "id": "code:src/modules/inventory/domain/inventory.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory.js",
-      "hash": "5b774145",
+      "hash": "c2cdef9a",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
           "FR-155",
+          "FR-168",
           "FR-156"
         ],
         "@spec": [
@@ -10044,7 +10149,7 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "7da52cb5",
+      "hash": "a8e2c3e4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10090,7 +10195,7 @@
       "id": "code:src/modules/line-crm/LineCrmMembers.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
-      "hash": "7470b54a",
+      "hash": "98e9992c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10194,7 +10299,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "83ecbe69",
+      "hash": "615360fe",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -10216,7 +10321,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
       "hash": "2a0e2d51",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-022",
@@ -11502,7 +11607,7 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "dd1403df",
+      "hash": "ac172cea",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11521,7 +11626,7 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "ff0e1238",
+      "hash": "071bf885",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11533,6 +11638,24 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
+      "hash": "7d42cc35",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-159"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -11984,11 +12107,12 @@
       "id": "code:src/modules/procurement/application/goods-receipt-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
-      "hash": "a84be7cc",
+      "hash": "f6945b36",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-165"
+          "FR-165",
+          "FR-168"
         ],
         "@spec": [
           "BR-002",
@@ -12103,8 +12227,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "c4d9617c",
-      "status": "current",
+      "hash": "725b0a6e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -12120,6 +12244,7 @@
           "FR-154",
           "FR-155",
           "FR-156",
+          "FR-169",
           "FR-022",
           "FR-166",
           "FR-163",
@@ -12185,7 +12310,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "dff77e26",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -14063,7 +14188,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/llm/provider-catalog.js",
       "hash": "fbd56858",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-048"
@@ -14183,7 +14308,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.52.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "16a512b4",
+      "hash": "39d92f9c",
       "status": "changed"
     },
     {
@@ -14238,7 +14363,7 @@
       "version": "1.28.0b",
       "doc_status": "Draft",
       "hash": "417bb1e9",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14609,8 +14734,8 @@
       "title": "Features (FEAT registry)",
       "version": "1.31.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "162c8c88",
-      "status": "current"
+      "hash": "4070a635",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -16126,8 +16251,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.168.0b",
       "doc_status": "Draft",
-      "hash": "3770e1a4",
-      "status": "current"
+      "hash": "62419b51",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -16154,7 +16279,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "306d3d47",
+      "hash": "8c55172b",
       "status": "changed"
     },
     {
@@ -16407,7 +16532,7 @@
         "agent"
       ],
       "hash": "ea5560af",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:asset-management",
@@ -16597,7 +16722,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "097cc353",
+      "hash": "9f171eab",
       "status": "current"
     },
     {
@@ -19492,6 +19617,36 @@
       "row_text": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built. 🟠 implemented locally 2026-09-07 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/scm-group-navigation.test.js` "
     },
     {
+      "id": "req:FR-168",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply. 🟠 implemented locally 2026-09-07 — enum + domain rules + catalogue service + the two refusals; no schema column, because `stockPolicy` is already a free TEXT column (`enums.js`, `inventory/domain/inventory.js`, `procurement/application/goods-receipt-service.js`, `tests/unit/inventory-domain.test.js`) "
+    },
+    {
+      "id": "req:FR-169",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration (not applied to production; ADR-057), `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle "
+    },
+    {
+      "id": "req:FR-170",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes. 🟠 implemented locally 2026-09-07 — `ModuleTabs` in `src/components/ui/index.jsx`, tab lists in `src/lib/module-tabs.js`, wired into the four Procurement/Commerce pages; no route, no model, no migration "
+    },
+    {
       "id": "req:FR-171",
       "type": "requirement",
       "family": "FR",
@@ -21179,6 +21334,14 @@
       "kind": "api",
       "route": "/api/business/strategy",
       "path": "apps/server/src/app/api/business/strategy/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/businesses/[id]/capabilities",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/businesses/[id]/capabilities",
+      "path": "apps/server/src/app/api/businesses/[id]/capabilities/route.js",
       "status": "current"
     },
     {
@@ -23873,14 +24036,14 @@
       "id": "test:tests/e2e/fr164-procurement.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
-      "hash": "a35e5c94",
+      "hash": "671813dc",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
-      "hash": "b27c874a",
+      "hash": "062b3f1a",
       "status": "current"
     },
     {
@@ -24402,6 +24565,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr169-business-capability.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr169-business-capability.test.js",
+      "hash": "3141baf6",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/iam-authorization.test.js",
@@ -24678,8 +24848,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "7a6d95c3",
-      "status": "current"
+      "hash": "550a04b4",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -24797,8 +24967,8 @@
       "id": "test:tests/integration/server-line-trace.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-trace.test.js",
-      "hash": "fc481297",
-      "status": "changed"
+      "hash": "f83f52f9",
+      "status": "current"
     },
     {
       "id": "test:tests/integration/server-line-webhook.test.js",
@@ -25162,6 +25332,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/bundle-schema.test.js",
       "hash": "13b01116",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-capabilities.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/business-capabilities.test.js",
+      "hash": "411b2ca2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-capability-navigation.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/business-capability-navigation.test.js",
+      "hash": "fc24ff76",
       "status": "current"
     },
     {
@@ -25529,10 +25713,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-step-timings-reporter.test.js",
+      "hash": "0f9cb328",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/e2e-warmup.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/e2e-warmup.test.js",
-      "hash": "96105e8a",
+      "hash": "4c1a9f8d",
       "status": "current"
     },
     {
@@ -26057,7 +26248,7 @@
       "id": "test:tests/unit/inventory-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/inventory-domain.test.js",
-      "hash": "f361666a",
+      "hash": "1bf46214",
       "status": "current"
     },
     {
@@ -26484,7 +26675,7 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "ea794705",
+      "hash": "95d0cec8",
       "status": "current"
     },
     {
@@ -26610,7 +26801,14 @@
       "id": "test:tests/unit/model-provider-trace.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/model-provider-trace.test.js",
-      "hash": "001909d6",
+      "hash": "e7d93e85",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/module-tabs.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/module-tabs.test.js",
+      "hash": "878b857d",
       "status": "current"
     },
     {
@@ -27247,7 +27445,7 @@
       "id": "test:tests/unit/service-role-grant-baseline.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
-      "hash": "d86648c9",
+      "hash": "4da79ae5",
       "status": "current"
     },
     {
@@ -28500,6 +28698,13 @@
     },
     {
       "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:FR-168",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -29608,6 +29813,20 @@
       "from": "code:src/app/(pm)/settings/page.jsx",
       "to": "req:FR-105",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -31203,6 +31422,27 @@
     {
       "from": "code:src/app/api/business/strategy/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/businesses/[id]/capabilities/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/businesses/[id]/capabilities/route.js",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/businesses/[id]/capabilities/route.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -36270,6 +36510,13 @@
     },
     {
       "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -36438,6 +36685,13 @@
     },
     {
       "from": "code:src/components/layouts/Sidebar.jsx",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Sidebar.jsx",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -36530,6 +36784,13 @@
     {
       "from": "code:src/components/ui/index.jsx",
       "to": "req:FR-014",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/ui/index.jsx",
+      "to": "req:FR-170",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36676,6 +36937,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -36804,6 +37072,13 @@
       "from": "code:src/context/ScopeContext.jsx",
       "to": "req:SEC-008",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-capabilities.js",
+      "to": "req:FR-169",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -36944,6 +37219,13 @@
       "from": "code:src/lib/ids.js",
       "to": "req:SDD-003",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/module-tabs.js",
+      "to": "req:FR-170",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -39209,6 +39491,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/business/application/business-capability-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-capability-service.js",
+      "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-capability-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/business/application/business-home-read-model.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -41247,6 +41550,13 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-168",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -41332,6 +41642,13 @@
     {
       "from": "code:src/modules/inventory/domain/inventory.js",
       "to": "req:FR-156",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-168",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -43934,6 +44251,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/MarketingState.jsx",
       "to": "req:FR-159",
       "type": "implements",
@@ -44467,6 +44798,13 @@
     },
     {
       "from": "code:src/modules/procurement/application/goods-receipt-service.js",
+      "to": "req:FR-168",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/procurement/application/goods-receipt-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -44783,6 +45121,13 @@
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-166",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-169",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -54721,6 +55066,27 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-168",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-169",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-170",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-171",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -55968,6 +56334,13 @@
     },
     {
       "from": "route:api:/api/business/strategy",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/businesses/[id]/capabilities",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -60672,6 +61045,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -61694,6 +62074,13 @@
     },
     {
       "from": "test:tests/e2e/fr164-procurement.spec.js",
+      "to": "req:FR-170",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr164-procurement.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -61723,6 +62110,13 @@
     {
       "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr166-commerce-orders.spec.js",
+      "to": "req:FR-170",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -62478,6 +62872,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -62647,6 +63048,20 @@
     {
       "from": "test:tests/integration/adaptive-shell.test.js",
       "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -67889,6 +68304,13 @@
     },
     {
       "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -68386,6 +68808,13 @@
     },
     {
       "from": "test:tests/integration/fr165-goods-receipt.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr165-goods-receipt.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -68478,6 +68907,83 @@
     {
       "from": "test:tests/integration/fr166-sales-order.test.js",
       "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "code:src/app/(pm)/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "code:src/app/api/businesses/[id]/capabilities/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "code:src/modules/business/application/business-capability-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr169-business-capability.test.js",
+      "to": "req:SEC-020",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -71467,6 +71973,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-169",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -75281,6 +75794,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -76360,6 +76880,230 @@
     {
       "from": "test:tests/unit/bundle-schema.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capabilities.test.js",
+      "to": "code:src/lib/business-capabilities.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-capabilities.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "code:src/app/(pm)/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-163",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-164",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -77836,6 +78580,13 @@
     },
     {
       "from": "test:tests/unit/design-system.test.js",
+      "to": "req:FR-170",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -78102,6 +78853,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -78264,6 +79022,13 @@
     {
       "from": "test:tests/unit/e2e-reconnecting-request.test.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -78908,6 +79673,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-169",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -80867,6 +81639,13 @@
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -82721,6 +83500,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/app/(pm)/inventory/page.jsx",
       "type": "tests",
@@ -83003,6 +83789,20 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-169",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -85487,6 +86287,13 @@
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -85544,6 +86351,13 @@
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -86272,6 +87086,55 @@
     {
       "from": "test:tests/unit/model-provider-trace.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "code:src/components/ui/index.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "code:src/lib/module-tabs.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:FR-170",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:SDD-010",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -87622,6 +88485,13 @@
     },
     {
       "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -88917,6 +89787,13 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -89058,6 +89935,13 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-169",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -90772,6 +91656,13 @@
     },
     {
       "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -91172,6 +92063,13 @@
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:FR-169",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
