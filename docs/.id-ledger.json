@@ -281,6 +281,7 @@
     "FR-168",
     "FR-169",
     "FR-170",
+    "FR-171",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -598,6 +599,7 @@
     "ADR-067",
     "ADR-068",
     "ADR-069",
+    "ADR-070",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3207,6 +3209,19 @@
       "history": [
         {
           "anchor": "a sub domain module with more than one page renders them as",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-171": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1a63502f21b490c318ce5cd6d5430b833397c35e9a45cf86bb21ed9edb30766b",
+      "history": [
+        {
+          "anchor": "customer facing navigation groups two domains under one crm",
           "since": "2026-09-07",
           "reason": "declared"
         }
@@ -7383,6 +7398,19 @@
       "history": [
         {
           "anchor": "scm is a parent domain over warehouse inventory procurement",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-070": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "status": "current",
+      "statement_digest": "e7bd470bf6f1c72ee7ed8f22c8765254cdbef341d4da4c91d026acd54a7e0bd2",
+      "history": [
+        {
+          "anchor": "crm is a parent domain over customer and market intelligence",
           "since": "2026-09-07",
           "reason": "declared"
         }

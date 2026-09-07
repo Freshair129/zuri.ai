@@ -1450,6 +1450,17 @@ Source: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procureme
 Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
+- [ADR-070 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md) (relates)
+
+## ADR-070 — CRM is a parent domain over Customer and Market Intelligence
+
+Source: [ADR-070 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)
+
+- relates: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+
+Backlinks:
+
+- [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2705,6 +2716,7 @@ Backlinks:
 Source: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
 
 - references: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+- references: [ADR-070 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)
 
 Backlinks:
 

@@ -7,7 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark,
+  Layers, Bot, Cpu, Bookmark, Contact,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
@@ -60,7 +60,11 @@ export const DOMAINS = [
     // `Message` have been written by the FR-023 LINE ingest since the first turn;
     // FR-081 left them deliberately unreadable, so this domain was `soon` while its
     // data was already arriving. The Inbox is the reader surface that closes that.
-    key: 'customer', label: 'CRM', icon: Users, soon: false,
+    // @req FR-171 — labelled `Customer` since ADR-070: CRM became the bar slot
+    // over this domain and Market Intelligence, so the leaf and the group
+    // cannot both read "CRM" (the same collision ADR-069 D4 fixed for
+    // Inventory/Warehouse). The route key stays `customer` (AGENTS.md §18).
+    key: 'customer', label: 'Customer', icon: Users, soon: false,
     sub: [
       { label: 'Dashboard', path: '/customer', icon: LayoutDashboard },
       { label: 'Inbox', path: '/customer/conversations', icon: MessagesSquare },
@@ -280,6 +284,14 @@ export const DOMAINS = [
 // about that key.
 // @spec ADR-069 D1, D2, D6
 // @tested tests/unit/scm-group-navigation.test.js
+//
+// @req FR-171 — a second group, CRM, over Customer and Market Intelligence
+// (ADR-070): the same owner instruction ("top nav bar ตามหลัก erp") applied to
+// the rest of the bar, walked domain by domain in the ADR's Context table.
+// Every other remaining slot already stands as one complete ERP-recognised
+// module with no sibling to consolidate, so only this one pair gets a group.
+// @spec ADR-070 D1, D2, D6
+// @tested tests/unit/crm-group-navigation.test.js
 export const DOMAIN_GROUPS = [
   {
     key: 'scm',
@@ -287,6 +299,13 @@ export const DOMAIN_GROUPS = [
     caption: 'ซัพพลายเชน',
     icon: Layers,
     childKeys: ['inventory', 'warehouse', 'procurement', 'commerce'],
+  },
+  {
+    key: 'crm',
+    label: 'CRM',
+    caption: 'ลูกค้าและตลาด',
+    icon: Contact,
+    childKeys: ['customer', 'market'],
   },
 ]
 

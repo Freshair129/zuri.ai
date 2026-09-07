@@ -6298,7 +6298,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "d96537e2",
+      "hash": "c1c8f673",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6310,6 +6310,7 @@
           "FR-163",
           "FR-167",
           "FR-091",
+          "FR-171",
           "FR-161",
           "FR-159",
           "FR-160",
@@ -6337,7 +6338,8 @@
           "tests/unit/inventory-routes.test.js",
           "tests/unit/scm-group-navigation.test.js",
           "tests/unit/business-capability-navigation.test.js",
-          "tests/unit/procurement-routes.test.js"
+          "tests/unit/procurement-routes.test.js",
+          "tests/unit/crm-group-navigation.test.js"
         ]
       }
     },
@@ -14503,9 +14505,9 @@
       "type": "document",
       "path": "docs/ERP-MODULE-MAP.md",
       "title": "ERP module map — where each module the owner names lives",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
-      "hash": "11c7c61b",
+      "hash": "c95a0568",
       "status": "current"
     },
     {
@@ -14567,7 +14569,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "b8ea8341",
+      "hash": "ab76b0d5",
       "status": "current"
     },
     {
@@ -15558,7 +15560,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "72cc4fcb",
+      "hash": "cfdf76dd",
       "status": "current"
     },
     {
@@ -16068,7 +16070,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "09b9037b",
+      "hash": "12cd84be",
       "status": "current"
     },
     {
@@ -16096,7 +16098,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8d022be7",
+      "hash": "92e77e9a",
       "status": "current"
     },
     {
@@ -19455,6 +19457,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes. 🟠 implemented locally 2026-09-07 — `ModuleTabs` in `src/components/ui/index.jsx`, tab lists in `src/lib/module-tabs.js`, wired into the four Procurement/Commerce pages; no route, no model, no migration "
+    },
+    {
+      "id": "req:FR-171",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Customer-facing navigation groups two domains under one CRM slot (ADR-070), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-070's Context table records the check for each).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Customer-facing navigation groups two domains under one CRM slot (ADR-070), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-070's Context table records the check for each). 🟠 implemented locally 2026-09-08 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + existing `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read unchanged by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/crm-group-navigation.test.js` "
     },
     {
       "id": "req:NFR-001",
@@ -23677,6 +23689,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "title": "ADR-070 — CRM is a parent domain over Customer and Market Intelligence",
+      "hash": "5c21d177",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
@@ -23729,7 +23749,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr060-business-home.spec.js",
-      "hash": "be110e35",
+      "hash": "b46cf137",
       "status": "current"
     },
     {
@@ -25259,6 +25279,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/crm-group-navigation.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/crm-group-navigation.test.js",
+      "hash": "788e004f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/customer-consent-migration.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/customer-consent-migration.test.js",
@@ -25458,7 +25485,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/domain-navigation.test.js",
-      "hash": "c5e46502",
+      "hash": "91063f2d",
       "status": "current"
     },
     {
@@ -27159,7 +27186,7 @@
       "id": "test:tests/unit/scm-group-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scm-group-navigation.test.js",
-      "hash": "1a477ade",
+      "hash": "bd173f4d",
       "status": "current"
     },
     {
@@ -40018,6 +40045,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -51994,6 +52028,13 @@
       "status": "current"
     },
     {
+      "from": "doc:ERP-MODULE-MAP",
+      "to": "spec:ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -57916,6 +57957,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-171",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -63411,6 +63459,13 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "to": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -63756,6 +63811,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78434,6 +78496,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -79701,6 +79770,13 @@
     },
     {
       "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -80785,6 +80861,181 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-163",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-164",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-consent-migration.test.js",
       "to": "req:BR-002",
       "type": "verifies",
@@ -81490,6 +81741,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
@@ -82313,6 +82571,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -86428,6 +86693,13 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -88886,6 +89158,13 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -92350,6 +92629,13 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -94216,6 +94502,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/scm-group-navigation.test.js",
@@ -98260,7 +98553,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2331,
+    "server_nodes": 2334,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

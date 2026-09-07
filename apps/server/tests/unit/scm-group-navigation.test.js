@@ -43,10 +43,10 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
 
   it('stands in the bar once, where its first child used to be', () => {
     const slots = domainBarSlots()
-    const groups = slots.filter((slot) => slot.kind === 'group')
-    expect(groups).toHaveLength(1)
-    expect(groups[0].group.key).toBe('scm')
-    expect(groups[0].children.map((child) => child.key)).toEqual(scm().childKeys)
+    // @req FR-171 — a second group (CRM, ADR-070) now shares the bar with SCM,
+    // so this finds SCM's own slot rather than asserting there is only one.
+    const scmSlot = slots.find((slot) => slot.kind === 'group' && slot.group.key === 'scm')
+    expect(scmSlot.children.map((child) => child.key)).toEqual(scm().childKeys)
 
     // No child may also stand on its own, or the bar shows the same domain twice.
     const barKeys = slots.filter((slot) => slot.kind === 'domain').map((slot) => slot.domain.key)

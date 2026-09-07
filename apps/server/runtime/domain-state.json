@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T19:23:31.515Z",
+  "generatedAt": "2026-09-07T20:34:15.509Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 125,
-    "readyFeatureCount": 103,
-    "requirementCount": 170,
-    "verifiedRequirementCount": 160,
-    "progressPercent": 94.1,
+    "featureCount": 126,
+    "readyFeatureCount": 104,
+    "requirementCount": 171,
+    "verifiedRequirementCount": 161,
+    "progressPercent": 94.2,
     "gapCount": 22,
     "gaps": [
       {
@@ -601,7 +601,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-134",
@@ -811,14 +811,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "checks": {
@@ -971,7 +971,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-093",
@@ -1048,7 +1048,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "checks": {
@@ -1147,11 +1147,12 @@
         "FEAT-014",
         "FEAT-022",
         "FR-023",
-        "FR-103"
+        "FR-103",
+        "FR-171"
       ],
-      "featureCount": 6,
-      "readyFeatureCount": 3,
-      "progressPercent": 77.8
+      "featureCount": 7,
+      "readyFeatureCount": 4,
+      "progressPercent": 80
     },
     "identity": {
       "status": "partial",
@@ -1399,42 +1400,42 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "checks": {
@@ -1986,7 +1987,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-155",
@@ -2429,7 +2430,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-093",
@@ -2756,7 +2757,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-158",
@@ -2770,14 +2771,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 17,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-162",
@@ -3061,14 +3062,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-168",
@@ -3397,7 +3398,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-040",
@@ -3418,7 +3419,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-043",
@@ -3439,7 +3440,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-046",
@@ -3474,7 +3475,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-061",
@@ -3607,7 +3608,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-087",
@@ -3642,7 +3643,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-092",
@@ -3740,7 +3741,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-127",
@@ -3754,7 +3755,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-134",
@@ -3859,7 +3860,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-155",
@@ -3880,7 +3881,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-158",
@@ -3894,63 +3895,70 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-161",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-163",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-164",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-166",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-167",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-169",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 18
+          "testCount": 19
+        },
+        {
+          "id": "FR-171",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 10
         }
       ],
       "checks": {
@@ -4240,7 +4248,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-058",
@@ -4301,6 +4309,7 @@
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -4355,7 +4364,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 30
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -4387,6 +4396,7 @@
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/business-strategy-route.test.js",
         "apps/server/tests/unit/business-strategy-service.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -4769,7 +4779,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-087",
@@ -4829,6 +4839,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -4876,7 +4887,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-093",
@@ -4924,6 +4935,7 @@
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -5386,7 +5398,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-134",
@@ -5473,6 +5485,7 @@
         "apps/server/tests/unit/asset-scanner-ui.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -5964,7 +5977,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-155",
@@ -6023,6 +6036,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
@@ -6066,7 +6080,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-158",
@@ -6080,14 +6094,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-160",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-162",
@@ -6194,6 +6208,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -6247,7 +6262,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -6272,6 +6287,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -6313,14 +6329,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-166",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -6358,6 +6374,7 @@
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
         "apps/server/tests/unit/commerce-routes.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
@@ -6398,14 +6415,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-165",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -6443,6 +6460,7 @@
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
@@ -8026,7 +8044,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -8043,6 +8061,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/breadcrumb-switcher.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -8135,7 +8154,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -8151,6 +8170,7 @@
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -10633,7 +10653,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -10647,6 +10667,7 @@
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -10949,7 +10970,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -10959,6 +10980,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -11031,7 +11053,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -11051,6 +11073,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capabilities.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -11094,6 +11117,46 @@
         "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
         "apps/server/tests/unit/design-system.test.js",
         "apps/server/tests/unit/module-tabs.test.js"
+      ]
+    },
+    {
+      "id": "FR-171",
+      "title": "Customer-facing navigation groups two domains under one CRM slot (ADR-070), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-070's Context table records the check for each).",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-171"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้กดช่อง CRM ช่องเดียวในแถบโดเมน แล้วเห็น Customer กับ Market Intelligence เรียงกันในเมนูด้านซ้าย จึงข้ามจากลูกค้าไปข้อมูลตลาดได้โดยไม่ต้องกลับขึ้นแถบบน เหมือนกับที่ SCM ทำไว้กับคลัง จัดซื้อ และคำสั่งขาย",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-171",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 10
+        }
+      ],
+      "evidence": [
+        "apps/server/src/config/domains.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     }
   ]
