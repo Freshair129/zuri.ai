@@ -85,7 +85,7 @@ Charter: [docs/domains/inventory/CHARTER.md](domains/inventory/CHARTER.md)
 | Modules | `src/modules/inventory` |
 | Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement |
 | Routes owned | 15 (14 api · 1 pages) |
-| FRs implemented in lane | FR-154, FR-155, FR-156 |
+| FRs implemented in lane | FR-154, FR-155, FR-156, FR-168 |
 
 ## knowledge
 
@@ -151,7 +151,7 @@ Charter: [docs/domains/procurement/CHARTER.md](domains/procurement/CHARTER.md)
 | Modules | `src/modules/procurement` |
 | Models owned | Supplier, PurchaseOrder, PurchaseOrderLine, GoodsReceipt, GoodsReceiptLine |
 | Routes owned | 7 (5 api · 2 pages) |
-| FRs implemented in lane | FR-164, FR-165 |
+| FRs implemented in lane | FR-164, FR-165, FR-168 |
 
 ## project-manager
 
