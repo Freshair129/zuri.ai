@@ -3,7 +3,7 @@ domain: knowledge
 feature: FR-110
 module: knowledge
 source: v2-native
-version: "0.2.0b"
+version: "0.4.0b"
 status: "partial"
 ---
 
@@ -185,7 +185,9 @@ effect of a query.
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
 what FR-110 owns — the gate, the publication and the snapshot. The KNO-01
-contract slice below is implemented; publication and retrieval remain open.
+contract slice and the zuri-ai half of KNO-02 — the reporter receiver, the
+Stage 17 decision writer and the derived run close (ADR-067, 2026-09-07) —
+are implemented; publication and retrieval remain open.
 
 - [ ] **AC-110.1** A published snapshot carries `knowledge_snapshot_id`,
       `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`,
@@ -195,10 +197,17 @@ contract slice below is implemented; publication and retrieval remain open.
       other four dimensions.
 - [ ] **AC-110.3** Only a gate result of `PASS` or `PASS_WITH_WARNINGS` reaches
       publication; `QUARANTINE` and `FAIL` cannot publish under any policy.
-- [ ] **AC-110.4** Every gate result, publishing or not, is recorded as a
+- [x] **AC-110.4** Every gate result, publishing or not, is recorded as a
       `PipelineGateDecision` linked to the producing `pipeline_job_id`, with
       the §23 result carried as that decision's evidence while its `status`
       remains one of FR-071's `PENDING` / `APPROVED` / `REJECTED` / `WAIVED`.
+      Closed by ADR-067: `recordKnowledgeStage17Decision` writes the decision
+      as `GATE_UPDATED` on the run's materialised Stage 17 step — evidence is
+      `toKnowledgeStage17Evidence`'s verdict/snapshot/dimensions, `status` is
+      the FR-071 ledger status, and the shared envelope refuses an `APPROVED`
+      row whose verdict or dimensions block publication — then closes the
+      step `SUCCEEDED`: the gate ran; the verdict is the decision. Proven
+      against the real database for `PASS`, `FAIL` and `QUARANTINE`.
 - [ ] **AC-110.5** Publication is atomic: retrieval never observes a snapshot
       whose indexes are partially built, and no partial graph is published
       without an explicit policy admitting it.
@@ -251,16 +260,56 @@ requires and checks its Stage 17 event scope against that snapshot. The pure
 failed or critical quality dimension. It performs no publication or pointer
 swap.
 
-The remaining acceptance criteria are still external or later slices: the
-Stage 9–17 reporter/finalization contract, atomic publication, immutable
-snapshot storage, retrieval, citation and GraphRAG readiness. The knowledge
-domain owns no Prisma model; the snapshot is produced by GKS/Genesis and this
-slice carries identity, statistics and bounded evidence only.
+**The reporter half of KNO-02 (ADR-067, 2026-09-07).** The envelopes above
+gained what a receiver needs and KNO-01 had left out — `outcome`
+(`SUCCEEDED` / `FAILED`), BR-022's `failure` envelope refined against it, and
+the execution's own `startedAt` / `finishedAt` — and three functions in the
+integration lane's `knowledge-ingestion-executor.js` now take them:
+`recordKnowledgeStageReport` (Stages 9–16, four of the six NFR-020 metrics
+onto the ledger's columns and the two that have none returned under
+`declined`), `recordKnowledgeStage17Decision` (AC-110.4) and
+`finishKnowledgeIngestionRun` (the run's close, derived from the ledger by
+`knowledgeRunOutcome` and never declared by the caller). A fourth,
+`readKnowledgeIngestionJob`, serves the run, its seventeen step identities and
+FR-109's job state. Four routes under `/api/pipelines/knowledge/{executionRunId}`
+front them, authenticating the run's Tenant's FR-102 data-plane key ahead of
+the session — the owner's choice among the three options ADR-067 records. A
+report names the step the ledger materialised, is keyed by run + stage +
+attempt + outcome so a retry replays and a conflicting retry is refused, and
+the writer refuses a Tier 1 stage id from a reporter key whatever the
+receiver did.
+
+**The pull half of KNO-02 (ADR-068, 2026-09-07, the same day).** Read against
+GKS's own accepted `ADR-GKS-LEDGER-REPORTING`, the receiver above was half an
+answer: GKS never calls outward, so its evidence leaves as a cursor pull.
+`pullKnowledgeStageEvidence` (`knowledge-evidence-importer.js`, integration
+lane) calls MSP's relay `msp_knowledge_evidence_export` over the spawned-MSP
+transport (`src/modules/agent/msp-stdio-transport.js`), owns the cursor per
+`KnowledgeScope` in `KnowledgeEvidenceCursor`, and applies every attributable
+row through `recordKnowledgeStageReport` — or names why it cannot
+(`unattributed`, `held`, `blocked`). Fronted by
+`POST /api/pipelines/knowledge/evidence/pull`, installation operator only.
+Proven live across three repositories: a Stage 9 execution in the real GKS,
+reached through the real MSP with the run named, lands as
+`DPS-KI-ENTITY-RESOLVE` on that run here
+(`tests/integration/fr110-knowledge-evidence-chain.test.js`). GKS's export,
+its port version 3 and its backfill, and MSP's relay were built the same day in
+their own repositories.
+
+The remaining acceptance criteria are still external or later slices: atomic
+publication, immutable snapshot storage, retrieval, citation and GraphRAG
+readiness. The knowledge domain owns no Prisma model; the snapshot is produced
+by GKS/Genesis and this repository carries identity, statistics and bounded
+evidence only. `evaluateKnowledgePublication` still has no production caller:
+publication is the external tiers' act, and the receiver records their
+decision rather than making one.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-09-07 | partial | ADR-068: the pull half — spawned-MSP transport, `KnowledgeEvidenceCursor`, `pullKnowledgeStageEvidence` with four-way row attribution, `POST /api/pipelines/knowledge/evidence/pull`; proven live against the real MSP and GKS (Stage 9 evidence on this ledger) | working-tree | Claude Fable 5.1 |
+| 0.3.0b | 2026-09-07 | partial | ADR-067: reporter receiver for Stages 9–16, Stage 17 decision writer (AC-110.4 closed), derived run close, job read, four routes under the FR-102 data-plane key; envelopes gain outcome/failure/times | working-tree | Claude Fable 5.1 |
 | 0.2.0b | 2026-08-31 | partial | Implemented the KNO-01 strict Stage 9–16 aggregate report, FR-110 snapshot allow-list, Stage 17 decision/evidence projection, scope binding and publication precondition evaluator; atomic publication remains out of scope | working-tree | ATHER |
 
 ## Related documents

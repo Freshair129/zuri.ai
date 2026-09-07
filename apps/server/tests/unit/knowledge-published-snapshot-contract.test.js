@@ -13,6 +13,8 @@ import {
 import {
   KNOWLEDGE_GATE_VERDICTS,
   KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS,
+  KNOWLEDGE_STAGE_OUTCOMES,
+  parseKnowledgeRunFinish,
   parseKnowledgeStage17Decision,
   parseKnowledgeStage17Evidence,
   parseKnowledgeStageReport,
@@ -23,9 +25,12 @@ import {
 
 // @req FR-110 — a published knowledge corpus is identified by one strict,
 // scope-bound snapshot and Stage 17's quality result is auditable evidence.
-// @spec SDD-057, ADR-042, ADR-043 D2.1, ADR-046, ADR-050 D3-D5,
+// @spec SDD-057, ADR-042, ADR-043 D2.1, ADR-046, ADR-050 D3-D5, ADR-067 D2, ADR-067 D3,
 // docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md
 // @tested tests/unit/knowledge-published-snapshot-contract.test.js
+
+const STARTED_AT = '2026-08-31T00:00:00.000Z'
+const FINISHED_AT = '2026-08-31T00:02:05.500Z'
 
 const SNAPSHOT = {
   knowledge_snapshot_id: 'ks_20260831_001',
@@ -60,6 +65,10 @@ function stageReport(over = {}) {
     executionStepId: 'step-knowledge-1',
     attemptId: 'attempt-knowledge-1',
     scope: { tenantId: 'tenant-1', businessId: 'business-1' },
+    outcome: 'SUCCEEDED',
+    failure: null,
+    startedAt: STARTED_AT,
+    finishedAt: FINISHED_AT,
     metrics: {
       records_in: 10,
       records_out: 9,
@@ -71,6 +80,8 @@ function stageReport(over = {}) {
     ...over,
   }
 }
+
+const FAILURE = { failureCode: 'GKS_RESOLUTION_TIMEOUT', errorRef: 'gks://errors/run-knowledge-1/9', retryable: true }
 
 function stage17Decision(over = {}) {
   return {
@@ -85,6 +96,8 @@ function stage17Decision(over = {}) {
     verdict: 'PASS',
     snapshot: { ...SNAPSHOT, statistics: { ...SNAPSHOT.statistics } },
     dimensions: structuredClone(DIMENSIONS),
+    startedAt: STARTED_AT,
+    finishedAt: FINISHED_AT,
     ...over,
   }
 }
@@ -204,7 +217,62 @@ describe('FR-110 / KNO-01 — Stage 9–16 external evidence is control metadata
       expect(() => parseKnowledgeStageReport(stageReport({
         scope: { tenantId: 'tenant-1', businessId: 'business-1', [field]: {} },
       }))).toThrow()
+      expect(() => parseKnowledgeStageReport(stageReport({
+        outcome: 'FAILED', failure: { ...FAILURE, [field]: {} },
+      }))).toThrow()
     }
+  })
+
+  // ADR-067 D2 — a report says whether the stage completed, and a stage that
+  // did not carries BR-022's envelope; the two are refined together.
+  it('requires the outcome to agree with the failure envelope, in both directions', () => {
+    expect(KNOWLEDGE_STAGE_OUTCOMES).toEqual(['SUCCEEDED', 'FAILED'])
+    const failed = parseKnowledgeStageReport(stageReport({ outcome: 'FAILED', failure: FAILURE }))
+    expect(failed.failure).toEqual(FAILURE)
+    expect(() => parseKnowledgeStageReport(stageReport({ outcome: 'FAILED', failure: null }))).toThrow(/BR-022/)
+    expect(() => parseKnowledgeStageReport(stageReport({ outcome: 'SUCCEEDED', failure: FAILURE }))).toThrow(/no failure envelope/)
+    expect(() => parseKnowledgeStageReport(stageReport({ outcome: 'SKIPPED' }))).toThrow()
+    for (const field of ['outcome', 'failure', 'startedAt', 'finishedAt']) {
+      const value = stageReport()
+      delete value[field]
+      expect(() => parseKnowledgeStageReport(value)).toThrow()
+    }
+    // The raw message is not a member: the ledger is redacted (SDD-073).
+    expect(() => parseKnowledgeStageReport(stageReport({
+      outcome: 'FAILED', failure: { ...FAILURE, errorMessage: 'stack trace' },
+    }))).toThrow()
+  })
+
+  it('requires the reported interval to run forwards, on reports and on the Stage 17 decision alike', () => {
+    expect(() => parseKnowledgeStageReport(stageReport({ startedAt: FINISHED_AT, finishedAt: STARTED_AT }))).toThrow(/precedes/)
+    expect(() => parseKnowledgeStageReport(stageReport({ startedAt: 'yesterday' }))).toThrow()
+    expect(parseKnowledgeStageReport(stageReport({ startedAt: STARTED_AT, finishedAt: STARTED_AT })).finishedAt).toBe(STARTED_AT)
+    expect(() => parseKnowledgeStage17Decision(stage17Decision({ startedAt: FINISHED_AT, finishedAt: STARTED_AT }))).toThrow(/precedes/)
+    for (const field of ['startedAt', 'finishedAt']) {
+      const value = stage17Decision()
+      delete value[field]
+      expect(() => parseKnowledgeStage17Decision(value)).toThrow()
+    }
+  })
+})
+
+describe('FR-110 / ADR-067 D3 — the close request names the run and carries no status', () => {
+  const finish = (over = {}) => ({
+    dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+    executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+    executionRunId: 'run-knowledge-1',
+    scope: { tenantId: 'tenant-1', businessId: 'business-1' },
+    finishedAt: FINISHED_AT,
+    ...over,
+  })
+
+  it('accepts the definition-scoped close and rejects a caller-declared terminal status', () => {
+    expect(parseKnowledgeRunFinish(finish()).executionRunId).toBe('run-knowledge-1')
+    expect(() => parseKnowledgeRunFinish(finish({ status: 'SUCCEEDED' }))).toThrow()
+    expect(() => parseKnowledgeRunFinish(finish({ verdict: 'PASS' }))).toThrow()
+    expect(() => parseKnowledgeRunFinish(finish({ dataPipelineDefinitionId: DATA_PIPELINE_DEFINITION_ID }))).toThrow()
+    expect(() => parseKnowledgeRunFinish(finish({ scope: { tenantId: 'tenant-1' } }))).toThrow()
+    expect(() => parseKnowledgeRunFinish(finish({ finishedAt: 'now' }))).toThrow()
   })
 })
 

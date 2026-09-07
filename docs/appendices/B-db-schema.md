@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.26.0b |
+| **Version** | 1.27.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-07 |
 
@@ -82,6 +82,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PipelineRecordEvent | runId, stepId?, attemptId, pipelineRecordId, source key/hash, docId?, picId?, factId?, destinationRecordId?, status, failure evidence | redacted record outcome/provenance ledger; no OCR/document/image payload (FR-071) |
 | PipelineReconciliation | runId, stepId?, expected/actual/delta counts, source/artifact/staging/destination hashes, RLS/isolation result | reconciliation evidence linked to a run/stage (FR-071) |
 | PipelineGateDecision | runId, gateId?, status, required, decision/evidence references, auditEventId | approval/hold evidence for execution; existing Project Manager Gate remains its owner (FR-071) |
+| KnowledgeEvidenceCursor | portfolioId, tenantId, businessId, workspaceId, projectId, sharing (unique together), cursor, lastPulledAt | zuri-ai's own cursor into GKS's `gks_stage_evidence_export`, one per exact KnowledgeScope pulled — no wildcard scope; advances only after the page's ledger writes committed, so a crash replays a page the receiver's idempotency makes harmless. Integration-lane bookkeeping for the evidence pull, not a ledger table (FR-110, ADR-068 D2) |
 | SotDecision | tenantId, businessId?, decisionType, subjectRef, phaseId?, payloadJson+payloadSha256, decisionVersion, status, decidedByPersonId, reason, auditEventId | the SoT pipeline's generic human-decision queue: submitted by the data plane, decided in the browser, pulled back by cursor; rows immutable once decided (FR-100, ADR-046) |
 | SotDataPlaneKey | label, tenantId, keyHash (unique), keyPrefix, status, lastUsedAt, revokedAt, revokeReason | a service-account credential bound to exactly one Tenant, letting the external data plane authenticate to the FR-100 submit/export endpoints without a browser session or a Person; only the SHA-256 hash of the secret is stored, never the secret itself; revocation is immediate, no grace period (FR-102, ADR-047, SEC-019) |
 | ApiAccessKey | label, tenantId, keyHash (unique), keyPrefix, status, lastUsedAt, revokedAt, revokeReason | a Tenant-bound Enterprise API credential (FR-106) generalizing SotDataPlaneKey per ADR-047 D3: authenticates the FR-019 dry-run/commit/resolve/docs surface without a browser session or a Person; only the SHA-256 hash of the secret is stored, never the secret itself; minted by operator/Tenant-owner with the raw secret shown exactly once; revocation is immediate, no grace period (SEC-006, SEC-001) |
@@ -193,6 +194,11 @@ Version diff 1.25.0b → 1.26.0b (2026-09-07): added `Supplier`, `PurchaseOrder`
 `GoodsReceiptLine` (FR-164, FR-165, ADR-066 — the Procurement lane's first slice; cost in integer satang, no stored total
 or received quantity, the receipt never edited) with one additive migration in each tree (`20260907010000_procurement`)
 in the same change; the Supabase SQL is written and **not applied**.
+
+Version diff 1.26.0b → 1.27.0b (2026-09-07): added `KnowledgeEvidenceCursor` (FR-110, ADR-068 — the puller's cursor
+per exact knowledge scope over GKS's `gks_stage_evidence_export`, advanced only after a page's ledger writes committed)
+with one additive migration in each tree (`20260907120000_knowledge_evidence_cursor`) in the same change; the Supabase
+SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
