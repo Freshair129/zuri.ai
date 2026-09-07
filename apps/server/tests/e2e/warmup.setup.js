@@ -43,16 +43,20 @@ const ROUTES = [
   '/projects/warmup/all-work', '/projects/warmup/timeline', '/projects/warmup/repositories',
   '/projects/warmup', '/projects/warmup/execution/DELIVERY', '/projects/new',
   '/assets', '/assets/receiving', '/assets/register', '/assets/scanner',
-  // @req FR-146, FR-149, FR-151 — both LINE OA Studio pages exist now. This
-  // comment used to say the slot had no page and `failOnStatusCode: false`
-  // tolerated its 404; that stopped being true when the console landed.
+  // @req FR-146, FR-149, FR-151 — LINE OA Studio's sub-navigation moved into
+  // a left sidebar and grew from two pages to the full set the domain
+  // registry (src/config/domains.js) now declares; tests/unit/e2e-warmup.test.js
+  // fails the moment this list falls behind that registry again.
   '/line-oa',
+  '/line-oa/projects',
+  '/line-oa/design-studio',
   '/line-oa/rich-menus',
-  // main 2a1b6a81 gave LINE OA Studio a seven-entry sidebar without listing the
-  // routes here; tests/unit/e2e-warmup.test.js compares this list to the registry.
-  // main c41502b9 added the eighth, Integrations & AI, the same way.
-  '/line-oa/projects', '/line-oa/design-studio', '/line-oa/live-crm', '/line-oa/edge-connection',
-  '/line-oa/integrations', '/line-oa/templates', '/line-oa/team', '/line-oa/settings',
+  '/line-oa/live-crm',
+  '/line-oa/edge-connection',
+  '/line-oa/integrations',
+  '/line-oa/templates',
+  '/line-oa/team',
+  '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
   // @req FR-167 — the reserved Warehouse slot under SCM. It has no page yet, so
@@ -72,6 +76,17 @@ const ROUTES = [
   // POST, so the warm-up's GET compiles the module and takes a 405 back;
   // `failOnStatusCode: false` below is what makes that fine.
   '/api/auth/signup',
+  // Same class as /api/auth/signup just above: marketing-campaigns.spec.js
+  // and marketing-content.spec.js each POST to one of these on their very
+  // first navigation of the run, paying a cold route-handler compile inside
+  // the fixed 10s expect (or the 60s test timeout on a bad day) and flaking
+  // on CI while never reproducing locally. Warming the pages under
+  // /growth/campaigns and /growth/content above compiles the page
+  // components, not these separate API route-handler modules.
+  '/api/growth/campaigns',
+  '/api/growth/content',
+  '/api/growth/content/briefs/warmup',
+  '/api/growth/content/references',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
   '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
 ]
