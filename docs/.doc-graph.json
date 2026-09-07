@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2318,
-    "total_edges": 9218,
+    "total_nodes": 2319,
+    "total_edges": 9219,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 287,
       "model": 121,
       "requirement": 328,
-      "test": 534,
+      "test": 535,
       "code_file": 690
     },
     "coverage": {
@@ -25393,6 +25393,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/e2e-reconnecting-request.test.js",
       "hash": "798ce722",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-step-timings-reporter.test.js",
+      "hash": "0f9cb328",
       "status": "current"
     },
     {
@@ -77676,6 +77683,13 @@
     {
       "from": "test:tests/unit/e2e-reconnecting-request.test.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
