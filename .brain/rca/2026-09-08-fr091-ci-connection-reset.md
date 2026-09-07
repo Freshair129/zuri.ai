@@ -75,6 +75,12 @@ repeated resets, webhook writes and consent assertions keep their failure paths.
   no dangling edges, duplicate IDs or link findings.
 - Independent review verified native retry semantics and tightened the error
   message test to exact equality and the import to the declared dependency.
+- Main `afcbaa07` was subsequently integrated to clear PR merge conflicts.
+  Its changes are governance tooling/documentation and an E2E comment, with no
+  application behavior change. Conflicts were confined to generated files;
+  root governance regenerated them successfully. All 25 focused graph,
+  monorepo-layout and scope transport tests passed after integration. The full
+  4,248-test/build/112-E2E run above was before this tooling integration.
 
 Hosted CI must verify the updated PR head. The historical socket-reset trigger
 remains open; this evidence establishes bounded fixture recovery, not a server
