@@ -9900,7 +9900,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
       "hash": "9a8fff48",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9946,7 +9946,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
       "hash": "0a95ba2a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",

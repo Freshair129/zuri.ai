@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2314,
-    "total_edges": 9174,
+    "total_nodes": 2315,
+    "total_edges": 9177,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 121,
       "requirement": 327,
       "test": 533,
-      "code_file": 689
+      "code_file": 690
     },
     "coverage": {
       "requirements": 327,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (156/156)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 689,
+      "annotated_code_files": 690,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,10 +55,13 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/line-crm/LineCrmLiveChat.jsx",
-      "code:src/modules/line-crm/LineCrmMembers.jsx"
+      "test:tests/unit/marketing-strategy-ui.test.js",
+      "code:src/modules/marketing/components/marketing-contract.js",
+      "code:src/modules/marketing/components/MarketingDashboard.jsx"
     ],
-    "added": [],
+    "added": [
+      "code:src/modules/marketing/components/MarketingPerformance.jsx"
+    ],
     "removed": []
   },
   "nodes": [
@@ -9958,7 +9961,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
       "hash": "9a8fff48",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -10004,7 +10007,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
       "hash": "0a95ba2a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -11413,8 +11416,8 @@
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
-      "hash": "dd1403df",
-      "status": "current",
+      "hash": "ac172cea",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159",
@@ -11432,8 +11435,8 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "ff0e1238",
-      "status": "current",
+      "hash": "071bf885",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-159"
@@ -11444,6 +11447,24 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
+      "hash": "7d42cc35",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-159"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/unit/marketing-strategy-ui.test.js"
         ]
       }
     },
@@ -26307,8 +26328,8 @@
       "id": "test:tests/unit/marketing-strategy-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing-strategy-ui.test.js",
-      "hash": "ea794705",
-      "status": "current"
+      "hash": "95d0cec8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/marketing/marketing-authority.test.js",
@@ -43611,6 +43632,20 @@
     },
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
+      "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
@@ -84758,6 +84793,13 @@
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "code:src/modules/marketing/components/MarketingPerformance.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
