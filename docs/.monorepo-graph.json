@@ -16068,7 +16068,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "92265959",
+      "hash": "09b9037b",
       "status": "current"
     },
     {
@@ -16096,7 +16096,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "70684bf1",
+      "hash": "8d022be7",
       "status": "current"
     },
     {
@@ -19444,7 +19444,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration (not applied to production; ADR-057), `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle "
+      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration, `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle; 2026-09-07: production migration `20260907150000_business_capabilities` applied and recorded in `supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-057) "
     },
     {
       "id": "req:FR-170",
