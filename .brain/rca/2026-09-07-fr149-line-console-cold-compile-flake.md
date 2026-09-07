@@ -98,3 +98,31 @@ No application code, retry policy, or `expect` timeout changed.
   runs 2.0–2.5s.
 - Full verification bar (`npm test`, `npm run build`, `npm run govern`,
   `npm run test:e2e`) run separately before merge; see PR for results.
+
+## What landed instead — the fix generalised (2026-09-07 evening)
+
+The four hand-added entries this note describes are **not** in the change that
+merged; only this note is. While it sat open, the same shape was diagnosed
+across three consecutive CI runs of one unrelated commit and turned out to be
+general rather than LINE-specific: `warmup.setup.js`'s hand-written list named
+**7 of the 199** route-handler modules under `src/app`, so *whichever* handler
+a spec reached first paid its compile inside an assertion. fr149 was simply the
+instance someone diagnosed first.
+
+PR #285 replaced the hand list with `tests/e2e/warmup-routes.js`, which derives
+the plan from the filesystem — every `page.*` and `route.*`, with `(group)`
+dropped, `[param]` → `warmup`, `@slot`/`_private` skipped — and warms
+discovered handlers with `OPTIONS`, which compiles the module without running
+any userland function. `warmupPlan()` already resolves all four routes below to
+`OPTIONS`, so re-adding them by hand would have been redundant *and* a small
+regression: a hand-listed entry is fetched with `GET`, which executes the
+handler.
+
+  /api/line-oa/connections · /api/line-oa/accounts
+  /api/line-oa/accounts/warmup · /api/line-oa/accounts/warmup/jobs
+
+The diagnosis in this note stands unchanged and is what made the general case
+recognisable — it is kept for that reason. See
+`.brain/rca/2026-09-07-e2e-warmup-covered-80-of-287-modules.md` for the
+generalisation, and note its rule: a route is warm from the commit that adds
+it, not from the commit after it flakes.

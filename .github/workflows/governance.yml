@@ -185,3 +185,17 @@ jobs:
       # and-shared-state.md).
       - name: Full end-to-end suite
         run: npm run test:e2e
+        env:
+          # Every expect/pw:api step's duration, so the `expect` budget in
+          # playwright.config.js can be set from a measurement rather than
+          # from the last failure. See tests/e2e/step-timings-reporter.js.
+          E2E_STEP_TIMINGS: node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+
+      - name: Keep the step timings, pass or fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-step-timings
+          path: apps/server/node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+          if-no-files-found: ignore
+          retention-days: 14

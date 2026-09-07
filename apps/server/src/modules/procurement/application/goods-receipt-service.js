@@ -64,6 +64,12 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     for (const line of data.lines) {
       const orderLine = byId.get(line.purchaseOrderLineId)
       if (!isCounted(orderLine) && (line.lotCode || line.expiresAt || line.serialNos?.length)) throw failure(422, 'PROCUREMENT_RECEIPT_LINE_NOT_COUNTED')
+      // @req FR-168 — a goods receipt records what physically arrived at the
+      // warehouse. A service never does: it is performed, not delivered. It may
+      // sit on the purchase order (freight, installation) and be paid for
+      // there, but signing for it on a delivery note is a category error, so it
+      // is refused by code rather than accepted as a receipt of nothing.
+      if (orderLine.product?.stockPolicy === 'SERVICE') throw failure(422, 'PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE')
       if (orderLine.product?.status === 'ARCHIVED') throw failure(409, 'PRODUCT_ARCHIVED')
     }
     const stocked = data.lines.filter((line) => isCounted(byId.get(line.purchaseOrderLineId)))

@@ -9,6 +9,7 @@ import {
   Warehouse, Truck, ClipboardList,
   Layers, Bot, Cpu, Bookmark,
 } from 'lucide-react'
+import { businessHasCapability } from '@/lib/business-capabilities'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
@@ -213,9 +214,16 @@ export const DOMAINS = [
     // inferring it from an absence. Same shape as the `operations` slot: a
     // reserved key grants nothing while `soon`, and needs no module and no
     // charter until someone builds it.
+    // @req FR-169 — additionally gated by the `physicalStock` Business
+    // capability (`capability` below), hidden from every menu, not merely
+    // disabled, when the Business has turned it off: a service-only Business
+    // never runs a warehouse, and a visible-but-reserved slot for a module it
+    // will never use is noise, not information — unlike `operations` above,
+    // whose slot is reserved because Zuri has not built it yet, not because a
+    // Business opted out.
     // @spec ADR-069 D3
-    // @tested tests/unit/scm-group-navigation.test.js
-    key: 'warehouse', label: 'Warehouse', icon: LayoutGrid, soon: true,
+    // @tested tests/unit/scm-group-navigation.test.js, tests/unit/business-capability-navigation.test.js
+    key: 'warehouse', label: 'Warehouse', icon: LayoutGrid, soon: true, capability: 'physicalStock',
     sub: [{ label: 'Dashboard', path: '/warehouse', icon: LayoutDashboard }],
   },
   {
@@ -291,9 +299,31 @@ export function groupForDomainKey(domainKey) {
   return GROUP_BY_CHILD_KEY.get(domainKey) || null
 }
 
-/** A group's children, in the order the group names them, skipping unknown keys. */
-export function groupChildren(group) {
-  return group.childKeys.map((key) => DOMAINS.find((d) => d.key === key)).filter(Boolean)
+/**
+ * Whether a domain applies to `business` at all — distinct from
+ * `isDomainVisible`, which asks whether THIS VIEWER may open a domain the
+ * Business already has. `business` is the raw row (or undefined while it has
+ * not loaded); `businessHasCapability` reads its default when it is either,
+ * so a domain with no `capability` field is always allowed and one with an
+ * unloaded Business is allowed exactly as often as the capability's own
+ * default says (FR-169).
+ */
+export function isDomainAllowedForBusiness(domain, business) {
+  return !domain.capability || businessHasCapability(business, domain.capability)
+}
+
+/**
+ * A group's children, in the order the group names them, skipping unknown
+ * keys and any child `business` has not turned on (FR-169). `business` is
+ * optional so every existing caller — and every test fixture that predates
+ * FR-169 — keeps seeing every child, exactly as `groupChildren(group)` always
+ * has.
+ */
+export function groupChildren(group, business) {
+  return group.childKeys
+    .map((key) => DOMAINS.find((d) => d.key === key))
+    .filter(Boolean)
+    .filter((d) => isDomainAllowedForBusiness(d, business))
 }
 
 /**
@@ -301,7 +331,7 @@ export function groupChildren(group) {
  * with each group standing in one place for all of its children — the position
  * of the first child, so the bar's left-to-right reading order is unchanged.
  */
-export function domainBarSlots() {
+export function domainBarSlots(business) {
   const slots = []
   const placed = new Set()
   for (const domain of DOMAINS) {
@@ -312,7 +342,7 @@ export function domainBarSlots() {
     }
     if (placed.has(group.key)) continue
     placed.add(group.key)
-    slots.push({ kind: 'group', group, children: groupChildren(group) })
+    slots.push({ kind: 'group', group, children: groupChildren(group, business) })
   }
   return slots
 }
@@ -324,9 +354,11 @@ export function domainBarSlots() {
  * other three. For everything else it is the domain itself, unchanged.
  *
  * The `group` field on each item is the same one the sidebar already renders
- * section headers from, so this needs no new rendering concept.
+ * section headers from, so this needs no new rendering concept. `business` is
+ * optional for the same reason it is on `groupChildren` (FR-169): every
+ * existing caller keeps its old, unfiltered behaviour.
  */
-export function sidebarDomainForPath(pathname) {
+export function sidebarDomainForPath(pathname, business) {
   const domain = domainForPath(pathname)
   const group = groupForDomainKey(domain.key)
   if (!group) return domain
@@ -340,7 +372,7 @@ export function sidebarDomainForPath(pathname) {
     // into one menu would put four links called Dashboard in it — ambiguous to
     // a screen reader and to Playwright strict mode, which is the same defect
     // that made this lane's bar label `Warehouse` in the first place.
-    sub: groupChildren(group).flatMap((child) =>
+    sub: groupChildren(group, business).flatMap((child) =>
       child.sub.map((item) => ({
         ...item,
         label: item.label === 'Dashboard' ? child.label : item.label,
