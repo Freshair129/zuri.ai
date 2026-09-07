@@ -135,6 +135,30 @@ Two smaller things sat underneath and were fixed on the way here:
   whether 30s is still the right figure is a re-measurement for after this
   lands, not a reason to skip this.
 
+  **Re-measured (PR #287).** `tests/e2e/step-timings-reporter.js` now records
+  every `expect` and `pw:api` step's duration; the e2e job keeps the file as
+  the `e2e-step-timings` artifact on every run, pass or fail, for 14 days.
+  Two CI runs on windows-latest, other lanes' suites on the runner pool in
+  the same hour:
+
+  | run | passed expects | p50 | p90 | p99 | max | >2s | >5s |
+  |---|---|---|---|---|---|---|---|
+  | 34122807288 (30s budget) | 885 | 4ms | 895ms | 1.91s | 1.95s | 0 | 0 |
+  | 34125892613 (10s budget) | 887 | 4ms | 899ms | 1.93s | 2.94s | 4 | 0 |
+
+  Two runs because one sample cannot show the tail's spread — and it moved a
+  full second between them, on a different test each time (`fr151` rich menu,
+  then `navigation-reachability` search). Locally: max 394ms. `page.goto`
+  reached 6.1s, which the expect budget does not cover.
+
+  The test `f0d032d8` cited — smoke "dependencies view renders edges" — spent
+  1,889ms in its slowest assertion on CI, warm; its "8.8s warm" had been the
+  whole test (sign-in, business click, `goto`, two expects) after a first
+  attempt that compiled `/api/dependencies`. The budget went back to 10s:
+  ~3.4x the slowest assertion measured under load, with headroom because the
+  tail moves. A passed expect over 5s in the artifact is the signal to look at
+  what got slower — not to raise the number.
+
 ## Local measurement
 
 First full-suite run on this branch (12-core desktop, otherwise idle):

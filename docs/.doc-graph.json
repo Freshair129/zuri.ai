@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2329,
-    "total_edges": 9305,
+    "total_nodes": 2330,
+    "total_edges": 9306,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 288,
       "model": 121,
       "requirement": 330,
-      "test": 538,
+      "test": 539,
       "code_file": 694
     },
     "coverage": {
@@ -54,38 +54,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/e2e/fr164-procurement.spec.js",
-      "test:tests/e2e/fr166-commerce-orders.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/(pm)/commerce/orders/page.jsx",
-      "code:src/app/(pm)/commerce/page.jsx",
-      "code:src/app/(pm)/procurement/page.jsx",
-      "code:src/app/(pm)/procurement/purchase-orders/page.jsx",
-      "code:src/app/(pm)/settings/page.jsx",
-      "code:src/components/layouts/DomainBar.jsx",
-      "code:src/components/layouts/Sidebar.jsx",
-      "code:src/components/ui/index.jsx",
-      "code:src/config/domains.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
-    ],
-    "added": [
-      "route:api:/api/businesses/[id]/capabilities",
-      "req:FR-169",
-      "req:FR-170",
-      "test:tests/integration/fr169-business-capability.test.js",
-      "test:tests/unit/business-capabilities.test.js",
-      "test:tests/unit/business-capability-navigation.test.js",
-      "test:tests/unit/module-tabs.test.js",
-      "code:src/app/api/businesses/[id]/capabilities/route.js",
-      "code:src/lib/business-capabilities.js",
-      "code:src/lib/module-tabs.js",
-      "code:src/modules/business/application/business-capability-service.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -394,7 +364,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/orders/page.jsx",
       "hash": "adc4ecc9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-166",
@@ -414,7 +384,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/commerce/page.jsx",
       "hash": "d1fa7d9e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-163",
@@ -1326,7 +1296,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/page.jsx",
       "hash": "2b42e373",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1346,7 +1316,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
       "hash": "bb8cd746",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-164",
@@ -1726,7 +1696,7 @@
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/settings/page.jsx",
       "hash": "bbb9f16d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020",
@@ -6198,7 +6168,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
       "hash": "5159befd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
@@ -6311,7 +6281,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
       "hash": "db93ba95",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
@@ -6361,7 +6331,7 @@
       "type": "code_file",
       "path": "apps/server/src/components/ui/index.jsx",
       "hash": "dbe3ddf9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -6383,7 +6353,7 @@
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
       "hash": "d96537e2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -12142,7 +12112,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "ac576933",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -14223,7 +14193,7 @@
       "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "6c5c2507",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14649,7 +14619,7 @@
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "867f532d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -16150,7 +16120,7 @@
       "version": "1.167.0b",
       "doc_status": "Draft",
       "hash": "61ef6b18",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -16178,7 +16148,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "b1c44967",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -23892,14 +23862,14 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
       "hash": "671813dc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
       "hash": "062b3f1a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/marketing-campaigns.spec.js",
@@ -24697,7 +24667,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "83262421",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -25551,6 +25521,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/e2e-reconnecting-request.test.js",
       "hash": "798ce722",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-step-timings-reporter.test.js",
+      "hash": "0f9cb328",
       "status": "current"
     },
     {
@@ -78338,6 +78315,13 @@
     {
       "from": "test:tests/unit/e2e-reconnecting-request.test.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
+      "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
