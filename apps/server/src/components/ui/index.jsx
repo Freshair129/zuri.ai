@@ -4,6 +4,48 @@
 // @spec SDD-010, ADR-010 — components consume the Zuri Heritage semantic/component token contract.
 // @tested tests/unit/design-system.test.js
 
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+/**
+ * @req FR-170 — a sub-domain module with more than one page renders them as
+ *   tabs inside its own canvas (below the header, above the content), not only
+ *   as separate sidebar entries. Each tab is a normal client-navigated `Link`
+ *   to a sibling route — no query-param or component state to keep in sync —
+ *   so the active tab is derived from the URL itself (`usePathname()`), the
+ *   same "id binding" every other active-state check in this app already uses
+ *   (`DomainBar`'s `d.key === activeKey`, `Sidebar`'s `pathname === item.path`).
+ *   No existing route moves, so no e2e URL assertion changes.
+ * @spec ADR-069 (the SCM grouping this is the in-canvas half of)
+ * @tested tests/unit/module-tabs.test.js
+ *
+ * @param {{key: string, label: string, path: string}[]} tabs
+ */
+export function ModuleTabs({ tabs }) {
+  const pathname = usePathname()
+  return (
+    <nav aria-label="Views" className="mb-4 flex gap-1 border-b border-[var(--border)]">
+      {tabs.map((tab) => {
+        const active = pathname === tab.path
+        return (
+          <Link
+            key={tab.key}
+            href={tab.path}
+            aria-current={active ? 'page' : undefined}
+            className={`-mb-px border-b-2 px-3 py-2 text-xs font-semibold transition ${
+              active
+                ? 'border-[var(--action-primary)] text-[var(--action-primary)]'
+                : 'border-transparent text-muted hover:text-[var(--text)]'
+            }`}
+          >
+            {tab.label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
 export function PageHeader({ eyebrow, title, subtitle, actions }) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4 max-md:flex-col max-md:items-start">

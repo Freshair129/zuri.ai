@@ -278,6 +278,8 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-169",
+    "FR-170",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3165,6 +3167,32 @@
       "history": [
         {
           "anchor": "supply chain navigation groups its four modules under one",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-169": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dda24bc0f5ca31633ea98e88828c94ec154d8f6634c19fa4d460387fb62d22eb",
+      "history": [
+        {
+          "anchor": "a business declares feature capabilities business",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-170": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "562be980d567f541729c4ca9875677777e4624ec73143d72f4cc48896ace0180",
+      "history": [
+        {
+          "anchor": "a sub domain module with more than one page renders them as",
           "since": "2026-09-07",
           "reason": "declared"
         }
