@@ -10305,7 +10305,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
       "hash": "b925f05c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10504,7 +10504,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "hash": "51e34d46",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10541,7 +10541,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
       "hash": "9bfa1050",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-146",
@@ -97109,7 +97109,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2314,
+    "server_nodes": 2315,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

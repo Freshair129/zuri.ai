@@ -12,7 +12,7 @@
 > transitive test → code → requirement paths.
 
 **Coverage** — FR with code **100% (156/156)** · FR with tests **100% (156/156)** ·
-rules anchored in code **96% (132/137)** · annotated source files **689**
+rules anchored in code **96% (132/137)** · annotated source files **690**
 
 ## Functional requirements
 
