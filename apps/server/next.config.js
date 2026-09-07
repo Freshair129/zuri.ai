@@ -26,7 +26,8 @@ const nextConfig = {
   // and has no effect on `next build`/`next start`.
   onDemandEntries: {
     maxInactiveAge: 60 * 60 * 1000,
-    // The app has 61 page routes today; this comfortably covers all of them
+    // The app has 88 page routes today (tests/e2e/warmup-routes.js derives the
+    // real count from src/app); this comfortably covers all of them
     // plus headroom, so nothing gets evicted purely for exceeding the buffer.
     pagesBufferLength: 200,
   },

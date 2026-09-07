@@ -1,112 +1,48 @@
 const { test } = require('@playwright/test')
+const { warmupPlan } = require('./warmup-routes')
+// reconnecting() retries a lost connection or a 503, never an answer — the
+// same discipline the specs use, and the same failure it was written for: the
+// dev server dropping a keep-alive socket mid-compile (read ECONNRESET).
+const { reconnecting } = require('./reconnecting-request')
 
 // @req NFR-008 — the suite must fail for the reason under test, not for how
-// long Next.js took to compile a route it had never served.
+// long Next.js took to compile a module it had never served.
 // @tested tests/unit/e2e-warmup.test.js
 //
-// Next.js compiles a route in dev on its first request. `webServer.url` warms
-// exactly one route (`/overview`); every other first navigation pays the compile
-// cost inside a test, where `toHaveURL` allows 10s. Under load that is not
-// enough, and the suite goes flaky on whichever route happened to be first —
-// three different specs in one run, all with the same "Timed out waiting for
-// toHaveURL" shape, none of them related to the change under test.
+// Next.js compiles a module in dev on its first request. `webServer.url` warms
+// exactly one route (`/overview`); every other first request pays the compile
+// cost inside a test, where an `expect` has a fixed budget. Under load that is
+// not enough, and the suite goes flaky on whichever module happened to be
+// first — a different one every run, all with the same "Timed out waiting for"
+// shape, none related to the change under test.
 //
-// The retry that used to hide this is now a build failure (--fail-on-flaky), so
-// the config's own note applies: "If cold-compile flakes reappear, the fix is a
-// warm-up step, not re-hiding them behind a silent retry."
+// The retry that used to hide this is now a build failure (--fail-on-flaky),
+// so the config's own note applies: "If cold-compile flakes reappear, the fix
+// is a warm-up step, not re-hiding them behind a silent retry."
 //
-// The list is literal rather than derived from `@/config/domains`: this file is
-// CommonJS and that module pulls in ESM-only lucide-react. `tests/unit/e2e-warmup.test.js`
-// compares the two, so the registry stays the source of truth and a new
-// sub-domain fails there instead of becoming the next flake.
-const ROUTES = [
-  '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
-  // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
-  '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
-  '/market',
-  '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
-  '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
-  '/growth/operations',
-  '/operations',
-  '/people', '/people/directory',
-  '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
-  // A Project's own sub-routes are separate route files and none of them was
-  // warmed, so whichever spec reached one first paid the compile inside a 10s
-  // expect — the exact shape this file's header describes. The suite navigates
-  // to seven of them; all are listed because the cost is one request each and
-  // the next spec to add one should not have to rediscover this. The id is a
-  // placeholder: `failOnStatusCode: false` below means the route module still
-  // compiles when it resolves to nothing.
-  '/projects/warmup/roadmap', '/projects/warmup/milestones', '/projects/warmup/dependencies',
-  '/projects/warmup/files', '/projects/warmup/structure', '/projects/warmup/import',
-  '/projects/warmup/inventory', '/projects/warmup/team', '/projects/warmup/board',
-  '/projects/warmup/all-work', '/projects/warmup/timeline', '/projects/warmup/repositories',
-  '/projects/warmup', '/projects/warmup/execution/DELIVERY', '/projects/new',
-  '/assets', '/assets/receiving', '/assets/register', '/assets/scanner',
-  // @req FR-146, FR-149, FR-151 — LINE OA Studio's sub-navigation moved into
-  // a left sidebar and grew from two pages to the full set the domain
-  // registry (src/config/domains.js) now declares; tests/unit/e2e-warmup.test.js
-  // fails the moment this list falls behind that registry again.
-  '/line-oa',
-  '/line-oa/projects',
-  '/line-oa/design-studio',
-  '/line-oa/rich-menus',
-  '/line-oa/live-crm',
-  '/line-oa/edge-connection',
-  '/line-oa/integrations',
-  '/line-oa/templates',
-  '/line-oa/team',
-  '/line-oa/settings',
-  // @req FR-154 — the Inventory dashboard.
-  '/inventory',
-  // @req FR-167 — the reserved Warehouse slot under SCM. It has no page yet, so
-  // this request 404s and `failOnStatusCode: false` below tolerates it, exactly
-  // as it does for the `operations` slot above.
-  '/warehouse',
-  // @req FR-161 — the CRM sales tasks page.
-  '/customer/sales-tasks',
-  // @req FR-164 — the Procurement dashboard and the purchase-orders console.
-  '/procurement', '/procurement/purchase-orders',
-  // Route handlers compile on first request too, and a spec that POSTs to a
-  // cold one pays that cost inside its own expect. `marketing-content.spec.js`
-  // opens a second browser context and immediately POSTs here to create a
-  // reviewer; on CI that POST failed twice with `read ECONNRESET` — the dev
-  // server dropping the socket while compiling — and passed on retry, which
-  // `--fail-on-flaky` correctly refuses to call green. This route exports only
-  // POST, so the warm-up's GET compiles the module and takes a 405 back;
-  // `failOnStatusCode: false` below is what makes that fine.
-  '/api/auth/signup',
-  // Same shape, found the same way: fr091's "CRM Dashboard reconciles with the
-  // list" reads both of these through `page.request.get` inside its own
-  // assertion, and on CI the first one died with `read ECONNRESET` — the dev
-  // server dropping the socket while it compiled the handler — then passed on
-  // retry, which `--fail-on-flaky` refuses to call green (run 34101244617).
-  // Both export GET, so the warm-up's GET compiles them for real.
-  '/api/scope', '/api/crm/conversations',
-  // Same class as /api/auth/signup just above: marketing-campaigns.spec.js
-  // and marketing-content.spec.js each POST to one of these on their very
-  // first navigation of the run, paying a cold route-handler compile inside
-  // the fixed 10s expect (or the 60s test timeout on a bad day) and flaking
-  // on CI while never reproducing locally. Warming the pages under
-  // /growth/campaigns and /growth/content above compiles the page
-  // components, not these separate API route-handler modules.
-  '/api/growth/campaigns',
-  '/api/growth/content',
-  '/api/growth/content/briefs/warmup',
-  '/api/growth/content/references',
-  '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
-  '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
-]
+// What gets warmed, and why it is derived from `src/app` rather than listed
+// here, is in ./warmup-routes.js. This file only sends the requests.
 
-module.exports = { ROUTES }
-
-test('warm every route the suite navigates to', async ({ request }) => {
-  test.setTimeout(300000)
-  const unique = [...new Set(ROUTES)]
-  // Sequential on purpose: the dev server compiles one route at a time anyway,
-  // and firing 25 parallel cold requests at it is slower and noisier than this.
-  for (const route of unique) {
-    await request.get(route, { timeout: 120000, failOnStatusCode: false })
+test('warm every page and route-handler module before any spec runs', async ({ request }) => {
+  const plan = warmupPlan()
+  // This is the warm-up's own budget, not an assertion about the product, so a
+  // generous figure hides nothing. The arithmetic: CI run 34106105030 compiled
+  // the 80 hand-listed URLs in 1.8 min (≈1.35s each); the first local run of
+  // this plan compiled all 291 in 393s — the same 1.35s per request — and the
+  // 112 specs that followed took 4 min, against 22 min on CI when they were
+  // paying the compiles themselves. So the expectation is ~7 min here and the
+  // ceiling below is for a runner under the load that produced the flakes;
+  // a warm-up that exceeds it fails loudly as one test instead of as whichever
+  // spec came first.
+  test.setTimeout(30 * 60 * 1000)
+  const started = Date.now()
+  const sent = { GET: 0, OPTIONS: 0 }
+  // Sequential on purpose: the dev server compiles one entry at a time anyway,
+  // and firing hundreds of parallel cold requests at it is slower and noisier.
+  for (const { url, method } of plan) {
+    await reconnecting(() => request.fetch(url, { method, timeout: 120000, failOnStatusCode: false }))
+    sent[method] += 1
   }
-  console.log(`warmup: compiled ${unique.length} route(s)`)
+  const seconds = Math.round((Date.now() - started) / 1000)
+  console.log(`warmup: ${plan.length} module(s) — ${sent.GET} GET, ${sent.OPTIONS} OPTIONS — in ${seconds}s`)
 })
