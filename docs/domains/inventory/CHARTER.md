@@ -45,7 +45,7 @@ every stock movement is written to. It answers, for every Business,
 
 1. What is this product — its category, family, master, variant (SKU), the
    factory it came from, and which bundles pack it?
-2. Is this product **counted** (นับสต๊อก) or **not counted** (ไม่นับสต๊อก)?
+2. Is this a counted good (นับสต๊อก), an uncounted good (ไม่นับสต๊อก) or a service (บริการ)?
 3. For a counted product: how many are on hand right now, is that below its
    safety stock, and which lot or serial unit is each one?
 4. What happened to the stock, when, by whom, and against which reference?
@@ -56,8 +56,11 @@ Stable identities:
 Product domain:   DOM-INVENTORY
 Technical owner:  TD-INVENTORY
 Route key:        inventory
-Display label:    Warehouse (คลังสินค้า) — not "Inventory": a Project's own
-                  Inventory tab (FR-077) shares the screen with the domain bar
+Display label:    Inventory (คลังสินค้า), under the SCM slot since FR-167.
+                  It read "Warehouse" while it sat in the domain bar beside a
+                  Project's own Inventory tab (FR-077); under SCM the two are
+                  never on screen together, and Warehouse is now the reserved
+                  sibling that will own locations, transfers and stocktake
 ```
 
 ## The eight ids the owner asked for, and where each lives
@@ -77,9 +80,10 @@ Display label:    Warehouse (คลังสินค้า) — not "Inventory"
 Every one of those is an **attribute** (BR-002): the primary key is always the
 internal UUID, and no external or human code is ever a foreign key.
 
-## Counted versus uncounted
+## The three natures: counted, uncounted, service
 
-A `Product` is created with a `stockPolicy` that never changes afterwards:
+A `Product` is created with a `stockPolicy` that never changes afterwards. The
+three differ in **accounting**, not only in how the ledger treats them (FR-168):
 
 - **TRACKED** (นับสต๊อก): every movement is a `StockMovement` row and on-hand is
   the sum of them — recomputed on every read, never stored on the product. A
@@ -87,11 +91,25 @@ A `Product` is created with a `stockPolicy` that never changes afterwards:
   quantity), `LOT` (a receipt must name or create its lot) or `SERIAL` (every
   movement names one serial per unit; a unit exists from its receipt and is
   `ISSUED` by its issue).
-- **UNTRACKED** (ไม่นับสต๊อก): a catalogue identity with no ledger at all — a
-  service, a made-to-order or print-on-demand item. The ledger refuses it by
-  code (`INVENTORY_PRODUCT_UNTRACKED`), a summary prints `null` for its
-  on-hand (never a zero that reads as "measured and empty"), and it never
-  limits a bundle's availability.
+- **UNTRACKED** (ไม่นับสต๊อก): still a good — it can be bought, received and
+  consumed — but the Business has chosen not to carry a perpetual count of it
+  (consumables, made-to-order, print-on-demand). It has no ledger: refused by
+  code (`INVENTORY_PRODUCT_UNTRACKED`), a summary prints `null` for its on-hand
+  (never a zero that reads as "measured and empty"), and it never limits a
+  bundle's availability. The decision is reversible in principle: the Business
+  could decide to start counting it.
+- **SERVICE** (บริการ): not a good at all, so nothing about stock applies and
+  nothing ever could. It carries no `trackingMode` but `NONE`, the ledger
+  refuses it by its own code (`INVENTORY_PRODUCT_IS_A_SERVICE`, distinct from
+  the uncounted refusal precisely because this one can never be reversed), and
+  a goods receipt naming it is refused (`PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE`)
+  — a service is performed, not delivered to a warehouse. It may still sit on a
+  purchase order and be paid for there, which is what gives freight or
+  installation a catalogue identity instead of leaving it as free text.
+
+  Until FR-168 a service was recorded as UNTRACKED. That conflated "we do not
+  count this good" with "this is not a good", which is a distinction an
+  accountant makes and the catalogue could not.
 
 ## Owned records
 

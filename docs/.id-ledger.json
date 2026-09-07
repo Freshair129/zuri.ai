@@ -278,6 +278,7 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-168",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3165,6 +3166,19 @@
       "history": [
         {
           "anchor": "supply chain navigation groups its four modules under one",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-168": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5b87b2a654b1dc5bd3c132759bac8993468df98802a30338988432f163bd4338",
+      "history": [
+        {
+          "anchor": "a product declares one of three natures and they differ in",
           "since": "2026-09-07",
           "reason": "declared"
         }

@@ -24,7 +24,11 @@ async function api(url, method = 'GET', body) {
 }
 
 const fieldClass = 'w-full rounded-lg border border-[var(--border)] bg-white p-2 text-sm'
-const POLICY_LABEL = { TRACKED: 'นับสต๊อก', UNTRACKED: 'ไม่นับสต๊อก' }
+// @req FR-168 — three natures, and the form below already narrows itself to the
+// one chosen: the tracking mode and safety stock only exist for a counted good,
+// so choosing ไม่นับสต๊อก or บริการ removes them rather than leaving fields that
+// can never apply.
+const POLICY_LABEL = { TRACKED: 'นับสต๊อก', UNTRACKED: 'ไม่นับสต๊อก', SERVICE: 'บริการ' }
 const MODE_LABEL = { NONE: 'นับจำนวนรวม', LOT: 'ตาม Lot', SERIAL: 'ตาม Serial' }
 const KIND_LABEL = { RECEIPT: 'รับเข้า', ISSUE: 'จ่ายออก', ADJUSTMENT: 'ปรับยอด' }
 

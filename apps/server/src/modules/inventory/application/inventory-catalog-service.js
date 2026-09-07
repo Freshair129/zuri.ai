@@ -161,7 +161,11 @@ export function createProduct(input, { viewer, db = prisma } = {}) {
     columns: (d) => ({
       code: d.code, productMasterId: d.productMasterId, name: d.name ?? null, color: d.color ?? null, material: d.material ?? null,
       unit: d.unit ?? 'EA', stockPolicy: d.stockPolicy ?? 'TRACKED',
-      trackingMode: (d.stockPolicy ?? 'TRACKED') === 'UNTRACKED' ? 'NONE' : (d.trackingMode ?? 'NONE'),
+      // @req FR-168 — anything without a ledger is stored with NONE, so a
+      // SERVICE cannot carry a tracking mode any more than an UNTRACKED good
+      // can. Written as "not TRACKED" rather than a list, so a fourth nature
+      // cannot be added later and silently inherit lot or serial identity.
+      trackingMode: (d.stockPolicy ?? 'TRACKED') !== 'TRACKED' ? 'NONE' : (d.trackingMode ?? 'NONE'),
       safetyStock: d.safetyStock ?? 10,
     }),
     payload: (created) => ({ productMasterId: created.productMasterId, stockPolicy: created.stockPolicy, trackingMode: created.trackingMode }),
