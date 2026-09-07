@@ -135,6 +135,19 @@ Two smaller things sat underneath and were fixed on the way here:
   whether 30s is still the right figure is a re-measurement for after this
   lands, not a reason to skip this.
 
+  **Re-measured (PR #287).** `tests/e2e/step-timings-reporter.js` now records
+  every `expect` and `pw:api` step's duration; the e2e job keeps the file as
+  the `e2e-step-timings` artifact on every run. First CI run with it
+  (34122807288, windows-latest, three other lanes' suites on the runner pool
+  in the same half hour): 885 passed expects, p50 4ms, p90 895ms, p99 1.9s,
+  **max 1.95s**, none over 2s, none failed; `page.goto` max 3.95s. Locally:
+  max 394ms. The test `f0d032d8` cited — smoke "dependencies view renders
+  edges" — spent 1,889ms in its slowest assertion on CI; its "8.8s warm"
+  had been the whole test (sign-in, business click, `goto`, two expects)
+  after a first attempt that compiled `/api/dependencies`. The budget went
+  back to 10s: five times the slowest assertion seen under load. A passed
+  expect over 5s in the artifact is the signal to look at what got slower.
+
 ## Local measurement
 
 First full-suite run on this branch (12-core desktop, otherwise idle):
