@@ -23904,7 +23904,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "26a45879",
+      "hash": "2da26543",
       "status": "current"
     },
     {
@@ -25655,6 +25655,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/e2e-reconnecting-request.test.js",
       "hash": "798ce722",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-scope-transport.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-scope-transport.test.js",
+      "hash": "144d3c1e",
       "status": "current"
     },
     {
@@ -82402,6 +82409,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/e2e-scope-transport.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
@@ -99107,7 +99121,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2349,
+    "server_nodes": 2350,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2349,
-    "total_edges": 9408,
+    "total_nodes": 2350,
+    "total_edges": 9409,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 289,
       "model": 122,
       "requirement": 332,
-      "test": 545,
+      "test": 546,
       "code_file": 699
     },
     "coverage": {
@@ -23959,7 +23959,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "26a45879",
+      "hash": "2da26543",
       "status": "current"
     },
     {
@@ -25710,6 +25710,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/e2e-reconnecting-request.test.js",
       "hash": "798ce722",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-scope-transport.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-scope-transport.test.js",
+      "hash": "144d3c1e",
       "status": "current"
     },
     {
@@ -79120,6 +79127,13 @@
     {
       "from": "test:tests/unit/e2e-reconnecting-request.test.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-scope-transport.test.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
