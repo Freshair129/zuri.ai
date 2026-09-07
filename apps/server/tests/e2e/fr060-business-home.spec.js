@@ -50,7 +50,9 @@ test.describe('FR-060 Business Home', () => {
   test('renders reserved domains as reserved, never as a zero', async ({ page }) => {
     await openBusinessHome(page)
 
-    for (const label of ['Commerce', 'CRM', 'Marketing', 'Operations']) {
+    // 'Order Management' is the Commerce lane's label since ADR-069, and
+    // 'Warehouse' is the reserved SCM sibling it added.
+    for (const label of ['Order Management', 'CRM', 'Marketing', 'Operations', 'Warehouse']) {
       await expect(page.getByText(label, { exact: true }).first()).toBeVisible()
     }
     // Every reserved slot says so in words. If any of them ever renders a score,

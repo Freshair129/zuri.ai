@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2313,
-    "total_edges": 9169,
+    "total_nodes": 2316,
+    "total_edges": 9210,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 203,
-      "adr": 68,
+      "adr": 69,
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
       "route": 287,
       "model": 121,
-      "requirement": 327,
-      "test": 533,
+      "requirement": 328,
+      "test": 534,
       "code_file": 688
     },
     "coverage": {
-      "requirements": 327,
-      "fr_with_code": "100% (156/156)",
-      "fr_with_tests": "100% (156/156)",
+      "requirements": 328,
+      "fr_with_code": "100% (157/157)",
+      "fr_with_tests": "100% (157/157)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 688,
@@ -55,49 +55,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
-      "domain:integration",
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:FR-110-published-knowledge-snapshot-contract",
-      "doc:PRD-SDD-v1.0",
-      "doc:PLAN-PENDING-KNOWLEDGE-20260831",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/knowledge-ingestion-job.test.js",
-      "test:tests/unit/knowledge-published-snapshot-contract.test.js",
-      "code:src/modules/knowledge/ingestion-job.js",
-      "code:src/modules/knowledge/published-snapshot-contract.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "code:src/platform/integrations/core/pipeline-tracking-service.js"
+      "test:tests/unit/fr060-business-home-visibility.test.js"
     ],
-    "added": [
-      "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
-      "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
-      "route:api:/api/pipelines/knowledge/evidence/pull",
-      "route:api:/api/pipelines/knowledge/[executionRunId]/finish",
-      "route:api:/api/pipelines/knowledge/[executionRunId]/gate",
-      "route:api:/api/pipelines/knowledge/[executionRunId]",
-      "route:api:/api/pipelines/knowledge/[executionRunId]/stages",
-      "model:KnowledgeEvidenceCursor",
-      "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
-      "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
-      "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
-      "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
-      "test:tests/unit/knowledge-ingestion-job-state.test.js",
-      "test:tests/unit/msp-stdio-transport.test.js",
-      "code:src/app/api/pipelines/knowledge/evidence/pull/route.js",
-      "code:src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
-      "code:src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
-      "code:src/app/api/pipelines/knowledge/[executionRunId]/route.js",
-      "code:src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
-      "code:src/modules/agent/msp-stdio-transport.js",
-      "code:src/platform/integrations/core/knowledge-evidence-importer.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -6186,12 +6146,13 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/DomainBar.jsx",
-      "hash": "6dee948d",
+      "hash": "02c9b00f",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
-          "FR-061"
+          "FR-061",
+          "FR-167"
         ],
         "@spec": [
           "SDD-017",
@@ -6297,11 +6258,12 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Sidebar.jsx",
-      "hash": "3ef2d748",
+      "hash": "fe5171ef",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
+          "FR-167",
           "FR-159"
         ],
         "@spec": [
@@ -6365,7 +6327,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "a32bb3f6",
+      "hash": "6b353626",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6375,6 +6337,7 @@
           "FR-060",
           "FR-166",
           "FR-163",
+          "FR-167",
           "FR-091",
           "FR-161",
           "FR-159",
@@ -6400,6 +6363,7 @@
           "tests/unit/marketing-navigation.test.js",
           "tests/unit/asset-management-navigation.test.js",
           "tests/unit/inventory-routes.test.js",
+          "tests/unit/scm-group-navigation.test.js",
           "tests/unit/procurement-routes.test.js"
         ]
       }
@@ -9601,7 +9565,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/ingestion-job.js",
       "hash": "2756b234",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -9732,7 +9696,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/published-snapshot-contract.js",
       "hash": "136d247f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-110"
@@ -12036,7 +12000,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
       "hash": "05344b30",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -12117,7 +12081,7 @@
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
       "hash": "120689f5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13803,7 +13767,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
       "hash": "2b90843a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -13887,7 +13851,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
       "hash": "9606e158",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -14116,7 +14080,7 @@
       "version": "1.51.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "e3c402c5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -14170,7 +14134,7 @@
       "version": "1.27.0b",
       "doc_status": "Draft",
       "hash": "86d97c4b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14479,7 +14443,7 @@
       "title": "ERP module map — where each module the owner names lives",
       "version": "1.0.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
-      "hash": "895c8467",
+      "hash": "11c7c61b",
       "status": "current"
     },
     {
@@ -14541,7 +14505,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.30.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "5caa2db5",
+      "hash": "4a24bb75",
       "status": "current"
     },
     {
@@ -15117,7 +15081,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "63eaae40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -15125,7 +15089,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "ea1f2168",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -15532,7 +15496,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "c2f6cc6e",
+      "hash": "72cc4fcb",
       "status": "current"
     },
     {
@@ -16001,7 +15965,7 @@
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
       "hash": "c7362d44",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -16042,8 +16006,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.167.0b",
       "doc_status": "Draft",
-      "hash": "549c66b6",
-      "status": "changed"
+      "hash": "54782be2",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -16070,8 +16034,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "5bbcf008",
-      "status": "changed"
+      "hash": "05a962f0",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -16480,7 +16444,7 @@
         "integration"
       ],
       "hash": "8b595a8d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:inventory",
@@ -16526,7 +16490,7 @@
         "knowledge"
       ],
       "hash": "5beac479",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:line-oa-studio",
@@ -19389,6 +19353,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Sales orders (commerce) — `SalesOrder` and `SalesOrderLine`, what a Business sold (ADR-065: the legacy ERD's Orders section adapted, corrections recorded): Business-scoped, identity an internal UUID with a generated human `code` `ORD-YYYYMMDD-NNN` unique per Tenant (BR-002); optional `customerId` and `conversationId` of the same Tenant reached through the Business's tenant only (BR-001) — a Conversation supplies its Customer, refuses a different one, and makes the `origin` CHAT (the legacy \"ads revenue\"); otherwise `origin` WALK_IN or ONLINE. Lines (never a JSON blob) may name an ACTIVE Inventory `Product` of the same Business and carry the price given at the time of sale, a quantity and a discount; money is integer satang in every column and baht with at most two decimals in the API. Subtotal, total, paid, balance due and the payment state are computed on every read from the lines and the VERIFIED payments, never stored. Status machine DRAFT → CONFIRMED → COMPLETED, DRAFT or CONFIRMED → CANCELLED; `UPDATE` replaces lines only while DRAFT (`SALES_ORDER_LINES_LOCKED` after CONFIRM), notes and discount while open; `COMPLETE` may issue stock — every line naming a counted SKU is issued through Inventory's exported `appendMovement` inside the order's transaction (FEFO for lots, reference `ORDER:<code>`), refused whole with a per-SKU list when any is short, refused for a SERIAL-tracked line, and refused when the viewer lacks Inventory's write authority (a Commerce role never widens Inventory); `CANCEL` keeps the row and its payments. Compare-and-swap on `version`, one audit row per write, nothing deleted. Reads need Business visibility plus the `commerce` domain (FR-061; the FR-072 404 without it); writes need Business OWNER or `SALES_REP` (`commerce.order.write`, FR-076 pattern). 🟠 implemented locally 2026-09-07 — two models (both schemas, additive migration `20260907000000_commerce_orders_payments` shared with FR-163; production SQL **not applied**), the only writer `sales-order-service.js`, `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`, the `commerce` slot live with `/commerce/orders`, snapshot coverage; one integration suite (AC-162.1–.6), two unit suites, one e2e spec shared with FR-163. Not claimed: the offer / price catalogue, invoices, an order from a LINE chat, serial-tracked fulfilment "
+    },
+    {
+      "id": "req:FR-167",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069) — `DOMAIN_GROUPS` declares `scm` over the existing `inventory`, `warehouse`, `procurement` and `commerce` domains, the bar renders one slot for the group and the sidebar lists the whole group with each child's label heading its own pages, so a child reached from the bar can reach its siblings. The group is a container and never a grant: `scm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `inventory` lane is labelled Inventory again and `commerce` is labelled Order Management, both route keys unchanged; `warehouse` is a reserved sibling for locations, transfers and stocktake, listed and disabled until it is built. 🟠 implemented locally 2026-09-07 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/scm-group-navigation.test.js` "
     },
     {
       "id": "req:NFR-001",
@@ -23424,7 +23398,7 @@
       "path": "docs/decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md",
       "title": "ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant",
       "hash": "700942ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
@@ -23595,6 +23569,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "type": "adr",
+      "path": "docs/decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md",
+      "title": "ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management",
+      "hash": "0b04c222",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
@@ -23647,7 +23629,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr060-business-home.spec.js",
-      "hash": "42494a93",
+      "hash": "be110e35",
       "status": "current"
     },
     {
@@ -23724,7 +23706,7 @@
       "id": "test:tests/e2e/fr154-inventory-dashboard.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
-      "hash": "0e28d593",
+      "hash": "9be8d760",
       "status": "current"
     },
     {
@@ -23738,14 +23720,14 @@
       "id": "test:tests/e2e/fr164-procurement.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr164-procurement.spec.js",
-      "hash": "87a5496d",
+      "hash": "a35e5c94",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
-      "hash": "a790c500",
+      "hash": "15a9923b",
       "status": "current"
     },
     {
@@ -23773,7 +23755,7 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
-      "hash": "f9501e6d",
+      "hash": "5de44954",
       "status": "current"
     },
     {
@@ -24537,7 +24519,7 @@
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
       "hash": "e899ad26",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -25600,8 +25582,8 @@
       "id": "test:tests/unit/fr060-business-home-visibility.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr060-business-home-visibility.test.js",
-      "hash": "06fa3744",
-      "status": "current"
+      "hash": "4658458c",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -25915,7 +25897,7 @@
       "id": "test:tests/unit/inventory-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/inventory-routes.test.js",
-      "hash": "e5e2ab37",
+      "hash": "2e6a864c",
       "status": "current"
     },
     {
@@ -25958,7 +25940,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-ingestion-job.test.js",
       "hash": "29b57e23",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-normalization.test.js",
@@ -25986,7 +25968,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
       "hash": "13372ca9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/knowledge-quarantine.test.js",
@@ -27036,6 +27018,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/schema-migration-drift.test.js",
       "hash": "070be8f1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/scm-group-navigation.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/scm-group-navigation.test.js",
+      "hash": "1a477ade",
       "status": "current"
     },
     {
@@ -36079,6 +36068,13 @@
     },
     {
       "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:FR-167",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -36234,6 +36230,13 @@
     {
       "from": "code:src/components/layouts/Sidebar.jsx",
       "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Sidebar.jsx",
+      "to": "req:FR-167",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -36465,6 +36468,13 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:FR-166",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:FR-167",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48328,6 +48338,13 @@
       "status": "current"
     },
     {
+      "from": "doc:ERP-MODULE-MAP",
+      "to": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -54222,6 +54239,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-167",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -59689,6 +59713,27 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "to": "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -60020,6 +60065,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -74551,6 +74603,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -77365,6 +77424,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -78164,6 +78230,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -80103,6 +80176,13 @@
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -82231,6 +82311,13 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -84681,6 +84768,13 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -88068,6 +88162,13 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -88202,6 +88303,13 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -89782,6 +89890,167 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-163",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-164",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/scope-external-ids-migration.test.js",
       "to": "req:BR-001",
       "type": "verifies",
@@ -90141,6 +90410,13 @@
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:FR-167",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
