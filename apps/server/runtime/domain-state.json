@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T11:50:36.791Z",
+  "generatedAt": "2026-09-07T11:41:58.714Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 123,
-    "readyFeatureCount": 101,
-    "requirementCount": 168,
-    "verifiedRequirementCount": 158,
+    "featureCount": 122,
+    "readyFeatureCount": 100,
+    "requirementCount": 167,
+    "verifiedRequirementCount": 157,
     "progressPercent": 94,
     "gapCount": 22,
     "gaps": [
@@ -2001,13 +2001,6 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 11
-        },
-        {
-          "id": "FR-168",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 3,
-          "testCount": 4
         }
       ],
       "checks": {
@@ -2120,11 +2113,10 @@
       },
       "featureIds": [
         "FEAT-020",
-        "FR-167",
-        "FR-168"
+        "FR-167"
       ],
-      "featureCount": 3,
-      "readyFeatureCount": 2,
+      "featureCount": 2,
+      "readyFeatureCount": 1,
       "progressPercent": 100
     },
     "knowledge": {
@@ -3068,13 +3060,6 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 26
-        },
-        {
-          "id": "FR-168",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 4
         }
       ],
       "checks": {
@@ -10937,44 +10922,6 @@
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
-      ]
-    },
-    {
-      "id": "FR-168",
-      "title": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply.",
-      "kind": "requirement",
-      "registryStatus": "live",
-      "requirementIds": [
-        "FR-168"
-      ],
-      "primaryDomain": "inventory",
-      "contributorDomains": [
-        "inventory",
-        "procurement"
-      ],
-      "useCase": "เจ้าของธุรกิจสร้าง SKU แล้วเลือกได้ว่าเป็นสินค้านับสต๊อก สินค้าไม่นับสต๊อก หรือบริการ พอเลือกบริการหรือไม่นับสต๊อก ฟอร์มจะตัดช่องการระบุหน่วยและ safety stock ออกทันทีเพราะใช้ไม่ได้ และระบบจะปฏิเสธการรับของเข้าคลังสำหรับบริการ เพราะบริการเป็นสิ่งที่ทำให้ ไม่ใช่ของที่ส่งมอบเข้าคลัง",
-      "progressPercent": 100,
-      "ready": true,
-      "readiness": "ready",
-      "blockers": [],
-      "requirements": [
-        {
-          "id": "FR-168",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 4
-        }
-      ],
-      "evidence": [
-        "apps/server/src/app/(pm)/inventory/page.jsx",
-        "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
-        "apps/server/src/modules/inventory/domain/inventory.js",
-        "apps/server/src/modules/procurement/application/goods-receipt-service.js",
-        "apps/server/tests/integration/fr154-inventory-catalog.test.js",
-        "apps/server/tests/integration/fr165-goods-receipt.test.js",
-        "apps/server/tests/unit/inventory-domain.test.js",
-        "apps/server/tests/unit/inventory-routes.test.js"
       ]
     }
   ]
