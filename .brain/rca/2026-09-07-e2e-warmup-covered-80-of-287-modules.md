@@ -146,15 +146,32 @@ warmup: 291 module(s) — 99 GET, 192 OPTIONS — in 393s
   112 passed (10.7m)
 ```
 
-0 flaky. 1.35s per warm-up request, the same per-request rate CI showed for
-the old 80-entry list, so the CI expectation is on the order of 7–10 minutes
-of warm-up. The specs themselves took about 4 minutes once nothing compiled
+0 flaky. The specs themselves took about 4 minutes once nothing compiled
 inside them; on CI the same specs took 22 minutes while they did.
 
-The warm-up's budget is 30 minutes (`test.setTimeout` in
-`tests/e2e/warmup.setup.js`). If it is ever exceeded, the suite fails as one
-named warm-up test rather than as whichever spec came first — which is the
-correct failure, and a different one from anything in the table above.
+## CI measurement
+
+First CI run of this plan, PR #285, run 34114907803 (windows-latest):
+
+```
+warmup: 291 module(s) — 99 GET, 192 OPTIONS — in 918s
+  ok 1 [warmup] › warm every page and route-handler module before any spec runs (15.3m)
+  4 skipped
+  112 passed (28.2m)
+```
+
+0 flaky. 3.2s per warm-up request on the runner against 1.35s locally — the
+"same per-request rate as the old list" guess in the first draft of this note
+was wrong by 2.3×, and the file's comment now carries the measured figure
+instead. The specs took 13 minutes after the warm-up, down from 22; the job
+as a whole went from ~23.5 to 28.2 minutes, which is the compile cost moving
+out of the assertions and being paid once, in the open.
+
+The warm-up's budget is 45 minutes — 3× the measured figure — in
+`test.setTimeout` in `tests/e2e/warmup.setup.js`. If it is ever exceeded, the
+suite fails as one named warm-up test rather than as whichever spec came
+first — which is the correct failure, and a different one from anything in
+the table above.
 
 ## What this does not claim
 

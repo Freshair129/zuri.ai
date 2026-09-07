@@ -26,15 +26,15 @@ const { reconnecting } = require('./reconnecting-request')
 test('warm every page and route-handler module before any spec runs', async ({ request }) => {
   const plan = warmupPlan()
   // This is the warm-up's own budget, not an assertion about the product, so a
-  // generous figure hides nothing. The arithmetic: CI run 34106105030 compiled
-  // the 80 hand-listed URLs in 1.8 min (≈1.35s each); the first local run of
-  // this plan compiled all 291 in 393s — the same 1.35s per request — and the
-  // 112 specs that followed took 4 min, against 22 min on CI when they were
-  // paying the compiles themselves. So the expectation is ~7 min here and the
-  // ceiling below is for a runner under the load that produced the flakes;
+  // generous figure hides nothing. Measured, not estimated: the first CI run
+  // of this plan (34114907803) compiled all 291 modules in 918s — 3.2s per
+  // request on windows-latest, against 1.35s locally (393s) — and the 112
+  // specs that followed took 13 min, against 22 min when they were paying the
+  // compiles themselves. So ~15 min is the expectation on CI and the ceiling
+  // below is 3× that, for a runner under the load that produced the flakes;
   // a warm-up that exceeds it fails loudly as one test instead of as whichever
   // spec came first.
-  test.setTimeout(30 * 60 * 1000)
+  test.setTimeout(45 * 60 * 1000)
   const started = Date.now()
   const sent = { GET: 0, OPTIONS: 0 }
   // Sequential on purpose: the dev server compiles one entry at a time anyway,
