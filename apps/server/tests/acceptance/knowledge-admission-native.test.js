@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { chromium } from '@playwright/test'
+import { chromium, expect as playwrightExpect } from '@playwright/test'
 import prisma from '@/lib/db'
+import { zGenesisRag17PublicationReceipt } from '@/modules/knowledge/genesisrag17-contract'
 import fixture from '../fixtures/genesisrag17-corpus-v1.json'
 import {
   createKnowledgeAdmissionHarness,
@@ -88,17 +89,17 @@ async function assertNativeRun(runId, label) {
     expect(row.recordsOut).toBeGreaterThanOrEqual(0)
     expect(row.recordsQuarantined).toBeGreaterThanOrEqual(0)
     expect(row.errorCount).toBe(0)
+    expect(row.retryCount).toBeGreaterThanOrEqual(0)
+    expect(row.durationMs).toBeGreaterThanOrEqual(0)
   }
   const receiptRow = await prisma.genesisRag17PublicationReceipt.findFirst({ where: { executionRunId: runId }, orderBy: { createdAt: 'desc' } })
   expect(receiptRow, `${label} must have a native publication receipt`).toBeTruthy()
   expect(receiptRow.modelRevision, `${label} receipt must identify the pinned model`).toBeTruthy()
   const receipt = JSON.parse(receiptRow.receiptJson)
-  expect(receipt.runId).toBe(runId)
-  expect(receipt.stages).toHaveLength(17)
-  expect(receipt.transaction?.id).toBeTruthy()
-  expect(receipt.readback?.ok).toBe(true)
-  expect(receipt.laneManifest?.vector?.status).toBe('ready')
-  expect(receipt.laneManifest?.lexical?.status).toBe('ready')
+  const parsedReceipt = zGenesisRag17PublicationReceipt.parse(receipt)
+  expect(parsedReceipt.runId).toBe(runId)
+  expect(parsedReceipt.transactionFrontier).toBeTruthy()
+  expect(parsedReceipt.readback.ok).toBe(true)
   return { run, evidence, receiptRow, receipt }
 }
 
@@ -108,7 +109,7 @@ async function enterBusiness(page) {
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await page.getByRole('button', { name: 'Open Business Business 01', exact: true }).click()
-  await expect(page).toHaveURL(/overview/)
+  await playwrightExpect(page).toHaveURL(/overview/)
 }
 
 async function admitFromFilesPage(harness, { businessId, content }) {
@@ -120,7 +121,7 @@ async function admitFromFilesPage(harness, { businessId, content }) {
     await page.goto('/files')
     await page.getByRole('button', { name: /Add text/i }).click()
     const dialog = page.getByRole('dialog', { name: 'Admit text or Markdown' })
-    await expect(dialog).toBeVisible()
+    await playwrightExpect(dialog).toBeVisible()
     await dialog.getByLabel('Source key').fill('ui-doc-a')
     await dialog.getByLabel('Version').fill('1')
     await dialog.getByLabel('Title').fill('UI knowledge document A')
@@ -130,7 +131,7 @@ async function admitFromFilesPage(harness, { businessId, content }) {
     const response = await submitted
     const body = await parseBody(response, 'browser knowledge admission')
     if (!response.ok()) throw new Error(`Browser admission returned HTTP ${response.status()}: ${JSON.stringify(body)}`)
-    await expect(dialog).not.toBeVisible()
+    await playwrightExpect(dialog).not.toBeVisible()
     return { body, id: admissionId(body) }
   } finally {
     await context.close()

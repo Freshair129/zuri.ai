@@ -15,7 +15,7 @@ import { isolatedEnvironment, startWorkerProcess, temporaryPipeline } from './ha
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const serverRoot = path.resolve(here, '../..')
-const auth = createRequire(path.join(serverRoot, 'package.json'))('../e2e/e2e-auth.js')
+const auth = createRequire(path.join(serverRoot, 'package.json'))('./tests/e2e/e2e-auth.js')
 const { E2E_USERNAME, E2E_PASSWORD, E2E_SESSION_SECRET } = auth
 
 const REQUIRED_NATIVE_ENV = ['KI17_MSP_ROOT', 'KI17_GKS_ROOT', 'KI17_GENESIS_ROOT', 'KI17_MODEL_DIR']
