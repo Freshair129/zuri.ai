@@ -241,7 +241,7 @@ function AddManagedFile({ businessId, projectId, mounts, onSaved, onClose }) {
   )
 }
 
-export default function ManagedFilesPanel({ businessId, projectId = null, businessTools = false }) {
+function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = false }) {
   const [adding, setAdding] = useState(false)
   const [textAdding, setTextAdding] = useState(false)
   const [message, setMessage] = useState(null)
@@ -319,3 +319,15 @@ export default function ManagedFilesPanel({ businessId, projectId = null, busine
     {textAdding && <TextKnowledgeModal key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
   </>
 }
+
+export function ManagedFilesPanel({ businessId, projectId = null, businessTools = false }) {
+  const scopeKey = `${businessId || ''}:${projectId || ''}`
+  return <ManagedFilesPanelBody
+    key={scopeKey}
+    businessId={businessId}
+    projectId={projectId}
+    businessTools={businessTools}
+  />
+}
+
+export default ManagedFilesPanel

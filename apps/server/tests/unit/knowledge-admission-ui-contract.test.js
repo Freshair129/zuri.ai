@@ -34,4 +34,10 @@ describe('knowledge controls in the existing Files surfaces', () => {
     expect(panel).toContain('if (state.scopeKey !== scopeKey) return { data: null')
     expect(panel).toContain('TextKnowledgeModal key={`${businessId}:${projectId || \'\'}`}')
   })
+
+  it('remounts the complete panel when its Business or Project scope changes', () => {
+    expect(panel).toContain('function ManagedFilesPanelBody')
+    expect(panel).toContain('return <ManagedFilesPanelBody')
+    expect(panel).toContain('key={scopeKey}')
+  })
 })

@@ -3,6 +3,7 @@
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/integration/knowledge-admission.integration.test.js
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
@@ -15,6 +16,7 @@ vi.mock('@/modules/knowledge/knowledge-http', async (importOriginal) => ({
 }))
 
 const { POST: ADMIT, GET: LIST } = await import('@/app/api/knowledge/ingestions/route')
+const { GET: STATUS } = await import('@/app/api/knowledge/ingestions/[runId]/route')
 import { createProjectManagerMcpTransport } from '@/modules/project-manager/mcp/transport'
 
 let portfolio
@@ -85,6 +87,78 @@ describe('knowledge admission live integration', () => {
     const payload = await response.json()
     expect(payload.items).toEqual(expect.arrayContaining([expect.objectContaining({ sourceVersion: 'v1', status: 'QUEUED' })]))
     expect(JSON.stringify(payload)).not.toContain('HTTP durable text')
+  })
+
+  it('fails closed when a persisted ingestion points at a source from another corpus', async () => {
+    const ingestion = await prisma.knowledgeIngestion.findFirst({ where: { source: { sourceKey: 'http-policy' } } })
+    const originalSourceId = ingestion.sourceId
+    const suffix = randomUUID().replaceAll('-', '').slice(0, 12)
+    const foreignBusiness = await createBusiness({
+      tenantId: tenant.id,
+      name: `Admission Foreign Business ${suffix}`,
+      code: `BUS-ADMISSION-FOREIGN-${suffix}`,
+    })
+    const foreignCorpus = await prisma.knowledgeCorpus.create({
+      data: {
+        id: `corpus-admission-foreign-${suffix}`,
+        corpusKey: `knowledge:admission-foreign:${suffix}`,
+        portfolioId: portfolio.id,
+        tenantId: tenant.id,
+        businessId: foreignBusiness.id,
+        projectId: null,
+        workspaceId: '',
+        scopeJson: JSON.stringify({ ...scopeFor(), businessId: foreignBusiness.id }),
+        policyJson: JSON.stringify({ allowEmbedding: true, allowPublication: true }),
+        status: 'ACTIVE',
+      },
+    })
+    const foreignSource = await prisma.knowledgeSource.create({
+      data: {
+        id: `source-admission-foreign-${suffix}`,
+        corpusId: foreignCorpus.id,
+        sourceKey: `foreign-source-${suffix}`,
+        kind: 'TEXT',
+        title: `Foreign source ${suffix}`,
+        desiredRevision: 1,
+      },
+    })
+    try {
+      await prisma.knowledgeIngestion.update({ where: { id: ingestion.id }, data: { sourceId: foreignSource.id } })
+
+      const statusResponse = await STATUS(
+        request(`http://local/api/knowledge/ingestions/${ingestion.id}`),
+        { params: { runId: ingestion.id } },
+      )
+      expect(statusResponse.status).toBe(404)
+      const statusPayload = await statusResponse.json()
+      expect(JSON.stringify(statusPayload)).not.toContain(foreignSource.sourceKey)
+
+      const listResponse = await LIST(request(`http://local/api/knowledge/ingestions?businessId=${business.id}`))
+      expect(listResponse.status).toBe(404)
+      const listPayload = await listResponse.json()
+      expect(JSON.stringify(listPayload)).not.toContain(foreignSource.sourceKey)
+    } finally {
+      await prisma.knowledgeIngestion.update({ where: { id: ingestion.id }, data: { sourceId: originalSourceId } })
+    }
+  })
+
+  it('does not return status or list DTOs for a disabled corpus', async () => {
+    const ingestion = await prisma.knowledgeIngestion.findFirst({ where: { source: { sourceKey: 'http-policy' } } })
+    const corpus = await prisma.knowledgeCorpus.findUnique({ where: { id: ingestion.corpusId } })
+    try {
+      await prisma.knowledgeCorpus.update({ where: { id: corpus.id }, data: { status: 'DISABLED' } })
+
+      const statusResponse = await STATUS(
+        request(`http://local/api/knowledge/ingestions/${ingestion.id}`),
+        { params: { runId: ingestion.id } },
+      )
+      expect(statusResponse.status).toBe(409)
+
+      const listResponse = await LIST(request(`http://local/api/knowledge/ingestions?businessId=${business.id}`))
+      expect(listResponse.status).toBe(409)
+    } finally {
+      await prisma.knowledgeCorpus.update({ where: { id: corpus.id }, data: { status: 'ACTIVE' } })
+    }
   })
 
   it('admits through MCP using the same service and live ACL', async () => {

@@ -580,7 +580,14 @@ async function readTargetForIngestion(id, { repository }) {
     repository.getCorpus(ingestion.corpusId),
     repository.getSource(ingestion.sourceId),
   ])
-  if (!corpus || !source || corpus.deletedAt) throw failure(404, 'KNOWLEDGE_INGESTION_NOT_FOUND', 'Knowledge ingestion not found')
+  if (
+    !corpus ||
+    !source ||
+    corpus.deletedAt ||
+    ingestion.corpusId !== corpus.id ||
+    source.corpusId !== corpus.id
+  ) throw failure(404, 'KNOWLEDGE_INGESTION_NOT_FOUND', 'Knowledge ingestion not found')
+  if (corpus.status !== 'ACTIVE') throw failure(409, 'KNOWLEDGE_CORPUS_UNAVAILABLE', 'Knowledge corpus is unavailable')
   return { ingestion, corpus, source }
 }
 
@@ -636,6 +643,9 @@ export async function listKnowledgeIngestions({ businessId, projectId = null, li
   const sourceIds = [...new Set(rows.map((row) => row.sourceId))]
   const sources = await Promise.all(sourceIds.map((id) => repository.getSource(id)))
   const byId = new Map(sources.filter(Boolean).map((source) => [source.id, source]))
+  if (rows.some((row) => row.corpusId !== corpus.id || byId.get(row.sourceId)?.corpusId !== corpus.id)) {
+    throw failure(404, 'KNOWLEDGE_INGESTION_NOT_FOUND', 'Knowledge ingestion not found')
+  }
   return {
     corpus: corpusSummary(corpus),
     items: rows.map((row) => ingestionSummary(row, { corpus, source: byId.get(row.sourceId) })),
