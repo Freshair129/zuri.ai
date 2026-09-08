@@ -1,6 +1,6 @@
 -- @req FR-109 — additive GenesisRAG17 source intent and durable occurrence
 -- persistence for the approved audit remediation.
--- @spec ADR-070, docs/plans/GENESISRAG17-CONTRACT.md
+-- @spec ADR-071, docs/plans/GENESISRAG17-CONTRACT.md
 -- @tested tests/unit/genesisrag17-supabase-migration.test.js
 --
 -- NOT APPLIED to production by this change. Applying is an owner-instructed

@@ -21,7 +21,7 @@ owns_models:
 Current GenesisRAG17 execution and extension authority:
 [17-stage spec](../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
 [flow / stage-to-feature map](../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md),
-[ADR-070](../../decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md).
+[ADR-071](../../decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md).
 The isolated profile runs all 17 stages across four repositories; this domain owns
 only Tier 1 preparation, durable lineage and receipt-bound evidence. Existing pure
 FR-111–118 modules retain their own contracts; the GenesisRAG17 adapter uses the
@@ -54,7 +54,7 @@ external systems with their own repositories and are never zuri-ai domains
   `hybridSearch`, no embedding call, no `addNode`/`addEdge` (ADR-043 D2.1,
   ADR-050 D3). The two files that once did (`gbdb-rag-service.js`,
   `genesisblockdb-sink.js`) were retired by ADR-063 on 2026-09-06. The
-  `GraphSink` seam in `sink.js` stays; in the approved ADR-070 profile the physical
+  `GraphSink` seam in `sink.js` stays; in the approved ADR-071 profile the physical
   substrate writer belongs to the separate GenesisBlock worker behind MSP.
   `createGraphKnowledgeReader`'s injected `traverse` may only ever
   be bound through MSP → GKS or the ADR-046 interim surface, never to the
@@ -227,7 +227,7 @@ derives what closing a run may write; neither opens a database. The envelopes
 in `published-snapshot-contract.js` gained `outcome`, `failure`, `startedAt`
 and `finishedAt`.
 
-Current isolated execution and remaining production boundary (ADR-070):
+Current isolated execution and remaining production boundary (ADR-071):
 
 - No route or caller invokes `evaluateKnowledgePublication` in production; it
   has unit-test callers only. Publication is the external tiers' act; the
@@ -241,7 +241,7 @@ Current isolated execution and remaining production boundary (ADR-070):
 - Atomic publication lives in the GenesisBlock worker. Tier 1 imports its
   matching receipt and refuses successful finish without it; Tier 1 never
   owns or mutates the published pointer or candidate indexes.
-- ADR-070 authorizes seven local lineage/batch/evidence/cursor/receipt models
+- ADR-071 authorizes seven local lineage/batch/evidence/cursor/receipt models
   listed in this charter and the source worker. This supersedes the historical
   no-new-model slice limit, not the prohibition on a Tier 1 canonical fact store.
 

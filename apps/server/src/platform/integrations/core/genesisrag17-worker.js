@@ -7,7 +7,7 @@ import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesis
 
 // @req FR-109 — resumable source dispatch and evidence polling through MSP.
 // @req FR-110 — scoped published queries; external writes remain in Tier 4.
-// @spec ADR-050, ADR-070
+// @spec ADR-050, ADR-071
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 
 function denied(message) { return Object.assign(new Error(message), { status: 403 }) }

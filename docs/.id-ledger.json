@@ -599,6 +599,7 @@
     "ADR-068",
     "ADR-069",
     "ADR-070",
+    "ADR-071",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7398,12 +7399,35 @@
     "ADR-070": {
       "family": "ADR",
       "source": "docs/decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "status": "current",
+      "status": "burnt",
       "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
       "history": [
         {
           "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-07",
+          "reason": "declared"
+        },
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
+          "reason": "Abandoned before merge; this branch renumbered itself to ADR-071. Main published ADR-070 for execution trace before this branch merged; GenesisRAG adopts ADR-071 without changing its subject.",
+          "declared_in": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md#1.2.0b"
+        }
+      ],
+      "retired_to": "ADR-071",
+      "retired_at": "2026-09-08",
+      "reason": "Main published ADR-070 for execution trace before this branch merged; GenesisRAG adopts ADR-071 without changing its subject.",
+      "declared_in": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md#1.2.0b"
+    },
+    "ADR-071": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "history": [
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
           "reason": "declared"
         }
       ]

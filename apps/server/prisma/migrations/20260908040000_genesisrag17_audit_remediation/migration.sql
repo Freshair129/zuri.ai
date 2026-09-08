@@ -1,6 +1,6 @@
 -- @req FR-109 — additive GenesisRAG17 source intent and durable occurrence
 -- persistence for the approved audit remediation.
--- @spec ADR-070, docs/plans/GENESISRAG17-CONTRACT.md
+-- @spec ADR-071, docs/plans/GENESISRAG17-CONTRACT.md
 
 -- A source intent is written before local Stage 1 and retains the exact input
 -- and derivation configuration required for process-owned recovery.

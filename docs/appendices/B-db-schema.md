@@ -400,7 +400,7 @@ payloads and revalidate through their owners; no binary or PM task is copied.
 
 ## GenesisRAG17 isolated durability (FR-109, FR-110)
 
-Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-070](../decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
+Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-071](../decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
 
 | Model | Identity / retained evidence | Restore order |
 |---|---|---|

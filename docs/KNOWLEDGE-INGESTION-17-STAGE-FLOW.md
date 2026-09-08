@@ -7,7 +7,7 @@ created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
 last_update: "2026-09-08T04:00:00+07:00,RWANG"
 relations:
   - type: references
-    target: ZAI:ADR-070
+    target: ZAI:ADR-071
   - type: references
     target: ZAI:GENESISRAG17-CONTRACT
   - type: relates_to
@@ -18,7 +18,7 @@ relations:
 
 # GenesisRAG17 — execution flow and extension map
 
-เริ่มจากตารางเลือก stage ด้านล่างเมื่อจะเพิ่มความสามารถใหม่ แล้วอ่าน contract ของ stage ก่อนแก้ implementation เอกสารนี้อธิบาย **ระบบทดสอบที่ทำแล้ว** ตาม ADR-070; [spec §§1–42](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) ยังเก็บข้อกำหนดผลิตภัณฑ์ที่กว้างกว่าไว้ โดยแต่ละ stage มีหมายเหตุขอบเขตที่ทำจริง
+เริ่มจากตารางเลือก stage ด้านล่างเมื่อจะเพิ่มความสามารถใหม่ แล้วอ่าน contract ของ stage ก่อนแก้ implementation เอกสารนี้อธิบาย **ระบบทดสอบที่ทำแล้ว** ตาม ADR-071; [spec §§1–42](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) ยังเก็บข้อกำหนดผลิตภัณฑ์ที่กว้างกว่าไว้ โดยแต่ละ stage มีหมายเหตุขอบเขตที่ทำจริง
 
 ขอบเขตปัจจุบัน: synthetic text/Markdown, หนึ่งเอกสารต่อ run, ฐานข้อมูลแยก, scope `private`, rule-based extraction, local CPU embeddings และ worker loop ที่เริ่ม/หยุดและ resume ได้ ไม่มี production deployment, LLM extraction, UI ใหม่ หรือ OS scheduled task ในงานนี้ การเพิ่ม capability ในตารางคือจุดที่ควรออกแบบต่อ ไม่ใช่ plugin/API ที่มีอยู่แล้วทุกข้อ
 

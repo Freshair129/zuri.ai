@@ -214,7 +214,7 @@ Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
 what FR-110 owns — the gate, the publication and the snapshot. The KNO-01
 contract slice and the zuri-ai half of KNO-02 — the reporter receiver, the
 Stage 17 decision writer and the derived run close (ADR-067, 2026-09-07) —
-are implemented. ADR-070 additionally proves native atomic publication and scoped
+are implemented. ADR-071 additionally proves native atomic publication and scoped
 retrieval in the isolated profile. The unchecked criteria below retain their
 broader product-wide scope (including the legacy snapshot shape); they are not
 an assertion that the tested pipeline lacks publication or query. See the

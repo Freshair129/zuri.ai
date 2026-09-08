@@ -3,7 +3,7 @@ import { canonicalGenesisRag17Json, hashGenesisRag17Json, zGenesisRag17Metrics, 
 
 // @req FR-109 — stable cross-tier identities and six measured counters.
 // @req FR-110 — old-attempt evidence cannot be silently attributed to a new run.
-// @spec ADR-070
+// @spec ADR-071
 // @tested tests/unit/genesisrag17-contract.test.js
 
 describe('GenesisRAG17 cross-tier wire regressions', () => {

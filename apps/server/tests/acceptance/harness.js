@@ -1,5 +1,5 @@
 // @req FR-110 — isolated real processes for the four-tier acceptance fixture.
-// @spec ADR-070
+// @spec ADR-071
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 import { fork } from 'node:child_process'
 import { mkdtempSync, rmSync } from 'node:fs'

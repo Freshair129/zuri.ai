@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 22,
+    "info": 25,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -172,15 +172,101 @@
       "id": "I15",
       "severity": "info",
       "check": "id-stability",
-      "title": "523 id(s) pinned across 10 families",
-      "details": "ADR 70 · BR 25 · FEAT 24 · FR 170 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 523",
+      "title": "FEAT-013 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 463961acf9f23deca7a1e85698942adb7c6c36c6359a280766006e1aa7feb699 → 7b14c6aeadbaf4f996fb1c6734e473de90fe4e6da3622a1d06ef407ae4976d3f · citation files: docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md, docs/GAP-ANALYSIS-ZURI-GOVIBE.md, docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md, docs/PRD-SDD-v1.0.md, docs/roadmap/ROADMAP.md, docs/SYSTEM-DIAGRAM.md, docs/TRACE.md",
+      "files": [
+        "docs/FEATURES.md",
+        "docs/.id-ledger.json",
+        "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
+        "docs/GAP-ANALYSIS-ZURI-GOVIBE.md",
+        "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+        "docs/PRD-SDD-v1.0.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/SYSTEM-DIAGRAM.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-013 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I16",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "SDD-057 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 71c6dd73ce82b1b0074c332de80b9ebd82b4eee88a7c8632d818df272fc09bc8 → deef25490f5c5406a586d7de23a0d88fd8c7ea4ec7b94261dff9ab52a17714e3 · citation files: src/modules/knowledge/ingestion-job.js, src/modules/knowledge/published-snapshot-contract.js, src/platform/integrations/core/knowledge-evidence-importer.js, src/platform/integrations/core/knowledge-ingestion-executor.js, src/platform/integrations/core/pipeline-tracking-contract.js, tests/integration/fr109-knowledge-ingestion-executor.test.js, tests/integration/fr110-knowledge-evidence-importer.test.js, tests/unit/knowledge-ingestion-job-state.test.js, tests/unit/knowledge-ingestion-job.test.js, tests/unit/knowledge-published-snapshot-contract.test.js, tests/unit/platform/knowledge-ingestion-catalog.test.js, prisma/schema.postgres.prisma",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/modules/knowledge/ingestion-job.js",
+        "src/modules/knowledge/published-snapshot-contract.js",
+        "src/platform/integrations/core/knowledge-evidence-importer.js",
+        "src/platform/integrations/core/knowledge-ingestion-executor.js",
+        "src/platform/integrations/core/pipeline-tracking-contract.js",
+        "tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "tests/integration/fr110-knowledge-evidence-importer.test.js",
+        "tests/unit/knowledge-ingestion-job-state.test.js",
+        "tests/unit/knowledge-ingestion-job.test.js",
+        "tests/unit/knowledge-published-snapshot-contract.test.js",
+        "tests/unit/platform/knowledge-ingestion-catalog.test.js",
+        "prisma/schema.postgres.prisma",
+        "prisma/schema.prisma",
+        "supabase/migrations/20260906090000_raw_external_record_artifact_id.sql",
+        "supabase/migrations/20260907120000_knowledge_evidence_cursor.sql",
+        "docs/appendices/D-traceability.md",
+        "docs/change-requests/CR-003-ACCEPTED-SHAPE.md",
+        "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
+        "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
+        "docs/domains/knowledge/CHARTER.md",
+        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
+        "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
+        "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
+        "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+        "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+        "docs/FEATURE-MAP.md",
+        "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-057 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I17",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "SDD-059 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 80b61b4a1fb49241e1e0b1b1b8e352a3e8d7eb83c1b7a41b8676d3f5a74b16ae → 1072047c0a354a0e39e7600a11ae4ec6a475e9bdc25929feb14a30d20b8cd05b · citation files: src/modules/knowledge/chunking.js, src/modules/knowledge/genesisrag17-source.js, tests/unit/genesisrag17-source.test.js, prisma/schema.postgres.prisma, prisma/schema.prisma, docs/appendices/D-traceability.md, docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md, docs/domains/knowledge/CHARTER.md, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md, docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md, docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/modules/knowledge/chunking.js",
+        "src/modules/knowledge/genesisrag17-source.js",
+        "tests/unit/genesisrag17-source.test.js",
+        "prisma/schema.postgres.prisma",
+        "prisma/schema.prisma",
+        "docs/appendices/D-traceability.md",
+        "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
+        "docs/domains/knowledge/CHARTER.md",
+        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
+        "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
+        "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+        "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-059 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I18",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "524 id(s) pinned across 10 families",
+      "details": "ADR 71 · BR 25 · FEAT 24 · FR 170 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 524",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I16",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -191,7 +277,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I17",
+      "id": "I20",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -202,7 +288,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I18",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -213,7 +299,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I22",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 343 document(s)",
@@ -224,7 +310,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I20",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -236,7 +322,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I21",
+      "id": "I24",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 76 file(s) that write audit events",
@@ -245,7 +331,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I22",
+      "id": "I25",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1749 column(s) across 130 model(s) against 59 migration(s)",

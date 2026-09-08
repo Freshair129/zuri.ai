@@ -23,7 +23,7 @@ hierarchy, progress engine); this document keeps the structural ones.
 These diagrams retain the dated 2026-08-15 architecture snapshot and phase labels.
 For current GenesisRAG17 work, use the [17-stage specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
 [actual execution flow / extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) and
-[updated four-tier system diagram](SYSTEM-DIAGRAM.md). The ADR-070 isolated profile
+[updated four-tier system diagram](SYSTEM-DIAGRAM.md). The ADR-071 isolated profile
 now executes all 17 stages through MSP with passive GKS and a separate physical
 worker. Historical dashed P5/direct-GKS arrows below are not current RPC contracts
 or evidence that the isolated pipeline is unbuilt. Other historical phases are
