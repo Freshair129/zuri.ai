@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import {
   Search,
+  MessageSquare,
   Filter,
   Send,
   Sparkles,
@@ -23,12 +24,14 @@ import {
 } from 'lucide-react'
 // @req FR-091, FR-093 — LineCRM-MCP 3-Column Live Chat with AI Assist & Member 360°
 // @spec SDD-050, ADR-060, ADR-061
+// @tested tests/unit/line-crm-live-chat-render.test.js
 
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 
 export default function LineCrmLiveChat() {
-  const { businessId, selectedBusiness } = useScope()
+  const { shell, currentBusiness: selectedBusiness } = useScope()
+  const businessId = shell.activeBusinessId
   const [selectedChatId, setSelectedChatId] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,7 +41,7 @@ export default function LineCrmLiveChat() {
   const [simulating, setSimulating] = useState(false)
 
   // Live DB Fetch
-  const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : '/api/crm/conversations'
+  const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : null
   const liveInbox = useFetch(convPath, [businessId])
 
   const rawConversations = useMemo(() => liveInbox.data?.conversations || [], [liveInbox.data])

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T11:41:58.714Z",
+  "generatedAt": "2026-09-08T08:03:37.503Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -353,7 +353,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-096",
@@ -971,14 +971,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-093",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-097",
@@ -1006,7 +1006,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-147",
@@ -1027,7 +1027,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-152",
@@ -1385,7 +1385,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-148",
@@ -1799,7 +1799,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-149",
@@ -2420,21 +2420,21 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-093",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 30,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-149",
@@ -2455,7 +2455,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-152",
@@ -3625,7 +3625,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-092",
@@ -3800,7 +3800,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-149",
@@ -3821,7 +3821,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-152",
@@ -4849,14 +4849,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-093",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -4900,6 +4900,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/line-crm-live-chat-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
@@ -5658,7 +5659,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 38,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-147",
@@ -5672,7 +5673,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-152",
@@ -5779,6 +5780,7 @@
         "apps/server/tests/unit/line-oa-rich-menu-publish.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-schema-contract.test.js",
+        "apps/server/tests/unit/line-studio-dashboard-render.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js"

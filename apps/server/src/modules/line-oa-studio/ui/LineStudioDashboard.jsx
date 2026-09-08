@@ -1,5 +1,6 @@
 // @req FR-146, FR-151 — LINE Studio Enterprise Dashboard
 // @spec SDD-060, SDD-061 — Live Multi-account analytics & project directory
+// @tested tests/unit/line-studio-dashboard-render.test.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -194,13 +195,13 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">
-              {Math.max(groups.length, 2)}
+              —
             </span>
             <span className="text-xs text-slate-500">กลุ่ม</span>
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400">
             <Activity className="w-3.5 h-3.5" />
-            <span>Group ID Active</span>
+            <span>ยังไม่มีข้อมูลจำนวนกลุ่ม</span>
           </div>
         </div>
 

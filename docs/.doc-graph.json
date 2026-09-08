@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2318,
-    "total_edges": 9218,
+    "total_nodes": 2320,
+    "total_edges": 9227,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 287,
       "model": 121,
       "requirement": 328,
-      "test": 534,
+      "test": 536,
       "code_file": 690
     },
     "coverage": {
@@ -54,8 +54,14 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "test:tests/unit/line-crm-live-chat-render.test.js",
+      "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx"
+    ],
+    "added": [
+      "test:tests/unit/line-studio-dashboard-render.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -9958,8 +9964,8 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "a8e2c3e4",
-      "status": "current",
+      "hash": "6e790d12",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-091",
@@ -9967,6 +9973,9 @@
         ],
         "@spec": [
           "SDD-050"
+        ],
+        "@tested": [
+          "tests/unit/line-crm-live-chat-render.test.js"
         ]
       }
     },
@@ -10382,8 +10391,8 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "18abb83c",
-      "status": "current",
+      "hash": "0f47c3c5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-146",
@@ -10392,6 +10401,9 @@
         "@spec": [
           "SDD-060",
           "SDD-061"
+        ],
+        "@tested": [
+          "tests/unit/line-studio-dashboard-render.test.js"
         ]
       }
     },
@@ -26082,6 +26094,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+      "hash": "7d91b14a",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/unit/line-oa-account-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-oa-account-domain.test.js",
@@ -26163,6 +26182,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-registry-service.test.js",
       "hash": "0342f04b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+      "hash": "b31b173f",
       "status": "current"
     },
     {
@@ -83358,6 +83384,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:SDD-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-oa-account-domain.test.js",
       "to": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "type": "tests",
@@ -83804,6 +83858,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
