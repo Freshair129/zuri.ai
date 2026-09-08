@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { once } from 'node:events'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
+import { existsSync } from 'node:fs'
 import net from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,6 +20,7 @@ const auth = createRequire(path.join(serverRoot, 'package.json'))('./tests/e2e/e
 const { E2E_USERNAME, E2E_PASSWORD, E2E_SESSION_SECRET } = auth
 
 const REQUIRED_NATIVE_ENV = ['KI17_MSP_ROOT', 'KI17_GKS_ROOT', 'KI17_GENESIS_ROOT', 'KI17_MODEL_DIR']
+const TEST_DATABASE_URL = /^file:\.\/\.test-dbs\/(run-[\w-]+\.db)$/
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -27,6 +29,17 @@ function requiredNativeEnvironment(env) {
   if (missing.length) {
     throw new Error(`Knowledge admission native acceptance requires ${missing.join(', ')}; no fake/stub mode is supported`)
   }
+}
+
+function disposableDatabaseUrl(env = process.env) {
+  const match = String(env.DATABASE_URL || '').replaceAll('\\', '/').match(TEST_DATABASE_URL)
+  if (!match) throw new Error('Knowledge admission acceptance requires Vitest DATABASE_URL=file:./.test-dbs/run-*.db')
+  const databasePath = path.resolve(serverRoot, 'prisma', '.test-dbs', match[1])
+  const databaseRoot = path.resolve(serverRoot, 'prisma', '.test-dbs')
+  if (path.dirname(databasePath) !== databaseRoot || !existsSync(databasePath)) {
+    throw new Error('Knowledge admission acceptance requires an existing disposable .test-dbs/run-*.db')
+  }
+  return `file:${databasePath.replaceAll('\\', '/')}`
 }
 
 function commandLine(nextBin, port) {
@@ -88,7 +101,12 @@ async function launchNext({ env, port }) {
   })
   child.stdout.on('data', (chunk) => logs.push(chunk.toString('utf8')))
   child.stderr.on('data', (chunk) => logs.push(chunk.toString('utf8')))
-  await waitForHttp(`http://127.0.0.1:${port}`, child, logs)
+  try {
+    await waitForHttp(`http://127.0.0.1:${port}`, child, logs)
+  } catch (error) {
+    await terminateProcess(child)
+    throw error
+  }
   return {
     child,
     logs,
@@ -99,7 +117,7 @@ async function launchNext({ env, port }) {
 function addRuntimeEnvironment(env, scope, port) {
   return {
     ...env,
-    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_URL: disposableDatabaseUrl(),
     ZURI_SESSION_SECRET: E2E_SESSION_SECRET,
     ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     ZURI_KNOWLEDGE_ENABLED: '1',
@@ -174,6 +192,9 @@ export async function createKnowledgeAdmissionHarness({
       scope,
       env,
       get native() { return native },
+      get diagnostics() {
+        return { next: (next?.logs || []).join('').slice(-6000) }
+      },
       request: api,
       async activateNativeWorker() {
         await restart({ activateNative: true })
@@ -212,10 +233,10 @@ export async function createKnowledgeAdmissionHarness({
 }
 
 export function seedKnowledgeOwner({ password = E2E_PASSWORD, env = process.env } = {}) {
-  if (!env.DATABASE_URL) throw new Error('Knowledge admission acceptance requires DATABASE_URL from the isolated test setup')
+  const databaseUrl = disposableDatabaseUrl(env)
   execFileSync(process.execPath, ['prisma/seed.js'], {
     cwd: serverRoot,
-    env: { ...env, DATABASE_URL: env.DATABASE_URL, ZURI_SEED_OWNER_PASSWORD: password },
+    env: { ...env, DATABASE_URL: databaseUrl, ZURI_SEED_OWNER_PASSWORD: password },
     stdio: 'inherit',
   })
 }
