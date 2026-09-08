@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2358,
-    "total_edges": 9439,
+    "total_nodes": 2377,
+    "total_edges": 9533,
     "dangling_edges": 0,
     "node_types": {
-      "document": 206,
+      "document": 209,
       "appendix": 4,
-      "adr": 70,
+      "adr": 71,
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
-      "route": 288,
-      "model": 130,
-      "requirement": 331,
-      "test": 546,
-      "code_file": 701
+      "route": 289,
+      "model": 131,
+      "requirement": 332,
+      "test": 553,
+      "code_file": 706
     },
     "coverage": {
-      "requirements": 331,
-      "fr_with_code": "100% (160/160)",
-      "fr_with_tests": "100% (160/160)",
+      "requirements": 332,
+      "fr_with_code": "100% (161/161)",
+      "fr_with_tests": "100% (161/161)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 701,
+      "annotated_code_files": 706,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,37 +54,9 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:.rwang-progress",
-      "doc:B-db-schema",
-      "doc:ARCHITECTURE-DIAGRAMS",
-      "doc:ARCHITECTURE",
-      "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
-      "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
-      "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
-      "domain:knowledge",
-      "doc:FR-110-published-knowledge-snapshot-contract",
-      "doc:FR-118-tier1-stage-composition",
-      "doc:FEATURES",
-      "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
-      "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
-      "doc:GENESISRAG17-CONTRACT",
-      "doc:PRD-SDD-v1.0",
-      "doc:PLAN-PENDING-KNOWLEDGE-20260831",
-      "doc:ROADMAP",
-      "doc:docs/SYSTEM-DIAGRAM",
-      "test:tests/acceptance/genesisrag17-e2e.test.js",
-      "test:tests/unit/genesisrag17-contract.test.js",
-      "test:tests/unit/genesisrag17-worker.test.js",
-      "code:src/platform/integrations/core/genesisrag17-publication.js",
-      "code:src/platform/integrations/core/genesisrag17-worker.js"
-    ],
-    "added": [
-      "spec:ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION"
-    ],
-    "removed": [
-      "spec:ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION"
-    ]
+    "changed": [],
+    "added": [],
+    "removed": []
   },
   "nodes": [
     {
@@ -4175,7 +4147,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "2bc4200c",
+      "hash": "34886270",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4243,6 +4215,24 @@
         ],
         "@tested": [
           "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "hash": "d8fad4c0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-171"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/server-line-trace.test.js"
         ]
       }
     },
@@ -6891,14 +6881,15 @@
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/context.js",
-      "hash": "c5e826ca",
+      "hash": "2ce9daf9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
           "FR-057",
           "FR-096",
-          "FR-098"
+          "FR-098",
+          "FR-171"
         ],
         "@tested": [
           "tests/integration/agent-context.test.js",
@@ -6927,6 +6918,25 @@
       }
     },
     {
+      "id": "code:src/modules/agent/execution-trace.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/execution-trace.js",
+      "hash": "28c344fd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
+          "FR-171"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/execution-trace.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/golden-evaluation.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/golden-evaluation.js",
@@ -6949,11 +6959,12 @@
       "id": "code:src/modules/agent/grounded-business-answer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/grounded-business-answer.js",
-      "hash": "52a9a27a",
+      "hash": "5dd836c6",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-049",
+          "FR-171",
           "FR-149",
           "FR-079"
         ],
@@ -7119,6 +7130,24 @@
       }
     },
     {
+      "id": "code:src/modules/agent/line-execution-trace.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/line-execution-trace.js",
+      "hash": "5714e8d9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-171"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/server-line-trace.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/line-operator.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/line-operator.js",
@@ -7144,7 +7173,7 @@
       "id": "code:src/modules/agent/memory-port.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/memory-port.js",
-      "hash": "e5119488",
+      "hash": "5e9e7b78",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7157,10 +7186,10 @@
       }
     },
     {
-      "id": "code:src/modules/agent/model-provider.js",
+      "id": "code:src/modules/agent/model-provider-catalog.js",
       "type": "code_file",
-      "path": "apps/server/src/modules/agent/model-provider.js",
-      "hash": "8b34758f",
+      "path": "apps/server/src/modules/agent/model-provider-catalog.js",
+      "hash": "87f85553",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7171,7 +7200,43 @@
           "SEC-009"
         ],
         "@tested": [
-          "tests/unit/model-provider-port.test.js"
+          "tests/unit/fr048-provider-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/model-provider.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/model-provider.js",
+      "hash": "cdc08787",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-048",
+          "FR-171"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/model-provider-port.test.js",
+          "tests/unit/model-provider-trace.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/msp-memory-evidence.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/msp-memory-evidence.js",
+      "hash": "9e309272",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-171"
+        ],
+        "@tested": [
+          "tests/unit/msp-memory-evidence.test.js"
         ]
       }
     },
@@ -7179,12 +7244,13 @@
       "id": "code:src/modules/agent/msp-memory-port.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/msp-memory-port.js",
-      "hash": "9a496447",
+      "hash": "7e1c3731",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
-          "FR-057"
+          "FR-057",
+          "FR-171"
         ],
         "@tested": [
           "tests/integration/agent-msp-port.test.js",
@@ -7313,12 +7379,13 @@
       "id": "code:src/modules/agent/server-line-answer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/server-line-answer.js",
-      "hash": "946347da",
+      "hash": "4aa26382",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
-          "FR-150"
+          "FR-150",
+          "FR-171"
         ],
         "@spec": [
           "SEC-001",
@@ -10276,12 +10343,13 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "d175b732",
+      "hash": "615360fe",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
-          "FR-150"
+          "FR-150",
+          "FR-171"
         ],
         "@spec": [
           "SEC-001",
@@ -10296,12 +10364,13 @@
       "id": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
-      "hash": "2baf057d",
+      "hash": "2a0e2d51",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
-          "FR-149"
+          "FR-149",
+          "FR-171"
         ],
         "@spec": [
           "SEC-001",
@@ -12202,7 +12271,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "ac576933",
+      "hash": "725b0a6e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12284,7 +12353,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "b5798cba",
+      "hash": "56f5fd1e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13948,7 +14017,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-publication.js",
       "hash": "848da1ed",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-110"
@@ -13963,7 +14032,7 @@
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
       "hash": "62e2ed03",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -14233,7 +14302,7 @@
       "id": "code:src/platform/integrations/llm/provider-catalog.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/llm/provider-catalog.js",
-      "hash": "1e869bae",
+      "hash": "fbd56858",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14353,16 +14422,16 @@
       "path": "docs/.rwang-progress.md",
       "title": "GenesisRAG17 implementation progress",
       "hash": "69a9d890",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.51.0b",
+      "version": "1.52.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "6c5c2507",
+      "hash": "39d92f9c",
       "status": "current"
     },
     {
@@ -14371,7 +14440,7 @@
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
       "hash": "91d493c1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-DIAGRAMS",
@@ -14381,7 +14450,7 @@
       "version": "1.1.1",
       "doc_status": "Draft",
       "hash": "e5bb9d79",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-NOTES",
@@ -14416,8 +14485,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.29.0b",
       "doc_status": "Draft",
-      "hash": "9772baa7",
-      "status": "changed"
+      "hash": "2eaf354d",
+      "status": "current"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -14686,7 +14755,7 @@
       "version": "1.1.0b",
       "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
       "hash": "64a8027a",
-      "status": "changed",
+      "status": "current",
       "identity_migration": {
         "repository": "Freshair129/zuri.ai",
         "previous_id": "doc:SYSTEM-DIAGRAM",
@@ -14786,10 +14855,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.30.0b",
+      "version": "1.31.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "3acbb59e",
-      "status": "changed"
+      "hash": "67e50cc2",
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -15372,7 +15441,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "b37ba7d2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -15436,7 +15505,7 @@
       "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
       "title": "FR-118 — Tier 1 stage composition",
       "hash": "441a938a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-120-self-serve-account-creation",
@@ -15727,6 +15796,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-171-execution-trace-and-replay",
+      "type": "document",
+      "path": "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
+      "title": "FR-171 — Execution Trace & Replay v0.3",
+      "hash": "94645639",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -15750,7 +15827,7 @@
       "path": "docs/plans/GENESISRAG17-CONTRACT.md",
       "title": "Approved GenesisRAG17 implementation contract",
       "hash": "d91fa105",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVERNANCE-LINK-METADATA",
@@ -15796,7 +15873,7 @@
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
       "title": "GenesisRAG17 — execution flow and extension map",
       "hash": "3f73cf62",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -15806,7 +15883,7 @@
       "version": "1.2.0b",
       "doc_status": "Beta — product specification with verified isolated execution profile",
       "hash": "a6ecb4ba",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:line-oa-provider-merge",
@@ -16053,6 +16130,22 @@
       "status": "current"
     },
     {
+      "id": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "type": "document",
+      "path": "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
+      "title": "FR-171-P1 — Native SERVER LINE journal and playback",
+      "hash": "5d541f07",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-FR-171-P2-memory-provenance",
+      "type": "document",
+      "path": "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
+      "title": "FR-171-P2 — Preserve authorized MSP memory provenance",
+      "hash": "bd340fa2",
+      "status": "current"
+    },
+    {
       "id": "doc:PHASE-MONOREPO-2026-09-06",
       "type": "roadmap",
       "path": "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
@@ -16264,7 +16357,7 @@
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
       "hash": "99946b55",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-PENDING-PARALLEL-20260831",
@@ -16303,10 +16396,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.167.0b",
+      "version": "1.170.0b",
       "doc_status": "Draft",
-      "hash": "e34adc18",
-      "status": "changed"
+      "hash": "66873634",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -16333,8 +16426,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "31742c82",
-      "status": "changed"
+      "hash": "fa973f3e",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -16575,7 +16668,9 @@
       "type": "domain",
       "path": "docs/domains/agent/CHARTER.md",
       "title": "Domain — agent",
-      "owns_models": [],
+      "owns_models": [
+        "AgentTraceEvent"
+      ],
       "owns_routes": [
         "src/app/api/agent/**"
       ],
@@ -16583,7 +16678,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "cf8d008a",
+      "hash": "ea5560af",
       "status": "current"
     },
     {
@@ -16799,7 +16894,7 @@
         "knowledge"
       ],
       "hash": "5b000a21",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:line-oa-studio",
@@ -17146,6 +17241,11 @@
       "type": "feature",
       "label": "Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066)",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "model:AgentTraceEvent",
+      "type": "model",
       "status": "current"
     },
     {
@@ -19736,7 +19836,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration (not applied to production; ADR-057), `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle "
+      "row_text": "A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration, `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle; 2026-09-07: production migration `20260907150000_business_capabilities` applied and recorded in `supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-057) "
     },
     {
       "id": "req:FR-170",
@@ -19747,6 +19847,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes. 🟠 implemented locally 2026-09-07 — `ModuleTabs` in `src/components/ui/index.jsx`, tab lists in `src/lib/module-tabs.js`, wired into the four Procurement/Commerce pages; no route, no model, no migration "
+    },
+    {
+      "id": "req:FR-171",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes. 🟡 native SERVER P1 implemented locally under ADR-070; tool/document/artifact/MSP/GKS/Edge adapters and live migration/canary evidence remain pending "
     },
     {
       "id": "req:NFR-001",
@@ -22037,6 +22147,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/line-oa/jobs/[id]/trace",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/jobs/[id]/trace",
+      "path": "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/line-oa/liff-apps",
       "type": "route",
       "kind": "api",
@@ -23814,7 +23932,7 @@
       "path": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
       "hash": "f51b7b19",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
@@ -23950,7 +24068,7 @@
       "path": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
       "title": "ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported",
       "hash": "33b52e47",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
@@ -23958,7 +24076,7 @@
       "path": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
       "title": "ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named",
       "hash": "e346bf43",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
@@ -23966,6 +24084,14 @@
       "path": "docs/decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md",
       "title": "ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management",
       "hash": "0b04c222",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "type": "adr",
+      "path": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
+      "title": "ADR-070 — Execution Trace & Replay v0.3",
+      "hash": "388a5ccd",
       "status": "current"
     },
     {
@@ -23981,13 +24107,13 @@
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
       "hash": "cc73fad1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
-      "hash": "1160e6dc",
+      "hash": "b2779343",
       "status": "current"
     },
     {
@@ -24057,7 +24183,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "26a45879",
+      "hash": "2da26543",
       "status": "current"
     },
     {
@@ -24190,7 +24316,7 @@
       "id": "test:tests/integration/agent-context.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/agent-context.test.js",
-      "hash": "2f5c497a",
+      "hash": "ab559968",
       "status": "current"
     },
     {
@@ -24204,7 +24330,7 @@
       "id": "test:tests/integration/agent-msp-port.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/agent-msp-port.test.js",
-      "hash": "49a5de61",
+      "hash": "3633d267",
       "status": "current"
     },
     {
@@ -24324,6 +24450,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/execution-plan-bundle.test.js",
       "hash": "9a970591",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/execution-trace.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/execution-trace.test.js",
+      "hash": "a10433e6",
       "status": "current"
     },
     {
@@ -24929,6 +25062,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/msp-memory-lineage.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/msp-memory-lineage.test.js",
+      "hash": "39407d69",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/msp-vault-memory-port.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/msp-vault-memory-port.test.js",
@@ -24939,7 +25079,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "83262421",
+      "hash": "550a04b4",
       "status": "current"
     },
     {
@@ -25052,6 +25192,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
       "hash": "cf437d40",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/server-line-trace.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/server-line-trace.test.js",
+      "hash": "f83f52f9",
       "status": "current"
     },
     {
@@ -25797,6 +25944,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/e2e-scope-transport.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/e2e-scope-transport.test.js",
+      "hash": "144d3c1e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/e2e-step-timings-reporter.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/e2e-step-timings-reporter.test.js",
@@ -26228,7 +26382,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-contract.test.js",
       "hash": "e43a30cc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/genesisrag17-lineage-repository.test.js",
@@ -26256,7 +26410,7 @@
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-worker.test.js",
       "hash": "5317d725",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/global-view-drilldown.test.js",
@@ -26609,6 +26763,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-trace-route.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-trace-route.test.js",
+      "hash": "ee28368c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-webhook-scope-fail-closed.test.js",
@@ -26910,6 +27071,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/model-provider-trace.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/model-provider-trace.test.js",
+      "hash": "e7d93e85",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/module-tabs.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/module-tabs.test.js",
@@ -26921,6 +27089,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/monorepo-layout.test.js",
       "hash": "f7fbc637",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/msp-memory-evidence.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/msp-memory-evidence.test.js",
+      "hash": "afa6924e",
       "status": "current"
     },
     {
@@ -33807,6 +33982,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/liff-apps/[id]/route.js",
       "to": "req:BR-012",
       "type": "follows",
@@ -37804,6 +37993,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/context.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/edge-device-registry.js",
       "to": "req:FR-141",
       "type": "implements",
@@ -37827,6 +38023,27 @@
     {
       "from": "code:src/modules/agent/edge-device-registry.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/execution-trace.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/execution-trace.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/execution-trace.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -37869,6 +38086,13 @@
     {
       "from": "code:src/modules/agent/grounded-business-answer.js",
       "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:FR-171",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -38140,6 +38364,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/line-execution-trace.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-execution-trace.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/line-operator.js",
       "to": "req:BR-014",
       "type": "follows",
@@ -38189,8 +38427,36 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/model-provider-catalog.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/model-provider-catalog.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/model-provider-catalog.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/model-provider.js",
       "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/model-provider.js",
+      "to": "req:FR-171",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -38210,6 +38476,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/msp-memory-evidence.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/msp-memory-port.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -38219,6 +38492,13 @@
     {
       "from": "code:src/modules/agent/msp-memory-port.js",
       "to": "req:FR-057",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/msp-memory-port.js",
+      "to": "req:FR-171",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -38387,6 +38667,13 @@
     {
       "from": "code:src/modules/agent/server-line-answer.js",
       "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/server-line-answer.js",
+      "to": "req:FR-171",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -42593,6 +42880,13 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -42608,6 +42902,13 @@
     {
       "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
       "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
+      "to": "req:FR-171",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50600,6 +50901,97 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "doc:FR-057-authorized-agent-context-and-vault-resolution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "doc:FR-093-reply-delivery-receipt",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "doc:PHASE-FR-171-P2-memory-provenance",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "req:FR-057",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "req:FR-091",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "req:FR-093",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "spec:ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-171-execution-trace-and-replay",
+      "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -51419,6 +51811,76 @@
       "status": "current"
     },
     {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "doc:FR-171-execution-trace-and-replay",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "req:FR-093",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "req:FR-171",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P2-memory-provenance",
+      "to": "doc:FR-171-execution-trace-and-replay",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P2-memory-provenance",
+      "to": "req:FR-057",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P2-memory-provenance",
+      "to": "req:FR-171",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-171-P2-memory-provenance",
+      "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:PHASE-STRATEGY-2026-09-06",
       "to": "doc:CR-018-MARKETING-DOMAIN-DESIGN",
       "type": "references",
@@ -52197,6 +52659,13 @@
     },
     {
       "from": "domain:agent",
+      "to": "doc:FR-171-execution-trace-and-replay",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
       "to": "doc:PHASE-FR-149-P3-server-line-transport",
       "type": "relates",
       "source": "metadata",
@@ -52211,6 +52680,13 @@
     },
     {
       "from": "domain:agent",
+      "to": "doc:PHASE-FR-171-P1-native-server-line-journal",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
@@ -52219,6 +52695,13 @@
     {
       "from": "domain:agent",
       "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "domain:agent",
+      "to": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
       "type": "relates",
       "source": "metadata",
       "status": "current"
@@ -53132,6 +53615,13 @@
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
+    },
+    {
+      "from": "model:AgentTraceEvent",
+      "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
     },
     {
       "from": "model:ApiAccessKey",
@@ -55444,6 +55934,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-171",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -57216,6 +57713,13 @@
     },
     {
       "from": "route:api:/api/line-oa/jobs/[id]/acknowledge-unknown",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/jobs/[id]/trace",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -61002,6 +61506,111 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-057-authorized-agent-context-and-vault-resolution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-091-conversation-inbox",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-093-reply-delivery-receipt",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-149-server-line-transport",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-150-optional-edge-execution",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "doc:FR-171-execution-trace-and-replay",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-057",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-091",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-093",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-149",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-150",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "req:FR-171",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "spec:ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-070-EXECUTION-TRACE-AND-REPLAY-V03",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "to": "doc:GENESISRAG17-CONTRACT",
       "type": "references",
@@ -63754,6 +64363,13 @@
     },
     {
       "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
       "to": "req:SDD-027",
       "type": "verifies",
       "status": "current",
@@ -63804,6 +64420,13 @@
     {
       "from": "test:tests/integration/agent-msp-port.test.js",
       "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-msp-port.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -63874,6 +64497,13 @@
     {
       "from": "test:tests/integration/agent-multi-principal.test.js",
       "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -65613,6 +66243,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/execution-trace.test.js",
+      "to": "code:src/modules/agent/execution-trace.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-trace.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/execution-trace.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-trace.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
@@ -72062,6 +72720,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/msp-memory-lineage.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/msp-vault-memory-port.test.js",
       "to": "code:src/modules/agent/msp-memory-port.js",
       "type": "tests",
@@ -72088,6 +72753,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/msp-vault-memory-port.test.js",
@@ -72449,6 +73121,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -73778,6 +74457,13 @@
     },
     {
       "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -73803,6 +74489,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-trace.test.js",
+      "to": "code:src/app/api/line-oa/jobs/[id]/trace/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-trace.test.js",
+      "to": "code:src/modules/agent/line-execution-trace.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/server-line-trace.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-trace.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/server-line-trace.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/server-line-webhook.test.js",
@@ -79447,6 +80168,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/e2e-scope-transport.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/e2e-step-timings-reporter.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
@@ -81440,6 +82168,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr048-provider-catalog.test.js",
+      "to": "code:src/modules/agent/model-provider-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
     },
     {
       "from": "test:tests/unit/fr048-provider-catalog.test.js",
@@ -83544,6 +84279,13 @@
     {
       "from": "test:tests/unit/grounded-business-answer.test.js",
       "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:FR-171",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -85712,6 +86454,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-trace-route.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-trace-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-trace-route.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
       "to": "req:BR-012",
       "type": "verifies",
@@ -87519,6 +88282,13 @@
     },
     {
       "from": "test:tests/unit/model-provider-port.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/model-provider-port.test.js",
       "to": "req:SDD-025",
       "type": "verifies",
       "status": "current",
@@ -87530,6 +88300,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/model-provider-trace.test.js",
+      "to": "code:src/modules/agent/model-provider.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/model-provider-trace.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/model-provider-trace.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/model-provider-trace.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/model-provider-trace.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/module-tabs.test.js",
@@ -87579,6 +88384,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/msp-memory-evidence.test.js",
+      "to": "code:src/modules/agent/msp-memory-evidence.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/msp-memory-evidence.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/msp-memory-evidence.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/msp-stdio-transport.test.js",
@@ -92360,6 +93186,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-answer.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/server-line-answer.test.js",

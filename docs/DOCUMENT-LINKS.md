@@ -997,6 +997,7 @@ Backlinks:
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) (relates)
@@ -1004,6 +1005,7 @@ Backlinks:
 - [ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains](decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md) (relates)
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (relates)
 - [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (relates)
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (relates)
 
 ## ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture
 
@@ -1019,6 +1021,8 @@ Backlinks:
 
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (relates)
 
 ## ADR-045 — Canonical Identity and Access Management Boundary
 
@@ -1320,6 +1324,7 @@ Backlinks:
 - [FR-148 — Account-scoped CRM conversations](domains/crm/features/FR-148-account-scoped-conversations.md) (relates)
 - [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
 - [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 - [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (relates)
 - [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
 - [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
@@ -1340,6 +1345,7 @@ Backlinks:
 - [Domain — integration](domains/integration/CHARTER.md) (relates)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
 - [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (relates)
 
 ## ADR-062 — Candidate Server/Edge monorepo with independent releases
 
@@ -1476,6 +1482,33 @@ Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 
+## ADR-070 — Execution Trace & Replay v0.3
+
+Source: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
+
+- references: [FR-057 — Authorized agent context and vault resolution](domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md)
+- references: [FR-091 — CRM Conversation Inbox](domains/crm/features/FR-091-conversation-inbox.md)
+- references: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-reply-delivery-receipt.md)
+- references: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md)
+- references: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
+- references: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
+- relates: [req:FR-057](PRD-SDD-v1.0.md)
+- relates: [req:FR-091](PRD-SDD-v1.0.md)
+- relates: [req:FR-093](PRD-SDD-v1.0.md)
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [req:FR-171](PRD-SDD-v1.0.md)
+- relates: [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
+- relates: [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+
+Backlinks:
+
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
+- [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) (relates)
+- [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
+
 ## ADR-071 — GenesisRAG17 isolated execution and publication
 
 Source: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
@@ -1514,10 +1547,13 @@ Source: [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.
 
 Source: [Domain — agent](domains/agent/CHARTER.md)
 
+- references: [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md)
+- relates: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
 - relates: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
 - relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
 - relates: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
 
 Backlinks:
 
@@ -1555,7 +1591,9 @@ Source: [FR-057 — Authorized agent context and vault resolution](domains/agent
 
 Backlinks:
 
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
 
 ## FR-132 — Ladder quotation on the LINE surface
 
@@ -1564,6 +1602,31 @@ Source: [FR-132 — Ladder quotation on the LINE surface](domains/agent/features
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
+
+## FR-171 — Execution Trace & Replay v0.3
+
+Source: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
+
+- references: [FR-057 — Authorized agent context and vault resolution](domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md)
+- references: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-reply-delivery-receipt.md)
+- relates: [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md)
+- relates: [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md)
+- relates: [req:FR-057](PRD-SDD-v1.0.md)
+- relates: [req:FR-091](PRD-SDD-v1.0.md)
+- relates: [req:FR-093](PRD-SDD-v1.0.md)
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
+- relates: [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
+
+Backlinks:
+
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
+- [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) (relates)
+- [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
+- [Domain — agent](domains/agent/CHARTER.md) (relates)
 
 ## FR-149-P3 — Server-owned LINE conversation transport
 
@@ -1604,6 +1667,35 @@ Backlinks:
 - [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
 - [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
+
+## FR-171-P1 — Native SERVER LINE journal and playback
+
+Source: [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md)
+
+- relates: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
+- relates: [req:FR-093](PRD-SDD-v1.0.md)
+- relates: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [req:FR-171](PRD-SDD-v1.0.md)
+- relates: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
+
+Backlinks:
+
+- [Domain — agent](domains/agent/CHARTER.md) (references)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
+
+## FR-171-P2 — Preserve authorized MSP memory provenance
+
+Source: [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md)
+
+- relates: [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md)
+- relates: [req:FR-057](PRD-SDD-v1.0.md)
+- relates: [req:FR-171](PRD-SDD-v1.0.md)
+- relates: [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md)
+
+Backlinks:
+
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 
 ## Domain — asset-management
 
@@ -1735,6 +1827,10 @@ Source: [FR-091 — CRM Conversation Inbox](domains/crm/features/FR-091-conversa
 
 - references: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-reply-delivery-receipt.md)
 
+Backlinks:
+
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
+
 ## FR-093 — LINE reply delivery receipt
 
 Source: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-reply-delivery-receipt.md)
@@ -1742,6 +1838,8 @@ Source: [FR-093 — LINE reply delivery receipt](domains/crm/features/FR-093-rep
 Backlinks:
 
 - [FR-091 — CRM Conversation Inbox](domains/crm/features/FR-091-conversation-inbox.md) (references)
+- [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (references)
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
 
 ## FR-103 — SEC-005 PDPA consent attestation (MVP scope)
 
@@ -2386,6 +2484,7 @@ Source: [FR-149 — Server-owned LINE conversation transport](domains/line-oa-st
 
 Backlinks:
 
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
 - [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
 - [FR-149-P2 — Server-owned LINE conversation transport](domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) (relates)
 - [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md) (relates)
@@ -2408,6 +2507,7 @@ Source: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio
 
 Backlinks:
 
+- [ADR-070 — Execution Trace & Replay v0.3](decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) (references)
 - [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
 - [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
 - [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)

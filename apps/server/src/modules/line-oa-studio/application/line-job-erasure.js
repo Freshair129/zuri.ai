@@ -1,6 +1,8 @@
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { redactTraceTurn } from '@/modules/agent/execution-trace'
 
 // @req FR-022, FR-149 — principal erasure also removes copied conversation-job content and delivery capabilities.
+// @req FR-171 — trace snapshots are erased atomically with their conversation jobs.
 // @spec ADR-061, SEC-001, SEC-005 — the Studio owns this writer; identity composes it in the erasure transaction.
 // @tested tests/integration/server-line-jobs.test.js
 
@@ -13,7 +15,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
       inbound: { conversation: { tenantId, id: { in: conversationIds } } },
       OR: [{ errorCode: null }, { errorCode: { not: 'PDPA_ERASURE' } }],
     },
-    select: { id: true, accountId: true, status: true },
+    select: { id: true, accountId: true, status: true, businessId: true },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
   })
   for (const job of jobs) {
@@ -35,6 +37,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
       errorCode: 'PDPA_ERASURE',
       version: { increment: 1 },
     } })
+    await redactTraceTurn(tx, { scope: { tenantId, businessId: job.businessId }, turnId: job.id, now: new Date() })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }

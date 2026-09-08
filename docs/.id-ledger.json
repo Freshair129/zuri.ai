@@ -281,6 +281,7 @@
     "FR-168",
     "FR-169",
     "FR-170",
+    "FR-171",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3214,6 +3215,21 @@
         }
       ]
     },
+    "FR-171": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "732b331a041e6b14a490dfe558db92a46232f744a25c3bead44036f9189079e7",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4240,7 +4256,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "71c6dd73ce82b1b0074c332de80b9ebd82b4eee88a7c8632d818df272fc09bc8",
+      "statement_digest": "deef25490f5c5406a586d7de23a0d88fd8c7ea4ec7b94261dff9ab52a17714e3",
       "history": [
         {
           "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
@@ -4248,8 +4264,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-07",
-      "statement_digest_reason": "Review the approved ADR-070 scope clarification: FR-071 remains the execution ledger while the isolated adapter adds lineage, batch, evidence, cursor and receipt persistence."
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Preserve approved GenesisRAG isolated lineage, batch, evidence, cursor and receipt persistence clarification when merging published main."
     },
     "SDD-058": {
       "family": "SDD",
@@ -4268,7 +4284,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "80b61b4a1fb49241e1e0b1b1b8e352a3e8d7eb83c1b7a41b8676d3f5a74b16ae",
+      "statement_digest": "1072047c0a354a0e39e7600a11ae4ec6a475e9bdc25929feb14a30d20b8cd05b",
       "history": [
         {
           "anchor": "chunking is a pure calculator in the knowledge lane with no",
@@ -4276,8 +4292,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-07",
-      "statement_digest_reason": "Review the approved ADR-070 scope clarification: chunking remains a pure calculator and the separate repository adapter now persists versioned raw, parsed and chunk lineage."
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Preserve approved pure chunk calculator with separate versioned lineage repository adapter when merging published main."
     },
     "SDD-060": {
       "family": "SDD",
@@ -5172,7 +5188,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "463961acf9f23deca7a1e85698942adb7c6c36c6359a280766006e1aa7feb699",
+      "statement_digest": "7b14c6aeadbaf4f996fb1c6734e473de90fe4e6da3622a1d06ef407ae4976d3f",
       "history": [
         {
           "anchor": "knowledge ingestion governance",
@@ -5180,8 +5196,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-07",
-      "statement_digest_reason": "Review the approved GenesisRAG17 isolated execution delivery and extension map; the Knowledge Ingestion Governance feature retains its existing requirement bundle and subject."
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Preserve approved GenesisRAG17 isolated execution and extension map with the existing feature subject and requirement bundle."
     },
     "FEAT-014": {
       "family": "FEAT",
@@ -7398,26 +7414,16 @@
     },
     "ADR-070": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-070-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "status": "burnt",
-      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "source": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
+      "status": "current",
+      "statement_digest": "ebae89e541e877e77c4b5fb5bf2f69b7f6d78f35f40d5c18e84a97d0c0c0ada9",
       "history": [
         {
-          "anchor": "genesisrag17 isolated execution and publication",
+          "anchor": "execution trace replay v0 3",
           "since": "2026-09-07",
           "reason": "declared"
-        },
-        {
-          "anchor": "genesisrag17 isolated execution and publication",
-          "since": "2026-09-08",
-          "reason": "Abandoned before merge; this branch renumbered itself to ADR-071. Main published ADR-070 for execution trace before this branch merged; GenesisRAG adopts ADR-071 without changing its subject.",
-          "declared_in": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md#1.2.0b"
         }
-      ],
-      "retired_to": "ADR-071",
-      "retired_at": "2026-09-08",
-      "reason": "Main published ADR-070 for execution trace before this branch merged; GenesisRAG adopts ADR-071 without changing its subject.",
-      "declared_in": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md#1.2.0b"
+      ]
     },
     "ADR-071": {
       "family": "ADR",
