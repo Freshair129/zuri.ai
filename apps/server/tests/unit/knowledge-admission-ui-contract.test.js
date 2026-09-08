@@ -32,5 +32,6 @@ describe('knowledge controls in the existing Files surfaces', () => {
     expect(panel).toContain('const requestSequence = ++sequence.current')
     expect(panel).toContain('if (requestSequence !== sequence.current) return')
     expect(panel).toContain('if (state.scopeKey !== scopeKey) return { data: null')
+    expect(panel).toContain('TextKnowledgeModal key={`${businessId}:${projectId || \'\'}`}')
   })
 })

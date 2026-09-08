@@ -316,6 +316,6 @@ export default function ManagedFilesPanel({ businessId, projectId = null, busine
       </Card>}
     />}
     {adding && <AddManagedFile businessId={businessId} projectId={projectId} mounts={activeMounts} onSaved={files.reload} onClose={() => setAdding(false)} />}
-    {textAdding && <TextKnowledgeModal businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
+    {textAdding && <TextKnowledgeModal key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
   </>
 }
