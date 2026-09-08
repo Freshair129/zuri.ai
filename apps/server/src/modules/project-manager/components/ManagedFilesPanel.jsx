@@ -7,7 +7,7 @@
 // same managed asset list; the panel itself gains no new persistence or route.
 // @spec SDD-023, SEC-007, ADR-016, SDD-031
 // @tested tests/unit/fr045-api-ui-contract.test.js, tests/unit/fr058-file-manager-views-ui.test.js
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink, FileText, FolderOpen, Plus, RefreshCw, Search, Trash2, UploadCloud } from 'lucide-react'
 import { Card, EmptyState, ErrorState, Field, Modal, SectionTitle, StatusPill } from '@/components/ui'
 import { api, LoadingCard, useFetch } from './useApi'
@@ -38,6 +38,52 @@ function knowledgeAsset(asset) {
   const dot = name.lastIndexOf('.')
   const extension = dot >= 0 ? name.slice(dot) : ''
   return KNOWLEDGE_MIMES.has(mime) || ((mime === 'text/*' || mime === 'application/octet-stream') && KNOWLEDGE_EXTENSIONS.has(extension))
+}
+
+// Knowledge list responses must never cross a Business/Project scope change.
+// The shared useFetch hook predates this surface and deliberately has no
+// cancellation/ignore-late guard, so keep the sequence local to the admission
+// fetch instead of changing every existing caller.
+function useScopedKnowledgeFetch(businessId, projectId) {
+  const path = businessId
+    ? `/api/knowledge/ingestions?businessId=${encodeURIComponent(businessId)}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ''}`
+    : null
+  const scopeKey = `${businessId || ''}:${projectId || ''}`
+  const sequence = useRef(0)
+  const [state, setState] = useState({ scopeKey: null, data: null, loading: Boolean(path), error: null })
+  const reload = useCallback(async () => {
+    const requestSequence = ++sequence.current
+    if (!path) {
+      setState({ scopeKey, data: null, loading: false, error: null })
+      return
+    }
+    setState((current) => ({
+      scopeKey,
+      data: current.scopeKey === scopeKey ? current.data : null,
+      loading: true,
+      error: null,
+    }))
+    try {
+      const data = await api(path)
+      if (requestSequence !== sequence.current) return
+      setState({ scopeKey, data, loading: false, error: null })
+    } catch (error) {
+      if (requestSequence !== sequence.current) return
+      setState({ scopeKey, data: null, loading: false, error: error.message })
+    }
+  }, [path, scopeKey])
+
+  useEffect(() => {
+    // Clear old scope data synchronously from the next effect before the new
+    // request is allowed to publish. Cleanup invalidates an in-flight request.
+    sequence.current += 1
+    setState({ scopeKey, data: null, loading: Boolean(path), error: null })
+    reload()
+    return () => { sequence.current += 1 }
+  }, [path, scopeKey, reload])
+
+  if (state.scopeKey !== scopeKey) return { data: null, loading: Boolean(path), error: null, reload }
+  return { data: state.data, loading: state.loading, error: state.error, reload }
 }
 
 function TextKnowledgeModal({ businessId, projectId, onSaved, onClose }) {
@@ -203,7 +249,7 @@ export default function ManagedFilesPanel({ businessId, projectId = null, busine
   const query = projectId ? `/api/files?projectId=${encodeURIComponent(projectId)}` : `/api/business/files?businessId=${encodeURIComponent(businessId)}`
   const files = useFetch(businessId ? query : null, [businessId, projectId])
   const mounts = useFetch(businessId ? `/api/files/mounts?businessId=${encodeURIComponent(businessId)}` : null, [businessId])
-  const knowledge = useFetch(businessId ? `/api/knowledge/ingestions?businessId=${encodeURIComponent(businessId)}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ''}` : null, [businessId, projectId])
+  const knowledge = useScopedKnowledgeFetch(businessId, projectId)
   const activeMounts = useMemo(() => (mounts.data || []).filter((mount) => mount.status === 'ACTIVE'), [mounts.data])
   const assets = files.data?.assets || []
   const groups = files.data?.groups || []

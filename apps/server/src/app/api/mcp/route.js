@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { resolveKnowledgeRequestViewer } from '@/modules/knowledge/knowledge-http'
 import { createProjectManagerMcpTransport, jsonRpcError } from '@/modules/project-manager/mcp/transport'
 
 // @req FR-069 — expose the approved PlanEnvelope intake through MCP without a
@@ -37,7 +36,10 @@ export async function POST(request) {
     // Knowledge query/citation handlers may re-resolve the original request
     // after slow snapshot reads. This closure is transport context, never a
     // caller-supplied tool argument or authority token.
-    resolveCurrentViewer: () => resolveKnowledgeRequestViewer(request),
+    // MCP remains session-authenticated for every knowledge tool. Do not use
+    // the HTTP bearer/API-grant resolver here: that would widen this transport
+    // and its existing project/data-pipeline tools by accident.
+    resolveCurrentViewer: () => resolveRequestViewer(request),
   })
   const headers = result.sessionId ? { 'Mcp-Session-Id': result.sessionId } : undefined
   if (result.status === 204) return new NextResponse(null, { status: 204, headers })

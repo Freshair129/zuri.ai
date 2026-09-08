@@ -26,4 +26,11 @@ describe('knowledge controls in the existing Files surfaces', () => {
     expect(panel).toContain('data-testid="knowledge-query"')
     expect(panel).toContain('data-testid="knowledge-admit-text"')
   })
+
+  it('drops late admission-list responses when the Business or Project scope changes', () => {
+    expect(panel).toContain('useScopedKnowledgeFetch')
+    expect(panel).toContain('const requestSequence = ++sequence.current')
+    expect(panel).toContain('if (requestSequence !== sequence.current) return')
+    expect(panel).toContain('if (state.scopeKey !== scopeKey) return { data: null')
+  })
 })
