@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-068
-version: "1.0.0"
+version: "1.0.1"
 status: accepted
 created_at: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
-last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 attributes:
   domain: knowledge
   doc_type: architecture-decision
@@ -23,6 +23,8 @@ relations:
 
 # ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named
 
+> **Current execution overlay (2026-09-08):** [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) implements the isolated pipeline beyond this historical slice. Use the [17-stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [actual flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md). GKS is passive; the worker pulls through MSP, sends graph receipt before GKS Stage 14, then final write and publication receipts. New evidence carries all six metrics and exact attempt identity. Successful finish requires publication receipt. Older statements here about unbuilt stages, no new models, or direct Tier 4 reporting describe the scope at the original decision date, not the current GenesisRAG17 path.
+
 **Status:** Accepted by owner instruction, 2026-09-07 ("สาย pull ทั้งสาย GKS→MSP→zuri-ai", chosen from four scoped options).
 **Date:** 2026-09-07
 **Decided by:** Boss (scope), Claude Fable 5.1 (design)
@@ -36,6 +38,11 @@ ADR-067 gave this ledger a receiver and a push surface for Stages 9–17. The sa
 The lawful direction is fixed twice over — `Zuri / GoVibe -> MSP -> GKS` in GKS's own `CLAUDE.md`, and "never talks directly to GenesisBlockDB or bypasses MSP governance" in ADR-043 D2.1 — so the importer rides the MSP client zuri-ai is already authorized to hold (FR-057), and MSP relays one more read-only tool. This decision records the three pieces built together on 2026-09-07 and proven end to end against the real MSP and the real GKS: the GKS export (their repository), the MSP relay `msp_knowledge_evidence_export` (their repository), and this repository's importer, transport and cursor.
 
 ## Decision
+
+[ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) adds the
+approved isolated forward worker and exact-attempt v1 evidence path on top of
+this legacy pull slice. Cursor advancement still follows durable writes; a
+legacy row without an attempt never completes a newer attempt.
 
 ### D1 — zuri-ai reaches MSP by spawning it, from deployment configuration, and fails closed without it
 
@@ -76,3 +83,6 @@ The blocking rule is GKS's CR draft's own ("an unmappable one is logged and bloc
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | accepted | The pull half: spawned-MSP transport, per-scope cursor model, four-way row attribution, and the live three-repository proof; GKS export and MSP relay built the same day in their own repositories | Claude Fable 5.1 |
+
+
+Documentation revision 2026-09-08: identify the ADR-073 execution overlay and extension map while preserving the original decision history (RWANG, base b64b46df).

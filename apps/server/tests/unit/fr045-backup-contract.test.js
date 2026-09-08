@@ -2,7 +2,7 @@
 // @spec SDD-023, BR-008, ADR-016 D10
 // @tested tests/unit/fr045-backup-contract.test.js
 import { describe, expect, it, vi } from 'vitest'
-import { exportSnapshot, previewSnapshot } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, GENESIS_RAG17_RECOVERY_MANIFEST_VERSION, previewSnapshot } from '@/modules/project-manager/application/backup-service'
 
 describe('FR-045 portable backup contract', () => {
   it('exports FileAsset/FileLink and content manifest but excludes absolute mounts', async () => {
@@ -20,6 +20,10 @@ describe('FR-045 portable backup contract', () => {
     expect(snapshot.tables.fileLink).toHaveLength(1)
     expect(snapshot.tables.localWorkspaceMount).toBeUndefined()
     expect(snapshot.fileContentManifest).toEqual([expect.objectContaining({ fileId: 'a', contentIncluded: false })])
+    expect(snapshot.genesisRag17Recovery).toEqual({
+      schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
+      requiredTables: ['genesisRag17IngestionIntent', 'genesisRag17SourceMention'],
+    })
   })
 
   it('previews missing Business remounts without rejecting metadata-only restore', () => {
@@ -32,5 +36,25 @@ describe('FR-045 portable backup contract', () => {
       valid: true, mountRequiredBusinessIds: ['business-a'], missingContentFileIds: ['a'],
     })
     expect(previewSnapshot(snapshot, { remounts: [{ businessId: 'business-a', deviceKey: 'new-device', rootPath: 'E:\\zuri' }] }).mountRequiredBusinessIds).toEqual([])
+    expect(previewSnapshot(snapshot).warnings).toEqual([
+      expect.stringContaining('GENESISRAG17_RECOVERY_UNAVAILABLE'),
+    ])
+  })
+
+  it('rejects a new recovery manifest before any restore can delete data when a required table is absent', () => {
+    const snapshot = {
+      schemaVersion: '1.0',
+      genesisRag17Recovery: {
+        schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
+        requiredTables: ['genesisRag17IngestionIntent', 'genesisRag17SourceMention'],
+      },
+      tables: { genesisRag17IngestionIntent: [] },
+    }
+
+    expect(previewSnapshot(snapshot)).toMatchObject({
+      valid: false,
+      errors: [expect.stringContaining('genesisRag17SourceMention')],
+      recovery: { status: 'INVALID' },
+    })
   })
 })

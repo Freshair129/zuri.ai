@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.28.0b |
+| **Version** | 1.30.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-07 |
+| **Last Updated** | 2026-09-08 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -33,6 +33,10 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
+| KnowledgeCorpus | corpusKey, scopeJson, policyJson, businessId, projectId?, generation, version | FR-173 / ADR-072: Tier 1 atomic snapshot read-set pointer; no canonical fact store |
+| KnowledgeSource | corpusId, sourceKey, kind, fileAssetId?, desiredRevision, activeIngestionId?, revokedAt | Stable source identity; correction/revocation use CAS |
+| KnowledgeIngestion | sourceId, sourceVersion, revision, contentHash, content, idempotencyKey, executionRunId?, status, claimToken?, leaseExpiresAt? | Immutable accepted Text/Markdown bytes and durable process lease; source/version is unique |
+| KnowledgeCorpusGeneration | corpusId, number, manifestJson, manifestHash, createdAt | Immutable source snapshot membership; unique corpus generation |
 | AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |
@@ -398,3 +402,35 @@ children. MarketingContentReview and MarketingContentDecision append exact-versi
 rights/review/decision history. Files and PM references live in canonical versioned
 payloads and revalidate through their owners; no binary or PM task is copied.
 [Contract](../domains/marketing/features/FR-157-content-creative.md).
+
+## GenesisRAG17 isolated durability (FR-109, FR-110)
+
+Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
+
+| Model | Identity / retained evidence | Restore order |
+|---|---|---|
+| KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
+| KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
+| GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |
+| GenesisRag17SourceMention | Exact Stage8 occurrence keyed by executionRunId/attemptId/sourceMentionId, type, offsets and derivation hash | After PipelineRun and KnowledgeChunk |
+| GenesisRag17Batch | One immutable dispatch batch per Stage 9 attempt; durable retry acknowledgement | After PipelineRun |
+| GenesisRag17StageEvidence | One terminal per run/stage/step/attempt, six metrics and bounded external evidence | After PipelineRun |
+| GenesisRag17PublicationReceipt | Scope, decision, snapshot/generation, model and physical publication proof | After PipelineRun |
+| GenesisRag17EvidenceCursor | Exact scoped run cursor advanced with the imported evidence transaction | After pipeline evidence |
+
+Version diff 1.28.0b → 1.29.0b: add the two source-recovery models under
+migration `20260908040000_genesisrag17_audit_remediation` in SQLite and the
+corresponding Supabase SQL migration. Source content/derivation and occurrences
+are immutable; only intent status, stage cursor and last error may change.
+Migration application to production is outside this isolated repair.
+
+Backup schema `1.0` remains compatible. New exports carry
+`genesisRag17Recovery.schemaVersion: genesisrag17-recovery.v1` and require both
+new tables. Missing required arrays reject preview before restore deletes any
+data. Snapshots without that manifest return an explicit recovery-unavailable
+warning; the importer never synthesizes missing intent or occurrence history.
+
+## Knowledge admission storage — ADR-072
+
+Version diff 1.29.0b → 1.30.0b: four additive models, SQLite and Supabase migration `20260908100000_knowledge_admission`. Runtime-only RLS/grants apply in Postgres. Restore order is corpus → source → ingestion → generation. The `knowledgeAdmissionRecovery` manifest requires all four arrays; absent historical manifests produce an explicit recovery-unavailable warning. Native store files/model artifacts require their own retained snapshots and are not synthesized by Tier 1 restore. No production migration is implied.

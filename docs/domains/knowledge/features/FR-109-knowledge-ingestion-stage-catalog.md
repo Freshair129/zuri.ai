@@ -3,13 +3,21 @@ domain: knowledge
 feature: FR-109
 module: knowledge
 source: v2-native
-version: "0.4.0b"
+version: "0.5.0b"
 status: "partial"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 ---
 
 # FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace
 
 ## Intent
+
+**Current execution profile:** [spec](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) describe
+all 17 implemented stages in isolated acceptance. The catalog below retains the
+broader product evidence vocabulary and stable IDs; use the wire profile's exact
+fields for implementation. The original KNO slice history is not a claim that
+Stages 10–17 are still absent. Product-wide acceptance remains partial.
 
 FR-109 registers the path from a source artifact to published, retrieval-ready
 knowledge as **one** governed pipeline definition — `DPL-KNOWLEDGE-INGEST-V1` —
@@ -35,6 +43,33 @@ calls.
 
 ## Identity contract
 
+### Approved GenesisRAG17 TEST extension
+
+The 2026-09-07 implementation wave adds a real Tier 1 raw entrypoint while
+keeping the seventeen-stage catalog and the FR-071 run identity. The entrypoint
+persists an immutable `KnowledgeRawArtifact`, its immutable
+`KnowledgeParsedArtifact` and exact-offset `KnowledgeChunk` rows before
+delivering one `genesisrag17.v1` batch for the materialized Stage 9 attempt.
+Every Stage 9–17 report is attributed by the complete
+`runId`/`pipelineStageId`/`executionStepId`/`attemptId` tuple. A repeated
+delivery reuses the same Stage 9 batch and idempotency key; a new attempt never
+closes through an older evidence row. The six frozen metrics are persisted for
+each terminal evidence row, and Stage 17 cannot close the run without the
+matching publication receipt.
+
+An FR-071 reprocess names its queued execution run explicitly as
+`replayRunId`. The entrypoint verifies that run's knowledge definition,
+scope-bound source/artifact hashes and raw artifact reference before executing
+its newly materialized stage attempts. Replaying a completed source run is
+refused, and the original raw, parsed and chunk rows remain unchanged.
+
+The knowledge lane owns only this Tier 1 lineage and bounded evidence state.
+GKS facts, canonical entity payloads, embeddings, indexes and retrieval
+contents remain external. Source submission, evidence pull and durable source
+worker start/stop/resume calls go through MSP's source credential boundary.
+The full request and response shapes are in the frozen
+[`GenesisRAG17 contract`](../../../plans/GENESISRAG17-CONTRACT.md).
+
 FR-109 adds no new identity family. It binds the specification's trace
 vocabulary onto the identities FR-071 already defines:
 
@@ -44,7 +79,7 @@ vocabulary onto the identities FR-071 already defines:
 | Ingestion job | `pipeline_job_id` | The specification's §33 job identity; projected onto FR-071's `executionRunId` — one canonical run identity, not a second one |
 | Stage definition | `pipelineStageId` | One of the seventeen `DPS-KI-*` ids below |
 | Stage occurrence | `executionStepId` | One concrete stage execution within a job |
-| Attempt | `attemptId` | One try of a stage or record; retries receive new ids |
+| Attempt | `attemptId` | One real execution of a stage or record; delivery retries keep it, real reprocessing receives a new attempt |
 | Source document | `docId` / `doc_id` | Stable source-document identity; the `PipelineRecordEvent` column that nothing writes today |
 | Source picture | `picId` / `pic_id` | Stable source picture/image identity; nullable independently |
 | Governed fact | `factId` / `fact_id` | The governed fact produced by the pipeline, not one attempt to produce it |
@@ -506,3 +541,10 @@ does not do.
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §4, §5, §33, §36 are the sections this note
   elaborates
+
+
+## Documentation version diff — 2026-09-08
+
+| Version | Change | Runtime impact |
+|---|---|---|
+| 0.4.0b → 0.5.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

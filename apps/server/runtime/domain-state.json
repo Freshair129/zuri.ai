@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-08T08:08:30.264Z",
+  "generatedAt": "2026-09-08T15:10:09.025Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,8 +39,8 @@
     "domainCount": 14,
     "featureCount": 127,
     "readyFeatureCount": 105,
-    "requirementCount": 172,
-    "verifiedRequirementCount": 162,
+    "requirementCount": 173,
+    "verifiedRequirementCount": 163,
     "progressPercent": 94.2,
     "gapCount": 22,
     "gaps": [
@@ -449,7 +449,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -459,6 +459,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -547,6 +548,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -701,7 +703,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -711,6 +713,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -788,6 +791,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -862,7 +866,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -872,6 +876,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -935,6 +940,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -1086,6 +1092,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -1148,6 +1155,7 @@
         "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -1479,7 +1487,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -1489,6 +1497,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -1586,6 +1595,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -1685,7 +1695,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-079",
@@ -1745,17 +1755,17 @@
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 25
+          "codeCount": 8,
+          "testCount": 39
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 23
+          "codeCount": 8,
+          "testCount": 27
         },
         {
           "id": "FR-118",
@@ -1833,6 +1843,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 17
+        },
+        {
+          "id": "FR-173",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 33
         }
       ],
       "checks": {
@@ -1858,7 +1875,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -1868,6 +1885,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -1952,6 +1970,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2052,7 +2071,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -2062,6 +2081,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -2126,6 +2146,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2190,21 +2211,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 25
+          "codeCount": 4,
+          "testCount": 39
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 23
+          "codeCount": 3,
+          "testCount": 27
         },
         {
           "id": "FR-111",
@@ -2275,6 +2296,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-173",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 33
         }
       ],
       "checks": {
@@ -2294,6 +2322,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -2319,9 +2348,15 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 13,
+            "present": 13
+          }
         },
         "authorization": {
           "status": "not_applicable",
@@ -2358,10 +2393,13 @@
         "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
+        "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2390,8 +2428,8 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 0,
-        "featureNotes": 13
+        "ownedModels": 13,
+        "featureNotes": 14
       },
       "featureIds": [
         "FEAT-013",
@@ -2410,7 +2448,7 @@
       ],
       "featureCount": 13,
       "readyFeatureCount": 11,
-      "progressPercent": 93.3
+      "progressPercent": 93.8
     },
     "line-oa-studio": {
       "status": "partial",
@@ -2530,7 +2568,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -2540,6 +2578,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -2617,6 +2656,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2684,7 +2724,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -2694,6 +2734,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -2756,6 +2797,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2836,7 +2878,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -2846,6 +2888,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -2914,6 +2957,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -2994,7 +3038,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -3004,6 +3048,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -3059,6 +3104,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -3127,7 +3173,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 201,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -3137,6 +3183,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -3200,6 +3247,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -3570,7 +3618,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-072",
@@ -3742,17 +3790,17 @@
         },
         {
           "id": "FR-109",
-          "declared": "done",
+          "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 25
+          "codeCount": 4,
+          "testCount": 39
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 27
         },
         {
           "id": "FR-123",
@@ -3984,6 +4032,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 10
+        },
+        {
+          "id": "FR-173",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 33
         }
       ],
       "checks": {
@@ -4016,9 +4071,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 113,
-            "inventoried": 113,
-            "openApiPaths": 201,
+            "routes": 118,
+            "inventoried": 118,
+            "openApiPaths": 206,
             "missingFromOpenApi": 0
           }
         },
@@ -4028,6 +4083,7 @@
             "src/app/api/mcp/route.js",
             "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
@@ -4078,9 +4134,9 @@
             }
           ],
           "details": {
-            "mutations": 91,
-            "guardedMutations": 91,
-            "reads": 55,
+            "mutations": 94,
+            "guardedMutations": 94,
+            "reads": 58,
             "unguardedReads": 1
           }
         },
@@ -4141,6 +4197,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -4181,8 +4238,8 @@
         }
       ],
       "details": {
-        "routes": 158,
-        "apiRoutes": 113,
+        "routes": 163,
+        "apiRoutes": 118,
         "pageRoutes": 45,
         "ownedModels": 30,
         "featureNotes": 31
@@ -5232,13 +5289,14 @@
     },
     {
       "id": "FEAT-013",
-      "title": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-109",
         "FR-110",
-        "FR-111"
+        "FR-111",
+        "FR-173"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
@@ -5258,15 +5316,15 @@
           "id": "FR-109",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 25
+          "codeCount": 16,
+          "testCount": 39
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 23
+          "codeCount": 18,
+          "testCount": 27
         },
         {
           "id": "FR-111",
@@ -5274,27 +5332,58 @@
           "progressPercent": 100,
           "codeCount": 2,
           "testCount": 7
+        },
+        {
+          "id": "FR-173",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 22,
+          "testCount": 33
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
+        "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
+        "apps/server/src/app/api/knowledge/ingestions/route.js",
+        "apps/server/src/app/api/knowledge/queries/route.js",
+        "apps/server/src/app/api/knowledge/sources/[sourceId]/route.js",
+        "apps/server/src/app/api/mcp/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
         "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
+        "apps/server/src/instrumentation.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
+        "apps/server/src/modules/knowledge/genesisrag17-contract.js",
+        "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+        "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
+        "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+        "apps/server/src/modules/knowledge/knowledge-authorization.js",
+        "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
+        "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
+        "apps/server/src/modules/knowledge/knowledge-http.js",
+        "apps/server/src/modules/knowledge/knowledge-repository.js",
+        "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
+        "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-importer.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-publication.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
         "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
+        "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -5307,6 +5396,11 @@
         "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-admission-backup.test.js",
+        "apps/server/tests/integration/knowledge-admission.integration.test.js",
+        "apps/server/tests/integration/knowledge-corpus-prisma.test.js",
+        "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -5316,15 +5410,30 @@
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
+        "apps/server/tests/unit/genesisrag17-contract.test.js",
+        "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+        "apps/server/tests/unit/genesisrag17-source.test.js",
+        "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
+        "apps/server/tests/unit/genesisrag17-worker.test.js",
+        "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+        "apps/server/tests/unit/knowledge-admission-routes.test.js",
+        "apps/server/tests/unit/knowledge-admission-service.test.js",
+        "apps/server/tests/unit/knowledge-admission-ui-contract.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
+        "apps/server/tests/unit/knowledge-corpus-routes.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
+        "apps/server/tests/unit/knowledge-http.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
+        "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js",
@@ -5333,7 +5442,8 @@
         "apps/server/tests/unit/platform/pipeline-tracking-contract.test.js",
         "apps/server/tests/unit/platform/pipeline-tracking-service.test.js",
         "apps/server/tests/unit/platform/raw-ingest-service.test.js",
-        "apps/server/tests/unit/platform/raw-record-repository-read.test.js"
+        "apps/server/tests/unit/platform/raw-record-repository-read.test.js",
+        "apps/server/tests/unit/project-manager-mcp.test.js"
       ]
     },
     {
@@ -9358,7 +9468,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 22
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -9375,10 +9485,12 @@
         "apps/server/src/platform/integrations/core/document-intake-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",

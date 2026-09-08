@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0 |
+| **Version** | 1.1.1 |
 | **Status** | Draft |
 | **Author** | Claude |
 | **Date** | 2026-08-15 |
@@ -20,8 +20,14 @@ Four views of the same system:
 `ARCHITECTURE.md` keeps the domain-shaped diagrams (context chain, execution
 hierarchy, progress engine); this document keeps the structural ones.
 
-Diagrams describe **what is in the tree today**, with unbuilt phases marked. Anything
-gated by ADR-007 (`P3 Identity` onward) is drawn dashed.
+These diagrams retain the dated 2026-08-15 architecture snapshot and phase labels.
+For current GenesisRAG17 work, use the [17-stage specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
+[actual execution flow / extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) and
+[updated four-tier system diagram](SYSTEM-DIAGRAM.md). The ADR-073 isolated profile
+now executes all 17 stages through MSP with passive GKS and a separate physical
+worker. Historical dashed P5/direct-GKS arrows below are not current RPC contracts
+or evidence that the isolated pipeline is unbuilt. Other historical phases are
+outside this documentation update.
 
 ---
 

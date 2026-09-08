@@ -165,8 +165,7 @@ export function classifyEvidenceRow(row, run, step) {
   if (!KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS.includes(row.pipeline_stage_id)) {
     return { disposition: 'blocked', reason: `NOT_AN_EXTERNAL_STAGE:${row.pipeline_stage_id}` }
   }
-  if (!step) return { disposition: 'blocked', reason: 'STEP_NOT_MATERIALISED' }
-  return { disposition: 'apply', reason: null }
+  return { disposition: 'held', reason: 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY' }
 }
 
 /**
@@ -204,7 +203,7 @@ export async function pullKnowledgeStageEvidence(input, { db = prisma, viewer, t
       if (row.cursor <= last) throw serviceError(502, `Evidence page is not cursor-ordered past ${last}`)
       const run = row.run_id ? await db.pipelineRun.findUnique({ where: { executionRunId: row.run_id } }) : null
       const step = run && KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS.includes(row.pipeline_stage_id)
-        ? await db.pipelineStep.findFirst({ where: { runId: run.id, pipelineStageId: row.pipeline_stage_id }, orderBy: { createdAt: 'desc' } })
+        ? null // Legacy rows cannot identify a step or attempt; never select the latest.
         : null
       const verdict = classifyEvidenceRow(row, run, step)
       if (verdict.disposition === 'unattributed') {

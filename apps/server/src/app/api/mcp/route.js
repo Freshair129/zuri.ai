@@ -6,6 +6,8 @@ import { createProjectManagerMcpTransport, jsonRpcError } from '@/modules/projec
 // second business or persistence path.
 // @req FR-071 — expose the approved data_pipeline tools through the same
 // authenticated MCP session without a second persistence path.
+// @req FR-173 — knowledge MCP queries/citations can recheck the original
+// authenticated request before disclosing a slow result.
 // @spec ADR-029, ADR-040, SEC-001, SEC-008
 // @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js
 
@@ -31,6 +33,13 @@ export async function POST(request) {
   const result = await transport.handle(message, {
     viewer,
     sessionId: request.headers.get('mcp-session-id') || undefined,
+    // Knowledge query/citation handlers may re-resolve the original request
+    // after slow snapshot reads. This closure is transport context, never a
+    // caller-supplied tool argument or authority token.
+    // MCP remains session-authenticated for every knowledge tool. Do not use
+    // the HTTP bearer/API-grant resolver here: that would widen this transport
+    // and its existing project/data-pipeline tools by accident.
+    resolveCurrentViewer: () => resolveRequestViewer(request),
   })
   const headers = result.sessionId ? { 'Mcp-Session-Id': result.sessionId } : undefined
   if (result.status === 204) return new NextResponse(null, { status: 204, headers })

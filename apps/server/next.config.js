@@ -32,6 +32,7 @@ const nextConfig = {
     pagesBufferLength: 200,
   },
   experimental: {
+    instrumentationHook: true,
     serverComponentsExternalPackages: ['@zuri/prisma-postgres'],
     ...(standalone
       ? {

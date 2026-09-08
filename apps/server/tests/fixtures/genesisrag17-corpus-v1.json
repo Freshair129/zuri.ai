@@ -1,0 +1,24 @@
+{
+  "fixtureVersion": "ki17-corpus-v1",
+  "sourceId": "synthetic://genesisrag17/corpus",
+  "sourceVersion": "1",
+  "text": "# Alice employment\n\nAlice works for Acme Ltd.\n\n# Alice purchase\n\nAlice purchased Atlas.\n\n# Bob employment\n\nBob works for Beacon Ltd.\n\n# Bob purchase\n\nBob purchased Nimbus.\n\n# Carol employment\n\nCarol works for Cedar Ltd.\n\n# Carol purchase\n\nCarol purchased Orion.\n\n# David employment\n\nDavid works for Delta Ltd.\n\n# David purchase\n\nDavid purchased Vega.",
+  "queries": [
+    { "query": "Which company employs Alice?", "relevantTexts": ["Alice works for Acme Ltd."] },
+    { "query": "What product did Bob buy?", "relevantTexts": ["Bob purchased Nimbus."] },
+    { "query": "Where does Carol work?", "relevantTexts": ["Carol works for Cedar Ltd."] },
+    { "query": "What did David purchase?", "relevantTexts": ["David purchased Vega."] },
+    { "query": "Who purchased Atlas?", "relevantTexts": ["Alice purchased Atlas."] }
+  ],
+  "correction": {
+    "sourceVersion": "2",
+    "replace": ["Alice works for Acme Ltd.", "Alice works for Beacon Ltd."],
+    "queries": [
+      { "query": "Which company employs Alice?", "relevantTexts": ["Alice works for Beacon Ltd."] },
+      { "query": "What product did Bob buy?", "relevantTexts": ["Bob purchased Nimbus."] },
+      { "query": "Where does Carol work?", "relevantTexts": ["Carol works for Cedar Ltd."] },
+      { "query": "What did David purchase?", "relevantTexts": ["David purchased Vega."] },
+      { "query": "Who purchased Atlas?", "relevantTexts": ["Alice purchased Atlas."] }
+    ]
+  }
+}

@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2355,
-    "total_edges": 9456,
+    "total_nodes": 2421,
+    "total_edges": 9730,
     "dangling_edges": 0,
     "node_types": {
+      "document": 212,
       "appendix": 4,
-      "document": 206,
-      "adr": 71,
+      "adr": 73,
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
-      "route": 289,
-      "model": 122,
-      "requirement": 333,
-      "test": 549,
-      "code_file": 699
+      "route": 294,
+      "model": 135,
+      "requirement": 334,
+      "test": 568,
+      "code_file": 719
     },
     "coverage": {
-      "requirements": 333,
-      "fr_with_code": "100% (162/162)",
-      "fr_with_tests": "100% (162/162)",
+      "requirements": 334,
+      "fr_with_code": "100% (163/163)",
+      "fr_with_tests": "100% (163/163)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 699,
+      "annotated_code_files": 719,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -4107,6 +4107,106 @@
       }
     },
     {
+      "id": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
+      "hash": "59c3fc4f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-corpus-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
+      "hash": "3ef7e77f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-admission-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/knowledge/ingestions/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/knowledge/ingestions/route.js",
+      "hash": "78a38601",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-admission-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/knowledge/queries/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/knowledge/queries/route.js",
+      "hash": "732b3c54",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-corpus-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/knowledge/sources/[sourceId]/route.js",
+      "hash": "61e8fb81",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-corpus-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
@@ -4414,12 +4514,13 @@
       "id": "code:src/app/api/mcp/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/mcp/route.js",
-      "hash": "5a20f461",
+      "hash": "22076877",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-069",
-          "FR-071"
+          "FR-071",
+          "FR-173"
         ],
         "@spec": [
           "SEC-001",
@@ -6480,6 +6581,21 @@
           "tests/unit/scope-view-context.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/e2e/fr046-entry-contract.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/instrumentation.js",
+      "type": "code_file",
+      "path": "apps/server/src/instrumentation.js",
+      "hash": "07a2b4af",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@tested": [
+          "tests/acceptance/knowledge-admission-native.test.js"
         ]
       }
     },
@@ -9699,6 +9815,65 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/genesisrag17-contract.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/genesisrag17-contract.js",
+      "hash": "152f3c69",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-109",
+          "FR-110"
+        ],
+        "@spec": [
+          "ADR-050, ADR-063, ADR-068, docs/plans/GENESISRAG17-CONTRACT.md"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "hash": "e23a1d2c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-109"
+        ],
+        "@spec": [
+          "NFR-018",
+          "ADR-050, ADR-063, NFR-018, docs/plans/GENESISRAG17-CONTRACT.md"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-lineage-repository.test.js",
+          "tests/integration/genesisrag17-tier1.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/genesisrag17-source.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/genesisrag17-source.js",
+      "hash": "b151831c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-109"
+        ],
+        "@spec": [
+          "SDD-059",
+          "SDD-063",
+          "ADR-050, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-source.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/graph-query.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/graph-query.js",
@@ -9757,6 +9932,136 @@
         ],
         "@tested": [
           "tests/unit/knowledge-ingestion-job.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+      "hash": "797af808",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-admission-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-authorization.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-authorization.js",
+      "hash": "2e372b50",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-corpus.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
+      "hash": "22e53f62",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-corpus.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-execution-authority.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
+      "hash": "441bfb12",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-runtime.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-http.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-http.js",
+      "hash": "dc553003",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-006",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-admission-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-repository.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-repository.js",
+      "hash": "c013a6ee",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-admission.integration.test.js",
+          "tests/integration/knowledge-corpus.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/knowledge-runtime.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/knowledge-runtime.js",
+      "hash": "c9a5fe69",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-runtime.test.js",
+          "tests/acceptance/knowledge-admission-native.test.js"
         ]
       }
     },
@@ -12220,11 +12525,12 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "725b0a6e",
+      "hash": "0fd363fd",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
+          "FR-173",
           "FR-159",
           "FR-158",
           "FR-161",
@@ -12302,7 +12608,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "dff77e26",
+      "hash": "e6cf2bba",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12332,6 +12638,8 @@
           "FR-155",
           "FR-156",
           "FR-110",
+          "FR-109",
+          "FR-173",
           "FR-100",
           "FR-102",
           "FR-106",
@@ -12990,11 +13298,12 @@
       "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
-      "hash": "d4a62d8c",
+      "hash": "8a9a26db",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-045",
+          "FR-173",
           "FR-058"
         ],
         "@spec": [
@@ -13609,7 +13918,7 @@
       "id": "code:src/modules/project-manager/mcp/transport.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/mcp/transport.js",
-      "hash": "cc1b314c",
+      "hash": "e2194b62",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13922,6 +14231,79 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "type": "code_file",
+      "path": "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+      "hash": "111f466e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173",
+          "FR-109",
+          "FR-110"
+        ],
+        "@spec": [
+          "NFR-020",
+          "ADR-050, ADR-063, ADR-067, ADR-068, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md"
+        ],
+        "@tested": [
+          "tests/integration/genesisrag17-tier1.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "type": "code_file",
+      "path": "apps/server/src/platform/integrations/core/genesisrag17-importer.js",
+      "hash": "deee9037",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173",
+          "FR-110",
+          "FR-109"
+        ],
+        "@spec": [
+          "ADR-050 D3-D4, ADR-067, ADR-068, docs/plans/GENESISRAG17-CONTRACT.md"
+        ],
+        "@tested": [
+          "tests/integration/genesisrag17-tier1.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/genesisrag17-publication.js",
+      "type": "code_file",
+      "path": "apps/server/src/platform/integrations/core/genesisrag17-publication.js",
+      "hash": "86fda246",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/acceptance/genesisrag17-e2e.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/genesisrag17-worker.js",
+      "type": "code_file",
+      "path": "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
+      "hash": "d636da5e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-173",
+          "FR-109",
+          "FR-110"
+        ],
+        "@tested": [
+          "tests/acceptance/genesisrag17-e2e.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/idempotency.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/idempotency.js",
@@ -13967,7 +14349,7 @@
       "id": "code:src/platform/integrations/core/knowledge-evidence-importer.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
-      "hash": "359ed071",
+      "hash": "33b04902",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13988,10 +14370,11 @@
       "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "2b90843a",
+      "hash": "cbaf1e45",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-173",
           "FR-109",
           "FR-118",
           "FR-110",
@@ -14072,10 +14455,11 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "9606e158",
+      "hash": "b2de65df",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-173",
           "FR-071",
           "FR-129",
           "FR-110"
@@ -14295,13 +14679,21 @@
       }
     },
     {
+      "id": "doc:.rwang-progress",
+      "type": "document",
+      "path": "docs/.rwang-progress.md",
+      "title": "GenesisRAG17 implementation progress",
+      "hash": "98d14a68",
+      "status": "current"
+    },
+    {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.52.0b",
+      "version": "1.53.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "39d92f9c",
+      "hash": "ae56bdf4",
       "status": "current"
     },
     {
@@ -14309,7 +14701,7 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "e6f83a9f",
+      "hash": "e24289ee",
       "status": "current"
     },
     {
@@ -14317,9 +14709,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE-DIAGRAMS.md",
       "title": "Architecture Diagrams — Zuri V2",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "doc_status": "Draft",
-      "hash": "d81f905f",
+      "hash": "17181902",
       "status": "current"
     },
     {
@@ -14353,9 +14745,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.28.0b",
+      "version": "1.30.0b",
       "doc_status": "Draft",
-      "hash": "417bb1e9",
+      "hash": "d2248f3f",
       "status": "current"
     },
     {
@@ -14622,9 +15014,9 @@
       "type": "document",
       "path": "docs/SYSTEM-DIAGRAM.md",
       "title": "System Diagram — zuri-ai ทั้งระบบ",
-      "version": "1.0.0",
+      "version": "1.1.0b",
       "doc_status": "Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05",
-      "hash": "e5b570d1",
+      "hash": "a7d9f4f9",
       "status": "current",
       "identity_migration": {
         "repository": "Freshair129/zuri.ai",
@@ -14725,9 +15117,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.31.0b",
+      "version": "1.32.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "c08d11ca",
+      "hash": "2770e331",
       "status": "current"
     },
     {
@@ -15302,7 +15694,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "63eaae40",
+      "hash": "cd34a9ef",
       "status": "current"
     },
     {
@@ -15310,7 +15702,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
-      "hash": "ea1f2168",
+      "hash": "d1171e73",
       "status": "current"
     },
     {
@@ -15318,7 +15710,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
-      "hash": "bd731cee",
+      "hash": "e16bb5e7",
       "status": "current"
     },
     {
@@ -15326,7 +15718,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
       "title": "FR-112 — Structural knowledge chunking with parent-child lineage",
-      "hash": "c67bed21",
+      "hash": "91ebee00",
       "status": "current"
     },
     {
@@ -15334,7 +15726,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
       "title": "FR-113 — Entity candidate extraction from chunks and structured records",
-      "hash": "a1bd1a18",
+      "hash": "abf258b3",
       "status": "current"
     },
     {
@@ -15342,7 +15734,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
       "title": "FR-114 — Canonical normalization that never destroys the raw value",
-      "hash": "4dc054ba",
+      "hash": "53639e0c",
       "status": "current"
     },
     {
@@ -15350,7 +15742,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-115-document-parsing.md",
       "title": "FR-115 — Document parsing into a structured artifact that keeps its link to the raw source",
-      "hash": "7eb68252",
+      "hash": "182aac64",
       "status": "current"
     },
     {
@@ -15358,7 +15750,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
       "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
-      "hash": "4e7fa5fc",
+      "hash": "0ebd952c",
       "status": "current"
     },
     {
@@ -15366,7 +15758,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
       "title": "FR-117 — Deduplication and version relationships within one tenant",
-      "hash": "852b88ae",
+      "hash": "983b57b1",
       "status": "current"
     },
     {
@@ -15374,7 +15766,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
       "title": "FR-118 — Tier 1 stage composition",
-      "hash": "6510c5d7",
+      "hash": "e45b1413",
       "status": "current"
     },
     {
@@ -15674,6 +16066,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-173-knowledge-admission-and-corpus",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
+      "title": "FR-173 — Source admission and corpus serving",
+      "hash": "d1303e48",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -15689,6 +16089,14 @@
       "version": "1.0.1",
       "doc_status": "Active",
       "hash": "0155ea43",
+      "status": "current"
+    },
+    {
+      "id": "doc:GENESISRAG17-CONTRACT",
+      "type": "document",
+      "path": "docs/plans/GENESISRAG17-CONTRACT.md",
+      "title": "Approved GenesisRAG17 implementation contract",
+      "hash": "40d19cce",
       "status": "current"
     },
     {
@@ -15730,13 +16138,37 @@
       "status": "current"
     },
     {
+      "id": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "type": "document",
+      "path": "docs/plans/KNOWLEDGE-ADMISSION-CONTRACT.md",
+      "title": "Knowledge admission contract — phases 0–4",
+      "hash": "acfaee92",
+      "status": "current"
+    },
+    {
+      "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "document",
+      "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "title": "GenesisRAG17 — execution flow and extension map",
+      "hash": "05bea4e8",
+      "status": "current"
+    },
+    {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
       "title": "Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "version": "1.0.0",
-      "doc_status": "Draft — adopted as the source specification by ADR-050",
-      "hash": "4685378c",
+      "version": "1.4.0b",
+      "doc_status": "Beta — product specification with verified isolated execution profile",
+      "hash": "883fe882",
+      "status": "current"
+    },
+    {
+      "id": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "type": "document",
+      "path": "docs/KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md",
+      "title": "Knowledge ingestion — surfaces, data flow และ user journey",
+      "hash": "271e37b4",
       "status": "current"
     },
     {
@@ -16210,7 +16642,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
       "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
-      "hash": "c7362d44",
+      "hash": "15a4e2da",
       "status": "current"
     },
     {
@@ -16250,9 +16682,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.170.0b",
+      "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "e6792e45",
+      "hash": "e3ada3d5",
       "status": "current"
     },
     {
@@ -16280,7 +16712,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "6ca9a1a7",
+      "hash": "87fd67a2",
       "status": "current"
     },
     {
@@ -16731,13 +17163,27 @@
       "type": "domain",
       "path": "docs/domains/knowledge/CHARTER.md",
       "title": "Domain — knowledge",
-      "owns_models": [],
+      "owns_models": [
+        "KnowledgeCorpus",
+        "KnowledgeSource",
+        "KnowledgeIngestion",
+        "KnowledgeCorpusGeneration",
+        "KnowledgeRawArtifact",
+        "KnowledgeParsedArtifact",
+        "KnowledgeChunk",
+        "GenesisRag17IngestionIntent",
+        "GenesisRag17SourceMention",
+        "GenesisRag17Batch",
+        "GenesisRag17StageEvidence",
+        "GenesisRag17EvidenceCursor",
+        "GenesisRag17PublicationReceipt"
+      ],
       "owns_routes": [],
       "owns_code": [],
       "modules": [
         "knowledge"
       ],
-      "hash": "5beac479",
+      "hash": "f546dcc8",
       "status": "current"
     },
     {
@@ -17006,7 +17452,7 @@
     {
       "id": "feat:FEAT-013",
       "type": "feature",
-      "label": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "label": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving",
       "declared": "building",
       "status": "current"
     },
@@ -17263,6 +17709,36 @@
       "status": "current"
     },
     {
+      "id": "model:GenesisRag17Batch",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17EvidenceCursor",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17IngestionIntent",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17PublicationReceipt",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17SourceMention",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17StageEvidence",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:GoodsReceipt",
       "type": "model",
       "status": "current"
@@ -17303,7 +17779,42 @@
       "status": "current"
     },
     {
+      "id": "model:KnowledgeChunk",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeCorpus",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeCorpusGeneration",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:KnowledgeEvidenceCursor",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeIngestion",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeParsedArtifact",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeRawArtifact",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KnowledgeSource",
       "type": "model",
       "status": "current"
     },
@@ -19033,9 +19544,9 @@
       "family": "FR",
       "label": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29, extended 2026-09-07 — 8 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.3 (`RawExternalRecord.artifactId` — nullable, indexed — plus a scoped `findByArtifactId` read, so a knowledge-ingestion run's `artifact_id` resolves back to the raw payload FR-081 already stores; proven against the real database), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic), and AC-109.11 (ADR-067 D4, 2026-09-07 — `knowledgeJobState` derives the §5 job state from the run's stored status, the step board and the newest Stage 17 decision with no clock, so `PUBLISHED` has one derivation: a run closed `SUCCEEDED` behind an `APPROVED`, publishable gate; served by `GET /api/pipelines/knowledge/{executionRunId}`), and AC-109.12 (ADR-067 + ADR-068 — the receiver, and the pull that feeds it: `pullKnowledgeStageEvidence` reads GKS's `gks_stage_evidence_export` through MSP's relay and applies it through the receiver; proven live across the three repositories with a Stage 9 execution in the real GKS landing as `DPS-KI-ENTITY-RESOLVE` on the run that asked for it; stages 10–14 report the same way once GKS builds them, and zuri-ai executes none of the nine). The remaining five: AC-109.5 waits on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020's two metrics that have no ledger column plus GKS building stages 10–14, and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. AC-109.3 added one nullable, indexed column to FR-081's own `RawExternalRecord` — not a new model, and not one the knowledge domain owns (its `owns_models` stays empty, ADR-050 D4); 37 unit tests, three real-database integration suites for the Tier 1 execution slice, plus 7 new unit tests and one new real-database integration test for AC-109.3's binding "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). 🟠 product-wide partial; isolated GenesisRAG17 implemented under ADR-073 (2026-09-07), documentation reconciled 2026-09-08. The existing FR-071 catalog/ledger is reused; seven separate lineage/batch/evidence/cursor/receipt models add immutable raw → parsed → chunk storage, one Stage 9 batch per attempt, all six wire metrics and exact-attempt import. Actual GKS 9–14 plus GenesisBlock physical 13/15/16 and receipt-backed 17 run through MSP. Duplicate delivery, replay, late evidence, restart lineage and source-to-published citations are covered in the [acceptance report](../.brain/reports/GENESISRAG17-ACCEPTANCE.md). The [stage flow](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) maps extension points; the FR note preserves earlier AC/slice history and broader product gaps. No production deployment or complete product-wide AC claim. "
     },
     {
       "id": "req:FR-110",
@@ -19045,7 +19556,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 partial — 2026-08-31: strict snapshot and Stage 9–16 aggregate-report contracts, Stage 17 evidence/quality guard and server-run scope binding; 2026-09-07 (ADR-067, owner-decided reporter credential): the reporter receiver — Stage 9–16 reports carrying outcome, BR-022 failure and execution times, the Stage 17 decision recorded as gate evidence on the run's materialised step (AC-110.4 closed), the run close derived from the ledger and never declared by a caller, the job read, and four routes under `/api/pipelines/knowledge/{executionRunId}` authenticating the run's Tenant's FR-102 data-plane key; proven against the real database and end to end through the route handlers; 2026-09-07 (ADR-068): the pull half — the spawned-MSP transport, `KnowledgeEvidenceCursor` (per-scope cursor, advanced only past rows that landed), `pullKnowledgeStageEvidence` with four-way row attribution and `POST /api/pipelines/knowledge/evidence/pull` — proven live across zuri-ai → MSP → GKS with Stage 9 evidence from the real GKS on this ledger. Atomic publication, retrieval and GraphRAG readiness remain GKS/GenesisBlockDB's "
+      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 product-wide partial; legacy strict snapshot/reporter/pull contracts remain. ADR-073 isolated acceptance additionally verifies GKS five-dimension gate, native worker atomic publication, scoped MSP query/citations, retained historical snapshots and finish requiring the exact publication receipt. Quality PASS without policy permission or receipt cannot close success. The new genesisrag17.v1 receipt/query profile is distinct from the full legacy snapshot/GraphRAG readiness contract; production and broader query orchestration are not claimed. See [spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md), [flow](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) and [recorded acceptance](../.brain/reports/GENESISRAG17-ACCEPTANCE.md). "
     },
     {
       "id": "req:FR-111",
@@ -19668,6 +20179,16 @@
       "row_text": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-071's Context table records the check for each). Renumbered from FR-171/ADR-070 — main's Execution Trace & Replay v0.3 already held those ids when this branch rebased. 🟠 implemented locally 2026-09-08 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + existing `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read unchanged by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/crm-group-navigation.test.js` "
     },
     {
+      "id": "req:FR-173",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Knowledge source admission and corpus publication — authorized users submit immutable Text/Markdown or readable FileAsset versions through one UI/API/MCP service under a Business and optional owned Project association; durable scoped jobs run GenesisRAG17 and become searchable only after exact publication receipts are atomically merged into an immutable multi-document corpus manifest. Queries bind authorized source snapshots and citations resolve immutable lineage with current ACL/revocation checks; duplicate requests are idempotent, conflicting versions fail, corrections preserve other documents, stale completion cannot replace a newer revision, withdrawal removes serving membership, and runtime restart resumes durable work without granting users installation-operator rights.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Knowledge source admission and corpus publication — authorized users submit immutable Text/Markdown or readable FileAsset versions through one UI/API/MCP service under a Business and optional owned Project association; durable scoped jobs run GenesisRAG17 and become searchable only after exact publication receipts are atomically merged into an immutable multi-document corpus manifest. Queries bind authorized source snapshots and citations resolve immutable lineage with current ACL/revocation checks; duplicate requests are idempotent, conflicting versions fail, corrections preserve other documents, stale completion cannot replace a newer revision, withdrawal removes serving membership, and runtime restart resumes durable work without granting users installation-operator rights. Phases 0–4 implemented; isolated Business browser/session HTTP/MCP native acceptance passed; Project/API-grant authorization covered by unit/Prisma tests; no production activation claim "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -19863,9 +20384,9 @@
       "family": "NFR",
       "label": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
       "status": "current",
-      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. ✅ implemented 2026-08-28 for four of six per-stage metrics — `records_in`/`records_out`/`records_failed` (SDD-070, reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns, unwritten since FR-071) and `processing_time` (already computed as `durationMs` in `getPipelineMonitor`'s stage timeline from timestamps SDD-069 already sets — no new field needed). `records_quarantined` and `retry_count` stay unwired: BR-022 and replay-within-run don't exist for knowledge ingestion, so there is nothing real to report, and a stored 0 would repeat the exact defect this same slice found and fixed on `PipelineRun` — see the note below. All seven pipeline-level metrics stay declined: six need FR-110, GKS or GenesisBlockDB; `ingestion_lag` looked cheap (`run.createdAt` minus the artifact's own `ingested_at`) until checking found `PipelineRun` stores no such field — computing it would add one, which is schema growth this slice did not set out to do. spec §32; carried on the FR-109 job trace; declared 2026-08-27 "
+      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. 🟠 partial overall. The legacy ledger computes four metrics; ADR-073 GenesisRAG17StageEvidence additionally persists all six frozen wire counters: records_in, records_out, records_quarantined, error_count, retry_count, duration_ms with actual operation timestamps. The wire names error_count/duration_ms are not a rename of this requirement's records_failed/processing_time, and this isolated proof does not establish every product-wide pipeline aggregate listed here. See the [wire contract](plans/GENESISRAG17-CONTRACT.md) and acceptance report for measured evidence; earlier two-unwired-counter limitation describes the legacy slice only. "
     },
     {
       "id": "req:NFR-021",
@@ -20451,11 +20972,11 @@
       "id": "req:SDD-057",
       "type": "requirement",
       "family": "SDD",
-      "label": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it.",
+      "label": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. Current scope clarification (ADR-073, 2026-09-08): the contract/catalog parameterization is implemented. The prohibition is on a second execution ledger; the approved isolated slice adds seven lineage/batch/evidence/cursor/receipt models without replacing FR-071. Historical present-tense statements above describe the declaration baseline.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. FR-109; FR-071, SDD-042, ADR-030, ADR-050 "
+      "row_text": "The seventeen-stage knowledge ingestion pipeline reuses the FR-071 execution ledger rather than declaring new models. At the storage layer that is free: `dataPipelineDefinitionId` and `pipelineStageId` are plain `String` columns with no enum, no relation and no check constraint (`prisma/schema.prisma`), so a new definition id and seventeen new `DPS-*` stage ids need no migration. At the contract layer it is not free, and saying so is the point of this decision: `zPipelineEvent` and `zPipelineRunInput` pin `dataPipelineDefinitionId` and `executionContractId` with `z.literal`, `pipelineStageId` is refined against the ten-entry FR-071 catalog (`src/platform/integrations/core/pipeline-tracking-contract.js`), and the tracking service materializes that one catalog on every run creation — so `DPL-KNOWLEDGE-INGEST-V1` is rejected today, and the first implementation slice must parameterize the FR-071 envelope by definition id before it can register anything. That is a change to implemented, tested FR-071 code, named here rather than discovered later. A second execution ledger remains the wrong answer: it would give one question two answers and make the reconciliation evidence something that has to be believed twice. `PipelineRecordEvent` already carries `docId` / `picId` / `factId` — written on every record event and read by provenance-filtered replay, with no producer supplying a non-null value today — and knowledge ingestion reuses their existing FR-071 meaning rather than redefining it. Current scope clarification (ADR-073, 2026-09-08): the contract/catalog parameterization is implemented. The prohibition is on a second execution ledger; the approved isolated slice adds seven lineage/batch/evidence/cursor/receipt models without replacing FR-071. Historical present-tense statements above describe the declaration baseline. FR-109; FR-071, SDD-042, ADR-030, ADR-050 "
     },
     {
       "id": "req:SDD-058",
@@ -20471,11 +20992,11 @@
       "id": "req:SDD-059",
       "type": "requirement",
       "family": "SDD",
-      "label": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known.",
+      "label": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. Current scope clarification (ADR-073, 2026-09-08): chunking.js remains pure. The approved separate GenesisRAG17 adapter now persists KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk through repository interfaces; the charter lists its seven models. The historical owns_models-empty and persistence-pending statements apply to this original calculator slice, not the current adapter.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
+      "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. Current scope clarification (ADR-073, 2026-09-08): chunking.js remains pure. The approved separate GenesisRAG17 adapter now persists KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk through repository interfaces; the charter lists its seven models. The historical owns_models-empty and persistence-pending statements apply to this original calculator slice, not the current adapter. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
     },
     {
       "id": "req:SDD-060",
@@ -21905,6 +22426,46 @@
       "kind": "api",
       "route": "/api/inventory/stock-movements",
       "path": "apps/server/src/app/api/inventory/stock-movements/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/knowledge/citations/[citationId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/knowledge/citations/[citationId]",
+      "path": "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/knowledge/ingestions",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/knowledge/ingestions",
+      "path": "apps/server/src/app/api/knowledge/ingestions/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/knowledge/ingestions/[runId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/knowledge/ingestions/[runId]",
+      "path": "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/knowledge/queries",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/knowledge/queries",
+      "path": "apps/server/src/app/api/knowledge/queries/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/knowledge/sources/[sourceId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/knowledge/sources/[sourceId]",
+      "path": "apps/server/src/app/api/knowledge/sources/[sourceId]/route.js",
       "status": "current"
     },
     {
@@ -23740,7 +24301,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
-      "hash": "5d52297b",
+      "hash": "b6efbf1f",
       "status": "current"
     },
     {
@@ -23876,7 +24437,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md",
       "title": "ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported",
-      "hash": "75134b77",
+      "hash": "1885e832",
       "status": "current"
     },
     {
@@ -23884,7 +24445,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md",
       "title": "ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named",
-      "hash": "cf3bb5f5",
+      "hash": "5834d4db",
       "status": "current"
     },
     {
@@ -23909,6 +24470,36 @@
       "path": "docs/decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
       "title": "ADR-071 — CRM is a parent domain over Customer and Market Intelligence",
       "hash": "f45e938f",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
+      "title": "ADR-072 — Knowledge admission and corpus publication",
+      "hash": "bc5555db",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "title": "ADR-073 — GenesisRAG17 isolated execution and publication",
+      "hash": "ae48c040",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "type": "test",
+      "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
+      "hash": "fdb0749b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/acceptance/knowledge-admission-native.test.js",
+      "type": "test",
+      "path": "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+      "hash": "7cfd4836",
       "status": "current"
     },
     {
@@ -24426,28 +25017,28 @@
       "id": "test:tests/integration/fr110-knowledge-evidence-chain.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
-      "hash": "b81b6339",
+      "hash": "86249680",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr110-knowledge-evidence-importer.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
-      "hash": "7737e6d0",
+      "hash": "801288cb",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
-      "hash": "f31df392",
+      "hash": "5d69973d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
-      "hash": "f8877c56",
+      "hash": "16ed1779",
       "status": "current"
     },
     {
@@ -24591,6 +25182,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/genesisrag17-tier1.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/genesisrag17-tier1.test.js",
+      "hash": "b7841931",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/iam-authorization.test.js",
@@ -24637,6 +25235,34 @@
       "type": "test",
       "path": "apps/server/tests/integration/import-target-authorization.test.js",
       "hash": "5a589002",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-admission-backup.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/knowledge-admission-backup.test.js",
+      "hash": "544b9cd6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-admission.integration.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/knowledge-admission.integration.test.js",
+      "hash": "d6d54d2e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-corpus-prisma.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/knowledge-corpus-prisma.test.js",
+      "hash": "2d2799fe",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-corpus.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/knowledge-corpus.test.js",
+      "hash": "d34f9a23",
       "status": "current"
     },
     {
@@ -24874,7 +25500,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "550a04b4",
+      "hash": "17dabfa9",
       "status": "current"
     },
     {
@@ -25833,7 +26459,7 @@
       "id": "test:tests/unit/fr045-backup-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
-      "hash": "6f0f830c",
+      "hash": "c5d0b097",
       "status": "current"
     },
     {
@@ -26180,6 +26806,41 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/genesisrag17-contract.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-contract.test.js",
+      "hash": "42618be6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-lineage-repository.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+      "hash": "20ba2201",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-source.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-source.test.js",
+      "hash": "8aebea75",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-supabase-migration.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
+      "hash": "5d4419c5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-worker.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-worker.test.js",
+      "hash": "d2afe393",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/global-view-drilldown.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/global-view-drilldown.test.js",
@@ -26299,6 +26960,34 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+      "hash": "80853a88",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-admission-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-admission-routes.test.js",
+      "hash": "ea5f5cf7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-admission-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-admission-service.test.js",
+      "hash": "cb3949a5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-admission-ui-contract.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-admission-ui-contract.test.js",
+      "hash": "f0faba91",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/knowledge-chunking.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-chunking.test.js",
@@ -26313,6 +27002,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-corpus-routes.test.js",
+      "hash": "11f39b78",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/knowledge-dedup.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-dedup.test.js",
@@ -26324,6 +27020,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-entity-extraction.test.js",
       "hash": "1d458835",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-http.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-http.test.js",
+      "hash": "8ddf3e47",
       "status": "current"
     },
     {
@@ -26373,6 +27076,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/knowledge-quarantine.test.js",
       "hash": "34e05742",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-runtime.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-runtime.test.js",
+      "hash": "5ff1c283",
       "status": "current"
     },
     {
@@ -26988,7 +27698,7 @@
       "id": "test:tests/unit/pipeline-mcp-transport.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/pipeline-mcp-transport.test.js",
-      "hash": "8cbad74c",
+      "hash": "c8d41796",
       "status": "current"
     },
     {
@@ -27296,7 +28006,7 @@
       "id": "test:tests/unit/project-manager-mcp.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/project-manager-mcp.test.js",
-      "hash": "0f1779e4",
+      "hash": "27b63764",
       "status": "current"
     },
     {
@@ -33651,6 +34361,146 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/route.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/queries/route.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/queries/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/queries/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/queries/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/[id]/jobs/route.js",
       "to": "req:FR-149",
       "type": "implements",
@@ -33996,6 +34846,13 @@
     {
       "from": "code:src/app/api/mcp/route.js",
       "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/mcp/route.js",
+      "to": "req:FR-173",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -37140,6 +37997,13 @@
       "from": "code:src/context/ScopeContext.jsx",
       "to": "req:SEC-008",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/instrumentation.js",
+      "to": "req:FR-173",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -41848,6 +42712,76 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/genesisrag17-contract.js",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-contract.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-contract.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "to": "req:NFR-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-source.js",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-source.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-source.js",
+      "to": "req:SDD-059",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-source.js",
+      "to": "req:SDD-063",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/graph-query.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -41935,6 +42869,132 @@
       "from": "code:src/modules/knowledge/ingestion-job.js",
       "to": "req:SEC-021",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-authorization.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-authorization.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-authorization.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-execution-authority.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-execution-authority.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-http.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-http.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-http.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-http.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-repository.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-repository.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-runtime.js",
+      "to": "req:FR-173",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -45222,6 +46282,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -45364,6 +46431,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-107",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-109",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45532,6 +46606,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-166",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-173",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -46701,6 +47782,13 @@
     {
       "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "to": "req:FR-058",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:FR-173",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48050,6 +49138,97 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:NFR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-publication.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-worker.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-worker.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-worker.js",
+      "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/idempotency.js",
       "to": "doc:FR-081-raw-external-ingestion",
       "type": "references",
@@ -48192,6 +49371,13 @@
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:FR-119",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:FR-173",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48367,6 +49553,13 @@
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "to": "req:FR-129",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:FR-173",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48687,6 +49880,13 @@
       "source": "annotation"
     },
     {
+      "from": "doc:.rwang-progress",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:A-api-spec",
       "to": "doc:FR-157-content-creative",
       "type": "references",
@@ -48716,6 +49916,13 @@
     },
     {
       "from": "doc:A-api-spec",
+      "to": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:A-api-spec",
       "to": "doc:PHASE-CONTENT-2026-09-06",
       "type": "references",
       "source": "markdown",
@@ -48724,6 +49931,27 @@
     {
       "from": "doc:ARCHITECTURE-DIAGRAMS",
       "to": "doc:ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:docs/SYSTEM-DIAGRAM",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE-DIAGRAMS",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -48772,6 +50000,20 @@
     },
     {
       "from": "doc:ARCHITECTURE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ARCHITECTURE",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
@@ -48799,6 +50041,13 @@
       "status": "current"
     },
     {
+      "from": "doc:ARCHITECTURE",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:B-db-schema",
       "to": "doc:FR-157-content-creative",
       "type": "references",
@@ -48815,6 +50064,13 @@
     {
       "from": "doc:B-db-schema",
       "to": "doc:FR-160-campaign-initiatives",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:B-db-schema",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -49081,6 +50337,20 @@
     {
       "from": "doc:docs/SYSTEM-DIAGRAM",
       "to": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:docs/SYSTEM-DIAGRAM",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -49535,6 +50805,13 @@
     },
     {
       "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-109-knowledge-ingestion-stage-catalog",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -49599,6 +50876,13 @@
     {
       "from": "doc:FR-110-published-knowledge-snapshot-contract",
       "to": "doc:FR-111-knowledge-sensitivity-lattice",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-110-published-knowledge-snapshot-contract",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -49675,6 +50959,13 @@
     },
     {
       "from": "doc:FR-111-knowledge-sensitivity-lattice",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-111-knowledge-sensitivity-lattice",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -49738,6 +51029,13 @@
     },
     {
       "from": "doc:FR-112-structural-knowledge-chunking",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-112-structural-knowledge-chunking",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -49788,6 +51086,13 @@
     {
       "from": "doc:FR-113-entity-candidate-extraction",
       "to": "doc:FR-112-structural-knowledge-chunking",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-113-entity-candidate-extraction",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -49851,6 +51156,13 @@
     {
       "from": "doc:FR-114-canonical-normalization",
       "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-114-canonical-normalization",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -49920,6 +51232,13 @@
     },
     {
       "from": "doc:FR-115-document-parsing",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-115-document-parsing",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -49984,6 +51303,13 @@
     {
       "from": "doc:FR-116-derived-object-provenance",
       "to": "doc:FR-113-entity-candidate-extraction",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-116-derived-object-provenance",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -50067,6 +51393,13 @@
     },
     {
       "from": "doc:FR-117-deduplication-and-versioning",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-117-deduplication-and-versioning",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
@@ -50089,6 +51422,20 @@
     {
       "from": "doc:FR-117-deduplication-and-versioning",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-118-tier1-stage-composition",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -50493,6 +51840,27 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-173-knowledge-admission-and-corpus",
+      "to": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-173-knowledge-admission-and-corpus",
+      "to": "req:FR-173",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-173-knowledge-admission-and-corpus",
+      "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -50504,6 +51872,27 @@
       "to": "doc:DB-MIGRATION-NOTES",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-CONTRACT",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-CONTRACT",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-CONTRACT",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "relates",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -50605,10 +51994,157 @@
       "status": "current"
     },
     {
+      "from": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "to": "req:FR-173",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "req:FR-109",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "req:FR-110",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "req:FR-109",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "req:FR-110",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "req:FR-173",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -51635,6 +53171,20 @@
     },
     {
       "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
       "to": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
       "type": "references",
       "source": "markdown",
@@ -51692,6 +53242,13 @@
     {
       "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
       "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -51831,6 +53388,27 @@
     },
     {
       "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PRD-SDD-v1.0",
       "to": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "relates",
       "source": "metadata",
@@ -51902,6 +53480,20 @@
     {
       "from": "doc:PRODUCT",
       "to": "spec:ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ROADMAP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52266,6 +53858,34 @@
     {
       "from": "domain:inventory",
       "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:knowledge",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -52721,6 +54341,13 @@
     {
       "from": "feat:FEAT-013",
       "to": "req:FR-111",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-013",
+      "to": "req:FR-173",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -53209,6 +54836,48 @@
       "source": "charter"
     },
     {
+      "from": "model:GenesisRag17Batch",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17EvidenceCursor",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17IngestionIntent",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17PublicationReceipt",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17SourceMention",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17StageEvidence",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:GoodsReceipt",
       "to": "domain:procurement",
       "type": "owned_by",
@@ -53265,8 +54934,57 @@
       "source": "charter"
     },
     {
+      "from": "model:KnowledgeChunk",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeCorpus",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeCorpusGeneration",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:KnowledgeEvidenceCursor",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeIngestion",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeParsedArtifact",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeRawArtifact",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KnowledgeSource",
+      "to": "domain:knowledge",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -55232,6 +56950,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-173",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -56963,6 +58688,41 @@
     {
       "from": "route:api:/api/inventory/stock",
       "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/knowledge/citations/[citationId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/knowledge/ingestions/[runId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/knowledge/ingestions",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/knowledge/queries",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/knowledge/sources/[sourceId]",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -59930,6 +61690,20 @@
     },
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "domain:knowledge",
       "type": "references",
       "source": "markdown",
@@ -60099,6 +61873,13 @@
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -60637,6 +62418,20 @@
     },
     {
       "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
       "source": "metadata",
@@ -60678,6 +62473,27 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
       "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
@@ -60710,6 +62526,13 @@
       "to": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -60844,6 +62667,153 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "to": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "to": "req:FR-173",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "req:FR-109",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "req:FR-110",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-publication.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-worker.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/knowledge-admission-native.test.js",
+      "to": "code:src/instrumentation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/acceptance/knowledge-admission-native.test.js",
+      "to": "code:src/modules/knowledge/knowledge-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/acceptance/knowledge-admission-native.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
@@ -64207,6 +66177,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -64369,6 +66346,13 @@
     {
       "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -64620,6 +66604,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -64782,6 +66773,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -67042,6 +69040,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -67204,6 +69209,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -67462,6 +69474,13 @@
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "to": "req:NFR-020",
       "type": "verifies",
       "status": "current",
@@ -67665,6 +69684,13 @@
     },
     {
       "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
       "to": "req:NFR-020",
       "type": "verifies",
       "status": "current",
@@ -67798,6 +69824,13 @@
     },
     {
       "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "to": "req:NFR-020",
       "type": "verifies",
       "status": "current",
@@ -67928,6 +69961,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
@@ -69162,6 +71202,69 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-importer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/iam-authorization.test.js",
       "to": "code:src/modules/identity/authorization-context.js",
       "type": "tests",
@@ -69548,6 +71651,118 @@
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission-backup.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission-backup.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission.integration.test.js",
+      "to": "code:src/modules/knowledge/knowledge-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission.integration.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission.integration.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission.integration.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-admission.integration.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus-prisma.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus-prisma.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus-prisma.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "code:src/modules/knowledge/knowledge-authorization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "code:src/modules/knowledge/knowledge-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -70507,6 +72722,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -70669,6 +72891,13 @@
     {
       "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -70955,6 +73184,13 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -71117,6 +73353,13 @@
     {
       "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -71333,6 +73576,13 @@
     },
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -71495,6 +73745,13 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -72174,6 +74431,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -80083,6 +82347,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -80300,6 +82571,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-110",
       "type": "verifies",
       "status": "current",
@@ -80462,6 +82740,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -81599,6 +83884,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
@@ -83267,6 +85559,97 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/genesisrag17-contract.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-contract.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-contract.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-lineage-repository.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-lineage-repository.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-lineage-repository.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-source.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-source.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-source.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-source.test.js",
+      "to": "req:SDD-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-source.test.js",
+      "to": "req:SDD-063",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-supabase-migration.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-supabase-migration.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-worker.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/global-view-drilldown.test.js",
       "to": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "type": "tests",
@@ -84240,6 +86623,118 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "code:src/app/api/knowledge/ingestions/[runId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "code:src/app/api/knowledge/ingestions/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "code:src/modules/knowledge/knowledge-http.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-service.test.js",
+      "to": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-service.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-service.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-ui-contract.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-ui-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/knowledge-chunking.test.js",
       "to": "code:src/modules/knowledge/chunking.js",
       "type": "tests",
@@ -84291,6 +86786,55 @@
     {
       "from": "test:tests/unit/knowledge-classification.test.js",
       "to": "req:SDD-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "code:src/app/api/knowledge/citations/[citationId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "code:src/app/api/knowledge/queries/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "code:src/app/api/knowledge/sources/[sourceId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-corpus-routes.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -84357,6 +86901,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-http.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-http.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-http.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/knowledge-ingestion-job-state.test.js",
@@ -84591,6 +87156,13 @@
     },
     {
       "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -84676,6 +87248,34 @@
     {
       "from": "test:tests/unit/knowledge-quarantine.test.js",
       "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-runtime.test.js",
+      "to": "code:src/modules/knowledge/knowledge-execution-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-runtime.test.js",
+      "to": "code:src/modules/knowledge/knowledge-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-runtime.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-runtime.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -88399,6 +90999,13 @@
     },
     {
       "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -89386,6 +91993,13 @@
     },
     {
       "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -89793,6 +92407,13 @@
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -91081,6 +93702,13 @@
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
       "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

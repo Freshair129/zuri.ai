@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createProjectManagerMcpTransport } from '@/modules/project-manager/mcp/transport'
+import { makeViewer } from '../factories/viewer'
 
 const viewer = { principalId: 'principal-mcp-test', visibleBusinessIds: ['business-mcp-test'], ownedBusinessIds: ['business-mcp-test'] }
 const plan = {
@@ -56,6 +57,22 @@ async function initialized(transport) {
 }
 
 describe('Project Manager MCP transport', () => {
+  it('accepts string or finite numeric request ids without accepting other id types', async () => {
+    const authenticatedViewer = makeViewer({ role: 'OWNER', visibleBusinessIds: ['business-mcp-test'], ownedBusinessIds: ['business-mcp-test'] })
+    for (const id of ['knowledge-initialize', 1, 0]) {
+      const { transport } = makeTransport()
+      const response = await transport.handle({ jsonrpc: '2.0', id, method: 'initialize' }, { viewer: authenticatedViewer })
+      expect(response.status).toBe(200)
+      expect(response.body.id).toBe(id)
+      expect(response.body.result.protocolVersion).toBe('2024-11-05')
+    }
+    for (const id of [null, true, {}, Infinity, NaN]) {
+      const { transport } = makeTransport()
+      const response = await transport.handle({ jsonrpc: '2.0', id, method: 'initialize' }, { viewer: authenticatedViewer })
+      expect(response.status).toBe(400)
+      expect(response.body.error.code).toBe(-32600)
+    }
+  })
   it('initialize and notifications/initialized establish a session', async () => {
     const { transport } = makeTransport()
     const sessionId = await initialize(transport)
@@ -78,6 +95,12 @@ describe('Project Manager MCP transport', () => {
       'data_pipeline.event_record',
       'data_pipeline.monitor_read',
       'data_pipeline.replay_request',
+      'knowledge.ingestion_create',
+      'knowledge.ingestion_list',
+      'knowledge.ingestion_status',
+      'knowledge.query',
+      'knowledge.citation',
+      'knowledge.source_withdraw',
     ])
   })
 
