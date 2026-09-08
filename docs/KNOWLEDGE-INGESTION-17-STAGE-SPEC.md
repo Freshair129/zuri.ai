@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.2.0b"
+version: "1.4.0b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-08T04:00:00+07:00,RWANG"
+last_update: "2026-09-08T15:23:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -15,6 +15,10 @@ relations:
 ---
 
 # Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification
+
+For actual UI/API/MCP entrypoints, file/project/domain connections and proposed user journeys, read the [surface and user-flow inventory](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md). Its current-versus-proposed labels are explicit: passing the isolated 17-stage chain does not imply that every product input surface is connected.
+
+The approved [ADR-072 admission/corpus contract](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) connects authorized Text/Markdown and FileAsset requests before Stage 1. One source version still executes all 17 stages. A Tier 1 corpus manifest then composes verified document snapshots for explicit-snapshot retrieval after Stage 17; it does not claim cross-document native graph traversal or replace GKS quality authority. Corrections rerun the same stage chain and replace only their own source membership. Current source/file/project authorization is rechecked when serving queries or citations. See the [integration contract](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) for runtime configuration, source/version identity, leases and backup recovery.
 
 **Document Type:** Technical Specification  
 **Target System:** Zuri AI / GKS / GenesisBlockDB  
@@ -37,7 +41,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0b |
+| **Version** | 1.4.0b |
 | **Status** | Beta — product specification with verified isolated execution profile |
 | **Author** | Boss |
 | **Created** | 2026-08-27 |
@@ -2016,5 +2020,7 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.3.0b → 1.4.0b | Adopt ADR-072 admission and corpus serving around unchanged 17-stage ownership | Authorized phases 0–4 implementation; surface/native acceptance tracked separately |
+| 1.2.0b → 1.3.0b | Link enumerated endpoint inventory and detailed source/user flows; separate existing staging/files from proposed admission and sharing | None; documentation only |
 | 1.1.0b → 1.2.0b | Approved code-audit remediation and explicit supported-input/publication boundaries | Source durability, semantic/temporal correctness and physical recovery repairs; see remediation evidence |
 | 1.0.0 → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

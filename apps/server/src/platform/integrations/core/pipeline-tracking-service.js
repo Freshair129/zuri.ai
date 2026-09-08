@@ -1,3 +1,4 @@
+import { isKnowledgeExecutionAuthority, hasKnowledgeRunAuthority, hasKnowledgeRunCreationAuthority, bindKnowledgeExecutionRun } from '@/modules/knowledge/knowledge-execution-authority'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { recordAudit, safeParse } from '@/modules/project-manager/application/audit'
@@ -21,6 +22,7 @@ import {
 } from './pipeline-tracking-contract'
 import { gateCompliance } from './pipeline-gate-compliance'
 
+// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-071 — full pipeline evidence is written behind one server-owned,
 // scope-filtered service boundary with append-only event receipts.
 // @req FR-129 — a gate decision's evidence is persisted and returned, and a
@@ -74,12 +76,12 @@ function isKnowledgeReporterFor(viewer, run) {
 }
 
 function requireLedgerWriter(viewer) {
-  if (isInstallationOperator(viewer) || viewer?.isSotDataPlane === true) return
+  if (isInstallationOperator(viewer) || isKnowledgeExecutionAuthority(viewer) || viewer?.isSotDataPlane === true) return
   throw serviceError(403, 'Pipeline mutation requires an installation operator')
 }
 
 function requireLedgerWriterForRun(viewer, run, event) {
-  if (isInstallationOperator(viewer)) return
+  if (isInstallationOperator(viewer) || hasKnowledgeRunAuthority(viewer, run)) return
   if (!isKnowledgeReporterFor(viewer, run)) {
     throw serviceError(403, 'A data-plane key reports only onto knowledge ingestion runs of its own Tenant (ADR-067 D1)')
   }
@@ -92,6 +94,7 @@ function requireLedgerWriterForRun(viewer, run, event) {
 }
 
 function ledgerActor(viewer) {
+  if (isKnowledgeExecutionAuthority(viewer)) return { actorType: 'KNOWLEDGE_SOURCE_RUNTIME', actorId: null }
   return isInstallationOperator(viewer)
     ? { actorType: 'PIPELINE_OPERATOR', actorId: viewer?.principal?.id || null }
     : { actorType: 'PIPELINE_REPORTER', actorId: viewer?.serviceAccountId || null }
@@ -352,7 +355,7 @@ export async function createPipelineRun(input, {
   idFactory = defaultIdFactory,
   onRunCreated = null,
 } = {}) {
-  requireOperator(viewer)
+  if (!hasKnowledgeRunCreationAuthority(viewer, input)) requireOperator(viewer)
   const value = parsePipelineRunInput(input)
   const requestHash = hashContractPayload(value)
   const at = resolveNow(now)
@@ -361,6 +364,7 @@ export async function createPipelineRun(input, {
     const existing = await tx.pipelineRun.findUnique({ where: { idempotencyKey: value.idempotencyKey } })
     if (existing) {
       if (existing.requestHash !== requestHash) throw serviceError(409, 'Pipeline run idempotency key was reused with different input')
+      bindKnowledgeExecutionRun(viewer, existing)
       return { status: 'UNCHANGED', run: runSummary(existing, { includeIdentityRefs: true }) }
     }
 
@@ -398,6 +402,7 @@ export async function createPipelineRun(input, {
     // A caller that owns durable work coupled to this run may create it here,
     // on the same transaction, before the run can become visible without that
     // work. A thrown hook rolls back the run, its steps and the hook's rows.
+    bindKnowledgeExecutionRun(viewer, run)
     if (typeof onRunCreated === 'function') await onRunCreated({ db: tx, run, at, input: value })
 
     // The catalog of the run's OWN definition, not the one this module happened
@@ -426,8 +431,7 @@ export async function createPipelineRun(input, {
       entityType: 'PIPELINE_RUN',
       entityId: run.executionRunId,
       action: 'PIPELINE_RUN_CREATED',
-      actorType: 'PIPELINE_OPERATOR',
-      actorId: viewer?.principal?.id || null,
+      ...ledgerActor(viewer),
       payload: {
         dataPipelineDefinitionId: value.dataPipelineDefinitionId,
         executionContractId: value.executionContractId,
@@ -740,7 +744,7 @@ export async function getPipelineMonitor(executionRunId, {
   // step and attempt identities it must name are on this monitor and nowhere
   // else. Same 404 shape as every other refusal here; a key for another
   // Tenant learns nothing about whether the run exists.
-  if (!isKnowledgeReporterFor(viewer, run)) requireVisible(viewer, run.businessId)
+  if (!isKnowledgeReporterFor(viewer, run) && !hasKnowledgeRunAuthority(viewer, run)) requireVisible(viewer, run.businessId)
   const [steps, records, reconciliations, gates] = await Promise.all([
     db.pipelineStep.findMany({ where: { runId: run.id }, orderBy: { sequence: 'asc' } }),
     db.pipelineRecordEvent.findMany({ where: { runId: run.id }, orderBy: { occurredAt: 'desc' }, take: 500 }),

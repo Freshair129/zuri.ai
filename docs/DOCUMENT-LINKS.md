@@ -1528,13 +1528,30 @@ Backlinks:
 - [Appendix B — Database Schema Summary](appendices/B-db-schema.md) (references)
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
 - [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
+- [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) (references)
 - [GenesisRAG17 implementation progress](.rwang-progress.md) (relates)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (relates)
+
+## ADR-072 — Knowledge admission and corpus publication
+
+Source: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
+
+- references: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
+- references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- relates: [req:FR-172](PRD-SDD-v1.0.md)
+
+Backlinks:
+
+- [FR-172 — Source admission and corpus serving](domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md) (references)
+- [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2166,6 +2183,7 @@ Source: [Domain — knowledge](domains/knowledge/CHARTER.md)
 - references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
 
 Backlinks:
 
@@ -2428,6 +2446,14 @@ Source: [FR-131 — Shipping rate card as governed business knowledge](domains/k
 Backlinks:
 
 - [BUSINESS pending lane: reviewable decisions and next slices](roadmap/PLAN-PENDING-BUSINESS-20260831.md) (references)
+
+## FR-172 — Source admission and corpus serving
+
+Source: [FR-172 — Source admission and corpus serving](domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md)
+
+- references: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
+- references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
+- relates: [req:FR-172](PRD-SDD-v1.0.md)
 
 ## Domain — line-oa-studio
 
@@ -2932,7 +2958,9 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 Source: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
 
 - references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+- references: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
 - references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - relates: [req:FR-109](PRD-SDD-v1.0.md)
 - relates: [req:FR-110](PRD-SDD-v1.0.md)
@@ -2954,6 +2982,7 @@ Backlinks:
 - [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
@@ -2967,9 +2996,12 @@ Backlinks:
 
 Source: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 
+- references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
 - references: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 - references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
 - relates: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
 
 Backlinks:
@@ -2989,6 +3021,7 @@ Backlinks:
 - [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
@@ -2997,6 +3030,23 @@ Backlinks:
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
 - [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
 - [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
+
+## Knowledge ingestion — surfaces, data flow และ user journey
+
+Source: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
+
+- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
+- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+- references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- relates: [req:FR-109](PRD-SDD-v1.0.md)
+- relates: [req:FR-110](PRD-SDD-v1.0.md)
+
+Backlinks:
+
+- [FR-172 — Source admission and corpus serving](domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md) (references)
+- [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) (references)
 
 ## Monorepo snapshot execution
 
@@ -3024,6 +3074,18 @@ Backlinks:
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (relates)
+
+## Knowledge admission contract — phases 0–4
+
+Source: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
+
+- references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
+- relates: [req:FR-172](PRD-SDD-v1.0.md)
+
+Backlinks:
+
+- [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
 
 ## Zuri V2 — Project Manager Module: PRD & SDD
 

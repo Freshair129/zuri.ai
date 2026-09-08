@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.170.0b"
+version: "1.171.0b"
 status: draft
-last_update: "2026-09-07T23:50:41+07:00,RWANG"
+last_update: "2026-09-08T16:30:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -19,7 +19,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.170.0b |
+| **Version** | 1.171.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -436,7 +436,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-168 | A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience — `stockPolicy` is TRACKED (สินค้านับสต๊อก: a good the Business counts, every movement a ledger row, cost held in stock until the goods leave), UNTRACKED (สินค้าไม่นับสต๊อก: still a good, still buyable and receivable, but carrying no perpetual count, so no on-hand at all rather than a zero) or SERVICE (บริการ: not a good, so no stock fields exist, `movementRule` refuses it by its own code `INVENTORY_PRODUCT_IS_A_SERVICE`, and a goods receipt naming it is refused with `PROCUREMENT_RECEIPT_LINE_IS_A_SERVICE` because a service is performed, not delivered). Anything without a ledger is stored with `trackingMode` NONE, so neither an uncounted good nor a service can ask for lot or serial identity it can never have. The catalogue form narrows to the nature chosen: picking ไม่นับสต๊อก or บริการ removes the tracking mode and safety-stock fields instead of leaving fields that cannot apply. | 🟠 implemented locally 2026-09-07 — enum + domain rules + catalogue service + the two refusals; no schema column, because `stockPolicy` is already a free TEXT column (`enums.js`, `inventory/domain/inventory.js`, `procurement/application/goods-receipt-service.js`, `tests/unit/inventory-domain.test.js`) |
 | FR-169 | A Business declares feature capabilities (`Business.capabilitiesJson`), distinct from a Membership grant — a grant says who may open a module the Business already has, a capability says whether the module applies to the Business at all. The first capability is `physicalStock` (default on, so every Business with existing Inventory data is unaffected): when a Business turns it off, the reserved Warehouse slot (`key: warehouse`, ADR-069 D3) is hidden from the domain bar and the SCM sidebar entirely, not merely disabled — `domainBarSlots`/`sidebarDomainForPath` read it from the same Business object the bar and sidebar already hold, so the two can never disagree. `PATCH /api/businesses/[id]/capabilities` is the only writer, OWNER-scoped, expected-version compare-and-set, one AuditEvent per toggle; every reader is `/api/scope`, which already returns every Business column. | 🟠 implemented locally 2026-09-07 — `capabilitiesJson` column + migration, `lib/business-capabilities.js`, `businesses/[id]/capabilities` route, `DomainBar`/`Sidebar` wiring, a Settings toggle; 2026-09-07: production migration `20260907150000_business_capabilities` applied and recorded in `supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-057) |
 | FR-170 | A sub-domain module with more than one page renders them as tabs inside its own canvas (`<ModuleTabs>`, `src/lib/module-tabs.js`), not only as separate sidebar entries — the owner's instruction that a module's views live in the canvas and switch by clicking a tab. Each tab is a normal client-navigated route, not query-param or component state: the active tab is derived from `usePathname()`, the same id-binding idiom `DomainBar` and `Sidebar` already use for their own active-state checks. No route moves — Procurement (Dashboard, Purchase Orders) and Order Management/Commerce (Dashboard, Orders) keep exactly the URLs FR-164/FR-166 declared, so no existing e2e assertion changes. | 🟠 implemented locally 2026-09-07 — `ModuleTabs` in `src/components/ui/index.jsx`, tab lists in `src/lib/module-tabs.js`, wired into the four Procurement/Commerce pages; no route, no model, no migration |
-
+| FR-172 | Knowledge source admission and corpus publication — authorized users submit immutable Text/Markdown or readable FileAsset versions through one UI/API/MCP service under a Business and optional owned Project association; durable scoped jobs run GenesisRAG17 and become searchable only after exact publication receipts are atomically merged into an immutable multi-document corpus manifest. Queries bind authorized source snapshots and citations resolve immutable lineage with current ACL/revocation checks; duplicate requests are idempotent, conflicting versions fail, corrections preserve other documents, stale completion cannot replace a newer revision, withdrawal removes serving membership, and runtime restart resumes durable work without granting users installation-operator rights. | Approved phases 0–4 under ADR-072; implementation and surface/native acceptance in progress, no production activation claim |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry

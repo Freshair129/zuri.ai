@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.29.0b |
+| **Version** | 1.30.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-08 |
 
@@ -33,6 +33,10 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
+| KnowledgeCorpus | corpusKey, scopeJson, policyJson, businessId, projectId?, generation, version | FR-172 / ADR-072: Tier 1 atomic snapshot read-set pointer; no canonical fact store |
+| KnowledgeSource | corpusId, sourceKey, kind, fileAssetId?, desiredRevision, activeIngestionId?, revokedAt | Stable source identity; correction/revocation use CAS |
+| KnowledgeIngestion | sourceId, sourceVersion, revision, contentHash, content, idempotencyKey, executionRunId?, status, claimToken?, leaseExpiresAt? | Immutable accepted Text/Markdown bytes and durable process lease; source/version is unique |
+| KnowledgeCorpusGeneration | corpusId, number, manifestJson, manifestHash, createdAt | Immutable source snapshot membership; unique corpus generation |
 | AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |
@@ -426,3 +430,7 @@ Backup schema `1.0` remains compatible. New exports carry
 new tables. Missing required arrays reject preview before restore deletes any
 data. Snapshots without that manifest return an explicit recovery-unavailable
 warning; the importer never synthesizes missing intent or occurrence history.
+
+## Knowledge admission storage — ADR-072
+
+Version diff 1.29.0b → 1.30.0b: four additive models, SQLite and Supabase migration `20260908100000_knowledge_admission`. Runtime-only RLS/grants apply in Postgres. Restore order is corpus → source → ingestion → generation. The `knowledgeAdmissionRecovery` manifest requires all four arrays; absent historical manifests produce an explicit recovery-unavailable warning. Native store files/model artifacts require their own retained snapshots and are not synthesized by Tier 1 restore. No production migration is implied.

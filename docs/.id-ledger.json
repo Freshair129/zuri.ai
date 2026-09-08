@@ -282,6 +282,7 @@
     "FR-169",
     "FR-170",
     "FR-171",
+    "FR-172",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -601,6 +602,7 @@
     "ADR-069",
     "ADR-070",
     "ADR-071",
+    "ADR-072",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3230,6 +3232,19 @@
       "statement_digest_reviewed_at": "2026-09-07",
       "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
     },
+    "FR-172": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b40eb324b84a513acbddbb17be1a07067e56ea78403793ac7f8d0e46a5a63925",
+      "history": [
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5188,7 +5203,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "7b14c6aeadbaf4f996fb1c6734e473de90fe4e6da3622a1d06ef407ae4976d3f",
+      "statement_digest": "d9c49c36bf654b109fa7403f2a783a369c44537d559d64c43d6b97fca1e76047",
       "history": [
         {
           "anchor": "knowledge ingestion governance",
@@ -5197,7 +5212,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-08",
-      "statement_digest_reason": "Preserve approved GenesisRAG17 isolated execution and extension map with the existing feature subject and requirement bundle."
+      "statement_digest_reason": "Owner approved phases 0 through 4 for knowledge source admission and receipt-backed multi-document corpus serving under ADR-072; existing feature subject retained."
     },
     "FEAT-014": {
       "family": "FEAT",
@@ -7433,6 +7448,19 @@
       "history": [
         {
           "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-072": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "02f8e0d65c91831c9306560e6f4b93f771ca30c96bb9c55b1e32320f06c503ef",
+      "history": [
+        {
+          "anchor": "knowledge admission and corpus publication",
           "since": "2026-09-08",
           "reason": "declared"
         }

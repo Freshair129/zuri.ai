@@ -1,3 +1,4 @@
+import { hasKnowledgeScopeAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import prisma from '@/lib/db'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
@@ -5,6 +6,7 @@ import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag1
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from './genesisrag17-executor'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
 
+// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — resumable source dispatch and evidence polling through MSP.
 // @req FR-110 — scoped published queries; external writes remain in Tier 4.
 // @spec ADR-050, ADR-071
@@ -14,7 +16,7 @@ function denied(message) { return Object.assign(new Error(message), { status: 40
 
 /** Reads are never cached: an empty evidence page can grow later. */
 export async function callGenesisRag17Worker({ operation, role = 'source', scope, request = {}, viewer, transport, env = process.env, credential } = {}) {
-  if (!isInstallationOperator(viewer)) throw denied('GenesisRAG17 source worker requires an installation operator')
+  if (!isInstallationOperator(viewer) && !hasKnowledgeScopeAuthority(viewer, scope, operation === 'query' ? 'query' : 'execute')) throw denied('GenesisRAG17 source worker requires scoped runtime authority')
   if (role !== 'source' || !['evidence', 'query'].includes(operation)) throw denied('Tier 1 may only submit sources, pull evidence and query through MSP')
   const normalizedScope = parseGenesisRag17Scope(scope)
   const send = transport || createMspTransportFromEnvironment(env)
@@ -35,7 +37,7 @@ export async function queryGenesisRag17({ scope, query, topK = 5, snapshotId, ..
 
 /** Retry the immutable Stage 9 outbox, retaining its original attempt/key. */
 export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, viewer, transport, env = process.env, credential, now = () => new Date() } = {}) {
-  if (!isInstallationOperator(viewer)) throw denied('GenesisRAG17 source worker requires an installation operator')
+  if (!isInstallationOperator(viewer) && !hasKnowledgeScopeAuthority(viewer, scope)) throw denied('GenesisRAG17 source worker requires scoped runtime authority')
   const normalizedScope = parseGenesisRag17Scope(scope)
   const send = transport || createMspTransportFromEnvironment(env)
   const key = resolveRuntimeCredential({ scope: normalizedScope, role: 'source', env, credential })

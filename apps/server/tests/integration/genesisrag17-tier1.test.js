@@ -15,6 +15,7 @@ import {
 // @req FR-109 — a real raw entry executes and persists ordered Tier 1 stages,
 // canonical RawExternalRecord linkage, immutable versioned lineage and exact
 // Person/Product source mentions before the Stage 9 handoff.
+// @req FR-172 — public citation lineage verifies raw and parsed content hashes.
 // @spec ADR-050, ADR-063, ADR-067, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/integration/genesisrag17-tier1.test.js
 
@@ -235,5 +236,18 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
     expect(stage1).toMatchObject({ outcome: 'FAILED', errorCount: 1, recordsQuarantined: 0 })
     const failedStep = await prisma.pipelineStep.findFirst({ where: { runId: run.id, pipelineStageId: 'DPS-KI-INGEST' } })
     expect(failedStep).toMatchObject({ status: 'FAILED', actualCount: 1, insertedCount: 0, failedCount: 1 })
+  })
+
+  it('rejects changed raw or parsed hashes when resolving a public citation lineage', async () => {
+    const result = await ingestGenesisRag17Raw(input({ sourceId: `synthetic://ki17/hash/${randomUUID()}` }), { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+    const reference = { scope: input().scope, sourceId: result.source.sourceId, documentId: result.source.documentId, version: result.source.version, rawArtifactId: result.source.rawArtifactId, parsedArtifactId: result.source.parsedArtifactId, chunkId: result.chunks[0].chunkId }
+    expect(hashGenesisRag17Text(result.chunks[0].text)).not.toBe(result.source.contentHash)
+    for (const [model, id] of [['knowledgeRawArtifact', reference.rawArtifactId], ['knowledgeParsedArtifact', reference.parsedArtifactId]]) {
+      const original = await prisma[model].findUnique({ where: { id } })
+      try {
+        await prisma[model].update({ where: { id }, data: { contentHash: '0'.repeat(64) } })
+        await expect(resolveGenesisRag17RawLineage(reference, { db: prisma })).rejects.toMatchObject({ code: 'GENESISRAG17_LINEAGE_BROKEN' })
+      } finally { await prisma[model].update({ where: { id }, data: { contentHash: original.contentHash } }) }
+    }
   })
 })

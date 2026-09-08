@@ -1,3 +1,4 @@
+import { hasKnowledgeScopeAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { isDeepStrictEqual } from 'node:util'
 import prisma from '@/lib/db'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
@@ -37,6 +38,7 @@ import {
   parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
 
+// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — one real raw entry produces one document/run, immutable raw
 // -> parsed -> chunk lineage, exact Stage 1 evidence and one Stage 9 batch per
 // materialized attempt.
@@ -829,6 +831,7 @@ export async function resolveGenesisRag17RawLineage({
   const lineageRepository = createGenesisRag17LineageRepository(db, normalizedScope)
   const raw = await lineageRepository.findRawById(rawArtifactId)
   if (!raw) throw serviceError(404, 'GenesisRAG17 raw artifact is outside the requested scope or missing', 'GENESISRAG17_LINEAGE_NOT_FOUND')
+  if (raw.contentHash !== hashGenesisRag17Text(raw.content)) throw serviceError(409, 'GenesisRAG17 raw artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   if ((sourceId && raw.sourceId !== sourceId) || (documentId && raw.documentId !== documentId) || (version && raw.version !== version)) {
     throw serviceError(404, 'GenesisRAG17 raw artifact does not match the requested source version', 'GENESISRAG17_LINEAGE_NOT_FOUND')
   }
@@ -838,6 +841,15 @@ export async function resolveGenesisRag17RawLineage({
   if (!canonicalRaw || canonicalRaw.artifactId !== raw.id || payloadText(canonicalRaw) !== raw.content) throw serviceError(409, 'GenesisRAG17 canonical RawExternalRecord link is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   const parsed = await lineageRepository.findParsedById(parsedArtifactId)
   if (!parsed || parsed.content !== raw.content || parsed.documentId !== raw.documentId) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
+  let expectedParsedHash
+  try {
+    expectedParsedHash = parsedArtifactContentHash({
+      parserVersion: parsed.parserVersion, documentId: parsed.documentId, rawArtifactId: parsed.rawArtifactId,
+      contentHash: hashGenesisRag17Text(parsed.content), structure: JSON.parse(parsed.structureJson),
+      textBlocks: JSON.parse(parsed.textBlocksJson), tables: JSON.parse(parsed.tablesJson), metadata: JSON.parse(parsed.metadataJson),
+    })
+  } catch { throw serviceError(409, 'GenesisRAG17 parsed artifact metadata is invalid', 'GENESISRAG17_LINEAGE_BROKEN') }
+  if (parsed.contentHash !== expectedParsedHash) throw serviceError(409, 'GenesisRAG17 parsed artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   if (parsed.rawArtifactId !== raw.id) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
   const chunk = await lineageRepository.findChunkById(chunkId)
   if (!chunk || chunk.endOffset < chunk.startOffset || raw.content.slice(chunk.startOffset, chunk.endOffset) !== chunk.text || chunk.contentHash !== hashGenesisRag17Text(chunk.text)) throw serviceError(409, 'GenesisRAG17 chunk does not match its immutable source substring', 'GENESISRAG17_LINEAGE_BROKEN')
@@ -975,8 +987,9 @@ export async function ingestGenesisRag17Raw(input, {
   recognizer,
   faultInjector,
   afterLocalStage,
+  onRunCreated,
 } = {}) {
-  if (!isInstallationOperator(viewer)) throw serviceError(403, 'GenesisRAG17 raw ingestion requires an installation operator')
+  if (!isInstallationOperator(viewer) && !hasKnowledgeScopeAuthority(viewer, input?.scope)) throw serviceError(403, 'GenesisRAG17 raw ingestion requires scoped runtime authority')
   if (recognizer !== undefined && recognizer !== null) {
     throw serviceError(400, 'GenesisRAG17 custom recognizers require a separately versioned durable extension', 'GENESISRAG17_CUSTOM_RECOGNIZER_UNSUPPORTED')
   }
@@ -1003,6 +1016,7 @@ export async function ingestGenesisRag17Raw(input, {
           identity,
         })
         await ensureIngestionIntent(createGenesisRag17LineageRepository(transactionDb, value.scope), value, identity, run, rawArtifactId, now)
+        await onRunCreated?.({ db: transactionDb, run, rawArtifactId, parsedArtifactId })
       },
     })
   const { run, steps, byStage } = await loadRunAndSteps(db, runResult.run.executionRunId)

@@ -1,3 +1,4 @@
+import { hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import prisma from '@/lib/db'
 import { assertGenesisRag17Publication } from './genesisrag17-publication'
 import { isInstallationOperator, isSotDataPlaneFor } from '@/modules/identity/viewer-authority'
@@ -23,6 +24,7 @@ import {
 } from './pipeline-tracking-contract'
 import { createPipelineRun, getPipelineMonitor, recordPipelineEvent } from './pipeline-tracking-service'
 
+// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — the ledger-writing wiring: something calls FR-118's stage
 // composition and writes its result onto the FR-071 ledger, bound through docId;
 // and the monitor half — one `pipeline_job_id` resolves the run, its seventeen
@@ -441,7 +443,7 @@ async function loadKnowledgeRun(db, executionRunId) {
 // writer (`recordPipelineEvent`); it is repeated here so the refusal names
 // this surface and happens before any step lookup leaks a step's existence.
 function requireReporter(viewer, run) {
-  if (isInstallationOperator(viewer) || isSotDataPlaneFor(viewer, run.tenantId)) return
+  if (isInstallationOperator(viewer) || hasKnowledgeRunAuthority(viewer, run) || isSotDataPlaneFor(viewer, run.tenantId)) return
   throw serviceError(403, 'Knowledge stage reporting requires an installation operator or the data-plane key of this run’s Tenant (ADR-067 D1)')
 }
 

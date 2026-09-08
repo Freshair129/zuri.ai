@@ -146,6 +146,8 @@ const SNAPSHOT_MODELS = [
   // evidence and publication proof. Intent and occurrence rows deliberately
   // carry no foreign keys to pipeline data, so this order is a restore/delete
   // convention rather than a database constraint.
+  // @req FR-172 — restore corpus parents before sources, jobs and immutable generations.
+  'knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration',
   'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
   'genesisRag17IngestionIntent', 'genesisRag17SourceMention',
   'genesisRag17Batch', 'genesisRag17StageEvidence', 'genesisRag17PublicationReceipt', 'genesisRag17EvidenceCursor',
@@ -233,6 +235,17 @@ function contentManifest(snapshot) {
   return Array.isArray(snapshot?.fileContentManifest) ? snapshot.fileContentManifest : []
 }
 
+const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration']
+
+function admissionRecoveryManifest(snapshot) {
+  const manifest = snapshot?.knowledgeAdmissionRecovery
+  if (manifest === undefined) return { errors: [], warnings: ['KNOWLEDGE_ADMISSION_RECOVERY_UNAVAILABLE: snapshot has no admission recovery manifest'] }
+  const errors = []
+  if (manifest?.schemaVersion !== 'knowledge-admission-recovery.v1' || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ADMISSION_TABLES)) errors.push('Invalid knowledge admission recovery manifest')
+  for (const table of KNOWLEDGE_ADMISSION_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge admission recovery snapshot is missing required table: ${table}`)
+  return { errors, warnings: [] }
+}
+
 function recoveryManifest(snapshot) {
   const manifest = snapshot?.genesisRag17Recovery
   if (manifest === undefined) {
@@ -276,6 +289,7 @@ export async function exportSnapshot({
       schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
     },
+    knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
     tables: {},
   }
   for (const model of SNAPSHOT_MODELS) {
@@ -328,6 +342,9 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
     if (snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) errors.push(`Unsupported snapshot schemaVersion: ${snapshot.schemaVersion} (expected ${SNAPSHOT_SCHEMA_VERSION})`)
     if (!snapshot.tables || typeof snapshot.tables !== 'object') errors.push('Snapshot has no tables')
     const manifest = recoveryManifest(snapshot)
+    const admission = admissionRecoveryManifest(snapshot)
+    errors.push(...admission.errors)
+    warnings.push(...admission.warnings)
     errors.push(...manifest.errors)
     warnings = manifest.warnings
     recovery = manifest.recovery

@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 347,
+    "docs": 351,
     "routes": 201,
-    "test_files": 553
+    "test_files": 555
   },
   "summary": {
     "critical": 0,
-    "warning": 0,
+    "warning": 1,
     "info": 22,
-    "overall": "PASS"
+    "overall": "WARN"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -147,7 +147,16 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "W13",
+      "severity": "warning",
+      "check": "doc-code-symlink",
+      "title": "Annotations pointing at unknown nodes",
+      "details": "9 dangling edge(s)",
+      "files": [],
+      "action": "Fix the @req/@tested target"
+    },
+    {
+      "id": "I14",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -158,7 +167,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I14",
+      "id": "I15",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -169,18 +178,18 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I15",
+      "id": "I16",
       "severity": "info",
       "check": "id-stability",
-      "title": "525 id(s) pinned across 10 families",
-      "details": "ADR 71 · BR 25 · FEAT 24 · FR 171 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 525",
+      "title": "527 id(s) pinned across 10 families",
+      "details": "ADR 72 · BR 25 · FEAT 24 · FR 172 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 527",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I16",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -191,7 +200,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I17",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -202,7 +211,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -213,10 +222,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 347 document(s)",
+      "title": "table integrity checked in 351 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -224,7 +233,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I20",
+      "id": "I21",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -236,19 +245,19 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I21",
+      "id": "I22",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 76 file(s) that write audit events",
+      "title": "audit entityType checked in 77 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I22",
+      "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1761 column(s) across 131 model(s) against 60 migration(s)",
+      "title": "schema-migration drift checked: 1820 column(s) across 135 model(s) against 61 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

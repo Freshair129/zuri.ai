@@ -1,3 +1,4 @@
+import { hasKnowledgeScopeAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import prisma from '@/lib/db'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { recordPipelineEvent } from './pipeline-tracking-service'
@@ -15,6 +16,7 @@ import {
 import { callGenesisRag17Worker } from './genesisrag17-worker'
 import { persistGenesisRag17PublicationReceipt } from './genesisrag17-publication'
 
+// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-110 — Tier 1 pulls immutable Stage 9–17 evidence through MSP,
 // applies it to the exact run/step/attempt identity and advances a per-run
 // cursor only after the local evidence and ledger writes commit.
@@ -238,7 +240,7 @@ export async function pullGenesisRag17Evidence({ schemaVersion, scope, runId, af
   credential = null,
   now = () => new Date(),
 } = {}) {
-  if (!isInstallationOperator(viewer)) throw serviceError(403, 'GenesisRAG17 evidence pull requires an installation operator')
+  if (!isInstallationOperator(viewer) && !hasKnowledgeScopeAuthority(viewer, scope)) throw serviceError(403, 'GenesisRAG17 evidence pull requires scoped runtime authority')
   if (schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION) throw serviceError(400, 'GenesisRAG17 evidence pull requires schemaVersion genesisrag17.v1', 'GENESISRAG17_SCHEMA_REQUIRED')
   const normalizedScope = parseGenesisRag17Scope(scope)
   if (typeof runId !== 'string' || !runId.trim()) throw serviceError(400, 'GenesisRAG17 evidence pull requires runId', 'GENESISRAG17_RUN_ID_REQUIRED')

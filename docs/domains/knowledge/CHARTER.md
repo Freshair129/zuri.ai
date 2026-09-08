@@ -1,10 +1,14 @@
 ---
 domain: knowledge
-version: "1.2.0b"
+version: "1.3.0b"
 status: beta
-last_update: "2026-09-08T04:35:00+07:00,RWANG"
+last_update: "2026-09-08T17:30:00+07:00,RWANG"
 module: src/modules/knowledge
 owns_models:
+  - KnowledgeCorpus
+  - KnowledgeSource
+  - KnowledgeIngestion
+  - KnowledgeCorpusGeneration
   - KnowledgeRawArtifact
   - KnowledgeParsedArtifact
   - KnowledgeChunk
@@ -37,6 +41,8 @@ operational data in its owning domain). Architecture spec §16–19.
 domain is GKS. The Genesis Knowledge System, MSP and GenesisBlockDB are
 external systems with their own repositories and are never zuri-ai domains
 (ADR-063 D3–D4); this lane holds only the Tier 1 contracts that face them.
+
+[ADR-072](../../decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) adds the authorized Text/Markdown admission queue and Tier 1 corpus read set. Each source still traverses its own 17-stage run; a corpus manifest joins independently verified snapshots without asserting cross-document native graph traversal.
 
 ## Boundaries
 
@@ -265,5 +271,6 @@ ingestion lane above, never here.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.2.0b → 1.3.0b | Own four admission/corpus models and the ADR-072 snapshot read-set boundary | Additive phases 0–4; no production migration |
 | 1.1.0b → 1.2.0b | Declare source intent and occurrence ownership for approved audit remediation | Additive isolated persistence and recovery; no production migration |
 | unversioned → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

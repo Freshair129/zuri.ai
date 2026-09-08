@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-08T04:30:44.711Z",
+  "generatedAt": "2026-09-08T11:30:38.697Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,8 +39,8 @@
     "domainCount": 14,
     "featureCount": 126,
     "readyFeatureCount": 104,
-    "requirementCount": 171,
-    "verifiedRequirementCount": 161,
+    "requirementCount": 172,
+    "verifiedRequirementCount": 162,
     "progressPercent": 94.2,
     "gapCount": 22,
     "gaps": [
@@ -1832,6 +1832,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 17
+        },
+        {
+          "id": "FR-172",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -2274,6 +2281,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-172",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -2324,8 +2338,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 9,
-            "present": 9
+            "models": 13,
+            "present": 13
           }
         },
         "authorization": {
@@ -2363,6 +2377,7 @@
         "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
+        "docs/domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2396,8 +2411,8 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 9,
-        "featureNotes": 13
+        "ownedModels": 13,
+        "featureNotes": 14
       },
       "featureIds": [
         "FEAT-013",
@@ -2416,7 +2431,7 @@
       ],
       "featureCount": 13,
       "readyFeatureCount": 11,
-      "progressPercent": 93.3
+      "progressPercent": 93.8
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3983,6 +3998,13 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 18
+        },
+        {
+          "id": "FR-172",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -5226,13 +5248,14 @@
     },
     {
       "id": "FEAT-013",
-      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-071; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-071; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-109",
         "FR-110",
-        "FR-111"
+        "FR-111",
+        "FR-172"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
@@ -5268,6 +5291,13 @@
           "progressPercent": 100,
           "codeCount": 2,
           "testCount": 7
+        },
+        {
+          "id": "FR-172",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -5277,12 +5307,16 @@
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
         "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
+        "apps/server/src/instrumentation.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
         "apps/server/src/modules/knowledge/genesisrag17-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
+        "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
+        "apps/server/src/modules/knowledge/knowledge-repository.js",
+        "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -5310,6 +5344,7 @@
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-admission-backup.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -5331,6 +5366,7 @@
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",

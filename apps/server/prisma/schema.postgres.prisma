@@ -2213,6 +2213,103 @@ model GenesisRag17EvidenceCursor {
   @@index([tenantId])
 }
 
+// @req FR-172 — authorized source admission and immutable corpus snapshot read sets.
+// @spec ADR-072, SEC-001, SEC-008
+// @tested tests/integration/knowledge-admission.test.js, tests/integration/knowledge-corpus.test.js
+model KnowledgeCorpus {
+  id          String   @id @default(uuid())
+  corpusKey   String   @unique
+  portfolioId String
+  tenantId    String
+  businessId  String
+  projectId   String?
+  workspaceId String   @default("")
+  scopeJson   String
+  policyJson  String
+  status      String   @default("ACTIVE")
+  generation  Int      @default(0)
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  sources     KnowledgeSource[]
+  ingestions  KnowledgeIngestion[]
+  generations KnowledgeCorpusGeneration[]
+
+  @@index([tenantId, businessId, projectId])
+}
+
+model KnowledgeSource {
+  id                String   @id @default(uuid())
+  corpusId          String
+  sourceKey         String
+  kind              String
+  title             String
+  fileAssetId       String?
+  desiredRevision   Int      @default(0)
+  activeIngestionId String?
+  version           Int      @default(1)
+  revokedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  corpus     KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  ingestions KnowledgeIngestion[]
+
+  @@unique([corpusId, sourceKey])
+  @@index([fileAssetId])
+}
+
+model KnowledgeIngestion {
+  id                 String   @id @default(uuid())
+  corpusId           String
+  sourceId           String
+  revision           Int
+  sourceVersion      String
+  contentHash        String
+  content            String
+  sourceMetaJson     String   @default("{}")
+  idempotencyKey     String   @unique
+  requestHash        String
+  submittedById      String?
+  status             String   @default("QUEUED")
+  executionRunId     String?  @unique
+  rawArtifactId      String?
+  parsedArtifactId   String?
+  snapshotId         String?
+  snapshotGeneration String?
+  receiptHash        String?
+  claimToken         String?
+  leaseExpiresAt     DateTime?
+  attempts           Int      @default(0)
+  failureCode        String?
+  version            Int      @default(1)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  source KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceId, sourceVersion])
+  @@index([status, leaseExpiresAt, createdAt])
+  @@index([corpusId, createdAt])
+}
+
+model KnowledgeCorpusGeneration {
+  id           String   @id @default(uuid())
+  corpusId     String
+  number       Int
+  manifestJson String
+  manifestHash String
+  createdAt    DateTime @default(now())
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+
+  @@unique([corpusId, number])
+}
+
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.

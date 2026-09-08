@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.1.0b"
+version: "1.3.0b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-08T04:00:00+07:00,RWANG"
+last_update: "2026-09-08T12:00:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-071
@@ -18,9 +18,40 @@ relations:
 
 # GenesisRAG17 — execution flow and extension map
 
+สำหรับจุดเริ่มจาก UI/API/MCP, FileAsset/Project/LINE และช่องว่างก่อนเข้าสู่ pipeline อ่าน [surface inventory และ detailed user journeys](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) ซึ่งแยก endpoint ที่มีจริงออกจาก user-facing admission และ sharing flow ที่ยังต้องเชื่อม ระบบทดสอบครบ 17 stages ไม่ได้หมายความว่าทุกหน้าจอและ connector เชื่อมแล้ว
+
 เริ่มจากตารางเลือก stage ด้านล่างเมื่อจะเพิ่มความสามารถใหม่ แล้วอ่าน contract ของ stage ก่อนแก้ implementation เอกสารนี้อธิบาย **ระบบทดสอบที่ทำแล้ว** ตาม ADR-071; [spec §§1–42](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) ยังเก็บข้อกำหนดผลิตภัณฑ์ที่กว้างกว่าไว้ โดยแต่ละ stage มีหมายเหตุขอบเขตที่ทำจริง
 
 ขอบเขตปัจจุบัน: synthetic text/Markdown, หนึ่งเอกสารต่อ run, ฐานข้อมูลแยก, scope `private`, rule-based extraction, local CPU embeddings และ worker loop ที่เริ่ม/หยุดและ resume ได้ ไม่มี production deployment, LLM extraction, UI ใหม่ หรือ OS scheduled task ในงานนี้ การเพิ่ม capability ในตารางคือจุดที่ควรออกแบบต่อ ไม่ใช่ plugin/API ที่มีอยู่แล้วทุกข้อ
+
+## Approved admission flow — FR-172 / ADR-072
+
+The phases 0–4 implementation contract is [frozen here](plans/KNOWLEDGE-ADMISSION-CONTRACT.md). Actual surface/native acceptance is a separate gate from the historical raw-entrypoint proof.
+
+```mermaid
+flowchart TD
+  UI["Knowledge text form / Files / Project Files"] --> A["Admission API — current Business/Project/File ACL"]
+  API["HTTP / MCP — authenticated caller"] --> A
+  A --> Q["Immutable source version + queued ingestion"]
+  Q --> R["Boot-owned loop claims durable job"]
+  R --> S1["Stage 1: canonical RawExternalRecord"]
+  S1 --> S28["Stages 2–8: parse, provenance, normalize, classify, dedup, chunk, mentions"]
+  S28 --> S914["MSP → GKS Stages 9–14"]
+  S914 --> W["Tier 4 writes Stage 13 and Stages 15–16"]
+  W --> G["Stage 17 GKS gate → worker atomic publication → receipt"]
+  G --> C["Tier 1 corpus manifest CAS: retain other document snapshots"]
+  C --> K["Query pins one corpus manifest; MSP reads each exact snapshot"]
+  K --> L["RRF ranks + validated lineage + current ACL/revocation check"]
+```
+
+| Extension / action | Entry boundary | Required behavior |
+|---|---|---|
+| Text/Markdown form or new source adapter | Before Stage 1 | Authorize target, freeze bytes/hash/version, enqueue; never synthesize stage results |
+| Existing readable FileAsset | Before Stage 1 | Read authorized server-side bytes; Project is Tier 1 association, not an extra wire scope field |
+| Correct a document | New source version through Stages 1–17 | Earlier snapshot remains queryable until new receipt; merge only that source into the corpus |
+| Publish a multi-document corpus | After each verified Stage 17 receipt | Immutable Tier 1 read set of independently gated snapshots; not one aggregate native graph/gate |
+| Withdraw source / delete its live file or project | Query/citation authorization and corpus membership | Deny current serving, including late query responses and old citation references; no invented Stage 18 |
+| Add OCR, connector or wider sharing | Later approved adapter/policy contract | Not enabled by this phase and must declare its stage integration explicitly |
 
 ## เจ้าของและขอบเขตการเรียก
 
@@ -193,5 +224,7 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0b | 2026-09-08 | beta | Approved admission, durable queue, corpus read-set and correction/revocation extension map | base dfdbaf11 | RWANG |
+| 1.2.0b | 2026-09-08 | beta | Link audited endpoint/surface inventory and user journeys; clarify unconnected UI and connector boundaries | base dfdbaf11 | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Audit remediation: pre-stage intent, exact transaction retry, PASS-only publication and safe pointer replacement | working-tree | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Actual 17-stage sequence, owner/input/output/terminal contracts, extension routing and proof map | base b64b46df | RWANG |
