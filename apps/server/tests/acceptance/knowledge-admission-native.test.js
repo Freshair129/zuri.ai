@@ -26,6 +26,11 @@ const serverRoot = path.resolve(testDirectory, '../..')
 const reportPath = path.resolve(serverRoot, '../../.brain/reports/knowledge-admission-native.json')
 const reportSchemaVersion = 'knowledge-admission-native.v1'
 const fixtureHash = createHash('sha256').update(JSON.stringify(fixture)).digest('hex')
+const correctionFixture = {
+  ...fixture,
+  fixtureVersion: 'ki17-corpus-v2',
+  queries: fixture.correction.queries,
+}
 let mainTestSucceeded = false
 let fileTestSucceeded = false
 let publishedJobs = []
@@ -135,6 +140,36 @@ function nativeBenchmark(receipt) {
   }
 }
 
+function corpusManifest(row, label) {
+  const manifest = reportJson(row.manifestJson, label)
+  return {
+    id: row.id,
+    corpusId: row.corpusId,
+    number: row.number,
+    manifestHash: row.manifestHash,
+    manifest: {
+      schemaVersion: manifest.schemaVersion,
+      corpusId: manifest.corpusId,
+      generation: manifest.generation,
+      entries: manifest.entries.map((entry) => ({
+        sourceId: entry.sourceId,
+        ingestionId: entry.ingestionId,
+        sourceVersion: entry.sourceVersion,
+        revision: entry.revision,
+        executionRunId: entry.executionRunId,
+        snapshotId: entry.snapshotId,
+        generation: entry.generation,
+        scope: reportScope(entry.scope),
+        receiptHash: entry.receiptHash,
+        rawArtifactId: entry.rawArtifactId,
+        parsedArtifactId: entry.parsedArtifactId,
+        contentHash: entry.contentHash,
+        fileAssetId: entry.fileAssetId ?? null,
+      })),
+    },
+  }
+}
+
 async function publishedJobEvidence(job, pointer, state) {
   const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: job.executionRunId } })
   if (!run || run.status !== 'SUCCEEDED') throw new Error(`Report requires a succeeded run for ${job.executionRunId}`)
@@ -192,6 +227,10 @@ async function exportKnowledgeAdmissionReport() {
   const jobs = []
   for (const job of publishedJobs) jobs.push(await publishedJobEvidence(job, pointer, state))
   const snapshots = pointer.publishedSnapshotIds.map((snapshotId) => nativeSnapshot(readNativeFile(path.join(root, 'snapshots', `${snapshotId}.json`), `native snapshot ${snapshotId}`)))
+  const corpus = await prisma.knowledgeCorpus.findFirst({ where: { businessId: acceptanceScope.businessId, projectId: null, deletedAt: null } })
+  if (!corpus) throw new Error('Report cannot find the admitted knowledge corpus')
+  const corpusGenerations = await prisma.knowledgeCorpusGeneration.findMany({ where: { corpusId: corpus.id }, orderBy: { number: 'asc' } })
+  if (!corpusGenerations.length) throw new Error('Report cannot find corpus generations')
   const modelRevisions = new Set(jobs.map((job) => job.publicationReceipt.parsed.modelRevision))
   if (modelRevisions.size !== 1) throw new Error('Report found multiple model revisions')
   const report = {
@@ -201,7 +240,11 @@ async function exportKnowledgeAdmissionReport() {
     nodeVersion: process.version, platform: process.platform, architecture: process.arch,
     modelRevision: [...modelRevisions][0], scope: reportScope(acceptanceScope),
     scenariosPassed: ['browser-text', 'mcp-text', 'http-correction', 'browser-managed-file', 'binary-file-rejected'],
-    manifests: { pointer: nativePointer(pointer), snapshots }, jobs,
+    manifests: {
+      corpus: { id: corpus.id, generation: corpus.generation, version: corpus.version, generations: corpusGenerations.map((row) => corpusManifest(row, `corpus generation ${row.number}`)) },
+      native: { pointer: nativePointer(pointer), snapshots },
+    },
+    jobs,
   }
   const reportDirectory = path.dirname(reportPath)
   mkdirSync(reportDirectory, { recursive: true })
@@ -384,6 +427,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
   let documentB
   let correctionA
   let modelRevision
+  let mcpSessionId
 
   beforeAll(async () => {
     for (const key of ['KI17_MSP_ROOT', 'KI17_GKS_ROOT', 'KI17_GENESIS_ROOT', 'KI17_MODEL_DIR']) {
@@ -456,9 +500,9 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     // durable before this real process restart; the resumed process receives
     // the native URL and claims the same immutable jobs.
     await harness.restart({ activateNative: true })
+    mcpSessionId = await openMcpSession(api)
     const publishedA = await waitForAdmission(api, browserId)
     const publishedB = await waitForAdmission(api, documentB.id)
-    const mcpSession = await openMcpSession(api)
     expect(publishedA.status).toBe('PUBLISHED')
     expect(publishedB.status).toBe('PUBLISHED')
     expect(publishedA.executionRunId).toBeTruthy()
@@ -473,7 +517,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(nativeB.receiptRow.modelRevision).toBe(modelRevision)
 
     const initialQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
-    const initialMcpQuery = await callMcp(api, mcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-initial')
+    const initialMcpQuery = await callMcp(api, mcpSessionId, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-initial')
     expect(initialQuery.body.ranking).toBe('rrf-k60')
     expect(initialMcpQuery.ranking).toBe('rrf-k60')
     expect(initialQuery.body.corpusId).toBe(publishedA.corpus.id)
@@ -485,13 +529,16 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(oldCitation).toMatch(/^kc1\./)
     const oldCitationResponse = await api.get(`/api/knowledge/citations/${encodeURIComponent(oldCitation)}`)
     const oldCitationBody = await requireOk(oldCitationResponse, 'old citation before correction')
-    const oldCitationMcpBody = await callMcp(api, mcpSession, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-initial')
+    const oldCitationMcpBody = await callMcp(api, mcpSessionId, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-initial')
     expect(oldCitationBody.sourceVersion).toBe('1')
     expect(oldCitationBody.text).toBe('Alice works for Acme Ltd.')
     expect(oldCitationMcpBody.sourceVersion).toBe('1')
     expect(oldCitationMcpBody.text).toBe('Alice works for Acme Ltd.')
 
     await harness.deactivateNativeWorker()
+    // A Next restart creates a fresh process-local MCP registry. Establish a
+    // new protocol session before admitting the correction.
+    mcpSessionId = await openMcpSession(api)
     const correctedText = fixture.text.replace(...fixture.correction.replace)
     const correctionPayload = {
       businessId: business.id,
@@ -501,18 +548,13 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     correctionA = await admitHttp(api, correctionPayload, 'correction admission')
     correctionA.id = admissionId(correctionA.body)
     expect(correctionA.body.source?.desiredRevision).toBeGreaterThan(publishedA.source.desiredRevision)
-    const correctionFixture = {
-      ...fixture,
-      fixtureVersion: 'ki17-corpus-v2',
-      queries: fixture.correction.queries,
-    }
     await harness.restartNative({ benchmarkFixture: correctionFixture })
     // A boot tick wakes the durable correction queue; the native process is
     // restarted with the correction benchmark while its store stays intact,
     // so this tests queue execution separately from initial recovery.
     await harness.restart({ activateNative: true })
+    mcpSessionId = await openMcpSession(api)
     const publishedCorrection = await waitForAdmission(api, correctionA.id)
-    const correctedMcpSession = await openMcpSession(api)
     expect(publishedCorrection.status).toBe('PUBLISHED')
     expect(publishedCorrection.source.sourceKey).toBe('ui-doc-a')
     expect(publishedCorrection.sourceVersion).toBe('2')
@@ -523,7 +565,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(publishedB.snapshotId).toBe((await readAdmission(api, documentB.id)).body.snapshotId)
 
     const correctedQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
-    const correctedMcpQuery = await callMcp(api, correctedMcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-corrected')
+    const correctedMcpQuery = await callMcp(api, mcpSessionId, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-corrected')
     expect(correctedQuery.body.corpusGeneration).toBeGreaterThan(initialQuery.body.corpusGeneration)
     expect(correctedMcpQuery.corpusGeneration).toBe(correctedQuery.body.corpusGeneration)
     expect(correctedQuery.body.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
@@ -535,7 +577,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
 
     const oldCitationAfterCorrection = await api.get(`/api/knowledge/citations/${encodeURIComponent(oldCitation)}`)
     const oldCitationAfterBody = await requireOk(oldCitationAfterCorrection, 'historical citation after correction')
-    const oldCitationAfterMcpBody = await callMcp(api, correctedMcpSession, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-historical')
+    const oldCitationAfterMcpBody = await callMcp(api, mcpSessionId, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-historical')
     expect(oldCitationAfterBody.sourceVersion).toBe('1')
     expect(oldCitationAfterBody.text).toBe('Alice works for Acme Ltd.')
     expect(oldCitationAfterMcpBody.sourceVersion).toBe('1')
@@ -547,7 +589,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(withdrawnBody.status).toBe('WITHDRAWN')
     expect(withdrawnBody.source.revokedAt).toBeTruthy()
     const withdrawnQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
-    const withdrawnMcpQuery = await callMcp(api, correctedMcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-withdrawn')
+    const withdrawnMcpQuery = await callMcp(api, mcpSessionId, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-withdrawn')
     expect(withdrawnQuery.body.results.some((row) => row.sourceId === publishedB.source.id)).toBe(false)
     expect(withdrawnQuery.body.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
     expect(withdrawnMcpQuery.results.some((row) => row.sourceId === publishedB.source.id)).toBe(false)
@@ -573,11 +615,11 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     if (!mainTestSucceeded) {
       throw new Error('Managed FileAsset acceptance requires the preceding browser/MCP/HTTP native recovery test to pass; benchmark state is not independently established')
     }
-    // Rebind the native worker to the baseline fixture before the second test.
-    // This removes any dependence on the first test's correction benchmark and
-    // fails explicitly if the preceding test did not establish its state.
+    // Rebind the native worker to the fixture matching this file's corrected
+    // content before the second test. The guard above makes the dependency
+    // explicit if the preceding test did not establish a valid native state.
     await harness.deactivateNativeWorker()
-    await harness.restartNative({ benchmarkFixture: fixture })
+    await harness.restartNative({ benchmarkFixture: correctionFixture })
     await harness.restart({ activateNative: true })
     const deviceKey = `ki17-native-${Date.now().toString(36)}`
     const mountRoot = path.join(harness.tempDir, 'managed-file-mount')
