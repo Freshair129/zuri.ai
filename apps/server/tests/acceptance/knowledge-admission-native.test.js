@@ -1,4 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
 import path from 'node:path'
 import prisma from '@/lib/db'
@@ -18,6 +21,17 @@ import {
 // @tested tests/acceptance/knowledge-admission-native.test.js
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const testDirectory = path.dirname(fileURLToPath(import.meta.url))
+const serverRoot = path.resolve(testDirectory, '../..')
+const reportPath = path.resolve(serverRoot, '../../.brain/reports/knowledge-admission-native.json')
+const reportSchemaVersion = 'knowledge-admission-native.v1'
+const fixtureHash = createHash('sha256').update(JSON.stringify(fixture)).digest('hex')
+let mainTestSucceeded = false
+let fileTestSucceeded = false
+let publishedJobs = []
+let invalidFileAdmissionStatus
+let acceptanceScope
+let reportHarness
 
 function parseBody(response, label) {
   return response.text().then((text) => {
@@ -39,6 +53,167 @@ function admissionId(body) {
 
 function statusOf(body) {
   return body?.status || body?.ingestion?.status || body?.job?.status || null
+}
+
+function reportJson(value, label) {
+  try { return typeof value === 'string' ? JSON.parse(value) : value } catch (error) {
+    throw new Error(`${label} is not valid JSON: ${error.message}`)
+  }
+}
+
+function reportScope(value) {
+  return Object.fromEntries(['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility']
+    .map((key) => [key, value?.[key] ?? null]))
+}
+
+function reportDate(value) {
+  return value instanceof Date ? value.toISOString() : value
+}
+
+function rememberPublishedJob({ label, ingress, published }) {
+  if (typeof published.executionRunId !== 'string' || !published.executionRunId) throw new Error(`${label} did not return a durable executionRunId`)
+  publishedJobs.push({
+    label,
+    ingress,
+    admissionId: published.id,
+    executionRunId: published.executionRunId,
+    snapshotId: published.snapshotId,
+    sourceId: published.source?.id,
+    sourceVersion: published.sourceVersion,
+  })
+}
+
+function nativeStoreRoot() {
+  if (!reportHarness?.tempDir) throw new Error('Native acceptance report requires the live disposable worker store')
+  return path.join(reportHarness.tempDir, 'genesis-store', 'genesisrag17')
+}
+
+function readNativeFile(filename, label) {
+  if (!existsSync(filename)) throw new Error(`${label} is missing: ${filename}`)
+  return reportJson(readFileSync(filename, 'utf8'), label)
+}
+
+function nativePointer(pointer) {
+  return {
+    schemaVersion: pointer.schemaVersion,
+    scope: reportScope(pointer.scope),
+    snapshotId: pointer.snapshotId,
+    generation: pointer.generation,
+    decisionId: pointer.decisionId,
+    decisionHash: pointer.decisionHash,
+    receiptHash: pointer.receiptHash,
+    pointerHash: pointer.pointerHash,
+    publishedSnapshotIds: pointer.publishedSnapshotIds,
+  }
+}
+
+function nativeSnapshot(snapshot) {
+  return {
+    schemaVersion: snapshot.schemaVersion,
+    scope: reportScope(snapshot.scope),
+    snapshotId: snapshot.snapshotId,
+    generation: snapshot.generation,
+    vectorCollection: snapshot.vectorCollection,
+    decisionId: snapshot.decisionId,
+    decisionHash: snapshot.decisionHash,
+    receiptHash: snapshot.receiptHash,
+    createdAt: reportDate(snapshot.createdAt),
+    sourceIds: snapshot.sourceIds,
+    chunkIds: snapshot.chunkIds,
+  }
+}
+
+function nativeBenchmark(receipt) {
+  if (!receipt?.benchmark) return null
+  return {
+    fixtureVersion: receipt.benchmark.fixtureVersion,
+    queryCount: receipt.benchmark.queryCount,
+    recallAt5: receipt.benchmark.recallAt5,
+    mrr: receipt.benchmark.mrr,
+    citationCorrectness: receipt.benchmark.citationCorrectness,
+    crossTenantLeaks: receipt.benchmark.crossTenantLeaks,
+  }
+}
+
+async function publishedJobEvidence(job, pointer, state) {
+  const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: job.executionRunId } })
+  if (!run || run.status !== 'SUCCEEDED') throw new Error(`Report requires a succeeded run for ${job.executionRunId}`)
+  const steps = await prisma.pipelineStep.findMany({ where: { runId: run.id }, orderBy: { sequence: 'asc' } })
+  if (steps.length !== 17 || steps.some((step) => step.status !== 'SUCCEEDED')) throw new Error(`Report requires all 17 succeeded steps for ${job.executionRunId}`)
+  const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: job.executionRunId }, orderBy: { stageNumber: 'asc' } })
+  if (evidence.length !== 17 || evidence.some((row, index) => row.stageNumber !== index + 1 || row.outcome !== 'SUCCEEDED')) throw new Error(`Report requires ordered all-17 evidence for ${job.executionRunId}`)
+  const receiptRow = await prisma.genesisRag17PublicationReceipt.findFirst({ where: { executionRunId: job.executionRunId }, orderBy: { createdAt: 'desc' } })
+  if (!receiptRow) throw new Error(`Report cannot find publication receipt for ${job.executionRunId}`)
+  const receipt = zGenesisRag17PublicationReceipt.parse(reportJson(receiptRow.receiptJson, `publication receipt ${job.executionRunId}`))
+  if (receipt.runId !== job.executionRunId || receipt.scope.businessId !== acceptanceScope.businessId || !pointer.publishedSnapshotIds.includes(receipt.snapshotId)) {
+    throw new Error(`Report found publication identity mismatch for ${job.executionRunId}`)
+  }
+  const batch = await prisma.genesisRag17Batch.findUnique({ where: { executionRunId: job.executionRunId } })
+  if (!batch) throw new Error(`Report cannot find Stage 9 batch for ${job.executionRunId}`)
+  const source = reportJson(batch.requestJson, `Stage 9 batch for ${job.executionRunId}`).source
+  if (!source?.rawArtifactId || !source?.parsedArtifactId) throw new Error(`Report found no raw/parsed references for ${job.executionRunId}`)
+  const raw = await prisma.knowledgeRawArtifact.findUnique({ where: { id: source?.rawArtifactId } })
+  const parsed = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: source?.parsedArtifactId } })
+  const chunks = parsed ? await prisma.knowledgeChunk.findMany({ where: { parsedArtifactId: parsed.id }, orderBy: { ordinal: 'asc' } }) : []
+  if (!raw || !parsed || parsed.rawArtifactId !== raw.id || !chunks.length || chunks.some((chunk) => chunk.parsedArtifactId !== parsed.id)) {
+    throw new Error(`Report found broken raw -> parsed -> chunk lineage for ${job.executionRunId}`)
+  }
+  const owner = state?.decisions?.[receiptRow.decisionId]
+  const ownerReceipt = owner?.receipt
+  return {
+    ...job,
+    lineage: {
+      raw: { id: raw.id, sourceId: raw.sourceId, documentId: raw.documentId, version: raw.version, contentHash: raw.contentHash },
+      parsed: { id: parsed.id, rawArtifactId: parsed.rawArtifactId, documentId: parsed.documentId, contentHash: parsed.contentHash },
+      chunks: chunks.map((chunk) => ({ id: chunk.id, parsedArtifactId: chunk.parsedArtifactId, ordinal: chunk.ordinal, contentHash: chunk.contentHash, startOffset: chunk.startOffset, endOffset: chunk.endOffset })),
+    },
+    evidence: evidence.map((row) => ({
+      id: row.id, cursor: row.cursor, runId: row.runId, executionRunId: row.executionRunId,
+      pipelineStageId: row.pipelineStageId, executionStepId: row.executionStepId, attemptId: row.attemptId,
+      stageNumber: row.stageNumber, outcome: row.outcome, startedAt: reportDate(row.startedAt), finishedAt: reportDate(row.finishedAt),
+      recordsIn: row.recordsIn, recordsOut: row.recordsOut, recordsQuarantined: row.recordsQuarantined,
+      errorCount: row.errorCount, retryCount: row.retryCount, durationMs: row.durationMs, rowHash: row.rowHash,
+    })),
+    publicationReceipt: { storedId: receiptRow.id, receiptHash: receiptRow.receiptHash, parsed: receipt },
+    nativeOwnerEvidence: {
+      available: Boolean(ownerReceipt),
+      model: ownerReceipt?.model ? { id: ownerReceipt.model.id, revision: ownerReceipt.model.revision, dimensions: ownerReceipt.model.dimensions, metric: ownerReceipt.model.metric } : null,
+      benchmark: nativeBenchmark(ownerReceipt),
+    },
+  }
+}
+
+async function exportKnowledgeAdmissionReport() {
+  if (!mainTestSucceeded || !fileTestSucceeded) return
+  if (publishedJobs.length !== 4) throw new Error(`Report expected four published jobs, found ${publishedJobs.length}`)
+  const root = nativeStoreRoot()
+  const pointer = readNativeFile(path.join(root, 'published-pointer.json'), 'native published pointer')
+  const state = readNativeFile(path.join(root, 'state.json'), 'native worker state')
+  const jobs = []
+  for (const job of publishedJobs) jobs.push(await publishedJobEvidence(job, pointer, state))
+  const snapshots = pointer.publishedSnapshotIds.map((snapshotId) => nativeSnapshot(readNativeFile(path.join(root, 'snapshots', `${snapshotId}.json`), `native snapshot ${snapshotId}`)))
+  const modelRevisions = new Set(jobs.map((job) => job.publicationReceipt.parsed.modelRevision))
+  if (modelRevisions.size !== 1) throw new Error('Report found multiple model revisions')
+  const report = {
+    reportSchemaVersion, status: 'PASSED', artifact: '.brain/reports/knowledge-admission-native.json',
+    schemaVersion: jobs[0].publicationReceipt.parsed.schemaVersion,
+    fixtureVersion: fixture.fixtureVersion, fixtureSourceVersion: fixture.sourceVersion, fixtureSha256: fixtureHash,
+    nodeVersion: process.version, platform: process.platform, architecture: process.arch,
+    modelRevision: [...modelRevisions][0], scope: reportScope(acceptanceScope),
+    scenariosPassed: ['browser-text', 'mcp-text', 'http-correction', 'browser-managed-file', 'binary-file-rejected'],
+    manifests: { pointer: nativePointer(pointer), snapshots }, jobs,
+  }
+  const reportDirectory = path.dirname(reportPath)
+  mkdirSync(reportDirectory, { recursive: true })
+  const temporaryReportPath = `${reportPath}.tmp-${process.pid}-${Date.now()}`
+  writeFileSync(temporaryReportPath, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' })
+  try {
+    if (existsSync(reportPath)) rmSync(reportPath, { force: true })
+    renameSync(temporaryReportPath, reportPath)
+  } catch (error) {
+    try { rmSync(temporaryReportPath, { force: true }) } catch {}
+    throw error
+  }
 }
 
 async function waitForAdmission(api, id, { terminal = 'PUBLISHED', timeoutMs = 12 * 60 * 1000 } = {}) {
@@ -186,7 +361,7 @@ async function createManagedFileFromFilesPage(harness, { deviceKey, name, conten
     const dialog = page.getByRole('dialog', { name: 'Add managed file' })
     await playwrightExpect(dialog).toBeVisible()
     const bytes = Buffer.from(content, 'utf8')
-    await dialog.getByLabel('File').setInputFiles({ name, mimeType: 'text/markdown', buffer: bytes })
+    await dialog.getByLabel('File', { exact: true }).setInputFiles({ name, mimeType: 'text/markdown', buffer: bytes })
     const submitted = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/files')
     await dialog.getByRole('button', { name: 'Save', exact: true }).click()
     const response = await submitted
@@ -226,6 +401,8 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
       visibility: 'private',
     }
     harness = await createKnowledgeAdmissionHarness({ scope, fixture })
+    acceptanceScope = scope
+    reportHarness = harness
     api = harness.request
     const unauthenticated = await api.post('/api/knowledge/ingestions', { data: { businessId: business.id, idempotencyKey: 'unauthenticated', source: { kind: 'TEXT', sourceKey: 'unauthenticated', version: '1', content: 'must not be admitted' } } })
     expect(unauthenticated.status(), 'unauthenticated admission must fail before body authorization').toBe(401)
@@ -236,8 +413,12 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
   }, 300000)
 
   afterAll(async () => {
-    await harness?.close()
-    await prisma.$disconnect()
+    try {
+      await exportKnowledgeAdmissionReport()
+    } finally {
+      await harness?.close()
+      await prisma.$disconnect()
+    }
   }, 300000)
 
   it('admits from browser, MCP and HTTP, survives restart, publishes two independent native snapshots, corrects one, and withdraws one', async () => {
@@ -382,9 +563,22 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(listBody.items.find((item) => item.id === browserId).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === correctionA.id).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === documentB.id).status).toBe('WITHDRAWN')
+    rememberPublishedJob({ label: 'browser-text-a-v1', ingress: 'browser-files-text', published: publishedA })
+    rememberPublishedJob({ label: 'mcp-text-b-v1', ingress: 'mcp-knowledge.ingestion_create', published: publishedB })
+    rememberPublishedJob({ label: 'http-text-a-v2-correction', ingress: 'http-knowledge-ingestions', published: publishedCorrection })
+    mainTestSucceeded = true
   }, 15 * 60 * 1000)
 
   it('uploads a managed text FileAsset through Files, admits it as FILE, and rejects a binary FILE', async () => {
+    if (!mainTestSucceeded) {
+      throw new Error('Managed FileAsset acceptance requires the preceding browser/MCP/HTTP native recovery test to pass; benchmark state is not independently established')
+    }
+    // Rebind the native worker to the baseline fixture before the second test.
+    // This removes any dependence on the first test's correction benchmark and
+    // fails explicitly if the preceding test did not establish its state.
+    await harness.deactivateNativeWorker()
+    await harness.restartNative({ benchmarkFixture: fixture })
+    await harness.restart({ activateNative: true })
     const deviceKey = `ki17-native-${Date.now().toString(36)}`
     const mountRoot = path.join(harness.tempDir, 'managed-file-mount')
     const mountResponse = await api.post('/api/files/mounts', {
@@ -414,6 +608,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(publishedFile.status).toBe('PUBLISHED')
     expect(publishedFile.source?.kind).toBe('FILE')
     await assertNativeRun(publishedFile.executionRunId, 'managed text file')
+    rememberPublishedJob({ label: 'browser-file-v1', ingress: 'browser-files-managed-file', published: publishedFile })
 
     const binary = Buffer.from([0, 159, 146, 150, 255])
     const binaryResponse = await api.post('/api/files', {
@@ -440,5 +635,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     const invalidBody = await parseBody(invalidAdmission, 'binary FILE admission')
     expect(invalidAdmission.status(), JSON.stringify(invalidBody)).toBe(415)
     expect(invalidBody.error).toMatch(/plain text|Markdown/i)
+    invalidFileAdmissionStatus = invalidAdmission.status()
+    fileTestSucceeded = true
   }, 15 * 60 * 1000)
 })
