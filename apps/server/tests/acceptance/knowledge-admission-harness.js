@@ -96,7 +96,7 @@ async function launchNext({ env, port }) {
   }
 }
 
-function addRuntimeEnvironment(env, scope, port, { runtimeIntervalMs = 60000, runtimeLeaseMs = 1000 } = {}) {
+function addRuntimeEnvironment(env, scope, port) {
   return {
     ...env,
     DATABASE_URL: process.env.DATABASE_URL,
@@ -104,12 +104,6 @@ function addRuntimeEnvironment(env, scope, port, { runtimeIntervalMs = 60000, ru
     ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     ZURI_KNOWLEDGE_ENABLED: '1',
     ZURI_KNOWLEDGE_BINDINGS: JSON.stringify([{ scope, policy: { allowEmbedding: true, allowPublication: true } }]),
-    // The runtime reads these test-only bounds when wired by the integration
-    // branch. A long idle interval leaves the just-admitted rows durable before
-    // the deliberate process restart; the short lease makes a killed claim
-    // recover without a two-minute acceptance wait.
-    ZURI_KNOWLEDGE_RUNTIME_INTERVAL_MS: String(runtimeIntervalMs),
-    ZURI_KNOWLEDGE_RUNTIME_LEASE_MS: String(runtimeLeaseMs),
     ZURI_MSP_COMMAND: process.execPath,
     ZURI_MSP_ARGS: JSON.stringify([path.join(env.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')]),
     ZURI_MSP_CWD: env.KI17_MSP_ROOT,
@@ -128,8 +122,6 @@ export async function createKnowledgeAdmissionHarness({
   scope,
   fixture,
   port = 0,
-  runtimeIntervalMs = 60000,
-  runtimeLeaseMs = 1000,
 } = {}) {
   if (!scope || !fixture) throw new Error('Knowledge admission harness requires scope and benchmark fixture')
   requiredNativeEnvironment(process.env)
@@ -138,7 +130,9 @@ export async function createKnowledgeAdmissionHarness({
   let nativeFixture = fixture
   let next
   let api
-  const nativeEnv = addRuntimeEnvironment(isolatedEnvironment(temp.dir, scope), scope, 1, { runtimeIntervalMs, runtimeLeaseMs })
+  let nativeLoopStarted = false
+  const blackholeWorkerUrl = 'http://127.0.0.1:1'
+  const nativeEnv = addRuntimeEnvironment(isolatedEnvironment(temp.dir, scope), scope, 1)
   try {
     const startNative = async (benchmarkFixture) => startWorkerProcess(nativeEnv, {
       dbPath: path.join(temp.dir, 'genesis-store'),
@@ -150,14 +144,28 @@ export async function createKnowledgeAdmissionHarness({
     })
     native = await startNative(nativeFixture)
     const resolvedPort = port || await reservePort()
-    const env = { ...nativeEnv, MSP_PIPELINE_WORKER_URL: 'http://127.0.0.1:1' }
+    const env = { ...nativeEnv, MSP_PIPELINE_WORKER_URL: blackholeWorkerUrl }
     next = await launchNext({ env, port: resolvedPort })
     api = await playwrightRequest.newContext({ baseURL: `http://127.0.0.1:${resolvedPort}` })
+
+    async function startNativeLoop() {
+      if (nativeLoopStarted) return
+      await native.call('start')
+      nativeLoopStarted = true
+    }
+
+    async function stopNativeLoop() {
+      if (!nativeLoopStarted) return
+      await native.call('stop')
+      nativeLoopStarted = false
+    }
 
     async function restart({ activateNative = false } = {}) {
       await next.close()
       await sleep(250)
-      env.MSP_PIPELINE_WORKER_URL = activateNative ? native.url : 'http://127.0.0.1:1'
+      if (activateNative) await startNativeLoop()
+      else await stopNativeLoop()
+      env.MSP_PIPELINE_WORKER_URL = activateNative ? native.url : blackholeWorkerUrl
       next = await launchNext({ env, port: resolvedPort })
     }
 
@@ -168,16 +176,23 @@ export async function createKnowledgeAdmissionHarness({
       get native() { return native },
       request: api,
       async activateNativeWorker() {
-        env.MSP_PIPELINE_WORKER_URL = native.url
+        await restart({ activateNative: true })
       },
       async deactivateNativeWorker() {
+        await stopNativeLoop()
         await restart({ activateNative: false })
       },
       async restartNative({ benchmarkFixture = nativeFixture } = {}) {
+        await stopNativeLoop()
         await native?.close()
         nativeFixture = benchmarkFixture
         native = await startNative(nativeFixture)
-        if (env.MSP_PIPELINE_WORKER_URL !== 'http://127.0.0.1:1') env.MSP_PIPELINE_WORKER_URL = native.url
+        nativeLoopStarted = false
+        // Every fresh native process must be explicitly started. If Next is
+        // still parked on the blackhole URL, its source loop has not resumed,
+        // so queued admissions remain durable until the caller activates Next.
+        await startNativeLoop()
+        if (env.MSP_PIPELINE_WORKER_URL !== blackholeWorkerUrl) env.MSP_PIPELINE_WORKER_URL = native.url
       },
       restart,
       async close() {
