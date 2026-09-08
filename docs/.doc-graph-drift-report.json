@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07T20:20:47.114Z",
+  "generated_at": "2026-09-08T04:15:21.848Z",
   "note": "Diagnostic only — what changed since the previous docs/.doc-graph.json regeneration. Never read by --check, docs:preflight or monorepo-graph.mjs; excluded from every staleness/consistency check by design.",
   "changed": [],
   "added": [],
