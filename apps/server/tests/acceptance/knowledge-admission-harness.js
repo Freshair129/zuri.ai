@@ -190,6 +190,7 @@ export async function createKnowledgeAdmissionHarness({
     return {
       baseURL: `http://127.0.0.1:${resolvedPort}`,
       scope,
+      tempDir: temp.dir,
       env,
       get native() { return native },
       get diagnostics() {

@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
+import path from 'node:path'
 import prisma from '@/lib/db'
 import { zGenesisRag17PublicationReceipt } from '@/modules/knowledge/genesisrag17-contract'
 import fixture from '../fixtures/genesisrag17-corpus-v1.json'
@@ -72,6 +73,38 @@ async function queryHttp(api, input) {
   return { response, body: await requireOk(response, 'knowledge query') }
 }
 
+async function openMcpSession(api) {
+  const initialized = await api.post('/api/mcp', {
+    data: { jsonrpc: '2.0', id: 'knowledge-initialize', method: 'initialize', params: { protocolVersion: '2024-11-05' } },
+  })
+  const initializedBody = await requireOk(initialized, 'MCP initialize')
+  const sessionId = initialized.headers()['mcp-session-id']
+  expect(sessionId, 'MCP initialize must return a session id').toBeTruthy()
+  const ready = await api.post('/api/mcp', {
+    headers: { 'mcp-session-id': sessionId },
+    data: { jsonrpc: '2.0', method: 'notifications/initialized' },
+  })
+  expect(ready.status(), 'MCP initialized notification must be accepted').toBe(204)
+  expect(initializedBody.result?.protocolVersion).toBe('2024-11-05')
+  return sessionId
+}
+
+async function callMcp(api, sessionId, name, arguments_, id = `knowledge-${name}`) {
+  const response = await api.post('/api/mcp', {
+    headers: { 'mcp-session-id': sessionId },
+    data: {
+      jsonrpc: '2.0',
+      id,
+      method: 'tools/call',
+      params: { name, arguments: arguments_ },
+    },
+  })
+  const body = await parseBody(response, `MCP ${name}`)
+  if (!response.ok()) throw new Error(`MCP ${name} returned HTTP ${response.status()}: ${JSON.stringify(body)}`)
+  if (body.error) throw new Error(`MCP ${name} returned an RPC error: ${JSON.stringify(body.error)}`)
+  return body.result?.structuredContent ?? body.result
+}
+
 async function assertNativeRun(runId, label) {
   expect(typeof runId, `${label} must expose executionRunId`).toBe('string')
   const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: runId } })
@@ -139,6 +172,34 @@ async function admitFromFilesPage(harness, { businessId, content }) {
   }
 }
 
+async function createManagedFileFromFilesPage(harness, { deviceKey, name, content }) {
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({ baseURL: harness.baseURL })
+  const page = await context.newPage()
+  try {
+    await enterBusiness(page)
+    const mountsResponse = page.waitForResponse((response) => response.request().method() === 'GET' && new URL(response.url()).pathname === '/api/files/mounts')
+    await page.goto('/files')
+    await mountsResponse
+    await playwrightExpect(page.getByText(new RegExp(deviceKey))).toBeVisible()
+    await page.getByRole('button', { name: 'Add file', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Add managed file' })
+    await playwrightExpect(dialog).toBeVisible()
+    const bytes = Buffer.from(content, 'utf8')
+    await dialog.getByLabel('File').setInputFiles({ name, mimeType: 'text/markdown', buffer: bytes })
+    const submitted = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/files')
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click()
+    const response = await submitted
+    const body = await parseBody(response, 'browser managed file upload')
+    if (!response.ok()) throw new Error(`Browser managed file upload returned HTTP ${response.status()}: ${JSON.stringify(body)}`)
+    await playwrightExpect(dialog).not.toBeVisible()
+    return body
+  } finally {
+    await context.close()
+    await browser.close()
+  }
+}
+
 describe('Knowledge admission over actual Next HTTP/browser and native recovery', () => {
   let harness
   let business
@@ -179,7 +240,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     await prisma.$disconnect()
   }, 300000)
 
-  it('admits from browser and HTTP, survives restart, publishes two independent native snapshots, corrects one, and withdraws one', async () => {
+  it('admits from browser, MCP and HTTP, survives restart, publishes two independent native snapshots, corrects one, and withdraws one', async () => {
     browserAdmission = await admitFromFilesPage(harness, { businessId: business.id, content: fixture.text })
     const browserId = browserAdmission.id
     const browserAdmissionResponse = browserAdmission.body
@@ -191,13 +252,13 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
       idempotencyKey: 'http-doc-b-v1',
       source: { kind: 'TEXT', sourceKey: 'http-doc-b', version: '1', title: 'HTTP knowledge document B', content: fixture.text },
     }
-    documentB = await admitHttp(api, bodyB, 'HTTP document B admission')
+    const admissionMcpSession = await openMcpSession(api)
+    documentB = { body: await callMcp(api, admissionMcpSession, 'knowledge.ingestion_create', bodyB, 'knowledge-document-b'), response: null }
     documentB.id = admissionId(documentB.body)
     expect(documentB.body.source?.sourceKey).toBe('http-doc-b')
     expect(documentB.body.status).toBe('QUEUED')
 
-    const duplicate = await api.post('/api/knowledge/ingestions', { data: bodyB })
-    const duplicateBody = await requireOk(duplicate, 'idempotent HTTP admission retry')
+    const duplicateBody = await callMcp(api, admissionMcpSession, 'knowledge.ingestion_create', bodyB, 'knowledge-document-b-retry')
     expect(admissionId(duplicateBody)).toBe(documentB.id)
     expect(duplicateBody.unchanged).toBe(true)
 
@@ -216,6 +277,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     await harness.restart({ activateNative: true })
     const publishedA = await waitForAdmission(api, browserId)
     const publishedB = await waitForAdmission(api, documentB.id)
+    const mcpSession = await openMcpSession(api)
     expect(publishedA.status).toBe('PUBLISHED')
     expect(publishedB.status).toBe('PUBLISHED')
     expect(publishedA.executionRunId).toBeTruthy()
@@ -230,16 +292,23 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(nativeB.receiptRow.modelRevision).toBe(modelRevision)
 
     const initialQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
+    const initialMcpQuery = await callMcp(api, mcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-initial')
     expect(initialQuery.body.ranking).toBe('rrf-k60')
+    expect(initialMcpQuery.ranking).toBe('rrf-k60')
     expect(initialQuery.body.corpusId).toBe(publishedA.corpus.id)
     expect(initialQuery.body.results.some((row) => row.sourceId === publishedA.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
     expect(initialQuery.body.results.some((row) => row.sourceId === publishedB.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
-    const oldCitation = initialQuery.body.results.find((row) => row.sourceId === publishedA.source.id && row.text === 'Alice works for Acme Ltd.')?.citationId
+    expect(initialMcpQuery.results.some((row) => row.sourceId === publishedA.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
+    expect(initialMcpQuery.results.some((row) => row.sourceId === publishedB.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
+    const oldCitation = initialMcpQuery.results.find((row) => row.sourceId === publishedA.source.id && row.text === 'Alice works for Acme Ltd.')?.citationId
     expect(oldCitation).toMatch(/^kc1\./)
     const oldCitationResponse = await api.get(`/api/knowledge/citations/${encodeURIComponent(oldCitation)}`)
     const oldCitationBody = await requireOk(oldCitationResponse, 'old citation before correction')
+    const oldCitationMcpBody = await callMcp(api, mcpSession, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-initial')
     expect(oldCitationBody.sourceVersion).toBe('1')
     expect(oldCitationBody.text).toBe('Alice works for Acme Ltd.')
+    expect(oldCitationMcpBody.sourceVersion).toBe('1')
+    expect(oldCitationMcpBody.text).toBe('Alice works for Acme Ltd.')
 
     await harness.deactivateNativeWorker()
     const correctedText = fixture.text.replace(...fixture.correction.replace)
@@ -262,6 +331,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     // so this tests queue execution separately from initial recovery.
     await harness.restart({ activateNative: true })
     const publishedCorrection = await waitForAdmission(api, correctionA.id)
+    const correctedMcpSession = await openMcpSession(api)
     expect(publishedCorrection.status).toBe('PUBLISHED')
     expect(publishedCorrection.source.sourceKey).toBe('ui-doc-a')
     expect(publishedCorrection.sourceVersion).toBe('2')
@@ -269,20 +339,26 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(publishedCorrection.snapshotId).toBeTruthy()
     const nativeCorrection = await assertNativeRun(publishedCorrection.executionRunId, 'corrected document A')
     expect(nativeCorrection.receiptRow.modelRevision).toBe(modelRevision)
-    expect(nativeCorrection.receipt.model?.revision || nativeCorrection.receiptRow.modelRevision).toBeTruthy()
     expect(publishedB.snapshotId).toBe((await readAdmission(api, documentB.id)).body.snapshotId)
 
     const correctedQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
+    const correctedMcpQuery = await callMcp(api, correctedMcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-corrected')
     expect(correctedQuery.body.corpusGeneration).toBeGreaterThan(initialQuery.body.corpusGeneration)
+    expect(correctedMcpQuery.corpusGeneration).toBe(correctedQuery.body.corpusGeneration)
     expect(correctedQuery.body.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
     expect(correctedQuery.body.results.some((row) => row.sourceId === publishedB.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
+    expect(correctedMcpQuery.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
+    expect(correctedMcpQuery.results.some((row) => row.sourceId === publishedB.source.id && row.text === 'Alice works for Acme Ltd.')).toBe(true)
     const correctedA = correctedQuery.body.results.find((row) => row.sourceId === publishedCorrection.source.id)
     expect(correctedA?.sourceVersion || publishedCorrection.sourceVersion).toBe('2')
 
     const oldCitationAfterCorrection = await api.get(`/api/knowledge/citations/${encodeURIComponent(oldCitation)}`)
     const oldCitationAfterBody = await requireOk(oldCitationAfterCorrection, 'historical citation after correction')
+    const oldCitationAfterMcpBody = await callMcp(api, correctedMcpSession, 'knowledge.citation', { citationId: oldCitation }, 'knowledge-citation-historical')
     expect(oldCitationAfterBody.sourceVersion).toBe('1')
     expect(oldCitationAfterBody.text).toBe('Alice works for Acme Ltd.')
+    expect(oldCitationAfterMcpBody.sourceVersion).toBe('1')
+    expect(oldCitationAfterMcpBody.text).toBe('Alice works for Acme Ltd.')
 
     const sourceVersionBeforeWithdraw = publishedB.source.version
     const withdrawn = await api.delete(`/api/knowledge/sources/${encodeURIComponent(publishedB.source.id)}`, { data: { expectedVersion: sourceVersionBeforeWithdraw } })
@@ -290,8 +366,11 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(withdrawnBody.status).toBe('WITHDRAWN')
     expect(withdrawnBody.source.revokedAt).toBeTruthy()
     const withdrawnQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
+    const withdrawnMcpQuery = await callMcp(api, correctedMcpSession, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-withdrawn')
     expect(withdrawnQuery.body.results.some((row) => row.sourceId === publishedB.source.id)).toBe(false)
     expect(withdrawnQuery.body.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
+    expect(withdrawnMcpQuery.results.some((row) => row.sourceId === publishedB.source.id)).toBe(false)
+    expect(withdrawnMcpQuery.results.some((row) => row.sourceId === publishedCorrection.source.id && row.text === 'Alice works for Beacon Ltd.')).toBe(true)
     const withdrawnCitation = initialQuery.body.results.find((row) => row.sourceId === publishedB.source.id)?.citationId
     expect(withdrawnCitation).toMatch(/^kc1\./)
     const withdrawnCitationResponse = await api.get(`/api/knowledge/citations/${encodeURIComponent(withdrawnCitation)}`)
@@ -303,5 +382,63 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(listBody.items.find((item) => item.id === browserId).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === correctionA.id).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === documentB.id).status).toBe('WITHDRAWN')
+  }, 15 * 60 * 1000)
+
+  it('uploads a managed text FileAsset through Files, admits it as FILE, and rejects a binary FILE', async () => {
+    const deviceKey = `ki17-native-${Date.now().toString(36)}`
+    const mountRoot = path.join(harness.tempDir, 'managed-file-mount')
+    const mountResponse = await api.post('/api/files/mounts', {
+      data: { businessId: business.id, deviceKey, rootPath: mountRoot },
+    })
+    const mount = await requireOk(mountResponse, 'managed file mount')
+    expect(mount.status).toBe('ACTIVE')
+
+    const fileContent = fixture.text.replace(...fixture.correction.replace)
+    const asset = await createManagedFileFromFilesPage(harness, {
+      deviceKey,
+      name: 'knowledge-file.md',
+      content: fileContent,
+    })
+    expect(asset.status).toBe('ACTIVE')
+    expect(asset.mime).toBe('text/markdown')
+    expect(asset.size).toBe(Buffer.byteLength(fileContent, 'utf8'))
+
+    const fileAdmission = await admitHttp(api, {
+      businessId: business.id,
+      idempotencyKey: 'managed-file-text-v1',
+      source: { kind: 'FILE', fileAssetId: asset.id, sourceKey: 'managed-file', version: '1', title: 'Managed knowledge file' },
+    }, 'managed text FILE admission')
+    fileAdmission.id = admissionId(fileAdmission.body)
+    expect(fileAdmission.body.status).toBe('QUEUED')
+    const publishedFile = await waitForAdmission(api, fileAdmission.id)
+    expect(publishedFile.status).toBe('PUBLISHED')
+    expect(publishedFile.source?.kind).toBe('FILE')
+    await assertNativeRun(publishedFile.executionRunId, 'managed text file')
+
+    const binary = Buffer.from([0, 159, 146, 150, 255])
+    const binaryResponse = await api.post('/api/files', {
+      data: {
+        businessId: business.id,
+        storageKind: 'LOCAL_FILE',
+        mountId: mount.id,
+        relativePath: 'Documents/unsupported.bin',
+        contentBase64: binary.toString('base64'),
+        name: 'unsupported.bin',
+        mime: 'application/octet-stream',
+        size: binary.length,
+      },
+    })
+    const binaryAsset = await requireOk(binaryResponse, 'managed binary FileAsset')
+    expect(binaryAsset.status).toBe('ACTIVE')
+    const invalidAdmission = await api.post('/api/knowledge/ingestions', {
+      data: {
+        businessId: business.id,
+        idempotencyKey: 'managed-file-binary-v1',
+        source: { kind: 'FILE', fileAssetId: binaryAsset.id, sourceKey: 'unsupported-binary', version: '1' },
+      },
+    })
+    const invalidBody = await parseBody(invalidAdmission, 'binary FILE admission')
+    expect(invalidAdmission.status(), JSON.stringify(invalidBody)).toBe(415)
+    expect(invalidBody.error).toMatch(/plain text|Markdown/i)
   }, 15 * 60 * 1000)
 })
