@@ -10081,7 +10081,7 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "a8e2c3e4",
+      "hash": "6e790d12",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10090,6 +10090,9 @@
         ],
         "@spec": [
           "SDD-050"
+        ],
+        "@tested": [
+          "tests/unit/line-crm-live-chat-render.test.js"
         ]
       }
     },
@@ -10507,7 +10510,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "18abb83c",
+      "hash": "0f47c3c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10517,6 +10520,9 @@
         "@spec": [
           "SDD-060",
           "SDD-061"
+        ],
+        "@tested": [
+          "tests/unit/line-studio-dashboard-render.test.js"
         ]
       }
     },
@@ -26385,6 +26391,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+      "hash": "7d91b14a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-oa-account-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-oa-account-domain.test.js",
@@ -26466,6 +26479,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-registry-service.test.js",
       "hash": "0342f04b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+      "hash": "b31b173f",
       "status": "current"
     },
     {
@@ -88421,6 +88441,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:SDD-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-oa-account-domain.test.js",
       "to": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "type": "tests",
@@ -88867,6 +88915,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-trace-route.test.js",
@@ -99414,7 +99497,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2353,
+    "server_nodes": 2355,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
