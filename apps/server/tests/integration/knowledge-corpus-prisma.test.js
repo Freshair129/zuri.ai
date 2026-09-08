@@ -159,7 +159,7 @@ async function createFixture() {
   const receipts = new Map()
   const lineages = new Map()
 
-  async function createIngestion({ id, revision, sourceVersion, content, snapshotId, snapshotGeneration }) {
+  async function createIngestion({ id, revision, sourceVersion, content, snapshotId, snapshotGeneration, sourceRow = source }) {
     const executionRunId = `execution-${id}`
     const rawArtifactId = `raw-${id}`
     const parsedArtifactId = `parsed-${id}`
@@ -168,7 +168,7 @@ async function createFixture() {
       data: {
         id,
         corpusId: ids.corpusId,
-        sourceId: source.id,
+        sourceId: sourceRow.id,
         revision,
         sourceVersion,
         contentHash: hashGenesisRag17Text(content),
@@ -205,7 +205,7 @@ async function createFixture() {
     })
     const stage9StepId = `stage9-step-${id}`
     const stage9AttemptId = `stage9-attempt-${id}`
-    const request = requestFor(ingestion, source, scope, stage9StepId, stage9AttemptId)
+    const request = requestFor(ingestion, sourceRow, scope, stage9StepId, stage9AttemptId)
     const decisionId = `decision-${id}`
     await prisma.genesisRag17IngestionIntent.create({
       data: {
@@ -217,8 +217,8 @@ async function createFixture() {
         requestJson: JSON.stringify(request),
         derivationJson: '{}',
         rawArtifactId,
-        sourceId: source.id,
-        documentId: source.id,
+        sourceId: sourceRow.id,
+        documentId: sourceRow.id,
         version: sourceVersion,
         contentHash: ingestion.contentHash,
         portfolioId: ids.portfolioId,
@@ -336,7 +336,7 @@ describe('knowledge corpus Prisma transaction boundary', () => {
       .rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_SOURCE_VERSION_CONFLICT' })
   })
 
-  it('checks a FILE source asset before withdrawal mutation', async () => {
+  it('withdraws a deleted FILE source and preserves a remaining corpus source', async () => {
     const fileAssetId = `file-${fixture.ids.sourceId}`
     await prisma.fileAsset.create({
       data: {
@@ -357,11 +357,61 @@ describe('knowledge corpus Prisma transaction boundary', () => {
     const source = await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { fileAssetId } })
     fixture.source = source
     await publish(fixture, fixture.firstIngestion)
+
+    const remainingSource = await prisma.knowledgeSource.create({
+      data: {
+        id: `source-${fixture.ids.sourceId}-remaining`,
+        corpusId: fixture.ids.corpusId,
+        sourceKey: `source:${fixture.ids.sourceId}:remaining`,
+        kind: 'TEXT',
+        title: 'Remaining knowledge source',
+        desiredRevision: 1,
+      },
+    })
+    const remainingIngestion = await fixture.createIngestion({
+      id: `${fixture.ids.ingestionId}-remaining`,
+      revision: 1,
+      sourceVersion: 'v1',
+      content: 'remaining document',
+      snapshotId: `${fixture.firstIngestion.snapshotId}-remaining`,
+      snapshotGeneration: `${fixture.firstIngestion.snapshotGeneration}-remaining`,
+      sourceRow: remainingSource,
+    })
+    await publish(fixture, remainingIngestion)
+
     await prisma.fileAsset.update({ where: { id: fileAssetId }, data: { status: 'DELETED', deletedAt: new Date() } })
     const sourceBeforeWithdraw = await prisma.knowledgeSource.findUnique({ where: { id: fixture.source.id } })
-    await expect(withdrawKnowledgeSource(fixture.source.id, { expectedVersion: sourceBeforeWithdraw.version }, { repository: fixture.repository, db: prisma, viewer: fixture.owner }))
-      .rejects.toMatchObject({ status: 404, code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
-    expect((await prisma.knowledgeSource.findUnique({ where: { id: fixture.source.id } })).revokedAt).toBeNull()
+    const withdrawn = await withdrawKnowledgeSource(fixture.source.id, { expectedVersion: sourceBeforeWithdraw.version }, { repository: fixture.repository, db: prisma, viewer: fixture.owner })
+    expect(withdrawn.status).toBe('WITHDRAWN')
+    expect(withdrawn.manifest.entries.map((entry) => entry.sourceId)).toEqual([remainingSource.id])
+    expect((await prisma.knowledgeSource.findUnique({ where: { id: fixture.source.id } })).revokedAt).not.toBeNull()
+
+    const querySnapshot = vi.fn(async () => ({
+      schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+      scope: fixture.scope,
+      snapshotId: remainingIngestion.snapshotId,
+      generation: remainingIngestion.snapshotGeneration,
+      results: [{
+        id: `hit-${remainingIngestion.id}`,
+        score: 0.8,
+        text: remainingIngestion.content,
+        citation: {
+          sourceId: remainingSource.id,
+          rawArtifactId: remainingIngestion.rawArtifactId,
+          parsedArtifactId: remainingIngestion.parsedArtifactId,
+          chunkId: `chunk-${remainingIngestion.id}`,
+          contentHash: hashGenesisRag17Text(remainingIngestion.content),
+        },
+      }],
+    }))
+    const queried = await queryKnowledgeCorpus({ businessId: fixture.ids.businessId, projectId: fixture.ids.projectId, query: 'remaining' }, {
+      repository: fixture.repository,
+      db: prisma,
+      viewer: fixture.reader,
+      querySnapshot,
+    })
+    expect(queried.results).toHaveLength(1)
+    expect(queried.results[0].sourceId).toBe(remainingSource.id)
   })
 
   it('rechecks a real membership-backed viewer before delayed query disclosure', async () => {

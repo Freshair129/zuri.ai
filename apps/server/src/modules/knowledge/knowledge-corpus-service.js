@@ -18,7 +18,6 @@ import {
   assertKnowledgeBusinessCurrent,
   assertKnowledgeFileCurrent,
   assertKnowledgeFileReadable,
-  assertKnowledgeFileWritable,
   assertKnowledgeProjectCurrent,
   knowledgeError,
   resolveKnowledgeScope,
@@ -741,7 +740,12 @@ export async function resolveKnowledgeCitation(
   }
 }
 
-/** Revoke one source and atomically publish a generation without its entry. */
+/**
+ * Revoke one source and atomically publish a generation without its entry.
+ * The operation owns only corpus/source membership rows, so it keeps the
+ * corpus Business/Project write gate but does not require the referenced
+ * FileAsset to remain live in order to remove that membership.
+ */
 export async function withdrawKnowledgeSource(
   sourceId,
   { expectedVersion },
@@ -762,7 +766,6 @@ export async function withdrawKnowledgeSource(
   if (!initialCorpus) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const scope = scopeFromCorpus(initialCorpus)
   await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
-  if (!initialSource.revokedAt && initialSource.fileAssetId) await assertKnowledgeFileWritable(viewer, initialSource.fileAssetId, { businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, db, env })
   for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt += 1) {
     try {
       const result = await repository.transaction((tx) => withdrawInTransaction(tx, id, expectedVersion, { now, actorId: viewer?.principal?.id || null, initialScope: scope, viewer, db, env }))
@@ -784,7 +787,6 @@ async function withdrawInTransaction(repository, sourceId, expectedVersion, { no
   if (source.version !== expectedVersion) throw conflict('Knowledge source version no longer matches', 'KNOWLEDGE_SOURCE_VERSION_CONFLICT')
   if (source.deletedAt) throw serviceError(404, 'Knowledge source not found', 'KNOWLEDGE_SOURCE_NOT_FOUND')
   if (source.revokedAt) return { status: 'UNCHANGED', source, corpus }
-  if (source.fileAssetId) await assertKnowledgeFileWritable(viewer, source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db, env })
   const current = await loadManifest(repository, corpus)
   const entries = current.manifest.entries.filter((entry) => entry.sourceId !== source.id)
   const manifest = { schemaVersion: CORPUS_SCHEMA_VERSION, corpusId: corpus.id, generation: corpus.generation + 1, entries }
