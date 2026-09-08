@@ -41,3 +41,14 @@ _worktrees/
 !.env.example
 
 apps/server/src/generated/
+
+# Written by apps/server/scripts/doc-graph.mjs on every regeneration, and read
+# by nothing: the file's own note says it is "excluded from every
+# staleness/consistency check by design", and a search for its path finds one
+# writer and no reader. PR #278 introduced it to hold the drift diff that used
+# to be baked into docs/.doc-graph.json, where it went stale against itself and
+# failed `monorepo-graph.mjs --check` on fresh checkouts — the right fix, but
+# tracked it carried a `generated_at` timestamp, so it conflicted on the very
+# first merge after landing and would have on every one after. Untracked, the
+# diagnostic still gets written and printed; only the merge churn goes away.
+docs/.doc-graph-drift-report.json

@@ -141,6 +141,57 @@ it can be removed. A baseline entry is repaid by a migration file, never by
 checking that production happens to have the column — the guard reads files,
 not databases, and that is what makes it runnable in CI.
 
+**`ALTER DEFAULT PRIVILEGES` only reaches the grantor that runs it, and this
+schema has two.** The sentence above — "Supabase default privileges re-grant on
+every new table" — has a mechanism, and knowing it changes what a hardening
+migration can honestly claim. `pg_default_acl` is keyed on
+*(grantor role, schema, object type)*, and the entry consulted when an object is
+created is the one belonging to **whichever role creates it**. In `public` there
+are two grantors, measured on production 2026-09-07:
+
+| grantor | table | sequence | function |
+|---|---|---|---|
+| `postgres` | `postgres`, `zuri_app_runtime` | `postgres`, `zuri_app_runtime` | `postgres` |
+| `supabase_admin` | + `anon`, `authenticated`, `service_role` | + `anon`, `authenticated`, `service_role` | + `anon`, `authenticated`, `service_role` |
+
+Migrations here run as `postgres` (`DIRECT_URL`; `select current_user` confirms
+it), so `20260906235000_revoke_service_role_on_public.sql` and
+`20260907130000_revoke_execute_on_public_functions.sql` cleaned the `postgres`
+row and could not touch the `supabase_admin` row — `ALTER DEFAULT PRIVILEGES`
+silently addresses only the executing role's own entry, and `FOR ROLE
+supabase_admin` needs membership of that role, which `postgres` does not have on
+hosted Supabase. Both migrations did exactly what they say for the grantor they
+own. Neither made `public` unconditionally safe for a future object, and
+`20260907130000`'s header — which records `pg_default_acl type 'f' (postgres)` —
+is accurate about what it measured while reading, to a hurried eye, like total
+closure.
+
+What follows, and what does not. Objects created by app migrations are created
+by `postgres`, so the ordinary path lands clean and **no live exposure exists**:
+on 2026-09-07 `role_table_grants` returned zero rows for all three API roles and
+`public` held no functions. The `supabase_admin` row bites only for an object
+created *by* `supabase_admin` — some platform and extension operations — and it
+is stock Supabase state present in every project, so treat it as the platform's
+default rather than a defect this repo introduced or can repair. `service_role`
+is the one to watch if it ever does bite: `rolbypassrls = true`, so RLS is not a
+second line of defence behind it (`anon` and `authenticated` are `false`).
+
+So a migration may claim it closed the default grant **it grants**, never that
+`public` is closed. When one lands, read both rows:
+
+```sql
+select pg_get_userbyid(defaclrole) as grantor,
+       case defaclobjtype when 'r' then 'table' when 'S' then 'sequence'
+            when 'f' then 'function' when 'T' then 'type' end as objtype,
+       defaclacl::text as acl
+from pg_default_acl d join pg_namespace n on n.oid = d.defaclnamespace
+where n.nspname = 'public' order by grantor, objtype;
+```
+
+The `postgres` row is the project's to keep clean and the thing a migration is
+answerable for. The `supabase_admin` row is the platform's; record it, do not
+report it as closed, and do not write a migration that pretends to close it.
+
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 
 The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand-edited:

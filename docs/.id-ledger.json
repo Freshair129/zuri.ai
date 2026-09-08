@@ -278,6 +278,11 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-168",
+    "FR-169",
+    "FR-170",
+    "FR-171",
+    "FR-172",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -595,6 +600,8 @@
     "ADR-067",
     "ADR-068",
     "ADR-069",
+    "ADR-070",
+    "ADR-071",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3166,6 +3173,73 @@
         {
           "anchor": "supply chain navigation groups its four modules under one",
           "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-168": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5b87b2a654b1dc5bd3c132759bac8993468df98802a30338988432f163bd4338",
+      "history": [
+        {
+          "anchor": "a product declares one of three natures and they differ in",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-169": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dda24bc0f5ca31633ea98e88828c94ec154d8f6634c19fa4d460387fb62d22eb",
+      "history": [
+        {
+          "anchor": "a business declares feature capabilities business",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-170": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "562be980d567f541729c4ca9875677777e4624ec73143d72f4cc48896ace0180",
+      "history": [
+        {
+          "anchor": "a sub domain module with more than one page renders them as",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-171": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "732b331a041e6b14a490dfe558db92a46232f744a25c3bead44036f9189079e7",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
+    },
+    "FR-172": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f39c22cb605173627007e355659b7857ba740ceac66eaab4a6a7d7b652e646f",
+      "history": [
+        {
+          "anchor": "customer facing navigation groups two domains under one crm",
+          "since": "2026-09-08",
           "reason": "declared"
         }
       ]
@@ -7342,6 +7416,32 @@
         {
           "anchor": "scm is a parent domain over warehouse inventory procurement",
           "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-070": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
+      "status": "current",
+      "statement_digest": "ebae89e541e877e77c4b5fb5bf2f69b7f6d78f35f40d5c18e84a97d0c0c0ada9",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-071": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "status": "current",
+      "statement_digest": "e7bd470bf6f1c72ee7ed8f22c8765254cdbef341d4da4c91d026acd54a7e0bd2",
+      "history": [
+        {
+          "anchor": "crm is a parent domain over customer and market intelligence",
+          "since": "2026-09-08",
           "reason": "declared"
         }
       ]

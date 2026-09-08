@@ -7,6 +7,7 @@ import {
   INVENTORY_SERIAL_STATUSES,
   INVENTORY_STOCK_POLICIES,
   INVENTORY_TRACKING_MODES,
+  INVENTORY_UNSTOCKED_POLICIES,
 } from '@/lib/validation/enums'
 
 // @req FR-154 — the pure vocabulary of the Inventory catalogue (คลังสินค้า):
@@ -102,8 +103,16 @@ export const zCreateProduct = zProductFields.extend({
   stockPolicy: z.enum(INVENTORY_STOCK_POLICIES).optional(),
   trackingMode: z.enum(INVENTORY_TRACKING_MODES).optional(),
 }).strict().superRefine((value, ctx) => {
-  if (value.stockPolicy === 'UNTRACKED' && value.trackingMode && value.trackingMode !== 'NONE') {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['trackingMode'], message: 'an UNTRACKED product has no tracking mode' })
+  // @req FR-168 — the rule is "no ledger, no tracking mode", so it holds for a
+  // SERVICE exactly as it does for an UNTRACKED good. Naming only UNTRACKED
+  // would have let a service be created asking for lot or serial identity it
+  // can never have.
+  if (value.stockPolicy && INVENTORY_UNSTOCKED_POLICIES.includes(value.stockPolicy) && value.trackingMode && value.trackingMode !== 'NONE') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['trackingMode'],
+      message: `a ${value.stockPolicy} product has no stock ledger, so it has no tracking mode`,
+    })
   }
 })
 
@@ -238,6 +247,11 @@ export function bundleAvailability(items = [], onHandByProductId = {}) {
 export function movementRule(product, movement) {
   if (!product) return { ok: false, code: 'INVENTORY_PRODUCT_NOT_FOUND' }
   if (product.status === 'ARCHIVED') return { ok: false, code: 'INVENTORY_PRODUCT_ARCHIVED' }
+  // @req FR-168 — both refusals mean "this has no ledger", but they are not the
+  // same refusal to read: an uncounted good could be counted if the Business
+  // decided to, while a service can never be, because nothing physical exists
+  // to count. A caller that reports the reason should be able to say which.
+  if (product.stockPolicy === 'SERVICE') return { ok: false, code: 'INVENTORY_PRODUCT_IS_A_SERVICE' }
   if (product.stockPolicy !== 'TRACKED') return { ok: false, code: 'INVENTORY_PRODUCT_UNTRACKED' }
   const serials = movement.serialNos ?? []
   if (product.trackingMode === 'SERIAL') {
