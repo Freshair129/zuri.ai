@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.30.0b"
+version: "1.31.0b"
 status: active
 last_update: "2026-09-07T03:00:00+07:00,Claude"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.31.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -110,6 +110,11 @@ writing one sentence here, or the governance chain stops.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-171",
+    "primaryDomain": "agent",
+    "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects."
+  },
   {
     "id": "FEAT-001",
     "primaryDomain": "project-manager",
@@ -736,7 +741,7 @@ writing one sentence here, or the governance chain stops.
     "useCase": "ผู้ใช้เปิดหน้าจัดซื้อแล้วเห็นแท็บ Dashboard กับ Purchase Orders อยู่ในกรอบเดียวกันด้านบน กดสลับแท็บเพื่อดูใบสั่งซื้อโดยไม่ต้องกลับไปที่เมนูซ้าย เช่นเดียวกับหน้า Order Management ที่มีแท็บ Dashboard กับ Orders สลับกันได้ในกรอบเดียว"
   },
   {
-    "id": "FR-171",
+    "id": "FR-172",
     "primaryDomain": "crm",
     "useCase": "ผู้ใช้กดช่อง CRM ช่องเดียวในแถบโดเมน แล้วเห็น Customer กับ Market Intelligence เรียงกันในเมนูด้านซ้าย จึงข้ามจากลูกค้าไปข้อมูลตลาดได้โดยไม่ต้องกลับขึ้นแถบบน เหมือนกับที่ SCM ทำไว้กับคลัง จัดซื้อ และคำสั่งขาย"
   }

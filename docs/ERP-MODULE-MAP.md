@@ -6,7 +6,7 @@
 | **Status** | Accepted — hand-maintained; every row must name a lane that exists or say "not chartered" |
 | **Created** | 2026-09-07 |
 | **Last Updated** | 2026-09-08 |
-| **Relates to** | `docs/PRODUCT.md` §4, `docs/DOMAIN-MAP.md` (generated), `docs/FEATURES.md`, ADR-025, ADR-065, ADR-066, ADR-069, ADR-070 |
+| **Relates to** | `docs/PRODUCT.md` §4, `docs/DOMAIN-MAP.md` (generated), `docs/FEATURES.md`, ADR-025, ADR-065, ADR-066, ADR-069, ADR-071 |
 
 The owner names ERP modules in the vocabulary of an ERP taxonomy ("Supply
 Chain Management: Warehouse, Inventory, Procurement, Order Management"); the
@@ -59,8 +59,8 @@ nav bar should read as ERP domains), applied to the rest of the bar the same
 way [ADR-069](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
 answered it for SCM.
 
-**This row is also the navigation, not only a table.** Since FR-171
-([ADR-070](decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md))
+**This row is also the navigation, not only a table.** Since FR-172
+([ADR-071](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md))
 the domain bar holds one **CRM** slot and the sidebar lists both modules
 beneath it. Each keeps its own route key; `customer`'s bar label moved from
 "CRM" to "Customer" so the group and the leaf do not both read "CRM" — the
@@ -77,7 +77,7 @@ intelligence as a CRM analytics function, but offers Marketing as its own
 top-level application, not a CRM child — Odoo ships them as separate apps.
 Marketing already has five sub-pages and its own FRs (FR-157, FR-159, FR-160,
 FR-162); nesting it here would misrepresent the taxonomy this row exists to
-follow, not honour it. [ADR-070](decisions/ADR-070-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)'s
+follow, not honour it. [ADR-071](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)'s
 Context table records the same check against every other remaining domain
 (Marketing, Operations, HR/People, Development, Asset Management, LINE OA
 Studio, Platform) — each already stands as one complete ERP-recognised module
@@ -97,4 +97,4 @@ invented here.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | accepted | Created with the owner's SCM row: Inventory built (FEAT-020), Warehouse partial, Procurement built (FEAT-024, ADR-066), Order Management partial (FEAT-023) | working-tree | Claude Fable 5.1 |
-| 1.1.0 | 2026-09-08 | accepted | Added the CRM row (FR-171, ADR-070): Customer built (FR-091/093/103/127/161), Market Intelligence partial (FR-092) | working-tree | Claude Sonnet 5 |
+| 1.1.0 | 2026-09-08 | accepted | Added the CRM row (FR-172, ADR-071): Customer built (FR-091/093/103/127/161), Market Intelligence partial (FR-092) | working-tree | Claude Sonnet 5 |

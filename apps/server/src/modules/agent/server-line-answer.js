@@ -3,6 +3,7 @@ import { answerBusinessQuestion, createDeterministicBusinessModel } from './grou
 import { createLineReadQueryFromEnv, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
+// @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
 // execution placement and external model permission are distinct decisions.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge only, no memory,
 // tools, second CRM ingest, write actions or implicit external model fallback.
@@ -23,7 +24,7 @@ export function createServerLineAnswer({
   ...runtimeDependencies
 } = {}) {
   let localKnowledge = knowledge
-  return async function answer(job) {
+  return async function answer(job, { trace } = {}) {
     const tenantId = job?.tenantId
     const businessId = job?.businessId
     const question = job?.inbound?.body
@@ -56,14 +57,23 @@ export function createServerLineAnswer({
         businessKnowledge = ports.businessKnowledge
         model = await ports.resolveModel({ tenantId, businessId })
       }
-      const result = await answerBusinessQuestion({ tenantId, businessId, question }, { knowledge: businessKnowledge, model })
+      const tracedKnowledge = trace ? { query: async input => {
+        const evidence = await businessKnowledge.query(input)
+        await trace.recordEvidence(input, evidence)
+        return evidence
+      } } : businessKnowledge
+      const result = await answerBusinessQuestion({ tenantId, businessId, question }, { knowledge: tracedKnowledge, model, trace })
+      // Grounding may choose a deterministic fallback after a provider failure;
+      // a failed journal write must never be mistaken for that safe fallback.
+      trace?.assertHealthy()
       if (typeof result?.text !== 'string' || !result.text.trim()) throw failure('LINE_ANSWER_EMPTY')
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
       return result.text.slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
-    } catch {
+    } catch (error) {
       // Reader/provider failures may contain SQL, payload or credentials; the job
       // stores only this stable code, never the original message or cause.
+      if (['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE'].includes(error?.code)) throw failure(error.code)
       throw failure('LINE_ANSWER_UNAVAILABLE')
     }
   }

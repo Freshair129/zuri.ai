@@ -52,7 +52,7 @@ test.describe('FR-060 Business Home', () => {
 
     // 'Order Management' is the Commerce lane's label since ADR-069, and
     // 'Warehouse' is the reserved SCM sibling it added. 'Customer' is the
-    // customer domain's label since ADR-070 grouped it with Market
+    // customer domain's label since ADR-071 grouped it with Market
     // Intelligence under the new CRM bar slot.
     for (const label of ['Order Management', 'Customer', 'Marketing', 'Operations', 'Warehouse']) {
       await expect(page.getByText(label, { exact: true }).first()).toBeVisible()

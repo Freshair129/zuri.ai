@@ -10,9 +10,13 @@ attributes:
   scope: "the rest of the top domain bar organised by ERP taxonomy, per the owner's instruction — CRM becomes one slot over Customer and Market Intelligence; every other remaining domain is confirmed as already standing correctly on its own. Navigation and grouping only: no domain key, model or route changes."
 ---
 
-# ADR-070 — CRM is a parent domain over Customer and Market Intelligence
+# ADR-071 — CRM is a parent domain over Customer and Market Intelligence
 
-**Status:** Accepted. Implemented by FR-171 in the same change.
+**Status:** Accepted. Implemented by FR-172 in the same change. Numbered
+ADR-071/FR-172 rather than the originally-drafted ADR-070/FR-171: this branch
+declared those ids before rebasing onto main, where Execution Trace & Replay
+v0.3 (a concurrent, unrelated change) had already taken them. Ids are keys,
+not labels — the later declaration is the one that moves (AGENTS.md §18).
 **Date:** 2026-09-08
 **Decided by:** Boss (instruction of 2026-09-07: "โดเมน ที่แสดงในtop nav bar เป็น
 โดเมนตามหลัก erp ยกเว้น business home", confirmed 2026-09-08: "จัดกลุ่ม top nav bar

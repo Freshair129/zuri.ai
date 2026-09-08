@@ -33,4 +33,14 @@ function loginRequest(request, options = {}) {
   })
 }
 
-module.exports = { E2E_USERNAME, E2E_PASSWORD, E2E_SESSION_SECRET, loginAsOwner, loginRequest }
+// @req FR-103 — read-only setup must preserve the authenticated context.
+// @tested tests/unit/e2e-scope-transport.test.js
+async function readScope(request) {
+  // One native ECONNRESET reconnect for this GET only. HTTP failures and
+  // repeated resets still fail; no write or assertion is retried.
+  const response = await request.get('/api/scope', { maxRetries: 1 })
+  if (!response.ok()) throw new Error(`Scope fixture failed: HTTP ${response.status()}`)
+  return response.json()
+}
+
+module.exports = { E2E_USERNAME, E2E_PASSWORD, E2E_SESSION_SECRET, loginAsOwner, loginRequest, readScope }

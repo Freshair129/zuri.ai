@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T20:34:15.509Z",
+  "generatedAt": "2026-09-08T06:18:53.017Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 126,
-    "readyFeatureCount": 104,
-    "requirementCount": 171,
-    "verifiedRequirementCount": 161,
+    "featureCount": 127,
+    "readyFeatureCount": 105,
+    "requirementCount": 172,
+    "verifiedRequirementCount": 162,
     "progressPercent": 94.2,
     "gapCount": 22,
     "gaps": [
@@ -263,8 +263,8 @@
           "id": "FR-048",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 5,
+          "testCount": 8
         },
         {
           "id": "FR-049",
@@ -325,7 +325,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-079",
@@ -415,8 +415,8 @@
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 25
+          "codeCount": 7,
+          "testCount": 26
         },
         {
           "id": "FR-150",
@@ -424,6 +424,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 4
+        },
+        {
+          "id": "FR-171",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -442,7 +449,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -479,9 +486,15 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 1,
+            "present": 1
+          }
         },
         "authorization": {
           "status": "verified",
@@ -523,8 +536,12 @@
         "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
         "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
         "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
+        "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
         "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
         "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
+        "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
+        "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -569,8 +586,8 @@
         "routes": 4,
         "apiRoutes": 4,
         "pageRoutes": 0,
-        "ownedModels": 0,
-        "featureNotes": 10
+        "ownedModels": 1,
+        "featureNotes": 13
       },
       "featureIds": [
         "FR-025",
@@ -587,11 +604,12 @@
         "FR-055",
         "FR-057",
         "FR-132",
-        "FR-141"
+        "FR-141",
+        "FR-171"
       ],
-      "featureCount": 15,
-      "readyFeatureCount": 14,
-      "progressPercent": 93.3
+      "featureCount": 16,
+      "readyFeatureCount": 15,
+      "progressPercent": 93.8
     },
     "asset-management": {
       "status": "partial",
@@ -683,7 +701,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -844,7 +862,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -992,7 +1010,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-127",
@@ -1148,7 +1166,7 @@
         "FEAT-022",
         "FR-023",
         "FR-103",
-        "FR-171"
+        "FR-172"
       ],
       "featureCount": 7,
       "readyFeatureCount": 4,
@@ -1323,7 +1341,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-104",
@@ -1461,7 +1479,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -1653,7 +1671,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-052",
@@ -1807,7 +1825,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-152",
@@ -1840,7 +1858,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -2034,7 +2052,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -2451,7 +2469,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-150",
@@ -2480,6 +2498,13 @@
           "status": "verified",
           "codeCount": 13,
           "testCount": 14
+        },
+        {
+          "id": "FR-171",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -2503,9 +2528,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 15,
-            "inventoried": 15,
-            "openApiPaths": 200,
+            "routes": 16,
+            "inventoried": 16,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -2559,7 +2584,7 @@
           "details": {
             "mutations": 14,
             "guardedMutations": 9,
-            "reads": 8,
+            "reads": 9,
             "unguardedReads": 0
           }
         },
@@ -2604,8 +2629,8 @@
         }
       ],
       "details": {
-        "routes": 25,
-        "apiRoutes": 15,
+        "routes": 26,
+        "apiRoutes": 16,
         "pageRoutes": 10,
         "ownedModels": 6,
         "featureNotes": 10
@@ -2659,7 +2684,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -2811,7 +2836,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -2969,7 +2994,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -3102,7 +3127,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -3678,7 +3703,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-104",
@@ -3825,7 +3850,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-150",
@@ -3954,7 +3979,7 @@
           "testCount": 19
         },
         {
-          "id": "FR-171",
+          "id": "FR-172",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -3993,7 +4018,7 @@
           "details": {
             "routes": 113,
             "inventoried": 113,
-            "openApiPaths": 200,
+            "openApiPaths": 201,
             "missingFromOpenApi": 0
           }
         },
@@ -4525,8 +4550,8 @@
           "id": "FR-048",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 7
+          "codeCount": 6,
+          "testCount": 8
         },
         {
           "id": "FR-079",
@@ -4550,6 +4575,7 @@
         "apps/server/src/app/api/platform/integrations/route.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/model-provider-catalog.js",
         "apps/server/src/modules/agent/model-provider.js",
         "apps/server/src/modules/agent/openrouter-oauth.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -4585,6 +4611,7 @@
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-registry-service.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
+        "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/connector-catalog.test.js"
       ]
@@ -5864,8 +5891,8 @@
           "id": "FR-149",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 25
+          "codeCount": 28,
+          "testCount": 26
         },
         {
           "id": "FR-150",
@@ -5892,6 +5919,7 @@
         "apps/server/src/app/api/line-oa/connections/route.js",
         "apps/server/src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/legacy-line-transport-ownership.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -5917,6 +5945,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
+        "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
@@ -8877,7 +8906,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -8896,6 +8925,7 @@
         "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js"
       ]
@@ -9955,7 +9985,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -9975,6 +10005,7 @@
         "apps/server/tests/unit/customer-consent-migration.test.js",
         "apps/server/tests/unit/customer-consent-service.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
+        "apps/server/tests/unit/e2e-scope-transport.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/sot-decision-service.test.js"
       ]
@@ -11121,11 +11152,67 @@
     },
     {
       "id": "FR-171",
-      "title": "Customer-facing navigation groups two domains under one CRM slot (ADR-070), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-070's Context table records the check for each).",
+      "title": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
         "FR-171"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "line-oa-studio"
+      ],
+      "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects.",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-171",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 11,
+          "testCount": 15
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
+        "apps/server/src/modules/agent/context.js",
+        "apps/server/src/modules/agent/execution-trace.js",
+        "apps/server/src/modules/agent/grounded-business-answer.js",
+        "apps/server/src/modules/agent/line-execution-trace.js",
+        "apps/server/src/modules/agent/model-provider.js",
+        "apps/server/src/modules/agent/msp-memory-evidence.js",
+        "apps/server/src/modules/agent/msp-memory-port.js",
+        "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+        "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+        "apps/server/tests/integration/agent-context.test.js",
+        "apps/server/tests/integration/agent-msp-port.test.js",
+        "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/execution-trace.test.js",
+        "apps/server/tests/integration/msp-memory-lineage.test.js",
+        "apps/server/tests/integration/msp-vault-memory-port.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/integration/server-line-trace.test.js",
+        "apps/server/tests/unit/grounded-business-answer.test.js",
+        "apps/server/tests/unit/line-trace-route.test.js",
+        "apps/server/tests/unit/model-provider-port.test.js",
+        "apps/server/tests/unit/model-provider-trace.test.js",
+        "apps/server/tests/unit/msp-memory-evidence.test.js",
+        "apps/server/tests/unit/server-line-answer.test.js"
+      ]
+    },
+    {
+      "id": "FR-172",
+      "title": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-071's Context table records the check for each). Renumbered from FR-171/ADR-070 — main's Execution Trace & Replay v0.3 already held those ids when this branch rebased.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-172"
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
@@ -11138,7 +11225,7 @@
       "blockers": [],
       "requirements": [
         {
-          "id": "FR-171",
+          "id": "FR-172",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,

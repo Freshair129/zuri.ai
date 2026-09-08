@@ -40,7 +40,7 @@ describe('Business domain navigation', () => {
   })
 
   it('uses ERP-friendly display labels without changing RBAC route keys', () => {
-    // @req FR-171 — relabelled from "CRM" to "Customer": ADR-070 groups this
+    // @req FR-172 — relabelled from "CRM" to "Customer": ADR-071 groups this
     // domain with Market Intelligence under a new CRM slot, and the group and
     // the leaf cannot both read "CRM" in the same bar.
     expect(DOMAINS.find((domain) => domain.key === 'customer').label).toBe('Customer')

@@ -9,9 +9,9 @@ import {
 } from '@/config/domains'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 
-// @req FR-171 — CRM is one slot in the domain bar over Customer and Market
+// @req FR-172 — CRM is one slot in the domain bar over Customer and Market
 //   Intelligence, and both keep their own keys.
-// @spec ADR-070
+// @spec ADR-071
 // @tested tests/unit/crm-group-navigation.test.js
 
 const crm = () => DOMAIN_GROUPS.find((group) => group.key === 'crm')
@@ -40,7 +40,7 @@ describe('CRM groups the customer-facing domains without becoming one', () => {
   })
 
   it('relabels the leaf that used to read "CRM" so the group and the leaf never collide', () => {
-    // ADR-070 D2 — the same relabel class as ADR-069 D4 (Inventory/Warehouse).
+    // ADR-071 D2 — the same relabel class as ADR-069 D4 (Inventory/Warehouse).
     expect(DOMAINS.find((domain) => domain.key === 'customer').label).toBe('Customer')
     expect(crm().label).toBe('CRM')
   })
@@ -82,7 +82,7 @@ describe('CRM groups the customer-facing domains without becoming one', () => {
   })
 
   it('leaves every domain the ADR considered and rejected for grouping alone', () => {
-    // ADR-070's Context table: Marketing, Operations, HR/People, Development,
+    // ADR-071's Context table: Marketing, Operations, HR/People, Development,
     // Asset Management, LINE OA Studio and Platform each stay their own slot.
     for (const key of ['growth', 'operations', 'people', 'projects', 'assets', 'line-oa', 'platform']) {
       expect(groupForDomainKey(key)).toBeNull()
