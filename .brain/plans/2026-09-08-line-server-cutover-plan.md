@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-08T21:55:00+07:00,CLAUDE"
-last_update: "2026-09-08T21:55:00+07:00,CLAUDE"
-status: "draft — owner decisions pending"
+last_update: "2026-09-08T22:05:00+07:00,CLAUDE"
+status: "accepted — execution placement decided"
 attributes:
   domain: "line-oa-studio"
   doc_type: "cutover-plan"
@@ -35,7 +35,7 @@ Tenant `77cdbe70-3111-4a04-922a-8059be99a8b0`, Business `834fa869-62f3-431c-a287
 
 ## 1. Owner decisions before anything is touched
 
-1. **Execution placement for the first weeks: SERVER (recommended) or EDGE.** EDGE + `LOCAL_ONLY` means every
+1. **Execution placement: SERVER — decided by the owner on 2026-09-08.** (Original options kept for the record.) EDGE + `LOCAL_ONLY` means every
    customer answer waits for this workstation's compute worker; with the device offline the job waits visibly
    and the customer gets nothing (ADR-061 D2, Consequences). SERVER needs the cloud model credential and the
    scoped business-knowledge reader configured on the server (agent charter; `ZURI_LINE_BUSINESS_AGENT_ENABLED`
@@ -179,4 +179,5 @@ is the switch itself, done reversibly:
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 0.1.1b | 2026-09-08 | accepted | Owner chose SERVER execution for the cutover; §4 becomes optional follow-up | CLAUDE |
 | 0.1.0b | 2026-09-08 | draft | First plan from verified production state; owner decisions in §1 pending | CLAUDE |
