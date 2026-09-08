@@ -1,4 +1,4 @@
-// @req FR-172 — immutable Text/Markdown admission, idempotency and safe status
+// @req FR-173 — immutable Text/Markdown admission, idempotency and safe status
 // are proved at the shared service boundary before HTTP/MCP dispatch.
 // @spec ADR-072, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
 // @tested tests/unit/knowledge-admission-service.test.js

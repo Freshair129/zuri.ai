@@ -1,4 +1,4 @@
-// @req FR-172 — HTTP admission/list/status routes authenticate once and call
+// @req FR-173 — HTTP admission/list/status routes authenticate once and call
 // the shared service; public responses keep admission and native run ids apart.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-admission-routes.test.js

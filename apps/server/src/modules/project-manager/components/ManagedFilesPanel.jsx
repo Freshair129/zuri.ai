@@ -1,7 +1,7 @@
 'use client'
 
 // @req FR-045 - Business and Project File Manager controls over one managed model.
-// @req FR-172 - Files and Project Files admit Text/Markdown through the shared
+// @req FR-173 - Files and Project Files admit Text/Markdown through the shared
 // knowledge service and show durable job/publication state.
 // @req FR-058 - hosts the grid/timeline/by-project/preview view switcher over the
 // same managed asset list; the panel itself gains no new persistence or route.

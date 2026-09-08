@@ -1,5 +1,5 @@
 // @req FR-109 — actual source process death before a Stage9 batch exists.
-// @spec ADR-071
+// @spec ADR-073
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 const path = require('node:path')
 const Module = require('node:module')

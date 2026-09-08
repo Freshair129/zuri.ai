@@ -6,7 +6,7 @@ import { createProjectManagerMcpTransport, jsonRpcError } from '@/modules/projec
 // second business or persistence path.
 // @req FR-071 — expose the approved data_pipeline tools through the same
 // authenticated MCP session without a second persistence path.
-// @req FR-172 — knowledge MCP queries/citations can recheck the original
+// @req FR-173 — knowledge MCP queries/citations can recheck the original
 // authenticated request before disclosing a slow result.
 // @spec ADR-029, ADR-040, SEC-001, SEC-008
 // @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js

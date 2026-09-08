@@ -1,7 +1,7 @@
 import { handle } from '../../../_helpers'
 import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, readRouteParams, strictKnowledgeBody } from '@/modules/knowledge/knowledge-http'
 
-// @req FR-172 — source withdrawal uses the corpus service's compare-and-set
+// @req FR-173 — source withdrawal uses the corpus service's compare-and-set
 // publication boundary and cannot delete immutable historical evidence.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-corpus-routes.test.js

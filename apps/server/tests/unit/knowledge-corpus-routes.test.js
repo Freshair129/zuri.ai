@@ -1,4 +1,4 @@
-// @req FR-172 — query, citation and source withdrawal HTTP routes dispatch only
+// @req FR-173 — query, citation and source withdrawal HTTP routes dispatch only
 // through the corpus service after the trusted viewer/API boundary.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-corpus-routes.test.js

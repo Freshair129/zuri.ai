@@ -2,7 +2,7 @@ import base from './vitest.config'
 
 // @req FR-110 — the full pipeline acceptance gate requires explicit sibling
 // runtimes and real native embeddings; missing prerequisites fail, never skip.
-// @spec ADR-071
+// @spec ADR-073
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 export default {
   ...base,

@@ -11,9 +11,9 @@ relations:
   - type: references
     target: ZAI:KNOWLEDGE-ADMISSION-CONTRACT
   - type: references
-    target: ZAI:ADR-071
+    target: ZAI:ADR-073
   - type: relates_to
-    target: ZAI:FR-172
+    target: ZAI:FR-173
   - type: relates_to
     target: ZAI:FR-109
   - type: relates_to
@@ -24,7 +24,7 @@ relations:
 
 ## 1. ขอบเขตและสถานะของ phases 0–4
 
-เอกสารนี้เป็น surface inventory ที่ reconcile จาก baseline audit เป็นสัญญาและโค้ดปัจจุบันของ phases 0–4 ภายใต้ [ADR-072](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md), [Knowledge admission contract](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) และ [FR-172 ใน PRD/SDD](PRD-SDD-v1.0.md#fr-172) ขอบเขตที่ส่งมอบแล้วคือ admission กลางสำหรับ Text/Markdown และ managed FileAsset ที่อ่านเป็น UTF-8 ได้, durable status, published-only query/citation, correction และ source withdrawal ใน Business หรือ Project corpus เดียวกัน
+เอกสารนี้เป็น surface inventory ที่ reconcile จาก baseline audit เป็นสัญญาและโค้ดปัจจุบันของ phases 0–4 ภายใต้ [ADR-072](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md), [Knowledge admission contract](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) และ [FR-173 ใน PRD/SDD](PRD-SDD-v1.0.md#fr-172) ขอบเขตที่ส่งมอบแล้วคือ admission กลางสำหรับ Text/Markdown และ managed FileAsset ที่อ่านเป็น UTF-8 ได้, durable status, published-only query/citation, correction และ source withdrawal ใน Business หรือ Project corpus เดียวกัน
 
 - **Surface implementation:** HTTP มี 5 paths / 6 operations; MCP ใช้ `POST /api/mcp` เดิมและเพิ่ม 6 knowledge tools; Files และ Project Files ใช้ `ManagedFilesPanel` เดิมและเรียก admission service เดียวกัน
 - **Authorization boundary:** session viewer ใช้สิทธิ์ปัจจุบันจากระบบเดิม; HTTP รองรับ explicit configured bearer/API grant ที่ตรง `serviceAccountId + tenantId + businessId + action`; MCP entrypoint ยัง authenticate และ re-resolve ด้วย session viewer เดิม ไม่รับ API grant เป็นสิทธิ์ใหม่ให้ tools อื่น
@@ -378,4 +378,4 @@ Deferred after this contract: PDF/DOCX/Excel/image/OCR; external URL fetch/crawl
 |---|---|---|---|---|---|
 | 1.0.0b | 2026-09-08 | draft | Enumerated Server endpoints; actual source paths versus 16 proposed/partial user journeys; admission and cross-domain extension gaps | base dfdbaf11 | RWANG |
 | 1.1.1b | 2026-09-08 | beta | Record actual Business surface/native acceptance, corpus proof and remaining Project/API-grant/browser-query evidence limits | 03256b74 + integration | RWANG |
-| 1.1.0b | 2026-09-08 | beta | Reconciled phases 0–4 HTTP/MCP/UI surfaces, 28-path/34-operation inventory, U01–U16 status matrix and native-acceptance boundary; linked ADR-072, FR-172 and the frozen contract | 0816ed4d | RWANG |
+| 1.1.0b | 2026-09-08 | beta | Reconciled phases 0–4 HTTP/MCP/UI surfaces, 28-path/34-operation inventory, U01–U16 status matrix and native-acceptance boundary; linked ADR-072, FR-173 and the frozen contract | 0816ed4d | RWANG |

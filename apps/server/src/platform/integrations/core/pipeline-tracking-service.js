@@ -22,7 +22,7 @@ import {
 } from './pipeline-tracking-contract'
 import { gateCompliance } from './pipeline-gate-compliance'
 
-// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-071 — full pipeline evidence is written behind one server-owned,
 // scope-filtered service boundary with append-only event receipts.
 // @req FR-129 — a gate decision's evidence is persisted and returned, and a

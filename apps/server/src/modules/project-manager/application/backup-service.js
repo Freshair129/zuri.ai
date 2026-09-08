@@ -146,7 +146,7 @@ const SNAPSHOT_MODELS = [
   // evidence and publication proof. Intent and occurrence rows deliberately
   // carry no foreign keys to pipeline data, so this order is a restore/delete
   // convention rather than a database constraint.
-  // @req FR-172 — restore corpus parents before sources, jobs and immutable generations.
+  // @req FR-173 — restore corpus parents before sources, jobs and immutable generations.
   'knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration',
   'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
   'genesisRag17IngestionIntent', 'genesisRag17SourceMention',

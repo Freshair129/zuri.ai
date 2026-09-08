@@ -1,7 +1,7 @@
 import { handle } from '../../../_helpers'
 import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, readRouteParams } from '@/modules/knowledge/knowledge-http'
 
-// @req FR-172 — citation resolution rechecks current knowledge access through
+// @req FR-173 — citation resolution rechecks current knowledge access through
 // the corpus service before returning historical evidence.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-corpus-routes.test.js

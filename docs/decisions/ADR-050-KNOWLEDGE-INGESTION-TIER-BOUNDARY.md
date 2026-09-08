@@ -12,7 +12,7 @@ attributes:
 
 # ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership
 
-> **Current execution overlay (2026-09-08):** [ADR-071](ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) implements the isolated pipeline beyond this historical slice. Use the [17-stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [actual flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md). GKS is passive; the worker pulls through MSP, sends graph receipt before GKS Stage 14, then final write and publication receipts. New evidence carries all six metrics and exact attempt identity. Successful finish requires publication receipt. Older statements here about unbuilt stages, no new models, or direct Tier 4 reporting describe the scope at the original decision date, not the current GenesisRAG17 path.
+> **Current execution overlay (2026-09-08):** [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) implements the isolated pipeline beyond this historical slice. Use the [17-stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [actual flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md). GKS is passive; the worker pulls through MSP, sends graph receipt before GKS Stage 14, then final write and publication receipts. New evidence carries all six metrics and exact attempt identity. Successful finish requires publication receipt. Older statements here about unbuilt stages, no new models, or direct Tier 4 reporting describe the scope at the original decision date, not the current GenesisRAG17 path.
 
 **Status:** Accepted for the contract/documentation boundary. No runtime slice is authorized by this ADR.  
 **Date:** 2026-08-27  
@@ -30,7 +30,7 @@ This ADR therefore adopts the stage vocabulary and, in the same act, fixes the b
 ## Decision
 
 The no-runtime/no-new-model limits below describe this ADR's original slice.
-[ADR-071](ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) authorizes
+[ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) authorizes
 isolated durable source/chunk execution, all-six metrics and publication receipts.
 Tier ownership remains binding; GKS evaluates the combined gate and Tier4 publishes.
 
@@ -170,4 +170,4 @@ FR-024's live-fact guard and FR-047's allow-listed public projection are the sam
 | 1.0.0 | 2026-08-27 | accepted | Adopted the 17-stage vocabulary with stage id as the key, assigned per-stage tier ownership, bounded Tier 1 to declaration/catalog/provenance/approval, reused the FR-071 ledger with no new models, and fixed atomic snapshot publication, policy-driven execution location and scope-before-index | working-tree | Claude Opus 5 |
 
 
-Documentation revision 2026-09-08: identify the ADR-071 execution overlay and extension map while preserving the original decision history (RWANG, base b64b46df).
+Documentation revision 2026-09-08: identify the ADR-073 execution overlay and extension map while preserving the original decision history (RWANG, base b64b46df).

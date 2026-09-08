@@ -10,7 +10,7 @@ attributes:
   scope: isolated seventeen-stage acceptance implementation
 relations:
   - type: relates_to
-    target: ZAI:ADR-071
+    target: ZAI:ADR-073
 ---
 
 # Approved GenesisRAG17 implementation contract

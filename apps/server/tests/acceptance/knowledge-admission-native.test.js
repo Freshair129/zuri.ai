@@ -14,10 +14,10 @@ import {
   seedKnowledgeOwner,
 } from './knowledge-admission-harness'
 
-// @req FR-172 — the owner-facing UI and HTTP API admit immutable source
+// @req FR-173 — the owner-facing UI and HTTP API admit immutable source
 // versions into one durable corpus, resume after a real Next restart, and
 // serve only receipt-backed native snapshots and current-authorized citations.
-// @spec ADR-072, ADR-071
+// @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))

@@ -33,7 +33,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
-| KnowledgeCorpus | corpusKey, scopeJson, policyJson, businessId, projectId?, generation, version | FR-172 / ADR-072: Tier 1 atomic snapshot read-set pointer; no canonical fact store |
+| KnowledgeCorpus | corpusKey, scopeJson, policyJson, businessId, projectId?, generation, version | FR-173 / ADR-072: Tier 1 atomic snapshot read-set pointer; no canonical fact store |
 | KnowledgeSource | corpusId, sourceKey, kind, fileAssetId?, desiredRevision, activeIngestionId?, revokedAt | Stable source identity; correction/revocation use CAS |
 | KnowledgeIngestion | sourceId, sourceVersion, revision, contentHash, content, idempotencyKey, executionRunId?, status, claimToken?, leaseExpiresAt? | Immutable accepted Text/Markdown bytes and durable process lease; source/version is unique |
 | KnowledgeCorpusGeneration | corpusId, number, manifestJson, manifestHash, createdAt | Immutable source snapshot membership; unique corpus generation |
@@ -405,7 +405,7 @@ payloads and revalidate through their owners; no binary or PM task is copied.
 
 ## GenesisRAG17 isolated durability (FR-109, FR-110)
 
-Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-071](../decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
+Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
 
 | Model | Identity / retained evidence | Restore order |
 |---|---|---|

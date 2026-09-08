@@ -5,7 +5,7 @@ import {
   listKnowledgeIngestions,
 } from '@/modules/knowledge/knowledge-admission-service'
 
-// @req FR-172 — Files/API admission and scoped ingestion status use the same
+// @req FR-173 — Files/API admission and scoped ingestion status use the same
 // durable knowledge service and explicit viewer/API grant.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-admission-routes.test.js

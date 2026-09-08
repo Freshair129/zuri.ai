@@ -1,9 +1,9 @@
 import base from './vitest.config'
 
-// @req FR-172 — the owner-facing knowledge admission acceptance executes the
+// @req FR-173 — the owner-facing knowledge admission acceptance executes the
 // actual Next/HTTP/browser/native recovery path, rather than being hidden by the
 // unit/integration include in the base Vitest configuration.
-// @spec ADR-072, ADR-071
+// @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
 export default {
   ...base,

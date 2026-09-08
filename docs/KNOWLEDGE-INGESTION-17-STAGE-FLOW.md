@@ -7,7 +7,7 @@ created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
 last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
-    target: ZAI:ADR-071
+    target: ZAI:ADR-073
   - type: references
     target: ZAI:GENESISRAG17-CONTRACT
   - type: relates_to
@@ -22,11 +22,11 @@ Isolated acceptance: Business owner Files browser admission and session HTTP/MCP
 
 สำหรับจุดเริ่มจาก UI/API/MCP, FileAsset/Project/LINE และช่องว่างก่อนเข้าสู่ pipeline อ่าน [surface inventory และ detailed user journeys](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) ซึ่งแยก endpoint ที่มีจริงออกจาก user-facing admission และ sharing flow ที่ยังต้องเชื่อม ระบบทดสอบครบ 17 stages ไม่ได้หมายความว่าทุกหน้าจอและ connector เชื่อมแล้ว
 
-เริ่มจากตารางเลือก stage ด้านล่างเมื่อจะเพิ่มความสามารถใหม่ แล้วอ่าน contract ของ stage ก่อนแก้ implementation เอกสารนี้อธิบาย **ระบบทดสอบที่ทำแล้ว** ตาม ADR-071; [spec §§1–42](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) ยังเก็บข้อกำหนดผลิตภัณฑ์ที่กว้างกว่าไว้ โดยแต่ละ stage มีหมายเหตุขอบเขตที่ทำจริง
+เริ่มจากตารางเลือก stage ด้านล่างเมื่อจะเพิ่มความสามารถใหม่ แล้วอ่าน contract ของ stage ก่อนแก้ implementation เอกสารนี้อธิบาย **ระบบทดสอบที่ทำแล้ว** ตาม ADR-073; [spec §§1–42](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) ยังเก็บข้อกำหนดผลิตภัณฑ์ที่กว้างกว่าไว้ โดยแต่ละ stage มีหมายเหตุขอบเขตที่ทำจริง
 
 ขอบเขตปัจจุบัน: synthetic text/Markdown, หนึ่งเอกสารต่อ run, ฐานข้อมูลแยก, scope `private`, rule-based extraction, local CPU embeddings และ worker loop ที่เริ่ม/หยุดและ resume ได้ ไม่มี production deployment, LLM extraction, UI ใหม่ หรือ OS scheduled task ในงานนี้ การเพิ่ม capability ในตารางคือจุดที่ควรออกแบบต่อ ไม่ใช่ plugin/API ที่มีอยู่แล้วทุกข้อ
 
-## Approved admission flow — FR-172 / ADR-072
+## Approved admission flow — FR-173 / ADR-072
 
 The phases 0–4 implementation contract is [frozen here](plans/KNOWLEDGE-ADMISSION-CONTRACT.md). Actual surface/native acceptance is a separate gate from the historical raw-entrypoint proof.
 
@@ -220,7 +220,7 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 4. เพิ่ม positive/negative fixtures ที่พิสูจน์ capability ใหม่และผลต่อ stage ถัดไป พร้อม duplicate/reply loss/restart/wrong-scope tests ตาม boundary ที่เปลี่ยน
 5. รัน acceptance จาก raw entrypoint ผ่าน worker จริงจน query พร้อม citation; ห้าม test ใส่ผลสำเร็จ stage หรือเรียก promotion แทน ingestion แล้วถือว่าครบ 17 stages
 6. ตรวจ fixed-corpus Recall@5 ≥ .80, MRR ≥ .65, citation correctness = 1.00, cross-tenant leaks = 0; ระบุ fixture/commit/model/schema versions ทุกครั้ง ผลนี้เป็น benchmark ของชุดทดสอบ ไม่ใช่คุณภาพ production
-7. Root เดียว regenerate governance และตรวจ cross-repo links/flow. แยกหลักฐาน raw-entrypoint เดิมออกจากรายงาน FR-172 ที่รันผ่าน UI/API/MCP จริง และระบุขอบเขตที่ยังใช้ unit/Prisma tests ตาม phase report
+7. Root เดียว regenerate governance และตรวจ cross-repo links/flow. แยกหลักฐาน raw-entrypoint เดิมออกจากรายงาน FR-173 ที่รันผ่าน UI/API/MCP จริง และระบุขอบเขตที่ยังใช้ unit/Prisma tests ตาม phase report
 
 ## CHANGELOG
 

@@ -1,5 +1,5 @@
 // @req FR-110 — actual Tier4 process lifetime, not an in-memory restart mock.
-// @spec ADR-071
+// @spec ADR-073
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 import { createRequire } from 'node:module'
 import path from 'node:path'

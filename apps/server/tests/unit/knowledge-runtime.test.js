@@ -11,7 +11,7 @@ import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/
 import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 
-// @req FR-172 — scope-bound authority, durable run attachment, lease recovery and no false publication.
+// @req FR-173 — scope-bound authority, durable run attachment, lease recovery and no false publication.
 // @spec ADR-072, SEC-003
 // @tested tests/unit/knowledge-runtime.test.js
 const scope = { portfolioId: 'p', tenantId: 't', businessId: 'b', workspaceId: '', agentId: '', visibility: 'private' }

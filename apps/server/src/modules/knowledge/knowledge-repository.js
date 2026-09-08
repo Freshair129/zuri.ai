@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 
-// @req FR-172 — one persistence adapter for durable admission and immutable corpus manifests.
+// @req FR-173 — one persistence adapter for durable admission and immutable corpus manifests.
 // @spec ADR-072, SEC-001
 // @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
 

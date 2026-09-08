@@ -283,6 +283,7 @@
     "FR-170",
     "FR-171",
     "FR-172",
+    "FR-173",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -603,6 +604,7 @@
     "ADR-070",
     "ADR-071",
     "ADR-072",
+    "ADR-073",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3233,6 +3235,29 @@
       "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
     },
     "FR-172": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "burnt",
+      "statement_digest": "b40eb324b84a513acbddbb17be1a07067e56ea78403793ac7f8d0e46a5a63925",
+      "history": [
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        },
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-173. Main d36f9a61 published CRM as FR-172 before this branch; move knowledge admission to FR-173.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        }
+      ],
+      "retired_to": "FR-173",
+      "retired_at": "2026-09-08",
+      "reason": "Main d36f9a61 published CRM as FR-172 before this branch; move knowledge admission to FR-173.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+    },
+    "FR-173": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
@@ -7443,15 +7468,25 @@
     "ADR-071": {
       "family": "ADR",
       "source": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "status": "current",
+      "status": "burnt",
       "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
       "history": [
         {
           "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-08",
           "reason": "declared"
+        },
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
+          "reason": "Abandoned before merge; this branch renumbered itself to ADR-073. Main d36f9a61 published CRM as ADR-071 before this branch; move isolated GenesisRAG17 to ADR-073.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
         }
-      ]
+      ],
+      "retired_to": "ADR-073",
+      "retired_at": "2026-09-08",
+      "reason": "Main d36f9a61 published CRM as ADR-071 before this branch; move isolated GenesisRAG17 to ADR-073.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
     },
     "ADR-072": {
       "family": "ADR",
@@ -7461,6 +7496,19 @@
       "history": [
         {
           "anchor": "knowledge admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-073": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "history": [
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-08",
           "reason": "declared"
         }

@@ -16,7 +16,7 @@ import {
 import { callGenesisRag17Worker } from './genesisrag17-worker'
 import { persistGenesisRag17PublicationReceipt } from './genesisrag17-publication'
 
-// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-110 — Tier 1 pulls immutable Stage 9–17 evidence through MSP,
 // applies it to the exact run/step/attempt identity and advances a per-run
 // cursor only after the local evidence and ledger writes commit.

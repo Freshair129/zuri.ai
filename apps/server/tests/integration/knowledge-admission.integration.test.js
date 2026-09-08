@@ -1,4 +1,4 @@
-// @req FR-172 — the actual database, HTTP route and MCP transport all reach
+// @req FR-173 — the actual database, HTTP route and MCP transport all reach
 // the same durable admission service and live knowledge authorization helper.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/integration/knowledge-admission.integration.test.js

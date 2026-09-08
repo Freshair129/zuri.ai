@@ -2034,7 +2034,7 @@ model KnowledgeChunk {
 // @req FR-109 — a source intent captures the exact scoped input and
 // derivation configuration before local Stage 1 starts, so a process-owned
 // worker can resume an interrupted Stage 1–8 pass without caller resubmission.
-// @spec ADR-071, docs/plans/GENESISRAG17-CONTRACT.md
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-lineage-repository.test.js
 model GenesisRag17IngestionIntent {
   id               String   @id
@@ -2067,7 +2067,7 @@ model GenesisRag17IngestionIntent {
 
 // @req FR-109 — every Stage 8 occurrence is durable, typed and bound to its
 // exact source attempt and derivation provenance before local success evidence.
-// @spec ADR-071, docs/plans/GENESISRAG17-CONTRACT.md
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-lineage-repository.test.js
 model GenesisRag17SourceMention {
   id                   String   @id
@@ -2206,7 +2206,7 @@ model GenesisRag17EvidenceCursor {
   @@index([tenantId])
 }
 
-// @req FR-172 — authorized source admission and immutable corpus snapshot read sets.
+// @req FR-173 — authorized source admission and immutable corpus snapshot read sets.
 // @spec ADR-072, SEC-001, SEC-008
 // @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
 model KnowledgeCorpus {

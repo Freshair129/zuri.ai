@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-08T12:39:19.204Z",
+  "generatedAt": "2026-09-08T14:58:24.952Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1844,7 +1844,7 @@
           "testCount": 17
         },
         {
-          "id": "FR-172",
+          "id": "FR-173",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -2297,7 +2297,7 @@
           "testCount": 0
         },
         {
-          "id": "FR-172",
+          "id": "FR-173",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2392,7 +2392,7 @@
         "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
-        "docs/domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md",
+        "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -4026,7 +4026,7 @@
           "testCount": 18
         },
         {
-          "id": "FR-172",
+          "id": "FR-173",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -5276,14 +5276,14 @@
     },
     {
       "id": "FEAT-013",
-      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-071; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving",
+      "title": "Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-109",
         "FR-110",
         "FR-111",
-        "FR-172"
+        "FR-173"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
@@ -5321,7 +5321,7 @@
           "testCount": 7
         },
         {
-          "id": "FR-172",
+          "id": "FR-173",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,

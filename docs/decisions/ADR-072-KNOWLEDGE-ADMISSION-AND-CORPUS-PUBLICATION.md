@@ -7,11 +7,11 @@ created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
 last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
-    target: ZAI:ADR-071
+    target: ZAI:ADR-073
   - type: references
     target: ZAI:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS
   - type: relates_to
-    target: ZAI:FR-172
+    target: ZAI:FR-173
 ---
 
 # ADR-072 — Knowledge admission and corpus publication

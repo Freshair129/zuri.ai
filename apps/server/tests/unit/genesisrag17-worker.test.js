@@ -5,7 +5,7 @@ import { GENESIS_RAG17_SCHEMA_VERSION } from '@/modules/knowledge/genesisrag17-c
 
 // @req FR-109 — a null MSP decision remains a durable pending outbox row until
 // a later retry returns an actual decision identity.
-// @spec ADR-071, docs/plans/GENESISRAG17-CONTRACT.md
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-worker.test.js
 
 const scope = {

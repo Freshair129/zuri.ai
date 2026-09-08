@@ -1,4 +1,4 @@
-// @req FR-172 — MCP knowledge tools use the same admission/list/status service
+// @req FR-173 — MCP knowledge tools use the same admission/list/status service
 // and reject caller-supplied executable or authority fields.
 // @spec ADR-072, SEC-001, SEC-008
 // @tested tests/unit/knowledge-admission-mcp.test.js

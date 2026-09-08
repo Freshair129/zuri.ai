@@ -18,7 +18,7 @@ import { normalizeOrganizationName } from '@/modules/knowledge/normalization'
 
 // @req FR-109 — actual raw acquisition, durable lineage, all17 exact attempts.
 // @req FR-110 — real native embeddings, gated publication, citations and restart.
-// @spec ADR-071, NFR-020
+// @spec ADR-073, NFR-020
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 
 const fixture = JSON.parse(readFileSync(path.resolve('tests/fixtures/genesisrag17-corpus-v1.json'), 'utf8'))

@@ -1,6 +1,6 @@
-// @req FR-172 — the real knowledge admission acceptance is isolated, native
+// @req FR-173 — the real knowledge admission acceptance is isolated, native
 // prerequisite-gated, and cannot report success without executing a test.
-// @spec ADR-072, ADR-071
+// @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'

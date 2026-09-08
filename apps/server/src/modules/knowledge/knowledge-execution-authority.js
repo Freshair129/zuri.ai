@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'node:util'
 import { parseGenesisRag17Scope } from './genesisrag17-contract'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 
-// @req FR-172 — non-serializable, scope-bound authority for the admitted source runtime.
+// @req FR-173 — non-serializable, scope-bound authority for the admitted source runtime.
 // @spec ADR-072, SEC-003
 // @tested tests/unit/knowledge-runtime.test.js
 const authorities = new WeakMap()

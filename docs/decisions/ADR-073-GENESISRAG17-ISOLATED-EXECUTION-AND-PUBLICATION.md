@@ -1,7 +1,7 @@
 ---
-id: ZAI:ADR-071
+id: ZAI:ADR-073
 title: GenesisRAG17 isolated execution and publication
-version: "1.2.0b"
+version: "1.3.0b"
 status: beta
 created_at: "2026-09-07T22:19:00+07:00,RWANG,base b17e7258"
 last_update: "2026-09-08T00:51:36+07:00,RWANG"
@@ -22,9 +22,13 @@ relations:
     target: ZAI:FR-110
 ---
 
-# ADR-071 — GenesisRAG17 isolated execution and publication
+# ADR-073 — GenesisRAG17 isolated execution and publication
 
-Version 1.2.0b moves this unmerged branch declaration from ADR-070 to ADR-071.
+Version 1.3.0b moves this unmerged branch declaration from ADR-071 to ADR-073
+because main d36f9a61 published ADR-071 for CRM first. The ID ledger retains
+the branch abandonment and trunk identity history under AGENTS.md §18.
+
+Previously, version 1.2.0b moved this branch declaration from ADR-070 to ADR-071.
 Main published ADR-070 for execution trace/replay in PR #290 first. Its subject
 and identity remain authoritative; this branch resolves the collision under
 AGENTS.md §18 using the ID-ledger tooling. GenesisRAG requirements, stage IDs,
@@ -104,6 +108,7 @@ Acceptance starts at raw entrypoint, never direct promotion or stage-result inje
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0b | 2026-09-08 | beta | ADR-071 abandoned by this unmerged branch in favor of ADR-073 because main published CRM first; runtime unchanged | main d36f9a61 | RWANG |
 | 1.2.0b | 2026-09-08 | beta | ADR-070 abandoned by this unmerged branch in favor of ADR-071 because main published execution trace/replay first | main bd385c1d | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Link actual per-stage profile, extension map and recorded acceptance without changing runtime scope | base b64b46df | RWANG |
 | 1.0.0b | 2026-09-07 | beta | Approved isolated durable 17-stage execution and receipt-bound atomic publication | base b17e7258 | RWANG |

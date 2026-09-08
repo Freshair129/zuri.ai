@@ -15,7 +15,7 @@ import {
 // @req FR-109 — a real raw entry executes and persists ordered Tier 1 stages,
 // canonical RawExternalRecord linkage, immutable versioned lineage and exact
 // Person/Product source mentions before the Stage 9 handoff.
-// @req FR-172 — public citation lineage verifies raw and parsed content hashes.
+// @req FR-173 — public citation lineage verifies raw and parsed content hashes.
 // @spec ADR-050, ADR-063, ADR-067, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/integration/genesisrag17-tier1.test.js
 

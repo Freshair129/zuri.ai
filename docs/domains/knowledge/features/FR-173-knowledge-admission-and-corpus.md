@@ -1,6 +1,6 @@
 ---
-id: ZAI:FR-172-IMPLEMENTATION
-feature: FR-172
+id: ZAI:FR-173-IMPLEMENTATION
+feature: FR-173
 module: knowledge
 domain: knowledge
 source: v2-native
@@ -12,10 +12,10 @@ relations:
   - type: references
     target: ZAI:ADR-072
   - type: relates_to
-    target: ZAI:FR-172
+    target: ZAI:FR-173
 ---
 
-# FR-172 — Source admission and corpus serving
+# FR-173 — Source admission and corpus serving
 
 Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../../../../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 

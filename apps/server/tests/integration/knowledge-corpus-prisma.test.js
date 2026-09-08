@@ -22,7 +22,7 @@ import {
 } from '@/modules/knowledge/knowledge-corpus-service'
 import { makeViewer } from '../factories/viewer'
 
-// @req FR-172 — the corpus publication transaction and current-access reads
+// @req FR-173 — the corpus publication transaction and current-access reads
 // are proven against the real Prisma models, with native receipt/lineage
 // verification kept at the separate GenesisRAG17 acceptance boundary.
 // @spec ADR-072, SEC-001, SEC-008

@@ -1,4 +1,4 @@
-// @req FR-172 — HTTP knowledge query bodies reject caller-supplied authority,
+// @req FR-173 — HTTP knowledge query bodies reject caller-supplied authority,
 // runtime and implementation fields before corpus dispatch.
 // @spec ADR-072, SEC-001, SEC-006
 // @tested tests/unit/knowledge-http.test.js

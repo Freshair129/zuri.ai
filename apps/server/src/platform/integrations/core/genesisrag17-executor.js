@@ -38,7 +38,7 @@ import {
   parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
 
-// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — one real raw entry produces one document/run, immutable raw
 // -> parsed -> chunk lineage, exact Stage 1 evidence and one Stage 9 batch per
 // materialized attempt.

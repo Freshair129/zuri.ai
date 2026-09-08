@@ -18,7 +18,7 @@ FR-019 Enterprise API surface (`POST /api/import/dry-run`, `POST /api/import/com
 `GET /api/resolve`, and non-loopback `GET /api/docs`) likewise accepts a Tenant-bound
 `Authorization: Bearer apik_...` FR-106 `ApiAccessKey`, checked before the session seam
 and scoped on every request to the key's own Tenant; an invalid, revoked or missing key
-answers identically to no credential. The FR-172 knowledge routes also accept an apik credential only when the runtime explicitly grants that service account the exact Tenant/Business read or write action; session access uses existing Business/Project authority. Other routes do not acquire those grants.
+answers identically to no credential. The FR-173 knowledge routes also accept an apik credential only when the runtime explicitly grants that service account the exact Tenant/Business read or write action; session access uses existing Business/Project authority. Other routes do not acquire those grants.
 Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
@@ -779,7 +779,7 @@ Version diff 1.43.0b → 1.44.0b: four Content route handlers, six operations; l
 
 Version diff 1.45.0b → 1.46.0b: add the three Marketing Operations route families and update the handler count to 182; Intake writes remain Marketing-owned and Calendar/Handoffs remain owner projections.
 
-## FR-172 — Shared knowledge admission and corpus serving (ADR-072)
+## FR-173 — Shared knowledge admission and corpus serving (ADR-072)
 
 Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-ADMISSION-CONTRACT.md). A public runId identifies the admission job; executionRunId separately identifies its actual 17-stage execution. Scope, policy and runtime credentials are never caller-selected.
 
@@ -796,4 +796,4 @@ Validation: 400 invalid body, 401 no session/key, 404 inaccessible target, 409 v
 
 ### Version diff 1.52.0b → 1.53.0b
 
-Added FR-172's five paths/six operations and explicit API grant boundary; handler count 201 → 206. Registered the same paths in the OpenAPI source inventory; its route-enumeration test remains the drift gate.
+Added FR-173's five paths/six operations and explicit API grant boundary; handler count 201 → 206. Registered the same paths in the OpenAPI source inventory; its route-enumeration test remains the drift gate.

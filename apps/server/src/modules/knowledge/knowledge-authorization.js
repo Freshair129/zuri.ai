@@ -3,7 +3,7 @@ import { assertProjectWritable, requireViewer } from '@/modules/project-manager/
 import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 import { isApiAccessFor, ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 
-// @req FR-172 — knowledge admission, retrieval, citation and withdrawal use
+// @req FR-173 — knowledge admission, retrieval, citation and withdrawal use
 // the live Business/Project/FileAsset authority instead of request-selected
 // scope or a global role label.
 // @spec ADR-072, SEC-001, SEC-008

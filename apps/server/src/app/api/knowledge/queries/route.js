@@ -1,7 +1,7 @@
 import { handle } from '../../_helpers'
 import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, strictKnowledgeBody } from '@/modules/knowledge/knowledge-http'
 
-// @req FR-172 — query is dispatched to the corpus snapshot service only after
+// @req FR-173 — query is dispatched to the corpus snapshot service only after
 // the existing authenticated viewer/API grant is resolved.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-corpus-routes.test.js

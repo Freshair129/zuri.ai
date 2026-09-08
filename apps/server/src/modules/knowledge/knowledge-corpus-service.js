@@ -23,7 +23,7 @@ import {
   resolveKnowledgeScope,
 } from './knowledge-authorization'
 
-// @req FR-172 — verified per-source receipts are published into immutable
+// @req FR-173 — verified per-source receipts are published into immutable
 // corpus generations, and retrieval/citations are current-ACL checked reads.
 // @spec ADR-072, SEC-001, SEC-008
 // @tested tests/integration/knowledge-corpus.test.js

@@ -7,7 +7,7 @@ import { createRequire } from 'node:module'
 import { randomUUID } from 'node:crypto'
 import { makeOperatorViewer } from '../factories/viewer'
 
-// @req FR-172 — additive persistence parity and restore preflight prevent silent loss of corpus membership.
+// @req FR-173 — additive persistence parity and restore preflight prevent silent loss of corpus membership.
 // @spec ADR-072, SEC-001
 // @tested tests/integration/knowledge-admission-backup.test.js
 const tables = ['KnowledgeCorpus', 'KnowledgeSource', 'KnowledgeIngestion', 'KnowledgeCorpusGeneration']

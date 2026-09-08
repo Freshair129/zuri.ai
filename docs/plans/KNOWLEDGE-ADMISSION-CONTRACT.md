@@ -9,7 +9,7 @@ relations:
   - type: references
     target: ZAI:ADR-072
   - type: relates_to
-    target: ZAI:FR-172
+    target: ZAI:FR-173
 ---
 
 # Knowledge admission contract — phases 0–4

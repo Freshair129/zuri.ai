@@ -1,7 +1,7 @@
 import prisma from '@/lib/db'
 import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag17ScopeEqual, canonicalGenesisRag17Json, hashGenesisRag17Json, zGenesisRag17PublicationReceipt } from '@/modules/knowledge/genesisrag17-contract'
 // @req FR-110 — exact attempt and authenticated publication proof before successful finish.
-// @spec ADR-071, ADR-067
+// @spec ADR-073, ADR-067
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 function serviceError(status, message, code) { return Object.assign(new Error(message), { status, code }) }
 function parseJson(value, fallback = null) { try { return JSON.parse(value) } catch { return fallback } }

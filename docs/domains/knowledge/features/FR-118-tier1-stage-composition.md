@@ -11,7 +11,7 @@ status: "implemented"
 
 ## GenesisRAG17 profile and extension boundary (2026-09-08)
 
-Stages 1–8: the original pure synchronous composition below remains separate. ADR-071 adds genesisrag17-executor.js, which persists each stage and reports its actual failing attempt before its durable Stage 9 handoff. Historical statements below about the next wiring slice describe this original composition, not absence of the new executor.
+Stages 1–8: the original pure synchronous composition below remains separate. ADR-073 adds genesisrag17-executor.js, which persists each stage and reports its actual failing attempt before its durable Stage 9 handoff. Historical statements below about the next wiring slice describe this original composition, not absence of the new executor.
 
 See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 

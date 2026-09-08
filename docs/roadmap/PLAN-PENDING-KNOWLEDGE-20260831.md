@@ -20,7 +20,7 @@ attributes:
 
 ## สถานะส่วน GenesisRAG17 ณ 2026-09-08
 
-ข้อเสนอ Stage 10–17 ในเอกสารนี้มี implementation สำหรับ isolated test profile แล้วตาม [ADR-071](../decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md), [spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md), [flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) และ [acceptance report](../../.brain/reports/GENESISRAG17-ACCEPTANCE.md). รายการ pending และ checkout paths เดิมด้านล่างเป็นบริบทตอนเสนอแผน ไม่ใช้เป็นหลักฐานว่าทุก stage ยังไม่สร้าง; production, broader SoT loop และความสามารถนอก profile ไม่ได้ปิดตามไปด้วย.
+ข้อเสนอ Stage 10–17 ในเอกสารนี้มี implementation สำหรับ isolated test profile แล้วตาม [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md), [spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md), [flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) และ [acceptance report](../../.brain/reports/GENESISRAG17-ACCEPTANCE.md). รายการ pending และ checkout paths เดิมด้านล่างเป็นบริบทตอนเสนอแผน ไม่ใช้เป็นหลักฐานว่าทุก stage ยังไม่สร้าง; production, broader SoT loop และความสามารถนอก profile ไม่ได้ปิดตามไปด้วย.
 
 ## ขอบเขตและกติกาการหยุด
 

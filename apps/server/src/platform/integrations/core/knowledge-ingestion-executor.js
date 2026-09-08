@@ -24,7 +24,7 @@ import {
 } from './pipeline-tracking-contract'
 import { createPipelineRun, getPipelineMonitor, recordPipelineEvent } from './pipeline-tracking-service'
 
-// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — the ledger-writing wiring: something calls FR-118's stage
 // composition and writes its result onto the FR-071 ledger, bound through docId;
 // and the monitor half — one `pipeline_job_id` resolves the run, its seventeen

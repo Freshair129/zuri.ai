@@ -9,9 +9,9 @@ import { fileURLToPath } from 'node:url'
 import { request as playwrightRequest } from '@playwright/test'
 import { isolatedEnvironment, startWorkerProcess, temporaryPipeline } from './harness'
 
-// @req FR-172 — the admission acceptance drives the real Next entrypoint and
+// @req FR-173 — the admission acceptance drives the real Next entrypoint and
 // keeps the native/MSP/GKS processes outside the test's in-process mocks.
-// @spec ADR-072, ADR-071
+// @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
 
 const here = path.dirname(fileURLToPath(import.meta.url))

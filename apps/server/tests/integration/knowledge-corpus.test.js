@@ -11,7 +11,7 @@ import {
 import { createKnowledgeExecutionAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
-// @req FR-172 — an authorized corpus is an immutable manifest of verified
+// @req FR-173 — an authorized corpus is an immutable manifest of verified
 // per-source snapshots, with current ACL and revocation checks at every read.
 // @spec ADR-072, SEC-001, SEC-008
 // @tested apps/server/tests/integration/knowledge-corpus.test.js

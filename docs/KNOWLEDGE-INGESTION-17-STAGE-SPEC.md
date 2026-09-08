@@ -9,7 +9,7 @@ relations:
   - type: references
     target: ZAI:ADR-050
   - type: references
-    target: ZAI:ADR-071
+    target: ZAI:ADR-073
   - type: relates_to
     target: ZAI:GENESISRAG17-CONTRACT
 ---
@@ -34,7 +34,7 @@ The approved [ADR-072 admission/corpus contract](decisions/ADR-072-KNOWLEDGE-ADM
 > in [`PRD-SDD-v1.0.md`](PRD-SDD-v1.0.md), and FEAT-013 in
 > [`FEATURES.md`](FEATURES.md), are declared from it and cite its sections by
 > number. The original product specification is broader than the implemented
-> isolated test profile. [ADR-071](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+> isolated test profile. [ADR-073](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 > authorizes that profile: zuri executes 1–8, MSP authenticates/relays, passive
 > GKS decides 9–14 and the quality gate, and the separate GenesisBlock worker
 > performs physical 13/15/16 and atomic publication. Each stage below identifies

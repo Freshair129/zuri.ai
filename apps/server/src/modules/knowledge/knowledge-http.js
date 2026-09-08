@@ -1,7 +1,7 @@
 import { resolveApiAccessViewer } from '@/modules/identity/api-access-auth'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 
-// @req FR-172 — every knowledge HTTP/MCP surface resolves the existing trusted
+// @req FR-173 — every knowledge HTTP/MCP surface resolves the existing trusted
 // session or an explicitly configured Enterprise API grant before dispatch.
 // @spec ADR-072, SEC-001, SEC-006, SEC-008
 // @tested tests/unit/knowledge-admission-routes.test.js

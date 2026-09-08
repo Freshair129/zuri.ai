@@ -8,8 +8,8 @@ import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/inte
 import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/integrations/core/genesisrag17-worker'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 
-// @req FR-172 — process-owned admission queue resumes immutable jobs after restart.
-// @spec ADR-072, ADR-071
+// @req FR-173 — process-owned admission queue resumes immutable jobs after restart.
+// @spec ADR-072, ADR-073
 // @tested tests/unit/knowledge-runtime.test.js, tests/acceptance/knowledge-admission-native.test.js
 const unavailable = () => Object.assign(new Error('Knowledge runtime is unavailable for this Business'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
 const date = (now) => typeof now === 'function' ? now() : now || new Date()

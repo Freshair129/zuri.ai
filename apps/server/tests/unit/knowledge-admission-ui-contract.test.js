@@ -1,4 +1,4 @@
-// @req FR-172 — existing Business/Project Files expose Text/Markdown admission,
+// @req FR-173 — existing Business/Project Files expose Text/Markdown admission,
 // durable status, source withdrawal and authorized corpus queries.
 // @spec ADR-072, SEC-001
 // @tested tests/unit/knowledge-admission-ui-contract.test.js

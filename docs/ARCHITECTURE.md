@@ -14,7 +14,7 @@ last_update: "2026-09-08T00:51:36+07:00,RWANG"
 
 # Architecture
 
-> Knowledge execution update (2026-09-08): [ADR-071](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+> Knowledge execution update (2026-09-08): [ADR-073](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 > implements the isolated GenesisRAG17 profile across four repositories. The
 > [spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
 > [execution flow / extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) are the

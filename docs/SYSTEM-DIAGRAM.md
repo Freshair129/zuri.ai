@@ -6,7 +6,7 @@
 | **Status** | Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05 |
 | **Author** | Claude Fable 5.1 |
 | **Date** | 2026-09-05 |
-| **Knowledge profile update** | 2026-09-08 — ADR-071 isolated execution; other domains retain their dated snapshot |
+| **Knowledge profile update** | 2026-09-08 — ADR-073 isolated execution; other domains retain their dated snapshot |
 | **Relates to** | [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) (three-layer, data-flow and flowchart views from 2026-08-15), [ARCHITECTURE.md](ARCHITECTURE.md), [DOMAIN-MAP.md](DOMAIN-MAP.md) (generated ownership), [PRODUCT.md](PRODUCT.md), ADR-007, ADR-018, ADR-025, ADR-041, ADR-043, ADR-044, ADR-058, ADR-059, ADR-060 |
 
 หน้านี้ตอบคำถามเดียว: **ระบบทั้งหมดประกอบด้วยอะไร ใครคุยกับใคร และอะไรสร้างแล้ว/ยังไม่สร้าง** ณ วันที่วาด
@@ -283,7 +283,7 @@ flowchart TB
 ```
 
 zuri-ai เป็น Tier 1 เท่านั้น ไม่คุยกับ GKS/GenesisBlockDB ตรงและไม่ข้าม MSP.
-ADR-071 เพิ่ม durable executor/lineage สำหรับ Stage 1–8 ในระบบทดสอบจากเดิมที่มี pure calculators.
+ADR-073 เพิ่ม durable executor/lineage สำหรับ Stage 1–8 ในระบบทดสอบจากเดิมที่มี pure calculators.
 GKS ตัดสิน 9–14/17 แบบ passive; worker เขียน 13 ก่อนส่ง graph receipt ให้ GKS ทำ 14,
 แล้วทำ 15–16 และ publish หลัง gate. Stage 17 สำเร็จหลัง publication receipt ตรงกัน.
 ดู [17-stage spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) และ
@@ -342,7 +342,7 @@ prerequisite ที่พบ (ADR-060 D9): `Conversation` unique ที่ `(ten
 | CRM ingest + Inbox + reply receipt + consent + erasure | สร้างแล้ว | FEAT-009, FR-103, FR-022 |
 | Integration substrate, Platform Integrations UI, Vault resolver | สร้างแล้ว (live Vault provisioning เป็น operator gate) | FEAT-004, FR-081 |
 | Phase 1 LINE runtime (binding, canary, activation) | สร้างแล้ว; production activation ยังเป็น gate | FR-052..055 |
-| Knowledge ingestion 17 stages | isolated raw-to-published acceptance ผ่านแล้ว; zuri 1–8, passive GKS decisions/gate, GenesisBlock worker physical writes/publication; production ยังแยกงาน | FEAT-013, ADR-071 |
+| Knowledge ingestion 17 stages | isolated raw-to-published acceptance ผ่านแล้ว; zuri 1–8, passive GKS decisions/gate, GenesisBlock worker physical writes/publication; production ยังแยกงาน | FEAT-013, ADR-073 |
 | Market Intelligence, Asset Management (+ edge extraction) | สร้างแล้ว | FEAT-015..017 |
 | Docker Compose + ngrok deployment, health, pooler mode | สร้างแล้ว และใช้บน production | FR-142, FR-145 |
 | LINE OA Studio: `LineOaAccount` + API | สร้างแล้วใน local (migration production ยังไม่ apply) | FR-146 |

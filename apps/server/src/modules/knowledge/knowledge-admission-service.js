@@ -12,7 +12,7 @@ import { assertKnowledgeFileWritable, resolveKnowledgeScope } from './knowledge-
 import { resolveKnowledgeRuntimeBinding } from './knowledge-runtime'
 import { createKnowledgeRepository } from './knowledge-repository'
 
-// @req FR-172 — Files, Project Files, HTTP and MCP share one authorized durable
+// @req FR-173 — Files, Project Files, HTTP and MCP share one authorized durable
 // admission boundary for immutable Text/Markdown source versions.
 // @spec ADR-072, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
 // @tested tests/unit/knowledge-admission-service.test.js

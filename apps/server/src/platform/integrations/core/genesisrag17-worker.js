@@ -6,10 +6,10 @@ import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag1
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from './genesisrag17-executor'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
 
-// @req FR-172 — only the exact admitted knowledge run accepts private runtime authority.
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — resumable source dispatch and evidence polling through MSP.
 // @req FR-110 — scoped published queries; external writes remain in Tier 4.
-// @spec ADR-050, ADR-071
+// @spec ADR-050, ADR-073
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 
 function denied(message) { return Object.assign(new Error(message), { status: 403 }) }

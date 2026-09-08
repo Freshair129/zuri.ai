@@ -1,5 +1,5 @@
 // @req FR-110 — isolated, non-skipping native four-tier acceptance.
-// @spec ADR-071
+// @spec ADR-073
 // @tested tests/acceptance/genesisrag17-e2e.test.js
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
