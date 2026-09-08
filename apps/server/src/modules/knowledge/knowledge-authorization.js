@@ -275,6 +275,22 @@ export async function resolveKnowledgeScope({
   return { business, project }
 }
 
+/**
+ * Check the current Project ancestry for an internal, scope-bound operation.
+ * Runtime publication already carries a non-serializable capability, so this
+ * helper verifies liveness and Business ownership without inventing a viewer.
+ */
+export async function assertKnowledgeProjectCurrent(
+  projectId,
+  businessId,
+  { db = prisma } = {},
+) {
+  const business = await loadBusiness(db, businessId)
+  const project = await loadProject(db, projectId)
+  ensureProjectBelongsToBusiness(project, business)
+  return { business, project }
+}
+
 /** Resolve a live FileAsset and enforce its current Business/project relation. */
 export async function assertKnowledgeFileReadable(
   viewer,

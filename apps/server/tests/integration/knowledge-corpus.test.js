@@ -348,7 +348,13 @@ function seed({ count = 1, fileAsset = null } = {}) {
 }
 
 async function publish(repo, db, ingestion, extra = {}) {
-  return publishVerifiedKnowledgeIngestion(ingestion.id, { repository: repo, db, viewer: owner, ...extra })
+  return publishVerifiedKnowledgeIngestion(ingestion.id, {
+    repository: repo,
+    db,
+    viewer: owner,
+    authority: createKnowledgeExecutionAuthority(scope, 'execute', ingestion.executionRunId),
+    ...extra,
+  })
 }
 
 describe('knowledge corpus publication, query and citation boundary', () => {
@@ -395,8 +401,8 @@ describe('knowledge corpus publication, query and citation boundary', () => {
   it('does not treat an ingestion lease as publication authority', async () => {
     firstIngestion.status = 'RUNNING'
     firstIngestion.claimToken = 'lease-1'
-    await expect(publishVerifiedKnowledgeIngestion(firstIngestion.id, { repository: repo, db, claimToken: 'lease-1' }))
-      .rejects.toThrow(/viewer is required/)
+    await expect(publishVerifiedKnowledgeIngestion(firstIngestion.id, { repository: repo, db, viewer: owner, claimToken: 'lease-1' }))
+      .rejects.toMatchObject({ status: 403, code: 'KNOWLEDGE_RUNTIME_AUTHORITY_DENIED' })
   })
 
   it('accepts the root-owned capability only for its exact scope and execution run', async () => {
@@ -430,6 +436,7 @@ describe('knowledge corpus publication, query and citation boundary', () => {
 
     const stale = ingestionFor(first, { id: 'ingestion-1-stale', revision: 1, sourceVersion: 'v1-stale', content: 'old', snapshotId: 'snapshot-stale', snapshotGeneration: 'native-stale', rawArtifactId: 'raw-stale', parsedArtifactId: 'parsed-stale' })
     repo.ingestions.set(stale.id, stale)
+    repo.runs.set(stale.executionRunId, runFor(stale))
     const staleResult = await publish(repo, db, stale)
     expect(staleResult.status).toBe('SUPERSEDED')
     expect(repo.corpora.get('corpus-1').generation).toBe(corrected.corpus.generation)

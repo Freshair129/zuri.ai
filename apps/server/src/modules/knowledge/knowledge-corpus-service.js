@@ -19,6 +19,7 @@ import {
   assertKnowledgeFileCurrent,
   assertKnowledgeFileReadable,
   assertKnowledgeFileWritable,
+  assertKnowledgeProjectCurrent,
   knowledgeError,
   resolveKnowledgeScope,
 } from './knowledge-authorization'
@@ -182,6 +183,19 @@ function validateManifest(value, corpus, expectedScope, expectedNumber) {
   return { schemaVersion: CORPUS_SCHEMA_VERSION, corpusId: corpus.id, generation: expectedNumber, entries }
 }
 
+function validateStoredManifest(value, corpus, expectedScope, expectedNumber, expectedHash) {
+  const original = parseJson(value, 'manifest')
+  const originalHash = hashGenesisRag17Json(original)
+  if (originalHash !== expectedHash) {
+    throw serviceError(409, 'Knowledge corpus manifest hash does not match its immutable row', 'KNOWLEDGE_MANIFEST_TAMPERED')
+  }
+  const manifest = validateManifest(original, corpus, expectedScope, expectedNumber)
+  if (hashGenesisRag17Json(manifest) !== originalHash) {
+    throw serviceError(409, 'Knowledge corpus manifest contains unrecognized or tampered fields', 'KNOWLEDGE_MANIFEST_TAMPERED')
+  }
+  return { manifest, manifestHash: originalHash }
+}
+
 async function loadManifest(repository, corpus) {
   const expectedScope = scopeFromCorpus(corpus)
   if (!Number.isSafeInteger(corpus.generation) || corpus.generation < 0) {
@@ -195,12 +209,8 @@ async function loadManifest(repository, corpus) {
   if (!row || row.corpusId !== corpus.id || row.number !== corpus.generation) {
     throw serviceError(409, 'Knowledge corpus generation is missing', 'KNOWLEDGE_MANIFEST_MISSING')
   }
-  const manifest = validateManifest(row.manifestJson, corpus, expectedScope, corpus.generation)
-  const manifestHash = hashGenesisRag17Json(manifest)
-  if (manifestHash !== row.manifestHash) {
-    throw serviceError(409, 'Knowledge corpus manifest hash does not match its immutable row', 'KNOWLEDGE_MANIFEST_TAMPERED')
-  }
-  return { row, manifest, manifestHash }
+  const validated = validateStoredManifest(row.manifestJson, corpus, expectedScope, corpus.generation, row.manifestHash)
+  return { row, ...validated }
 }
 
 async function getSource(repository, sourceId) {
@@ -337,16 +347,15 @@ async function callKnowledgeAudit(repository, { entityId, action, actorId, paylo
   return repository.audit({ entityId, entityType: 'KNOWLEDGE_CORPUS', action, actorId, payload })
 }
 
-async function authorizePublication({ authority, viewer, initialRun, scope, db, env, businessId, projectId }) {
+async function authorizePublication({ authority, initialRun, scope, db, businessId, projectId }) {
   const business = await assertKnowledgeBusinessCurrent(businessId, { db })
   if (business.tenant?.portfolioId !== scope.portfolioId) throw serviceError(409, 'Knowledge corpus scope does not match its live Business', 'KNOWLEDGE_SCOPE_INVALID')
-  const hasRuntimeAuthority = authority !== undefined && authority !== null
-  const runtimeAuthorized = hasRuntimeAuthority && hasKnowledgeScopeAuthority(authority, scope, 'execute') && hasKnowledgeRunAuthority(authority, initialRun)
-  if (hasRuntimeAuthority && !runtimeAuthorized) {
+  const runtimeAuthorized = authority !== undefined && authority !== null && hasKnowledgeScopeAuthority(authority, scope, 'execute') && hasKnowledgeRunAuthority(authority, initialRun)
+  if (!runtimeAuthorized) {
     throw serviceError(403, 'Knowledge publication runtime authority is invalid for this scope and run', 'KNOWLEDGE_RUNTIME_AUTHORITY_DENIED')
   }
-  if (!runtimeAuthorized) await resolveKnowledgeScope({ viewer, businessId, projectId, action: 'write', db, env })
-  return runtimeAuthorized
+  if (projectId) await assertKnowledgeProjectCurrent(projectId, businessId, { db })
+  return true
 }
 
 /** Publish one verified native receipt into a new immutable corpus generation. */
@@ -370,13 +379,12 @@ export async function publishVerifiedKnowledgeIngestion(
   if (!initialCorpus) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const initialScope = scopeFromCorpus(initialCorpus)
   const initialRun = initialIngestion.executionRunId ? await repository.getPipelineRun(initialIngestion.executionRunId) : null
-  const runtimeAuthorized = await authorizePublication({ authority, viewer, initialRun, scope: initialScope, db, env, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId })
+  await authorizePublication({ authority, initialRun, scope: initialScope, db, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId })
   if (claimToken !== null && (typeof claimToken !== 'string' || !claimToken || initialIngestion.claimToken !== claimToken)) throw conflict('Knowledge ingestion lease is no longer held', 'KNOWLEDGE_INGESTION_LEASE_LOST')
   const initialSource = await getSource(repository, initialIngestion.sourceId)
   if (!initialSource || initialSource.corpusId !== initialCorpus.id) throw serviceError(404, 'Knowledge source not found', 'KNOWLEDGE_SOURCE_NOT_FOUND')
   if (initialSource.fileAssetId) {
-    if (runtimeAuthorized) await assertKnowledgeFileCurrent(initialSource.fileAssetId, { businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, db })
-    else await assertKnowledgeFileWritable(viewer, initialSource.fileAssetId, { businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, db, env })
+    await assertKnowledgeFileCurrent(initialSource.fileAssetId, { businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, db })
   }
 
   for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt += 1) {
@@ -402,7 +410,7 @@ async function publishInTransaction(repository, ingestionId, { db, viewer, autho
   if (!sameScope(scope, initialScope)) throw conflict('Knowledge corpus scope changed during publication')
   const liveBusiness = await assertKnowledgeBusinessCurrent(corpus.businessId, { db })
   if (liveBusiness.tenant?.portfolioId !== scope.portfolioId) throw serviceError(409, 'Knowledge corpus scope does not match its live Business', 'KNOWLEDGE_SCOPE_INVALID')
-  if (authority !== undefined && authority !== null && (!hasKnowledgeScopeAuthority(authority, scope, 'execute') || !hasKnowledgeRunAuthority(authority, await repository.getPipelineRun(ingestion.executionRunId)))) {
+  if (!authority || !hasKnowledgeScopeAuthority(authority, scope, 'execute') || !hasKnowledgeRunAuthority(authority, await repository.getPipelineRun(ingestion.executionRunId))) {
     throw serviceError(403, 'Knowledge publication runtime authority is invalid for this scope and run', 'KNOWLEDGE_RUNTIME_AUTHORITY_DENIED')
   }
   if (claimToken !== null && ingestion.claimToken !== claimToken) throw conflict('Knowledge ingestion lease is no longer held', 'KNOWLEDGE_INGESTION_LEASE_LOST')
@@ -430,9 +438,9 @@ async function publishInTransaction(repository, ingestionId, { db, viewer, autho
     return { status: 'SUPERSEDED', ingestion: updated, source, corpus }
   }
 
+  if (corpus.projectId) await assertKnowledgeProjectCurrent(corpus.projectId, corpus.businessId, { db })
   if (source.fileAssetId) {
-    if (viewer) await assertKnowledgeFileWritable(viewer, source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db, env })
-    else await assertKnowledgeFileCurrent(source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db })
+    await assertKnowledgeFileCurrent(source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db })
   }
   const evidence = await verifyPublicationEvidence(repository, ingestion, source, corpus)
   const current = await loadManifest(repository, corpus)
@@ -636,6 +644,10 @@ export async function queryKnowledgeCorpus(
   const afterById = new Map(afterSources.map((source) => [source.id, source]))
   for (const entry of current.manifest.entries) {
     const source = afterById.get(entry.sourceId)
+    if (!source || source.corpusId !== corpus.id) {
+      throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+    }
+    assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
     assertActiveSource(source)
     if (source.fileAssetId) await assertKnowledgeFileReadable(currentViewer, source.fileAssetId, { businessId, projectId, db, env })
   }
@@ -666,12 +678,12 @@ export async function resolveKnowledgeCitation(
   if (scope.portfolioId !== access.business.tenant?.portfolioId) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const generation = await repository.getGeneration(corpus.id, reference.corpusGeneration)
   if (!generation) throw serviceError(404, 'Knowledge citation generation not found', 'KNOWLEDGE_CITATION_NOT_FOUND')
-  const manifest = validateManifest(generation.manifestJson, corpus, scope, reference.corpusGeneration)
-  if (hashGenesisRag17Json(manifest) !== generation.manifestHash) throw serviceError(409, 'Knowledge citation manifest hash is invalid', 'KNOWLEDGE_MANIFEST_TAMPERED')
+  const { manifest } = validateStoredManifest(generation.manifestJson, corpus, scope, reference.corpusGeneration, generation.manifestHash)
   const entry = manifest.entries.find((candidate) => candidate.sourceId === reference.sourceId && candidate.ingestionId === reference.ingestionId)
   if (!entry) throw serviceError(404, 'Knowledge citation is not in the immutable corpus generation', 'KNOWLEDGE_CITATION_NOT_FOUND')
   const source = await getSource(repository, reference.sourceId)
   if (!source || source.corpusId !== corpus.id) throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+  assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
   assertActiveSource(source)
   if (source.fileAssetId) await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db, env })
   const ingestion = await repository.getIngestion(reference.ingestionId)
@@ -687,13 +699,27 @@ export async function resolveKnowledgeCitation(
     parsedArtifactId: entry.parsedArtifactId,
     chunkId: reference.chunkId,
   })
-  verifyLineage(lineage, { chunkId: reference.chunkId, contentHash: hashGenesisRag17Text(lineage.text) }, entry, scope)
+  const lineageContentHash = lineage && typeof lineage.text === 'string' ? hashGenesisRag17Text(lineage.text) : null
+  verifyLineage(lineage, { chunkId: reference.chunkId, contentHash: lineageContentHash }, entry, scope)
   // Recheck the same live authority after all potentially slow lineage reads.
   const currentViewer = typeof resolveCurrentViewer === 'function' ? await resolveCurrentViewer() : viewer
-  await resolveKnowledgeScope({ viewer: currentViewer, businessId: corpus.businessId, projectId: corpus.projectId, action: 'read', db, env })
+  const currentCorpus = await repository.getCorpus(reference.corpusId)
+  if (!currentCorpus || currentCorpus.deletedAt || currentCorpus.status !== 'ACTIVE' || currentCorpus.businessId !== corpus.businessId || optionalId(currentCorpus.projectId) !== optionalId(corpus.projectId)) {
+    throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
+  }
+  const currentScope = scopeFromCorpus(currentCorpus)
+  if (!sameScope(currentScope, scope)) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
+  const currentAccess = await resolveKnowledgeScope({ viewer: currentViewer, businessId: currentCorpus.businessId, projectId: currentCorpus.projectId, action: 'read', db, env })
+  if (currentCorpus.tenantId !== currentAccess.business.tenantId || currentCorpus.portfolioId !== currentAccess.business.tenant?.portfolioId) {
+    throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
+  }
   const currentSource = await getSource(repository, reference.sourceId)
+  if (!currentSource || currentSource.corpusId !== currentCorpus.id) {
+    throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+  }
+  assertSourceMatchesEntry(currentSource, { ...entry, corpusId: currentCorpus.id })
   assertActiveSource(currentSource)
-  if (currentSource.fileAssetId) await assertKnowledgeFileReadable(currentViewer, currentSource.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db, env })
+  if (currentSource.fileAssetId) await assertKnowledgeFileReadable(currentViewer, currentSource.fileAssetId, { businessId: currentCorpus.businessId, projectId: currentCorpus.projectId, db, env })
   return {
     citationId,
     corpusId: corpus.id,
@@ -736,9 +762,10 @@ export async function withdrawKnowledgeSource(
   if (!initialCorpus) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const scope = scopeFromCorpus(initialCorpus)
   await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
+  if (!initialSource.revokedAt && initialSource.fileAssetId) await assertKnowledgeFileWritable(viewer, initialSource.fileAssetId, { businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, db, env })
   for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt += 1) {
     try {
-      const result = await repository.transaction((tx) => withdrawInTransaction(tx, id, expectedVersion, { now, actorId: viewer?.principal?.id || null, initialScope: scope }))
+      const result = await repository.transaction((tx) => withdrawInTransaction(tx, id, expectedVersion, { now, actorId: viewer?.principal?.id || null, initialScope: scope, viewer, db, env }))
       return result
     } catch (error) {
       if (!isConflict(error) || attempt === MAX_CAS_RETRIES - 1) throw error
@@ -747,7 +774,7 @@ export async function withdrawKnowledgeSource(
   throw conflict()
 }
 
-async function withdrawInTransaction(repository, sourceId, expectedVersion, { now, actorId, initialScope }) {
+async function withdrawInTransaction(repository, sourceId, expectedVersion, { now, actorId, initialScope, viewer, db, env }) {
   const source = await getSource(repository, sourceId)
   if (!source) throw serviceError(404, 'Knowledge source not found', 'KNOWLEDGE_SOURCE_NOT_FOUND')
   const corpus = await repository.getCorpus(source.corpusId)
@@ -757,6 +784,7 @@ async function withdrawInTransaction(repository, sourceId, expectedVersion, { no
   if (source.version !== expectedVersion) throw conflict('Knowledge source version no longer matches', 'KNOWLEDGE_SOURCE_VERSION_CONFLICT')
   if (source.deletedAt) throw serviceError(404, 'Knowledge source not found', 'KNOWLEDGE_SOURCE_NOT_FOUND')
   if (source.revokedAt) return { status: 'UNCHANGED', source, corpus }
+  if (source.fileAssetId) await assertKnowledgeFileWritable(viewer, source.fileAssetId, { businessId: corpus.businessId, projectId: corpus.projectId, db, env })
   const current = await loadManifest(repository, corpus)
   const entries = current.manifest.entries.filter((entry) => entry.sourceId !== source.id)
   const manifest = { schemaVersion: CORPUS_SCHEMA_VERSION, corpusId: corpus.id, generation: corpus.generation + 1, entries }
