@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalGenesisRag17Json, hashGenesisRag17Json, zGenesisRag17Metrics, validateGenesisRag17EvidencePage } from '@/modules/knowledge/genesisrag17-contract'
+import { canonicalGenesisRag17Json, hashGenesisRag17Json, zGenesisRag17Metrics, validateGenesisRag17EvidencePage, parseGenesisRag17QueryResponse } from '@/modules/knowledge/genesisrag17-contract'
 
 // @req FR-109 — stable cross-tier identities and six measured counters.
 // @req FR-110 — old-attempt evidence cannot be silently attributed to a new run.
@@ -7,6 +7,15 @@ import { canonicalGenesisRag17Json, hashGenesisRag17Json, zGenesisRag17Metrics, 
 // @tested tests/unit/genesisrag17-contract.test.js
 
 describe('GenesisRAG17 cross-tier wire regressions', () => {
+  it('accepts pinned native hit identities and rejects mixed or undeclared fields', () => {
+    const scope = { portfolioId: 'p', tenantId: 't', businessId: 'b', workspaceId: '', agentId: '', visibility: 'private' }
+    const result = { id: 'chunk', snapshotId: 'snapshot', generation: 'generation', score: 1, text: 'text', citation: { sourceId: 'source', rawArtifactId: 'raw', parsedArtifactId: 'parsed', chunkId: 'chunk', contentHash: 'a'.repeat(64) } }
+    const response = { schemaVersion: 'genesisrag17.v1', scope, snapshotId: 'snapshot', generation: 'generation', results: [result] }
+    expect(parseGenesisRag17QueryResponse(response, scope)).toEqual(response)
+    for (const changed of [{ snapshotId: 'foreign' }, { generation: 'foreign' }, { actor: 'trusted' }]) {
+      expect(() => parseGenesisRag17QueryResponse({ ...response, results: [{ ...result, ...changed }] }, scope)).toThrow()
+    }
+  })
   it('sorts integer-looking stage keys lexically without JavaScript object reordering', () => {
     expect(canonicalGenesisRag17Json({ stageMetrics: { 9: 1, 10: 2, 17: 3 } })).toBe('{"stageMetrics":{"10":2,"17":3,"9":1}}')
     expect(hashGenesisRag17Json({ b: [2, 1], a: { 9: 1, 10: 2 } })).toBe(hashGenesisRag17Json({ a: { 10: 2, 9: 1 }, b: [2, 1] }))

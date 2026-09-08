@@ -1,5 +1,5 @@
 import { handle } from '../../../_helpers'
-import { resolveKnowledgeRequestViewer, resolveKnowledgeCorpusService, readRouteParams } from '@/modules/knowledge/knowledge-http'
+import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, readRouteParams } from '@/modules/knowledge/knowledge-http'
 
 // @req FR-172 — citation resolution rechecks current knowledge access through
 // the corpus service before returning historical evidence.
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, context) {
   return handle(async () => {
     const { citationId } = await readRouteParams(context)
-    const viewer = await resolveKnowledgeRequestViewer(request)
+    const viewer = await resolveRequestViewer(request)
     const service = await resolveKnowledgeCorpusService()
     if (typeof service.resolveKnowledgeCitation !== 'function') {
       const error = new Error('Knowledge citation service is unavailable')
@@ -22,7 +22,7 @@ export async function GET(request, context) {
       viewer,
       // Citation lineage can involve slow store reads; the corpus service
       // invokes this closure before returning text to recheck live access.
-      resolveCurrentViewer: () => resolveKnowledgeRequestViewer(request),
+      resolveCurrentViewer: () => resolveRequestViewer(request),
     })
   })
 }

@@ -1,5 +1,5 @@
 import { handle } from '../../_helpers'
-import { resolveKnowledgeRequestViewer, resolveKnowledgeCorpusService, strictKnowledgeBody } from '@/modules/knowledge/knowledge-http'
+import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, strictKnowledgeBody } from '@/modules/knowledge/knowledge-http'
 
 // @req FR-172 — query is dispatched to the corpus snapshot service only after
 // the existing authenticated viewer/API grant is resolved.
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request) {
   return handle(async () => {
-    const viewer = await resolveKnowledgeRequestViewer(request)
+    const viewer = await resolveRequestViewer(request)
     const body = strictKnowledgeBody(await request.json(), ['businessId', 'projectId', 'query', 'topK'])
     const service = await resolveKnowledgeCorpusService()
     if (typeof service.queryKnowledgeCorpus !== 'function') {
@@ -23,7 +23,7 @@ export async function POST(request) {
       // The corpus service re-resolves this request-scoped viewer after slow
       // snapshot reads, so a revoked session/API grant cannot disclose a late
       // result. It is deliberately a closure, never request-controlled JSON.
-      resolveCurrentViewer: () => resolveKnowledgeRequestViewer(request),
+      resolveCurrentViewer: () => resolveRequestViewer(request),
     })
   })
 }

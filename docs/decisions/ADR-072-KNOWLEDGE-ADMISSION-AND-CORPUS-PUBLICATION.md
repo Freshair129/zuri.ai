@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-072
 title: Knowledge admission and corpus publication
-version: "1.0.0b"
+version: "1.0.1b"
 status: beta
 created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T16:30:00+07:00,RWANG"
+last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-071
@@ -16,7 +16,9 @@ relations:
 
 # ADR-072 — Knowledge admission and corpus publication
 
-**Status:** beta — owner-approved phases 0–4 implementation; acceptance pending.
+Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
+
+**Status:** beta — phases 0–4 implemented and validated in the isolated profile; production excluded.
 
 ## Authority and scope
 
@@ -24,7 +26,7 @@ The owner approved phases 0–4 of the shared-admission plan on 2026-09-08. C-3 
 
 ## Root cause and boundaries
 
-FileAsset, document staging, legacy business knowledge and internal GenesisRAG17 are distinct paths. Existing UI/API/MCP callers stop at files or staging; the tested 17-stage chain starts at an internal operator entrypoint. Treating their separate successes as one end-user flow was the readiness gap. Evidence and source enumeration are in the surface inventory; the RCA records prevention through actual HTTP/browser entrypoint acceptance.
+At the audited baseline, FileAsset, document staging, legacy business knowledge and internal GenesisRAG17 were distinct paths. UI/API/MCP callers stopped at files or staging; the tested 17-stage chain started at an internal operator entrypoint. Treating their separate successes as one end-user flow was the readiness gap. This ADR's admission service now connects the approved surfaces. Evidence and source enumeration are in the surface inventory; the RCA records prevention through actual HTTP/browser entrypoint acceptance.
 
 ## Decisions
 
@@ -83,4 +85,5 @@ flowchart TB
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Owner-approved phases 0–4: scoped admission, explicit corpus snapshot manifests and current-access citation serving | base dfdbaf11 | RWANG |

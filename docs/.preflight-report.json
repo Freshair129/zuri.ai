@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 351,
-    "routes": 201,
-    "test_files": 555
+    "routes": 206,
+    "test_files": 565
   },
   "summary": {
     "critical": 0,
-    "warning": 1,
+    "warning": 0,
     "info": 22,
-    "overall": "WARN"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -147,16 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "W13",
-      "severity": "warning",
-      "check": "doc-code-symlink",
-      "title": "Annotations pointing at unknown nodes",
-      "details": "9 dangling edge(s)",
-      "files": [],
-      "action": "Fix the @req/@tested target"
-    },
-    {
-      "id": "I14",
+      "id": "I13",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -167,18 +158,18 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I15",
+      "id": "I14",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
-      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:133",
+      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:308 · src/modules/project-manager/views/universal/DependenciesView.jsx:133",
       "files": [
         "docs/.client-mutation-baseline.json"
       ],
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I16",
+      "id": "I15",
       "severity": "info",
       "check": "id-stability",
       "title": "527 id(s) pinned across 10 families",
@@ -189,7 +180,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I17",
+      "id": "I16",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -200,7 +191,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I18",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -211,7 +202,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I19",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -222,7 +213,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I19",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 351 document(s)",
@@ -233,7 +224,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I21",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -245,7 +236,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I22",
+      "id": "I21",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 77 file(s) that write audit events",
@@ -254,7 +245,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1820 column(s) across 135 model(s) against 61 migration(s)",

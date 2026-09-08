@@ -1,5 +1,5 @@
 import { handle, queryParams } from '../../_helpers'
-import { resolveKnowledgeRequestViewer } from '@/modules/knowledge/knowledge-http'
+import { resolveKnowledgeRequestViewer as resolveRequestViewer } from '@/modules/knowledge/knowledge-http'
 import {
   admitKnowledge,
   listKnowledgeIngestions,
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request) {
   return handle(async () => {
     const params = queryParams(request)
-    const viewer = await resolveKnowledgeRequestViewer(request)
+    const viewer = await resolveRequestViewer(request)
     return listKnowledgeIngestions({
       businessId: params.businessId,
       projectId: params.projectId || null,
@@ -26,7 +26,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   return handle(async () => {
-    const viewer = await resolveKnowledgeRequestViewer(request)
+    const viewer = await resolveRequestViewer(request)
     const body = await request.json()
     return admitKnowledge(body, { viewer })
   })

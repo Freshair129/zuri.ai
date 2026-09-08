@@ -1,5 +1,5 @@
 import { handle } from '../../../_helpers'
-import { resolveKnowledgeRequestViewer, readRouteParams } from '@/modules/knowledge/knowledge-http'
+import { resolveKnowledgeRequestViewer as resolveRequestViewer, readRouteParams } from '@/modules/knowledge/knowledge-http'
 import { readKnowledgeIngestion } from '@/modules/knowledge/knowledge-admission-service'
 
 // @req FR-172 — an opaque admission id returns safe durable status with the
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, context) {
   return handle(async () => {
     const { runId } = await readRouteParams(context)
-    const viewer = await resolveKnowledgeRequestViewer(request)
+    const viewer = await resolveRequestViewer(request)
     return readKnowledgeIngestion(runId, { viewer })
   })
 }

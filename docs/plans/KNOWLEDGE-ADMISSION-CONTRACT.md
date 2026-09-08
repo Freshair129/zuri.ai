@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-ADMISSION-CONTRACT
 title: Knowledge admission phases 0–4 integration contract
-version: "1.0.0b"
+version: "1.0.1b"
 status: beta
 created_at: "2026-09-08T16:40:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T16:40:00+07:00,RWANG"
+last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-072
@@ -13,6 +13,8 @@ relations:
 ---
 
 # Knowledge admission contract — phases 0–4
+
+Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 
 Owner-approved implementation contract under ADR-072. Text/Markdown and managed readable text files only; existing document-staging, OCR, connectors and org-wide sharing remain separate later phases.
 
@@ -28,7 +30,7 @@ Admission is a strict object `{businessId, projectId?, idempotencyKey, source}`.
 
 `resolveKnowledgeCitation(citationId, options)` resolves source/version/chunk/text/offset and verifies current corpus/source/file/project access even for historical generations. Citation ids encode references only; unsigned reference tampering is detected by manifest membership and authoritative records, never trusted as authorization.
 
-`withdrawKnowledgeSource(sourceId, {expectedVersion}, options)` checks write access, compare-and-set source version, revokes membership and atomically publishes a new manifest excluding the source. No physical historical-store deletion. Late job receipts must not revive a revoked source.
+`withdrawKnowledgeSource(sourceId, {expectedVersion}, options)` checks write access, compare-and-set source version, revokes membership and atomically publishes a new manifest excluding the source. No physical historical-store deletion. Withdrawal controls only corpus membership, so current corpus write authority may remove a source even after its FileAsset is deleted; it neither reads nor modifies that file. Authorized corpus status/history retains safe admission metadata for this cleanup, but never cross-corpus source metadata. Late job receipts must not revive a revoked source.
 
 ## Repository models
 
@@ -48,6 +50,8 @@ Job statuses: QUEUED, RUNNING, PUBLISHED, FAILED, SUPERSEDED, WITHDRAWN. Source 
 Manifest JSON `{schemaVersion:"knowledge-corpus.v1", corpusId, generation, entries}`; entries are sorted by sourceId and contain `{sourceId, ingestionId, sourceVersion, revision, executionRunId, snapshotId, generation, scope, receiptHash, rawArtifactId, parsedArtifactId, contentHash, fileAssetId, title}`. `generation` inside an entry is the native generation string; outer generation is a corpus integer. One entry per source. Hash uses canonical JSON SHA-256.
 
 The publication transaction checks latest desiredRevision, non-revoked source, verified job receipt and source identity, merges the new entry into the previous manifest, inserts the immutable generation, sets activeIngestionId, advances corpus generation/version via CAS and marks the job PUBLISHED. Retry a CAS conflict from the latest manifest; never last-write-wins a stale whole manifest. Already published job completion is idempotent. Withdrawal uses the same manifest transaction/CAS discipline. Delayed completion becomes SUPERSEDED/WITHDRAWN without replacing newer evidence.
+
+The pinned native query response carries `snapshotId` and `generation` both on the envelope and on each result. The strict zuri parser accepts these declared result fields and requires exact equality with the envelope before corpus validation; extra fields and mixed-generation results are rejected. Document content hashes and chunk citation hashes remain distinct.
 
 Runtime leases are application ownership only; they do not mint new pipeline attempt IDs. Expired leases resume the same immutable ingestion request/FR-071 identities; transport retry is not a replay. Worker completion and corpus publication have separate evidence and crash boundaries.
 
@@ -81,4 +85,5 @@ Native worker: explicit-snapshot correctness review/fixes and actual native mult
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Frozen source, corpus, job, manifest and service boundaries for approved phases 0–4 | base dfdbaf11 | RWANG |

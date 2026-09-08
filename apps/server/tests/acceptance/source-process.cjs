@@ -13,6 +13,10 @@ if (!/^file:\.\/\.test-dbs\/run-[\w-]+\.db$/.test(database)
     || !existsSync(path.resolve(root, 'prisma', database.slice(5)))) {
   throw new Error('SOURCE_CRASH_REQUIRES_DISPOSABLE_TEST_DATABASE')
 }
+// A sibling worktree can regenerate a junction-shared Prisma client while the
+// parent suite runs. Pin this already-validated disposable file so the child's
+// datasource cannot follow the generated client's changing schema directory.
+process.env.DATABASE_URL = `file:${path.resolve(root, 'prisma', database.slice(5)).replaceAll('\\', '/')}`
 const result = buildSync({
   stdin: {
     contents: `

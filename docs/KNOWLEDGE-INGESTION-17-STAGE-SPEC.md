@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.4.0b"
+version: "1.4.1b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-08T15:23:00+07:00,RWANG"
+last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -15,6 +15,8 @@ relations:
 ---
 
 # Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification
+
+Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 
 For actual UI/API/MCP entrypoints, file/project/domain connections and proposed user journeys, read the [surface and user-flow inventory](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md). Its current-versus-proposed labels are explicit: passing the isolated 17-stage chain does not imply that every product input surface is connected.
 
@@ -2020,6 +2022,7 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.0b → 1.4.1b | Record actual Business UI/session HTTP/MCP native acceptance and explicit evidence limits | No stage ownership or IDs changed |
 | 1.3.0b → 1.4.0b | Adopt ADR-072 admission and corpus serving around unchanged 17-stage ownership | Authorized phases 0–4 implementation; surface/native acceptance tracked separately |
 | 1.2.0b → 1.3.0b | Link enumerated endpoint inventory and detailed source/user flows; separate existing staging/files from proposed admission and sharing | None; documentation only |
 | 1.1.0b → 1.2.0b | Approved code-audit remediation and explicit supported-input/publication boundaries | Source durability, semantic/temporal correctness and physical recovery repairs; see remediation evidence |

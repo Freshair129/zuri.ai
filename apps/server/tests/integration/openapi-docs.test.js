@@ -135,8 +135,9 @@ describe('OpenAPI document', () => {
       // FR-171 adds the owner-only read-only execution trace GET.
       // FR-169 adds the Business capability toggle (PATCH
       // /api/businesses/{id}/capabilities): one path, one operation.
-      pathCount: 201,
-      operationCount: 278,
+      // FR-172 adds five knowledge admission/corpus paths and six operations.
+      pathCount: 206,
+      operationCount: 284,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

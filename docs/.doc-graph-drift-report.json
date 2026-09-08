@@ -1,8 +1,9 @@
 {
-  "generated_at": "2026-09-08T11:30:38.726Z",
+  "generated_at": "2026-09-08T12:39:19.236Z",
   "note": "Diagnostic only — what changed since the previous docs/.doc-graph.json regeneration. Never read by --check, docs:preflight or monorepo-graph.mjs; excluded from every staleness/consistency check by design.",
   "changed": [
-    "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION"
+    "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+    "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW"
   ],
   "added": [],
   "removed": []

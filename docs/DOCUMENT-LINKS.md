@@ -18,6 +18,7 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
 Backlinks:
@@ -1551,6 +1552,7 @@ Backlinks:
 - [FR-172 — Source admission and corpus serving](domains/knowledge/features/FR-172-knowledge-admission-and-corpus.md) (references)
 - [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [Domain — knowledge](domains/knowledge/CHARTER.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
@@ -2982,7 +2984,6 @@ Backlinks:
 - [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
-- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
@@ -3021,7 +3022,6 @@ Backlinks:
 - [FR-118 — Tier 1 stage composition](domains/knowledge/features/FR-118-tier1-stage-composition.md) (references)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (references)
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
-- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ROADMAP: zuri-ai — Live Delivery State](roadmap/ROADMAP.md) (references)
@@ -3035,11 +3035,12 @@ Backlinks:
 
 Source: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
 
-- references: [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md)
-- references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
+- references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [ADR-071 — GenesisRAG17 isolated execution and publication](decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
 - relates: [req:FR-109](PRD-SDD-v1.0.md)
 - relates: [req:FR-110](PRD-SDD-v1.0.md)
+- relates: [req:FR-172](PRD-SDD-v1.0.md)
 
 Backlinks:
 
@@ -3084,8 +3085,10 @@ Source: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSIO
 
 Backlinks:
 
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (references)
+- [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) (references)
 
 ## Zuri V2 — Project Manager Module: PRD & SDD
 

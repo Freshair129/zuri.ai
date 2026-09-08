@@ -263,7 +263,7 @@ function validateRequest(message) {
   }
   if (Object.prototype.hasOwnProperty.call(message, 'id')) {
     const id = message.id
-    if (!['string', 'number'].includes(typeof id) || !Number.isFinite(id)) {
+    if (!['string', 'number'].includes(typeof id) || (typeof id === 'number' && !Number.isFinite(id))) {
       return 'Request id must be a string or finite number'
     }
   }

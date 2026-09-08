@@ -15,6 +15,10 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-172 — shared source admission and scoped corpus retrieval.
+  ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
+  ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
+  ['/api/knowledge/sources/{sourceId}', ['DELETE']],
   // @req FR-159, FR-158 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],

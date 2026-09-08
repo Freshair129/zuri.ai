@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.3.0b"
+version: "1.3.1b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-08T12:00:00+07:00,RWANG"
+last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-071
@@ -17,6 +17,8 @@ relations:
 ---
 
 # GenesisRAG17 — execution flow and extension map
+
+Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 
 สำหรับจุดเริ่มจาก UI/API/MCP, FileAsset/Project/LINE และช่องว่างก่อนเข้าสู่ pipeline อ่าน [surface inventory และ detailed user journeys](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) ซึ่งแยก endpoint ที่มีจริงออกจาก user-facing admission และ sharing flow ที่ยังต้องเชื่อม ระบบทดสอบครบ 17 stages ไม่ได้หมายความว่าทุกหน้าจอและ connector เชื่อมแล้ว
 
@@ -218,12 +220,13 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 4. เพิ่ม positive/negative fixtures ที่พิสูจน์ capability ใหม่และผลต่อ stage ถัดไป พร้อม duplicate/reply loss/restart/wrong-scope tests ตาม boundary ที่เปลี่ยน
 5. รัน acceptance จาก raw entrypoint ผ่าน worker จริงจน query พร้อม citation; ห้าม test ใส่ผลสำเร็จ stage หรือเรียก promotion แทน ingestion แล้วถือว่าครบ 17 stages
 6. ตรวจ fixed-corpus Recall@5 ≥ .80, MRR ≥ .65, citation correctness = 1.00, cross-tenant leaks = 0; ระบุ fixture/commit/model/schema versions ทุกครั้ง ผลนี้เป็น benchmark ของชุดทดสอบ ไม่ใช่คุณภาพ production
-7. Root เดียว regenerate governance และตรวจ cross-repo links/flow. เอกสารรอบนี้เปลี่ยนคำอธิบายและจุดต่อขยาย ไม่ใช่การ rerun หรือขยายขอบเขตหลักฐาน runtime เดิม
+7. Root เดียว regenerate governance และตรวจ cross-repo links/flow. แยกหลักฐาน raw-entrypoint เดิมออกจากรายงาน FR-172 ที่รันผ่าน UI/API/MCP จริง และระบุขอบเขตที่ยังใช้ unit/Prisma tests ตาม phase report
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.3.0b | 2026-09-08 | beta | Approved admission, durable queue, corpus read-set and correction/revocation extension map | base dfdbaf11 | RWANG |
 | 1.2.0b | 2026-09-08 | beta | Link audited endpoint/surface inventory and user journeys; clarify unconnected UI and connector boundaries | base dfdbaf11 | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Audit remediation: pre-stage intent, exact transaction retry, PASS-only publication and safe pointer replacement | working-tree | RWANG |

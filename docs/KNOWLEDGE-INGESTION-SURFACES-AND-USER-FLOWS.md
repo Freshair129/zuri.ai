@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS
 title: Knowledge ingestion surfaces, endpoint inventory and user journeys
-version: "1.1.0b"
+version: "1.1.1b"
 status: beta
 created_at: "2026-09-08T12:00:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T18:50:13+07:00,RWANG"
+last_update: "2026-09-08T19:37:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-072
@@ -238,28 +238,28 @@ Evidence: `apps/edge/src/rag/v4/serve.ts:139`, `apps/edge/src/rag/v4/ingest.ts:9
 
 สถานะในตารางนี้เป็นสถานะของ surface/service contract:
 
-- **SUPPORTED — native acceptance pending:** มี caller, service และ isolated tests แล้ว แต่ยังรอ actual native 17-stage HTTP/browser acceptance
+- **SUPPORTED — evidence by scope:** Business owner native acceptance ผ่านแล้ว; Project/API-grant ใช้หลักฐาน unit/Prisma ตามขอบเขตใน section 8
 - **SUPPORTED — bounded surface:** ใช้ได้ในขอบเขตที่ระบุ แต่ปลายทางอื่นของ journey ยังไม่อยู่ใน phases 0–4
 - **DEFERRED:** ยังไม่มี implementation ตาม contract นี้
 
 | Journey | สถานะ phases 0–4 | สิ่งที่มีจริง / ขอบเขต |
 |---|---|---|
-| **U01 — เลือกไฟล์จากเครื่องในหน้า Files** | **SUPPORTED — native acceptance pending** | `/files` ใช้ active device mount → Add file → `LOCAL_FILE` FileAsset → Add knowledge สำหรับ Text/Markdown; admission freeze bytes/hash/version แล้ว queue งาน |
+| **U01 — เลือกไฟล์จากเครื่องในหน้า Files** | **SUPPORTED — evidence by scope** | `/files` ใช้ active device mount → Add file → `LOCAL_FILE` FileAsset → Add knowledge สำหรับ Text/Markdown; admission freeze bytes/hash/version แล้ว queue งาน |
 | **U02 — External URL หรือไฟล์ที่มีอยู่แล้ว** | **SUPPORTED — bounded surface** | File manager ยังบันทึก/เปิด External URL ได้; knowledge admission รับเฉพาะ existing readable Text/Markdown FileAsset, external fetch/crawl ยัง deferred |
-| **U03 — Project Files และ attachments** | **SUPPORTED — native acceptance pending** | `/projects/{projectId}/files` ส่ง `projectId` เข้า corpus identity และตรวจ Business/Project/FileAsset ACL; ไม่มี work-item picker หรือ binary adapter |
-| **U04 — วางข้อความ / เขียน Text/Markdown โดยตรง** | **SUPPORTED — native acceptance pending** | Add text modal และ `POST /api/knowledge/ingestions` รับ strict TEXT descriptor แล้วคืน `QUEUED` admission |
-| **U05 — ระบบภายนอกส่ง API** | **SUPPORTED — native acceptance pending** | HTTP knowledge routes ใช้ session หรือ explicit configured bearer/API grant ที่ตรง service account, tenant, Business และ action; caller ไม่ส่ง scope/policy/actor/credential ใน body |
-| **U06 — Agent / Codex ผ่าน MCP** | **SUPPORTED — native acceptance pending** | `POST /api/mcp` มี 6 `knowledge.*` tools เรียก service เดียวกัน; initial และ refresh ใช้ authenticated session viewer ของ MCP เดิม |
+| **U03 — Project Files และ attachments** | **SUPPORTED — evidence by scope** | `/projects/{projectId}/files` ส่ง `projectId` เข้า corpus identity และตรวจ Business/Project/FileAsset ACL; ไม่มี work-item picker หรือ binary adapter |
+| **U04 — วางข้อความ / เขียน Text/Markdown โดยตรง** | **SUPPORTED — evidence by scope** | Add text modal และ `POST /api/knowledge/ingestions` รับ strict TEXT descriptor แล้วคืน `QUEUED` admission |
+| **U05 — ระบบภายนอกส่ง API** | **SUPPORTED — evidence by scope** | HTTP knowledge routes ใช้ session หรือ explicit configured bearer/API grant ที่ตรง service account, tenant, Business และ action; caller ไม่ส่ง scope/policy/actor/credential ใน body |
+| **U06 — Agent / Codex ผ่าน MCP** | **SUPPORTED — evidence by scope** | `POST /api/mcp` มี 6 `knowledge.*` tools เรียก service เดียวกัน; initial และ refresh ใช้ authenticated session viewer ของ MCP เดิม |
 | **U07 — PDF / Word / Excel / รูปภาพจาก extractor** | **DEFERRED** | ไม่มี binary/OCR/vision parser ใน admission; document staging รับ extracted contract แยกต่างหากและจบที่ staging |
 | **U08 — Folder / Drive / URL connector / incremental sync** | **DEFERRED** | ยังไม่มี connector authorization, cursor, remote version หรือ deletion adapter เข้า canonical admission |
 | **U09 — ข้อมูลจากโดเมนอื่นใน zuri** | **DEFERRED** | Domain CRUD และ project graph ยังไม่สร้าง immutable source projection/admission ให้ phases นี้ |
 | **U10 — LINE หรือ conversation กลายเป็นความรู้** | **DEFERRED** | LINE/raw conversation ยังไม่ผ่าน review/consent/source freeze และไม่ auto-publish เป็น canonical knowledge |
-| **U11 — ผู้ใช้ถามผ่านเว็บ / LINE / API** | **SUPPORTED — native acceptance pending** | UI, HTTP `POST /api/knowledge/queries`, MCP `knowledge.query` และ citation resolve ค้น published corpus generation เดียวตาม ACL; ยังไม่มี LINE answer-composer wiring |
+| **U11 — ผู้ใช้ถามผ่านเว็บ / LINE / API** | **SUPPORTED — evidence by scope** | UI, HTTP `POST /api/knowledge/queries`, MCP `knowledge.query` และ citation resolve ค้น published corpus generation เดียวตาม ACL; ยังไม่มี LINE answer-composer wiring |
 | **U12 — องค์กรเดียวหลาย Business / คนละองค์กร** | **DEFERRED** | Corpus identity เป็น Business + optional Project และ runtime ใช้ configured scope/store เดียว; ไม่มี multi-business federation หรือ cross-tenant aggregation |
 | **U13 — ฝ่ายกลางแชร์นโยบายให้องค์กร** | **DEFERRED** | ยังไม่มี org-shared corpus ownership/grant/revocation หรือ shared query aggregation |
-| **U14 — แก้ไขเอกสาร / retry / replay** | **SUPPORTED — native acceptance pending** | idempotency, immutable source versions, correction revision, stale-completion guards และ CAS manifest logic มีใน service; runtime restart/replay acceptance ยังรอ native harness |
-| **U15 — hold / worker ล้ม / publish ไม่สำเร็จ** | **SUPPORTED — native acceptance pending** | UI แสดง `QUEUED/RUNNING/PUBLISHED/FAILED/SUPERSEDED/WITHDRAWN`; admission ไม่รายงาน stage สำเร็จเอง; native crash/restart/receipt-loss proof ยัง pending |
-| **U16 — ถอนเอกสาร / เปลี่ยนสิทธิ์ / ตรวจหลักฐานย้อนหลัง** | **SUPPORTED — native acceptance pending** | `DELETE /api/knowledge/sources/{sourceId}` ใช้ `expectedVersion`; query/citation ตรวจ current ACL, source state และ FileAsset/Project access; delayed revoke/native acceptance ยัง pending |
+| **U14 — แก้ไขเอกสาร / retry / replay** | **SUPPORTED — evidence by scope** | idempotency, immutable source versions, correction revision, stale-completion guards และ CAS manifest logic มีใน service; Business runtime restart และ native replay มีหลักฐาน acceptance; ดู section 8 |
+| **U15 — hold / worker ล้ม / publish ไม่สำเร็จ** | **SUPPORTED — evidence by scope** | UI แสดง `QUEUED/RUNNING/PUBLISHED/FAILED/SUPERSEDED/WITHDRAWN`; admission ไม่รายงาน stage สำเร็จเอง; native crash/restart/receipt-loss proof ผ่านชุด recovery 25/25 |
+| **U16 — ถอนเอกสาร / เปลี่ยนสิทธิ์ / ตรวจหลักฐานย้อนหลัง** | **SUPPORTED — evidence by scope** | `DELETE /api/knowledge/sources/{sourceId}` ใช้ `expectedVersion`; query/citation ตรวจ current ACL, source state และ FileAsset/Project access; Business withdrawal/history ผ่าน native; delayed revoke ใช้ Prisma/service tests |
 
 สถานะ **SUPPORTED** ข้างต้นไม่ใช่ production claim: ยังต้องผ่าน native acceptance ของ UI/API/MCP ที่วิ่งจริงถึง publication receipt และ query/citation ก่อนปิด phases 0–4
 
@@ -348,13 +348,13 @@ The same six operations are exposed by `POST /api/mcp` as `knowledge.ingestion_c
 | Area | Current evidence | Limit |
 |---|---|---|
 | Admission service | `apps/server/tests/unit/knowledge-admission-service.test.js`, `knowledge-admission-job-state.test.js` | Isolated service proof; native worker still separate |
-| HTTP | `apps/server/tests/unit/knowledge-admission-routes.test.js`, `knowledge-corpus-routes.test.js`, `knowledge-http.test.js` | Actual deployment/native HTTP acceptance pending |
+| HTTP | `apps/server/tests/unit/knowledge-admission-routes.test.js`, `knowledge-corpus-routes.test.js`, `knowledge-http.test.js` | Business session HTTP/native passed; bearer grants unit-tested; production not tested |
 | Real DB + shared service | `apps/server/tests/integration/knowledge-admission.integration.test.js`, `knowledge-query.test.js` | Fixture/isolated database evidence, not production evidence |
-| MCP | `apps/server/tests/unit/knowledge-admission-mcp.test.js`, `pipeline-mcp-transport.test.js` | MCP session transport tested; native publication path pending |
-| Files UI | `apps/server/tests/unit/knowledge-admission-ui-contract.test.js`, existing FR-045/FR-058 UI tests | Browser selectors/actions are enumerated; actual browser-to-native publication acceptance pending |
+| MCP | `apps/server/tests/unit/knowledge-admission-mcp.test.js`, `pipeline-mcp-transport.test.js` | Business session MCP admission/query/citation passed through the actual native worker |
+| Files UI | `apps/server/tests/unit/knowledge-admission-ui-contract.test.js`, existing FR-045/FR-058 UI tests | Business browser Text/managed-file admission passed; Project browser/native and browser query controls not exercised |
 | Native 17-stage chain | `apps/server/tests/acceptance/genesisrag17-e2e.test.js` remains the internal raw-chain harness | It does not by itself prove the UI/API/MCP entrypoints or multi-document corpus flow |
 
-The remaining acceptance gate is an actual native run started through UI, HTTP and MCP as applicable, followed by two-document publication/query, correction preserving the other source, stale completion rejection, withdrawal and delayed ACL/revocation checks. Until that evidence exists, phases 0–4 remain beta and no production activation/completion is claimed.
+Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. [Native surface evidence](../.brain/reports/knowledge-admission-native.json) and [phase report](../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) distinguish native tests from service seams. Stale completion and delayed ACL/revocation checks are covered by unit/real-Prisma tests. The product remains beta; no production activation is claimed.
 
 Deferred after this contract: PDF/DOCX/Excel/image/OCR; external URL fetch/crawl; folder/Drive/connector sync; domain-record adapters; LINE/conversation promotion; org-wide/shared corpus; multi-business or cross-tenant federation; cross-store routing; corpus-wide graph traversal and aggregate native gate.
 
@@ -370,11 +370,12 @@ Deferred after this contract: PDF/DOCX/Excel/image/OCR; external URL fetch/crawl
 - Adjacent baseline: `apps/server/src/app/api/ingest/documents/route.js`, `apps/server/src/app/api/pipelines/`, `apps/server/src/app/api/files/`, `apps/server/src/modules/project-manager/application/file-asset-service.js`
 - Tests: `apps/server/tests/unit/knowledge-admission-*.test.js`, `apps/server/tests/unit/knowledge-corpus-routes.test.js`, `apps/server/tests/unit/knowledge-http.test.js`, `apps/server/tests/integration/knowledge-admission.integration.test.js`, `apps/server/tests/integration/knowledge-query.test.js`
 
-ตัวเลข 28 paths / 34 operations คือผลรวมของ route groups ที่ระบุใน section 3; MCP tools 15 คือ 4 Project Manager + 5 data pipeline + 6 knowledge tools และไม่ถูกบวกซ้ำเป็น HTTP paths. การตรวจรอบนี้ใช้ tracked-file enumeration, exported method/tool inventory, source inspection และ authority-doc review; ไม่ได้เปิด production API และ actual native acceptance ยัง pending
+ตัวเลข 28 paths / 34 operations คือผลรวมของ route groups ที่ระบุใน section 3; MCP tools 15 คือ 4 Project Manager + 5 data pipeline + 6 knowledge tools และไม่ถูกบวกซ้ำเป็น HTTP paths. การตรวจรอบนี้ใช้ tracked-file enumeration, exported method/tool inventory, source inspection และ authority-doc review; ไม่ได้เปิด production API; isolated Business UI/session HTTP/MCP native acceptance ผ่านแล้วตามรายงานใน section 8
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0b | 2026-09-08 | draft | Enumerated Server endpoints; actual source paths versus 16 proposed/partial user journeys; admission and cross-domain extension gaps | base dfdbaf11 | RWANG |
+| 1.1.1b | 2026-09-08 | beta | Record actual Business surface/native acceptance, corpus proof and remaining Project/API-grant/browser-query evidence limits | 03256b74 + integration | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Reconciled phases 0–4 HTTP/MCP/UI surfaces, 28-path/34-operation inventory, U01–U16 status matrix and native-acceptance boundary; linked ADR-072, FR-172 and the frozen contract | 0816ed4d | RWANG |

@@ -26,7 +26,7 @@ import { makeViewer } from '../factories/viewer'
 // are proven against the real Prisma models, with native receipt/lineage
 // verification kept at the separate GenesisRAG17 acceptance boundary.
 // @spec ADR-072, SEC-001, SEC-008
-// @tested apps/server/tests/integration/knowledge-corpus-prisma.test.js
+// @tested tests/integration/knowledge-corpus-prisma.test.js
 
 function token() {
   return randomUUID().replaceAll('-', '').slice(0, 16)

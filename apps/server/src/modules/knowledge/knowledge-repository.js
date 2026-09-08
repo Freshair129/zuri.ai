@@ -2,7 +2,7 @@ import prisma from '@/lib/db'
 
 // @req FR-172 — one persistence adapter for durable admission and immutable corpus manifests.
 // @spec ADR-072, SEC-001
-// @tested tests/integration/knowledge-admission.test.js, tests/integration/knowledge-corpus.test.js
+// @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
 
 function mutable(data, allowed) {
   if (Object.keys(data).some((key) => !allowed.includes(key))) throw new Error('Knowledge repository refuses immutable field mutation')

@@ -249,6 +249,8 @@ export const zGenesisRag17QueryResponse = z.object({
   generation: zNonEmptyString,
   results: z.array(z.object({
     id: zNonEmptyString,
+    snapshotId: zNonEmptyString,
+    generation: zNonEmptyString,
     score: z.number().finite(),
     text: z.string(),
     citation: z.object({
@@ -402,6 +404,11 @@ export function validateGenesisRag17EvidencePage(page, { scope, runId, afterCurs
 export function parseGenesisRag17QueryResponse(value, scope) {
   const parsed = zGenesisRag17QueryResponse.parse(value)
   assertGenesisRag17ScopeEqual(parsed.scope, scope)
+  for (const result of parsed.results) {
+    if (result.snapshotId !== parsed.snapshotId || result.generation !== parsed.generation) {
+      throw new Error('GenesisRAG17 query result snapshot/generation does not match its envelope')
+    }
+  }
   return parsed
 }
 

@@ -103,6 +103,26 @@ async function launchNext({ env, port }) {
   child.stderr.on('data', (chunk) => logs.push(chunk.toString('utf8')))
   try {
     await waitForHttp(`http://127.0.0.1:${port}`, child, logs)
+    // Compile the surface before opening process-local MCP sessions. Next dev
+    // can invalidate shared route modules when a different route first loads.
+    // These unauthenticated probes must fail before admitting or reading data.
+    for (const [method, route] of [
+      ['GET', '/api/knowledge/ingestions'],
+      ['POST', '/api/knowledge/ingestions'],
+      ['GET', '/api/knowledge/ingestions/acceptance-warmup'],
+      ['POST', '/api/knowledge/queries'],
+      ['GET', '/api/knowledge/citations/acceptance-warmup'],
+      ['DELETE', '/api/knowledge/sources/acceptance-warmup'],
+      ['POST', '/api/mcp'],
+    ]) {
+      const response = await fetch(`http://127.0.0.1:${port}${route}`, {
+        method,
+        ...(method === 'GET' ? {} : { headers: { 'content-type': 'application/json' }, body: '{}' }),
+        signal: AbortSignal.timeout(60000),
+      })
+      await response.arrayBuffer()
+      if (response.status !== 401) throw new Error(`Unauthenticated surface warmup ${method} ${route} returned ${response.status}`)
+    }
   } catch (error) {
     await terminateProcess(child)
     throw error

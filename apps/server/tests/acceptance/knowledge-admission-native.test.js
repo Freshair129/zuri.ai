@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
 import path from 'node:path'
 import prisma from '@/lib/db'
-import { zGenesisRag17PublicationReceipt } from '@/modules/knowledge/genesisrag17-contract'
+import { hashGenesisRag17Json, zGenesisRag17PublicationReceipt } from '@/modules/knowledge/genesisrag17-contract'
 import fixture from '../fixtures/genesisrag17-corpus-v1.json'
 import {
   createKnowledgeAdmissionHarness,
@@ -142,31 +142,13 @@ function nativeBenchmark(receipt) {
 
 function corpusManifest(row, label) {
   const manifest = reportJson(row.manifestJson, label)
+  if (hashGenesisRag17Json(manifest) !== row.manifestHash) throw new Error(`${label} hash mismatch`)
   return {
     id: row.id,
     corpusId: row.corpusId,
     number: row.number,
     manifestHash: row.manifestHash,
-    manifest: {
-      schemaVersion: manifest.schemaVersion,
-      corpusId: manifest.corpusId,
-      generation: manifest.generation,
-      entries: manifest.entries.map((entry) => ({
-        sourceId: entry.sourceId,
-        ingestionId: entry.ingestionId,
-        sourceVersion: entry.sourceVersion,
-        revision: entry.revision,
-        executionRunId: entry.executionRunId,
-        snapshotId: entry.snapshotId,
-        generation: entry.generation,
-        scope: reportScope(entry.scope),
-        receiptHash: entry.receiptHash,
-        rawArtifactId: entry.rawArtifactId,
-        parsedArtifactId: entry.parsedArtifactId,
-        contentHash: entry.contentHash,
-        fileAssetId: entry.fileAssetId ?? null,
-      })),
-    },
+    manifest,
   }
 }
 
@@ -183,7 +165,9 @@ async function publishedJobEvidence(job, pointer, state) {
   if (receipt.runId !== job.executionRunId || receipt.scope.businessId !== acceptanceScope.businessId || !pointer.publishedSnapshotIds.includes(receipt.snapshotId)) {
     throw new Error(`Report found publication identity mismatch for ${job.executionRunId}`)
   }
-  const batch = await prisma.genesisRag17Batch.findUnique({ where: { executionRunId: job.executionRunId } })
+  const batch = await prisma.genesisRag17Batch.findUnique({ where: {
+    executionRunId_stage9AttemptId: { executionRunId: job.executionRunId, stage9AttemptId: evidence[8].attemptId },
+  } })
   if (!batch) throw new Error(`Report cannot find Stage 9 batch for ${job.executionRunId}`)
   const source = reportJson(batch.requestJson, `Stage 9 batch for ${job.executionRunId}`).source
   if (!source?.rawArtifactId || !source?.parsedArtifactId) throw new Error(`Report found no raw/parsed references for ${job.executionRunId}`)
@@ -198,7 +182,7 @@ async function publishedJobEvidence(job, pointer, state) {
   return {
     ...job,
     lineage: {
-      raw: { id: raw.id, sourceId: raw.sourceId, documentId: raw.documentId, version: raw.version, contentHash: raw.contentHash },
+      raw: { id: raw.id, rawExternalRecordId: raw.rawExternalRecordId, sourceId: raw.sourceId, documentId: raw.documentId, version: raw.version, contentHash: raw.contentHash },
       parsed: { id: parsed.id, rawArtifactId: parsed.rawArtifactId, documentId: parsed.documentId, contentHash: parsed.contentHash },
       chunks: chunks.map((chunk) => ({ id: chunk.id, parsedArtifactId: chunk.parsedArtifactId, ordinal: chunk.ordinal, contentHash: chunk.contentHash, startOffset: chunk.startOffset, endOffset: chunk.endOffset })),
     },

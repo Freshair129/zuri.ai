@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.3.0b"
+version: "1.3.1b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-08T04:00:00+07:00,RWANG"
+last_update: "2026-09-08T18:55:00+07:00,RWANG"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -15,7 +15,7 @@ relations:
 
 # Approved GenesisRAG17 implementation contract
 
-Version 1.3.0b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
+Version 1.3.1b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
 Read [the stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
 [execution/extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) before adding fields
 or changing a stage. All nine tools are defined here: the seven entries below plus
@@ -46,7 +46,7 @@ MSP names below relay to the same suffix with `gks_` replacing `msp_`. Provider 
 4. `msp_pipeline_gate`: `{decisionId,decisionHash}` -> `{verdict}`. Verdict = `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,verdict:"PASS"|"WARN"|"FAIL",allowPublication,dimensions}`. Each dimension data,graph,knowledge,security,retrieval has `{result:"PASS"|"WARN"|"FAIL",critical:boolean,reasons:[]}`. GKS evaluates immutable source/facts/policy and matching physical receipt; missing receipt cannot pass. Recall@5 >= .80, MRR >= .65, citation correctness == 1, cross tenant leaks == 0. No inferred success or synthesized zero metrics.
 5. `msp_pipeline_publication_receipt`: `{receipt}` -> `{accepted:true}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,publishedAt,pointerHash,modelRevision,transactionFrontier,readback:{ok:true}}`. GKS checks against exact allowed verdict/write receipt before storing, then emits Stage17 terminal evidence. Duplicate identical receipt succeeds; different content for same identity conflicts.
 6. `msp_pipeline_evidence`: `{runId,afterCursor:0,limit:100}` -> `{rows,nextCursor}`. Rows are `{cursor,schemaVersion,scope,runId,pipelineStageId,executionStepId,attemptId,stageNumber,outcome:"SUCCEEDED"|"FAILED",startedAt,finishedAt,metrics,details}`. Metrics exact keys `records_in,records_out,records_quarantined,error_count,retry_count,duration_ms`, all nonnegative finite numbers. One terminal per stage/attempt; successful stage13 only after graph receipt, successful stage17 only after publication receipt; failed terminals follow the failure rules below. Stage17 details carry verdict and publicationReceipt; other details counts/digests only. Cursor advances only after durable ledger writes; invalid row stops page consumption. Old legacy evidence never closes a new attempt.
-7. `msp_pipeline_query` relays to Tier4's loopback POST `/query` (not GKS): `{schemaVersion,scope,query,topK:5,snapshotId?}` -> `{schemaVersion,scope,snapshotId,generation,results:[{id,score,text,citation:{sourceId,rawArtifactId,parsedArtifactId,chunkId,contentHash}}]}`. MSP authenticates source/worker, rejects response scope mismatch. Worker requires bearer runtime token and exact scope. Missing snapshotId selects published pointer exactly once for the entire query; named historical snapshot must match scope. No visible candidate generations. Worker port/address explicit runtime `MSP_PIPELINE_WORKER_URL`; only loopback permitted in this test implementation.
+7. `msp_pipeline_query` relays to Tier4's loopback POST `/query` (not GKS): `{schemaVersion,scope,query,topK:5,snapshotId?}` -> `{schemaVersion,scope,snapshotId,generation,results:[{id,snapshotId,generation,score,text,citation:{sourceId,rawArtifactId,parsedArtifactId,chunkId,contentHash}}]}`. MSP authenticates source/worker, rejects response scope mismatch. Each native hit includes snapshotId/generation matching the response envelope; the zuri parser validates both fields before corpus serving. Worker requires bearer runtime token and exact scope. Missing snapshotId selects published pointer exactly once for the entire query; named historical snapshot must match scope. No visible candidate generations. Worker port/address explicit runtime `MSP_PIPELINE_WORKER_URL`; only loopback permitted in this test implementation.
 
 MSP forwards `authenticatedPrincipal: {principalId,role,scope}` from its runtime grant, replacing any caller value. GKS verifies the relay credential and the required role as well as exact scope. The shared scope key uses JSON array serialization of the ordered six values, never an unescaped delimiter join. Source/chunk/mention offsets are UTF-16 code-unit indices as used by JavaScript String.slice; hashes always cover UTF-8 bytes. `laneManifest[lane].objects` is a nonnegative integer count, not an array. Facts and held rows use `id` and `sourceReferences` (one reference object); derived summaries use `id` and `sourceReferences` (array of actual reference objects). A held record need not have canonical endpoints and is never written as a verified assertion. Receipt metric maps contain only keys 13, 15 and 16.
 
@@ -145,3 +145,7 @@ engine/model revisions.
 | 1.0.0b | 2026-09-07 | active | User-approved isolated execution and wire freeze | RWANG |
 | 1.1.0b | 2026-09-07 | active | Separate graph acknowledgement preserves actual 13 -> 14 -> 15 -> 16 execution order and operation timestamps | RWANG |
 | 1.2.0b | 2026-09-07 | active | Authenticated stage failures terminate honestly; publication receipt required only for successful completion | RWANG |
+
+## Version diff 1.3.0b → 1.3.1b
+
+Clarify the existing pinned native query hit snapshot/generation fields and zuri validation, discovered by actual Files/HTTP corpus acceptance. Stage, attempt and receipt identities remain unchanged.
