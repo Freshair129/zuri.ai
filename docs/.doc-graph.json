@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2355,
-    "total_edges": 9436,
+    "total_nodes": 2358,
+    "total_edges": 9439,
     "dangling_edges": 0,
     "node_types": {
       "document": 206,
@@ -14,9 +14,9 @@
       "roadmap": 44,
       "feature": 24,
       "route": 288,
-      "model": 128,
+      "model": 130,
       "requirement": 331,
-      "test": 545,
+      "test": 546,
       "code_file": 701
     },
     "coverage": {
@@ -54,7 +54,11 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:B-db-schema",
+      "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
+      "code:src/modules/project-manager/application/backup-service.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -9624,7 +9628,7 @@
       "id": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
-      "hash": "8f1d957b",
+      "hash": "e23a1d2c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9644,7 +9648,7 @@
       "id": "code:src/modules/knowledge/genesisrag17-source.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/genesisrag17-source.js",
-      "hash": "82b79eb8",
+      "hash": "b151831c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12256,8 +12260,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "b92585cb",
-      "status": "current",
+      "hash": "b5798cba",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-149",
@@ -13880,7 +13884,7 @@
       "id": "code:src/platform/integrations/core/genesisrag17-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-      "hash": "0d56c94f",
+      "hash": "3d77275a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13934,7 +13938,7 @@
       "id": "code:src/platform/integrations/core/genesisrag17-worker.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
-      "hash": "7032ac7a",
+      "hash": "92271c6f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14013,7 +14017,7 @@
       "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "89d1302b",
+      "hash": "3abebe9f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14097,7 +14101,7 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "9606e158",
+      "hash": "b4689943",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14386,10 +14390,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.28.0b",
+      "version": "1.29.0b",
       "doc_status": "Draft",
-      "hash": "6e5f16bf",
-      "status": "current"
+      "hash": "be129b24",
+      "status": "changed"
     },
     {
       "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
@@ -15721,7 +15725,7 @@
       "type": "document",
       "path": "docs/plans/GENESISRAG17-CONTRACT.md",
       "title": "Approved GenesisRAG17 implementation contract",
-      "hash": "b3ef2bc6",
+      "hash": "a49d1d95",
       "status": "current"
     },
     {
@@ -15767,7 +15771,7 @@
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
       "title": "GenesisRAG17 — execution flow and extension map",
-      "hash": "da0de1b4",
+      "hash": "8f7d2d54",
       "status": "current"
     },
     {
@@ -15775,9 +15779,9 @@
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
       "title": "Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "version": "1.1.0b",
+      "version": "1.2.0b",
       "doc_status": "Beta — product specification with verified isolated execution profile",
-      "hash": "067c9544",
+      "hash": "b5063188",
       "status": "current"
     },
     {
@@ -16758,6 +16762,8 @@
         "KnowledgeRawArtifact",
         "KnowledgeParsedArtifact",
         "KnowledgeChunk",
+        "GenesisRag17IngestionIntent",
+        "GenesisRag17SourceMention",
         "GenesisRag17Batch",
         "GenesisRag17StageEvidence",
         "GenesisRag17EvidenceCursor",
@@ -16768,7 +16774,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "f0f282a8",
+      "hash": "27aa33c0",
       "status": "current"
     },
     {
@@ -17299,7 +17305,17 @@
       "status": "current"
     },
     {
+      "id": "model:GenesisRag17IngestionIntent",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:GenesisRag17PublicationReceipt",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:GenesisRag17SourceMention",
       "type": "model",
       "status": "current"
     },
@@ -23940,7 +23956,7 @@
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
-      "hash": "0c94448b",
+      "hash": "e433358d",
       "status": "current"
     },
     {
@@ -24465,8 +24481,8 @@
       "id": "test:tests/integration/fr110-knowledge-reporter-receiver.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
-      "hash": "10ad91d5",
-      "status": "current"
+      "hash": "5d69973d",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/fr110-knowledge-reporter-routes.test.js",
@@ -24619,7 +24635,7 @@
       "id": "test:tests/integration/genesisrag17-tier1.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/genesisrag17-tier1.test.js",
-      "hash": "d4b47e62",
+      "hash": "48dfe2f0",
       "status": "current"
     },
     {
@@ -25837,7 +25853,7 @@
       "id": "test:tests/unit/fr045-backup-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
-      "hash": "6f0f830c",
+      "hash": "c5d0b097",
       "status": "current"
     },
     {
@@ -26194,21 +26210,28 @@
       "id": "test:tests/unit/genesisrag17-lineage-repository.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
-      "hash": "5706da46",
+      "hash": "20ba2201",
       "status": "current"
     },
     {
       "id": "test:tests/unit/genesisrag17-source.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-source.test.js",
-      "hash": "2ac9d7f5",
+      "hash": "8aebea75",
       "status": "current"
     },
     {
       "id": "test:tests/unit/genesisrag17-supabase-migration.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
-      "hash": "6da169cc",
+      "hash": "5d4419c5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-worker.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-worker.test.js",
+      "hash": "815d3ab1",
       "status": "current"
     },
     {
@@ -53339,7 +53362,21 @@
       "source": "charter"
     },
     {
+      "from": "model:GenesisRag17IngestionIntent",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:GenesisRag17PublicationReceipt",
+      "to": "domain:knowledge",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:GenesisRag17SourceMention",
       "to": "domain:knowledge",
       "type": "owned_by",
       "status": "current",
@@ -83308,6 +83345,13 @@
     {
       "from": "test:tests/unit/genesisrag17-supabase-migration.test.js",
       "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-worker.test.js",
+      "to": "req:FR-109",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

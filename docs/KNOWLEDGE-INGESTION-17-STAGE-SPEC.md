@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.1.0b"
+version: "1.2.0b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-08T00:51:36+07:00,RWANG"
+last_update: "2026-09-08T04:00:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -37,7 +37,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0b |
+| **Version** | 1.2.0b |
 | **Status** | Beta — product specification with verified isolated execution profile |
 | **Author** | Boss |
 | **Created** | 2026-08-27 |
@@ -61,6 +61,26 @@ scope, separate databases, durable worker loops, rule-based extraction, pinned l
 CPU E5 embeddings. ไม่มี LLM extraction, production deployment, new UI หรือ concurrent
 multi-source ingestion. [Acceptance report](../.brain/reports/GENESISRAG17-ACCEPTANCE.md)
 บันทึก tests และ versions ของรอบ implementation; การอัพเดทเอกสารนี้ไม่ใช่หลักฐาน rerun.
+
+### Approved audit corrections — v1.2.0b
+
+The [audit remediation contract](plans/GENESISRAG17-CONTRACT.md#audit-remediation-contract-130b)
+is binding for the repaired profile. Source intents precede Stage1 and preserve
+derivation configuration and Stage8 occurrence output for automatic recovery.
+Stage9 cannot merge incompatible semantic types by name alone; Stage10 must
+preserve supported coordinated subjects and negation. Stage12 holds invalid
+intervals and distinguishes unrecognized temporal claims from no temporal claim.
+Structured temporal metadata and unsupported recognizers must be rejected rather
+than silently discarded or mislabeled. These boundaries do not add new parsers
+or extraction predicates.
+
+Stage13 remains graph-only. Stage16 owns lexical/vector index construction.
+Native transaction intent is durable before either commit and is replayed
+byte-equivalently after uncertainty; receipt state precedes outbox deletion.
+Stage17 publication in this profile requires PASS, policy permission and the
+matching receipt. WARN never publishes. Pointer replacement failure retains the
+old pointer, and tests must terminate actual processes within the commit/receipt
+gaps. A populated two-tenant retrieval test supplements the fixed-corpus score.
 
 ---
 
@@ -1996,4 +2016,5 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.1.0b → 1.2.0b | Approved code-audit remediation and explicit supported-input/publication boundaries | Source durability, semantic/temporal correctness and physical recovery repairs; see remediation evidence |
 | 1.0.0 → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

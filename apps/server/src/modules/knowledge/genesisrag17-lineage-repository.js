@@ -29,12 +29,15 @@ function whereFor(scope, extra = {}) {
 }
 
 /**
- * Persistence boundary for the immutable Tier 1 lineage.
+ * Persistence boundary for the immutable Tier 1 lineage and its resumable
+ * intent ledger. Source artifacts and occurrences are append-only; the intent
+ * exposes only its operational status fields for recovery.
  *
- * The adapter deliberately exposes only scoped find/create/list operations;
- * updates and deletes are absent because correcting source content creates a
- * new version identity. Pipeline run, stage and MSP batch writes remain in
- * their existing orchestration repositories.
+ * The adapter deliberately exposes only scoped find/create/list operations for
+ * source artifacts and occurrences; correcting source content creates a new
+ * version identity. Intent status updates are the one narrow recovery write.
+ * Pipeline run, stage and MSP batch writes remain in their existing
+ * orchestration repositories.
  */
 export function createGenesisRag17LineageRepository(db, scope) {
   assertScope(scope)
@@ -45,6 +48,16 @@ export function createGenesisRag17LineageRepository(db, scope) {
   const raw = db.knowledgeRawArtifact
   const parsed = db.knowledgeParsedArtifact
   const chunk = db.knowledgeChunk
+  const intent = db.genesisRag17IngestionIntent
+  const mention = db.genesisRag17SourceMention
+  const requireIntent = () => {
+    assertModel(db, 'genesisRag17IngestionIntent')
+    return intent
+  }
+  const requireMention = () => {
+    assertModel(db, 'genesisRag17SourceMention')
+    return mention
+  }
 
   return Object.freeze({
     findRawById(id) {
@@ -99,6 +112,63 @@ export function createGenesisRag17LineageRepository(db, scope) {
     createChunk(data) {
       assertRowScope(data, scope)
       return chunk.create({ data })
+    },
+
+    findIntentByKey(intentKey) {
+      if (!intentKey) throw new Error('GenesisRAG17 ingestion intent key is required')
+      return requireIntent().findFirst({ where: whereFor(scope, { intentKey }) })
+    },
+
+    findIntentById(id) {
+      if (!id) throw new Error('GenesisRAG17 ingestion intent id is required')
+      return requireIntent().findFirst({ where: whereFor(scope, { id }) })
+    },
+
+    findIntentByExecutionRunId(executionRunId) {
+      if (!executionRunId) throw new Error('GenesisRAG17 ingestion intent executionRunId is required')
+      return requireIntent().findFirst({ where: whereFor(scope, { executionRunId }) })
+    },
+
+    listResumableIntents() {
+      return requireIntent().findMany({ where: whereFor(scope, { status: { in: ['PENDING', 'RUNNING'] } }), orderBy: { createdAt: 'asc' } })
+    },
+
+    listFailedIntents() {
+      return requireIntent().findMany({ where: whereFor(scope, { status: 'FAILED' }), orderBy: { createdAt: 'asc' } })
+    },
+
+    createIntent(data) {
+      assertRowScope(data, scope)
+      return requireIntent().create({ data })
+    },
+
+    async updateIntent(id, data) {
+      if (!id) throw new Error('GenesisRAG17 ingestion intent id is required')
+      const mutableKeys = new Set(['status', 'nextStageNumber', 'lastErrorJson'])
+      const attemptedKeys = Object.keys(data || {})
+      const immutableKeys = attemptedKeys.filter((key) => !mutableKeys.has(key))
+      if (immutableKeys.length) throw new Error(`GenesisRAG17 ingestion intent fields are immutable: ${immutableKeys.join(', ')}`)
+      if (data?.status !== undefined && typeof data.status !== 'string') throw new Error('GenesisRAG17 ingestion intent status must be a string')
+      if (data?.nextStageNumber !== undefined && (!Number.isSafeInteger(data.nextStageNumber) || data.nextStageNumber < 1)) throw new Error('GenesisRAG17 ingestion intent nextStageNumber must be a positive integer')
+      const existing = await requireIntent().findFirst({ where: whereFor(scope, { id }) })
+      if (!existing) throw new Error('GenesisRAG17 ingestion intent is outside the requested scope or missing')
+      assertRowScope(existing, scope)
+      return requireIntent().update({ where: { id: existing.id }, data })
+    },
+
+    listMentions({ executionRunId, attemptId, parsedArtifactId } = {}) {
+      if (!executionRunId || !attemptId || !parsedArtifactId) throw new Error('GenesisRAG17 mention run, attempt and parsed artifact are required')
+      return requireMention().findMany({ where: whereFor(scope, { executionRunId, attemptId, parsedArtifactId }), orderBy: [{ startOffset: 'asc' }, { endOffset: 'asc' }, { sourceMentionId: 'asc' }] })
+    },
+
+    findMention({ executionRunId, attemptId, sourceMentionId } = {}) {
+      if (!executionRunId || !attemptId || !sourceMentionId) throw new Error('GenesisRAG17 mention run, attempt and sourceMentionId are required')
+      return requireMention().findFirst({ where: whereFor(scope, { executionRunId, attemptId, sourceMentionId }) })
+    },
+
+    createMention(data) {
+      assertRowScope(data, scope)
+      return requireMention().create({ data })
     },
   })
 }

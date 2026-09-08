@@ -350,6 +350,7 @@ export async function createPipelineRun(input, {
   viewer,
   now = () => new Date(),
   idFactory = defaultIdFactory,
+  onRunCreated = null,
 } = {}) {
   requireOperator(viewer)
   const value = parsePipelineRunInput(input)
@@ -393,6 +394,11 @@ export async function createPipelineRun(input, {
         updatedAt: at,
       },
     })
+
+    // A caller that owns durable work coupled to this run may create it here,
+    // on the same transaction, before the run can become visible without that
+    // work. A thrown hook rolls back the run, its steps and the hook's rows.
+    if (typeof onRunCreated === 'function') await onRunCreated({ db: tx, run, at, input: value })
 
     // The catalog of the run's OWN definition, not the one this module happened
     // to import — ten DPS-* steps for a Supabase migration, seventeen DPS-KI-*

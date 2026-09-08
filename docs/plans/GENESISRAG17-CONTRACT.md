@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.2.1b"
+version: "1.3.0b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-08T00:51:36+07:00,RWANG"
+last_update: "2026-09-08T04:00:00+07:00,RWANG"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -15,7 +15,7 @@ relations:
 
 # Approved GenesisRAG17 implementation contract
 
-Version 1.2.1b is a documentation clarification; wire `genesisrag17.v1` is unchanged.
+Version 1.3.0b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
 Read [the stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
 [execution/extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) before adding fields
 or changing a stage. All nine tools are defined here: the seven entries below plus
@@ -78,10 +78,69 @@ Tier4 pin e15e35b0093394e0a8880af7f4e6f63cf81223b7. Embedded NAPI owner writes c
 
 Acceptance begins at raw Tier1 entrypoint, with multiple chunks and repeated mentions. It exercises all17 and all6 metrics, receipt-required finish, restart lineage/citations, duplicates/reply loss/crash/replay/late attempts, cursor rejection/resume, wrong scope/tenant/policy, missing provenance/index/security, checkpoint/pointer crash, correction retaining old citations. Native embeddings and native store are mandatory in integration; no skips counted as proof. Record exact commits/schema/model/artifact hashes and test commands in final report. Root alone runs zuri govern and edits shared registries. Each repo owns its migrations. Contract changes require coordinated update before dependent implementations.
 
+## Audit remediation contract (1.3.0b)
+
+The user approved repairing the findings in the
+[code-flow audit](../../.brain/reports/GENESISRAG17-CODE-FLOW-AUDIT.md) on
+2026-09-08. This amendment restores the existing isolated acceptance guarantees;
+it does not add production ingestion, an LLM extractor, new predicates or native
+engine/model revisions.
+
+- **Source durability:** persist an ingestion intent with exact scope, source
+  version, content and derivation configuration before Stage1, atomically with
+  creation of its pipeline run. The source loop
+  resumes interrupted local stages from that intent, without caller resubmission.
+  Completed local evidence is reused only for its exact attempt; failed attempts
+  still require FR-071 replay. Persist occurrence output before reporting Stage8
+  success. Parser/chunker and recognizer identities must describe the configuration
+  actually executed; unsupported custom execution must be rejected explicitly.
+  Early local failure closes FAILED through the same central finish guard using
+  current-attempt evidence, without waiting for or inventing downstream stages.
+  New backup exports identify source-recovery coverage and require both intent
+  and occurrence tables on restore. Older snapshots remain readable with an
+  explicit compatibility warning that missing recovery state is not reconstructed.
+- **Resolution and extraction:** retain all occurrences; a normalized name alone
+  cannot merge incompatible semantic types. Resolve compatible typed identities
+  or preserve an explicit conflict. Explicit extraction must preserve the subject
+  across supported coordinated clauses and must never turn a negated relation
+  into a positive verified fact. Unsupported ambiguity remains HELD. Rule scores,
+  ontology aliases and the .80 write floor stay unchanged.
+- **Temporal:** invalid intervals are HELD with a reason, never a builder
+  exception. Unrecognized temporal claims are HELD as `temporal_unmapped`, distinct from an
+  open-ended interval and a statement with no temporal claim (not_applicable in
+  this text-only profile). Their source references retain the original claim;
+  never emit an unmapped verified fact with null/null bounds that a downstream
+  reader could mistake for not_applicable. Structured source
+  temporal metadata is not silently accepted or discarded: unsupported input is
+  rejected until a separately versioned mapping contract supports it.
+- **Evidence:** local failure counts reflect the actual stage input/work rather
+  than a universal one-record placeholder. Stage9 timing includes canonical
+  lookup. Pending/null decision acknowledgements remain valid; source retries
+  retain the same batch and idempotency key until an actual decision is available.
+- **Physical recovery:** persist the complete native transaction intent,
+  including expected frontier, before commit. An uncertain retry reuses the exact
+  payload and identity. Save accepted graph receipt/derived state before removing
+  its outbox. Checkpoint a newly declared vector collection before its first
+  vector transaction so native replay retains model, dimension and metric.
+  Cover crashes after graph/final native commits but before receipts,
+  and after remote acceptance but before local acknowledgement. Lexical indexing
+  belongs to Stage16; Stage13 writes graph/source/chunk projection only.
+- **Publication:** this isolated profile publishes only PASS with
+  allowPublication=true and a matching receipt. WARN remains a non-publishing
+  terminal failure, consistently across all four repos. Atomic pointer replacement
+  must keep the old pointer intact if replacement fails; never rename the old
+  pointer away as a fallback. Keep historical snapshots accessible across retry.
+- **Acceptance:** add real source-to-GKS regressions, native process crashes at
+  the actual durability boundaries, source recovery before batch creation,
+  measured-count assertions, and queries with two populated isolated tenants.
+  Existing happy-path tests remain mandatory; no synthetic successful stage
+  evidence or skipped native suite counts as completion.
+
 ## Changelog
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.3.0b | 2026-09-08 | active | User-approved audit repairs: semantic correctness, durable recovery, measured evidence and PASS-only atomic publication | RWANG |
 | 1.2.1b | 2026-09-08 | active | Consolidate current nine-operation authority, graph receipt ordering and extension navigation; wire unchanged | RWANG |
 | 1.0.0b | 2026-09-07 | active | User-approved isolated execution and wire freeze | RWANG |
 | 1.1.0b | 2026-09-07 | active | Separate graph acknowledgement preserves actual 13 -> 14 -> 15 -> 16 execution order and operation timestamps | RWANG |

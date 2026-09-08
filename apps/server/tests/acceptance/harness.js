@@ -32,6 +32,25 @@ export function mspTransport(env) {
   return createMspStdioTransport({ command: process.execPath, args: [path.join(env.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')], cwd: env.KI17_MSP_ROOT, env, timeoutMs: 120000 })
 }
 
+export function runSourceUntilCrash(env, input, crashAt) {
+  return new Promise((resolve, reject) => {
+    const child = fork(path.resolve('tests/acceptance/source-process.cjs'), [], {
+      env: { ...env, NODE_ENV: 'test', DATABASE_URL: process.env.DATABASE_URL, KI17_SOURCE_OPTIONS: JSON.stringify({ input, crashAt }) },
+      execPath: process.execPath, execArgv: [], silent: true,
+    })
+    let stderr = ''
+    const timeout = setTimeout(() => { child.kill(); reject(new Error('Source crash test timed out')) }, 60000)
+    child.stdout.resume()
+    child.stderr.on('data', (chunk) => { stderr = (stderr + chunk).slice(-4000) })
+    child.once('error', (error) => { clearTimeout(timeout); reject(error) })
+    child.once('exit', (code) => {
+      clearTimeout(timeout)
+      if (code === 87) resolve()
+      else reject(new Error(`Source exited ${code} instead of reaching ${crashAt}: ${stderr}`))
+    })
+  })
+}
+
 export async function startWorkerProcess(env, options) {
   const child = fork(path.resolve('tests/acceptance/worker-process.mjs'), [], { env: { ...env, KI17_WORKER_OPTIONS: JSON.stringify(options) }, execPath: process.execPath, execArgv: [], silent: true })
   let stderr = '', nextId = 1

@@ -1,13 +1,15 @@
 ---
 domain: knowledge
-version: "1.1.0b"
+version: "1.2.0b"
 status: beta
-last_update: "2026-09-08T00:51:36+07:00,RWANG"
+last_update: "2026-09-08T04:35:00+07:00,RWANG"
 module: src/modules/knowledge
 owns_models:
   - KnowledgeRawArtifact
   - KnowledgeParsedArtifact
   - KnowledgeChunk
+  - GenesisRag17IngestionIntent
+  - GenesisRag17SourceMention
   - GenesisRag17Batch
   - GenesisRag17StageEvidence
   - GenesisRag17EvidenceCursor
@@ -52,8 +54,9 @@ external systems with their own repositories and are never zuri-ai domains
   `hybridSearch`, no embedding call, no `addNode`/`addEdge` (ADR-043 D2.1,
   ADR-050 D3). The two files that once did (`gbdb-rag-service.js`,
   `genesisblockdb-sink.js`) were retired by ADR-063 on 2026-09-06. The
-  `GraphSink` seam in `sink.js` stays; its substrate adapter belongs to the GKS
-  repository. `createGraphKnowledgeReader`'s injected `traverse` may only ever
+  `GraphSink` seam in `sink.js` stays; in the approved ADR-070 profile the physical
+  substrate writer belongs to the separate GenesisBlock worker behind MSP.
+  `createGraphKnowledgeReader`'s injected `traverse` may only ever
   be bound through MSP → GKS or the ADR-046 interim surface, never to the
   substrate directly. `smartgift-rag-pipeline.js`, the third such client,
   went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
@@ -74,6 +77,12 @@ Stage 9–17 evidence cursor, publication-receipt reference and durable Stage 9
 batch state. These records hold source identity, hashes, offsets, counts and
 redacted details; they do not hold GKS facts, canonical entities, embeddings,
 index payloads or GenesisBlockDB data.
+
+Before Stage 1, `GenesisRag17IngestionIntent` retains the exact scoped source
+request and immutable derivation configuration. The source loop resumes its
+interrupted attempt automatically. `GenesisRag17SourceMention` stores each
+Stage 8 occurrence before terminal evidence; correction/replay preserves the
+earlier version and attempt. Both models participate in backup/restore.
 
 One raw entry creates one document and one execution run. Stage 1 records real
 raw persistence evidence before the local parser runs. Stages 2–8 preserve
@@ -256,4 +265,5 @@ ingestion lane above, never here.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.1.0b → 1.2.0b | Declare source intent and occurrence ownership for approved audit remediation | Additive isolated persistence and recovery; no production migration |
 | unversioned → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

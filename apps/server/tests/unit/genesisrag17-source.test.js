@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   GENESIS_RAG17_PARSER_VERSION,
   extractGenesisRag17Mentions,
+  genesisRag17ParserIdentity,
   parseGenesisRag17Document,
 } from '@/modules/knowledge/genesisrag17-source'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
@@ -44,6 +45,13 @@ describe('GenesisRAG17 source parser', () => {
     expect(second.chunks[0].chunkId).not.toBe(first.chunks[0].chunkId)
     expect(second.chunks[0].startOffset).toBeGreaterThanOrEqual(0)
   })
+
+  it('binds parser identity to the requested chunk profile', () => {
+    const parserVersion = genesisRag17ParserIdentity({ maxTokens: 4 })
+    const parsed = parseGenesisRag17Document({ documentId: 'doc-profile', rawArtifactId: 'raw-profile', content: fixture.text, maxTokens: 4 })
+    expect(parsed.parsed.parserVersion).toBe(parserVersion)
+    expect(() => parseGenesisRag17Document({ documentId: 'doc-profile', rawArtifactId: 'raw-profile', content: fixture.text, maxTokens: 4, parserVersion: GENESIS_RAG17_PARSER_VERSION })).toThrow(/configuration identity/)
+  })
 })
 
 describe('GenesisRAG17 rule_v1 source mentions', () => {
@@ -70,5 +78,43 @@ describe('GenesisRAG17 rule_v1 source mentions', () => {
     expect(alice).toBeTruthy()
     expect(chunks[0].text.slice(alice.startOffset, alice.endOffset)).toBe('Alice')
     expect(hashGenesisRag17Text(content)).toHaveLength(64)
+  })
+
+  it('keeps coordinated-clause subjects and does not invent an organization as a person', () => {
+    const content = 'Alice works for Acme Limited and purchased Atlas.'
+    const { chunks } = parseGenesisRag17Document({ documentId: 'doc-compound', rawArtifactId: 'raw-compound', parsedArtifactId: 'parsed-compound', content })
+    const mentions = extractGenesisRag17Mentions(chunks)
+
+    expect(mentions.filter((mention) => mention.semanticType === 'Person').map((mention) => mention.name)).toEqual(['Alice'])
+    expect(mentions.filter((mention) => mention.semanticType === 'Organization').map((mention) => mention.name)).toEqual(['Acme Limited'])
+    expect(mentions.filter((mention) => mention.semanticType === 'Product').map((mention) => mention.name)).toEqual(['Atlas'])
+    expect(mentions.some((mention) => mention.name === 'Acme Limited and')).toBe(false)
+  })
+
+  it('keeps multiword subjects as one exact occurrence', () => {
+    const content = 'Ada Lovelace works for Acme Limited.'
+    const { chunks } = parseGenesisRag17Document({ documentId: 'doc-multiword', rawArtifactId: 'raw-multiword', content })
+    const person = extractGenesisRag17Mentions(chunks).find((mention) => mention.semanticType === 'Person')
+
+    expect(person).toMatchObject({ name: 'Ada Lovelace', startOffset: 0, endOffset: 'Ada Lovelace'.length })
+    expect(chunks[0].text.slice(person.startOffset, person.endOffset)).toBe(person.name)
+  })
+
+  it('retains same-name occurrences with their independent semantic types', () => {
+    const content = 'Atlas purchased Atlas.'
+    const { chunks } = parseGenesisRag17Document({ documentId: 'doc-same-name', rawArtifactId: 'raw-same-name', parsedArtifactId: 'parsed-same-name', content })
+    const mentions = extractGenesisRag17Mentions(chunks)
+
+    expect(mentions.map((mention) => ({ name: mention.name, semanticType: mention.semanticType }))).toEqual([
+      { name: 'Atlas', semanticType: 'Person' },
+      { name: 'Atlas', semanticType: 'Product' },
+    ])
+    expect(mentions[0].resolutionKey).toBe(mentions[1].resolutionKey)
+    expect(new Set(mentions.map((mention) => mention.sourceMentionId)).size).toBe(2)
+  })
+
+  it('rejects an unversioned custom recognizer instead of labeling it rule_v1', () => {
+    const { chunks } = parseGenesisRag17Document({ documentId: 'doc-custom', rawArtifactId: 'raw-custom', content: fixture.text })
+    expect(() => extractGenesisRag17Mentions(chunks, { recognizer: () => [] })).toThrow(/custom recognizers/)
   })
 })

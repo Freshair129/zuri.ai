@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.0.0b"
+version: "1.1.0b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-08T00:51:36+07:00,RWANG"
+last_update: "2026-09-08T04:00:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-070
@@ -41,6 +41,7 @@ sequenceDiagram
     participant G as GKS passive authority
     participant W as GenesisBlock worker
     S->>Z: ingestGenesisRag17Raw(raw, scope, policy)
+    Note over Z: Persist source intent and derivation configuration before Stage1
     Note over Z: 1 receive → 2 parse → 3 provenance → 4 normalize<br/>5 classify → 6 version → 7 chunks → 8 mentions
     Z->>M: submit: one durable batch / Stage 9 attempt
     M->>G: authenticated submit
@@ -65,19 +66,19 @@ sequenceDiagram
     M->>G: evaluate five dimensions
     G-->>M: verdict + allowPublication
     M-->>W: bound verdict
-    alt verdict and policy allow
+    alt PASS and policy allow
         Note over W: atomically replace publication pointer
         W->>M: publication_receipt
         M->>G: verify exact gate/write receipt
         Note over G: terminal 17 SUCCEEDED
-    else critical failure or policy denial
+    else verdict is not PASS or policy denies
         Note over G,W: no publication; terminal failure, no invented downstream success
     end
     Z->>M: evidence(runId, afterCursor)
     M->>G: evidence
     G-->>M: exact-attempt terminal rows + publication receipt
     M-->>Z: evidence page
-    Note over Z: durable import + cursor transaction<br/>finish requires all 17 successes and matching publication receipt
+    Note over Z: durable import + cursor transaction<br/>successful finish requires all 17 successes and matching publication receipt
 ```
 
 ลำดับสำคัญคือ **13 เขียนจริงและรับ receipt → 14 enrich → 15 embed → 16 indexes → 17 gate และ publish** ไม่รวม 13/15/16 เป็น acknowledgement เดียวก่อนทำ 14 การส่งซ้ำของ message ไม่ใช่การ execute stage ใหม่
@@ -157,6 +158,14 @@ Paths เป็นจุดแก้ที่มีอยู่จริง ไ�
 5. **Recovery:** graph/write/failure/publication outbox ส่งซ้ำเนื้อหาเดิมได้; crash ก่อน pointer switch ยังอ่าน snapshot เก่า หลัง switch แต่ก่อนตอบ resume receipt จาก durable state; generation เก่ายังอยู่สำหรับ audit/correction
 6. **Query หลัง ingestion:** `source caller → MSP credential/scope check → worker loopback /query → one published generation → citation → Tier 1 lineage resolver`. Query ไม่เรียก ingestion; candidate และ snapshot นอก published history ใช้ไม่ได้. GKS query planning/reranking/LLM answer เป็นอีกความสามารถที่ต้องออกแบบ ไม่ใช่สิ่งที่ acceptance query นี้พิสูจน์
 
+การแก้จาก audit ตาม [contract 1.3.0b](plans/GENESISRAG17-CONTRACT.md#audit-remediation-contract-130b):
+source loop ต้อง resume จาก intent ก่อนมี Stage9 batch และ reuse occurrence output
+ของ attempt เดิม; Pending/null acknowledgement ยังไม่ใช่ข้อผิดพลาด. Native worker
+เก็บ transaction payload/frontier ก่อน commit แล้วส่ง payload เดิมเมื่อ retry.
+เก็บ graph receipt/derived state ก่อนลบ outbox. Lexical index เขียนที่16 เท่านั้น.
+Stage17 รับ PASS เท่านั้น; WARN เป็น terminal failure ที่ไม่ publish. หาก atomic
+pointer replacement ล้ม ต้องเก็บ pointer เดิมไว้ ห้ามย้ายของเดิมออกก่อนติดตั้งใหม่.
+
 ## Six lanes และ version boundaries
 
 | Lane | Current implementation/evidence | เมื่อเพิ่มต้องตรวจ |
@@ -184,4 +193,5 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-09-08 | beta | Audit remediation: pre-stage intent, exact transaction retry, PASS-only publication and safe pointer replacement | working-tree | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Actual 17-stage sequence, owner/input/output/terminal contracts, extension routing and proof map | base b64b46df | RWANG |

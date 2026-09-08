@@ -20,14 +20,17 @@ function model() {
     findFirst: vi.fn(async () => null),
     findMany: vi.fn(async () => []),
     create: vi.fn(async ({ data }) => data),
+    update: vi.fn(async ({ data }) => data),
   }
 }
 
 function db() {
   return {
-    knowledgeRawArtifact: model(),
-    knowledgeParsedArtifact: model(),
-    knowledgeChunk: model(),
+      knowledgeRawArtifact: model(),
+      knowledgeParsedArtifact: model(),
+      knowledgeChunk: model(),
+      genesisRag17IngestionIntent: model(),
+      genesisRag17SourceMention: model(),
   }
 }
 
@@ -52,5 +55,35 @@ describe('GenesisRAG17 lineage repository', () => {
     expect(() => repository.createChunk({ ...scope, visibility: 'workspace' })).toThrow(/visibility scope/)
     expect(repository.update).toBeUndefined()
     expect(repository.delete).toBeUndefined()
+  })
+
+  it('persists and reads resumable intents and occurrence rows through the same scope boundary', async () => {
+    const prisma = db()
+    const repository = createGenesisRag17LineageRepository(prisma, scope)
+
+    await repository.findIntentByKey('intent-1')
+    await repository.findIntentByExecutionRunId('run-1')
+    await repository.listResumableIntents()
+    await repository.listFailedIntents()
+    await repository.listMentions({ executionRunId: 'run-1', attemptId: 'attempt-1', parsedArtifactId: 'parsed-1' })
+
+    expect(prisma.genesisRag17IngestionIntent.findFirst.mock.calls[0][0].where).toMatchObject({ intentKey: 'intent-1', ...scope })
+    expect(prisma.genesisRag17IngestionIntent.findFirst.mock.calls[1][0].where).toMatchObject({ executionRunId: 'run-1', ...scope })
+    expect(prisma.genesisRag17IngestionIntent.findMany.mock.calls[0][0].where).toMatchObject({ ...scope, status: { in: ['PENDING', 'RUNNING'] } })
+    expect(prisma.genesisRag17IngestionIntent.findMany.mock.calls[1][0].where).toMatchObject({ ...scope, status: 'FAILED' })
+    expect(prisma.genesisRag17SourceMention.findMany.mock.calls[0][0].where).toMatchObject({ executionRunId: 'run-1', attemptId: 'attempt-1', parsedArtifactId: 'parsed-1', ...scope })
+  })
+
+  it('scope-checks intent updates and refuses identity or scope mutation', async () => {
+    const prisma = db()
+    prisma.genesisRag17IngestionIntent.findFirst.mockResolvedValue({ id: 'intent-1', ...scope })
+    const repository = createGenesisRag17LineageRepository(prisma, scope)
+
+    await expect(repository.updateIntent('intent-1', { tenantId: 'tenant-elsewhere' })).rejects.toThrow(/immutable/)
+    await expect(repository.updateIntent('intent-1', { requestJson: '{}' })).rejects.toThrow(/immutable/)
+    await repository.updateIntent('intent-1', { status: 'RUNNING', nextStageNumber: 3, lastErrorJson: null })
+
+    expect(prisma.genesisRag17IngestionIntent.findFirst).toHaveBeenCalledWith({ where: { id: 'intent-1', ...scope } })
+    expect(prisma.genesisRag17IngestionIntent.update).toHaveBeenCalledWith({ where: { id: 'intent-1' }, data: { status: 'RUNNING', nextStageNumber: 3, lastErrorJson: null } })
   })
 })

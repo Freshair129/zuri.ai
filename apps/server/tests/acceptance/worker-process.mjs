@@ -24,7 +24,9 @@ const mspCall = async (name, input) => {
 }
 mspCall.close = () => realCall.close?.()
 const worker = GenesisRag17Worker.create({ ...options, mspCall, port: 0,
-  faultInjector: (point) => { if (point === options.crashAt) process.exit(86) },
+  faultInjector: (point, details = {}) => {
+    if (point === options.crashAt && (!options.crashPhase || details.phase === options.crashPhase)) process.exit(86)
+  },
 })
 // Inject negative readback results before the worker hashes and persists its
 // actual candidate receipt, so the test reaches the quality gate instead of

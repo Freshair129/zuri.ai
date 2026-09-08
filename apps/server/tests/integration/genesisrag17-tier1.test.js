@@ -92,7 +92,8 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
     expect(new Set(result.mentions.map((mention) => mention.sourceMentionId)).size).toBe(result.mentions.length)
     expect(transportCalls).toHaveLength(1)
     expect(transportCalls[0].name).toBe('msp_pipeline_submit')
-    expect(result.batch.status).toBe('ACKNOWLEDGED')
+    expect(result.batch.status).toBe('PENDING')
+    expect(result.batch.decisionId).toBeNull()
 
     const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: result.run.executionRunId } })
     const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: result.run.executionRunId }, orderBy: { stageNumber: 'asc' } })
@@ -133,6 +134,45 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
       chunkId: result.chunks[0].chunkId,
     }, { db: prisma })
     expect(cited).toMatchObject({ sourceId: result.source.sourceId, rawArtifactId: result.source.rawArtifactId, parsedArtifactId: result.source.parsedArtifactId, chunkId: result.chunks[0].chunkId })
+  })
+
+  it('rejects recognizer metadata that cannot be proven by the durable rule_v1 extractor', async () => {
+    await expect(ingestGenesisRag17Raw(input({ recognizerVersion: 'custom-v2' }), { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' }))
+      .rejects.toMatchObject({ status: 400, code: 'GENESISRAG17_RECOGNIZER_CONFIG_UNSUPPORTED' })
+    await expect(ingestGenesisRag17Raw(input({ recognizer_provenance: 'plugin://custom' }), { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' }))
+      .rejects.toMatchObject({ status: 400, code: 'GENESISRAG17_RECOGNIZER_CONFIG_UNSUPPORTED' })
+  })
+
+  it('rolls back the newly created run and intent if the process dies before intent creation', async () => {
+    const atomicInput = input({ sourceId: `synthetic://ki17/atomic/${randomUUID()}`, version: `atomic-${randomUUID()}` })
+    await expect(ingestGenesisRag17Raw(atomicInput, {
+      db: prisma,
+      viewer,
+      now,
+      transport: sourceTransport,
+      credential: 'test-source',
+      faultInjector: async (point) => {
+        if (point === 'after-run-created-before-intent') throw new Error('KI17_TEST_PRE_INTENT_CRASH')
+      },
+    })).rejects.toThrow('KI17_TEST_PRE_INTENT_CRASH')
+    const contentHash = hashGenesisRag17Text(atomicInput.content)
+    expect(await prisma.pipelineRun.count({ where: { sourceRef: atomicInput.sourceId, sourceSha256: contentHash } })).toBe(0)
+    expect(await prisma.genesisRag17IngestionIntent.count({ where: { sourceId: atomicInput.sourceId, version: atomicInput.version } })).toBe(0)
+
+    const retried = await ingestGenesisRag17Raw(atomicInput, { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+    expect(retried.batch.status).toBe('PENDING')
+    expect(await prisma.genesisRag17IngestionIntent.count({ where: { sourceId: atomicInput.sourceId, version: atomicInput.version } })).toBe(1)
+  })
+
+  it('rejects a replay when a durable mention changes immutable source lineage', async () => {
+    const replayInput = input({ sourceId: `synthetic://ki17/mention/${randomUUID()}`, version: `mention-${randomUUID()}` })
+    const first = await ingestGenesisRag17Raw(replayInput, { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+    const mention = await prisma.genesisRag17SourceMention.findFirst({ where: { executionRunId: first.run.executionRunId } })
+    expect(mention).toBeTruthy()
+    await prisma.genesisRag17SourceMention.update({ where: { id: mention.id }, data: { rawArtifactId: 'tampered-raw-artifact' } })
+
+    await expect(ingestGenesisRag17Raw(replayInput, { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' }))
+      .rejects.toMatchObject({ status: 409, code: 'GENESISRAG17_MENTION_DERIVATION_MISMATCH' })
   })
 
   it('replays the same raw source without creating a second document lineage or Stage 9 batch', async () => {

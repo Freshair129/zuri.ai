@@ -2009,6 +2009,78 @@ model KnowledgeChunk {
   @@index([parsedArtifactId])
 }
 
+// @req FR-109 — a source intent captures the exact scoped input and
+// derivation configuration before local Stage 1 starts, so a process-owned
+// worker can resume an interrupted Stage 1–8 pass without caller resubmission.
+// @spec ADR-070, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17IngestionIntent {
+  id               String   @id
+  intentKey        String   @unique
+  runId            String
+  executionRunId   String   @unique
+  scopeJson        String
+  requestJson      String
+  derivationJson   String
+  rawArtifactId    String
+  sourceId         String
+  documentId       String
+  version          String
+  contentHash      String
+  portfolioId      String
+  tenantId         String
+  businessId       String
+  workspaceId      String
+  agentId          String
+  visibility       String
+  status           String   @default("PENDING")
+  nextStageNumber  Int      @default(1)
+  lastErrorJson    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([executionRunId, status])
+}
+
+// @req FR-109 — every Stage 8 occurrence is durable, typed and bound to its
+// exact source attempt and derivation provenance before local success evidence.
+// @spec ADR-070, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17SourceMention {
+  id                   String   @id
+  sourceMentionId      String
+  runId                String
+  executionRunId       String
+  attemptId            String
+  sourceId             String
+  documentId           String
+  version              String
+  rawArtifactId        String
+  parsedArtifactId     String
+  chunkId              String
+  resolutionKey        String
+  semanticType         String
+  name                 String
+  startOffset          Int
+  endOffset            Int
+  recognizerVersion    String
+  recognizerProvenance String
+  derivationHash       String
+  contentHash          String
+  portfolioId          String
+  tenantId             String
+  businessId           String
+  workspaceId          String
+  agentId              String
+  visibility           String
+  createdAt            DateTime @default(now())
+
+  @@unique([executionRunId, attemptId, sourceMentionId])
+  @@index([tenantId, parsedArtifactId])
+  @@index([executionRunId, attemptId])
+}
+
 // @req FR-109 — one immutable outbound batch is bound to one materialized
 // Stage 9 attempt and can be safely retried after a lost MSP reply.
 // @spec ADR-050 D3-D4, docs/plans/GENESISRAG17-CONTRACT.md

@@ -10,6 +10,8 @@ import { parseMigrationColumns, parsePrismaColumns } from '../../scripts/schema-
 
 const MIGRATION = 'supabase/migrations/20260907160000_genesisrag17_tier1.sql'
 const SQLITE_MIGRATION = 'prisma/migrations/20260907150000_genesisrag17_tier1/migration.sql'
+const REMEDIATION_MIGRATION = 'supabase/migrations/20260908040000_genesisrag17_audit_remediation.sql'
+const REMEDIATION_SQLITE_MIGRATION = 'prisma/migrations/20260908040000_genesisrag17_audit_remediation/migration.sql'
 const TABLES = [
   'KnowledgeRawArtifact',
   'KnowledgeParsedArtifact',
@@ -18,14 +20,22 @@ const TABLES = [
   'GenesisRag17StageEvidence',
   'GenesisRag17PublicationReceipt',
   'GenesisRag17EvidenceCursor',
+  'GenesisRag17IngestionIntent',
+  'GenesisRag17SourceMention',
 ]
 
 const read = (file) => fs.readFileSync(path.resolve(process.cwd(), file), 'utf8')
 
 describe('GenesisRAG17 Supabase migration', () => {
   it('matches the current Postgres and local SQLite model columns exactly', () => {
-    const postgres = parseMigrationColumns([{ name: MIGRATION, sql: read(MIGRATION) }])
-    const sqlite = parseMigrationColumns([{ name: SQLITE_MIGRATION, sql: read(SQLITE_MIGRATION) }])
+    const postgres = parseMigrationColumns([
+      { name: MIGRATION, sql: read(MIGRATION) },
+      { name: REMEDIATION_MIGRATION, sql: read(REMEDIATION_MIGRATION) },
+    ])
+    const sqlite = parseMigrationColumns([
+      { name: SQLITE_MIGRATION, sql: read(SQLITE_MIGRATION) },
+      { name: REMEDIATION_SQLITE_MIGRATION, sql: read(REMEDIATION_SQLITE_MIGRATION) },
+    ])
     const postgresSchema = parsePrismaColumns(read('prisma/schema.postgres.prisma'))
 
     for (const table of TABLES) {
@@ -35,7 +45,7 @@ describe('GenesisRAG17 Supabase migration', () => {
   })
 
   it('forces private runtime access and revokes every public or service role', () => {
-    const sql = read(MIGRATION)
+    const sql = `${read(MIGRATION)}\n${read(REMEDIATION_MIGRATION)}`
 
     expect(sql).not.toMatch(/\bGRANT\b/i)
     for (const table of TABLES) {

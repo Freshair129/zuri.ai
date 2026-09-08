@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T18:58:07.412Z",
+  "generatedAt": "2026-09-07T21:59:27.134Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1729,7 +1729,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-110",
@@ -2178,7 +2178,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-110",
@@ -2306,8 +2306,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 7,
-            "present": 7
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -2378,7 +2378,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 7,
+        "ownedModels": 9,
         "featureNotes": 13
       },
       "featureIds": [
@@ -3726,7 +3726,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-110",
@@ -5226,7 +5226,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-110",
@@ -5297,6 +5297,7 @@
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
+        "apps/server/tests/unit/genesisrag17-worker.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",

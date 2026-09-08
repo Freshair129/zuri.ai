@@ -673,7 +673,19 @@ export async function finishKnowledgeIngestionRun(input, { db = prisma, viewer, 
   }
 
   const monitor = await getPipelineMonitor(run.executionRunId, { db, viewer })
-  const outcome = knowledgeRunOutcome({ stages: monitor.stageTimeline, gates: monitor.gates })
+  let outcome = knowledgeRunOutcome({ stages: monitor.stageTimeline, gates: monitor.gates })
+  // Legacy ingestion began after receipt and deliberately excludes Stage 1.
+  // The raw-entry profile executes it: only evidence for the monitor's current
+  // step/attempt may close that failure, never a late row from an older attempt.
+  const receiptStep = monitor.stageTimeline.find((step) => step.pipelineStageId === 'DPS-KI-INGEST')
+  if (receiptStep?.status === 'FAILED') {
+    const evidence = await db.genesisRag17StageEvidence.findFirst({ where: {
+      executionRunId: run.executionRunId, pipelineStageId: receiptStep.pipelineStageId,
+      executionStepId: receiptStep.executionStepId, attemptId: receiptStep.attemptId,
+      stageNumber: 1, outcome: 'FAILED',
+    } })
+    if (evidence) outcome = { status: 'FAILED', failureCode: 'KI_STAGE_FAILED:DPS-KI-INGEST', failedStage: 'DPS-KI-INGEST', gate: null, blocking: [] }
+  }
   if (!outcome.status) {
     const error = serviceError(409, `Knowledge ingestion run cannot be closed yet: ${outcome.blocking.join(', ')}`)
     error.details = outcome.blocking

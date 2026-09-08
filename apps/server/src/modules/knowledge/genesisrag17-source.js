@@ -12,12 +12,18 @@ import {
 // @tested tests/unit/genesisrag17-source.test.js
 
 export const GENESIS_RAG17_PARSER_VERSION = 'genesisrag17-parser-1'
+export const GENESIS_RAG17_CHUNKER_VERSION = 'genesisrag17-chunker-1'
+export const GENESIS_RAG17_RECOGNIZER_VERSION = 'rule_v1'
+export const GENESIS_RAG17_RECOGNIZER_PROVENANCE = 'genesisrag17-source:default'
+export const GENESIS_RAG17_DEFAULT_MAX_TOKENS = 80
 
 const HEADING = /^(#{1,6})\s+(.*\S)\s*$/
-const PERSON_BEFORE_RELATION = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\s+(?=(?:works\s+for|is\s+employed\s+by|purchased|bought)\b)/gi
+const RELATION = /\b(?:works\s+for|is\s+employed\s+by|purchased|bought)\b/gi
 const PRODUCT_AFTER_RELATION = /\b(?:purchased|bought)\s+([A-Z][A-Za-z0-9_-]*(?:\s+[A-Z][A-Za-z0-9_-]*){0,5})/g
 const EXPLICIT_PERSON = /\b(?:person|customer|contact|ผู้ติดต่อ|ลูกค้า)\s*[:：]\s*([\p{L}][\p{L}.'-]*(?:\s+[\p{L}][\p{L}.'-]*){0,2})/giu
 const EXPLICIT_PRODUCT = /\b(?:product|สินค้า)\s*[:：]\s*([\p{L}][\p{L}0-9_.'-]*(?:\s+[\p{L}][\p{L}0-9_.'-]*){0,5})/giu
+const PROPER_NAME = String.raw`[\p{Lu}][\p{Ll}.'-]*`
+const PROPER_NAME_RUN = new RegExp(`(${PROPER_NAME}(?:\\s+${PROPER_NAME}){0,2})`, 'u')
 
 function sourceSections(content) {
   const sections = []
@@ -65,9 +71,17 @@ function splitRange(content, range, maxTokens) {
 }
 
 /** Parse while retaining exact source text and JavaScript String offsets. */
-export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArtifactId = rawArtifactId, content, maxTokens = 80 }) {
+export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArtifactId = rawArtifactId, content, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS, parserVersion }) {
   if (!documentId || !rawArtifactId) throw new Error('GenesisRAG17 parser requires documentId and rawArtifactId')
   const text = String(content ?? '')
+  const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
+  const resolvedParserVersion = parserVersion ?? genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens })
+  const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens })
+  if (resolvedParserVersion !== expectedParserVersion) {
+    const error = new Error('GenesisRAG17 parser configuration identity does not match chunking configuration')
+    error.code = 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED'
+    throw error
+  }
   const sections = sourceSections(text)
   const structure = []
   const textBlocks = []
@@ -82,7 +96,7 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
   const chunks = []
   let ordinal = 0
   for (const section of sections) {
-    for (const range of splitRange(text, section, Math.max(1, Math.floor(maxTokens)))) {
+    for (const range of splitRange(text, section, boundedMaxTokens)) {
       const chunkText = text.slice(range.start, range.end)
       chunks.push({
         chunkId: `${parsedArtifactId}:chunk:${ordinal}`,
@@ -102,20 +116,50 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
     documentId,
     rawArtifactId,
-    parserVersion: GENESIS_RAG17_PARSER_VERSION,
+    parserVersion: resolvedParserVersion,
     content: text,
     contentHash: hashGenesisRag17Text(text),
     structure,
     textBlocks,
     tables: [],
     metadata: {
-      extractorVersion: GENESIS_RAG17_PARSER_VERSION,
+      extractorVersion: resolvedParserVersion,
+      chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION,
+      maxTokens: boundedMaxTokens,
       headingCount: (text.match(/^#{1,6}\s+/gmu) || []).length,
       textBlockCount: textBlocks.length,
       chunkCount: chunks.length,
     },
   }
   return { parsed, chunks }
+}
+
+/**
+ * The parser version remains stable for the default 80-token profile. Any
+ * caller that changes chunking receives a distinct parsed-artifact identity so
+ * a replay cannot silently reuse chunks made with another configuration.
+ */
+export function genesisRag17ParserIdentity({ maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS } = {}) {
+  const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
+  if (boundedMaxTokens === GENESIS_RAG17_DEFAULT_MAX_TOKENS) return GENESIS_RAG17_PARSER_VERSION
+  return `${GENESIS_RAG17_PARSER_VERSION};chunker=${GENESIS_RAG17_CHUNKER_VERSION};maxTokens=${boundedMaxTokens}`
+}
+
+function subjectBeforeRelation(text, relationOffset) {
+  const boundary = Math.max(
+    text.lastIndexOf('.', relationOffset - 1),
+    text.lastIndexOf('!', relationOffset - 1),
+    text.lastIndexOf('?', relationOffset - 1),
+    text.lastIndexOf(';', relationOffset - 1),
+    text.lastIndexOf('\n', relationOffset - 1),
+  ) + 1
+  const before = text.slice(boundary, relationOffset)
+  const coordinated = new RegExp(`\\b(?:and|or)\\s+${PROPER_NAME_RUN.source}\\s*$`, 'u').exec(before)
+  if (coordinated) return { name: coordinated[1], offset: boundary + before.lastIndexOf(coordinated[1]) }
+  const leading = new RegExp(`^\\s*${PROPER_NAME_RUN.source}(?:\\s|$)`, 'u').exec(before)
+  if (leading) return { name: leading[1], offset: boundary + before.indexOf(leading[1]) }
+  const fallback = new RegExp(PROPER_NAME_RUN.source, 'gu').exec(before)
+  return fallback ? { name: fallback[1], offset: boundary + fallback.index } : null
 }
 
 function addHit(hits, { type, mention, offset, confidence = 0.85 }) {
@@ -136,6 +180,11 @@ function addHit(hits, { type, mention, offset, confidence = 0.85 }) {
 
 /** Extract source occurrences from each exact chunk; no canonical identity is decided here. */
 export function extractGenesisRag17Mentions(chunks, { recognizer = defaultRecognizer } = {}) {
+  if (recognizer !== defaultRecognizer) {
+    const error = new Error('GenesisRAG17 custom recognizers require a separately versioned durable extension')
+    error.code = 'GENESISRAG17_CUSTOM_RECOGNIZER_UNSUPPORTED'
+    throw error
+  }
   const mentions = []
   for (const chunk of chunks || []) {
     const chunkId = chunk?.chunkId ?? chunk?.chunk_id
@@ -143,7 +192,12 @@ export function extractGenesisRag17Mentions(chunks, { recognizer = defaultRecogn
     for (const hit of recognizer({ text: chunk.text || '' }) || []) {
       addHit(hits, { type: hit.type, mention: hit.mention, offset: hit.offset, confidence: hit.confidence })
     }
-    for (const match of chunk.text.matchAll(PERSON_BEFORE_RELATION)) addHit(hits, { type: 'Person', mention: match[1], offset: match.index, confidence: 0.9 })
+    for (const match of chunk.text.matchAll(RELATION)) {
+      const subject = subjectBeforeRelation(chunk.text, match.index)
+      if (subject) {
+        addHit(hits, { type: 'Person', mention: subject.name, offset: subject.offset, confidence: 0.9 })
+      }
+    }
     for (const match of chunk.text.matchAll(PRODUCT_AFTER_RELATION)) addHit(hits, { type: 'Product', mention: match[1].replace(/[.,;:!?]+$/u, ''), offset: match.index + match[0].indexOf(match[1]), confidence: 0.85 })
     for (const match of chunk.text.matchAll(EXPLICIT_PERSON)) addHit(hits, { type: 'Person', mention: match[1], offset: match.index + match[0].indexOf(match[1]), confidence: 0.95 })
     for (const match of chunk.text.matchAll(EXPLICIT_PRODUCT)) addHit(hits, { type: 'Product', mention: match[1], offset: match.index + match[0].indexOf(match[1]), confidence: 0.95 })

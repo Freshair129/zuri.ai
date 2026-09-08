@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
@@ -404,6 +405,59 @@ describe('FR-110 — the Stage 9–17 reporter receiver', () => {
       .toMatchObject({ state: 'QUARANTINED', reason: 'TIER1_STAGE_FAILED:DPS-KI-PROVENANCE' })
     expect(await finishKnowledgeIngestionRun(finish(quarantined), { viewer: operator }))
       .toMatchObject({ terminal: 'FAILED', outcome: { failedStage: 'DPS-KI-PROVENANCE' } })
+  })
+
+  it('closes a local Stage 1 failure only when the current step attempt has matching Genesis evidence', async () => {
+    const created = await createPipelineRun({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      businessId,
+      sourceRef: `synthetic://fr110-stage1/${randomUUID()}`,
+      sourceSha256: null,
+      artifactRef: null,
+      artifactSha256: null,
+      expectedCount: 1,
+      bootstrapBatchId: null,
+      correlationId: `fr110-stage1-${randomUUID()}`,
+      idempotencyKey: `fr110-stage1-${randomUUID()}`,
+      identityRefs: { ...IDENTITY_REFS_EMPTY },
+      tagIds: [],
+    }, { viewer: operator })
+    const run = created.run
+    const row = await prisma.pipelineRun.findUnique({ where: { executionRunId: run.executionRunId } })
+    const step = await prisma.pipelineStep.findFirst({ where: { runId: row.id, pipelineStageId: 'DPS-KI-INGEST' } })
+    await prisma.pipelineStep.update({
+      where: { id: step.id },
+      data: {
+        status: 'FAILED', actualCount: 1, insertedCount: 0, failedCount: 1,
+        failureCode: 'GENESISRAG17_STAGE_1_FAILED', errorRef: 'ki17://test/stage-1', retryable: false,
+        startedAt: new Date(T0), finishedAt: new Date(T1),
+      },
+    })
+    await prisma.pipelineRun.update({
+      where: { id: row.id },
+      data: { status: 'RUNNING', startedAt: new Date(T0) },
+    })
+    const evidence = (attemptId) => ({
+      id: randomUUID(), runId: row.id, executionRunId: run.executionRunId,
+      pipelineStageId: 'DPS-KI-INGEST', executionStepId: step.executionStepId,
+      attemptId, stageNumber: 1, outcome: 'FAILED',
+      startedAt: new Date(T0), finishedAt: new Date(T1), recordsIn: 1, recordsOut: 0,
+      recordsQuarantined: 0, errorCount: 1, retryCount: 0, durationMs: 30,
+      detailsJson: JSON.stringify({ errorCode: 'GENESISRAG17_STAGE_1_FAILED' }), rowHash: randomUUID(),
+    })
+
+    await prisma.genesisRag17StageEvidence.create({ data: evidence(`old-${randomUUID()}`) })
+    await expect(finishKnowledgeIngestionRun(finish(run), { viewer: operator })).rejects.toMatchObject({
+      status: 409,
+      details: expect.arrayContaining(['STAGE_NOT_SUCCEEDED:DPS-KI-ENTITY-RESOLVE', 'GATE_MISSING']),
+    })
+
+    await prisma.genesisRag17StageEvidence.create({ data: evidence(step.attemptId) })
+    await expect(finishKnowledgeIngestionRun(finish(run), { viewer: operator })).resolves.toMatchObject({
+      terminal: 'FAILED', outcome: { failedStage: 'DPS-KI-INGEST', failureCode: 'KI_STAGE_FAILED:DPS-KI-INGEST' },
+    })
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: run.executionRunId } })).status).toBe('FAILED')
   })
 
   it('reports the job as PROCESSING after Tier 1 alone, and the read carries every identity a reporter must echo', async () => {

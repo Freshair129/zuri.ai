@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.28.0b |
+| **Version** | 1.29.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-07 |
+| **Last Updated** | 2026-09-08 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -407,7 +407,21 @@ Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attemp
 | KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
 | KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
 | KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
+| GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |
+| GenesisRag17SourceMention | Exact Stage8 occurrence keyed by executionRunId/attemptId/sourceMentionId, type, offsets and derivation hash | After PipelineRun and KnowledgeChunk |
 | GenesisRag17Batch | One immutable dispatch batch per Stage 9 attempt; durable retry acknowledgement | After PipelineRun |
 | GenesisRag17StageEvidence | One terminal per run/stage/step/attempt, six metrics and bounded external evidence | After PipelineRun |
 | GenesisRag17PublicationReceipt | Scope, decision, snapshot/generation, model and physical publication proof | After PipelineRun |
 | GenesisRag17EvidenceCursor | Exact scoped run cursor advanced with the imported evidence transaction | After pipeline evidence |
+
+Version diff 1.28.0b → 1.29.0b: add the two source-recovery models under
+migration `20260908040000_genesisrag17_audit_remediation` in SQLite and the
+corresponding Supabase SQL migration. Source content/derivation and occurrences
+are immutable; only intent status, stage cursor and last error may change.
+Migration application to production is outside this isolated repair.
+
+Backup schema `1.0` remains compatible. New exports carry
+`genesisRag17Recovery.schemaVersion: genesisrag17-recovery.v1` and require both
+new tables. Missing required arrays reject preview before restore deletes any
+data. Snapshots without that manifest return an explicit recovery-unavailable
+warning; the importer never synthesizes missing intent or occurrence history.
