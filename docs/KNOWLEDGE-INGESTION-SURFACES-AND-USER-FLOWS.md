@@ -1,17 +1,19 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS
 title: Knowledge ingestion surfaces, endpoint inventory and user journeys
-version: "1.0.0b"
-status: draft
+version: "1.1.0b"
+status: beta
 created_at: "2026-09-08T12:00:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T12:00:00+07:00,RWANG"
+last_update: "2026-09-08T18:50:13+07:00,RWANG"
 relations:
   - type: references
+    target: ZAI:ADR-072
+  - type: references
+    target: ZAI:KNOWLEDGE-ADMISSION-CONTRACT
+  - type: references
     target: ZAI:ADR-071
-  - type: references
-    target: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
-  - type: references
-    target: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
+  - type: relates_to
+    target: ZAI:FR-172
   - type: relates_to
     target: ZAI:FR-109
   - type: relates_to
@@ -20,16 +22,17 @@ relations:
 
 # Knowledge ingestion — surfaces, data flow และ user journey
 
-## 1. ขอบเขตและวิธีอ่าน
+## 1. ขอบเขตและสถานะของ phases 0–4
 
-เอกสารนี้ตอบว่า user เริ่มจากที่ไหน ข้อมูลผ่านอะไร เก็บที่ไหน และพร้อมค้นเมื่อใด ไม่ใช่รายงานว่า UI และ connector ทุกตัวส่งมอบแล้ว
+เอกสารนี้เป็น surface inventory ที่ reconcile จาก baseline audit เป็นสัญญาและโค้ดปัจจุบันของ phases 0–4 ภายใต้ [ADR-072](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md), [Knowledge admission contract](plans/KNOWLEDGE-ADMISSION-CONTRACT.md) และ [FR-172 ใน PRD/SDD](PRD-SDD-v1.0.md#fr-172) ขอบเขตที่ส่งมอบแล้วคือ admission กลางสำหรับ Text/Markdown และ managed FileAsset ที่อ่านเป็น UTF-8 ได้, durable status, published-only query/citation, correction และ source withdrawal ใน Business หรือ Project corpus เดียวกัน
 
-- **ตรวจพบในโค้ด:** ตรวจ tracked route/page/module และ caller ใน zuri revision `dfdbaf11`; MSP `8e16a54a`, GKS `faa946f3`, GenesisBlock `4048bd5b` บน branch `codex/ki17-integration` วันที่ 2026-09-08 การพบ handler ไม่รับรองว่ามี production configuration หรือเปิดใช้งานอยู่
-- **ครบใน isolated acceptance:** raw text/Markdown ผ่าน 17 stages, publication receipt, query/citation และ recovery; เป็น internal entrypoint ภายใต้ installation operator กับ scope `private`
-- **ต้องเชื่อมเพิ่ม:** มีต้นทางหรือปลายทางแล้ว แต่ไม่มี caller เชื่อมเข้าทาง GenesisRAG17 ที่ตรวจครบ
-- **เสนอ:** user journey / endpoint / policy สำหรับออกแบบต่อ ยังไม่ใช่ API ที่เรียกได้ การตั้งชื่อในส่วนเสนอไม่ได้ประกาศ requirement ID ใหม่
+- **Surface implementation:** HTTP มี 5 paths / 6 operations; MCP ใช้ `POST /api/mcp` เดิมและเพิ่ม 6 knowledge tools; Files และ Project Files ใช้ `ManagedFilesPanel` เดิมและเรียก admission service เดียวกัน
+- **Authorization boundary:** session viewer ใช้สิทธิ์ปัจจุบันจากระบบเดิม; HTTP รองรับ explicit configured bearer/API grant ที่ตรง `serviceAccountId + tenantId + businessId + action`; MCP entrypoint ยัง authenticate และ re-resolve ด้วย session viewer เดิม ไม่รับ API grant เป็นสิทธิ์ใหม่ให้ tools อื่น
+- **Evidence meaning:** “รองรับ” ในตาราง U01–U16 หมายถึงมี service/route/transport/UI contract และ isolated unit/DB coverage ตามไฟล์ evidence ที่ระบุ ไม่ได้หมายความว่า native worker ได้รันจริงใน deployment ใด
+- **Acceptance limit:** actual native 17-stage multi-document HTTP/browser acceptance, restart/resume ใน runtime จริง และ production activation ยังรออยู่ เอกสารนี้จึงไม่ประกาศ production readiness หรือ production completion
+- **Out of scope:** PDF/DOCX/Excel/image/OCR, external URL fetch, folder/Drive/connectors, conversation promotion, org-wide/shared corpus, cross-business federation และ cross-store routing ยังเป็น deferred phases
 
-ระดับงาน C-3; ประเด็น architecture/security มี risk HIGH ส่วนการเปลี่ยนครั้งนี้เป็นเอกสารเท่านั้น ไม่เปลี่ยน runtime/schema หรือ deploy ระบบ
+ระดับงาน C-3; ความเสี่ยง architecture/security เป็น HIGH การปรับครั้งนี้เป็นเอกสาร inventory เท่านั้น ไม่เปลี่ยน schema/runtime
 
 ### คำที่ต้องแยก
 
@@ -47,20 +50,21 @@ relations:
 
 ## 2. แผนที่เส้นทางปัจจุบัน
 
-เส้นประหมายถึง **ยังต้องเชื่อมเพิ่ม** ไม่ใช่ network call ที่มีอยู่แล้ว
+เส้นทึบคือ caller ที่มีอยู่ใน phases 0–4; เส้นประคือ source surface ที่ยัง deferred ไม่ใช่ network call ที่มีอยู่แล้ว
 
 ```mermaid
 flowchart TB
     F["UI /files และ Project Files"] --> FA["FileAsset + local mount / external URL"]
+    T["Add text / HTTP / MCP"] --> AD["Authorized knowledge admission"]
+    FA --> AD
     I["POST /api/ingest/documents หรือ MCP document_stage"] --> R["RawExternalRecord: document staging"]
     L["LINE webhook"] --> LR["RawExternalRecord + CRM / conversation jobs"]
     PI["Project import / Domain APIs"] --> DB["ข้อมูล operational ของโดเมน"]
-    FA -. "file-to-knowledge adapter ยังขาด" .-> AD["Knowledge source admission"]
     R -. "staged-document adapter ยังขาด" .-> AD
     LR -. "เลือกและอนุมัติเป็นความรู้ก่อน" .-> AD
     DB -. "versioned domain projection ยังต้องเชื่อม" .-> AD
-    RAW["Internal ingestGenesisRag17Raw: text / Markdown"] --> Z["zuri Stage 1-8 + durable source intent"]
-    AD -. "proposed user-facing bridge" .-> RAW
+    AD --> Z["Durable queue + scoped source runtime"]
+    Z --> RAW["GenesisRAG17 source execution"]
     Z --> M["MSP: exact scope / credential / relay"]
     M --> G["GKS: Stage 9-14 decisions + quality gate"]
     G --> W["Worker pulls via MSP: graph write / embeddings / indexes"]
@@ -69,11 +73,11 @@ flowchart TB
     Q --> C["Published snapshot + citations"]
 ```
 
-ข้อสรุปจาก caller inventory: ไม่มี Next HTTP route หรือ UI ใน Server ที่เรียก `ingestGenesisRag17Raw` / `queryGenesisRag17` เป็น user-facing ingestion/search โดยตรง และ source worker ถูกเริ่มใน acceptance harness ไม่ได้ถูกติดตั้งเป็น universal UI ingestion runtime การสร้าง PipelineRun หรือบันทึก Stage report ไม่ได้ทำให้เอกสารผ่าน 17 stages เอง
+ข้อสรุปที่แก้จาก baseline: HTTP/MCP/UI มี caller เข้าสู่ durable admission แล้ว แต่ admission ไม่เรียก raw executor โดยตรงและไม่เปิด worker/operator gate ให้ end user; queue/runtime เป็นผู้ผูก native execution ภายใต้ scoped capability ของ root integration การสร้าง PipelineRun หรือบันทึก Stage report เองก็ยังไม่ทำให้เอกสารผ่าน 17 stages
 
 ## 3. Endpoint inventory — ของจริงที่เกี่ยวข้องโดยตรงใน Server
 
-นับจาก `git ls-files apps/server/src/app/api/**/route.js` และ exported HTTP methods ในกลุ่มด้านล่าง: **23 paths / 28 operations** ตัวเลขนี้ไม่รวม API ทั้งระบบ, LINE/asset/project-import ที่เป็นต้นทางข้างเคียง, Edge HTTP หรือ MCP tool names และไม่ใช่จำนวนช่องทางที่วิ่งครบ 17 stages
+นับจาก `git ls-files apps/server/src/app/api/**/route.js` และ exported HTTP methods ในกลุ่มด้านล่าง: baseline เดิมมี **23 paths / 28 operations**; phases 0–4 เพิ่ม knowledge surface อีก **5 paths / 6 operations** จึงเป็น **28 paths / 34 operations** เมื่อรวมกลุ่มที่เกี่ยวข้องโดยตรง ตัวเลขนี้ไม่รวม API ทั้งระบบ, LINE/asset/project-import ที่เป็นต้นทางข้างเคียง, Edge HTTP หรือ MCP tool names และไม่ใช่จำนวนช่องทางที่พิสูจน์ว่าวิ่งครบ 17 stages
 
 | กลุ่ม | Paths | Operations | บทบาท |
 |---|---:|---:|---|
@@ -81,7 +85,8 @@ flowchart TB
 | Pipeline ledger / knowledge reports | 9 | 10 | สร้าง/อ่าน run, events, replay, stage/gate/finish/evidence |
 | File manager + Project Files | 12 | 15 | เก็บ/อ่าน metadata, content, mount และดูแลไฟล์ |
 | Server MCP transport | 1 | 1 | JSON-RPC ที่รวมหลาย tools |
-| รวมกลุ่มข้างต้น | 23 | 28 | ไม่รวมซ้ำระหว่างกลุ่ม |
+| Knowledge admission / corpus | 5 | 6 | รับ source, status, query, citation และ withdrawal |
+| รวมกลุ่มข้างต้น | 28 | 34 | ไม่รวมซ้ำระหว่างกลุ่ม; MCP tools ยังนับเป็น POST path เดียว |
 
 ### 3.1 Document staging — 1 path / 2 operations
 
@@ -125,11 +130,11 @@ Reporter routes ตรวจ identity ตามแต่ละ handler ผ่า
 | GET, POST | `/api/projects/{id}/files` | compatibility API ของ Project Files |
 | DELETE | `/api/projects/{id}/files/{fileId}` | ลบ project file ตาม compatibility service |
 
-UI `/files` และ `/projects/{projectId}/files` ใช้ `ManagedFilesPanel` เดียวกัน; ปุ่ม Add file ส่ง `/api/files` ทั้งสองหน้า ไม่ได้ทำ duplicate project-specific upload pipeline UI เลือกได้ Local file หรือ External URL; service ยังมี MANAGED_BLOB contract แต่อย่าอ้างว่า UI นี้มี blob upload picker
+UI `/files` และ `/projects/{projectId}/files` ใช้ `ManagedFilesPanel` เดียวกัน; ปุ่ม Add file ส่ง `/api/files` ทั้งสองหน้า และปุ่ม knowledge ใน panel ส่ง `/api/knowledge/ingestions` สำหรับ Text/Markdown เท่านั้น ไม่ได้ทำ duplicate project-specific upload pipeline UI เลือกได้ Local file หรือ External URL; service ยังมี MANAGED_BLOB contract แต่อย่าอ้างว่า UI นี้มี blob upload picker การเก็บ External URL ยังเป็น FileAsset metadata และยังไม่ใช่ knowledge admission
 
-### 3.4 MCP — 1 HTTP path, หลาย tools
+### 3.4 MCP — 1 HTTP path, 15 tools
 
-`POST /api/mcp` เป็น authenticated JSON-RPC transport ไม่ใช่ endpoint หนึ่งจุดต่อ tool มี 9 tools ใน transport ที่ตรวจ: 4 `project_manager.*` และ 5 `data_pipeline.*`
+`POST /api/mcp` เป็น authenticated JSON-RPC transport ไม่ใช่ endpoint หนึ่งจุดต่อ tool ปัจจุบันมี **15 tools**: 4 `project_manager.*`, 5 `data_pipeline.*` และ 6 `knowledge.*` การนับนี้ยังเป็น 1 HTTP path / 1 HTTP operation; `tools/list` เปิดเผย schema และ `tools/call` dispatches ไป service ที่ได้รับอนุญาต
 
 | Tool | บทบาท |
 |---|---|
@@ -139,9 +144,20 @@ UI `/files` และ `/projects/{projectId}/files` ใช้ `ManagedFilesPanel
 | `data_pipeline.monitor_read` | อ่าน monitor |
 | `data_pipeline.replay_request` | ขอ replay |
 
+| Tool | หน้าที่ |
+|---|---|
+| `knowledge.ingestion_create` | รับ strict `{businessId, projectId?, idempotencyKey, source}` และสร้าง durable `QUEUED` admission |
+| `knowledge.ingestion_list` | อ่านรายการ job ใน Business/Project scope โดยไม่คืน raw content |
+| `knowledge.ingestion_status` | อ่าน admission id และ `executionRunId` แยกกัน |
+| `knowledge.query` | ค้น corpus generation ที่มีสิทธิ์และคืนผลพร้อม citation |
+| `knowledge.citation` | resolve citation แบบผูก source/version/chunk และตรวจ ACL ปัจจุบัน |
+| `knowledge.source_withdraw` | ถอน source ด้วย `expectedVersion` และ CAS publication |
+
+MCP ใช้ session authentication เดิมของ `/api/mcp` ทั้งตอนเริ่ม request และ callback ที่ re-resolve viewer ระหว่าง query/citation; ไม่เปิด Enterprise API grant ให้ MCP tools อื่นโดยอัตโนมัติและไม่รับ scope/policy/actor/credential จาก tool arguments
+
 `project_manager.plan_dry_run`, `plan_commit`, `work_read`, `work_status_update` เป็นงาน Project Manager การ import plan ไม่ได้ ingest เอกสารเข้าคลัง GenesisRAG
 
-### 3.5 ต้นทางและเส้นทางข้างเคียง — ไม่นับใน 23 paths
+### 3.5 ต้นทางและเส้นทางข้างเคียง — ไม่นับใน 28 direct paths / 34 operations
 
 | Surface / API / script | สิ่งที่ทำจริง | ความสัมพันธ์กับ GenesisRAG17 |
 |---|---|---|
@@ -185,7 +201,7 @@ MSP grant ผูก credential → source/worker role → exact six-field scope 
 2. `msp_knowledge_promote` อาจ relay ไป legacy `gks_knowledge_promote`; `gks_search`, `gks_entity_get`, `gks_relations_get`, `gks_artifact_link` และ review tools เป็น canonical entity/relation path อีกชุด ไม่ใช่หลักฐานว่าผ่าน GenesisRAG17
 3. `msp_pipeline_query` ค้น published native snapshot ผ่าน worker ตาม configuration; ไม่ใช่ memory search หรือ legacy GKS entity lookup
 
-`msp_workspace_register(workspace_path, project_id)` ลงทะเบียน vault metadata ไม่อ่านหรือเดินไฟล์ ส่วน `msp_context_resolve(workspace_root)` ไม่ใช่ folder crawler Current GenesisRAG17 scope **ไม่มี projectId/domainId** และการ map ไป legacy GKS ใส่ projectId ว่าง จึงต้องเพิ่ม source association และ authorization contract ก่อนรับรอง Project-level corpus isolation
+`msp_workspace_register(workspace_path, project_id)` ลงทะเบียน vault metadata ไม่อ่านหรือเดินไฟล์ ส่วน `msp_context_resolve(workspace_root)` ไม่ใช่ folder crawler Current GenesisRAG17 wire scope **ไม่มี projectId/domainId**; admission จึงเก็บ Project association และตรวจ Project ACL ที่ Tier 1 แต่ไม่ได้อ้างว่า native store แยกตาม Project หรือมี cross-store routing ใน phases 0–4
 
 Evidence ใน sibling repos: MSP `apps/msp-server/src/server.mjs`, `transport/handlers/pipeline-handlers.mjs`, `vault-handlers.mjs`, `context-handlers.mjs`; GKS `apps/gks-server/src/server.mjs`, `packages/gks-contracts/src/tool-definitions.mjs`, `pipeline.mjs`, `packages/gks-core/src/index.mjs`, `packages/gks-persistence/src/index.mjs` ไม่ใช่การตรวจ production configuration
 
@@ -218,227 +234,147 @@ Tracked Edge source inventory ไม่พบ filesystem watcher ที่เช
 
 Evidence: `apps/edge/src/rag/v4/serve.ts:139`, `apps/edge/src/rag/v4/ingest.ts:99`, `apps/edge/scripts/ingest-catalog-v4.ts`, `apps/edge/src/rag/genesis-rag.ts:77`, `apps/edge/src/mcp/genesis-mcp-server.ts:30`, `apps/edge/src/mcp/pricing-server.ts:67`, `apps/edge/src/history/webhook-server.ts:284`, `apps/edge/src/cli/conversation.ts:13`, `apps/edge/src/cli/index.ts:1081` การตรวจเป็น read-only ไม่ได้เริ่ม Edge หรือใช้ local customer data
 
-## 4. Detailed user flows — ปัจจุบันและส่วนที่ต้องส่งมอบ
+## 4. Detailed user flows — current support matrix
 
-### U01 — ผู้ใช้เลือกไฟล์จากเครื่องในหน้า Files
+สถานะในตารางนี้เป็นสถานะของ surface/service contract:
 
-**ปัจจุบัน:** login → เลือก Business → `/files` → ตั้ง Local workspace mount ที่ runtime เข้าถึงได้ → Add file → Managed local file → เลือกไฟล์และ relative folder → browser อ่านเป็น base64 → POST `/api/files` → ตรวจสิทธิ์ Business/Project/mount → เขียนผ่าน filesystem port และบันทึก FileAsset → หน้าแสดง metadata/View/Reveal ตาม capability
+- **SUPPORTED — native acceptance pending:** มี caller, service และ isolated tests แล้ว แต่ยังรอ actual native 17-stage HTTP/browser acceptance
+- **SUPPORTED — bounded surface:** ใช้ได้ในขอบเขตที่ระบุ แต่ปลายทางอื่นของ journey ยังไม่อยู่ใน phases 0–4
+- **DEFERRED:** ยังไม่มี implementation ตาม contract นี้
 
-ไฟล์ถูกส่งจาก browser ไป mount ฝั่ง service; absolute path ไม่ได้ทำให้ cloud server เข้าถึง disk ของผู้ใช้ได้เอง การ Save mount ไม่ใช่เริ่ม folder watcher
-
-**ต้องเชื่อมเพิ่ม:** หลังเลือก FileAsset ให้มี action “นำเข้าคลังความรู้” → ตรวจสิทธิ์อ่านต้นฉบับและสิทธิ์เผยแพร่ → freeze source bytes/hash/version → admission → Stage 1–17 → แสดง receipt-backed snapshot status ไม่อัปโหลดหรือ index ทุกไฟล์ที่บันทึกโดยปริยาย
-
-### U02 — เพิ่ม External URL หรือเลือกไฟล์ที่มีอยู่แล้ว
-
-**ปัจจุบัน:** Add file → External URL → Save → เก็บ FileAsset URL → Open เปิดเว็บปลายทาง การเก็บลิงก์ไม่ใช่การ download/crawl/index
-
-**เสนอ:** เลือก FileAsset → preview สิ่งที่จะนำเข้า → adapter fetch ด้วย policy ของแหล่งข้อมูล → เก็บ artifact ที่อ่านจริงพร้อม content hash และ fetched version → Stage 1 คง lineage → Stage 2 parse ชนิดที่รองรับ ถ้า fetch ไม่ได้/ไม่มีสิทธิ์/ชนิดไม่รองรับให้จบด้วยเหตุผล ไม่แสดง “พร้อมค้นหา”
-
-### U03 — Project Files และ Work Item attachments
-
-**ปัจจุบัน:** เปิด Project → Files → Add file → `/api/files` พร้อม projectId → FileAsset ที่ผูก Project และ Business เดียวกัน Service มี workItemId contract และตรวจความสัมพันธ์ แต่ panel นี้ไม่ได้เสนอ work-item picker
-
-**เสนอ:** เลือกเอกสารส่งมอบ/ข้อกำหนด/รายงานที่ต้องการ → “นำเข้าความรู้ของ Project” → เก็บ projectId/workItemId เป็น source reference พร้อม authorization → admission เดียวกับ Business Files → ค้นจาก Project โดยใช้สิทธิ์ที่ server resolve Project context ไม่ควรถูกแทนด้วยการต่อข้อความชื่อ Project ลงในเอกสารอย่างเดียว
-
-### U04 — วางข้อความ / เขียนบทความโดยตรง
-
-**ยังไม่มี dedicated UI ของ GenesisRAG17 ที่ตรวจพบ**
-
-**เสนอ:** Knowledge → Add source → Text/Markdown → ชื่อเอกสาร + เนื้อหา + ขอบเขต + source identity → preview → Submit → server ตรวจสิทธิ์และ policy → internal raw entrypoint → run ID → monitor → published snapshot การ Save draft และ Publish knowledge ต้องเป็นคนละสถานะ
-
-### U05 — ระบบภายนอกส่ง API
-
-**ปัจจุบันที่เรียกได้:** client ที่ยืนยันตัวตนและผ่าน operator gate ส่ง `{connectionId, contract}` ไป POST `/api/ingest/documents` → validate `smartgift.document-intake.v1` → resolve connection scope → idempotent RawExternalRecord → STAGED/QUARANTINED → receipt; GET อ่านสถานะได้ จบที่ staging
-
-**เสนอสำหรับ generic KB API:** application credential ที่ผูกสิทธิ์ → ส่ง source content หรือ reference ที่ระบบอนุญาต → server derive scope ไม่เชื่อ tenant/business ที่ caller เขียนเอง → คำนวณ hash/version/idempotency → durable admission → คืน run ID → client poll status จน publication receipt พร้อม การ retry request เดิมใช้ key เดิม; correction เปลี่ยน version; re-execution จริงเป็น attempt ใหม่
-
-ตัวอย่าง request เชิงออกแบบด้านล่าง **ไม่ใช่ body ของ endpoint ปัจจุบัน** และยังไม่ควรใช้เป็น curl command:
-
-```json
-{
-  "source": {"type": "text", "externalId": "hotel-service-policy", "version": "2026-09-08", "content": "..."},
-  "target": {"businessId": "requested-business", "projectId": null},
-  "idempotencyKey": "hotel-service-policy:2026-09-08"
-}
-```
-
-Credential, target authorization, storage policy และ effective visibility ต้องถูกตรวจ/ตัดสินฝั่ง service; caller ไม่สามารถอนุญาต embedding/publication เกิน grant ของตนได้
-
-### U06 — Agent / Codex ผ่าน MCP
-
-**ปัจจุบัน:** authenticate `/api/mcp` → tools/call `data_pipeline.run_create` → local extractor สร้าง contract → `data_pipeline.document_stage` พร้อม executionRunId → server resolve connection → STAGED → `monitor_read`; ส่ง event/replay ตาม contract
-
-**ช่องว่าง:** ไม่มี GenesisRAG raw-admission tool ใน Server MCP นี้ การเพิ่ม tool ควรเรียก admission service เดียวกับ UI/API ไม่ให้ agent เรียก Stage 9 หรือรายงาน Stage 17 สำเร็จเพื่อข้ามงาน
-
-### U07 — PDF / Word / Excel / รูปภาพจาก extractor
-
-**ปัจจุบัน:** document staging contract รับผล extracted fields พร้อม page/sheet/cell/bbox/anchor, artifact hash และ confidence; status อาจเป็น VISION_REQUIRED หรือ QUARANTINED ส่วน native GenesisRAG parser ที่พิสูจน์แล้วรับ text/Markdown และ exact string offsets
-
-**ต้องเชื่อมเพิ่ม:** binary artifact → Stage 1 persist → Stage 2 parser/OCR → Stage 3 map หน้า/เซลล์/รูปกลับต้นฉบับ → Stage 7 chunks ที่รักษา mapping → Stage 8 mentions → Stage 9–17 ต้องพิสูจน์ citation resolve ถึงหน้า/เซลล์จริง ไม่ใช่แค่ส่งข้อความ OCR แล้วทิ้งภาพต้นทาง
-
-### U08 — โฟลเดอร์ / Drive / URL connector / incremental sync
-
-**เสนอ user flow:** Integrations → เลือก provider → authorize connector → เลือก folder/URL allowlist และ destination scope → preview รายการ → เริ่ม sync → adapter ส่งหนึ่ง source version ต่อ admission → ตรวจ run รายเอกสารได้
-
-ต้องเก็บ connector cursor, remote source ID/version, ACL และ deletion signal; file-cache rebuild ไม่ใช่ sync นี้ การมี Edge ingestion อีกชุดไม่ถือว่า connector เข้าสู่ canonical 17 stages แล้ว ต้องมี adapter ที่รักษา raw lineage และ exact scope ก่อนเปิดใช้ ไม่สร้าง scheduler บนเครื่องผู้ใช้จากเอกสารฉบับนี้
-
-กรณีเลือก 100 ไฟล์ต้องมีรายการงานแม่และสถานะต่อเอกสาร ไม่สรุปว่าทั้ง folder สำเร็จจาก run เดียว ต้องตรึงด้วยว่า publication รวม source versions เข้า corpus เดิมอย่างไร และเมื่อแก้/ถอนหนึ่ง source เอกสารอื่นยังค้นได้ การพิสูจน์หนึ่งเอกสารต่อ run ไม่ใช่ acceptance ของ corpus หลายเอกสารหรือ concurrent publication
-
-### U09 — ข้อมูลจากโดเมนอื่นใน zuri
-
-**ปัจจุบัน:** CRUD/plan import เขียน store ของโดเมน; `projectKnowledgeGraph` เป็นฟังก์ชัน projection ของ Tenant, Business, Customer, Person, Conversation และ memberships ไป JSON graph ไม่ใช่ Project-file ingestion หรือ ongoing publish job และ `queryKnowledge` อ่าน relation neighborhood จาก Prisma
-
-**เสนอ:** เจ้าของโดเมนเลือก record/version ที่เผยแพร่ได้ → domain adapter สร้าง immutable knowledge-source representation + source ref → admission → pipeline เดียว ข้อมูล live เช่น stock, payment, price หรือสถานะงานล่าสุดต้องถาม domain query ที่มีสิทธิ์เมื่อใช้ตอบ ไม่ฝังเป็นความจริงถาวรโดยไม่มี valid-time/update policy
-
-| Domain input | Knowledge candidate | สิ่งที่คงเป็น operational query |
+| Journey | สถานะ phases 0–4 | สิ่งที่มีจริง / ขอบเขต |
 |---|---|---|
-| Project / Work Item | approved specification, decision, lesson learned, deliverable version | assignee/status/deadline ล่าสุด |
-| CRM / Customer | approved identity/relationship/business rule | private conversation, pending consent, live account state |
-| Product / Procurement / Shipping | approved manual, specification, policy/rate-card version ตามสิทธิ์ | stock/price/availability/transaction ล่าสุด |
-| Asset / Evidence | approved maintenance manual or reviewed evidence source | pending intake/payment proof และ sensitive attachment ที่ไม่มีสิทธิ์เผยแพร่ |
-| Organization policy | approved policy version และขอบเขตผู้รับ | เปลี่ยน membership/permission แบบ realtime |
+| **U01 — เลือกไฟล์จากเครื่องในหน้า Files** | **SUPPORTED — native acceptance pending** | `/files` ใช้ active device mount → Add file → `LOCAL_FILE` FileAsset → Add knowledge สำหรับ Text/Markdown; admission freeze bytes/hash/version แล้ว queue งาน |
+| **U02 — External URL หรือไฟล์ที่มีอยู่แล้ว** | **SUPPORTED — bounded surface** | File manager ยังบันทึก/เปิด External URL ได้; knowledge admission รับเฉพาะ existing readable Text/Markdown FileAsset, external fetch/crawl ยัง deferred |
+| **U03 — Project Files และ attachments** | **SUPPORTED — native acceptance pending** | `/projects/{projectId}/files` ส่ง `projectId` เข้า corpus identity และตรวจ Business/Project/FileAsset ACL; ไม่มี work-item picker หรือ binary adapter |
+| **U04 — วางข้อความ / เขียน Text/Markdown โดยตรง** | **SUPPORTED — native acceptance pending** | Add text modal และ `POST /api/knowledge/ingestions` รับ strict TEXT descriptor แล้วคืน `QUEUED` admission |
+| **U05 — ระบบภายนอกส่ง API** | **SUPPORTED — native acceptance pending** | HTTP knowledge routes ใช้ session หรือ explicit configured bearer/API grant ที่ตรง service account, tenant, Business และ action; caller ไม่ส่ง scope/policy/actor/credential ใน body |
+| **U06 — Agent / Codex ผ่าน MCP** | **SUPPORTED — native acceptance pending** | `POST /api/mcp` มี 6 `knowledge.*` tools เรียก service เดียวกัน; initial และ refresh ใช้ authenticated session viewer ของ MCP เดิม |
+| **U07 — PDF / Word / Excel / รูปภาพจาก extractor** | **DEFERRED** | ไม่มี binary/OCR/vision parser ใน admission; document staging รับ extracted contract แยกต่างหากและจบที่ staging |
+| **U08 — Folder / Drive / URL connector / incremental sync** | **DEFERRED** | ยังไม่มี connector authorization, cursor, remote version หรือ deletion adapter เข้า canonical admission |
+| **U09 — ข้อมูลจากโดเมนอื่นใน zuri** | **DEFERRED** | Domain CRUD และ project graph ยังไม่สร้าง immutable source projection/admission ให้ phases นี้ |
+| **U10 — LINE หรือ conversation กลายเป็นความรู้** | **DEFERRED** | LINE/raw conversation ยังไม่ผ่าน review/consent/source freeze และไม่ auto-publish เป็น canonical knowledge |
+| **U11 — ผู้ใช้ถามผ่านเว็บ / LINE / API** | **SUPPORTED — native acceptance pending** | UI, HTTP `POST /api/knowledge/queries`, MCP `knowledge.query` และ citation resolve ค้น published corpus generation เดียวตาม ACL; ยังไม่มี LINE answer-composer wiring |
+| **U12 — องค์กรเดียวหลาย Business / คนละองค์กร** | **DEFERRED** | Corpus identity เป็น Business + optional Project และ runtime ใช้ configured scope/store เดียว; ไม่มี multi-business federation หรือ cross-tenant aggregation |
+| **U13 — ฝ่ายกลางแชร์นโยบายให้องค์กร** | **DEFERRED** | ยังไม่มี org-shared corpus ownership/grant/revocation หรือ shared query aggregation |
+| **U14 — แก้ไขเอกสาร / retry / replay** | **SUPPORTED — native acceptance pending** | idempotency, immutable source versions, correction revision, stale-completion guards และ CAS manifest logic มีใน service; runtime restart/replay acceptance ยังรอ native harness |
+| **U15 — hold / worker ล้ม / publish ไม่สำเร็จ** | **SUPPORTED — native acceptance pending** | UI แสดง `QUEUED/RUNNING/PUBLISHED/FAILED/SUPERSEDED/WITHDRAWN`; admission ไม่รายงาน stage สำเร็จเอง; native crash/restart/receipt-loss proof ยัง pending |
+| **U16 — ถอนเอกสาร / เปลี่ยนสิทธิ์ / ตรวจหลักฐานย้อนหลัง** | **SUPPORTED — native acceptance pending** | `DELETE /api/knowledge/sources/{sourceId}` ใช้ `expectedVersion`; query/citation ตรวจ current ACL, source state และ FileAsset/Project access; delayed revoke/native acceptance ยัง pending |
 
-### U10 — LINE หรือ conversation กลายเป็นความรู้
+สถานะ **SUPPORTED** ข้างต้นไม่ใช่ production claim: ยังต้องผ่าน native acceptance ของ UI/API/MCP ที่วิ่งจริงถึง publication receipt และ query/citation ก่อนปิด phases 0–4
 
-**ปัจจุบัน:** LINE ingress → raw evidence → CRM/conversation turn/job; server answer path ใช้ business-knowledge reader หรือ configured knowledge port การเก็บ raw event หรือ MSP memory ไม่ใช่การอนุมัติ canonical fact และไม่ได้เรียก `queryGenesisRag17` โดยอัตโนมัติ
+### 4.1 Files และ Project Files — selectors และ actions ที่มีจริง
 
-**เสนอ:** ผู้มีสิทธิ์เลือกข้อความ/ไฟล์ → “เสนอเป็นความรู้” → preview excerpt + source conversation reference + sensitivity → review/approval → freeze approved source version → admission → 17 stages ห้ามนำบทสนทนาทั้งหมดเข้า KB โดยปริยาย การถอน consent/สิทธิ์ต้องมีผลกับ retrieval และ citation access ตาม policy
+ทั้ง `apps/server/src/app/(pm)/files/page.jsx` และ `apps/server/src/app/(pm)/projects/[projectId]/files/page.jsx` render `ManagedFilesPanel`. Business page ส่ง `businessId` จาก shell scope; Project page อ่าน Business จาก Project แล้วส่ง `businessId + projectId`. Panel จึงโหลด FileAsset และ admission list ด้วย scope เดียวกัน:
 
-### U11 — ผู้ใช้ถามผ่านเว็บ / LINE / API
+- FileAsset list: `/api/business/files?businessId=...` สำหรับ Business และ `/api/files?projectId=...` สำหรับ Project
+- Admission list: `GET /api/knowledge/ingestions?businessId=...&projectId=...`
+- `Add file` ยังเป็น FileAsset flow เดิม: เลือก `External URL` หรือ `Managed local file`, mount, relative path และ browser file; ไม่ได้ admit เข้าคลังอัตโนมัติ
+- `data-testid="knowledge-admit-text"` — เปิด modal **Add text** ซึ่งมี Source key, Version, Title และ Text or Markdown; ปุ่ม **Queue admission** ส่ง `kind: "TEXT"` และ idempotency key ที่สร้างจาก source/version
+- `data-testid="knowledge-admit-file-{assetId}"` — ปุ่ม **Admit knowledge** หรือ **Re-admit version** แสดงเฉพาะ ACTIVE `LOCAL_FILE`/`MANAGED_BLOB` ที่เป็น `text/plain`, Markdown MIME หรือ generic text/octet-stream ที่มี suffix `.txt/.md/.markdown/.mdown/.mkdn/.mkd`; ส่ง `kind: "FILE"` และ `fileAssetId`
+- `data-testid="knowledge-admissions"` — กล่องรายการงาน; แต่ละแถวใช้ `data-testid="knowledge-status-{admissionId}"` และแสดง status, revision และข้อความที่ปลอดภัยต่อผู้ใช้; QUEUED/RUNNING poll ทุก 3 วินาที
+- เมื่อ Business หรือ Project scope เปลี่ยน panel จะล้าง admission data เดิมทันทีและ ignore late response จาก request ของ scope เก่า เพื่อไม่ให้ status/source ของ corpus เดิมแสดงใน context ใหม่
+- `data-testid="knowledge-withdraw-{sourceId}"` — ปุ่ม **Withdraw** ส่ง `expectedVersion` ไป DELETE source; ปุ่มลบ FileAsset เป็นคนละ action และไม่ทำให้ historical knowledge ถูกลบอัตโนมัติ
+- `data-testid="knowledge-query-form"`, `data-testid="knowledge-query"`, `data-testid="knowledge-query-submit"` — ค้นด้วย `{businessId, projectId, query, topK: 10}`; แสดงผลจาก published corpus และลิงก์ **Open citation** ไปยัง citation route
 
-**เป้าหมาย:** authenticate → resolve accessible corpus scopes → question → MSP policy → published-only retrieval → citations → answer composer → response พร้อมแหล่งที่มา ถ้าไม่มี snapshot ที่ใช้ได้ ให้ตอบว่าไม่พบข้อมูลที่เผยแพร่ ไม่ fallback ไปอ่าน candidate generation
+Panel ไม่แสดง native worker, RRF, claim token, raw executor หรือ runtime credential ให้ end user และไม่มี control สำหรับ PDF/OCR/External URL admission
 
-**ปัจจุบัน:** มี internal `queryGenesisRag17({scope, query, topK, snapshotId})` → MSP → worker; ต้อง installation operator และ credential ส่วนหน้าเว็บ/LINE ที่มีอยู่ใช้ knowledge ports อีกชุด ยังต้อง wire port และ user authorization ให้ถูกต้องก่อนกล่าวว่าลูกค้าถาม GenesisRAG17 ได้แล้ว
-
-### U12 — องค์กรเดียว 4 ธุรกิจ / คนละองค์กร
-
-**เป้าหมายองค์กรเดียว:** ผู้ใช้เลือกธุรกิจที่มีสิทธิ์; ผู้บริหารอาจขอหลายธุรกิจ → service แตกเป็น authorized scope queries → รวมผลโดยติด scope/snapshot/citation ของแต่ละผล คำตอบหลาย corpus ต้องบันทึก snapshot set ที่ใช้ ไม่อ้างว่าใช้ global generation เดียวทั้งองค์กร
-
-**เป้าหมายคนละองค์กร:** pipeline code/shared service ใช้ร่วมกันได้ แต่ request และ credential ผูก tenant; worker/store/query ต้องไม่ปน scope หากไม่มี cross-tenant grant ที่ออกแบบไว้อย่างชัดเจนต้องปฏิเสธ การเปลี่ยน businessId ใน body ไม่ให้สิทธิ์เพิ่ม
-
-**ขอบเขตปัจจุบัน:** fixed private scope; acceptance แยก tenant และ scope-owned native stores การแชร์คลังองค์กรและ multi-business query ยังเป็นงานต่อ ไม่ควรเปิดด้วยการลบ businessId ออกจาก key
-
-### U13 — ฝ่ายกลางแชร์นโยบายให้องค์กร
-
-**เสนอ:** เลือก organization knowledge area → เลือกผู้รับที่มีสิทธิ์อนุญาต → upload/เลือก source → approve → publish → พนักงานแต่ละ business ค้นได้ทั้ง business corpus และ shared corpus ตาม grant ไม่ต้องคัดลอกต้นฉบับสี่รอบ แต่ต้องออกแบบ corpus ownership, sharing grant, revocation และ query aggregation เพิ่ม เพราะ `visibility: private` ปัจจุบันไม่ได้เป็น org-shared schema
-
-### U14 — แก้ไขเอกสาร / retry / replay
-
-ส่งข้อความเดิมด้วย identity/hash เดิม → idempotent response; network reply loss → retry key เดิม; เปลี่ยนเนื้อหาแต่ใช้ source/version เดิม → conflict; correction → version ใหม่ → run/attempt ที่ถูกต้อง → candidate generation ใหม่ → gate/receipt → pointer ใหม่ ระหว่างรอใช้ published snapshot เดิมที่ยังมีสิทธิ์อ่านได้ ประวัติ citation ต้องอ้างเวอร์ชันที่ใช้ตอบ ไม่สลับไปฉบับใหม่เงียบ ๆ
-
-### U15 — ข้อมูลถูก hold / worker ล้ม / publish ไม่สำเร็จ
-
-UI เป้าหมายแสดง run ID, current stage, measured counts, actionable reason และ retry/replay ที่ผู้ใช้มีสิทธิ์ ตัว worker resume durable intent/outbox/evidence cursor; ชิ้นความรู้ confidence ต่ำอาจเป็น HELD โดยต้องแยกจาก failure ทั้ง run Gate ผ่านแต่ receipt ยังไม่ครบต้องไม่ขึ้น “พร้อมค้นหา” และไม่ให้ผู้ใช้กดรายงาน stage สำเร็จเอง
-
-### U16 — ถอนเอกสาร / เปลี่ยนสิทธิ์ / ตรวจหลักฐานย้อนหลัง
-
-**ช่องว่างที่ต้องออกแบบ:** Delete FileAsset metadata ไม่ใช่ KB unpublish operation ต้องมี source-to-snapshot dependency และ revocation policy → บล็อก retrieval ตามสิทธิ์ใหม่ → publish correction/tombstone ตามนโยบาย → รักษา audit เท่าที่ policy อนุญาต ผู้ตรวจสอบเปิด citation เก่าได้เฉพาะเมื่อยังมีสิทธิ์ การคง snapshot เพื่อ audit ไม่เท่ากับอนุญาตอ่านข้อมูลที่ถูกเพิกถอนตลอดไป
-
-## 5. Target data flow ที่ทุก surface ควรมารวมกัน
+## 5. Current phase 0–4 data flow
 
 ```mermaid
 sequenceDiagram
     actor U as User or authorized API client
-    participant S as UI / API / MCP / Connector adapter
-    participant A as Knowledge admission (to connect)
-    participant Z as zuri stages 1-8
+    participant S as UI / HTTP / MCP
+    participant A as Knowledge admission
+    participant R as Durable queue and scoped runtime
     participant M as MSP
     participant G as GKS
     participant W as GenesisBlock worker
-    U->>S: Submit source or select existing source
-    S->>A: Source reference/content + requested context + idempotency
-    A->>A: Resolve identity, scope, source access and effective policy
-    A->>Z: Authorized immutable source request
-    Z->>Z: Persist intent, raw, parsed, chunks, mentions
-    Z-->>S: Run ID / accepted, not yet searchable
-    S-->>U: Track ingestion status
-    Z->>M: One Stage 9 batch per attempt
-    M->>G: Validated authenticated submit
-    G->>G: 9 resolve / 10 extract / 11 ontology / 12 temporal / 13 decision
-    W->>M: Claim decision
-    M->>G: Claim within grant
-    G-->>W: Decision via MSP
-    W->>M: Graph write receipt after readback
-    M->>G: Verify Stage 13 receipt
-    G->>G: 14 derived enrichment
-    G-->>W: Enrichment via MSP
-    W->>W: 15 embeddings / 16 candidate indexes + readback
-    W->>M: Write receipt and gate request
-    M->>G: 17 quality evaluation
-    G-->>W: Bound verdict via MSP
-    W->>W: Atomic publish only if allowed
-    W->>M: Publication receipt
-    M->>G: Validate receipt
-    Z->>M: Pull exact-attempt evidence
-    Z->>Z: Commit evidence/cursor, finish only with matching receipt
-    S-->>U: Published snapshot / ready to search
+    participant P as Corpus manifest
+    U->>S: Submit Text/Markdown or select readable FileAsset
+    S->>A: Strict source descriptor + Business/Project + idempotencyKey
+    A->>A: Resolve current viewer, source ACL, runtime scope and policy
+    A->>R: Persist immutable source version and QUEUED job
+    R-->>S: Admission id; executionRunId remains nullable until bound
+    R->>M: One exact source attempt under scoped capability
+    M->>G: Authenticated Stage 9–14 decisions and quality evidence
+    W->>M: Claim, graph/index writes and readback receipts
+    W->>M: Stage 17 gate request and publication receipt
+    R->>P: Merge verified source snapshot atomically
+    S-->>U: Status and publication state
+    S->>P: Query one authorized corpus generation
+    P->>M: Query each active source snapshot
+    M-->>P: Snapshot-local results and citations
+    P-->>S: RRF-k60 results with version-bound citation ids
 ```
 
-Stage ownership รายละเอียดและ negative paths ใช้ [17-stage execution flow](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) เป็น authority Diagram นี้เพิ่ม user-facing admission ที่ยังต้องเชื่อม ไม่เปลี่ยนให้ GKS เรียก writer ออกไปเอง
+Admission records intent and returns before native work completes. The root-owned runtime capability is module-private and scope-limited; request JSON cannot mint it and admission never calls the raw executor as a user-facing shortcut. A query pins one corpus manifest and uses the same configured native scope/store for its active source snapshots. A matching publication receipt is required before a source becomes searchable.
 
 ## 6. สิ่งที่เก็บและสิ่งที่ผู้ใช้ควรเห็น
 
-| จุด | Durable data / authority | User-facing result |
+| จุด | Durable authority | User-facing result |
 |---|---|---|
-| Source admission | source identity/version/hash, effective scope/policy, intent | Accepted + run ID |
-| Stage 1 | RawExternalRecord → KnowledgeRawArtifact | Received |
-| Stage 2–3 | KnowledgeParsedArtifact + lineage refs | Parsed / unsupported source reason |
-| Stage 4–8 | normalized/classification/dedup evidence, KnowledgeChunk, source occurrences | Progress; ไม่มี canonical knowledge claim ก่อน GKS |
-| Stage 9–14 | GKS canonical entities/facts/held reasons/immutable decision/derived summary | Reviewed counts และ hold reasons ตามสิทธิ์ |
-| Stage 13/15/16 physical | Worker graph/vector/index data + manifests/readback receipts | Candidate ready; ยังไม่ใช่ published |
-| Stage 17 | GKS verdict + worker atomic pointer + publication receipt | Ready to search เมื่อ receipt ตรงกัน |
-| Retrieval | authorized snapshot/generation + result source references | Answer/hits + citation |
-| Audit | exact run/stage/step/attempt + timestamps + six measured metrics | ตรวจย้อนหลังได้โดยไม่ใช้ stage-success ที่กรอกมือ |
+| Corpus | `KnowledgeCorpus`: Business + optional live Project identity, resolved six-field runtime scope and policy | Corpus context; no caller-supplied scope/policy |
+| Source | `KnowledgeSource`: immutable source key lineage, current revision, FileAsset link and revocation/version | Source title, revision and withdrawal state |
+| Admission | `KnowledgeIngestion`: frozen UTF-8 content/hash or frozen FileAsset bytes, idempotency identity, actor, status and nullable native `executionRunId` | Accepted `QUEUED`; opaque admission id and safe status |
+| Status | `QUEUED`, `RUNNING`, `PUBLISHED`, `FAILED`, `SUPERSEDED`, `WITHDRAWN` plus safe native stage summary when bound | Waiting, Processing, Published, failed, superseded or withdrawn |
+| Native publication | Existing 17-stage artifacts, per-document receipt and exact snapshot identity | Searchable only after verified publication receipt; no manual stage-success control |
+| Corpus generation | `KnowledgeCorpusGeneration`: immutable manifest of active source snapshots, generation and hash | Query generation and manifest-backed result set |
+| Retrieval | Published snapshot result, source/chunk lineage, rank-fusion score and citation id | Text hit + **Open citation**; query never falls back to candidate data |
+| Citation | Version/source/ingestion/chunk identity, offsets and content hash | Evidence only while current Business/Project/FileAsset ACL permits it |
+| Audit | Admission, publication, correction and withdrawal audit events | Reviewable history without exposing runtime credentials or claim tokens |
 
-## 7. API ที่เสนอสำหรับเชื่อม user flow — ยังไม่มี implementation
+List/status responses do not return raw source content, claim tokens, leases or native credentials. FileAsset deletion is separate from knowledge withdrawal; serving checks current file/project access before returning file-backed text.
 
-ใช้ admission service กลางหนึ่งชุดให้ UI/API/MCP/connector เรียก ไม่จำเป็นต้องสร้าง ingestion implementation ธุรกิจละชุด ชื่อต่อไปนี้เป็นข้อเสนอเพื่อ review และอาจปรับให้ตรง API convention ก่อน implementation
+## 7. Implemented HTTP and MCP contract
 
-| Proposed operation | หน้าที่ |
-|---|---|
-| POST `/api/knowledge/ingestions` | รับ text หรือ authorized existing-source reference; binary upload ใช้ storage flow ที่กำหนดก่อน; คืน accepted run ID |
-| GET `/api/knowledge/ingestions/{runId}` | รวม user-safe source/stage/hold/publication status; reuse ledger service |
-| POST `/api/knowledge/queries` | ตรวจ end-user scope และ query published snapshots ผ่าน knowledge port |
-| GET `/api/knowledge/citations/{citationId}` | resolve exact source version พร้อมตรวจสิทธิ์ปัจจุบัน |
+The public knowledge HTTP surface is **5 paths / 6 operations**:
 
-สี่ operation นี้เป็นแกนขั้นต่ำ ไม่ใช่คำกล่าวว่า connector administration, sharing grants, approval, revocation หรือ correction management เสร็จแล้ว ต้องตรึงสัญญาส่วนเหล่านั้นก่อนเปิด use cases ที่เกี่ยวข้อง และไม่ส่ง runtime worker credentials ให้ browser
-
-## 8. งานเชื่อมต่อที่ต้องมีและเกณฑ์พิสูจน์
-
-| งาน | เข้าที่ stage / layer | Acceptance จาก user surface |
+| Method | Path | Input / result |
 |---|---|---|
-| UI/API/MCP admission | ก่อน Stage 1 | ส่งจาก actual UI/HTTP/MCP → run → 17 stages → query/citation ไม่เรียก internal function แทน surface ใน test |
-| FileAsset adapter | 1–3 | Local/URL/blob ที่อนุญาต → raw bytes/hash/version → citation กลับต้นฉบับ |
-| Binary/OCR adapter | 2–3, 7–8 | PDF/ภาพ/ตาราง → page/cell provenance และ citation resolve |
-| Optional Edge execution adapter | stage lease + 1–3 boundary | Edge ประมวลผล capability ที่อนุญาตแล้วส่ง source/evidence กลับ ไม่เปิด local catalog bypass แทน canonical 17 stages |
-| Document staging bridge | ก่อน 1–3 | extracted contract + raw artifact mapping → ไม่สับสน staging success กับ publication |
-| Domain / Project adapter | ก่อน 1, 3, 6 | approved version + source ACL → correction/revocation เชื่อมกัน |
-| Conversation promotion | approval + 1/5 | ไม่มี auto-publish จากข้อความที่ไม่ได้อนุมัติ |
-| Shared-service dispatcher | runtime + MSP scope | concurrent runs ข้าม business/tenant, fairness/resource limits, no scope leakage |
-| Multi-document corpus | admission + 6 + 16–17 | เพิ่ม/แก้/ถอนเอกสารหนึ่งฉบับไม่ทำเอกสารอื่นหาย; batch progress และ concurrent publication มีสัญญาชัดเจน |
-| Multi-business / shared corpus | authorization + query | allowed federation ได้, unauthorized federation ไม่ได้, per-hit snapshot/citation ถูกต้อง |
-| Query port สำหรับเว็บ/LINE | หลัง 17 | actual user question → published-only retrieval → citations; domain live facts ผ่าน authorized tool |
-| Source removal / permission change | policy + publication/query | FileAsset deletion/ACL change ไม่ทิ้ง stale searchable sensitive source |
+| POST | `/api/knowledge/ingestions` | Strict `{businessId, projectId?, idempotencyKey, source}`; source is TEXT `{kind, sourceKey, version, title?, content}` or FILE `{kind, fileAssetId, sourceKey?, version?, title?}`; returns an opaque admission id with `QUEUED` status |
+| GET | `/api/knowledge/ingestions` | Query `businessId`, optional `projectId`, optional `limit`; returns scoped safe job summaries without raw content |
+| GET | `/api/knowledge/ingestions/{runId}` | Reads the admission job id; returns `executionRunId` separately when the runtime has bound one |
+| POST | `/api/knowledge/queries` | Strict `{businessId, projectId?, query, topK?}`; returns one pinned corpus generation, manifest hash and verified results/citations |
+| GET | `/api/knowledge/citations/{citationId}` | Resolves version-bound source/chunk evidence after current ACL, source and FileAsset/Project checks |
+| DELETE | `/api/knowledge/sources/{sourceId}` | Strict `{expectedVersion}`; CAS withdraws source membership and creates a new manifest while preserving history |
 
-ไม่จำเป็นต้องเพิ่ม Stage 18 เพื่อทำ UI, connector หรือ answer composition: source adapters เข้าก่อน/ที่ Stage 1; parser ที่ 2; provenance ที่ 3; query/answer หลัง Stage 17
+HTTP session viewers use the existing request resolver. A machine HTTP caller is accepted only when an explicit configured knowledge grant matches its service account, tenant, Business and action; a tenant match alone is insufficient. Request bodies cannot set scope, policy, actor, credential, publication or embedding authority. Query and citation handlers re-resolve the original HTTP request before disclosing results after slow reads.
 
-## 9. Evidence map และการตรวจเอกสาร
+The same six operations are exposed by `POST /api/mcp` as `knowledge.ingestion_create`, `knowledge.ingestion_list`, `knowledge.ingestion_status`, `knowledge.query`, `knowledge.citation` and `knowledge.source_withdraw`. MCP uses the transport's authenticated session viewer for both initial authentication and the live recheck callback; it does not broaden the existing MCP transport to Enterprise API grants. Tool arguments remain strict and cannot carry a serialized runtime capability.
+
+## 8. Acceptance evidence and remaining phases
+
+| Area | Current evidence | Limit |
+|---|---|---|
+| Admission service | `apps/server/tests/unit/knowledge-admission-service.test.js`, `knowledge-admission-job-state.test.js` | Isolated service proof; native worker still separate |
+| HTTP | `apps/server/tests/unit/knowledge-admission-routes.test.js`, `knowledge-corpus-routes.test.js`, `knowledge-http.test.js` | Actual deployment/native HTTP acceptance pending |
+| Real DB + shared service | `apps/server/tests/integration/knowledge-admission.integration.test.js`, `knowledge-query.test.js` | Fixture/isolated database evidence, not production evidence |
+| MCP | `apps/server/tests/unit/knowledge-admission-mcp.test.js`, `pipeline-mcp-transport.test.js` | MCP session transport tested; native publication path pending |
+| Files UI | `apps/server/tests/unit/knowledge-admission-ui-contract.test.js`, existing FR-045/FR-058 UI tests | Browser selectors/actions are enumerated; actual browser-to-native publication acceptance pending |
+| Native 17-stage chain | `apps/server/tests/acceptance/genesisrag17-e2e.test.js` remains the internal raw-chain harness | It does not by itself prove the UI/API/MCP entrypoints or multi-document corpus flow |
+
+The remaining acceptance gate is an actual native run started through UI, HTTP and MCP as applicable, followed by two-document publication/query, correction preserving the other source, stale completion rejection, withdrawal and delayed ACL/revocation checks. Until that evidence exists, phases 0–4 remain beta and no production activation/completion is claimed.
+
+Deferred after this contract: PDF/DOCX/Excel/image/OCR; external URL fetch/crawl; folder/Drive/connector sync; domain-record adapters; LINE/conversation promotion; org-wide/shared corpus; multi-business or cross-tenant federation; cross-store routing; corpus-wide graph traversal and aggregate native gate.
+
+## 9. Evidence map and enumeration record
 
 อ่าน paths ต่อไปนี้จาก repo นี้เพื่อไล่ข้อกล่าวอ้างย้อนกลับ:
 
-- UI: `apps/server/src/app/(pm)/files/page.jsx`, `apps/server/src/app/(pm)/projects/[projectId]/files/page.jsx`, `apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx`
-- Files: `apps/server/src/app/api/files/`, `apps/server/src/modules/project-manager/application/file-asset-service.js`
-- Staging: `apps/server/src/app/api/ingest/documents/route.js`, `apps/server/src/platform/integrations/core/cloud-sot-agent.js`, `document-intake-contract.js`
+- Authority: `docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md`, `docs/plans/KNOWLEDGE-ADMISSION-CONTRACT.md`, `docs/PRD-SDD-v1.0.md`
+- HTTP: `apps/server/src/app/api/knowledge/ingestions/route.js`, `apps/server/src/app/api/knowledge/ingestions/[runId]/route.js`, `apps/server/src/app/api/knowledge/queries/route.js`, `apps/server/src/app/api/knowledge/citations/[citationId]/route.js`, `apps/server/src/app/api/knowledge/sources/[sourceId]/route.js`
+- Services/auth: `apps/server/src/modules/knowledge/knowledge-admission-service.js`, `knowledge-corpus-service.js`, `knowledge-http.js`, `knowledge-authorization.js`, `knowledge-runtime.js`
 - MCP: `apps/server/src/app/api/mcp/route.js`, `apps/server/src/modules/project-manager/mcp/transport.js`
-- Pipeline: `apps/server/src/app/api/pipelines/`, `apps/server/src/platform/integrations/core/genesisrag17-executor.js`, `genesisrag17-worker.js`, `genesisrag17-importer.js`, `genesisrag17-publication.js`
-- Contracts: `apps/server/src/modules/knowledge/genesisrag17-contract.js`, `genesisrag17-source.js`
-- Existing queries: `apps/server/src/modules/knowledge/query.js`, `project-graph.js`, `sink.js`, `apps/server/src/modules/agent/server-line-answer.js`
-- Actual raw-chain proof: `apps/server/tests/acceptance/genesisrag17-e2e.test.js`; historical report `.brain/reports/GENESISRAG17-AUDIT-REMEDIATION.md` ไม่ใช่ proof ของ proposed UI journeys
+- UI: `apps/server/src/app/(pm)/files/page.jsx`, `apps/server/src/app/(pm)/projects/[projectId]/files/page.jsx`, `apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx`
+- Adjacent baseline: `apps/server/src/app/api/ingest/documents/route.js`, `apps/server/src/app/api/pipelines/`, `apps/server/src/app/api/files/`, `apps/server/src/modules/project-manager/application/file-asset-service.js`
+- Tests: `apps/server/tests/unit/knowledge-admission-*.test.js`, `apps/server/tests/unit/knowledge-corpus-routes.test.js`, `apps/server/tests/unit/knowledge-http.test.js`, `apps/server/tests/integration/knowledge-admission.integration.test.js`, `apps/server/tests/integration/knowledge-query.test.js`
 
-ตรวจครั้งนี้ด้วย tracked-file enumeration, method inventory, import/caller inspection และ parent/peer docs review ไม่ได้เปิด UI หรือยิง production API และไม่ได้ใช้การค้น keyword ไม่พบเป็นหลักฐานเดี่ยวของการไม่มี artifact
+ตัวเลข 28 paths / 34 operations คือผลรวมของ route groups ที่ระบุใน section 3; MCP tools 15 คือ 4 Project Manager + 5 data pipeline + 6 knowledge tools และไม่ถูกบวกซ้ำเป็น HTTP paths. การตรวจรอบนี้ใช้ tracked-file enumeration, exported method/tool inventory, source inspection และ authority-doc review; ไม่ได้เปิด production API และ actual native acceptance ยัง pending
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0b | 2026-09-08 | draft | Enumerated Server endpoints; actual source paths versus 16 proposed/partial user journeys; admission and cross-domain extension gaps | base dfdbaf11 | RWANG |
+| 1.1.0b | 2026-09-08 | beta | Reconciled phases 0–4 HTTP/MCP/UI surfaces, 28-path/34-operation inventory, U01–U16 status matrix and native-acceptance boundary; linked ADR-072, FR-172 and the frozen contract | 0816ed4d | RWANG |
