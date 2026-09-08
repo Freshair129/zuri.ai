@@ -60,6 +60,15 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
         } catch (error) {
           if (DETERMINISTIC.includes(error?.status)) skipped += 1
           else unresolved += 1
+          // DIAGNOSTIC ONLY (2026-09-08): no event material, no secrets — status/code/
+          // name/message and a short stack excerpt, so a silent admission failure is
+          // not invisible to the operator. This path swallowed every error before.
+          console.error(JSON.stringify({
+            scope: 'line-webhook-event-admission', correlationId,
+            status: error?.status ?? null, code: error?.code ?? null,
+            name: error?.name ?? null, message: error?.message ?? null,
+            stack: (error?.stack ?? '').split('\n').slice(0, 3).join(' | '),
+          }))
         }
       }
       if (unresolved) return NextResponse.json({ error: 'LINE_WEBHOOK_NOT_ACCEPTED', correlationId }, { status: 503 })
@@ -69,6 +78,13 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
     } catch (error) {
       // Do not echo parser/provider errors or event material. Non-2xx asks LINE to redeliver.
       const status = [400,401,403,404,409,413,503].includes(error?.status) ? error.status : 503
+      // DIAGNOSTIC ONLY (2026-09-08): see the inner catch above for why this exists.
+      console.error(JSON.stringify({
+        scope: 'line-webhook-request', correlationId,
+        status: error?.status ?? null, code: error?.code ?? null,
+        name: error?.name ?? null, message: error?.message ?? null,
+        stack: (error?.stack ?? '').split('\n').slice(0, 3).join(' | '),
+      }))
       return NextResponse.json({ error: 'LINE_WEBHOOK_NOT_ACCEPTED', correlationId }, { status })
     }
   }

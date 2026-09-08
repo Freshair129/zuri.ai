@@ -63,7 +63,16 @@ function activeAccount(account, job) {
 
 async function atomic(db, work) {
   for (let attempt = 0; ; attempt++) {
-    try { return await db.$transaction(work) } catch (error) {
+    try {
+      // FR-149/150's admission transaction now also appends an execution trace
+      // (#290) inside the same transaction; on 2026-09-08 that pushed real
+      // admissions past Prisma's 5s default and every one failed with P2028
+      // ("Transaction already closed") once the observed round-trip cost
+      // (~200ms/query over the session-mode pool, ADR-058 D9) accumulated
+      // across the extra trace writes. 15s gives headroom without hiding a
+      // regression silently — see .brain/rca/2026-09-08-line-webhook-*.md.
+      return await db.$transaction(work, { timeout: 15000, maxWait: 5000 })
+    } catch (error) {
       if (attempt >= 2 || !['P2002', 'P2034'].includes(error.code)) throw error
     }
   }
