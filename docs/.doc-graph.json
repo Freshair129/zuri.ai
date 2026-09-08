@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2416,
-    "total_edges": 9683,
+    "total_nodes": 2421,
+    "total_edges": 9730,
     "dangling_edges": 0,
     "node_types": {
       "document": 212,
       "appendix": 4,
-      "adr": 72,
+      "adr": 73,
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
       "route": 294,
       "model": 135,
-      "requirement": 333,
-      "test": 565,
+      "requirement": 334,
+      "test": 568,
       "code_file": 719
     },
     "coverage": {
-      "requirements": 333,
-      "fr_with_code": "100% (162/162)",
-      "fr_with_tests": "100% (162/162)",
+      "requirements": 334,
+      "fr_with_code": "100% (163/163)",
+      "fr_with_tests": "100% (163/163)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 719,
@@ -6472,7 +6472,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "d96537e2",
+      "hash": "f08d9535",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6484,6 +6484,7 @@
           "FR-163",
           "FR-167",
           "FR-091",
+          "FR-172",
           "FR-161",
           "FR-159",
           "FR-160",
@@ -6511,7 +6512,8 @@
           "tests/unit/inventory-routes.test.js",
           "tests/unit/scm-group-navigation.test.js",
           "tests/unit/business-capability-navigation.test.js",
-          "tests/unit/procurement-routes.test.js"
+          "tests/unit/procurement-routes.test.js",
+          "tests/unit/crm-group-navigation.test.js"
         ]
       }
     },
@@ -10439,7 +10441,7 @@
       "id": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
-      "hash": "a8e2c3e4",
+      "hash": "6e790d12",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10448,6 +10450,9 @@
         ],
         "@spec": [
           "SDD-050"
+        ],
+        "@tested": [
+          "tests/unit/line-crm-live-chat-render.test.js"
         ]
       }
     },
@@ -10865,7 +10870,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
-      "hash": "18abb83c",
+      "hash": "0f47c3c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10875,6 +10880,9 @@
         "@spec": [
           "SDD-060",
           "SDD-061"
+        ],
+        "@tested": [
+          "tests/unit/line-studio-dashboard-render.test.js"
         ]
       }
     },
@@ -15047,9 +15055,9 @@
       "type": "document",
       "path": "docs/ERP-MODULE-MAP.md",
       "title": "ERP module map — where each module the owner names lives",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
-      "hash": "11c7c61b",
+      "hash": "93f1e9ac",
       "status": "current"
     },
     {
@@ -15111,7 +15119,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.32.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "14d41643",
+      "hash": "2770e331",
       "status": "current"
     },
     {
@@ -16126,7 +16134,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.13.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "72cc4fcb",
+      "hash": "cfdf76dd",
       "status": "current"
     },
     {
@@ -16676,7 +16684,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "e6de6c46",
+      "hash": "e3ada3d5",
       "status": "current"
     },
     {
@@ -16704,7 +16712,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "6351681c",
+      "hash": "87fd67a2",
       "status": "current"
     },
     {
@@ -20159,6 +20167,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes. 🟡 native SERVER P1 implemented locally under ADR-070; tool/document/artifact/MSP/GKS/Edge adapters and live migration/canary evidence remain pending "
+    },
+    {
+      "id": "req:FR-172",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-071's Context table records the check for each). Renumbered from FR-171/ADR-070 — main's Execution Trace & Replay v0.3 already held those ids when this branch rebased.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar — `DOMAIN_GROUPS` gains a second entry, `crm`, over the existing `customer` and `market` domains; the bar renders one slot for the group and the sidebar lists both, each child's label heading its own pages. The group is a container and never a grant, exactly as `scm` is not: `crm` is absent from the registry, so it cannot reach `Membership.domainKeysJson`, the permission checkboxes or the route guard, which keeps resolving a path to the leaf domain and asking about that key (FR-061 unchanged). The `customer` lane is relabelled from \"CRM\" to \"Customer\" so the leaf and the new group do not both read \"CRM\"; `market` keeps its label and its key. Every other remaining bar domain — Marketing, Operations, HR/People, Development, Asset Management, LINE OA Studio, Platform — is confirmed unchanged: each already stands as one complete ERP-recognised module with no sibling to consolidate (ADR-071's Context table records the check for each). Renumbered from FR-171/ADR-070 — main's Execution Trace & Replay v0.3 already held those ids when this branch rebased. 🟠 implemented locally 2026-09-08 — navigation only: no model, no route, no API. `DOMAIN_GROUPS` + existing `domainBarSlots()` + `sidebarDomainForPath()` in `src/config/domains.js`, read unchanged by `DomainBar.jsx` and `Sidebar.jsx`; `tests/unit/crm-group-navigation.test.js` "
     },
     {
       "id": "req:FR-173",
@@ -24447,6 +24465,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "title": "ADR-071 — CRM is a parent domain over Customer and Market Intelligence",
+      "hash": "f45e938f",
+      "status": "current"
+    },
+    {
       "id": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
       "type": "adr",
       "path": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
@@ -24459,7 +24485,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
       "title": "ADR-073 — GenesisRAG17 isolated execution and publication",
-      "hash": "983a7976",
+      "hash": "ae48c040",
       "status": "current"
     },
     {
@@ -24529,7 +24555,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr060-business-home.spec.js",
-      "hash": "be110e35",
+      "hash": "fd4014e5",
       "status": "current"
     },
     {
@@ -26115,6 +26141,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/crm-group-navigation.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/crm-group-navigation.test.js",
+      "hash": "c85f4cd7",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/customer-consent-migration.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/customer-consent-migration.test.js",
@@ -26314,7 +26347,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/domain-navigation.test.js",
-      "hash": "c5e46502",
+      "hash": "cd622108",
       "status": "current"
     },
     {
@@ -27123,6 +27156,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+      "hash": "7d91b14a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-oa-account-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-oa-account-domain.test.js",
@@ -27204,6 +27244,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-registry-service.test.js",
       "hash": "0342f04b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+      "hash": "b31b173f",
       "status": "current"
     },
     {
@@ -28127,7 +28174,7 @@
       "id": "test:tests/unit/scm-group-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scm-group-navigation.test.js",
-      "hash": "1a477ade",
+      "hash": "95143f13",
       "status": "current"
     },
     {
@@ -37809,6 +37856,13 @@
     {
       "from": "code:src/config/domains.js",
       "to": "req:FR-169",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:FR-172",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50316,6 +50370,13 @@
       "status": "current"
     },
     {
+      "from": "doc:ERP-MODULE-MAP",
+      "to": "spec:ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -56882,6 +56943,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-172",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-173",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -62594,6 +62662,13 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "to": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
       "to": "doc:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS",
       "type": "references",
@@ -63086,6 +63161,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-172",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78170,6 +78252,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -79437,6 +79526,13 @@
     },
     {
       "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -80521,6 +80617,181 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-161",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-163",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-164",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-167",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/customer-consent-migration.test.js",
       "to": "req:BR-002",
       "type": "verifies",
@@ -81226,6 +81497,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
@@ -82056,6 +82334,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-172",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -86304,6 +86589,13 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -87472,6 +87764,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "code:src/modules/line-crm/LineCrmLiveChat.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-crm-live-chat-render.test.js",
+      "to": "req:SDD-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-oa-account-domain.test.js",
       "to": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "type": "tests",
@@ -87918,6 +88238,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "code:src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-dashboard-render.test.js",
+      "to": "req:SDD-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-trace-route.test.js",
@@ -89000,6 +89355,13 @@
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-172",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -92548,6 +92910,13 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -94421,6 +94790,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/scm-group-navigation.test.js",

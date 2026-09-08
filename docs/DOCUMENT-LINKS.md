@@ -1482,6 +1482,7 @@ Source: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procureme
 Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
+- [ADR-071 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md) (relates)
 
 ## ADR-070 — Execution Trace & Replay v0.3
 
@@ -1509,6 +1510,16 @@ Backlinks:
 - [FR-171-P1 — Native SERVER LINE journal and playback](domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) (relates)
 - [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
+
+## ADR-071 — CRM is a parent domain over Customer and Market Intelligence
+
+Source: [ADR-071 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)
+
+- relates: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+
+Backlinks:
+
+- [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 
 ## ADR-072 — Knowledge admission and corpus publication
 
@@ -2900,6 +2911,7 @@ Backlinks:
 Source: [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md)
 
 - references: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+- references: [ADR-071 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)
 
 Backlinks:
 

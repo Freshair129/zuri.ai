@@ -4,7 +4,7 @@ title: GenesisRAG17 isolated execution and publication
 version: "1.3.0b"
 status: beta
 created_at: "2026-09-07T22:19:00+07:00,RWANG,base b17e7258"
-last_update: "2026-09-08T00:51:36+07:00,RWANG"
+last_update: "2026-09-08T22:10:00+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision

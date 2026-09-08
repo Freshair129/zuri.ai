@@ -3237,8 +3237,8 @@
     "FR-172": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "b40eb324b84a513acbddbb17be1a07067e56ea78403793ac7f8d0e46a5a63925",
+      "status": "current",
+      "statement_digest": "4f39c22cb605173627007e355659b7857ba740ceac66eaab4a6a7d7b652e646f",
       "history": [
         {
           "anchor": "knowledge source admission and corpus publication",
@@ -3249,6 +3249,12 @@
           "anchor": "knowledge source admission and corpus publication",
           "since": "2026-09-08",
           "reason": "Abandoned before merge; this branch renumbered itself to FR-173. Main d36f9a61 published CRM as FR-172 before this branch; move knowledge admission to FR-173.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        },
+        {
+          "anchor": "customer facing navigation groups two domains under one crm",
+          "since": "2026-09-08",
+          "reason": "Integrate published CRM FR-172 from main d36f9a61 after the branch admission declaration moved to FR-173; preserve both histories.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
         }
       ],
@@ -4296,7 +4302,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "deef25490f5c5406a586d7de23a0d88fd8c7ea4ec7b94261dff9ab52a17714e3",
+      "statement_digest": "722500b8cff8a81d5d09916cd4fdff040641baf13584682c7af976f334399586",
       "history": [
         {
           "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
@@ -4305,7 +4311,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-08",
-      "statement_digest_reason": "Preserve approved GenesisRAG isolated lineage, batch, evidence, cursor and receipt persistence clarification when merging published main."
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "SDD-058": {
       "family": "SDD",
@@ -4324,7 +4330,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "1072047c0a354a0e39e7600a11ae4ec6a475e9bdc25929feb14a30d20b8cd05b",
+      "statement_digest": "f89b859098ad4e38e28fc7247f17fe1bde00eb0d4fc2862997cd536d3870d38d",
       "history": [
         {
           "anchor": "chunking is a pure calculator in the knowledge lane with no",
@@ -4333,7 +4339,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-08",
-      "statement_digest_reason": "Preserve approved pure chunk calculator with separate versioned lineage repository adapter when merging published main."
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "SDD-060": {
       "family": "SDD",
@@ -5228,7 +5234,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "d9c49c36bf654b109fa7403f2a783a369c44537d559d64c43d6b97fca1e76047",
+      "statement_digest": "a95107f21ede2df187105b2c4d29798b720a928667744401f40da8624265c500",
       "history": [
         {
           "anchor": "knowledge ingestion governance",
@@ -5237,7 +5243,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-08",
-      "statement_digest_reason": "Owner approved phases 0 through 4 for knowledge source admission and receipt-backed multi-document corpus serving under ADR-072; existing feature subject retained."
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "FEAT-014": {
       "family": "FEAT",
@@ -7467,9 +7473,9 @@
     },
     "ADR-071": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-071-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "status": "burnt",
-      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "source": "docs/decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "status": "current",
+      "statement_digest": "e7bd470bf6f1c72ee7ed8f22c8765254cdbef341d4da4c91d026acd54a7e0bd2",
       "history": [
         {
           "anchor": "genesisrag17 isolated execution and publication",
@@ -7480,6 +7486,12 @@
           "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-08",
           "reason": "Abandoned before merge; this branch renumbered itself to ADR-073. Main d36f9a61 published CRM as ADR-071 before this branch; move isolated GenesisRAG17 to ADR-073.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        },
+        {
+          "anchor": "crm is a parent domain over customer and market intelligence",
+          "since": "2026-09-08",
+          "reason": "Integrate published CRM ADR-071 from main d36f9a61 after the branch GenesisRAG declaration moved to ADR-073; preserve both histories.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
         }
       ],
