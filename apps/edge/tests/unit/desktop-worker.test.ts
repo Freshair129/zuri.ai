@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { resolve } from 'node:path';
 import { parseDesktopWorkerCommand, parseDesktopWorkerInit } from '../../src/desktop-worker.js';
 
 const init = (overrides: Record<string, unknown> = {}) => ({
@@ -8,7 +9,7 @@ const init = (overrides: Record<string, unknown> = {}) => ({
   deviceId: 'DEV-DESKTOP-01',
   deviceKey: 'edgk_synthetic_test_credential',
   cloudBaseUrl: 'https://zuri.example',
-  dataRoot: 'C:\\Users\\pc\\AppData\\Local\\Zuri\\runtime',
+  dataRoot: resolve('synthetic-desktop-runtime'),
   ragUrl: 'http://127.0.0.1:8888',
   pollIntervalMs: 5000,
   heartbeatIntervalMs: 40000,
@@ -20,6 +21,7 @@ test('Desktop init is bounded, loopback-scoped, and keeps the key in the private
   const parsed = parseDesktopWorkerInit(init());
   assert.equal(parsed.deviceKey, 'edgk_synthetic_test_credential');
   assert.equal(parsed.provider.headlessEnabled, false);
+  assert.throws(() => parseDesktopWorkerInit(init({ dataRoot: 'relative-runtime' })), /INVALID_INIT/);
   assert.throws(() => parseDesktopWorkerInit(init({ cloudBaseUrl: 'https://user:pass@zuri.example' })), /INVALID_CLOUD_ORIGIN/);
   assert.throws(() => parseDesktopWorkerInit(init({ ragUrl: 'https://public.example' })), /INVALID_INIT/);
   assert.throws(() => parseDesktopWorkerInit(init({ deviceKey: 'not-a-device-key' })), /INVALID_INIT/);

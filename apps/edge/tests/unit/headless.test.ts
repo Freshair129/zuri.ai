@@ -24,6 +24,26 @@ import {
 let root = '';
 let options: HeadlessOptions;
 
+const CODEX_HELP_FLAGS = [
+  '--ephemeral',
+  '--ignore-user-config',
+  '--ignore-rules',
+  '--strict-config',
+];
+
+function writeCodexHelpFixture(home: string, flags: string[]): string {
+  fs.mkdirSync(home, { recursive: true });
+  const bin = path.join(root, process.platform === 'win32' ? 'codex-help-fixture.exe' : 'codex-help-fixture');
+  if (!fs.existsSync(bin)) fs.copyFileSync(process.execPath, bin);
+  if (process.platform !== 'win32') fs.chmodSync(bin, 0o755);
+  fs.writeFileSync(
+    path.join(home, 'exec'),
+    `if (!String(process.argv[1]).endsWith('exec') || process.argv[2] !== '--help') process.exit(2);\nprocess.stdout.write(${JSON.stringify(flags.join(' '))});\n`,
+    'utf8'
+  );
+  return bin;
+}
+
 beforeEach(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-headless-'));
   options = {
@@ -61,9 +81,15 @@ describe('What the sandboxed agent is given', () => {
 
   it('requires an explicit managed Codex home and never inherits ambient CODEX_HOME', () => {
     const managedHome = path.join(root, 'managed-codex-home');
-    fs.mkdirSync(managedHome, { recursive: true });
+    const fixtureBin = writeCodexHelpFixture(managedHome, CODEX_HELP_FLAGS);
 
-    assert.doesNotThrow(() => requireHeadlessPolicy('codex', true, managedHome));
+    assert.doesNotThrow(() => requireHeadlessPolicy(fixtureBin, true, managedHome));
+    const unsupportedHome = path.join(root, 'managed-codex-home-without-strict-controls');
+    writeCodexHelpFixture(unsupportedHome, CODEX_HELP_FLAGS.slice(0, -1));
+    assert.throws(
+      () => requireHeadlessPolicy(fixtureBin, true, unsupportedHome),
+      /LOCAL_POLICY_UNAVAILABLE/
+    );
     assert.throws(
       () => requireHeadlessPolicy(path.join(root, 'codex-missing.exe'), true, managedHome),
       /LOCAL_POLICY_UNAVAILABLE/

@@ -1,6 +1,6 @@
 ---
 id: ZAI:RCA-EDGE-DESKTOP-RUNTIME-CONTRACT-GAP
-version: "0.1.5b"
+version: "0.1.6b"
 status: beta
 created_at: "2026-09-08T19:06:46+07:00,RWANG,base b17e7258"
 last_update: "2026-09-09T01:37:00+07:00,RWANG"
@@ -14,6 +14,19 @@ relations:
 ---
 
 # RCA — Desktop control shell advertised as a working Edge runtime
+
+## Hosted integration follow-up — 2026-09-09
+
+Symptom: PR #301 Linux Edge verification failed two tests after the Windows local
+suite passed. Evidence: job `102349223717` reported `INVALID_INIT` for Desktop
+initialization and `LOCAL_POLICY_UNAVAILABLE` for the managed Codex home test.
+Root cause: the first fixture supplied a Windows drive path to host-native
+`path.isAbsolute`; the second required a real installed Codex with supported
+isolation flags. Neither is a portable test prerequisite. The issue escaped
+local detection because Windows recognized the path and this host had Codex
+installed. Prevention: derive the absolute fixture path from the test host and
+exercise Codex capability detection with a deterministic local executable fixture,
+including unsupported controls. Keep runtime validation and hosted Linux gates.
 
 ## Symptom
 

@@ -30077,7 +30077,7 @@
       "source_path": "tests/unit/headless.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "be6897321cbf",
-      "content_sha256": "01034126a98fc1a1d1d05fb8ebba9727655c45b3ad995c5e3d7befc1332f9e5e",
+      "content_sha256": "4b4104cee6e3e3090ccf6316558fd21d6f507949cd133a3a822669c86caad527",
       "source_id": "test:tests/unit/headless.test.ts"
     },
     {
