@@ -60,7 +60,10 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 ## Public contract
 
-- `POST /api/agent/line-webhook` — the one inbound seam (FR-028).
+- `POST /api/agent/line-webhook` — this lane's inbound seam (FR-028). It is no longer
+  the product's only LINE inbound seam: a `serverEnabled` account is refused here and
+  enters through the Studio's native `POST /api/line-oa/accounts/[id]/webhook`
+  (FR-149, ADR-061), which never calls `handleAgentTurn`.
 - `handleAgentTurn` — one end-to-end turn; identity resolution and policy
   checks happen before any memory-port call (FR-057).
 - `GET`/`POST`/`DELETE /api/agent/heartbeat` — the Business-scoped Edge Device

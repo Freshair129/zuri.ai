@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.172.0b"
+version: "1.173.0b"
 status: draft
-last_update: "2026-09-08T16:30:00+07:00,RWANG"
+last_update: "2026-09-10T00:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -31,6 +31,7 @@ relations:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.174.0b | 2026-09-10 | Claude Opus 5 | FR-149 reworded (same subject, no renumber) and ADR-061 D4 amended to state the acknowledgment boundary the code has had since PR #306 — LINE is answered on durable evidence capture, admission is asynchronous — and to add the two things that were missing from it: abandoned admissions are reconciled from the stored evidence payload by the worker tick, and terminal `FAILED` jobs are counted with their `errorCode` on the Studio conversation surface. Driven by production numbers: 4 of 12 jobs ended `FAILED / LOCAL_POLICY_UNAVAILABLE` with no surface, and an ack-then-die window had no recovery. No new id, no model, no migration. |
+| 1.173.0b | 2026-09-10 | Claude Opus 5 | Reworded FR-149 to state the acknowledgement boundary the code actually has since PR #306: the native webhook answers LINE once every event is durably captured as raw evidence, and admission runs after the response in the same process. The subject anchor is unchanged and no behaviour changed; the row previously promised admission before acknowledgment, a stronger guarantee than the system gives. ADR-061 D4 amended in the same change. |
 | 1.172.0b | 2026-09-08 | RWANG | Resolve pre-merge collisions with published main d36f9a61: this branch's knowledge admission FR-172 moves to FR-173 and isolated pipeline ADR-071 moves to ADR-073. Main retains FR-172/ADR-071 for CRM. Tooling records the abandoned branch identities and the published trunk declarations; no behavior or protocol changes. |
 | 1.170.0b | 2026-09-07 | RWANG | Approved and locally implemented native SERVER P1 of **ADR-070 / FR-171** Execution Trace & Replay v0.3: one scoped append-only `AgentTraceEvent` journal for native SERVER LINE, exact input snapshots and hashes with retention-aware incomplete playback, owner-only read-only trace route, truthful nullable refs/usage/timestamps/recipient, and explicit MSP/GKS/Edge adapter gates. Native SERVER source and SQLite tests are implemented; external adapters, live Postgres and deployed canary evidence remain pending. |
 | 1.167.0b | 2026-09-07 | Claude Fable 5.1 | ADR-068 (owner-scoped): the pull half of Tier-3 evidence — zuri-ai → MSP → GKS's `gks_stage_evidence_export`, per-scope cursor model `KnowledgeEvidenceCursor` (migration 20260907120000, not applied), four-way row attribution, one operator route; FR-109 AC-109.12 closed with a live three-repository proof. GKS's export (port v3) and MSP's relay built the same day in their own repositories. |
