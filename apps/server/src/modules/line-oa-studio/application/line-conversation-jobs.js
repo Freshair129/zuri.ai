@@ -22,8 +22,9 @@ const runtimeInstanceId = randomUUID()
 const zCompletion = z.object({ version: z.number().int().positive(), text: z.string().trim().min(1).max(5000) }).strict()
 const zFailure = z.object({ version: z.number().int().positive(), code: z.enum(['EXECUTION_FAILED', 'LOCAL_POLICY_UNAVAILABLE']) }).strict()
 const failure = (status, message) => Object.assign(new Error(message), { status })
-const sourceTime = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
-  ? new Date(timestamp).toISOString() : null
+const sourceTimeMs = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
+  ? new Date(timestamp).getTime() : null
+const sourceTime = timestamp => { const ms = sourceTimeMs(timestamp); return ms === null ? null : new Date(ms).toISOString() }
 
 function traceEvent(db, job, kind, key, payload, occurredAt = new Date(), options) {
   return appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
@@ -89,6 +90,12 @@ export async function admitLineConversation({ account, event, correlationId, now
   if (text.length > 10000) throw failure(400, 'LINE_TEXT_TOO_LONG')
   const shouldReply = event.source?.type === 'user' || /ซูริ|zuri/i.test(text)
   const sealed = shouldReply ? sealLineReplyToken(event.replyToken, account.id, env) : null
+  // The reply-token deadline is anchored to when LINE issued the event, not to `now`: this
+  // function runs again on each post-ack retry (+4s, +12s) with a later `now`, and a retry
+  // must not extend a deadline it does not control. Clamp so a skewed/future event.timestamp
+  // cannot push the anchor past our own ingress clock either.
+  const eventTimeMs = sourceTimeMs(event.timestamp)
+  const replyDeadlineAnchorMs = eventTimeMs === null ? ingressReceivedAt.getTime() : Math.min(eventTimeMs, ingressReceivedAt.getTime())
   return atomic(db, async tx => {
     const current = await tx.lineOaAccount.findUnique({ where: { id: account.id } })
     if (!activeAccount(current) || current.transportEpoch !== account.transportEpoch) throw failure(409, 'LINE_ACCOUNT_NOT_SERVER_OWNED')
@@ -106,7 +113,7 @@ export async function admitLineConversation({ account, event, correlationId, now
       transportEpoch: current.transportEpoch, executionMode: current.executionMode,
       modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
-      replyExpiresAt: sealed ? new Date(now.getTime() + 45_000) : null,
+      replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
     } })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'QUEUED',
@@ -205,6 +212,11 @@ export async function admitCapturedLineEvents({
 } = {}) {
   const outcome = { admitted: 0, skipped: 0, failed: 0 }
   for (const { event, rawRecordId } of entries || []) {
+    // Once per entry, before the first attempt (not before each retry): if the process dies
+    // partway through admission, this is what leaves exactly the stranded rows at ADMITTING —
+    // never-attempted rows stay RECEIVED, so the 34 legacy RECEIVED rows from before this change
+    // are not swept up as false positives.
+    await markRawRecord(db, rawRecordId, 'ADMITTING')
     for (let attempt = 0; ; attempt += 1) {
       try {
         const result = await admit({ db, account, event, correlationId, ingressReceivedAt, env })
@@ -375,20 +387,28 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
     receivedProviderResponse = false
     result = { status: method === 'REPLY' ? 'UNKNOWN' : 'RETRYABLE_FAILURE', code: 'LINE_REQUEST_UNCONFIRMED' }
   }
+  // A Reply's dead token is the one PERMANENT_FAILURE worth switching method over: LINE_HTTP_400
+  // means the token itself is confirmed dead, not "some 4xx happened" — 401/403/404/429 are
+  // credential/config errors that would just fail again as Push under a different name. ADR-061
+  // Decision 6 forbids switching method after an ambiguous (UNKNOWN/RETRYABLE_FAILURE-on-Reply)
+  // outcome, since that can double-send; this gate never fires on those.
+  const methodFallbackTo = method === 'REPLY' && result.status === 'PERMANENT_FAILURE'
+    && result.code === 'LINE_HTTP_400' && job.allowDelayedPush === true ? 'PUSH' : null
   const status = result.status === 'ACCEPTED_BY_LINE' ? 'ACCEPTED'
     : result.status === 'UNKNOWN' ? 'UNKNOWN'
-      : result.status === 'RETRYABLE_FAILURE' && method === 'PUSH' ? 'READY' : 'FAILED'
+      : methodFallbackTo || (result.status === 'RETRYABLE_FAILURE' && method === 'PUSH') ? 'READY' : 'FAILED'
   const responseObservedAt = now()
   const changed = await atomic(db, async tx => {
     const updated = await tx.lineConversationJob.updateMany({ where: { id: job.id, status: 'SENDING', claimantId: workerId, version: job.version + 1 },
     data: { status, acceptedAt: status === 'ACCEPTED' ? now() : null,
       providerRequestId: result.requestId ?? null, providerMessageId: result.messageId ?? null,
       errorCode: result.code ?? null, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
+      ...(methodFallbackTo ? { sendMethod: methodFallbackTo } : {}),
       availableAt: new Date(now().getTime() + Math.min(60_000, 1000 * 2 ** Math.min(job.attempts, 6))), version: { increment: 1 } } })
     await traceEvent(tx, job, 'SEND_RESULT', `send:${sendAttemptId}:result`, {
       deliveryId: job.retryKey, sendAttemptId, method, providerOutcome: result.status,
       providerRequestId: result.requestId ?? null, providerMessageId: result.messageId ?? null,
-      errorCode: result.code ?? null,
+      errorCode: result.code ?? null, methodFallbackTo,
       providerResponseReceivedAt: receivedProviderResponse && result.requestId ? responseObservedAt.toISOString() : null,
       outcomeObservedAt: responseObservedAt.toISOString(),
       stateApplied: updated.count > 0, recipientDeliveredAt: null, recipientReadAt: null,

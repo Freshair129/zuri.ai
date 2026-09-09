@@ -10711,7 +10711,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "be36eb3d",
+      "hash": "bd2aad4b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -24546,7 +24546,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "81807e1c",
+      "hash": "de60238a",
       "status": "current"
     },
     {
@@ -25790,7 +25790,7 @@
       "id": "test:tests/integration/server-line-jobs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
-      "hash": "cf437d40",
+      "hash": "f7ae2278",
       "status": "current"
     },
     {
@@ -27316,7 +27316,7 @@
       "id": "test:tests/unit/line-admission-after-ack.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
-      "hash": "81289714",
+      "hash": "85d0ae56",
       "status": "current"
     },
     {
