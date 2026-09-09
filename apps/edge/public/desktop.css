@@ -648,6 +648,11 @@ body[data-text-zoom="true"] #aiHome.compact-steps[data-provider="claude"][data-c
 body[data-compact="true"] #hardwarePage .subpage-heading > div { display: none; }
 body[data-text-zoom="true"] #overviewHome.compact-steps .hardware-summary-grid { display: none; }
 body[data-text-zoom="true"] #overviewHome.compact-steps .prerequisite-card .card-heading { display: none; }
+/* The summary card gained a "ดูบันทึกการทำงาน" row, and at 200% text on 640x480 that row fell
+   past the card's own bottom edge — the bounds contract caught it before the operator did.
+   Shed what the prerequisite card already sheds here: the heading is the one line the hero
+   immediately below it repeats, in larger type. */
+body[data-text-zoom="true"] #overviewHome.compact-steps .summary-card .card-heading { display: none; }
 
 body[data-text-zoom="true"][data-compact="true"] #settingsHome .eyebrow,
 body[data-text-zoom="true"][data-compact="true"] #settingsHome .panel-description,
