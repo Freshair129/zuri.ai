@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-09T11:29:46.750Z",
+  "generatedAt": "2026-09-09T15:44:24.355Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1038,7 +1038,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-147",
@@ -1420,7 +1420,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-148",
@@ -1825,18 +1825,11 @@
           "testCount": 6
         },
         {
-          "id": "FR-144",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 16
-        },
-        {
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-149",
@@ -2508,7 +2501,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 30,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-149",
@@ -3899,7 +3892,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-149",
@@ -5762,7 +5755,6 @@
         "agent",
         "asset-management",
         "identity",
-        "integration",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจออกกุญแจให้ Zuri Edge Device ของตนเองหนึ่งครั้ง แล้วอุปกรณ์ที่หน้างานดึงงานอ่านหลักฐานทรัพย์สินไปประมวลผลด้วยโมเดลในเครื่องตนเอง ส่งผลกลับมาให้คนตรวจในหน้าเดิม โดยคลาวด์ไม่เก็บ API key ของผู้ให้บริการและไม่เก็บความลับของอุปกรณ์",
@@ -5784,12 +5776,11 @@
           "id": "FR-144",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
+          "codeCount": 19,
           "testCount": 16
         }
       ],
       "evidence": [
-        "apps/server/src/app/(pm)/platform/integrations/page.jsx",
         "apps/server/src/app/api/agent/heartbeat/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extraction-job/route.js",
@@ -5833,9 +5824,9 @@
         "apps/server/tests/unit/edge-pairing-download.test.js",
         "apps/server/tests/unit/edge-pairing-routes.test.js",
         "apps/server/tests/unit/edge-pairing.test.js",
-        "apps/server/tests/unit/fr080-ui-contract.test.js",
         "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
-        "apps/server/tests/unit/line-registry-service.test.js"
+        "apps/server/tests/unit/integrations-page-claims.test.js",
+        "apps/server/tests/unit/line-studio-edge-connection-render.test.js"
       ]
     },
     {
@@ -5872,7 +5863,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 38,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-147",
@@ -5994,6 +5985,7 @@
         "apps/server/tests/unit/line-oa-rich-menu-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-schema-contract.test.js",
         "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+        "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js"

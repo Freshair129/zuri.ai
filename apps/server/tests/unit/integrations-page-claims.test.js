@@ -6,7 +6,10 @@ import { describe, expect, it } from 'vitest'
 //   FR-130 removed hardcoded 'CONNECTED' badges for connectors that did not exist;
 //   five more claims of the same kind survived on the same page and were found
 //   live on production 2026-09-04.
-// @req FR-141 — the edge device strip may show only what the heartbeat reports.
+// @req FR-144 — the Integrations page no longer offers its own Edge Device
+//   pairing/heartbeat panel; that surface now lives only on LINE OA Studio's
+//   Edge Connection page (owner instruction 2026-09-09: one pairing surface,
+//   not two duplicate/divergent ones).
 // @spec SDD-076
 // @tested this file
 //
@@ -19,28 +22,19 @@ const shipped = (source) => source.replace(/\{?\/\*[\s\S]*?\*\/\}?/g, '').replac
 const PAGE = 'src/app/(pm)/platform/integrations/page.jsx'
 const SERVICE = 'src/modules/integration/application/line-registry-service.js'
 
-describe('the edge device strip shows only what the device reported', () => {
+describe('the Edge Device pairing/heartbeat panel never comes back to this page', () => {
   const page = shipped(src(PAGE))
 
-  it('names no engine, model or RAG stack the heartbeat does not carry', () => {
-    // zEdgeDeviceHeartbeat has contractVersion, businessId, deviceId, deviceToken,
-    // status, registeredQueries, approvedTemplates, timestamp. No engine. No model.
-    expect(page).not.toMatch(/GenesisBlock/)
-    expect(page).not.toMatch(/Codex Luna|gpt-5\.6-luna/)
-    expect(page).not.toMatch(/RAG Engine/)
-    expect(page).not.toMatch(/Zero Token Cost/)
-  })
-
-  it('reads no field the heartbeat contract does not define', () => {
-    // `device?.engine || 'literal'` is worse than a plain literal: the fallback
-    // ran every time while reading like a derived value.
-    expect(page).not.toMatch(/device\?\.engine/)
-    expect(page).not.toMatch(/device\?\.model/)
-  })
-
-  it('shows the counts the device actually sends', () => {
-    expect(page).toMatch(/device\?\.registeredQueries\?\.length/)
-    expect(page).toMatch(/device\?\.approvedTemplates\?\.length/)
+  it('has no EDGE_LLM tab, mint form or heartbeat strip', () => {
+    // Both used to live here: a heartbeat-driven online/offline strip (FR-141)
+    // and a client-built pairing-key mint form (FR-144). Both now live only on
+    // LINE OA Studio's Edge Connection page — a second copy on this page would
+    // silently drift from the tested, canonical mint shape (edgePairingDownload).
+    expect(page).not.toMatch(/EDGE_LLM/)
+    expect(page).not.toMatch(/generateNewPairingKeys/)
+    expect(page).not.toMatch(/Zero-Trust Edge Device Pairing Generator/)
+    expect(page).not.toMatch(/edgePairingDownload/)
+    expect(page).not.toMatch(/api\/agent\/heartbeat/)
   })
 })
 
@@ -80,30 +74,6 @@ describe('stored automation jobs survive a save that does not mention them', () 
 
   it('falls back to what the row already holds', () => {
     expect(service).toMatch(/validated\.automationJobs \?\? storedAutomationJobs\(existing\)/)
-  })
-})
-
-describe('the pairing panel describes the credential it actually mints', () => {
-  const page = shipped(src(PAGE))
-
-  it('no longer describes a two-part token and HMAC secret', () => {
-    // PR #213 replaced that scheme with a single `edgk_` bearer.
-    expect(page).not.toMatch(/Pairing Token \(Public Identifier\)/)
-    expect(page).not.toMatch(/HMAC/)
-  })
-
-  it('no longer promises the download is limited to one attempt', () => {
-    // Nothing limited it: downloadPairingJson builds a Blob from React state and
-    // the button can be pressed repeatedly. A security assurance nothing enforced.
-    expect(page).not.toMatch(/ดาวน์โหลดไฟล์ <code>\.json<\/code> ได้เพียง 1 ครั้ง/)
-  })
-
-  it('states the true one-shot property — the key itself is shown once', () => {
-    expect(page).toMatch(/แสดงค่าจริงครั้งเดียวเท่านั้น/)
-  })
-
-  it('still mints through the server, not in the browser', () => {
-    expect(page).toContain("fetch('/api/platform/edge-devices/credentials'")
   })
 })
 
