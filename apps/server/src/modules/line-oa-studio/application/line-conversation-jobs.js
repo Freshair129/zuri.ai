@@ -168,6 +168,70 @@ async function claimExecution({ db, executionMode, claimantId, deviceContext, no
   return null
 }
 
+// Statuses that mean "this event will fail the same way on every attempt".
+const DETERMINISTIC_ADMISSION = [400, 403, 404, 409, 413]
+// Retry schedule for admission that happens after LINE has already been answered.
+//
+// Bounded by the reply token, not by optimism: LINE's token is valid for about a minute, so an
+// admission that only succeeds after that can no longer reply — it would have to push, which is a
+// different contract and a different quota. Three attempts inside ~20s stay well within the token's
+// life; past that, failing loudly is more honest than admitting a job that cannot answer.
+const ADMISSION_RETRY_DELAYS_MS = [4_000, 12_000]
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+async function markRawRecord(db, rawRecordId, processingStatus, processingError = null) {
+  if (!rawRecordId) return
+  // Never fatal: the evidence row is already durable, and losing its label must not lose the
+  // admission that succeeded. The label exists so an operator can find events that never landed.
+  try {
+    await db.rawExternalRecord.update({
+      where: { id: rawRecordId },
+      data: { processingStatus, processingError: processingError ? String(processingError).slice(0, 500) : null },
+    })
+  } catch { /* label only */ }
+}
+
+/**
+ * Admit events that have already been captured as evidence and acknowledged to LINE.
+ *
+ * @req FR-149 — admission is durable, but it is no longer what LINE waits for. The webhook answers
+ *   once the event is recorded; this runs afterwards in the same process.
+ * @spec ADR-061 — a device never sends; admission still owns the queue and the CRM write.
+ */
+export async function admitCapturedLineEvents({
+  account, entries, correlationId, ingressReceivedAt, db = prisma,
+  admit = admitLineConversation, env = process.env, delays = ADMISSION_RETRY_DELAYS_MS,
+} = {}) {
+  const outcome = { admitted: 0, skipped: 0, failed: 0 }
+  for (const { event, rawRecordId } of entries || []) {
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        const result = await admit({ db, account, event, correlationId, ingressReceivedAt, env })
+        const skipped = Boolean(result?.skipped) && !result?.jobId
+        outcome[skipped ? 'skipped' : 'admitted'] += 1
+        await markRawRecord(db, rawRecordId, skipped ? 'SKIPPED' : 'ADMITTED')
+        break
+      } catch (error) {
+        const deterministic = DETERMINISTIC_ADMISSION.includes(error?.status)
+        const last = deterministic || attempt >= delays.length
+        // DIAGNOSTIC ONLY: status/code/name/message and a short stack, never event material.
+        console.error(JSON.stringify({
+          scope: 'line-admission-after-ack', correlationId, attempt: attempt + 1,
+          willRetry: !last, status: error?.status ?? null, code: error?.code ?? null,
+          name: error?.name ?? null, message: error?.message ?? null,
+          stack: (error?.stack ?? '').split('\n').slice(0, 3).join(' | '),
+        }))
+        if (!last) { await wait(delays[attempt]); continue }
+        outcome[deterministic ? 'skipped' : 'failed'] += 1
+        await markRawRecord(db, rawRecordId, deterministic ? 'SKIPPED' : 'FAILED', error?.code || error?.message)
+        break
+      }
+    }
+  }
+  return outcome
+}
+
 export async function claimEdgeConversation({ deviceContext, db = prisma, now = new Date() }) {
   if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
   // The route re-resolves the active credential on every call; maintenance has no payload output.

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { serverLinePorts } from '@/modules/line-oa-studio/application/server-line-runtime'
-import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { admitCapturedLineEvents } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { verifyServerLineWebhook } from '@/platform/integrations/providers/line/server-line-transport'
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
@@ -28,10 +28,8 @@ async function boundedBody(request) {
   } finally { reader.releaseLock() }
 }
 export const dynamic = 'force-dynamic'
-// Statuses that mean "this event will fail the same way next time".
-const DETERMINISTIC = [400, 403, 404, 409, 413]
 export function createServerLineWebhookPost({ db = prisma, ports = serverLinePorts,
-  evidenceFactory = createLineOaEvidenceRecorder, admit = admitLineConversation } = {}) {
+  evidenceFactory = createLineOaEvidenceRecorder, admitCaptured = admitCapturedLineEvents } = {}) {
   return async (request, { params }) => {
     const ingressReceivedAt = new Date()
     const { correlationId } = resolveCorrelationId(request.headers)
@@ -42,39 +40,57 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       const body = verifyServerLineWebhook({ rawBody: bytes, signature: request.headers.get('x-line-signature'), account })
       const evidence = await evidenceFactory({ db, tenantId: account.tenantId, businessId: account.businessId, destination: account.destination })
       if (!evidence || evidence.connectionId !== account.connectionId) throw new Error('LINE_EVIDENCE_UNAVAILABLE')
-      // One event must not discard its neighbours. A deterministic rejection
-      // (4xx — an identity conflict on one user, an over-long text) fails
-      // identically on every redelivery, so aborting the batch means every
-      // later event in it is never admitted at all: other customers' messages
-      // are lost while the endpoint merely looks unhealthy. Skip those and keep
-      // going. An ambiguous failure still returns non-2xx after the whole batch
-      // is attempted, because redelivery is the only way to recover it — and
-      // both `record` and `admit` are idempotent on redelivery, the property
-      // the partial-batch replay test already pins.
+      // What LINE waits for is durable capture, not admission.
+      //
+      // Admission runs ~25-30 sequential queries against a remote Postgres and took 7-11 s here,
+      // far past what LINE waits for: measured on production 2026-09-09, the first delivery of a
+      // new message got no response at all, and LINE redelivered the same webhookEventId four
+      // times at 62 s intervals (`isRedelivery: true`). The owner still saw exactly one reply —
+      // record and admit are both idempotent — but every genuinely new message was reported to
+      // LINE as a failed delivery, and the retries only answered fast because they deduped.
+      //
+      // So the acknowledgement boundary moves to the write that makes the event unloseable. Each
+      // event is recorded as evidence first; a capture failure still returns non-2xx, because
+      // redelivery remains the only recovery for an event we never stored. Once stored, LINE is
+      // answered and admission continues in this process. That is safe here specifically because
+      // ADR-058 replaced Vercel with a long-lived Node container — on a serverless runtime the
+      // response would end the execution and this would silently drop work.
+      //
+      // One event must not discard its neighbours, so a failure here is counted and the loop
+      // continues. Classifying admission failures — which are deterministic, which are worth
+      // retrying — now belongs to the service that admits them, not to this loop.
       let unresolved = 0
-      let skipped = 0
+      const captured = []
       for (const event of body.events) {
         try {
-          await evidence.record({ body, event })
-          await admit({ db, account, event, correlationId, ingressReceivedAt })
+          const record = await evidence.record({ body, event })
+          captured.push({ event, rawRecordId: record?.rawRecordId ?? null })
         } catch (error) {
-          if (DETERMINISTIC.includes(error?.status)) skipped += 1
-          else unresolved += 1
+          unresolved += 1
           // DIAGNOSTIC ONLY (2026-09-08): no event material, no secrets — status/code/
-          // name/message and a short stack excerpt, so a silent admission failure is
+          // name/message and a short stack excerpt, so a silent capture failure is
           // not invisible to the operator. This path swallowed every error before.
           console.error(JSON.stringify({
-            scope: 'line-webhook-event-admission', correlationId,
+            scope: 'line-webhook-event-capture', correlationId,
             status: error?.status ?? null, code: error?.code ?? null,
             name: error?.name ?? null, message: error?.message ?? null,
             stack: (error?.stack ?? '').split('\n').slice(0, 3).join(' | '),
           }))
         }
       }
+      // Deliberately not awaited — this is the whole point. Its own failures are logged and
+      // labelled on the evidence row; nothing here can reject into the response path. It runs even
+      // when a sibling failed to record, so one unstorable event does not hold up the rest.
+      if (captured.length) {
+        const admission = admitCaptured({ db, account, entries: captured, correlationId, ingressReceivedAt })
+        if (typeof admission?.catch === 'function') admission.catch(() => {})
+      }
+      // An event we could not store is only recoverable through redelivery, so it alone decides
+      // the status code. Its captured siblings are already admitted above, and both record and
+      // admit are idempotent, so the redelivery that follows costs a duplicate of nothing.
       if (unresolved) return NextResponse.json({ error: 'LINE_WEBHOOK_NOT_ACCEPTED', correlationId }, { status: 503 })
-      // `skipped` is a count, never event material — the one signal an operator
-      // gets that admitted events are fewer than delivered ones.
-      return NextResponse.json({ accepted: true, correlationId, ...(skipped ? { skipped } : {}) })
+      // `captured` is a count, never event material.
+      return NextResponse.json({ accepted: true, correlationId, captured: captured.length })
     } catch (error) {
       // Do not echo parser/provider errors or event material. Non-2xx asks LINE to redeliver.
       const status = [400,401,403,404,409,413,503].includes(error?.status) ? error.status : 503
