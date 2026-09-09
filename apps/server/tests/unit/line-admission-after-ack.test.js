@@ -276,3 +276,44 @@ describe('replyExpiresAt is anchored to the event, not to now', () => {
     expect(createdReplyExpiresAt(tx)).toEqual(new Date(ingressReceivedAt.getTime() + 45_000))
   })
 })
+
+describe('waking the worker once the job actually exists', () => {
+  // The ticker backs off while the queue is quiet, which is only affordable because admission says
+  // "something landed" the moment it does. This is an optimisation and nothing more: the ticker's
+  // own loop remains the correctness floor, which is why every failure here is swallowed on purpose.
+  it('wakes the worker once per batch, not once per event', async () => {
+    const { db } = dbDouble()
+    const nudge = vi.fn()
+    const admit = vi.fn().mockResolvedValue({ jobId: 'job-1', created: true })
+
+    const outcome = await admitCapturedLineEvents({
+      account, entries: [entry('a'), entry('b'), entry('c')], db, admit, nudge,
+    })
+
+    // It fires after the loop, so by then all three jobs are queued and one wake finds them all.
+    expect(outcome.admitted).toBe(3)
+    expect(nudge).toHaveBeenCalledTimes(1)
+  })
+
+  it('stays silent when nothing was admitted', async () => {
+    const { db } = dbDouble()
+    const nudge = vi.fn()
+    const admit = vi.fn().mockRejectedValue(Object.assign(new Error('LINE_TEXT_TOO_LONG'), { status: 400 }))
+
+    const outcome = await admitCapturedLineEvents({ account, entries: [entry()], db, admit, nudge, delays: [0, 0] })
+
+    expect(outcome).toEqual({ admitted: 0, skipped: 1, failed: 0 })
+    expect(nudge).not.toHaveBeenCalled()
+  })
+
+  it('never lets a failed wake-up turn a successful admission into a failure', async () => {
+    // The job is durable and the ticker will find it regardless, so a broken nudge costs latency
+    // and nothing else. Anything stronger would make an optimisation able to lose work.
+    const { db } = dbDouble()
+    const nudge = vi.fn(() => { throw new Error('WORKER_UNREACHABLE') })
+    const admit = vi.fn().mockResolvedValue({ jobId: 'job-1', created: true })
+
+    await expect(admitCapturedLineEvents({ account, entries: [entry()], db, admit, nudge }))
+      .resolves.toEqual({ admitted: 1, skipped: 0, failed: 0 })
+  })
+})

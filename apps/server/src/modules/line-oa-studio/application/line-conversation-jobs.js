@@ -187,6 +187,31 @@ const ADMISSION_RETRY_DELAYS_MS = [4_000, 12_000]
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+/**
+ * Tell the worker endpoint that something just landed, so the answer does not wait for the next poll.
+ *
+ * This is an optimisation and nothing more. The ticker's own loop remains the correctness floor: a
+ * nudge that never arrives costs latency, never a lost job — which is why every failure here is
+ * swallowed and why the caller does not await it.
+ *
+ * It is the same authenticated, bounded endpoint the ticker calls, on the same bearer, so it adds no
+ * execution path and no new authority. `ZURI_LINE_WORKER_URL` is unset on the web container, hence
+ * the loopback default; the URL is validated exactly as the ticker validates its own, so a
+ * mis-set variable cannot turn admission into a request to somewhere else.
+ */
+function nudgeWorker(env) {
+  const token = env.ZURI_LINE_WORKER_TOKEN
+  if (!token || token.length < 32) return
+  let url
+  try { url = new URL(env.ZURI_LINE_WORKER_URL || `http://127.0.0.1:${env.PORT || 3000}/api/line-oa/worker`) } catch { return }
+  if (url.username || url.password || url.pathname !== '/api/line-oa/worker'
+    || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['web', 'localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))) return
+  fetch(url, { method: 'POST', redirect: 'error', headers: { authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(240_000) })
+    .then(response => response.body?.cancel())
+    .catch(() => {})
+}
+
 async function markRawRecord(db, rawRecordId, processingStatus, processingError = null) {
   if (!rawRecordId) return
   // Never fatal: the evidence row is already durable, and losing its label must not lose the
@@ -208,7 +233,7 @@ async function markRawRecord(db, rawRecordId, processingStatus, processingError 
  */
 export async function admitCapturedLineEvents({
   account, entries, correlationId, ingressReceivedAt, db = prisma,
-  admit = admitLineConversation, env = process.env, delays = ADMISSION_RETRY_DELAYS_MS,
+  admit = admitLineConversation, env = process.env, delays = ADMISSION_RETRY_DELAYS_MS, nudge = nudgeWorker,
 } = {}) {
   const outcome = { admitted: 0, skipped: 0, failed: 0 }
   for (const { event, rawRecordId } of entries || []) {
@@ -241,6 +266,10 @@ export async function admitCapturedLineEvents({
       }
     }
   }
+  // After the loop, not inside it: a batch of five events should wake the worker once, and by then
+  // every job it will find is already queued. Guarded because this is an optimisation sitting at the
+  // end of a durable operation — nothing it can do may turn an admitted job into a failed call.
+  if (outcome.admitted) { try { nudge(env) } catch { /* the ticker is the floor */ } }
   return outcome
 }
 
@@ -315,28 +344,98 @@ async function reconcileAccepted(db, job) {
   })
 }
 
-/** One bounded tick. No fire-and-forget task lives inside the webhook process. */
+// How many SERVER answers one tick may have in flight at once.
+//
+// It was one until 2026-09-10, and one job per tick is what made a quiet queue feel slow: the model
+// call happens inside the tick, so two customers who wrote at the same moment were answered strictly
+// one after the other — the second waiting for the first's entire answer, up to the ticker's 240 s
+// request timeout. The queue was never the constraint. ADR-061 D6 has required compare-and-set
+// versions and bounded leases from the day it was written, precisely so more than one claimant is
+// safe, and `claimExecution` already reads 20 candidate rows and claims atomically. Only the shape
+// of this loop held the concurrency at one.
+//
+// Four, not twenty: every answer is a metered model call, so a tick that suddenly finds a backlog
+// should cost a bounded amount rather than whatever the backlog happens to be.
+const EXECUTION_CONCURRENCY = 4
+// How many READY jobs one tick may send. Sends stay strictly sequential: each is a single HTTPS call
+// that returns in well under a second, and LINE rate-limits per account — parallelism here would buy
+// latency nobody is waiting on and earn 429s we would then have to retry.
+const SEND_BATCH = 5
+
+/** Deployment overrides are operator input: accept a sane integer, ignore anything else. */
+const boundedCount = (value, fallback) => {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 50 ? parsed : fallback
+}
+
+/**
+ * Answer one claimed job and settle it.
+ *
+ * Returns a result only when the job ended FAILED; `null` means it settled READY and the send phase
+ * of this same tick will pick it up. Errors from `settleExecution` itself still propagate, exactly
+ * as they did when this was inline: a job that cannot be settled is not a job that quietly failed.
+ */
+async function executeClaimed({ db, answer, execution, claimantId, now }) {
+  try {
+    const response = await answer(execution, { trace: createLineExecutionTrace({ db, job: execution }) })
+    const text = zCompletion.shape.text.parse(response?.text ?? response)
+    await settleExecution(execution.id, { version: execution.version, text }, { db, claimantId, now: now() })
+    return null
+  } catch (error) {
+    if (error.status !== 409) await settleExecution(execution.id, { version: execution.version, code: 'EXECUTION_FAILED',
+      traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE'].includes(error.code) ? error.code : null },
+    { db, claimantId, now: now() })
+    return { id: execution.id, status: 'FAILED' }
+  }
+}
+
+/**
+ * One bounded tick: reconcile an accepted send, answer up to `executionConcurrency` jobs in
+ * parallel, then send up to `sendBatch` ready answers in order.
+ *
+ * Returns the last unit's result — unchanged in shape from when a tick did exactly one thing — with
+ * `executed`/`sent` counts added. A tick that found nothing still returns exactly `{ status: 'IDLE' }`,
+ * because that is the signal the ticker backs off on.
+ */
 export async function runLineConversationWorker({ db = prisma, answer, resolveAccount, replyTransport, pushTransport,
-  env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}` }) {
+  env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
+  executionConcurrency = boundedCount(env.ZURI_LINE_WORKER_EXECUTION_CONCURRENCY, EXECUTION_CONCURRENCY),
+  sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
   await maintenance(db, now())
   const accepted = await db.lineConversationJob.findFirst({ where: { status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
   if (accepted) return reconcileAccepted(db, accepted)
-  const execution = await claimExecution({ db, executionMode: 'SERVER', claimantId: workerId, now: now() })
-  if (execution) {
-    try {
-      const response = await answer(execution, { trace: createLineExecutionTrace({ db, job: execution }) })
-      const text = zCompletion.shape.text.parse(response?.text ?? response)
-      await settleExecution(execution.id, { version: execution.version, text }, { db, claimantId: workerId, now: now() })
-    } catch (error) {
-      if (error.status !== 409) await settleExecution(execution.id, { version: execution.version, code: 'EXECUTION_FAILED',
-        traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE'].includes(error.code) ? error.code : null },
-      { db, claimantId: workerId, now: now() })
-      return { id: execution.id, status: 'FAILED' }
-    }
+  // Claiming is sequential and cheap; answering is what takes seconds, so only that runs in parallel.
+  const claims = []
+  for (let index = 0; index < executionConcurrency; index += 1) {
+    // The first claimant keeps the plain worker id, so a tick that finds one job behaves — and
+    // records — exactly as it did before this became a batch.
+    const claimantId = index === 0 ? workerId : `${workerId}#${index}`
+    const claimed = await claimExecution({ db, executionMode: 'SERVER', claimantId, now: now() })
+    if (!claimed) break
+    claims.push({ execution: claimed, claimantId })
   }
-  const job = await db.lineConversationJob.findFirst({ where: { status: 'READY', availableAt: { lte: now() } },
-    include: { account: true }, orderBy: { createdAt: 'asc' } })
-  if (!job) return { status: 'IDLE' }
+  let last = null
+  if (claims.length) {
+    // allSettled, not all: one job whose settle write fails must not abandon its siblings midway.
+    // The rejection is still raised after they finish, so a broken settle path stays loud.
+    const settled = await Promise.allSettled(claims.map(claim => executeClaimed({ db, answer, now, ...claim })))
+    const rejected = settled.find(outcome => outcome.status === 'rejected')
+    if (rejected) throw rejected.reason
+    last = settled.map(outcome => outcome.value).filter(Boolean).pop() ?? null
+  }
+  const ready = await db.lineConversationJob.findMany({ where: { status: 'READY', availableAt: { lte: now() } },
+    include: { account: true }, orderBy: { createdAt: 'asc' }, take: sendBatch })
+  if (!ready.length) return last ? { ...last, executed: claims.length, sent: 0 } : { status: 'IDLE' }
+  let sent = 0
+  for (const job of ready) {
+    last = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now })
+    sent += 1
+  }
+  return { ...last, executed: claims.length, sent }
+}
+
+/** Send one READY job and record the outcome. Split out of the tick when it became a batch. */
+async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now }) {
   if (!activeAccount(job.account, job)) {
     await db.lineConversationJob.updateMany({ where: { id: job.id, version: job.version }, data: { status: 'CANCELLED', sealedReplyToken: null, version: { increment: 1 } } })
     return { id: job.id, status: 'CANCELLED' }

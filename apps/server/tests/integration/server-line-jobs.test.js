@@ -324,7 +324,11 @@ describe('server transport and acceptance recovery', () => {
 
 
 describe('operational closure and restart recovery', () => {
-  it('isolates a pre-send credential failure so another business can send on the next tick', async () => {
+  it('isolates a pre-send credential failure so another business still sends in the same tick', async () => {
+    // The property under test — one revoked OA cannot starve the shared queue — is unchanged. What
+    // moved is how strongly it holds: this said "on the next tick" until 2026-09-10, because a tick
+    // sent exactly one job and the poisoned one consumed it. Now the batch steps over the failure
+    // and the healthy business is served without waiting for another round.
     const brokenAccount = await account()
     const healthyAccount = await account({ businessId: businessB.id })
     const broken = await admit(brokenAccount, event('poison-credential'))
@@ -333,10 +337,10 @@ describe('operational closure and restart recovery', () => {
       if (id === brokenAccount.id) throw new Error('sensitive revoked credential')
       return prisma.lineOaAccount.findUnique({ where: { id } })
     }) })
-    await runLineConversationWorker(options)
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthy.jobId, status: 'RECORDED', sent: 2 })
     expect(await row(broken.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_ACCOUNT_UNAVAILABLE', attempts: 0 })
-    expect(options.replyTransport.send).not.toHaveBeenCalled()
-    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthy.jobId, status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect(await runLineConversationWorker(options)).toEqual({ status: 'IDLE' })
     expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
     expect(JSON.stringify(await row(broken.jobId))).not.toContain('sensitive revoked credential')
   })
@@ -452,4 +456,83 @@ describe('operational closure and restart recovery', () => {
     expect(options.pushTransport.send).not.toHaveBeenCalled()
   })
 
+})
+
+describe('one tick serves more than one customer', () => {
+
+  // Until 2026-09-10 a tick claimed exactly one job, ran the model call inside itself, and
+  // returned. Two people who wrote at the same moment were therefore answered strictly in series:
+  // the second waited out the first's entire answer, up to the ticker's 240 s request timeout. The
+  // durable side was never the limit — ADR-061 D6 has required compare-and-set versions and bounded
+  // leases from the start, and `claimExecution` already read twenty candidates.
+  it('answers concurrently — the second customer no longer waits out the first', async () => {
+    const oa = await account()
+    const admitted = await Promise.all(['fan-a', 'fan-b', 'fan-c'].map(id => admit(oa, event(id))))
+    let started = 0
+    let openGate
+    const gate = new Promise(resolve => { openGate = resolve })
+    // Each answer refuses to finish until all three have begun. Under the old serial tick the first
+    // answer could never be released, because nothing else was able to start while it was awaited —
+    // so this test fails (loudly, not by hanging) the moment execution stops overlapping.
+    const allStarted = Promise.race([gate, new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('EXECUTION_DID_NOT_OVERLAP')), 5_000).unref?.()
+    })])
+    const options = worker({ answer: vi.fn(async () => {
+      started += 1
+      if (started === 3) openGate()
+      await allStarted
+      return { text: 'answer from the server' }
+    }) })
+    const result = await runLineConversationWorker(options)
+    expect(started).toBe(3)
+    expect(options.answer).toHaveBeenCalledTimes(3)
+    expect(result).toMatchObject({ executed: 3, sent: 3 })
+    // All three were answered and delivered inside the one tick, not one per tick.
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(3)
+    for (const job of admitted) expect(await row(job.jobId)).toMatchObject({ status: 'RECORDED', attempts: 1 })
+  })
+
+  it('honours the configured ceilings rather than draining whatever the backlog happens to be', async () => {
+    // Every answer is a metered model call, so a tick that walks into a backlog must cost a bounded
+    // amount. Six waiting, two allowed: exactly two answered, and — because only those two became
+    // READY — exactly two sent.
+    const oa = await account()
+    const ids = ['cap-a', 'cap-b', 'cap-c', 'cap-d', 'cap-e', 'cap-f']
+    await Promise.all(ids.map(id => admit(oa, event(id))))
+    const options = worker({ executionConcurrency: 2, sendBatch: 2 })
+    expect(await runLineConversationWorker(options)).toMatchObject({ executed: 2, sent: 2 })
+    expect(options.answer).toHaveBeenCalledTimes(2)
+    expect(await prisma.lineConversationJob.count({ where: { accountId: oa.id, status: 'QUEUED' } })).toBe(4)
+  })
+
+  it('rejects a nonsense override instead of letting a typo set the concurrency', async () => {
+    // These are deployment environment variables, i.e. operator input, and `Number('')` is 0.
+    const oa = await account()
+    await admit(oa, event('override-guard'))
+    const options = worker({ env: { ...env, ZURI_LINE_WORKER_EXECUTION_CONCURRENCY: '', ZURI_LINE_WORKER_SEND_BATCH: 'lots' } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ executed: 1, sent: 1 })
+  })
+
+  it('still reports an empty queue as exactly IDLE, because that is what the ticker backs off on', async () => {
+    expect(await runLineConversationWorker(worker())).toEqual({ status: 'IDLE' })
+  })
+
+  it('does not abandon the rest of the batch when the first answer fails', async () => {
+    // The old tick returned the moment an answer threw, so a model outage while customer A was
+    // being served left customer B untouched until the next tick — and the tick after that, if A
+    // was still first in line. Now the failure is settled onto its own job and the batch continues.
+    const oa = await account()
+    const first = await admit(oa, event('mixed-a'))
+    const second = await admit(oa, event('mixed-b'))
+    const options = worker({ answer: vi.fn(async job => {
+      if (job.inbound.body.includes('mixed-a')) throw new Error('MODEL_UNAVAILABLE')
+      return { text: 'answer from the server' }
+    }) })
+    const result = await runLineConversationWorker(options)
+    expect(options.answer).toHaveBeenCalledTimes(2)
+    expect(result).toMatchObject({ executed: 2, sent: 1 })
+    expect(await row(first.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'EXECUTION_FAILED' })
+    expect(await row(second.jobId)).toMatchObject({ status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+  })
 })
