@@ -4234,7 +4234,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "23175d2f",
+      "hash": "f0de0f02",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10695,7 +10695,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "fe68d03c",
+      "hash": "bd2aad4b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14684,7 +14684,7 @@
       "id": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
-      "hash": "fd8c2010",
+      "hash": "e1dadbb6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14794,7 +14794,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.54.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "81b36c7a",
+      "hash": "5894c17f",
       "status": "current"
     },
     {
@@ -16473,7 +16473,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
-      "hash": "ca450ad0",
+      "hash": "9a3ca292",
       "status": "current"
     },
     {
@@ -16793,7 +16793,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "44c461de",
+      "hash": "0019d61e",
       "status": "current"
     },
     {
@@ -17073,7 +17073,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "ea5560af",
+      "hash": "ccce76a3",
       "status": "current"
     },
     {
@@ -17232,7 +17232,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "8b595a8d",
+      "hash": "9a5863c3",
       "status": "current"
     },
     {
@@ -20051,11 +20051,11 @@
       "id": "req:FR-149",
       "type": "requirement",
       "family": "FR",
-      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
     },
     {
       "id": "req:FR-150",
@@ -24522,7 +24522,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "81807e1c",
+      "hash": "471a0e66",
       "status": "current"
     },
     {
@@ -25766,7 +25766,7 @@
       "id": "test:tests/integration/server-line-jobs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
-      "hash": "cf437d40",
+      "hash": "f7ae2278",
       "status": "current"
     },
     {
@@ -25780,7 +25780,7 @@
       "id": "test:tests/integration/server-line-webhook.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-webhook.test.js",
-      "hash": "cad133e8",
+      "hash": "0420fdcc",
       "status": "current"
     },
     {
@@ -27286,6 +27286,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-activation-contract.test.js",
       "hash": "fce66170",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-admission-after-ack.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
+      "hash": "85d0ae56",
       "status": "current"
     },
     {
@@ -28811,7 +28818,7 @@
       "source_path": "docs/CONVERSATIONAL-ANSWER-SPEC.md",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "3606f1e05a16",
-      "content_sha256": "7bf1bb164aadd5a435cb05bfc0d668f541a32c75f284dfcc0ff253b109ff32d7",
+      "content_sha256": "49e01a859b776cba709147cc586b45632dc650afad3a42b590927414118f50f4",
       "source_id": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md"
     },
     {
@@ -29219,7 +29226,7 @@
       "source_path": "docs/SERVER-LINE-OPTIONAL-EDGE.md",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "5a4bdb6ac6dd",
-      "content_sha256": "84f051f4bced9bfd7b559c085fcd7dba90707d843c460d2d3d4d564302fac9bf",
+      "content_sha256": "1182e25feadc15d9f18d7794cc93eb0ff8fa75b21f3a044ad9b20836ac852f9e",
       "source_id": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md"
     },
     {
@@ -29375,7 +29382,7 @@
       "source_path": "src/answer/respond.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "1245f9aa107e",
-      "content_sha256": "1daf8e3e7efc5fa441a63b51c69a5a518cf0acd395498770c77edcdde190630c",
+      "content_sha256": "56eaea613437d1595f4736ac21b94f73b63c17ea448d566f81114c2665997d63",
       "source_id": "code:src/answer/respond.ts"
     },
     {
@@ -29471,7 +29478,7 @@
       "source_path": "src/conversation/contract.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "a154efa1b857",
-      "content_sha256": "0b7cb39292804fd25752a2e6020483e36fd4412f868c48889b9aea65473a159f",
+      "content_sha256": "330946dd4c7f916d4413b56627787508bb6ad3fe05cdab4b251831d7da143ee0",
       "source_id": "code:src/conversation/contract.ts"
     },
     {
@@ -29483,7 +29490,7 @@
       "source_path": "src/conversation/executor.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "b00005c7d857",
-      "content_sha256": "31af09b7cc1e66070c4896c76d8c42a92d872099381e0a57297a88ad3bb0217d",
+      "content_sha256": "95b529554f710c7e63d962a57778522ada3a2a4767e98e2739615b9558e452e4",
       "source_id": "code:src/conversation/executor.ts"
     },
     {
@@ -29495,7 +29502,7 @@
       "source_path": "src/conversation/worker.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "c028d200ad46",
-      "content_sha256": "7e20dc4a3f44990c3e71c18a1a6a36432b8c4792024154a6b080bf42f84e2ded",
+      "content_sha256": "0101977330d58bf5806146b0a7e9ad7e64216d45c94ba99b819a91ac79c6258c",
       "source_id": "code:src/conversation/worker.ts"
     },
     {
@@ -29879,7 +29886,7 @@
       "source_path": "tests/unit/answer.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "f1dcda37bcd8",
-      "content_sha256": "f1dcda37bcd834ad6043512f8fea01518256397e3a0112d4b035e0359043d278",
+      "content_sha256": "dd8e8739698a674dd02fd6458d30759834cd6a56c5c988ef06820b34e4267121",
       "source_id": "test:tests/unit/answer.test.ts"
     },
     {
@@ -29939,7 +29946,7 @@
       "source_path": "tests/unit/conversation-worker.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "95c2de38aecb",
-      "content_sha256": "bcc82e24ed338f079cf81c08930fee60b60fbfd3aeb37fc8a0e45f7c99f89278",
+      "content_sha256": "e03a5f9bb6431e65dbf970b8b4b7f24bb1b4c6f2faab34bd2b0f15f500fe7797",
       "source_id": "test:tests/unit/conversation-worker.test.ts"
     },
     {
@@ -91411,6 +91418,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-admission-after-ack.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-binding-activation-cli.test.js",
       "to": "req:BR-014",
       "type": "verifies",
@@ -102817,7 +102831,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2440,
+    "server_nodes": 2441,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

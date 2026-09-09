@@ -9,10 +9,15 @@ import { requireHeadlessPolicy, type HeadlessOptions } from '../answer/headless.
 import { createModelPort } from '../answer/providers/index.js';
 import { loadCatalog } from '../catalog/store.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
-import { ConversationError, type ConversationJob, isLoopbackUrl } from './contract.js';
+import { ConversationError, type ConversationAnswer, type ConversationJob, isLoopbackUrl } from './contract.js';
 
 // @spec ADR-061 — the local-computation boundary: a job may not name an executable, URL, query,
 //   recipient, filesystem location or business scope, and LOCAL_ONLY stays local.
+// @req FR-150 — a `rules` answer produced against an empty catalogue is a holding message with no
+//   data behind it; the executor refuses to complete the job rather than let it record as a
+//   verified answer (see the post-answer check below).
+
+export type { ConversationAnswer };
 
 export function headlessProviderHome(
   config: Pick<Partial<AgentConfig>, 'managedProviderHome'>,
@@ -42,7 +47,7 @@ export function validateExecutionPolicy(job: ConversationJob, config: Partial<Ag
 /** Same local answer tools, server-bound scope, and no durable conversation/session retention. */
 export function createConversationExecutor(config: Partial<AgentConfig>, options: {
   ragUrl?: string; answer?: typeof answerConversation; fetchFn?: typeof fetch;
-} = {}): (job: ConversationJob) => Promise<string> {
+} = {}): (job: ConversationJob) => Promise<ConversationAnswer> {
   const ragUrl = options.ragUrl || process.env.GENESIS_RAG_API_URL || 'http://127.0.0.1:8888';
   const headlessBin = config.headlessBin || 'claude';
   const managedHome = headlessProviderHome(config, headlessBin);
@@ -57,6 +62,9 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
     // An opaque server identity is not a filesystem path, even if a future caller gets it wrong.
     const key = crypto.createHash('sha256').update(job.conversationKey).digest('hex');
     try {
+      // Read here so the post-answer check below can see whether there was ever any data to
+      // read, and so a malformed catalogue file's thrown error still hits the `finally` cleanup.
+      const catalog = loadCatalog(config.catalogRoot || 'state/catalog');
       const local = Boolean(config.llmBaseUrl);
       const llm = config.llmEnabled ? {
         port: createModelPort({
@@ -69,7 +77,7 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
         maxIterations: config.llmMaxIterations || 4,
       } : null;
       const result = await (options.answer || answerConversation)(job.question, {
-        catalog: loadCatalog(config.catalogRoot || 'state/catalog'), role: 'sales',
+        catalog, role: 'sales',
         exchangeRate: config.exchangeRateThbPerRmb || 5,
         rag: new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }),
         conversationKey: key,
@@ -87,7 +95,19 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
           webSearch: false, fileAuthoring: false, stateless: true,
         } : null,
       });
-      return result.text;
+      /*
+       * A `rules` answer read against an empty catalogue is a holding message produced by a reader
+       * that had no data — the pattern reader cannot honestly say a product does not exist when it
+       * never loaded any products (item 2). Completing the job would record that as a verified
+       * answer, so the turn fails instead. A `rules` answer against a POPULATED catalogue is a real,
+       * checked answer (including a legitimate "code not found") and must still complete normally;
+       * a `model` answer is fine even with an empty local catalogue, since the model answers from
+       * the RAG index, which has the products.
+       */
+      if (result.source === 'rules' && catalog.products.length === 0) {
+        throw new ConversationError('EXECUTION_FAILED');
+      }
+      return { text: result.text, source: result.source, ...(result.reason ? { reason: result.reason } : {}) };
     } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
   };
 }

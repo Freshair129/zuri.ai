@@ -29,6 +29,11 @@ services:
     # (see .github/workflows/docker-image.yml). Local builds keep the :local tag.
     image: ${ZURI_WEB_IMAGE:-zuri-ai-web:local}
     restart: unless-stopped
+    # Post-acknowledgement admission (FR-149) can run ~40s after the webhook already answered
+    # LINE (4s + 12s retry delays, three attempts of 7-11s each). Docker's default 10s SIGKILLs
+    # the process mid-admission on every `docker compose up -d --build web` deploy, and the
+    # customer's message is lost with no trace.
+    stop_grace_period: 60s
     env_file:
       - path: .env
         required: true

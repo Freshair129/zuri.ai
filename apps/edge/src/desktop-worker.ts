@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
 import { z } from 'zod';
+import type { ConversationAnswer } from './conversation/contract.js';
+import type { WarmResult } from './answer/providers/model-warmer.js';
 
 /*
  * Desktop worker boundary
@@ -89,6 +91,48 @@ type WorkerEvent =
   | { type: 'stopping'; version: typeof PROTOCOL_VERSION; reason: 'operator' | 'quit' | 'parent' | 'worker' }
   | { type: 'stopped'; version: typeof PROTOCOL_VERSION; graceful: boolean }
   | { type: 'failure'; version: typeof PROTOCOL_VERSION; code: FailureCode };
+
+/**
+ * True when the catalog root exists and holds at least one product file.
+ *
+ * Missing and empty both mean the same thing to the answer layer: no catalogue to read. Reported
+ * as `degraded` for the same reason a cold model is — a device with no data cannot honestly answer
+ * a product question (item 2 of the FR-150 defect fix). Takes its filesystem calls as parameters
+ * so it can be unit tested without touching the real disk.
+ */
+export function catalogRootHasCatalog(
+  catalogRoot: string,
+  fsDeps: { existsSync: (path: string) => boolean; readdirSync: (path: string) => string[] } = fs,
+): boolean {
+  if (!fsDeps.existsSync(catalogRoot)) return false;
+  return fsDeps.readdirSync(catalogRoot).some(entry => entry.endsWith('.json'));
+}
+
+/**
+ * True when Ollama's own resident-model list (`/api/ps`) names the selected model.
+ *
+ * `/api/tags` (checked before this runs) only says the model is pulled, not that it is loaded —
+ * the cold-start cost this whole change exists to surface comes from the gap between those two.
+ * Never throws — a network failure, a non-OK response or a body that will not parse are all
+ * treated the same as "not resident" rather than letting a probe failure escape as a crash.
+ */
+export async function isModelResident(
+  modelHost: string,
+  model: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<boolean> {
+  try {
+    const response = await fetchFn(`${modelHost}/api/ps`, {
+      signal: AbortSignal.timeout(3_000),
+      redirect: 'error',
+    });
+    if (!response.ok) return false;
+    const body = await response.json() as { models?: Array<{ name?: string; model?: string }> };
+    return Boolean(body.models?.some(entry => (entry.name || entry.model) === model));
+  } catch {
+    return false;
+  }
+}
 
 function isAbsolutePath(value: string): boolean {
   return path.isAbsolute(value) && !value.includes('\0');
@@ -269,13 +313,13 @@ interface RuntimeModules {
     complete(job: unknown, text: string): Promise<void>;
     fail(job: unknown, code: 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE'): Promise<void>;
   };
-  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string }) => (job: unknown) => Promise<string>;
+  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string }) => (job: unknown) => Promise<ConversationAnswer>;
   runConversationLoop: (deps: {
     client: ReturnType<RuntimeModules['createConversationClient']>;
-    answer: (job: unknown) => Promise<string>;
+    answer: (job: unknown) => Promise<ConversationAnswer>;
     signal: AbortSignal;
     pollMs?: number;
-    onEvent?: (event: { outcome: string; jobId?: string }) => void;
+    onEvent?: (event: { outcome: string; jobId?: string; source?: 'model' | 'rules'; reason?: string }) => void;
   }) => Promise<void>;
   requireComputeWorker: (env?: NodeJS.ProcessEnv) => void;
   HttpZuriApiClient: new (options: {
@@ -291,10 +335,12 @@ interface RuntimeModules {
   GenesisLocalRag: new (options: { apiUrl: string; timeoutMs: number; fetchImpl: typeof fetch }) => {
     health(): Promise<{ ok: boolean }>;
   };
+  /** Never throws — pins the model or reports why not (model-warmer.ts). */
+  warmModel: (options: { nativeBaseUrl: string; model: string; numCtx?: number }) => Promise<WarmResult>;
 }
 
 async function loadRuntimeModules(): Promise<RuntimeModules> {
-  const [config, client, executor, worker, contract, api, heartbeat, rag] = await Promise.all([
+  const [config, client, executor, worker, contract, api, heartbeat, rag, warmer] = await Promise.all([
     import('./config/index.js'),
     import('./conversation/client.js'),
     import('./conversation/executor.js'),
@@ -303,6 +349,7 @@ async function loadRuntimeModules(): Promise<RuntimeModules> {
     import('./zuri-api/client.js'),
     import('./zuri-api/heartbeat.js'),
     import('./rag/genesis-rag.js'),
+    import('./answer/providers/model-warmer.js'),
   ]);
   return {
     loadConfig: config.loadConfig as RuntimeModules['loadConfig'],
@@ -313,6 +360,7 @@ async function loadRuntimeModules(): Promise<RuntimeModules> {
     HttpZuriApiClient: api.HttpZuriApiClient,
     startHeartbeat: heartbeat.startHeartbeat,
     GenesisLocalRag: rag.GenesisLocalRag,
+    warmModel: warmer.warmModel,
   };
 }
 
@@ -384,6 +432,31 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     const config = modules.loadConfig(process.env);
     const client = modules.createConversationClient({ baseUrl: init.cloudBaseUrl, deviceKey: init.deviceKey });
     const answer = modules.createConversationExecutor(config, { ragUrl: init.ragUrl || 'http://127.0.0.1:8888' });
+    /*
+     * Model residency has one owner: this worker. `openai-compatible.ts`'s chat body never sends
+     * `keep_alive` — Ollama silently ignores it there — so nothing pins the model on the reply
+     * path itself. `triggerWarm` is fire-and-forget and never awaited from either call site: it
+     * must never block `ready`, the claim loop, or a heartbeat (a cold warm can take ~90s; the
+     * heartbeat interval is 40s). `warmInFlight` is shared between the on-init warm below and the
+     * one `status()` kicks off later so the two never pin the same model twice concurrently.
+     * `numCtx` comes from the loaded config (which already applies the same default the chat path
+     * uses, `ZURI_LLM_NUM_CTX`/8192) rather than the raw init payload, so a warm always loads the
+     * model at the context size the chat path will actually request — Ollama keys a loaded model
+     * by context size, and warming at the wrong one pins a copy nothing uses.
+     */
+    let warmInFlight = false;
+    const triggerWarm = (): void => {
+      if (warmInFlight) return;
+      if (!init.provider.llmEnabled || !init.provider.llmBaseUrl || !init.provider.llmModel) return;
+      warmInFlight = true;
+      const nativeBaseUrl = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
+      void modules.warmModel({
+        nativeBaseUrl,
+        model: init.provider.llmModel,
+        numCtx: config.llmNumCtx as number | undefined,
+      }).finally(() => { warmInFlight = false; });
+    };
+    triggerWarm();
     const heartbeatClient = new modules.HttpZuriApiClient({
       baseUrl: init.cloudBaseUrl,
       cloudBaseUrl: init.cloudBaseUrl,
@@ -411,6 +484,9 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
       if (!firstClaimAccepted) return 'unavailable';
       const health = await rag.health();
       if (!health.ok) return 'degraded';
+      // Same class of signal as the model check below: a device with no catalogue loaded cannot
+      // honestly answer a product question (item 2 of the FR-150 defect fix).
+      if (!catalogRootHasCatalog(path.join(init.dataRoot, 'catalog'))) return 'degraded';
       if (init.provider.llmEnabled && init.provider.llmBaseUrl) {
         const modelHost = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
         try {
@@ -422,6 +498,14 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
           const body = await response.json() as { models?: Array<{ name?: string; model?: string }> };
           const selected = init.provider.llmModel;
           if (!selected || !body.models?.some(model => (model.name || model.model) === selected)) {
+            return 'degraded';
+          }
+          // `/api/tags` only says the model is pulled, not that it is loaded — the cold-start cost
+          // this reports on comes from that gap. A cold model cannot answer inside the LINE reply
+          // token, so this is the truthful thing to report; it self-clears once warming finishes.
+          const resident = await isModelResident(modelHost, selected);
+          if (!resident) {
+            triggerWarm();
             return 'degraded';
           }
         } catch {

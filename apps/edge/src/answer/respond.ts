@@ -34,6 +34,14 @@ export interface AnswerOptions {
   shipMonth?: number;
 }
 
+/**
+ * What to say when there is no data to answer from at all — as opposed to a lookup that ran
+ * against real data and came up empty. An empty catalogue means the reader has nothing to check a
+ * denial against, so it must not claim a product does not exist (item 2 of the FR-150 defect fix:
+ * see docs/CONVERSATIONAL-ANSWER-SPEC.md).
+ */
+export const CANNOT_ANSWER_NOW_TEXT = 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
+
 const HELP_TEXT = [
   'ซูริช่วยเรื่องราคาได้ 3 แบบค่ะ',
   '',
@@ -170,6 +178,17 @@ function searchAnswer(query: string, options: AnswerOptions): string {
 /** Turn one incoming message into the text of one reply. */
 export function answerMessage(text: string, options: AnswerOptions): string {
   const intent: Intent = parseMessage(text);
+
+  /*
+   * An empty catalogue is not a lookup that ran and found nothing — it is no data at all. `price`,
+   * `search` and `budget` all read `options.catalog`, so answering any of them from zero products
+   * would be a confident denial of something that may well exist (item 2). `help` still answers,
+   * and `unknown` already says a truthful "did not understand" rather than claiming anything about
+   * the catalogue, so both keep their normal replies.
+   */
+  if (options.catalog.products.length === 0 && ['price', 'search', 'budget'].includes(intent.kind)) {
+    return CANNOT_ANSWER_NOW_TEXT;
+  }
 
   switch (intent.kind) {
     case 'help':
@@ -322,7 +341,7 @@ async function answerViaHeadless(
 function fallbackFor(text: string, options: AnswerOptions): string {
   const intent = parseMessage(text);
   if (intent.kind === 'search' || intent.kind === 'unknown') {
-    return 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
+    return CANNOT_ANSWER_NOW_TEXT;
   }
   return answerMessage(text, options);
 }

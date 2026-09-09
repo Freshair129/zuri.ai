@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2440,
-    "total_edges": 9795,
+    "total_nodes": 2441,
+    "total_edges": 9796,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -16,7 +16,7 @@
       "route": 297,
       "model": 135,
       "requirement": 334,
-      "test": 575,
+      "test": 576,
       "code_file": 727
     },
     "coverage": {
@@ -4289,7 +4289,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "23175d2f",
+      "hash": "f0de0f02",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10750,7 +10750,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "fe68d03c",
+      "hash": "bd2aad4b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14739,7 +14739,7 @@
       "id": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
-      "hash": "fd8c2010",
+      "hash": "e1dadbb6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14849,7 +14849,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.54.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "81b36c7a",
+      "hash": "5894c17f",
       "status": "current"
     },
     {
@@ -16528,7 +16528,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
-      "hash": "ca450ad0",
+      "hash": "9a3ca292",
       "status": "current"
     },
     {
@@ -16848,7 +16848,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "44c461de",
+      "hash": "0019d61e",
       "status": "current"
     },
     {
@@ -17128,7 +17128,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "ea5560af",
+      "hash": "ccce76a3",
       "status": "current"
     },
     {
@@ -17287,7 +17287,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "8b595a8d",
+      "hash": "9a5863c3",
       "status": "current"
     },
     {
@@ -20106,11 +20106,11 @@
       "id": "req:FR-149",
       "type": "requirement",
       "family": "FR",
-      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
     },
     {
       "id": "req:FR-150",
@@ -24577,7 +24577,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "81807e1c",
+      "hash": "471a0e66",
       "status": "current"
     },
     {
@@ -25821,7 +25821,7 @@
       "id": "test:tests/integration/server-line-jobs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
-      "hash": "cf437d40",
+      "hash": "f7ae2278",
       "status": "current"
     },
     {
@@ -25835,7 +25835,7 @@
       "id": "test:tests/integration/server-line-webhook.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-webhook.test.js",
-      "hash": "cad133e8",
+      "hash": "0420fdcc",
       "status": "current"
     },
     {
@@ -27341,6 +27341,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-activation-contract.test.js",
       "hash": "fce66170",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-admission-after-ack.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
+      "hash": "85d0ae56",
       "status": "current"
     },
     {
@@ -88129,6 +88136,13 @@
     {
       "from": "test:tests/unit/line-activation-contract.test.js",
       "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-admission-after-ack.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

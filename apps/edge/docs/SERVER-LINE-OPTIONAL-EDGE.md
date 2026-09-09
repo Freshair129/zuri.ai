@@ -59,11 +59,17 @@ needed on the device; coordinate GPU capacity before running two model workers t
 5. The server validates the current credential and lease again and owns delivery. Completion
    does not mean LINE acceptance, customer delivery or read.
 
-Lease expiry before/during computation drops the stale result. A completion request whose
-response is lost is never followed by a failure write or a duplicate local computation in the
-same claim. The server decides whether a later lease may retry. HTTP 409 is a stale claim;
-401/403/404 stop the loop. Other failures back off to at most 30 seconds. Restart requires no
-local queue recovery and no LINE resend.
+Lease expiry before or during computation is now reported through `/fail` rather than silently
+dropped: nothing was ever sent to the server in either case, so the report is not a second write
+against an uncertain completion, it is the only write — and it lets the server stop requeueing an
+attempt this device has already abandoned instead of burning GPU on a repeat until the job's own
+TTL. That is a different case from a completion request whose response is lost, which stays a
+different case on purpose: genuine uncertainty about whether the server received a completion is
+never followed by a failure write or a duplicate local computation in the same claim. The server
+decides whether a later lease may retry. HTTP 409 is a stale claim — including when the device
+reports its own expired lease this way, in which case the server has already moved on and the
+device's report is simply swallowed; 401/403/404 stop the loop. Other failures back off to at most
+30 seconds. Restart requires no local queue recovery and no LINE resend.
 
 ## Model access and retention
 
