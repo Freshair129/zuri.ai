@@ -209,6 +209,59 @@ describe('server transport and acceptance recovery', () => {
     expect(await prisma.message.count({ where: { externalMessageId: `reply:${admitted.inboundMessageId}` } })).toBe(0)
   })
 
+  it('falls back a definitively dead Reply token to delayed Push without recomputing the answer', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('reply-dead-token-push'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'READY' })
+    const first = await row(admitted.jobId)
+    expect(first).toMatchObject({ status: 'READY', sendMethod: 'PUSH', attempts: 1, errorCode: 'LINE_HTTP_400' })
+    expect(first.sealedReplyToken).toBeNull()
+    expect(await runLineConversationWorker({ ...options, now: () => later(60_000) })).toMatchObject({ id: admitted.jobId, status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect(options.pushTransport.send).toHaveBeenCalledTimes(1)
+    expect(options.answer).toHaveBeenCalledTimes(1)
+    expect((await row(admitted.jobId)).sealedReplyToken).toBeNull()
+  })
+
+  it('keeps a dead Reply token terminal when the account does not allow delayed Push', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('reply-dead-token-no-push'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_HTTP_400', sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it.each(['LINE_HTTP_401', 'LINE_HTTP_403', 'LINE_HTTP_404'])('never switches method for a credential/config error (%s)', async (code) => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event(`reply-credential-${code}`))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code, requestId: 'credential-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: code, sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it('never switches method for an ambiguous 5xx Reply outcome', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('reply-ambiguous-503'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'UNKNOWN', code: 'LINE_HTTP_503' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'UNKNOWN' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'UNKNOWN', errorCode: 'LINE_HTTP_503', sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+    expect(await runLineConversationWorker({ ...options, now: () => later(60_000) })).toMatchObject({ status: 'IDLE' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it('does not loop a Push that itself comes back with a dead-token-shaped failure', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('push-dead-code-no-loop'))
+    const options = worker({ now: () => later(60_000), pushTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'push-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_HTTP_400', sendMethod: 'PUSH' })
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+  })
+
   it('retries delayed Push with its original UUID and without re-running the model', async () => {
     const oa = await account({ allowDelayedPush: true })
     const admitted = await admit(oa, event('push-retry'))
