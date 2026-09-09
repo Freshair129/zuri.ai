@@ -5,7 +5,7 @@ import { admitCapturedLineEvents } from '@/modules/line-oa-studio/application/li
 import { verifyServerLineWebhook } from '@/platform/integrations/providers/line/server-line-transport'
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
-// @req FR-149 — native signed webhook; acknowledge only durable admission.
+// @req FR-149 — native signed webhook; acknowledge durable capture, then admit in-process.
 // @spec ADR-061, SEC-001, FR-081
 // @tested tests/integration/server-line-webhook.test.js
 async function boundedBody(request) {
