@@ -4250,7 +4250,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "23175d2f",
+      "hash": "6ac7ce95",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10711,7 +10711,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "fe68d03c",
+      "hash": "be36eb3d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -25804,7 +25804,7 @@
       "id": "test:tests/integration/server-line-webhook.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-webhook.test.js",
-      "hash": "cad133e8",
+      "hash": "0420fdcc",
       "status": "current"
     },
     {
@@ -27310,6 +27310,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-activation-contract.test.js",
       "hash": "fce66170",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-admission-after-ack.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
+      "hash": "81289714",
       "status": "current"
     },
     {
@@ -91463,6 +91470,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-admission-after-ack.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-binding-activation-cli.test.js",
       "to": "req:BR-014",
       "type": "verifies",
@@ -102869,7 +102883,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2442,
+    "server_nodes": 2443,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

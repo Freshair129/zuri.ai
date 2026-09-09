@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2442,
-    "total_edges": 9799,
+    "total_nodes": 2443,
+    "total_edges": 9800,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -16,7 +16,7 @@
       "route": 298,
       "model": 135,
       "requirement": 334,
-      "test": 575,
+      "test": 576,
       "code_file": 728
     },
     "coverage": {
@@ -4305,7 +4305,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "23175d2f",
+      "hash": "6ac7ce95",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10766,7 +10766,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "fe68d03c",
+      "hash": "be36eb3d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -25859,7 +25859,7 @@
       "id": "test:tests/integration/server-line-webhook.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-webhook.test.js",
-      "hash": "cad133e8",
+      "hash": "0420fdcc",
       "status": "current"
     },
     {
@@ -27365,6 +27365,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-activation-contract.test.js",
       "hash": "fce66170",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-admission-after-ack.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
+      "hash": "81289714",
       "status": "current"
     },
     {
@@ -88181,6 +88188,13 @@
     {
       "from": "test:tests/unit/line-activation-contract.test.js",
       "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-admission-after-ack.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
