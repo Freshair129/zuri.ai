@@ -773,3 +773,39 @@ body[data-text-zoom="true"]:has(#panel-settings:not([hidden])) .settings-form-bl
   font-size: 14px !important;
   line-height: 1.2 !important;
 }
+
+/* Worker activity log (Overview). Fixed height with its own scroll: the panel sits in a card grid
+   whose other cards are short, and an unbounded list would push the page controls off screen. */
+/* The card is a flex column so the list absorbs the leftover height and the actions below it stay
+   inside the card. With a fixed list height instead, the copy button rendered past the card's
+   bottom edge and `overflow: hidden` clipped it away entirely. */
+.worker-log-card { display: flex; flex-direction: column; gap: 8px; }
+.worker-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-height: 72px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.worker-log li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+.worker-log time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.worker-log span { min-width: 0; overflow-wrap: anywhere; }
+.worker-log li.warn span { color: var(--yellow); }
+.worker-log li.error span { color: var(--red); }

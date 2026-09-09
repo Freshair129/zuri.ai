@@ -4,11 +4,11 @@ title: Zuri Edge Desktop — sidebar interface inventory
 parent_requirement: FR-150
 domain: agent
 source: v2-native
-version: "0.3.1b"
+version: "0.3.2b"
 status: beta
 approval: "Owner approved sidebar delta in section 11 on 2026-09-09"
 created_at: "2026-09-08T22:00:02+07:00,RWANG,base b17e7258"
-last_update: "2026-09-09T14:15:00+07:00,RWANG"
+last_update: "2026-09-10T01:00:00+07:00,Claude Opus 5"
 relations:
   - type: references
     target: ZAI:FR-150
@@ -376,10 +376,46 @@ Desktop package version เปลี่ยน **0.3.0 → 0.3.1**; four panels/I
 `apps/edge/dist-desktop/verification-tabs/SIDEBAR-ACCEPTANCE.md` (local evidence)
 ผลชุดนี้ไม่ใช่ hosted CI, physical multi-DPI/clean-VM acceptance หรือ public release v0.3.1
 
+## 12. Automatic resume และ activity log — 0.3.2b
+
+เจ้าของงานสั่ง 2026-09-10 หลังการตัดมาใช้ Desktop เป็น runtime เดียว: หลัง reboot แอปเปิดเองได้แต่ยัง
+ไม่รับงานจนกว่าจะมีคนกด "เริ่มรับงาน" และหน้าจอไม่มีที่ให้ดูว่าเกิดอะไรขึ้นบ้าง
+
+**12.1 Automatic resume.** `edge-config.json` เพิ่ม `worker_autostart` ซึ่งเก็บ *เจตนาล่าสุดของผู้ดูแล*
+ไม่ใช่บันทึกว่าอะไรกำลังรัน: ตั้งเป็น true เมื่อกด Start สำเร็จ และ false เมื่อกด Stop เท่านั้น การปิดหน้าต่าง
+(ซึ่งหยุด child ผ่าน `prevent_close`) จึงยังนับว่า "ยังต้องการให้ทำงาน" เช่นเดียวกับไฟดับ
+`setup()` เรียก `desktop::resume_worker` แบบ spawn — ไม่ await เพราะ setup ต้องไม่บล็อกหน้าต่าง
+ลองซ้ำได้สูงสุด 12 ครั้ง ห่างครั้งละ 15 วินาที (รวม ~3 นาที) เพราะตอน logon ทุกอย่างเริ่มพร้อมกัน:
+Ollama จาก Startup ของตัวเอง, embed sidecar และ RAG service จาก ZuriEdgeStack, และแอปนี้จาก Startup
+ครั้งเดียวจึงแพ้การแข่งขันเกือบทุกครั้ง ขอบเขตนี้เลียนแบบ Wait-Endpoint ของ launcher แทนที่จะลองไม่สิ้นสุด
+เพื่อให้การตั้งค่าที่ผิดจริงยังจบเป็นข้อความที่อ่านได้
+
+**12.2 ความล้มเหลวต้องเห็น.** resume ที่ล้มก่อน spawn child จะทำให้ supervisor ยังเป็น STOPPED ซึ่ง
+แยกไม่ออกจาก "ยังไม่มีใครกด Start" — `get_worker_status` จึงรายงานเป็น `state: FAILED` พร้อม `failure`
+และ `autoResume: true` เมื่อมี resume error ค้างอยู่ ใช้ panel เดิมที่ UI แสดงผลอยู่แล้ว และ FAILED เป็นหนึ่งใน
+สองสถานะที่ปุ่ม Start ยังกดได้ ผู้ดูแลจึงอ่านสาเหตุแล้วลองเองได้โดยไม่ต้องมี control ใหม่
+
+**12.3 Activity log.** การ์ดใหม่ "บันทึกการทำงาน" ใน Overview (`data-overview-page="3"`, compact จึงเป็น 4 หน้า)
+อ่านจาก native command ใหม่ `get_worker_log` → `{entries:[{at, level, message}]}` เก็บใน supervisor
+แบบ ring buffer 200 บรรทัด (bounded เพราะ edge device รันต่อเนื่องเป็นสัปดาห์) บรรทัดมาจาก vocabulary ของ
+`safe_event` ที่ผ่านการกรองอยู่แล้ว บวกกับ `Supervisor::note` สำหรับ lifecycle — ไม่มีเนื้อหาข้อความลูกค้า,
+device key หรือ credential ผ่านช่องทางนี้ `claim outcome=idle` ไม่ถูกบันทึก (จะกลบทุกอย่างด้วยบรรทัดทุก 5 วินาที)
+แต่การกลับจาก DEGRADED บันทึก UI ตาม tail อัตโนมัติและหยุดตามเมื่อผู้ใช้เลื่อนขึ้นไปอ่าน มีปุ่มคัดลอกทั้งหมด
+
+**12.4 แก้สถานะจับคู่ค้าง.** `pollPairing` เดิมเมื่อ poll error จะหยุดที่ POLLING_ERROR โดยไม่เคลียร์
+`pairingActive` และไม่ตั้ง timer ใหม่ — `pairingActive` คุมทั้งหน้าต่าง (ซ่อนปุ่ม Connect, ล็อกการตั้งค่า AI,
+ปิดปุ่ม Start) แอปจึงค้าง "รอการเชื่อมต่อ" ถาวรจนกว่าจะกดปุ่มที่ผู้ใช้ไม่มีเหตุให้เดาว่าต้องกด ตอนนี้จบคำขอเป็น
+EXPIRED เมื่อ native ตอบว่าไม่มีคำขอค้างอยู่ (มันเคลียร์ slot ทุกกรณีที่จบแล้ว) หรือเลยเวลา 5 นาที
+ส่วน error ชั่วคราวอื่นจะ poll ต่อทุก 5 วินาทีแทนที่จะทำให้เน็ตกระตุกดูเหมือนคำขอตาย
+
+Acceptance: Rust unit tests ครอบ resume guards (ไม่ทำอะไรเมื่อผู้ดูแลกด Stop, ไม่ทำอะไรเมื่อยังไม่จับคู่),
+การรายงาน FAILED ของ resume ที่ล้ม, snapshot ปกติเมื่อไม่มี error และ ring buffer ที่ bounded/เรียงเก่า→ใหม่
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.2b | 2026-09-10 | beta | Automatic worker resume from persisted operator intent, bounded activity-log card and get_worker_log, visible auto-resume failures, and the stuck-pairing fix | uncommitted | Claude Opus 5 |
 | 0.3.1b | 2026-09-09 | beta | Implemented approved sidebar; 35 mock UI tests passed including measured Thai labels and AI steps at 200%; separate local native/package evidence | uncommitted | RWANG |
 | 0.3.0b | 2026-09-09 | beta | Owner approved vertical sidebar using four existing panels, wide/compact wireframes and no-scroll regression criteria | uncommitted | RWANG |
 | 0.2.2b | 2026-09-09 | beta | Recorded approved repair refinements, complete control reachability, measured detail pages and separate acceptance evidence | uncommitted | RWANG |

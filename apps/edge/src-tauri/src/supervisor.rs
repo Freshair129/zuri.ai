@@ -117,6 +117,13 @@ struct ManagedProcess {
     job: WindowsJob,
 }
 
+/// How many log lines the Desktop keeps for the operator to read.
+///
+/// Bounded on purpose: this buffer lives in memory for the life of the app, and an edge device
+/// that runs for weeks would otherwise grow one entry per claim poll until it was the largest
+/// thing in the process.
+const LOG_CAPACITY: usize = 200;
+
 struct Inner {
     process: Option<Arc<ManagedProcess>>,
     lock_path: Option<PathBuf>,
@@ -128,6 +135,7 @@ struct Inner {
     last_event: Option<Value>,
     last_heartbeat_at: Option<String>,
     failure: Option<String>,
+    log: std::collections::VecDeque<Value>,
 }
 
 impl Default for Inner {
@@ -143,8 +151,20 @@ impl Default for Inner {
             last_event: None,
             last_heartbeat_at: None,
             failure: None,
+            log: std::collections::VecDeque::with_capacity(LOG_CAPACITY),
         }
     }
+}
+
+fn push_log(inner: &mut Inner, level: &str, message: String) {
+    if inner.log.len() >= LOG_CAPACITY {
+        inner.log.pop_front();
+    }
+    inner.log.push_back(json!({
+        "at": chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        "level": level,
+        "message": message,
+    }));
 }
 
 #[derive(Clone)]
@@ -171,6 +191,23 @@ impl Supervisor {
             .lock()
             .map(|inner| inner.process.is_some() && inner.state != "STOPPED")
             .unwrap_or(false)
+    }
+
+    /// Record one operator-readable line. Callers outside this module use it for the lifecycle
+    /// steps the child never reports itself — an automatic resume waiting for Ollama, for example.
+    pub fn note(&self, level: &str, message: impl Into<String>) {
+        if let Ok(mut inner) = self.inner.lock() {
+            push_log(&mut inner, level, message.into());
+        }
+    }
+
+    /// The log, oldest first. Every line comes from `safe_event`'s already-bounded vocabulary or
+    /// from `note`, so no message content, device key or provider credential can reach it.
+    pub fn log(&self) -> Vec<Value> {
+        self.inner
+            .lock()
+            .map(|inner| inner.log.iter().cloned().collect())
+            .unwrap_or_default()
     }
 
     pub async fn start(&self, config: ManagedWorkerConfig) -> Result<Value, String> {
@@ -273,6 +310,7 @@ impl Supervisor {
             inner.pid = Some(pid);
             inner.failure = None;
             inner.last_event = None;
+            push_log(&mut inner, "info", format!("เริ่มตัวประมวลผลแล้ว (PID {pid})"));
         }
 
         let reader_supervisor = self.clone();
@@ -333,6 +371,7 @@ impl Supervisor {
                 return Ok(snapshot_locked(&inner));
             };
             inner.state = "STOPPING".into();
+            push_log(&mut inner, "info", "กำลังหยุดตัวประมวลผล…".into());
             process
         };
         let _ = send_json(&process.stdin, json!({"type":"stop","version":PROTOCOL_VERSION,"reason":"operator","deadlineMs":30000})).await;
@@ -726,13 +765,27 @@ fn record_event(supervisor: &Supervisor, process: &Arc<ManagedProcess>, event: &
         let event_type = event.get("type").and_then(Value::as_str).unwrap_or("");
         inner.last_event = Some(event.clone());
         match event_type {
-            "ready" => inner.ready = true,
+            "ready" => {
+                inner.ready = true;
+                push_log(&mut inner, "info", "ตัวประมวลผลพร้อมรับงาน".into());
+            }
             "claim" => match event.get("outcome").and_then(Value::as_str) {
-                Some("idle" | "claimed" | "completed" | "failed" | "lease_expired") => {
+                Some(outcome @ ("idle" | "claimed" | "completed" | "failed" | "lease_expired")) => {
+                    let was_degraded = inner.state == "DEGRADED";
                     inner.claim_accepted = true;
                     inner.state = "RUNNING".into();
+                    // "idle" is every poll with an empty queue — logging it would bury everything
+                    // else at one line per five seconds. Recovery from DEGRADED is worth a line.
+                    if outcome != "idle" {
+                        push_log(&mut inner, "info", format!("งาน: {outcome}"));
+                    } else if was_degraded {
+                        push_log(&mut inner, "info", "กลับมารับงานได้ตามปกติ".into());
+                    }
                 }
-                Some("retrying" | "stale_lease") => {
+                Some(outcome @ ("retrying" | "stale_lease")) => {
+                    if inner.state != "DEGRADED" {
+                        push_log(&mut inner, "warn", format!("ติดต่อรับงานไม่สำเร็จ: {outcome}"));
+                    }
                     inner.claim_accepted = false;
                     inner.state = "DEGRADED".into();
                 }
@@ -746,7 +799,13 @@ fn record_event(supervisor: &Supervisor, process: &Arc<ManagedProcess>, event: &
                 }
             }
             "failure" => {
-                inner.failure = event.get("code").and_then(Value::as_str).map(str::to_owned);
+                let code = event.get("code").and_then(Value::as_str).map(str::to_owned);
+                push_log(
+                    &mut inner,
+                    "error",
+                    format!("ตัวประมวลผลหยุดด้วยข้อผิดพลาด: {}", code.as_deref().unwrap_or("ไม่ทราบสาเหตุ")),
+                );
+                inner.failure = code;
                 inner.state = "FAILED".into();
             }
             _ => {}
@@ -982,6 +1041,23 @@ impl Drop for WindowsJob {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_log_is_bounded_and_keeps_the_newest_lines() {
+        let supervisor = Supervisor::default();
+        for index in 0..(LOG_CAPACITY + 25) {
+            supervisor.note("info", format!("line {index}"));
+        }
+
+        let log = supervisor.log();
+
+        assert_eq!(log.len(), LOG_CAPACITY);
+        // Oldest first, and the 25 that fell off the front are the oldest 25.
+        assert_eq!(log[0]["message"], "line 25");
+        assert_eq!(log[LOG_CAPACITY - 1]["message"], format!("line {}", LOG_CAPACITY + 24));
+        assert_eq!(log[0]["level"], "info");
+        assert!(log[0]["at"].as_str().is_some_and(|at| at.ends_with('Z')));
+    }
 
     #[test]
     fn safe_event_discards_raw_output_and_unknown_types() {

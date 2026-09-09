@@ -111,8 +111,17 @@
                 <button id="hardwareRefresh" class="button ghost">ตรวจอีกครั้ง</button>
               </div>
             </article>
+
+            <article class="surface-card worker-log-card overview-block" data-overview-page="3">
+              <div class="card-heading"><h3>บันทึกการทำงาน</h3><span id="workerLogCount" class="count-label">—</span></div>
+              <ol id="workerLog" class="worker-log" role="log" aria-live="polite" aria-label="บันทึกการทำงานของตัวประมวลผล"></ol>
+              <p id="workerLogEmpty" class="muted compact-text">ยังไม่มีบันทึกในรอบการทำงานนี้</p>
+              <div class="inline-actions">
+                <button id="workerLogCopy" class="button ghost">คัดลอกทั้งหมด</button>
+              </div>
+            </article>
           </div>
-          <div id="overviewCompactNav" class="compact-page-nav" hidden><span id="overviewCompactLabel">ส่วนที่ 1 / 3</span><div class="pagination-actions"><button id="overviewCompactPrev" class="button secondary">ก่อนหน้า</button><button id="overviewCompactNext" class="button secondary">ถัดไป</button></div></div>
+          <div id="overviewCompactNav" class="compact-page-nav" hidden><span id="overviewCompactLabel">ส่วนที่ 1 / 4</span><div class="pagination-actions"><button id="overviewCompactPrev" class="button secondary">ก่อนหน้า</button><button id="overviewCompactNext" class="button secondary">ถัดไป</button></div></div>
 
           <div class="panel-message" id="overviewFeedback" role="status" aria-live="polite"></div>
         </div>

@@ -41,6 +41,8 @@ const state = {
   workerReadError: null,
   workerBusy: false,
   workerPollBusy: false,
+  workerLog: [],
+  workerLogPinned: true,
   pairingActive: false,
   pairingBusy: false,
   pairingState: 'IDLE',
@@ -1052,6 +1054,52 @@ async function saveProvider() {
   finally { state.providerBusy = false; renderProvider(); }
 }
 
+function logTime(at) {
+  const parsed = Date.parse(at || '');
+  if (!parsed) return '—';
+  const stamp = new Date(parsed);
+  return String(stamp.getHours()).padStart(2, '0') + ':' + String(stamp.getMinutes()).padStart(2, '0')
+    + ':' + String(stamp.getSeconds()).padStart(2, '0');
+}
+
+function renderWorkerLog() {
+  const list = $('workerLog');
+  if (!list) return;
+  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
+  setText('workerLogCount', entries.length ? entries.length + ' รายการ' : '—');
+  setVisible('workerLogEmpty', entries.length === 0);
+  // Rebuilt rather than appended: the native buffer is bounded and drops its oldest lines, so the
+  // list here has to be able to shrink from the front as well as grow at the end.
+  list.replaceChildren(...entries.map((entry) => {
+    const row = document.createElement('li');
+    const level = entry && entry.level;
+    if (level === 'warn' || level === 'error') row.className = level;
+    const time = document.createElement('time');
+    time.textContent = logTime(entry && entry.at);
+    if (entry && entry.at) time.dateTime = entry.at;
+    const message = document.createElement('span');
+    // textContent, never innerHTML: these lines come from the worker process.
+    message.textContent = text(entry && entry.message, '');
+    row.append(time, message);
+    return row;
+  }));
+  // Follow the newest line unless the operator has scrolled up to read something.
+  if (state.workerLogPinned !== false) list.scrollTop = list.scrollHeight;
+}
+
+async function refreshWorkerLog() {
+  if (!native) return;
+  try {
+    const result = await invoke('get_worker_log');
+    state.workerLog = (result && result.entries) || [];
+    renderWorkerLog();
+  } catch (failure) {
+    // The log is a diagnostic panel; failing to read it must not raise an error over the page the
+    // operator is using. The count going stale is the signal, and the status panel still reports.
+    state.workerLog = state.workerLog || [];
+  }
+}
+
 async function refreshWorker({ silent = false } = {}) {
   if (state.workerPollBusy || !native) return;
   state.workerPollBusy = true;
@@ -1066,7 +1114,11 @@ async function refreshWorker({ silent = false } = {}) {
     if (!state.worker) state.worker = { state: 'UNKNOWN', active: false, message: errorMessage(failure) };
     renderWorker();
     renderOverview();
-  } finally { state.workerPollBusy = false; renderProvider(); }
+  } finally {
+    state.workerPollBusy = false;
+    renderProvider();
+    await refreshWorkerLog();
+  }
 }
 
 async function runWorker(command) {
@@ -1159,7 +1211,26 @@ async function pollPairing() {
     setText('expiry', seconds ? 'หมดอายุใน ' + Math.ceil(seconds / 60) + ' นาที' : 'กำลังตรวจว่าคำขอหมดอายุหรือไม่…');
     state.pairingTimer = setTimeout(pollPairing, 2000);
   } catch (failure) {
-    if (state.pairingActive) { setPairingState('POLLING_ERROR', 'warning'); setMessage('pairingMessage', errorMessage(failure), 'error'); setVisible('retryPair', true); }
+    if (!state.pairingActive) return;
+    const reason = errorMessage(failure);
+    // A poll that cannot succeed must not leave the app in pairing mode. `pairingActive` gates the
+    // whole window — it hides Connect, shows Resume in its place, locks the AI settings and
+    // disables Start — so parking here on an error left the device "waiting to connect" forever,
+    // with no way out except a button the operator had no reason to suspect. Two cases end it:
+    // the native side has already dropped the request (it clears the slot on every terminal
+    // outcome, and then answers "ไม่มีคำขอที่กำลังรอ"), or the five-minute window has passed.
+    // Anything else is transient, so keep polling rather than making a blip look like a dead request.
+    const gone = reason.includes('ไม่มีคำขอที่กำลังรอ');
+    const expired = state.pairingExpiresAt && Date.now() >= state.pairingExpiresAt;
+    if (gone || expired) {
+      finishPairing('EXPIRED', 'คำขอหมดอายุแล้ว เริ่มคำขอใหม่เพื่อสร้าง QR และรหัสใหม่', 'error');
+      await loadStatus();
+      return;
+    }
+    setPairingState('POLLING_ERROR', 'warning');
+    setMessage('pairingMessage', reason, 'error');
+    setVisible('retryPair', true);
+    state.pairingTimer = setTimeout(pollPairing, 5000);
   } finally { state.pairingBusy = false; renderPairingActions(); }
 }
 
@@ -1319,6 +1390,25 @@ function bindNavigation() {
   $('hardwareNext').addEventListener('click', () => { state.inventoryPage += 1; renderHardwarePage(); });
   $('overviewCompactPrev').addEventListener('click', () => { state.overviewPage -= 1; renderCompactOverview(); });
   $('overviewCompactNext').addEventListener('click', () => { state.overviewPage += 1; renderCompactOverview(); });
+  const workerLogList = $('workerLog');
+  if (workerLogList) {
+    // Stop following the tail while the operator is reading further up, and resume once they
+    // scroll back to the bottom — otherwise every three-second poll yanks the view away.
+    workerLogList.addEventListener('scroll', () => {
+      const distance = workerLogList.scrollHeight - workerLogList.scrollTop - workerLogList.clientHeight;
+      state.workerLogPinned = distance <= 12;
+    });
+  }
+  $('workerLogCopy').addEventListener('click', async () => {
+    const lines = (state.workerLog || []).map((entry) => logTime(entry && entry.at) + '  ' + text(entry && entry.message, ''));
+    if (!lines.length) { setMessage('overviewFeedback', 'ยังไม่มีบันทึกให้คัดลอก', 'warning'); return; }
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      setMessage('overviewFeedback', 'คัดลอกบันทึก ' + lines.length + ' รายการแล้ว', 'success');
+    } catch (failure) {
+      setMessage('overviewFeedback', 'คัดลอกไม่สำเร็จ: ' + errorMessage(failure), 'error');
+    }
+  });
   for (const [key, previousId, nextId] of [
     ['connect', 'connectCompactPrev', 'connectCompactNext'],
     ['ai', 'aiCompactPrev', 'aiCompactNext'],

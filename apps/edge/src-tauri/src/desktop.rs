@@ -79,11 +79,54 @@ pub async fn cancel_provider_login(
 }
 #[tauri::command]
 pub fn get_worker_status(state: State<'_, AppState>) -> Value {
-    state.supervisor.snapshot()
+    worker_status(&state)
 }
+
+/// The operator-readable activity log, oldest first.
+///
+/// Until now the only window into what the device was doing was the single-line status, so a
+/// device that answered nothing looked the same as a device with nothing to answer. Entries come
+/// from the bounded event vocabulary the worker already reports plus the app's own lifecycle
+/// notes; no message content, device key or provider credential passes through here.
+#[tauri::command]
+pub fn get_worker_log(state: State<'_, AppState>) -> Value {
+    serde_json::json!({ "entries": state.supervisor.log() })
+}
+
+/// The supervisor's own snapshot, plus the reason an automatic resume gave up.
+///
+/// A resume that fails before the child is spawned — Ollama not up yet at logon, the chosen model
+/// gone, a provider logged out — leaves the supervisor STOPPED, which is indistinguishable from
+/// "nobody pressed Start". Reporting it as FAILED with the message puts it in the panel the UI
+/// already renders for a failed worker, and FAILED is one of the two states Start stays enabled
+/// for, so the operator reads the reason and retries without needing a new control.
+pub fn worker_status(state: &AppState) -> Value {
+    let mut snapshot = state.supervisor.snapshot();
+    let error = state
+        .autostart_error
+        .lock()
+        .ok()
+        .and_then(|guard| guard.clone());
+    if let (Some(error), Some(object)) = (error, snapshot.as_object_mut()) {
+        if object.get("active") == Some(&Value::Bool(false)) {
+            object.insert("state".into(), Value::String("FAILED".into()));
+            object.insert("failure".into(), Value::String(error));
+            object.insert("autoResume".into(), Value::Bool(true));
+        }
+    }
+    snapshot
+}
+
 #[tauri::command]
 pub async fn start_worker(state: State<'_, AppState>) -> Result<Value, String> {
     let _guard = state.lifecycle.lock().await;
+    let snapshot = start_worker_locked(&state).await?;
+    remember_worker_intent(&state, true);
+    Ok(snapshot)
+}
+
+/// Start the worker. The caller must already hold the lifecycle lock.
+async fn start_worker_locked(state: &AppState) -> Result<Value, String> {
     if state.quitting.load(std::sync::atomic::Ordering::SeqCst) {
         return Err("กำลังปิดแอป".into());
     }
@@ -180,7 +223,89 @@ pub async fn start_worker(state: State<'_, AppState>) -> Result<Value, String> {
 #[tauri::command]
 pub async fn stop_worker(state: State<'_, AppState>) -> Result<Value, String> {
     let _guard = state.lifecycle.lock().await;
+    // Pressing Stop is the operator saying "not until I say so" — it must survive a restart, or
+    // the next logon would undo the decision. Closing the window also stops the child, but that
+    // path never reaches here, so it stays a "still wanted" shutdown.
+    remember_worker_intent(&state, false);
+    *state.autostart_error.lock().unwrap() = None;
     state.supervisor.stop().await
+}
+
+/// Record the operator's intent for the worker so the next launch can honour it.
+///
+/// A failure to persist is deliberately not fatal: the worker in front of the operator did start
+/// (or stop) as asked, and refusing that because a config write failed would be a worse trade. The
+/// cost is bounded and self-correcting — the next successful Start or Stop rewrites the file.
+fn remember_worker_intent(state: &AppState, wanted: bool) {
+    let cfg = {
+        let mut cfg = state.config.lock().unwrap();
+        if cfg.worker_autostart == wanted {
+            return;
+        }
+        cfg.worker_autostart = wanted;
+        cfg.clone()
+    };
+    let _ = persist_config(&cfg);
+}
+
+/// How long a logon resume keeps waiting for the local dependencies to answer.
+///
+/// At logon everything starts at once: Ollama from its own shortcut, the embed sidecar and RAG
+/// service from the ZuriEdgeStack task, and this app from the Startup folder. A single attempt
+/// loses that race almost every time — `start_worker_locked` asks Ollama for the model list and
+/// gives up if it is not answering yet. These bounds mirror the launcher's own waits rather than
+/// retrying forever, so a genuinely broken configuration still surfaces as an error the operator
+/// can read instead of a spinner that never resolves.
+const RESUME_ATTEMPTS: usize = 12;
+const RESUME_INTERVAL: std::time::Duration = std::time::Duration::from_secs(15);
+
+/// Start the worker again at launch if that was the operator's last explicit intent.
+///
+/// Not a command: nothing in the UI calls this, and it must run when no window has been touched.
+pub async fn resume_worker(state: &AppState) {
+    {
+        let cfg = state.config.lock().unwrap();
+        if !cfg.worker_autostart || cfg.device_key.is_empty() {
+            return;
+        }
+    }
+    state
+        .supervisor
+        .note("info", "เริ่มรับงานอัตโนมัติตามที่ตั้งไว้ครั้งล่าสุด");
+    for attempt in 1..=RESUME_ATTEMPTS {
+        if state.quitting.load(std::sync::atomic::Ordering::SeqCst) {
+            return;
+        }
+        let outcome = {
+            let _guard = state.lifecycle.lock().await;
+            start_worker_locked(state).await
+        };
+        match outcome {
+            Ok(_) => {
+                *state.autostart_error.lock().unwrap() = None;
+                return;
+            }
+            Err(error) => {
+                // Keep the latest reason visible while retrying, so a window opened during the
+                // wait shows what is being waited on rather than a bare stopped worker.
+                *state.autostart_error.lock().unwrap() = Some(error.clone());
+                if attempt == RESUME_ATTEMPTS {
+                    state.supervisor.note(
+                        "error",
+                        format!("เริ่มอัตโนมัติไม่สำเร็จ หยุดลองแล้ว: {error}"),
+                    );
+                    return;
+                }
+                state.supervisor.note(
+                    "warn",
+                    format!(
+                        "เริ่มอัตโนมัติไม่สำเร็จ (ครั้งที่ {attempt}/{RESUME_ATTEMPTS}) จะลองใหม่: {error}"
+                    ),
+                );
+                tokio::time::sleep(RESUME_INTERVAL).await;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -204,6 +329,7 @@ mod tests {
             supervisor: Supervisor::default(),
             providers: ProviderManager::default(),
             quitting: AtomicBool::new(false),
+            autostart_error: Mutex::new(None),
         }
     }
 
@@ -245,5 +371,57 @@ mod tests {
             .expect_err("quit should lock mutations");
 
         assert_eq!(error, "กำลังปิดแอป");
+    }
+
+    // The resume runs with no window open and no operator watching, so each guard below is the
+    // difference between "does nothing, correctly" and "retries a doomed start for three minutes".
+
+    #[tokio::test]
+    async fn resume_does_nothing_when_the_operator_stopped_the_worker() {
+        let state = test_state();
+        state.config.lock().unwrap().device_key = "edgk_test_key_that_is_long_enough".into();
+        state.config.lock().unwrap().worker_autostart = false;
+
+        resume_worker(&state).await;
+
+        assert!(!state.supervisor.is_active());
+        assert_eq!(*state.autostart_error.lock().unwrap(), None);
+    }
+
+    #[tokio::test]
+    async fn resume_does_nothing_on_an_unpaired_device() {
+        // A config can carry the intent from a previous pairing that was since revoked or reset.
+        let state = test_state();
+        state.config.lock().unwrap().worker_autostart = true;
+        state.config.lock().unwrap().device_key = String::new();
+
+        resume_worker(&state).await;
+
+        assert!(!state.supervisor.is_active());
+        assert_eq!(*state.autostart_error.lock().unwrap(), None);
+    }
+
+    #[test]
+    fn status_reports_a_failed_resume_instead_of_a_bare_stopped_worker() {
+        let state = test_state();
+        *state.autostart_error.lock().unwrap() = Some("ไม่พบโมเดลที่เลือกใน Ollama".into());
+
+        let status = worker_status(&state);
+
+        assert_eq!(status["state"], "FAILED");
+        assert_eq!(status["failure"], "ไม่พบโมเดลที่เลือกใน Ollama");
+        assert_eq!(status["autoResume"], true);
+        // FAILED with active:false is the combination the UI leaves Start enabled for.
+        assert_eq!(status["active"], false);
+    }
+
+    #[test]
+    fn status_is_the_supervisors_own_when_no_resume_failed() {
+        let state = test_state();
+
+        let status = worker_status(&state);
+
+        assert_eq!(status, state.supervisor.snapshot());
+        assert!(status.get("autoResume").is_none());
     }
 }

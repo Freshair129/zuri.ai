@@ -11,7 +11,8 @@ mod window_layout;
 
 use desktop::{
     cancel_provider_login, discover_ollama, get_provider_settings, get_provider_status,
-    get_worker_status, save_provider_settings, start_provider_login, start_worker, stop_worker,
+    get_worker_log, get_worker_status, save_provider_settings, start_provider_login, start_worker,
+    stop_worker,
 };
 use tauri::Manager;
 
@@ -40,6 +41,15 @@ pub fn run() {
                     app.package_info().version
                 ))?;
             }
+            // Resume the worker when that was the operator's last explicit intent. Autostart
+            // launches this app at logon with --minimized, and until now that produced a device
+            // that looked paired and healthy while claiming nothing, because only a click on
+            // "เริ่มรับงาน" ever started the child. Spawned rather than awaited: setup must not
+            // block the window, and the resume waits on local services coming up alongside it.
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                desktop::resume_worker(&handle.state::<AppState>()).await;
+            });
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -82,6 +92,7 @@ pub fn run() {
             start_provider_login,
             cancel_provider_login,
             get_worker_status,
+            get_worker_log,
             start_worker,
             stop_worker
         ])
