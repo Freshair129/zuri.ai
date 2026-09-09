@@ -4305,7 +4305,7 @@
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
-      "hash": "b5451f84",
+      "hash": "f0de0f02",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14755,7 +14755,7 @@
       "id": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
-      "hash": "fd8c2010",
+      "hash": "e1dadbb6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14865,7 +14865,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.54.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "81b36c7a",
+      "hash": "5894c17f",
       "status": "current"
     },
     {
@@ -16544,7 +16544,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
-      "hash": "ca450ad0",
+      "hash": "9a3ca292",
       "status": "current"
     },
     {
@@ -16864,7 +16864,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "44c461de",
+      "hash": "0019d61e",
       "status": "current"
     },
     {
@@ -17144,7 +17144,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "ea5560af",
+      "hash": "ccce76a3",
       "status": "current"
     },
     {
@@ -17303,7 +17303,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "8b595a8d",
+      "hash": "9a5863c3",
       "status": "current"
     },
     {
@@ -20122,11 +20122,11 @@
       "id": "req:FR-149",
       "type": "requirement",
       "family": "FR",
-      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, persist inbound CRM and a durable conversation job before acknowledgment, and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
     },
     {
       "id": "req:FR-150",
@@ -24601,7 +24601,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "81807e1c",
+      "hash": "5bc3a669",
       "status": "current"
     },
     {
