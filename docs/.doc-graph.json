@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2442,
-    "total_edges": 9799,
+    "total_nodes": 2440,
+    "total_edges": 9795,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -13,11 +13,11 @@
       "domain": 14,
       "roadmap": 44,
       "feature": 24,
-      "route": 298,
+      "route": 297,
       "model": 135,
       "requirement": 334,
       "test": 575,
-      "code_file": 728
+      "code_file": 727
     },
     "coverage": {
       "requirements": 334,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (163/163)",
       "rules_anchored_in_code": "96% (132/137)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 728,
+      "annotated_code_files": 727,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -874,22 +874,6 @@
         ],
         "@tested": [
           "tests/e2e/fr149-line-server-console.spec.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
-      "hash": "e6bcb3e8",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-080",
-          "FR-146"
-        ],
-        "@spec": [
-          "SDD-044"
         ]
       }
     },
@@ -6550,7 +6534,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "f08d9535",
+      "hash": "d8bec96f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11081,7 +11065,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "0dd7d44c",
+      "hash": "3b94a777",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11171,7 +11155,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "8f40e9ac",
+      "hash": "eec93629",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16306,7 +16290,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.14.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d4735677",
+      "hash": "0b0ed274",
       "status": "current"
     },
     {
@@ -23697,14 +23681,6 @@
       "status": "current"
     },
     {
-      "id": "route:page:/line-oa/integrations",
-      "type": "route",
-      "kind": "page",
-      "route": "/line-oa/integrations",
-      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
-      "status": "current"
-    },
-    {
       "id": "route:page:/line-oa/live-crm",
       "type": "route",
       "kind": "page",
@@ -27511,7 +27487,7 @@
       "id": "test:tests/unit/line-studio-edge-connection-render.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-      "hash": "e3b7f62a",
+      "hash": "c990d857",
       "status": "current"
     },
     {
@@ -29801,27 +29777,6 @@
     {
       "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
       "to": "req:SDD-060",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:FR-080",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:FR-146",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:SDD-044",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -60117,13 +60072,6 @@
     },
     {
       "from": "route:page:/line-oa/edge-connection",
-      "to": "domain:line-oa-studio",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:page:/line-oa/integrations",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
