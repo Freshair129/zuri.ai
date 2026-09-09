@@ -774,11 +774,11 @@ body[data-text-zoom="true"]:has(#panel-settings:not([hidden])) .settings-form-bl
   line-height: 1.2 !important;
 }
 
-/* Worker activity log (Overview). Fixed height with its own scroll: the panel sits in a card grid
-   whose other cards are short, and an unbounded list would push the page controls off screen. */
-/* The card is a flex column so the list absorbs the leftover height and the actions below it stay
-   inside the card. With a fixed list height instead, the copy button rendered past the card's
-   bottom edge and `overflow: hidden` clipped it away entirely. */
+/* Worker activity log (Overview).
+   No scroll container and no growth: this app's e2e contract forbids scrollable ancestors and any
+   content clipped by one, at every supported viewport. So the card shows the newest few lines at a
+   fixed single-line height and "คัดลอกทั้งหมด" hands over the whole buffer — pagination-or-truncate
+   is the same answer the hardware panel gives for a list that does not fit. */
 .worker-log-card { display: flex; flex-direction: column; gap: 8px; }
 .worker-log {
   margin: 0;
@@ -787,9 +787,6 @@ body[data-text-zoom="true"]:has(#panel-settings:not([hidden])) .settings-form-bl
   display: grid;
   align-content: start;
   gap: 4px;
-  flex: 1 1 auto;
-  min-height: 72px;
-  overflow-y: auto;
   font-size: 12px;
   line-height: 1.35;
 }
@@ -806,6 +803,11 @@ body[data-text-zoom="true"]:has(#panel-settings:not([hidden])) .settings-form-bl
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.worker-log span { min-width: 0; overflow-wrap: anywhere; }
+.worker-log span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .worker-log li.warn span { color: var(--yellow); }
 .worker-log li.error span { color: var(--red); }

@@ -42,7 +42,7 @@ const state = {
   workerBusy: false,
   workerPollBusy: false,
   workerLog: [],
-  workerLogPinned: true,
+  workerLogPage: 0,
   pairingActive: false,
   pairingBusy: false,
   pairingState: 'IDLE',
@@ -220,7 +220,10 @@ function renderCompactOverview() {
   const compact = state.compact;
   const prerequisites = Array.from($('prerequisites').children);
   const enlarged = compact && document.body.dataset.textZoom === 'true';
-  const pages = enlarged ? [blocks[0], ...prerequisites.map(() => blocks[1]), blocks[2]] : blocks;
+  // `blocks.slice(2)` rather than `blocks[2]`: the enlarged path used to name the last card by
+  // index, so adding a fourth made it unreachable at 200% text zoom — visible to no one who
+  // did not test at that zoom, which is the only place this list is used.
+  const pages = enlarged ? [blocks[0], ...prerequisites.map(() => blocks[1]), ...blocks.slice(2)] : blocks;
   $('overviewHome').classList.toggle('compact-steps', compact);
   setVisible('overviewCompactNav', compact);
   if (!compact) {
@@ -1062,15 +1065,39 @@ function logTime(at) {
     + ':' + String(stamp.getSeconds()).padStart(2, '0');
 }
 
+// Lines per page of the log subpage.
+//
+// The Overview cannot host this: its no-scroll budget is already spent on three cards, and a fourth
+// clipped its neighbours at every supported viewport. So the log lives on its own page and paginates,
+// which is the same answer the hardware details page gives — this app never scrolls, it pages.
+const WORKER_LOG_PER_PAGE = 8;
+
+function workerLogPages() {
+  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
+  // Newest first: a log is read from the end, and page 1 should be what just happened.
+  const ordered = entries.slice().reverse();
+  const pages = [];
+  for (let index = 0; index < ordered.length; index += WORKER_LOG_PER_PAGE) {
+    pages.push(ordered.slice(index, index + WORKER_LOG_PER_PAGE));
+  }
+  return pages.length ? pages : [[]];
+}
+
 function renderWorkerLog() {
   const list = $('workerLog');
   if (!list) return;
   const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
-  setText('workerLogCount', entries.length ? entries.length + ' รายการ' : '—');
+  const pages = workerLogPages();
+  state.workerLogPage = Math.max(0, Math.min(state.workerLogPage, pages.length - 1));
+  const shown = pages[state.workerLogPage];
+  setText('workerLogCount', entries.length ? entries.length + ' รายการ' : 'ยังไม่มีบันทึก');
+  setText('workerLogPageLabel', 'หน้า ' + (state.workerLogPage + 1) + ' / ' + pages.length);
+  $('workerLogPrev').disabled = state.workerLogPage <= 0;
+  $('workerLogNext').disabled = state.workerLogPage >= pages.length - 1;
   setVisible('workerLogEmpty', entries.length === 0);
   // Rebuilt rather than appended: the native buffer is bounded and drops its oldest lines, so the
   // list here has to be able to shrink from the front as well as grow at the end.
-  list.replaceChildren(...entries.map((entry) => {
+  list.replaceChildren(...shown.map((entry) => {
     const row = document.createElement('li');
     const level = entry && entry.level;
     if (level === 'warn' || level === 'error') row.className = level;
@@ -1078,13 +1105,13 @@ function renderWorkerLog() {
     time.textContent = logTime(entry && entry.at);
     if (entry && entry.at) time.dateTime = entry.at;
     const message = document.createElement('span');
-    // textContent, never innerHTML: these lines come from the worker process.
+    // textContent, never innerHTML: these lines come from the worker process. The row is one line
+    // high and clipped with an ellipsis, so the full text lives in the title and in the copy.
     message.textContent = text(entry && entry.message, '');
+    message.title = message.textContent;
     row.append(time, message);
     return row;
   }));
-  // Follow the newest line unless the operator has scrolled up to read something.
-  if (state.workerLogPinned !== false) list.scrollTop = list.scrollHeight;
 }
 
 async function refreshWorkerLog() {
@@ -1390,23 +1417,18 @@ function bindNavigation() {
   $('hardwareNext').addEventListener('click', () => { state.inventoryPage += 1; renderHardwarePage(); });
   $('overviewCompactPrev').addEventListener('click', () => { state.overviewPage -= 1; renderCompactOverview(); });
   $('overviewCompactNext').addEventListener('click', () => { state.overviewPage += 1; renderCompactOverview(); });
-  const workerLogList = $('workerLog');
-  if (workerLogList) {
-    // Stop following the tail while the operator is reading further up, and resume once they
-    // scroll back to the bottom — otherwise every three-second poll yanks the view away.
-    workerLogList.addEventListener('scroll', () => {
-      const distance = workerLogList.scrollHeight - workerLogList.scrollTop - workerLogList.clientHeight;
-      state.workerLogPinned = distance <= 12;
-    });
-  }
+  $('workerLogOpen').addEventListener('click', () => { state.workerLogPage = 0; showPage('overview', 'workerLogPage'); renderWorkerLog(); });
+  $('workerLogBack').addEventListener('click', () => { showHome('overview'); focusElement('workerLogOpen'); });
+  $('workerLogPrev').addEventListener('click', () => { state.workerLogPage -= 1; renderWorkerLog(); });
+  $('workerLogNext').addEventListener('click', () => { state.workerLogPage += 1; renderWorkerLog(); });
   $('workerLogCopy').addEventListener('click', async () => {
     const lines = (state.workerLog || []).map((entry) => logTime(entry && entry.at) + '  ' + text(entry && entry.message, ''));
-    if (!lines.length) { setMessage('overviewFeedback', 'ยังไม่มีบันทึกให้คัดลอก', 'warning'); return; }
+    if (!lines.length) { setMessage('workerLogEmpty', 'ยังไม่มีบันทึกให้คัดลอก', 'warning'); return; }
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
-      setMessage('overviewFeedback', 'คัดลอกบันทึก ' + lines.length + ' รายการแล้ว', 'success');
+      setMessage('workerLogEmpty', 'คัดลอกบันทึก ' + lines.length + ' รายการแล้ว', 'success');
     } catch (failure) {
-      setMessage('overviewFeedback', 'คัดลอกไม่สำเร็จ: ' + errorMessage(failure), 'error');
+      setMessage('workerLogEmpty', 'คัดลอกไม่สำเร็จ: ' + errorMessage(failure), 'error');
     }
   });
   for (const [key, previousId, nextId] of [

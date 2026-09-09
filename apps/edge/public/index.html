@@ -80,6 +80,9 @@
                 <div><dt>ตัวช่วย / โมเดล</dt><dd id="providerModelSummary">—</dd></div>
               </dl>
               <p id="overviewReason" class="feedback muted" role="status" aria-live="polite"></p>
+              <div class="inline-actions">
+                <button id="workerLogOpen" class="button ghost">ดูบันทึกการทำงาน</button>
+              </div>
             </article>
 
             <article class="surface-card prerequisite-card overview-block" data-overview-page="1">
@@ -112,14 +115,6 @@
               </div>
             </article>
 
-            <article class="surface-card worker-log-card overview-block" data-overview-page="3">
-              <div class="card-heading"><h3>บันทึกการทำงาน</h3><span id="workerLogCount" class="count-label">—</span></div>
-              <ol id="workerLog" class="worker-log" role="log" aria-live="polite" aria-label="บันทึกการทำงานของตัวประมวลผล"></ol>
-              <p id="workerLogEmpty" class="muted compact-text">ยังไม่มีบันทึกในรอบการทำงานนี้</p>
-              <div class="inline-actions">
-                <button id="workerLogCopy" class="button ghost">คัดลอกทั้งหมด</button>
-              </div>
-            </article>
           </div>
           <div id="overviewCompactNav" class="compact-page-nav" hidden><span id="overviewCompactLabel">ส่วนที่ 1 / 4</span><div class="pagination-actions"><button id="overviewCompactPrev" class="button secondary">ก่อนหน้า</button><button id="overviewCompactNext" class="button secondary">ถัดไป</button></div></div>
 
@@ -137,6 +132,20 @@
           <div class="pagination-bar">
             <span id="hardwarePageLabel">หน้า 1 / 1</span>
             <div class="pagination-actions"><button id="hardwarePrev" class="button secondary">ก่อนหน้า</button><button id="hardwareNext" class="button secondary">ถัดไป</button></div>
+          </div>
+        </div>
+
+        <div id="workerLogPage" class="page-view subpage" hidden>
+          <div class="subpage-heading">
+            <button id="workerLogBack" class="button ghost back-button">← กลับภาพรวม</button>
+            <div><p class="eyebrow">บันทึกการทำงาน</p><h2 id="workerLogCount">—</h2></div>
+            <button id="workerLogCopy" class="button secondary">คัดลอกทั้งหมด</button>
+          </div>
+          <p id="workerLogEmpty" class="panel-message" role="status" aria-live="polite">ยังไม่มีบันทึกในรอบการทำงานนี้</p>
+          <ol id="workerLog" class="worker-log" role="log" aria-live="polite" aria-label="บันทึกการทำงานของตัวประมวลผล"></ol>
+          <div class="pagination-bar">
+            <span id="workerLogPageLabel">หน้า 1 / 1</span>
+            <div class="pagination-actions"><button id="workerLogPrev" class="button secondary">ก่อนหน้า</button><button id="workerLogNext" class="button secondary">ถัดไป</button></div>
           </div>
         </div>
       </section>
