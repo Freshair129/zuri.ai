@@ -1,12 +1,11 @@
 'use client'
-import { edgePairingDownload } from '@/modules/identity/edge-pairing-download'
 
 import { useEffect, useMemo, useState } from 'react'
 import {
   KeyRound, ShieldCheck, Users, MessageSquare, Plus,
-  CheckCircle2, Search, ArrowLeft, ExternalLink, Settings, Sparkles,
-  Bot, RefreshCw, AlertTriangle, Layers, Database, Mail, Folder,
-  Github, Globe, Radio, ChevronRight, Building2, Copy, Check, Trash2
+  CheckCircle2, Search, ArrowLeft, Bot, AlertTriangle, Layers,
+  Database, Mail, Folder, Github, Globe, Radio, ChevronRight,
+  Building2, Copy, Check
 } from 'lucide-react'
 
 import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
@@ -156,8 +155,6 @@ export default function IntegrationsPage() {
   const registryPath = `/api/platform/integrations/line-registry${businessId ? `?businessId=${encodeURIComponent(businessId)}` : ''}`
   const lineRegistry = useFetch(registryPath, [businessId, activeView, lineTab])
 
-  const heartbeat = useFetch('/api/agent/heartbeat', [activeView, lineTab])
-
   // Model form state
   const [provider, setProvider] = useState('openrouter')
   const [name, setName] = useState('Phase 1 LLM')
@@ -175,86 +172,6 @@ export default function IntegrationsPage() {
   const [groupBusy, setGroupBusy] = useState(false)
   const [groupMessage, setGroupMessage] = useState(null)
   const [groupError, setGroupError] = useState(null)
-
-  // @req FR-144 — Edge Device pairing. This used to generate `tok_edge_…` and
-  // `sec_edge_…` strings in the browser: convincing to read, accepted by
-  // nothing, because no server ever stored them. The mint below is the real
-  // one — the server issues the key, keeps only its SHA-256 hash, and returns
-  // the raw value exactly once (ADR-059 D2).
-  const [generatedPairing, setGeneratedPairing] = useState(null)
-  const [customDeviceName, setCustomDeviceName] = useState('')
-  const [pairingBusy, setPairingBusy] = useState(false)
-  const [pairingError, setPairingError] = useState(null)
-  const credentials = useFetch(businessId ? `/api/platform/edge-devices/credentials?businessId=${encodeURIComponent(businessId)}` : null, [businessId])
-
-  const generateNewPairingKeys = async () => {
-    if (!businessId) { setPairingError('เลือกธุรกิจก่อนจึงจะจับคู่อุปกรณ์ได้'); return }
-    const deviceId = customDeviceName.trim()
-      ? customDeviceName.trim().replace(/[^a-zA-Z0-9_-]/g, '-').toUpperCase()
-      : `DEV-${(selectedBusiness?.code || 'EDGE').replace(/[^A-Za-z0-9]/g, '').toUpperCase()}-01`
-    setPairingBusy(true)
-    setPairingError(null)
-    try {
-      const res = await fetch('/api/platform/edge-devices/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessId, deviceId, label: deviceId }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body?.error || 'ไม่สามารถออกกุญแจจับคู่ได้')
-      setGeneratedPairing(edgePairingDownload({
-        credential: body.credential, key: body.key, businessId,
-        businessCode: selectedBusiness?.code, businessName: selectedBusiness?.name, origin: publicOrigin,
-      }))
-      credentials.reload?.()
-    } catch (error) {
-      setPairingError(error.message)
-    } finally {
-      setPairingBusy(false)
-    }
-  }
-
-  const revokeEdgeCredential = async (id, deviceId) => {
-    if (!confirm(`เพิกถอนกุญแจของอุปกรณ์ ${deviceId} ใช่หรือไม่? อุปกรณ์จะใช้งานไม่ได้ทันที`)) return
-    try {
-      const res = await fetch(`/api/platform/edge-devices/credentials/${encodeURIComponent(id)}`, { method: 'DELETE' })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body?.error || 'เพิกถอนไม่สำเร็จ')
-      credentials.reload?.()
-    } catch (error) {
-      setPairingError(error.message)
-    }
-  }
-
-  const deleteEdgeDevice = async (deviceId) => {
-    if (!confirm(`คุณต้องการลบการเชื่อมต่อ Edge Runtime (${deviceId || 'ทั้งหมด'}) ออกจากระบบใช่หรือไม่?`)) return
-    try {
-      const res = await fetch(`/api/agent/heartbeat${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`, {
-        method: 'DELETE'
-      })
-      if (res.ok) {
-        alert('✅ ลบการเชื่อมต่อ Edge Runtime เรียบร้อยแล้ว')
-        heartbeat.reload()
-      } else {
-        alert('❌ ไม่สามารถลบได้')
-      }
-    } catch (err) {
-      alert('Error: ' + err.message)
-    }
-  }
-
-  const downloadPairingJson = () => {
-    if (!generatedPairing) return
-    const blob = new Blob([JSON.stringify(generatedPairing, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `zuri-edge-pairing-${generatedPairing.deviceId.toLowerCase()}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
 
   // LINE User form state
   const [userDisplayName, setUserDisplayName] = useState('')
@@ -725,272 +642,12 @@ export default function IntegrationsPage() {
             </button>
             <button
               type="button"
-              className={`btn text-xs font-semibold ${lineTab === 'EDGE_LLM' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setLineTab('EDGE_LLM')}
-            >
-              <Sparkles size={14} className="mr-1.5 text-amber-500" /> ⚡ Zuri Edge Device &amp; Pairing
-            </button>
-            <button
-              type="button"
               className={`btn text-xs font-semibold ${lineTab === 'WEBHOOK' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setLineTab('WEBHOOK')}
             >
               <Radio size={14} className="mr-1.5" /> 📡 LINE Ingress &amp; Webhook
             </button>
           </div>
-
-          {/* TAB: EDGE LLM & DISK ARCHIVE CONFIG */}
-          {lineTab === 'EDGE_LLM' && (
-            <div className="space-y-4">
-              {/* Edge Runtime Security & Device Pairing Live Status */}
-              {(() => {
-                const isOnline = Boolean(heartbeat.data?.activeOnline > 0)
-                const device = heartbeat.data?.devices?.[0]
-                const isPaired = Boolean(device || isOnline)
-                return (
-                  <div className={`rounded-2xl border p-5 shadow-sm transition ${
-                    isOnline ? 'border-emerald-200 bg-white' : isPaired ? 'border-amber-200 bg-amber-50/20' : 'border-slate-200 bg-slate-50/40'
-                  }`}>
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex items-center gap-3.5">
-                        <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${
-                          isOnline ? 'bg-emerald-500/10 text-emerald-600' : isPaired ? 'bg-amber-500/10 text-amber-600' : 'bg-slate-200/60 text-slate-500'
-                        }`}>
-                          <Radio size={24} className={isOnline ? 'animate-pulse' : ''} />
-                          {isOnline && (
-                            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-base font-bold text-slate-900">
-                              {isOnline ? `Paired Device: ${device?.deviceId}` : isPaired ? `อุปกรณ์ที่เคยเชื่อมต่อ: ${device?.deviceId}` : 'ยังไม่ได้จับคู่ Edge Device ใดๆ'}
-                            </h3>
-                            {isOnline ? (
-                              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                                🟢 Paired &amp; Heartbeat Active
-                              </span>
-                            ) : isPaired ? (
-                              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 border border-amber-300">
-                                🟠 Offline (ขาดการติดต่อ)
-                              </span>
-                            ) : (
-                              <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-300">
-                                ⚪ Unpaired (ไม่มีอุปกรณ์)
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-0.5 text-xs text-muted">
-                            {isOnline ? (
-                              /* The FR-141 heartbeat carries contractVersion, status,
-                                 registeredQueries, approvedTemplates and lastSeenAt — and
-                                 nothing else. `device.engine` and `device.model` were never
-                                 fields on it, so the `||` fallbacks below rendered every
-                                 time: a hardcoded "GenesisBlock + Codex Luna 5.6 / gpt-5.6-luna"
-                                 wearing the syntax of a derived value, which reads to a
-                                 reviewer as though the device had reported it. What the
-                                 device does report is shown instead. */
-                              <>Contract <code className="font-mono text-slate-700">{device?.contractVersion || '—'}</code> · เห็นสัญญาณล่าสุด {device?.lastSeenAt ? new Date(device.lastSeenAt).toLocaleTimeString() : '—'}</>
-                            ) : isPaired ? (
-                              <>อุปกรณ์ออฟไลน์ชั่วคราว: เปิดรัน <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-amber-900">start-edge-device.bat</code> บนเครื่อง</>
-                            ) : (
-                              <>สร้างรหัส Pairing Keys ด้านล่าง แล้วนำไปใส่ใน <code className="rounded bg-slate-200 px-1.5 py-0.5 font-mono text-slate-800">start-edge-device.bat</code> หรือ Local GUI</>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-secondary text-xs font-semibold"
-                          onClick={() => {
-                            heartbeat.reload()
-                            if (isOnline) alert(`Heartbeat Verified: รับสัญญาณจาก ${device?.deviceId || 'Edge'} เมื่อ ${new Date(device?.lastSeenAt).toLocaleTimeString()}`)
-                            else alert('Heartbeat Probe: ไม่พบสัญญาณ Active จากเครื่อง Local')
-                          }}
-                        >
-                          <RefreshCw size={13} className="mr-1.5" /> ตรวจสอบสัญญาณ (Probe)
-                        </button>
-                        {isPaired && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
-                            onClick={() => deleteEdgeDevice(device?.deviceId)}
-                            title="ล้างสถานะและยกเลิกการจับคู่อุปกรณ์นี้ออกจาก Cloud"
-                          >
-                            <Trash2 size={13} className="mr-1.5 text-rose-500" /> ยกเลิกการจับคู่ (Unpair)
-                          </button>
-                        )}
-                        <a
-                          href="http://localhost:8787/gui"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn btn-primary text-xs font-semibold flex items-center gap-1.5"
-                        >
-                          <Settings size={13} /> เปิด Local Edge GUI (Config) <ExternalLink size={11} />
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-3.5 text-xs max-md:grid-cols-1">
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : isPaired ? 'text-amber-500' : 'text-slate-400'} />
-                        <span>Device Host: <code className="font-mono font-bold text-slate-900">{device?.deviceId || (isPaired ? 'Unknown Host' : 'None (Unpaired)')}</code></span>
-                      </div>
-                      {/* "RAG Engine: GenesisBlock Graph DB" and "Intelligence: Codex CLI
-                          (Zero Token Cost)" stood here as literals. Nothing reported either:
-                          the heartbeat has no engine, model or cost field. Beside a
-                          "Device Host: None (Unpaired)" cell they described the stack of a
-                          device that did not exist, and the icon colours — which ARE
-                          conditioned on isOnline — made the whole strip read as live
-                          telemetry. These two cells now show counts the device itself sent. */}
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <Database size={16} className={isOnline ? 'text-blue-600' : 'text-slate-400'} />
-                        <span>Registered queries: <b>{isPaired ? (device?.registeredQueries?.length ?? 0) : '—'}</b></span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <Sparkles size={16} className={isOnline ? 'text-amber-500' : 'text-slate-400'} />
-                        <span>Approved templates: <b>{isPaired ? (device?.approvedTemplates?.length ?? 0) : '—'}</b></span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })()}
-
-              {/* Edge Local Management & Pairing Generator */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
-                <div className="flex items-start justify-between gap-4 max-md:flex-col">
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <KeyRound size={16} className="text-[var(--brand)]" />
-                      Zero-Trust Edge Device Pairing Generator
-                    </h4>
-                    <p className="mt-1 text-xs text-slate-600 max-w-2xl leading-relaxed">
-                      ออก <b>กุญแจอุปกรณ์ (device key)</b> หนึ่งดอกสำหรับ Local Edge Device เครื่องนี้ นำไปตั้งเป็น <code>ZURI_EDGE_DEVICE_KEY</code> เซิร์ฟเวอร์เก็บไว้เพียงค่าแฮช จึง<b>แสดงค่าจริงครั้งเดียวเท่านั้น</b> — ปิดหน้านี้แล้วเรียกดูอีกไม่ได้ ต้องออกกุญแจใหม่และเพิกถอนดอกเดิม
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    <input
-                      type="text"
-                      className="input text-xs font-mono h-8 w-44"
-                      placeholder="ชื่อเครื่อง (เช่น DESKTOP-PC)"
-                      value={customDeviceName}
-                      onChange={(e) => setCustomDeviceName(e.target.value)}
-                      title="ระบุชื่อจริงของเครื่อง (Hostname) หรือเว้นว่างเพื่อสุ่มชื่อ"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary text-xs font-semibold flex items-center gap-1.5 h-8"
-                      onClick={generateNewPairingKeys}
-                      disabled={pairingBusy || !businessId}
-                    >
-                      <Plus size={14} /> {pairingBusy ? 'กำลังออกกุญแจ…' : 'ออกกุญแจจับคู่อุปกรณ์'}
-                    </button>
-                    <a
-                      href="http://localhost:8787/gui"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5 h-8"
-                    >
-                      🖥️ Local Edge Web GUI
-                    </a>
-                  </div>
-                </div>
-
-                {/* Generated Keys Display & Download Panel */}
-                {generatedPairing && (
-                  <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50/60 p-4 animate-in fade-in slide-in-from-top-2">
-                    <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck size={16} className="text-amber-700" />
-                        <span className="text-xs font-bold text-amber-900">
-                          คู่รหัสจับคู่ใหม่สำหรับ: {generatedPairing.deviceId} ({generatedPairing.businessName})
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        className="btn btn-primary text-xs font-semibold py-1 px-3 bg-amber-600 hover:bg-amber-700 flex items-center gap-1.5"
-                        onClick={downloadPairingJson}
-                      >
-                        📥 Download Pairing .json (1 ครั้ง)
-                      </button>
-                    </div>
-
-                    <div className="mt-3 space-y-2 text-xs">
-                      <div>
-                        <span className="font-semibold text-slate-700">Device ID:</span>
-                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-slate-900 border border-amber-200">{generatedPairing.deviceId}</code>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-slate-700">ZURI_EDGE_DEVICE_KEY (แสดงครั้งเดียว):</span>
-                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-rose-700 font-bold border border-amber-200 break-all">{generatedPairing.key}</code>
-                        <button
-                          type="button"
-                          className="ml-2 rounded border border-amber-300 px-2 py-0.5 font-semibold text-amber-900 hover:bg-amber-100"
-                          onClick={() => navigator.clipboard?.writeText(generatedPairing.key)}
-                        >
-                          คัดลอก
-                        </button>
-                      </div>
-                      <div className="text-[11px] text-slate-600">{generatedPairing.instructions}</div>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between border-t border-amber-200/60 pt-2 text-[11px] text-amber-800">
-                      <span>⚠️ คัดลอกทันที ระบบเก็บเฉพาะค่าแฮชของกุญแจนี้ และจะไม่แสดงค่าจริงอีก</span>
-                      <button
-                        type="button"
-                        className="text-amber-900 hover:underline font-semibold"
-                        onClick={() => setGeneratedPairing(null)}
-                      >
-                        ปิดหน้าต่างนี้
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {pairingError && (
-                  <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{pairingError}</p>
-                )}
-
-                {/* @req FR-144 — the credentials this Business has issued, as metadata
-                    only. A REVOKED row stays listed so an operator can see what was
-                    withdrawn and when. */}
-                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
-                  <div className="mb-2 text-xs font-semibold text-slate-700">กุญแจอุปกรณ์ที่ออกให้ธุรกิจนี้</div>
-                  {(credentials.data?.credentials || []).length === 0 ? (
-                    <p className="text-xs text-slate-500">ยังไม่มีอุปกรณ์ที่จับคู่ไว้</p>
-                  ) : (
-                    <ul className="space-y-1.5">
-                      {(credentials.data?.credentials || []).map((row) => (
-                        <li key={row.id} className="flex items-center justify-between gap-2 text-xs">
-                          <span className="flex items-center gap-2">
-                            <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-800">{row.deviceId}</code>
-                            <span className="text-slate-500">{row.keyPrefix}…</span>
-                            <span className={row.status === 'ACTIVE' ? 'text-emerald-700' : 'text-slate-400'}>
-                              {row.status === 'ACTIVE' ? 'ใช้งานอยู่' : 'เพิกถอนแล้ว'}
-                            </span>
-                            {row.lastUsedAt && <span className="text-slate-400">ใช้ล่าสุด {new Date(row.lastUsedAt).toLocaleString('th-TH')}</span>}
-                          </span>
-                          {row.status === 'ACTIVE' && (
-                            <button
-                              type="button"
-                              className="font-semibold text-rose-700 hover:underline"
-                              onClick={() => revokeEdgeCredential(row.id, row.deviceId)}
-                            >
-                              เพิกถอน
-                            </button>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* TAB: GROUPS */}
           {lineTab === 'GROUPS' && (

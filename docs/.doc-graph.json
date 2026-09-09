@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2441,
-    "total_edges": 9798,
+    "total_nodes": 2442,
+    "total_edges": 9799,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -16,7 +16,7 @@
       "route": 298,
       "model": 135,
       "requirement": 334,
-      "test": 574,
+      "test": 575,
       "code_file": 728
     },
     "coverage": {
@@ -1143,14 +1143,13 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "9950af2d",
+      "hash": "17f17a2e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
           "FR-130",
-          "FR-142",
-          "FR-144"
+          "FR-142"
         ],
         "@spec": [
           "SEC-016",
@@ -11082,7 +11081,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "437c0f24",
+      "hash": "0dd7d44c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16075,7 +16074,7 @@
       "path": "docs/domains/identity/features/FR-144-edge-device-credential.md",
       "title": "FR-144 — Edge device credential (`EdgeDeviceCredential`)",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
-      "hash": "bef393e2",
+      "hash": "7aa05ee8",
       "status": "current"
     },
     {
@@ -16865,7 +16864,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "533abb89",
+      "hash": "44c461de",
       "status": "current"
     },
     {
@@ -20073,11 +20072,11 @@
       "id": "req:FR-144",
       "type": "requirement",
       "family": "FR",
-      "label": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible.",
+      "label": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from LINE OA Studio's Edge Connection page (moved 2026-09-09 from `/platform/integrations`, which now carries no pairing UI of its own) with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible. ✅ implemented 2026-09-04 (PR #213) — `EdgeDeviceCredential`, mint/list/revoke, `resolveEdgeDeviceContext`, the FR-141 heartbeat acceptance and the `/platform/integrations` Edge panel that replaced the browser-side pairing-string generator; `tests/integration/fr144-edge-device-credential.test.js` plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. Key rotation remains mint-then-revoke with no grace window, as declared "
+      "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from LINE OA Studio's Edge Connection page (moved 2026-09-09 from `/platform/integrations`, which now carries no pairing UI of its own) with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible. ✅ implemented 2026-09-04 (PR #213) — `EdgeDeviceCredential`, mint/list/revoke, `resolveEdgeDeviceContext`, the FR-141 heartbeat acceptance and (originally) the `/platform/integrations` Edge panel that replaced the browser-side pairing-string generator; `tests/integration/fr144-edge-device-credential.test.js` plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. Key rotation remains mint-then-revoke with no grace window, as declared. 2026-09-09: the manual-mint panel moved to LINE OA Studio's Edge Connection page (`LineStudioEdgeConnection.jsx`) as the one surface for it; `/platform/integrations` carries no Edge pairing UI anymore "
     },
     {
       "id": "req:FR-145",
@@ -27197,7 +27196,7 @@
       "id": "test:tests/unit/integrations-page-claims.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/integrations-page-claims.test.js",
-      "hash": "35a52bc9",
+      "hash": "c82682bc",
       "status": "current"
     },
     {
@@ -27506,6 +27505,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-studio-dashboard-render.test.js",
       "hash": "b31b173f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-studio-edge-connection-render.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+      "hash": "e3b7f62a",
       "status": "current"
     },
     {
@@ -30124,13 +30130,6 @@
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:FR-142",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
-      "to": "req:FR-144",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -85591,13 +85590,6 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
-      "to": "req:FR-144",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -86957,6 +86949,13 @@
     {
       "from": "test:tests/unit/integrations-page-claims.test.js",
       "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integrations-page-claims.test.js",
+      "to": "req:FR-144",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -88937,13 +88936,6 @@
     },
     {
       "from": "test:tests/unit/line-registry-service.test.js",
-      "to": "req:FR-144",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -89004,6 +88996,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-studio-edge-connection-render.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-edge-connection-render.test.js",
+      "to": "req:FR-146",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-edge-connection-render.test.js",
+      "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-trace-route.test.js",

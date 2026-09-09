@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-04T09:00:00+07:00,Claude Code"
-last_update: "2026-09-08T19:41:52+07:00,RWANG"
+last_update: "2026-09-09T00:00:00+07:00,Claude Code"
 status: "beta"
 superseded_by: null
 domain: identity
@@ -196,11 +196,20 @@ in the payload must match it or be absent. That closes FR-141's recorded open it
 The FR-106 `api-access-auth.js` discipline is the template to copy — same hashing,
 same fall-through-vs-throw shape, same silence about why a key failed.
 
-### UI — `/platform/integrations`, Edge tab
+### UI — LINE OA Studio, Edge Connection page
 
-Delete the client-side fake generator (`page.jsx` ~180-205). In its place: a mint form
-(`deviceId`, `label`), the raw key shown once with a copy control and an explicit "this
-will not be shown again", the credential list, and revoke.
+Originally built at `/platform/integrations`'s Edge tab (replacing the client-side
+fake generator there). Consolidated 2026-09-09 (owner instruction) to LINE OA Studio's
+Edge Connection page (`src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx`)
+as the **only** manual-mint surface: a mint form (`deviceId`, `label`), the raw key
+shown once with a copy control and an explicit "this will not be shown again", the
+credential list, and revoke. The Integrations page carries none of this anymore —
+one surface, not two that can silently diverge. This manual mint path is distinct
+from, and still needed alongside, the browser/QR Desktop pairing flow (`/edge/pair`,
+same section above): that flow hands a credential straight into the Tauri desktop
+app's own protected storage, while the headless `apps/edge` CLI worker (`conversation
+serve`) has no browser to open and still needs the raw key copied into
+`ZURI_EDGE_DEVICE_KEY` by hand.
 
 ## Acceptance criteria
 
@@ -224,8 +233,9 @@ will not be shown again", the credential list, and revoke.
   absent one is filled from the context.
 - **AC-144.8** — An `EdgeDeviceCredential` never satisfies `isOperator`,
   `ownsBusiness`, `isApiAccessFor` or any session predicate.
-- **AC-144.9** — The `/platform/integrations` Edge tab contains no client-generated
-  key or secret; every credential shown corresponds to a stored row.
+- **AC-144.9** — LINE OA Studio's Edge Connection page contains no client-generated
+  key or secret; every credential shown corresponds to a stored row. The
+  `/platform/integrations` page carries no pairing UI of its own (moved 2026-09-09).
 
 ## Gates left open
 

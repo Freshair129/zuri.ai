@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { Card, SectionTitle, StatusPill } from "@/components/ui";
 import { useScope } from "@/context/ScopeContext";
+import { edgePairingDownload } from "@/modules/identity/edge-pairing-download";
+import { resolveBrowserOrigin, resolvePublicBaseUrl } from "@/lib/public-base-url";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -51,22 +53,87 @@ export default function LineStudioEdgeConnection() {
   const [connectionId, setConnectionId] = useState("");
   const [copiedKey, setCopiedKey] = useState(false);
 
-  // Mock Edge Device Telemetry (ADR-041 / ADR-043)
-  const edgeDeviceTelemetry = {
-    id: "edg-node-01",
-    name: "Zuri Edge Device (Workstation Node)",
-    host: "localhost:8787",
-    status: "ONLINE",
-    latency: "4 ms",
-    pairingToken: "edgk_live_8921a7f0e812d4",
-    uptime: "99.98%",
-    tiers: [
-      { tier: "Tier 1", name: "Edge Runtime Daemon", desc: "Local Background Worker & Webhook Forwarder", status: "ACTIVE" },
-      { tier: "Tier 2", name: "MSP Memory Policy", desc: "Token Budget & Ephemeral Scratchpad Gate", status: "ACTIVE" },
-      { tier: "Tier 3", name: "GKS Knowledge Authority", desc: "Canonical Entity Identity & RAG (Radius R0-R3)", status: "ACTIVE" },
-      { tier: "Tier 4", name: "GenesisBlockDB", desc: "6-Lane Substrate (Vector + Graph + Lexical)", status: "HEALTHY" }
-    ]
-  };
+  // Static architecture reference (ADR-043) — not live telemetry, no per-device
+  // endpoint reports these tiers individually today. The pairing section below
+  // this is real: FR-144's mint/list API, no mock data.
+  const cognitiveTiers = [
+    { tier: "Tier 1", name: "Edge Runtime Daemon", desc: "Local Background Worker & Webhook Forwarder" },
+    { tier: "Tier 2", name: "MSP Memory Policy", desc: "Token Budget & Ephemeral Scratchpad Gate" },
+    { tier: "Tier 3", name: "GKS Knowledge Authority", desc: "Canonical Entity Identity & RAG (Radius R0-R3)" },
+    { tier: "Tier 4", name: "GenesisBlockDB", desc: "6-Lane Substrate (Vector + Graph + Lexical)" }
+  ];
+
+  // FR-144: real Edge Device credentials for this Business. `keyPrefix`/`status`/
+  // `lastUsedAt` are metadata only — the raw key exists exactly once, in a mint
+  // response, never again (mintEdgeDeviceCredential's own contract).
+  const [credentials, setCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(false);
+  const [mintDeviceId, setMintDeviceId] = useState("");
+  const [mintLabel, setMintLabel] = useState("");
+  const [minting, setMinting] = useState(false);
+  const [mintError, setMintError] = useState("");
+  const [minted, setMinted] = useState(null); // edgePairingDownload() shape — shown once
+  const [publicOrigin, setPublicOrigin] = useState(() => resolvePublicBaseUrl());
+  useEffect(() => {
+    setPublicOrigin(resolveBrowserOrigin({ location: window.location }));
+  }, []);
+
+  const loadCredentials = useCallback(async () => {
+    if (!business?.id) {
+      setCredentials([]);
+      return;
+    }
+    setCredentialsLoading(true);
+    try {
+      const result = await api(`/api/platform/edge-devices/credentials?businessId=${encodeURIComponent(business.id)}`);
+      setCredentials(result.credentials || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCredentialsLoading(false);
+    }
+  }, [business?.id]);
+
+  async function mintPairing(event) {
+    event.preventDefault();
+    if (!business?.id) return;
+    const deviceId = mintDeviceId.trim();
+    const label = mintLabel.trim();
+    if (!deviceId || !label) return;
+    setMinting(true);
+    setMintError("");
+    try {
+      const result = await api("/api/platform/edge-devices/credentials", "POST", { businessId: business.id, deviceId, label });
+      setMinted(edgePairingDownload({
+        credential: result.credential,
+        key: result.key,
+        businessId: business.id,
+        businessCode: business?.code,
+        businessName: business?.name,
+        origin: publicOrigin
+      }));
+      setMintDeviceId("");
+      setMintLabel("");
+      await loadCredentials();
+    } catch (err) {
+      setMintError(err.message);
+    } finally {
+      setMinting(false);
+    }
+  }
+
+  function downloadPairingFile() {
+    if (!minted) return;
+    const blob = new Blob([JSON.stringify(minted, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `zuri-edge-pairing-${minted.deviceId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
   const refresh = useCallback(async () => {
     if (!business?.id) {
@@ -86,8 +153,10 @@ export default function LineStudioEdgeConnection() {
     setConnectionId("");
     setMessage("");
     setError("");
+    setMinted(null);
     refresh().catch((err) => setError(err.message));
-  }, [refresh]);
+    loadCredentials().catch((err) => setError(err.message));
+  }, [refresh, loadCredentials]);
 
   async function run(task) {
     setBusy(true);
@@ -200,7 +269,7 @@ export default function LineStudioEdgeConnection() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => run(refresh)}
+              onClick={() => run(async () => { await refresh(); await loadCredentials(); })}
               disabled={busy || !business}
               className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all border border-white/10"
             >
@@ -240,32 +309,87 @@ export default function LineStudioEdgeConnection() {
                   <p className="text-[10px] text-slate-500">On-Premise Hardware Node</p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
-                {edgeDeviceTelemetry.status}
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                {credentials.filter((c) => c.status === "ACTIVE").length} paired
               </span>
             </div>
 
-            {/* Telemetry info */}
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Host Endpoint</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{edgeDeviceTelemetry.host}</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Heartbeat Latency</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{edgeDeviceTelemetry.latency}</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Pairing Key Ref</span>
+            {/* Real Edge Device credentials — FR-144, no mock data. keyPrefix/lastUsedAt
+                are the only things this page can ever show once minting is done: the
+                raw key is never stored, so it cannot be redisplayed later. */}
+            <div className="space-y-2 text-xs">
+              {credentialsLoading ? (
+                <p className="text-slate-400 text-[11px]">กำลังโหลด...</p>
+              ) : credentials.length === 0 ? (
+                <p className="text-slate-400 text-[11px]">ยังไม่มี Edge Device ที่จับคู่กับ Business นี้</p>
+              ) : (
+                credentials.map((c) => (
+                  <div key={c.id} className="flex justify-between items-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                    <div className="min-w-0">
+                      <p className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[11px] truncate">{c.deviceId}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{c.label} · {c.keyPrefix}…</p>
+                    </div>
+                    <span className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                      {c.status}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Mint a new pairing file — FR-144 POST, raw key returned exactly once */}
+            <form onSubmit={mintPairing} className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400">จับคู่ Edge Device ใหม่</p>
+              <input
+                value={mintDeviceId}
+                onChange={(e) => setMintDeviceId(e.target.value)}
+                placeholder="Device ID เช่น workstation-01"
+                className={fieldClass}
+                disabled={minting || !business}
+                required
+              />
+              <input
+                value={mintLabel}
+                onChange={(e) => setMintLabel(e.target.value)}
+                placeholder="ชื่ออ้างอิง เช่น เครื่องหน้าร้าน"
+                className={fieldClass}
+                disabled={minting || !business}
+                required
+              />
+              <button
+                type="submit"
+                disabled={minting || !business}
+                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:opacity-50"
+              >
+                {minting ? "กำลังสร้าง..." : "สร้างไฟล์จับคู่ใหม่"}
+              </button>
+              {mintError && <p className="text-[11px] text-rose-600">{mintError}</p>}
+            </form>
+
+            {minted && (
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-2">
+                <p className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                  บันทึกไฟล์นี้ตอนนี้ — คีย์จะไม่แสดงอีกครั้ง
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => copyToken(minted.key)}
+                    className="flex-1 font-mono text-[10px] bg-white dark:bg-slate-900 px-2 py-1 rounded text-slate-700 dark:text-slate-300 flex items-center justify-between gap-1 hover:bg-slate-100 border border-amber-200 dark:border-amber-800 truncate"
+                  >
+                    <span className="truncate">{minted.key}</span>
+                    {copiedKey ? <Check className="w-3 h-3 text-emerald-500 shrink-0" /> : <Copy className="w-3 h-3 text-slate-400 shrink-0" />}
+                  </button>
+                </div>
                 <button
-                  onClick={() => copyToken(edgeDeviceTelemetry.pairingToken)}
-                  className="font-mono text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-200"
+                  type="button"
+                  onClick={downloadPairingFile}
+                  className="w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold"
                 >
-                  <span>{edgeDeviceTelemetry.pairingToken.slice(0, 10)}...</span>
-                  {copiedKey ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-slate-400" />}
+                  ดาวน์โหลดไฟล์จับคู่ (.json) — ลากเข้าแอป Zuri Edge Device
                 </button>
               </div>
-            </div>
+            )}
 
             {/* Deep Links to Local Edge Web GUI */}
             <div className="pt-2 flex flex-col gap-2">
@@ -303,12 +427,9 @@ export default function LineStudioEdgeConnection() {
                 <span>4-Tier Cognitive Architecture (ADR-043)</span>
               </h4>
               <div className="space-y-2">
-                {edgeDeviceTelemetry.tiers.map((t, idx) => (
+                {cognitiveTiers.map((t, idx) => (
                   <div key={idx} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 text-[11px]">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{t.tier}: {t.name}</span>
-                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600">{t.status}</span>
-                    </div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{t.tier}: {t.name}</span>
                     <p className="text-[10px] text-slate-500 mt-0.5">{t.desc}</p>
                   </div>
                 ))}
