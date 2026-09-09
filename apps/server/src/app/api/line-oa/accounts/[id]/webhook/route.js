@@ -56,9 +56,9 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       // ADR-058 replaced Vercel with a long-lived Node container — on a serverless runtime the
       // response would end the execution and this would silently drop work.
       //
-      // One event must not discard its neighbours: a deterministic rejection (4xx — an identity
-      // conflict, an over-long text) fails identically every time, so aborting the batch would
-      // strand every later event in it.
+      // One event must not discard its neighbours, so a failure here is counted and the loop
+      // continues. Classifying admission failures — which are deterministic, which are worth
+      // retrying — now belongs to the service that admits them, not to this loop.
       let unresolved = 0
       const captured = []
       for (const event of body.events) {
