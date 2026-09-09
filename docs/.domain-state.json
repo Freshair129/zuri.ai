@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-07T06:25:14.169Z",
+  "generatedAt": "2026-09-08T18:37:44.521Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -42,7 +42,7 @@
     "requirementCount": 167,
     "verifiedRequirementCount": 157,
     "progressPercent": 94,
-    "gapCount": 22,
+    "gapCount": 23,
     "gaps": [
       {
         "domain": "agent",
@@ -188,6 +188,13 @@
         "severity": "medium",
         "check": "runtimeContract",
         "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -395,14 +402,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-144",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 16
         },
         {
           "id": "FR-147",
@@ -423,7 +430,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "checks": {
@@ -442,7 +449,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -523,6 +530,7 @@
         "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
         "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
         "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
+        "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
         "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
         "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
         "src/app/api/mcp/route.js",
@@ -570,7 +578,7 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 10
+        "featureNotes": 11
       },
       "featureIds": [
         "FR-025",
@@ -664,7 +672,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 10
+          "testCount": 16
         }
       ],
       "checks": {
@@ -683,7 +691,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -844,7 +852,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -1377,8 +1385,8 @@
           "id": "FR-144",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 10
+          "codeCount": 8,
+          "testCount": 16
         },
         {
           "id": "FR-146",
@@ -1460,7 +1468,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -1792,7 +1800,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 16
         },
         {
           "id": "FR-146",
@@ -1839,7 +1847,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -2026,7 +2034,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -2448,7 +2456,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-151",
@@ -2495,7 +2503,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -2649,7 +2657,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -2801,7 +2809,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -2959,7 +2967,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -3085,7 +3093,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 199,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -3792,8 +3800,8 @@
           "id": "FR-144",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 10
+          "codeCount": 4,
+          "testCount": 16
         },
         {
           "id": "FR-146",
@@ -3814,7 +3822,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-151",
@@ -3959,9 +3967,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 112,
-            "inventoried": 112,
-            "openApiPaths": 199,
+            "routes": 115,
+            "inventoried": 115,
+            "openApiPaths": 202,
             "missingFromOpenApi": 0
           }
         },
@@ -4015,14 +4023,19 @@
           ],
           "gaps": [
             {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            },
+            {
               "id": "AUTH-002",
               "severity": "medium",
               "summary": "At least one read route lacks a recognizable request viewer seam"
             }
           ],
           "details": {
-            "mutations": 90,
-            "guardedMutations": 90,
+            "mutations": 93,
+            "guardedMutations": 91,
             "reads": 55,
             "unguardedReads": 1
           }
@@ -4104,6 +4117,12 @@
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
         },
         {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
           "id": "AUTH-002",
           "severity": "medium",
           "check": "authorization",
@@ -4124,8 +4143,8 @@
         }
       ],
       "details": {
-        "routes": 157,
-        "apiRoutes": 112,
+        "routes": 160,
+        "apiRoutes": 115,
         "pageRoutes": 45,
         "ownedModels": 30,
         "featureNotes": 31
@@ -5585,8 +5604,8 @@
           "id": "FR-144",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 10
+          "codeCount": 20,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -5598,15 +5617,27 @@
         "apps/server/src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
         "apps/server/src/app/api/edge/extraction-jobs/[id]/fail/route.js",
         "apps/server/src/app/api/edge/extraction-jobs/claim/route.js",
+        "apps/server/src/app/api/edge/pairing/approve/route.js",
+        "apps/server/src/app/api/edge/pairing/poll/route.js",
+        "apps/server/src/app/api/edge/pairing/start/route.js",
         "apps/server/src/app/api/platform/edge-devices/credentials/[id]/route.js",
         "apps/server/src/app/api/platform/edge-devices/credentials/route.js",
+        "apps/server/src/app/edge/pair/page.jsx",
         "apps/server/src/modules/agent/edge-device-registry.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-job-view.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-provider.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
         "apps/server/src/modules/identity/edge-device-credential.js",
+        "apps/server/src/modules/identity/edge-pairing-download.js",
+        "apps/server/src/modules/identity/edge-pairing-http.js",
+        "apps/server/src/modules/identity/edge-pairing-runtime.js",
+        "apps/server/src/modules/identity/edge-pairing.js",
+        "apps/server/src/modules/identity/login-destination.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+        "apps/server/tests/e2e/edge-pairing.spec.js",
+        "apps/server/tests/integration/edge-pairing.test.js",
         "apps/server/tests/integration/fr143-asset-extraction-job.test.js",
         "apps/server/tests/integration/fr144-edge-device-credential.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -5619,6 +5650,9 @@
         "apps/server/tests/unit/edge-device-credential.test.js",
         "apps/server/tests/unit/edge-extraction-job-contract.test.js",
         "apps/server/tests/unit/edge-extraction-poller.test.js",
+        "apps/server/tests/unit/edge-pairing-download.test.js",
+        "apps/server/tests/unit/edge-pairing-routes.test.js",
+        "apps/server/tests/unit/edge-pairing.test.js",
         "apps/server/tests/unit/fr080-ui-contract.test.js",
         "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
         "apps/server/tests/unit/line-registry-service.test.js"
@@ -5830,7 +5864,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -5869,6 +5903,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
+        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-webhook-route.test.js",
@@ -10800,12 +10835,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/src/app/api/agent/heartbeat/route.js",
         "apps/server/src/modules/agent/edge-device-registry.js",
+        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
         "apps/server/tests/integration/agent-heartbeat-route.test.js",
         "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js"

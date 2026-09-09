@@ -36,6 +36,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.
   ['/api/platform/edge-devices/credentials', ['GET', 'POST']], ['/api/platform/edge-devices/credentials/{id}', ['DELETE']],
+  // @req FR-144 — expiring browser approval and one-use Desktop credential handover.
+  ['/api/edge/pairing/start', ['POST']], ['/api/edge/pairing/approve', ['POST']], ['/api/edge/pairing/poll', ['POST']],
   ['/api/edge/extraction-jobs/claim', ['POST']], ['/api/edge/extraction-jobs/{id}/evidence', ['GET']],
   ['/api/edge/extraction-jobs/{id}/complete', ['POST']], ['/api/edge/extraction-jobs/{id}/fail', ['POST']],
   ['/api/assets/evidence/{id}/extraction-job', ['GET']],

@@ -1,14 +1,17 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
+import { spawnSync } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   HeadlessOptions,
   allowedTools,
   buildArgs,
   childEnv,
+  codexMcpArgs,
   harvestStream,
   loadSessionId,
   rememberedNumbers,
@@ -54,6 +57,39 @@ describe('What the sandboxed agent is given', () => {
     assert.equal(fs.existsSync(options.sessionRoot), false);
     assert.doesNotThrow(() => requireHeadlessPolicy('codex', false));
     assert.doesNotThrow(() => requireHeadlessPolicy('claude', true));
+  });
+
+  it('requires an explicit managed Codex home and never inherits ambient CODEX_HOME', () => {
+    const managedHome = path.join(root, 'managed-codex-home');
+    fs.mkdirSync(managedHome, { recursive: true });
+
+    assert.doesNotThrow(() => requireHeadlessPolicy('codex', true, managedHome));
+    assert.throws(
+      () => requireHeadlessPolicy(path.join(root, 'codex-missing.exe'), true, managedHome),
+      /LOCAL_POLICY_UNAVAILABLE/
+    );
+    assert.throws(
+      () => requireHeadlessPolicy('codex', true, path.join(os.homedir(), '.codex')),
+      /LOCAL_POLICY_UNAVAILABLE/
+    );
+
+    const previous = process.env.CODEX_HOME;
+    const previousClaude = process.env.CLAUDE_CONFIG_DIR;
+    process.env.CODEX_HOME = path.join(root, 'ambient-home');
+    process.env.CLAUDE_CONFIG_DIR = path.join(root, 'ambient-claude-home');
+    try {
+      assert.strictEqual(childEnv().CODEX_HOME, undefined);
+      assert.strictEqual(childEnv().CLAUDE_CONFIG_DIR, undefined);
+      assert.strictEqual(childEnv(managedHome).CODEX_HOME, path.resolve(managedHome));
+      const managedClaudeDir = path.join(root, 'managed-claude-home');
+      assert.strictEqual(childEnv(undefined, managedClaudeDir).CLAUDE_CONFIG_DIR, path.resolve(managedClaudeDir));
+      assert.strictEqual(childEnv().CLAUDE_CONFIG_DIR, undefined);
+    } finally {
+      if (previous === undefined) delete process.env.CODEX_HOME;
+      else process.env.CODEX_HOME = previous;
+      if (previousClaude === undefined) delete process.env.CLAUDE_CONFIG_DIR;
+      else process.env.CLAUDE_CONFIG_DIR = previousClaude;
+    }
   });
   it('builds the environment from an allow-list, so no secret is inherited', () => {
     process.env.LINE_POC_CHANNEL_ACCESS_TOKEN = 'line-secret';
@@ -119,6 +155,47 @@ describe('What the sandboxed agent is given', () => {
     const args = buildArgs('hello', 'system', 'sales', null, options);
     const denied = args[args.indexOf('--disallowedTools') + 1];
     assert.ok(denied.includes('Bash'));
+  });
+
+  it('uses Codex config isolation and no-retention flags for a stateless managed home', () => {
+    const managedHome = path.join(root, 'managed-codex-home');
+    fs.mkdirSync(managedHome, { recursive: true });
+    const args = buildArgs('hello', 'system', 'sales', null, {
+      ...options,
+      bin: 'codex',
+      stateless: true,
+      codexHome: managedHome,
+    });
+
+    assert.ok(args.includes('--ephemeral'));
+    assert.ok(args.includes('--ignore-user-config'));
+    assert.ok(args.includes('--ignore-rules'));
+    assert.ok(args.includes('--strict-config'));
+    assert.ok(args.includes('cli_auth_credentials_store="keyring"'));
+    assert.ok(args.includes('history.persistence="none"'));
+    assert.ok(args.includes('features.shell_tool=false'));
+    assert.ok(args.includes('features.unified_exec=false'));
+    assert.ok(args.includes('features.multi_agent=false'));
+    assert.ok(!args.includes('--dangerously-bypass-approvals-and-sandbox'));
+  });
+
+  it('uses Claude restricted mode plus explicit managed config when selected', () => {
+    const managedClaudeDir = path.join(root, 'managed-claude-home');
+    const args = buildArgs('hello', 'system', 'sales', null, {
+      ...options,
+      bin: 'claude',
+      claudeConfigDir: managedClaudeDir,
+      stateless: true,
+    });
+    assert.ok(args.includes('--restricted'));
+    assert.ok(args.includes('--strict-mcp-config'));
+    assert.ok(!args.includes('--dangerously-skip-permissions'));
+    const stateful = buildArgs('hello', 'system', 'sales', 'session-1', {
+      ...options,
+      bin: 'claude',
+      claudeConfigDir: managedClaudeDir,
+    });
+    assert.ok(!stateful.includes('--restricted'));
   });
 
   it('pins the MCP configuration so no other server can be picked up', () => {
@@ -244,5 +321,54 @@ describe('codex MCP wiring', () => {
   it('passes the prompt last, after every flag', () => {
     const args = buildArgs('คำถาม', 'SYSTEM', 'sales', null, opts);
     assert.match(args[args.length - 1], /คำถาม/);
+  });
+
+  it('proves empty MCP overrides do not erase inherited config and the managed fresh home does', (t) => {
+    const codex = resolveBin('codex');
+    if (!fs.existsSync(codex)) return t.skip('Codex CLI is not installed');
+
+    const fixtureSource = fileURLToPath(
+      new URL('../fixtures/codex-inherited-mcp/', import.meta.url)
+    );
+    const maliciousHome = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-codex-malicious-home-'));
+    const isolatedHome = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-codex-isolated-home-'));
+    fs.cpSync(fixtureSource, maliciousHome, { recursive: true });
+
+    const list = (home: string, overrides: string[] = []) => spawnSync(
+      codex,
+      ['mcp', 'list', '--json', ...overrides],
+      {
+        env: childEnv(home),
+        encoding: 'utf8',
+        windowsHide: true,
+      }
+    );
+    const names = (result: ReturnType<typeof spawnSync>): string[] => {
+      assert.strictEqual(result.status, 0, result.stderr || result.error?.message);
+      const output = result.stdout.toString();
+      const start = output.indexOf('[');
+      assert.ok(start >= 0, `Codex MCP output did not contain JSON: ${output}`);
+      return (JSON.parse(output.slice(start)) as Array<{ name: string }>).map(server => server.name);
+    };
+
+    try {
+      assert.deepStrictEqual(names(list(maliciousHome)), ['unapproved_fixture']);
+      const explicitMcp = [
+        '-c', 'mcp_servers={}',
+        ...codexMcpArgs({ ...opts, mcpServerPath: 'C:/approved/pricing-server.js' }, 'sales'),
+      ];
+      assert.deepStrictEqual(
+        names(list(maliciousHome, explicitMcp)),
+        ['smartgift', 'unapproved_fixture'],
+        'the empty object override must not be treated as an inherited-config boundary'
+      );
+      assert.deepStrictEqual(
+        names(list(isolatedHome, explicitMcp)),
+        ['smartgift']
+      );
+    } finally {
+      fs.rmSync(maliciousHome, { recursive: true, force: true });
+      fs.rmSync(isolatedHome, { recursive: true, force: true });
+    }
   });
 });

@@ -8,7 +8,7 @@ import { spawn } from 'node:child_process';
 import { createConversationClient, type ConversationClient } from '../../src/conversation/client.js';
 import { ConversationError, conversationEnvelope, requireComputeWorker, requireLegacyTransport, transportOwner, type ConversationJob } from '../../src/conversation/contract.js';
 import { runConversationOnce, runConversationLoop } from '../../src/conversation/worker.js';
-import { createConversationExecutor, validateExecutionPolicy } from '../../src/conversation/executor.js';
+import { createConversationExecutor, headlessProviderHome, validateExecutionPolicy } from '../../src/conversation/executor.js';
 import { buildArgs, saveSession, loadSessionId, type HeadlessOptions } from '../../src/answer/headless.js';
 import { LinePocClient } from '../../src/line-poc/client.js';
 import { createLineWebhookServer } from '../../src/history/webhook-server.js';
@@ -129,6 +129,13 @@ test('local-only jobs reject headless, public provider URLs and missing local mo
   }
   assert.doesNotThrow(() => validateExecutionPolicy(job(), {}, 'http://127.0.0.1:8888'));
   assert.doesNotThrow(() => validateExecutionPolicy(job(), { llmEnabled: true, llmBaseUrl: 'http://127.0.0.1:11434/v1' }, 'http://127.0.0.1:8888'));
+});
+
+test('managed provider home maps to the selected CLI credential variable', () => {
+  const home = path.resolve('state', 'providers', 'managed');
+  assert.deepEqual(headlessProviderHome({ managedProviderHome: home }, 'codex'), { codexHome: home });
+  assert.deepEqual(headlessProviderHome({ managedProviderHome: home }, 'claude'), { claudeConfigDir: home });
+  assert.deepEqual(headlessProviderHome({}, 'claude'), { claudeConfigDir: undefined });
 });
 
 test('executor needs no LINE token and uses server key as hashed identity without retained history', async () => {

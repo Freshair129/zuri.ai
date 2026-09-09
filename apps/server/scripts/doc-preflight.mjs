@@ -903,7 +903,13 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // ADR-061/FR-149 and FR-152: the two deployment-only worker endpoints authenticate a
       // timing-safe bearer (ZURI_LINE_WORKER_TOKEN); no browser viewer exists on a worker tick.
       rel(file) === 'src/app/api/line-oa/worker/route.js' ||
-      rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js') continue
+      rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js' ||
+      // FR-144 browser/QR approval: start mints no key; poll requires the
+      // initiating Desktop secret and a consumed owner approval with fresh
+      // Business authority. approve MUST keep its browser viewer check.
+      // Proven by edge-pairing-routes.test.js and edge-pairing.test.js.
+      rel(file) === 'src/app/api/edge/pairing/start/route.js' ||
+      rel(file) === 'src/app/api/edge/pairing/poll/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue
