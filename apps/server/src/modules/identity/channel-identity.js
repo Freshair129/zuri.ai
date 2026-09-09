@@ -80,10 +80,17 @@ export async function ensureChannelIdentity({
   verifiedAt = null,
   linkedAt = null,
   audit = true,
+  // PERF (2026-09-09): the only caller, syncChannelIdentityFromExternal below, has
+  // usually just fetched this exact row via findChannelIdentity — same tenant,
+  // channel, namespace and providerSubject — with nothing in between that could
+  // have changed it. Passing it in (including explicit `null` for "confirmed
+  // absent") skips a guaranteed-redundant read; omitting the option keeps the
+  // original always-fetch behavior for any other caller.
+  existing: prefetched,
 } = {}) {
   const namespace = accountId(channelAccountId)
   const where = keyFor(tenantId, channel, namespace, providerSubject)
-  const existing = await db.channelIdentity.findUnique({ where })
+  const existing = prefetched !== undefined ? prefetched : await db.channelIdentity.findUnique({ where })
   if (existing) {
     if (existing.tenantId !== tenantId) conflict('CHANNEL_IDENTITY_NAMESPACE_CONFLICT')
     if (existing.personId !== personId) conflict('CHANNEL_IDENTITY_PERSON_CONFLICT')
@@ -153,6 +160,9 @@ export async function syncChannelIdentityFromExternal({
     status: verified ? CHANNEL_IDENTITY_STATUS.ACTIVE : CHANNEL_IDENTITY_STATUS.PENDING,
     verifiedAt,
     linkedAt,
+    // `current` (including null) already answers the exact question ensureChannelIdentity's
+    // own lookup would ask, one line above with nothing in between that could change it.
+    existing: current,
   })
   if (!verified || ensured.row.status === CHANNEL_IDENTITY_STATUS.ACTIVE) return publicRow(ensured.row)
 
