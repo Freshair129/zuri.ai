@@ -25,10 +25,10 @@ const failure = (status, message) => Object.assign(new Error(message), { status 
 const sourceTime = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
   ? new Date(timestamp).toISOString() : null
 
-function traceEvent(db, job, kind, key, payload, occurredAt = new Date()) {
+function traceEvent(db, job, kind, key, payload, occurredAt = new Date(), options) {
   return appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
     turnId: job.id, executionId: job.executionId ?? null, kind,
-    idempotencyKey: `${job.id}:${key}`, payload, occurredAt })
+    idempotencyKey: `${job.id}:${key}`, payload, occurredAt }, options)
 }
 
 function sealKey(env) {
@@ -119,7 +119,12 @@ export async function admitLineConversation({ account, event, correlationId, now
       ingressReceivedAt: ingressReceivedAt.toISOString(), queuedAt: now.toISOString(),
       // The transaction's visibility is the durable admission boundary.
       persistenceRecordedAt: new Date().toISOString(),
-    }, now)
+    // PERF (2026-09-09): `job.id` was created a few lines above in this same still-open
+    // transaction, so no writer anywhere can have touched it yet — the turn-open lock,
+    // and the tombstone check that bypassTurnGuard skips are both guaranteed no-ops here.
+    // Every later trace event for this job (EXECUTION_STARTED, SEND_STARTED, ...) runs in
+    // its own later transaction and keeps the real guard.
+    }, now, { bypassTurnGuard: true })
     return { jobId: job.id, created: true, inboundMessageId: inbound.messageId }
   })
 }

@@ -349,11 +349,20 @@ async function appendTraceEventInternal(db, input, { bypassTurnGuard = false, re
  * Append one immutable event. Pass a Prisma transaction client here to make the
  * journal part of the caller's transaction; this function does not open a nested
  * transaction, which SQLite and transaction poolers cannot safely support.
+ *
+ * `bypassTurnGuard` skips the turn-open lock, the retention-tombstone check and
+ * the idempotency read (2026-09-09, PERF). It is safe ONLY for a caller that just
+ * created `turnId` in the same still-open transaction and is writing that turn's
+ * very first event: no other writer can have touched a row that did not exist a
+ * moment ago, so every one of those reads is guaranteed to come back negative.
+ * It stays `false` for every other call — a turn that already exists needs the
+ * real guard, because a concurrent retention/erasure run is exactly what it
+ * catches. Default preserves prior behavior for every existing caller.
  */
-export async function appendTraceEvent(db, input) {
+export async function appendTraceEvent(db, input, { bypassTurnGuard = false } = {}) {
   if (typeof db?.$transaction === 'function') {
     try {
-      return await db.$transaction((tx) => appendTraceEventInternal(tx, input, { retryOnUnique: false }))
+      return await db.$transaction((tx) => appendTraceEventInternal(tx, input, { bypassTurnGuard, retryOnUnique: false }))
     } catch (error) {
       // A PostgreSQL transaction that loses a unique race is aborted; resolve the
       // winner only after Prisma has rolled that transaction back.
@@ -367,7 +376,7 @@ export async function appendTraceEvent(db, input) {
   // A transaction client has no $transaction method. Let a unique conflict
   // propagate so its caller can retry the whole transaction; a PostgreSQL
   // transaction is unusable after P2002 and cannot safely query the winner.
-  return appendTraceEventInternal(db, input, { retryOnUnique: false })
+  return appendTraceEventInternal(db, input, { bypassTurnGuard, retryOnUnique: false })
 }
 
 function parseStoredPayload(row) {
