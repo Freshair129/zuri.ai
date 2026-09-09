@@ -1,7 +1,7 @@
 ---
-version: "0.1.1b"
+version: "0.2.0b"
 created_at: "2026-09-08T19:05:00+07:00,CLAUDE"
-last_update: "2026-09-08T19:20:00+07:00,CLAUDE"
+last_update: "2026-09-09T01:20:00+07:00,CLAUDE"
 status: "under review"
 attributes:
   domain: "line-oa-studio"
@@ -123,6 +123,49 @@ internet with 200. Edge BR-009 and `apps/edge/CLAUDE.md` require `/webhook/line`
 4. Have the edge stack's startup check assert `tailscale funnel status` lists `/webhook/line` alone (BR-009) and report drift.
 5. Once the cutover is done, record the provider's registered URL in `getAccountHealth` by calling the endpoint API under the CLOUD credential.
 
+## Addendum 2026-09-09 00:00-01:15 — a second bug found and fixed during the cutover, and the latency root cause quantified
+
+Restoring the legacy receiver (this document's Option A) was only the emergency fix. Completing the ADR-061
+cutover (owner-directed, execution mode SERVER then EDGE) surfaced a second, independent, pre-existing bug:
+
+- **The Studio's account destination was wrong from account creation.** `IntegrationConnection.externalAccountId`
+  was `U98abb02044e4786cfd9b250e1273857c`; the real LINE-computed destination for `@949xcfau` is
+  `Uc629e1f98dbb89048b2b38a7db5a5063` (read from the raw request body captured by ngrok's inspection API after
+  three `403 LINE_WEBHOOK_DESTINATION_MISMATCH` responses). Corrected in both the DB row and the mounted
+  credential file's `destination` field.
+- **Every real admission then failed with Prisma `P2028` ("Transaction already closed"), silently.** PR #290
+  (`bd385c1d`, merged before tonight, an ancestor of the deployed `0eb6c03a` image) added an execution-trace
+  write (`appendTraceEvent`, four extra sequential queries) inside `admitLineConversation`'s existing interactive
+  transaction. The webhook route's catch blocks swallow every error without logging, by explicit design ("do not
+  echo parser/provider errors or event material") — so this had zero visibility in `docker logs` since #290
+  landed. Confirmed by adding temporary redacted diagnostic logging (kept) and reproducing with a signed
+  synthetic request: reliably ~7s, then `P2028`, `503`.
+- **Root cause quantified, not just located.** `select 1` against the production Postgres measures ~100ms
+  steady-state round-trip (matches ADR-058 D9's session-mode measurement). The admission path — `resolveAccount`,
+  `evidenceFactory`, `evidence.record`, then inside `admitLineConversation`'s transaction: account/job lookups,
+  `ingestLineMessage` (tenant/business/conversation/identity/customer/message, several of them sequential
+  create-or-find pairs), job creation, `recordAudit`, and `appendTraceEvent`'s own four queries — issues roughly
+  25-30 **sequential**, unbatched round trips. At ~100ms each that alone is 2.5-3.0s; the observed ~7s includes
+  slower individual queries and no parallelization anywhere in the chain. No single query is pathological; the
+  cost is architectural (one round trip per step, nothing batched, nothing run concurrently).
+- **Fix shipped:** [PR #299](https://github.com/Freshair129/zuri.ai/pull/299) (merged `3fb7d1a5`) raises
+  `admitLineConversation`'s transaction to `{ timeout: 15000, maxWait: 5000 }` and adds the redacted diagnostic
+  logging permanently. Verified twice post-fix with a signed synthetic webhook (internal and through the full
+  ngrok path): `200 accepted`, ~7.4-7.7s. All synthetic test data (rows keyed to two fixed synthetic LINE user
+  ids) was deleted from production afterward; the two real trace-event rows from the customer's actual DM and
+  its LINE-driven redelivery (turnId `8574e7d2…`, 22:07 local) were left untouched as genuine evidence — that
+  message never landed in CRM (admission threw before commit) and is not recoverable from our side.
+- **Deliberately not done tonight:** the ~7s latency is still real and worth fixing — reducing round trips
+  (batching, or running independent lookups concurrently) is a multi-file refactor across
+  `line-conversation-jobs.js`, `line-ingest-service.js`, `resolve-line-identity.js`, `channel-identity.js` and
+  `execution-trace.js`, not something to start at 01:15 local. Tracked as a follow-up, not a defect in the fix
+  that shipped.
+- **Production image realignment:** the destination fix and PR #299 were tested via a locally-tagged
+  `zuri-ai-web:diag-logging` image while the fix was still on a branch; once PR #299 merged, `zuri-ai-web:local`
+  was rebuilt from a disposable worktree on merged `origin/main` (the primary checkout was left untouched — it
+  had unrelated uncommitted edits to `LineCrmLiveChat.jsx`/`LineCrmMembers.jsx` from another session, so
+  `git checkout --detach origin/main` there correctly refused) and redeployed, retiring the diagnostic tag.
+
 ## Current resolution state
 
 - **Option A executed 2026-09-08 19:14 (+07:00) on the owner's instruction.** The old receiver logs were copied to
@@ -158,5 +201,6 @@ internet with 200. Edge BR-009 and `apps/edge/CLAUDE.md` require `/webhook/line`
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-09 | under review | ADR-061 cutover found and fixed two independent pre-existing bugs: wrong `externalAccountId`/destination, and a Prisma P2028 transaction timeout since PR #290 that silently failed every real admission; fix in PR #299 (merged `3fb7d1a5`); latency root cause quantified (~100ms/round-trip × ~25-30 sequential queries) and left as a follow-up | 3fb7d1a5 | CLAUDE |
 | 0.1.1b | 2026-09-08 | under review | Option A executed: receiver restarted in LEGACY_EDGE mode, logon task re-registered with the flag, Funnel verified 405/200; owner-side checks still open | working-tree | CLAUDE |
 | 0.1.0b | 2026-09-08 | under review | Diagnosed the Funnel 502: legacy receiver dead since 23:32 on 09-07, logon task cannot restart it after edge `4a6e7ca`, server receiver deployed but disabled | working-tree | CLAUDE |
