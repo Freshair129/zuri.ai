@@ -2894,14 +2894,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a5fb79e24e190d88fc405252e230ace90b126de5b268596110507b0a293669ac",
+      "statement_digest": "5f0a4727bc22b43ddc9ce65c7adf77bdfd15374ee31ec8a7e90dea6948493758",
       "history": [
         {
           "anchor": "server owned line conversation transport",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-09",
+      "statement_digest_reason": "ADR-061 D4 and the FR-149 row now state the acknowledgment boundary the code has had since PR #306 (LINE answered on durable evidence capture, admission asynchronous) and add reconciliation of abandoned admissions plus an operator-visible terminal-failure count. Same subject: server-owned LINE conversation transport."
     },
     "FR-150": {
       "family": "FR",

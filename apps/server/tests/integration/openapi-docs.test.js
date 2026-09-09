@@ -137,8 +137,12 @@ describe('OpenAPI document', () => {
       // /api/businesses/{id}/capabilities): one path, one operation.
       // FR-173 adds five knowledge admission/corpus paths and six operations.
       // FR-144 browser/Desktop pairing adds three POST paths.
-      pathCount: 209,
-      operationCount: 287,
+      // FR-149 adds the Business-scoped terminal-failure read model
+      // (GET /api/line-oa/jobs/failures): one path, one operation. It is a read
+      // model behind the Studio's red failure count, never a retry verb — which
+      // is why it adds a GET and nothing else.
+      pathCount: 210,
+      operationCount: 288,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-09T18:42:06.186Z",
+  "generatedAt": "2026-09-09T21:53:16.802Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -423,14 +423,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 27
+          "testCount": 32
         },
         {
           "id": "FR-150",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-171",
@@ -456,7 +456,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -711,7 +711,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -874,7 +874,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -1495,7 +1495,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -1836,7 +1836,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 32
         },
         {
           "id": "FR-152",
@@ -1876,7 +1876,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -2072,7 +2072,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -2507,15 +2507,15 @@
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 16,
-          "testCount": 27
+          "codeCount": 20,
+          "testCount": 32
         },
         {
           "id": "FR-150",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-151",
@@ -2567,9 +2567,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 16,
-            "inventoried": 16,
-            "openApiPaths": 209,
+            "routes": 17,
+            "inventoried": 17,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -2624,7 +2624,7 @@
           "details": {
             "mutations": 14,
             "guardedMutations": 9,
-            "reads": 9,
+            "reads": 10,
             "unguardedReads": 0
           }
         },
@@ -2670,8 +2670,8 @@
         }
       ],
       "details": {
-        "routes": 26,
-        "apiRoutes": 16,
+        "routes": 27,
+        "apiRoutes": 17,
         "pageRoutes": 10,
         "ownedModels": 6,
         "featureNotes": 10
@@ -2725,7 +2725,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -2879,7 +2879,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -3039,7 +3039,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -3174,7 +3174,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -3899,14 +3899,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 27
+          "testCount": 32
         },
         {
           "id": "FR-150",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-151",
@@ -4074,7 +4074,7 @@
           "details": {
             "routes": 121,
             "inventoried": 121,
-            "openApiPaths": 209,
+            "openApiPaths": 210,
             "missingFromOpenApi": 0
           }
         },
@@ -6029,15 +6029,15 @@
           "id": "FR-149",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 28,
-          "testCount": 27
+          "codeCount": 32,
+          "testCount": 32
         },
         {
           "id": "FR-150",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -6056,6 +6056,7 @@
         "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
         "apps/server/src/app/api/line-oa/connections/route.js",
         "apps/server/src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+        "apps/server/src/app/api/line-oa/jobs/failures/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
@@ -6068,12 +6069,15 @@
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
         "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
+        "apps/server/src/modules/line-oa-studio/application/line-admission-reconciler.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+        "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
@@ -6090,6 +6094,7 @@
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-admission-reconciler.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
@@ -6108,7 +6113,11 @@
         "apps/server/tests/unit/legacy-line-transport-ownership.test.js",
         "apps/server/tests/unit/line-admission-after-ack.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-job-failures-route.test.js",
+        "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
+        "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
