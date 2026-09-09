@@ -83,7 +83,8 @@ test('cloud empty queue is idle; errors and oversized malformed bodies do not ex
 test('worker computes once and returns text; no delivery authority is part of its dependencies', async () => {
   const { client, calls } = fixture();
   let count = 0;
-  assert.equal((await runConversationOnce({ client, answer: async () => { count++; return 'คำตอบ'; } })).outcome, 'completed');
+  const result = await runConversationOnce({ client, answer: async () => { count++; return { text: 'คำตอบ', source: 'rules' }; } });
+  assert.equal(result.outcome, 'completed');
   assert.equal(count, 1); assert.deepEqual(calls, [['complete', 1, 'คำตอบ']]);
 });
 
@@ -99,27 +100,70 @@ test('local-only policy failure is explicit and does not switch provider', async
   assert.deepEqual(calls, [['fail', 1, 'LOCAL_POLICY_UNAVAILABLE']]);
 });
 
-test('expired lease never executes or reports; lease lost during computation never completes', async () => {
+test('a lease expired before any answer was attempted is reported via fail, not silently dropped', async () => {
+  // Nothing was ever sent to the server here — no answer was computed — so this is not the
+  // completion-uncertainty case the file's header comment warns about; reporting it is the first
+  // and only write (item 4 of the FR-150 defect fix).
   const expired = job(); expired.leaseExpiresAt = new Date(0).toISOString();
   const a = fixture({ claim: async () => expired });
-  assert.equal((await runConversationOnce({ client: a.client, answer: async () => { assert.fail('must not execute'); } })).outcome, 'lease_expired');
-  assert.deepEqual(a.calls, []);
+  const result = await runConversationOnce({ client: a.client, answer: async () => { assert.fail('must not execute'); } });
+  assert.equal(result.outcome, 'lease_expired');
+  assert.deepEqual(a.calls, [['fail', 1, 'EXECUTION_FAILED']]);
+});
+
+test('a lease expired while answering (before any send) is also reported via fail', async () => {
   const b = fixture(); let now = Date.now();
-  assert.equal((await runConversationOnce({ client: b.client, now: () => now, answer: async () => { now += 400000; return 'answer'; } })).outcome, 'lease_expired');
-  assert.deepEqual(b.calls, []);
+  const result = await runConversationOnce({
+    client: b.client, now: () => now,
+    answer: async () => { now += 400000; return { text: 'answer', source: 'rules' }; },
+  });
+  assert.equal(result.outcome, 'lease_expired');
+  assert.deepEqual(b.calls, [['fail', 1, 'EXECUTION_FAILED']]);
+});
+
+test('a lease expired after answer() itself threw is reported via fail once, not the answer\'s own code', async () => {
+  const c = fixture(); let now = Date.now();
+  const result = await runConversationOnce({
+    client: c.client, now: () => now,
+    answer: async () => { now += 400000; throw new Error('transient'); },
+  });
+  assert.equal(result.outcome, 'lease_expired');
+  assert.deepEqual(c.calls, [['fail', 1, 'EXECUTION_FAILED']]);
+});
+
+test('a 409 while reporting an expired lease is swallowed — the server already treats the claim as stale', async () => {
+  const expired = job(); expired.leaseExpiresAt = new Date(0).toISOString();
+  const d = fixture({
+    claim: async () => expired,
+    fail: async () => { throw new ConversationError('CONVERSATION_HTTP_FAILED', 409); },
+  });
+  const result = await runConversationOnce({ client: d.client, answer: async () => { assert.fail('must not execute'); } });
+  assert.equal(result.outcome, 'lease_expired');
+});
+
+test('a non-409 failure while reporting an expired lease still propagates', async () => {
+  const expired = job(); expired.leaseExpiresAt = new Date(0).toISOString();
+  const e = fixture({
+    claim: async () => expired,
+    fail: async () => { throw new ConversationError('CONVERSATION_HTTP_FAILED', 500); },
+  });
+  await assert.rejects(
+    runConversationOnce({ client: e.client, answer: async () => { assert.fail('must not execute'); } }),
+    (error: unknown) => error instanceof ConversationError && error.status === 500,
+  );
 });
 
 test('ambiguous completion failure never triggers fail or repeats the answer', async () => {
   const { client, calls } = fixture({ complete: async () => { throw new ConversationError('CONVERSATION_NETWORK_FAILED'); } });
   let count = 0;
-  await assert.rejects(runConversationOnce({ client, answer: async () => { count++; return 'answer'; } }), /NETWORK_FAILED/);
+  await assert.rejects(runConversationOnce({ client, answer: async () => { count++; return { text: 'answer', source: 'rules' }; } }), /NETWORK_FAILED/);
   assert.equal(count, 1); assert.deepEqual(calls, []);
 });
 
 test('revoked credential stops polling without repeated authentication attempts', async () => {
   let count = 0;
   const { client } = fixture({ claim: async () => { count++; throw new ConversationError('HTTP_FAILED', 401); } });
-  await assert.rejects(runConversationLoop({ client, answer: async () => 'answer', signal: new AbortController().signal }), e => e instanceof ConversationError && e.status === 401);
+  await assert.rejects(runConversationLoop({ client, answer: async () => ({ text: 'answer', source: 'rules' }), signal: new AbortController().signal }), e => e instanceof ConversationError && e.status === 401);
   assert.equal(count, 1);
 });
 
@@ -140,15 +184,62 @@ test('managed provider home maps to the selected CLI credential variable', () =>
 
 test('executor needs no LINE token and uses server key as hashed identity without retained history', async () => {
   let memoryRoot = '';
+  // Source is 'model' here deliberately: this test is about identity/memory-root plumbing, not
+  // about the empty-catalogue guard (covered separately below), and 'model' never trips it.
   const answer = createConversationExecutor({}, { ragUrl: 'http://127.0.0.1:8888', answer: async (text, options) => {
     assert.equal(text, job().question); assert.equal(options.role, 'sales');
     assert.equal(options.retainHistory, false); assert.match(options.conversationKey, /^[0-9a-f]{64}$/);
     assert.equal(options.headless, null); assert.equal(options.llm, null);
     memoryRoot = options.memory.root;
-    return { text: 'answer', source: 'rules', toolCalls: [] };
+    return { text: 'answer', source: 'model', toolCalls: [] };
   } });
-  assert.equal(await answer(job()), 'answer');
+  assert.deepEqual(await answer(job()), { text: 'answer', source: 'model' });
   assert.equal(fs.existsSync(path.dirname(memoryRoot)), false);
+});
+
+test('a `rules` answer read against an empty catalogue fails the job instead of completing a holding message', async () => {
+  // No catalogRoot exists on disk here, so loadCatalog() returns zero products — the executor
+  // must refuse to complete a `rules` answer under that condition (item 2/3 of the FR-150 fix).
+  const { client, calls } = fixture();
+  const answer = createConversationExecutor(
+    { catalogRoot: path.join(os.tmpdir(), 'zuri-empty-catalog-does-not-exist') },
+    { ragUrl: 'http://127.0.0.1:8888', answer: async () => ({ text: 'ไม่เจอรหัส TJS23-2 ในแคตตาล็อกค่ะ', source: 'rules', toolCalls: [] }) },
+  );
+  const result = await runConversationOnce({ client, answer });
+  assert.equal(result.outcome, 'failed');
+  assert.deepEqual(calls, [['fail', 1, 'EXECUTION_FAILED']]);
+});
+
+test('a `rules` answer read against a populated catalogue still completes, with its provenance reported', async () => {
+  const catalogRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-populated-catalog-'));
+  try {
+    fs.writeFileSync(path.join(catalogRoot, 'book.json'), JSON.stringify({
+      label: 'test',
+      products: [{ code: 'T1', name: 'Test product', rmb: 10, upc: 10, dims: [10, 10, 10], kg: 1, e: false }],
+    }));
+    const { client, calls } = fixture();
+    // A legitimate not-found from a real catalogue — must not regress into the item-2 refusal.
+    const answer = createConversationExecutor({ catalogRoot }, {
+      ragUrl: 'http://127.0.0.1:8888',
+      answer: async () => ({ text: 'ไม่เจอรหัส ZZ99-9 ในแคตตาล็อกค่ะ', source: 'rules', toolCalls: [] }),
+    });
+    const result = await runConversationOnce({ client, answer });
+    assert.equal(result.outcome, 'completed');
+    assert.equal(result.source, 'rules');
+    assert.deepEqual(calls, [['complete', 1, 'ไม่เจอรหัส ZZ99-9 ในแคตตาล็อกค่ะ']]);
+  } finally { fs.rmSync(catalogRoot, { recursive: true, force: true }); }
+});
+
+test('a `model` answer completes even from an empty catalogue — the model reads the RAG index instead', async () => {
+  const { client, calls } = fixture();
+  const answer = createConversationExecutor(
+    { catalogRoot: path.join(os.tmpdir(), 'zuri-empty-catalog-does-not-exist-2') },
+    { ragUrl: 'http://127.0.0.1:8888', answer: async () => ({ text: 'มีสินค้าตามที่ถามค่ะ', source: 'model', toolCalls: [] }) },
+  );
+  const result = await runConversationOnce({ client, answer });
+  assert.equal(result.outcome, 'completed');
+  assert.equal(result.source, 'model');
+  assert.deepEqual(calls, [['complete', 1, 'มีสินค้าตามที่ถามค่ะ']]);
 });
 
 test('external permission cannot bypass Codex containment or complete through fallback', async () => {
@@ -194,6 +285,14 @@ test('CLI round trip claims and completes over HTTP with no LINE credentials or 
     response.end(JSON.stringify(request.url?.endsWith('/claim') ? { contractVersion: '1', job: job() } : { ok: true }));
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  // A real catalogue, so the `rules` answer this job gets (search finds nothing for its literal
+  // question) is a legitimate not-found, not the item-2/3 empty-catalogue refusal — this test is
+  // about the CLI/worker plumbing, not catalogue correctness.
+  const catalogRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-cli-roundtrip-catalog-'));
+  fs.writeFileSync(path.join(catalogRoot, 'book.json'), JSON.stringify({
+    label: 'test',
+    products: [{ code: 'T1', name: 'Test product', rmb: 10, upc: 10, dims: [10, 10, 10], kg: 1, e: false }],
+  }));
   try {
     const address = server.address(); assert.ok(address && typeof address !== 'string');
     const result = await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
@@ -201,6 +300,7 @@ test('CLI round trip claims and completes over HTTP with no LINE credentials or 
         cwd: path.resolve('.'), env: {
           PATH: process.env.PATH, ZURI_CLOUD_BASE_URL: `http://127.0.0.1:${address.port}`,
           ZURI_EDGE_DEVICE_KEY: 'edgk_test',
+          SMARTGIFT_CATALOG_ROOT: catalogRoot,
           /*
            * The child loads the repository's own `.env`, and dotenv only declines to overwrite
            * variables that are already present. `_FILE` beats the plain form in `resolveSecret`
@@ -235,5 +335,8 @@ test('CLI round trip claims and completes over HTTP with no LINE credentials or 
     const output = received[1].body as { version: number; text: string };
     assert.equal(output.version, 1); assert.ok(output.text.length > 0);
     assert.deepEqual(Object.keys(output).sort(), ['text', 'version']);
-  } finally { await new Promise<void>(resolve => server.close(() => resolve())); }
+  } finally {
+    await new Promise<void>(resolve => server.close(() => resolve()));
+    fs.rmSync(catalogRoot, { recursive: true, force: true });
+  }
 });

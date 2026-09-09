@@ -28842,7 +28842,7 @@
       "source_path": "docs/CONVERSATIONAL-ANSWER-SPEC.md",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "3606f1e05a16",
-      "content_sha256": "7bf1bb164aadd5a435cb05bfc0d668f541a32c75f284dfcc0ff253b109ff32d7",
+      "content_sha256": "49e01a859b776cba709147cc586b45632dc650afad3a42b590927414118f50f4",
       "source_id": "doc:docs/CONVERSATIONAL-ANSWER-SPEC.md"
     },
     {
@@ -29250,7 +29250,7 @@
       "source_path": "docs/SERVER-LINE-OPTIONAL-EDGE.md",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "5a4bdb6ac6dd",
-      "content_sha256": "84f051f4bced9bfd7b559c085fcd7dba90707d843c460d2d3d4d564302fac9bf",
+      "content_sha256": "1182e25feadc15d9f18d7794cc93eb0ff8fa75b21f3a044ad9b20836ac852f9e",
       "source_id": "doc:docs/SERVER-LINE-OPTIONAL-EDGE.md"
     },
     {
@@ -29406,7 +29406,7 @@
       "source_path": "src/answer/respond.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "1245f9aa107e",
-      "content_sha256": "1daf8e3e7efc5fa441a63b51c69a5a518cf0acd395498770c77edcdde190630c",
+      "content_sha256": "56eaea613437d1595f4736ac21b94f73b63c17ea448d566f81114c2665997d63",
       "source_id": "code:src/answer/respond.ts"
     },
     {
@@ -29502,7 +29502,7 @@
       "source_path": "src/conversation/contract.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "a154efa1b857",
-      "content_sha256": "0b7cb39292804fd25752a2e6020483e36fd4412f868c48889b9aea65473a159f",
+      "content_sha256": "330946dd4c7f916d4413b56627787508bb6ad3fe05cdab4b251831d7da143ee0",
       "source_id": "code:src/conversation/contract.ts"
     },
     {
@@ -29514,7 +29514,7 @@
       "source_path": "src/conversation/executor.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "b00005c7d857",
-      "content_sha256": "31af09b7cc1e66070c4896c76d8c42a92d872099381e0a57297a88ad3bb0217d",
+      "content_sha256": "95b529554f710c7e63d962a57778522ada3a2a4767e98e2739615b9558e452e4",
       "source_id": "code:src/conversation/executor.ts"
     },
     {
@@ -29526,7 +29526,7 @@
       "source_path": "src/conversation/worker.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "c028d200ad46",
-      "content_sha256": "7e20dc4a3f44990c3e71c18a1a6a36432b8c4792024154a6b080bf42f84e2ded",
+      "content_sha256": "0101977330d58bf5806146b0a7e9ad7e64216d45c94ba99b819a91ac79c6258c",
       "source_id": "code:src/conversation/worker.ts"
     },
     {
@@ -29910,7 +29910,7 @@
       "source_path": "tests/unit/answer.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "f1dcda37bcd8",
-      "content_sha256": "f1dcda37bcd834ad6043512f8fea01518256397e3a0112d4b035e0359043d278",
+      "content_sha256": "dd8e8739698a674dd02fd6458d30759834cd6a56c5c988ef06820b34e4267121",
       "source_id": "test:tests/unit/answer.test.ts"
     },
     {
@@ -29970,7 +29970,7 @@
       "source_path": "tests/unit/conversation-worker.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "95c2de38aecb",
-      "content_sha256": "bcc82e24ed338f079cf81c08930fee60b60fbfd3aeb37fc8a0e45f7c99f89278",
+      "content_sha256": "e03a5f9bb6431e65dbf970b8b4b7f24bb1b4c6f2faab34bd2b0f15f500fe7797",
       "source_id": "test:tests/unit/conversation-worker.test.ts"
     },
     {
