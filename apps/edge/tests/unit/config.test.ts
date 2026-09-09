@@ -1,8 +1,10 @@
 import { describe, it, afterEach } from 'node:test';
 import assert from 'node:assert';
+import { spawnSync } from 'node:child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { loadConfig, validateConfig } from '../../src/config/index.js';
 import { resolveSecret } from '../../src/config/secret.js';
@@ -310,6 +312,42 @@ describe('Reaching a hosted model API is a decision, not a fallback', () => {
     const local = loadConfig({ ...base, ZURI_LLM_BASE_URL: 'http://localhost:11434/v1' });
     assert.strictEqual(local.llmBaseUrl, 'http://localhost:11434/v1');
     assert.strictEqual(local.llmAllowCloud, false, 'a local model needs no cloud consent');
+  });
+});
+
+describe('managed Desktop provider configuration', () => {
+  it('loads the operator-managed provider home from its explicit environment key', () => {
+    assert.strictEqual(
+      loadConfig({ ZURI_MANAGED_PROVIDER_HOME: 'C:/managed/providers/codex' }).managedProviderHome,
+      'C:/managed/providers/codex',
+    );
+  });
+
+  it('skips .env only for the explicit managed-worker switch', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-config-dotenv-'));
+    fs.writeFileSync(path.join(dir, '.env'), 'ZURI_MANAGED_PROVIDER_HOME=from-dotenv\n', 'utf8');
+    const moduleUrl = pathToFileURL(fileURLToPath(new URL('../../src/config/index.ts', import.meta.url))).href;
+    const tsxLoader = pathToFileURL(fileURLToPath(new URL('../../node_modules/tsx/dist/loader.mjs', import.meta.url))).href;
+    const run = (skip: boolean) => {
+      const env = { ...process.env, ...(skip ? { ZURI_CONFIG_SKIP_DOTENV: '1' } : {}) };
+      delete env.ZURI_MANAGED_PROVIDER_HOME;
+      if (!skip) delete env.ZURI_CONFIG_SKIP_DOTENV;
+      return spawnSync(
+        process.execPath,
+        ['--import', tsxLoader, '-e', `import { loadConfig } from ${JSON.stringify(moduleUrl)}; process.stdout.write(loadConfig(process.env).managedProviderHome);`],
+        { cwd: dir, env, encoding: 'utf8', windowsHide: true },
+      );
+    };
+    try {
+      const standalone = run(false);
+      assert.strictEqual(standalone.status, 0, standalone.stderr);
+      assert.strictEqual(standalone.stdout, 'from-dotenv');
+      const managed = run(true);
+      assert.strictEqual(managed.status, 0, managed.stderr);
+      assert.strictEqual(managed.stdout, '');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

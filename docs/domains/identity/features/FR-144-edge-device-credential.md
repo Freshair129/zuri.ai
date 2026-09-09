@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-04T09:00:00+07:00,Claude Code"
-last_update: "2026-09-04T09:00:00+07:00,Claude Code"
-status: "declared"
+last_update: "2026-09-08T19:41:52+07:00,RWANG"
+status: "beta"
 superseded_by: null
 domain: identity
 feature: FR-144
@@ -43,7 +43,111 @@ generates `tok_edge_` / `sec_edge_` strings **in the browser**, and no server ha
 stored them — a pairing control that has always been decorative, presented as a
 security boundary.
 
+## Browser and QR pairing — owner-approved 2026-09-08
+
+The owner selected a simple flow: Desktop **Connect Zuri** opens the browser;
+a QR of the same approval URL supports using a phone. The owner signs in, selects
+one Business they may govern and confirms the displayed device/check code.
+Desktop receives the result automatically. No JSON file, manual key copy or
+password sent to Desktop is required.
+
+This approval covers pairing and truthful connection status. The broader supervised
+worker/package proposal remains a distinct implementation slice; pairing success
+must never advertise worker readiness or enable LINE ingress.
+
+Protocol (all JSON, no-store):
+- POST /api/edge/pairing/start: bounded device ID/label; returns a five-minute
+  request, random device polling secret and browser approval URL.
+- POST /api/edge/pairing/approve: authenticated browser only, same-origin check;
+  inspect lists only governable Businesses; approve/deny consumes the approval
+  decision once. Verify a matching short code on Desktop and browser.
+- POST /api/edge/pairing/poll: the initiating Desktop's polling secret only.
+  On approval, re-resolve the approver's Business authority and mint the existing
+  edgk credential transactionally. Return it to this device exactly once.
+  Browser never receives the key. Concurrent polls cannot mint twice.
+- Device cancel uses the same private polling channel. Expired, cancelled,
+  rejected or consumed requests never mint another credential.
+
+The QR carries a high-entropy browser token in a URL fragment, not a credential
+or device polling secret. Fragment stays out of request URLs/referrers. Login
+returns only to the fixed /edge/pair page; its tab retains the temporary browser
+token in sessionStorage and clears it on terminal state. No arbitrary return URL.
+
+Pending requests are bounded, process-local five-minute capabilities; hashes only
+for polling/browser secrets. Restart or another replica loses the pending request
+and requires a new request. This release targets the current single Node server;
+it does not claim multi-replica continuity. Rate limits and a global capacity cap
+bound unauthenticated creation; forwarded addresses alone are not trusted protection.
+No key is minted before redemption, and no raw key is retained for replay.
+A lost redemption response is visibly unrecoverable: re-pair and revoke the prior
+credential in the existing management surface; never claim delivery or silently retry mint.
+Terminal expiry or server refusal releases the pending Desktop view so Connect can
+start a new request directly; transient transport errors offer an explicit status retry.
+
+Desktop validates the configured server origin (HTTPS or explicit loopback dev),
+disables HTTP redirects, and bounds requests. Deployment supplies the default
+server URL; advanced settings can change it explicitly. The initiating request's
+secret and resulting credential remain in Rust, never status DTOs or logs.
+Windows stores the device credential protected with user-bound DPAPI. Native status
+failures are visible. JSON import remains an advanced compatibility path and accepts
+the real apiBaseUrl export. Paired means identity configured; connection verification
+and worker readiness remain separate.
+
+Acceptance: real services/routes prove owner/foreign Business refusal, approval,
+denial, expiry, cancellation, single redemption under concurrency, revocation of
+authority before redemption, rate/capacity limits and absence of keys in browser
+responses. Browser tests cover login return and mobile approval. Rust tests cover
+origin checks, actual import parser, redacted DTOs, protected storage and QR URL
+contents. Desktop frontend polling/failure tests use an explicit mock native bridge;
+they do not prove installed Tauri transport or a physical phone scan. No real device
+key or LINE message in tests.
+
 ## Contract
+
+### Local implementation evidence — 2026-09-08
+
+Approved pairing slice implemented on `codex/edge-desktop-runtime-fix`, based on
+`b17e7258`. Desktop version **0.2.0 -> 0.2.1**; this feature note **0.1.0b ->
+0.2.0b**; Desktop runtime proposal **1.0.0b -> 1.2.0b**. No schema change.
+
+| Check | Local result |
+|---|---|
+| Server full unit/integration suite | 4,174 passed, 15 skipped; 506 files passed, 5 skipped |
+| Edge Node suite | 913 passed, 3 skipped; typecheck and build passed |
+| Native Windows Rust | 6 tests passed, including DPAPI round-trip/tamper refusal and atomic file replacement; release build passed |
+| Focused browser suite | 8 passed including warm-up, Desktop frontend error/expiry handling, actual Server approval/denial and ordinary login regression |
+| Final browser token cleanup | 2 approval/denial tests passed again after terminal sessionStorage cleanup; mobile viewport 390 x 844 |
+| Server production build | Passed compilation, lint/type checks and static generation |
+
+Server browser acceptance uses an isolated seeded database and real HTTP handlers,
+credential mint, owner login and authenticated heartbeat. Desktop frontend tests use
+a mock native bridge and do not prove physical-phone scanning or installed WebView IPC.
+Native unit tests run on Windows but are not a full native-to-Server acceptance run.
+Full repository E2E and hosted CI were not run in this task.
+
+Windows artifact: `apps/edge/src-tauri/target/release/zuri-edge-device.exe`,
+15,471,616 bytes, SHA-256
+`36c18ed8d9bd645a4e0629a2457b8d0949a7bc26038beb2b57adefa1596cd8b2`.
+Its default Server origin matches the observed production `PUBLIC_BASE_URL`:
+`https://unspirited-expostulatory-angila.ngrok-free.dev`. The artifact requires the
+new Server routes before use; it is a control-shell exe, not an installer or bundled
+compute worker. It has not been installed, published or paired with production.
+
+Initial full-suite failures identified a missing OpenAPI inventory update, the
+FR-144 digest review required by the ID ledger, and two fixture dependency-resolution
+failures caused by nested dependency junctions. The route inventory/counts were
+updated, the official ledger `--review FR-144` command recorded the same-subject
+approval, and this worktree now has independently installed Server dependencies.
+The final full suite above passed without weakening those checks. Two baseline JSX
+delimiter corrections needed for compilation are documented in the linked RCA.
+
+Production rollout, actual installed-device handover, worker supervision/package,
+LINE webhook repair and the existing manual-release tag selection issue are outside
+this pairing acceptance. No live credential, database migration, LINE message,
+commit, push or deployment was performed. Governance results are generated in
+`docs/.preflight-report.json`; the new Edge runtime note remains outside the historical
+Edge import manifest, so canonical FR-144 carries this evidence rather than claiming
+the historical Edge graph indexes the new note.
 
 ### Model — `EdgeDeviceCredential` (identity owns it)
 

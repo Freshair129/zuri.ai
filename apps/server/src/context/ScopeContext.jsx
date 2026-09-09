@@ -19,7 +19,7 @@ const ScopeContext = createContext(null)
 
 const STORAGE_KEY = 'zuri-v2-scope'
 const VIEW_KEY = 'zuri-v2-view'
-const ENTRY_PATHS = new Set(['/', '/login', '/businesses'])
+const ENTRY_PATHS = new Set(['/', '/login', '/businesses', '/edge/pair'])
 
 export function ScopeProvider({ children }) {
   const pathname = usePathname()

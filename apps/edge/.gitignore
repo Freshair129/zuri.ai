@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-desktop/
 .env
 .env.*
 !.env.example
@@ -16,5 +17,4 @@ data/*.gwal
 data/*.lock
 src-tauri/target/
 src-tauri/gen/
-
 

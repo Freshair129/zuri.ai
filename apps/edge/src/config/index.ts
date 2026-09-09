@@ -9,7 +9,10 @@ import { resolveSecret } from './secret.js';
 // @req BR-007 — the LINE channel token's custody rule, checked here and surfaced as a warning.
 // @spec FR-143, FR-144 — zuri-ai's edge-device requirements, referenced but not owned here.
 
-dotenv.config();
+// The managed Desktop worker supplies every setting over its private initialization channel.
+// Keep standalone CLI behavior unchanged while preventing a developer checkout's `.env` from
+// overriding that explicit worker contract.
+if (process.env.ZURI_CONFIG_SKIP_DOTENV !== '1') dotenv.config();
 
 export interface AgentConfig {
   transport: 'zuri-api' | 'line-poc' | 'mock';
@@ -82,6 +85,8 @@ export interface AgentConfig {
   /** Each an outward capability, each off until switched on deliberately. */
   headlessWebSearch: boolean;
   headlessFileAuthoring: boolean;
+  /** Absolute operator-managed CLI credential/config home; never inferred from the user home. */
+  managedProviderHome: string;
   /**
    * Answer out of band and deliver by push, instead of inside the webhook request.
    *
@@ -283,6 +288,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Partial<AgentC
     ),
     headlessWebSearch: env.ZURI_HEADLESS_WEB_SEARCH === 'true',
     headlessFileAuthoring: env.ZURI_HEADLESS_FILES === 'true',
+    managedProviderHome: (env.ZURI_MANAGED_PROVIDER_HOME || '').trim(),
     outboxEnabled: env.ZURI_OUTBOX_ENABLED === 'true',
     outboxRoot: env.ZURI_OUTBOX_ROOT || 'state/outbox',
     outboxLeaseMs: parseInt(env.ZURI_OUTBOX_LEASE_MS || '180000', 10),

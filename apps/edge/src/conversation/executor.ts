@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { AgentConfig } from '../config/index.js';
 import { answerConversation } from '../answer/respond.js';
-import { requireHeadlessPolicy } from '../answer/headless.js';
+import { requireHeadlessPolicy, type HeadlessOptions } from '../answer/headless.js';
 import { createModelPort } from '../answer/providers/index.js';
 import { loadCatalog } from '../catalog/store.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
@@ -14,8 +14,20 @@ import { ConversationError, type ConversationJob, isLoopbackUrl } from './contra
 // @spec ADR-061 — the local-computation boundary: a job may not name an executable, URL, query,
 //   recipient, filesystem location or business scope, and LOCAL_ONLY stays local.
 
+export function headlessProviderHome(
+  config: Pick<Partial<AgentConfig>, 'managedProviderHome'>,
+  bin: string,
+): Pick<HeadlessOptions, 'codexHome' | 'claudeConfigDir'> {
+  const home = config.managedProviderHome?.trim() || undefined;
+  return path.basename(bin).toLowerCase().startsWith('codex')
+    ? { codexHome: home }
+    : { claudeConfigDir: home };
+}
+
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
-  if (config.headlessEnabled) requireHeadlessPolicy(config.headlessBin || 'claude', true);
+  const headlessBin = config.headlessBin || 'claude';
+  const managedHome = headlessProviderHome(config, headlessBin);
+  if (config.headlessEnabled) requireHeadlessPolicy(headlessBin, true, managedHome.codexHome);
   // The RAG adapter is a local capability, never an arbitrary endpoint from a job.
   if (!isLoopbackUrl(ragUrl)) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
   if (job.policy.modelAccess === 'LOCAL_ONLY' &&
@@ -32,6 +44,8 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
   ragUrl?: string; answer?: typeof answerConversation; fetchFn?: typeof fetch;
 } = {}): (job: ConversationJob) => Promise<string> {
   const ragUrl = options.ragUrl || process.env.GENESIS_RAG_API_URL || 'http://127.0.0.1:8888';
+  const headlessBin = config.headlessBin || 'claude';
+  const managedHome = headlessProviderHome(config, headlessBin);
   // Prevent a local daemon from redirecting a LOCAL_ONLY question to an external origin.
   const noRedirectFetch: typeof fetch = (input, init) => (options.fetchFn || fetch)(input, { ...init, redirect: 'error' });
   return async job => {
@@ -63,7 +77,7 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
         retainHistory: false,
         llm,
         headless: config.headlessEnabled ? {
-          bin: config.headlessBin || 'claude', model: config.headlessModel || 'claude-sonnet-5',
+          bin: headlessBin, ...managedHome, model: config.headlessModel || 'claude-sonnet-5',
           timeoutMs: Math.min(timeoutMs, config.headlessTimeoutMs || 120000),
           maxTurns: config.headlessMaxTurns || 8,
           mcpServerPath: fileURLToPath(new URL('../mcp/pricing-server.js', import.meta.url)),

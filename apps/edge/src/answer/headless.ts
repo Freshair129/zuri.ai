@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
@@ -7,9 +7,90 @@ import { Role } from '../identity/registry.js';
 import { numbersIn } from './llm.js';
 import { ConversationError } from '../conversation/contract.js';
 
-export function requireHeadlessPolicy(bin: string, stateless: boolean): void {
-  // Empty MCP overrides do not remove inherited servers; keep this path closed.
-  if (stateless && bin.includes('codex')) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+function isCodexBin(bin: string): boolean {
+  return path.basename(bin).toLowerCase().startsWith('codex');
+}
+
+const CODEX_ISOLATION_FLAGS = [
+  '--ephemeral',
+  '--ignore-user-config',
+  '--ignore-rules',
+  '--strict-config',
+];
+
+function codexIsolationSupported(bin: string, managedHome: string): boolean {
+  const resolved = resolveBin(bin);
+  // A .cmd/.bat shim would require a shell. Treat it as unavailable rather than probing through
+  // one, because the child must stay shell-free even for this help-only capability check.
+  if (/[.](cmd|bat|ps1)$/i.test(resolved)) return false;
+  try {
+    const result = spawnSync(resolved, ['exec', '--help'], {
+      cwd: managedHome,
+      env: childEnv(managedHome),
+      encoding: 'utf8',
+      windowsHide: true,
+      shell: false,
+      timeout: 5000,
+      maxBuffer: 64 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    if (result.status !== 0) return false;
+    const help = `${result.stdout || ''}\n${result.stderr || ''}`;
+    return CODEX_ISOLATION_FLAGS.every(flag => help.includes(flag));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Stateless Codex may only use an explicitly provisioned home.
+ *
+ * Codex authenticates from CODEX_HOME, while --ignore-user-config only suppresses its
+ * config.toml. Keeping the operator's default ~/.codex as the child home would therefore
+ * reintroduce the inherited MCP configuration this guard is meant to prevent. The dedicated
+ * home is provisioned and authenticated by the operator; this process never reads or copies its
+ * auth file.
+ */
+export function requireHeadlessPolicy(
+  bin: string,
+  stateless: boolean,
+  codexHome?: string,
+): void {
+  if (!stateless || !isCodexBin(bin)) return;
+
+  if (!codexHome || !path.isAbsolute(codexHome)) {
+    throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+  }
+
+  const managedHome = path.resolve(codexHome);
+  const defaultHome = path.resolve(path.join(os.homedir(), '.codex'));
+  if (managedHome === defaultHome || !fs.existsSync(managedHome)) {
+    throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+  }
+
+  try {
+    if (!fs.statSync(managedHome).isDirectory()) {
+      throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+    }
+    // A symlink/junction to the operator's default home would restore the very inherited config
+    // this boundary is intended to remove. Compare canonical paths after checking the directory.
+    const managedReal = fs.realpathSync.native(managedHome);
+    if (fs.existsSync(defaultHome)) {
+      const defaultReal = fs.realpathSync.native(defaultHome);
+      const normalizeForCompare = (value: string) =>
+        process.platform === 'win32' ? value.toLowerCase() : value;
+      if (normalizeForCompare(managedReal) === normalizeForCompare(defaultReal)) {
+        throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+      }
+    }
+    if (!codexIsolationSupported(bin, managedHome)) {
+      // Codex versions without the help-listed isolation controls must remain fail-closed. The
+      // stateless path never falls back to a best-effort flag set on an older CLI.
+      throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+    }
+  } catch {
+    throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+  }
 }
 
 /**
@@ -40,6 +121,13 @@ export interface HeadlessOptions {
   stateless?: boolean;
   /** Path to the `claude` executable. */
   bin: string;
+  /**
+   * Dedicated Codex home provisioned by the operator via `codex login`.
+   * Stateless Codex refuses to start without this explicit home; auth is reused in place.
+   */
+  codexHome?: string;
+  /** Managed Claude config directory provisioned by the operator via `claude auth login`. */
+  claudeConfigDir?: string;
   model: string;
   /** Ceiling on the agent's own tool loop. */
   maxTurns: number;
@@ -91,7 +179,7 @@ const ENV_ALLOW = [
   'NUMBER_OF_PROCESSORS', 'PROCESSOR_ARCHITECTURE', 'OS',
 ];
 
-export function childEnv(): NodeJS.ProcessEnv {
+export function childEnv(codexHome?: string, claudeConfigDir?: string): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {};
   for (const name of ENV_ALLOW) {
     const value = process.env[name];
@@ -104,6 +192,12 @@ export function childEnv(): NodeJS.ProcessEnv {
    */
   delete env.ANTHROPIC_API_KEY;
   delete env.ANTHROPIC_AUTH_TOKEN;
+  // CODEX_HOME is intentionally never inherited. Only the validated, explicit managed home may
+  // reach a stateless Codex child, so ambient user config cannot add MCP servers.
+  if (codexHome) env.CODEX_HOME = path.resolve(codexHome);
+  // Claude's managed login home follows the same explicit-only rule. It is separate from CODEX_HOME
+  // because the two CLIs do not share credential stores or config formats.
+  if (claudeConfigDir) env.CLAUDE_CONFIG_DIR = path.resolve(claudeConfigDir);
   return env;
 }
 
@@ -325,7 +419,7 @@ export function buildArgs(
   resumeSessionId: string | null,
   options: HeadlessOptions
 ): string[] {
-  const isCodex = options.bin.includes('codex');
+  const isCodex = isCodexBin(options.bin);
 
   if (isCodex) {
     const fullInstruction = `${systemPrompt}\n\nคำสั่ง/คำถามจากลูกค้า: ${prompt}`;
@@ -335,7 +429,19 @@ export function buildArgs(
       '--sandbox', 'read-only',
       '-c', 'features.shell_tool=false',
       '-c', 'features.unified_exec=false',
-      ...(options.stateless ? ['--ephemeral', '-c', 'web_search="disabled"', '-c', 'mcp_servers={}', '-c', 'features.multi_agent=false'] : []),
+      ...(options.stateless
+        ? [
+            '--ephemeral',
+            '--ignore-user-config',
+            '--ignore-rules',
+            '--strict-config',
+            '-c', 'cli_auth_credentials_store="keyring"',
+            '-c', 'history.persistence="none"',
+            '-c', 'web_search="disabled"',
+            '-c', 'mcp_servers={}',
+            '-c', 'features.multi_agent=false',
+          ]
+        : []),
       '-m',
       options.model || 'gpt-5.6-luna',
       // The same read-only pricing server the Claude path gets, and for the same reason: without
@@ -368,7 +474,7 @@ export function buildArgs(
   ];
 
   if (options.stateless) {
-    args.push('--no-session-persistence', '--tools', '');
+    args.push('--no-session-persistence', '--tools', '', '--restricted');
   } else if (resumeSessionId) {
     args.push('--resume', resumeSessionId);
   } else {
@@ -449,7 +555,7 @@ export async function runHeadless(
   conversationKey: string,
   options: HeadlessOptions
 ): Promise<HeadlessResult> {
-  requireHeadlessPolicy(options.bin, Boolean(options.stateless));
+  requireHeadlessPolicy(options.bin, Boolean(options.stateless), options.codexHome);
   const resume = loadSessionId(conversationKey, options);
   const cwd = sandboxFor(conversationKey, options);
   const args = buildArgs(prompt, systemPrompt, role, resume, options);
@@ -462,7 +568,14 @@ export async function runHeadless(
     const binPath = resolveBin(options.bin);
     const child = spawn(binPath, args, {
       cwd,
-      env: { ...childEnv(), PYTHONIOENCODING: 'utf-8', LC_ALL: 'en_US.UTF-8' },
+      env: {
+        ...childEnv(
+          isCodexBin(options.bin) && options.stateless ? options.codexHome : undefined,
+          !isCodexBin(options.bin) ? options.claudeConfigDir : undefined,
+        ),
+        PYTHONIOENCODING: 'utf-8',
+        LC_ALL: 'en_US.UTF-8',
+      },
       windowsHide: true,
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -516,7 +629,7 @@ ${stderr}
           );
         } catch { /* debug only */ }
       }
-      const isCodex = options.bin.includes('codex');
+      const isCodex = isCodexBin(options.bin);
 
       if (isCodex) {
         const raw = (stdout || '').trim();

@@ -1,406 +1,266 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zuri Edge Device Control (Desktop Node)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --brand-amber: #E8820C;
-      --brand-hover: #F09420;
-      --brand-dark: #B86A08;
-      --brand-tint: #FDE8D0;
-      --brand-surface: #FFF8F0;
-      --bg-dark: #0F172A;
-      --card-dark: #1E293B;
-      --border-dark: #334155;
-      --text-main: #F8FAFC;
-      --text-muted: #94A3B8;
-      --emerald: #10B981;
-      --rose: #F43F5E;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', 'IBM Plex Sans Thai', sans-serif; }
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    header {
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-dark);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--brand-amber), var(--brand-dark));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(232, 130, 12, 0.3);
-    }
-
-    .brand-title {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    .brand-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 700;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--emerald);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 8px currentColor;
-    }
-
-    .status-badge.offline {
-      background: rgba(244, 63, 94, 0.15);
-      color: var(--rose);
-      border-color: rgba(244, 63, 94, 0.3);
-    }
-
-    main {
-      flex: 1;
-      padding: 24px;
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--card-dark);
-      border: 1px solid var(--border-dark);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Drop Zone */
-    .dropzone {
-      border: 2px dashed var(--border-dark);
-      border-radius: 14px;
-      padding: 32px 20px;
-      text-align: center;
-      background: rgba(15, 23, 42, 0.5);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--brand-amber);
-      background: rgba(232, 130, 12, 0.05);
-    }
-
-    .dropzone-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    .dropzone-text {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .dropzone-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .btn-primary {
-      background: var(--brand-amber);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--brand-hover);
-      box-shadow: 0 2px 10px rgba(232, 130, 12, 0.4);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      border: 1px solid var(--border-dark);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 12px;
-    }
-
-    .info-label { color: var(--text-muted); }
-    .info-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-main); }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 12px 20px;
-      background: var(--card-dark);
-      border: 1px solid var(--brand-amber);
-      border-radius: 12px;
-      font-size: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      display: none;
-      animation: slideUp 0.3s ease;
-      z-index: 100;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zuri Edge Device</title>
+  <link rel="stylesheet" href="desktop.css">
+  <script src="desktop.js" defer></script>
 </head>
 <body>
-
-  <header>
-    <div class="brand">
-      <div class="brand-logo">Z</div>
-      <div>
-        <div class="brand-title">Zuri Edge Device Node</div>
-        <div class="brand-sub">Zero-Trust Local Runtime & Headless AI Coordinator</div>
+  <div class="app-shell" id="appShell">
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-mark" aria-hidden="true">Z</div>
+        <div class="brand-copy">
+          <h1>Zuri Edge Device</h1>
+          <p><span id="headerVersion">v—</span><span aria-hidden="true"> · </span><span id="computerName">กำลังอ่านชื่อเครื่อง…</span><span aria-hidden="true"> · </span><span id="headerBusiness">ยังไม่ได้จับคู่</span></p>
+        </div>
       </div>
-    </div>
-    <div id="statusBadge" class="status-badge offline">
-      <div class="status-dot"></div>
-      <span id="statusText">ยังไม่ได้จับคู่ (NOT PAIRED)</span>
-    </div>
-  </header>
-
-  <main>
-    <!-- Card 1: 1-Click Drag & Drop Pairing -->
-    <div class="card">
-      <div class="card-title">🔐 จับคู่อุปกรณ์แบบ 1-Click (Drag & Drop Pairing)</div>
-      <div class="dropzone" id="dropZone">
-        <div class="dropzone-icon">📥</div>
-        <div class="dropzone-text">ลากไฟล์ <code style="color: var(--brand-amber);">zuri-edge-pairing-*.json</code> มาวางที่นี่</div>
-        <div class="dropzone-sub">หรือคลิกเพื่อเลือกไฟล์ที่ดาวน์โหลดมาจาก Zuri Web Console</div>
-        <input type="file" id="fileInput" accept=".json" style="display: none;">
+      <div class="header-status">
+        <div id="statusBadge" class="status-badge info" role="status" aria-live="polite">กำลังอ่านสถานะ…</div>
       </div>
-    </div>
+    </header>
 
-    <!-- Card 2: Status & Telemetry Info -->
-    <div class="card">
-      <div class="card-title">📡 ข้อมูลการเชื่อมต่อ Zuri Cloud & Edge Telemetry</div>
-      <div class="info-row">
-        <span class="info-label">Device ID:</span>
-        <span class="info-value" id="dispDeviceId">—</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Cloud Base URL:</span>
-        <span class="info-value" id="dispCloudUrl">—</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Last Heartbeat:</span>
-        <span class="info-value" id="dispHeartbeat">—</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">App Version:</span>
-        <span class="info-value" id="dispVersion">v0.2.0</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Execution Mode:</span>
-        <span class="info-value" style="color: var(--brand-amber);" id="dispMode">HEADLESS_PLAN (Subscription)</span>
-      </div>
+    <nav class="tab-list" id="primaryTabs" role="tablist" aria-label="ส่วนหลักของ Desktop">
+      <button id="tab-overview" class="tab-button" role="tab" aria-selected="true" aria-controls="panel-overview" tabindex="0" data-tab="overview">ภาพรวม<span id="overviewTabBadge" class="tab-badge" hidden></span></button>
+      <button id="tab-connect" class="tab-button" role="tab" aria-selected="false" aria-controls="panel-connect" tabindex="-1" data-tab="connect">เชื่อมต่อ<span id="connectTabBadge" class="tab-badge" hidden></span></button>
+      <button id="tab-ai" class="tab-button" role="tab" aria-selected="false" aria-controls="panel-ai" tabindex="-1" data-tab="ai">ตัวช่วย AI<span id="aiTabBadge" class="tab-badge" hidden></span></button>
+      <button id="tab-settings" class="tab-button" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1" data-tab="settings">ตั้งค่า<span id="settingsTabBadge" class="tab-badge" hidden></span></button>
+    </nav>
 
-      <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px;">
-        <button class="btn btn-primary" id="btnHeartbeat">⚡ ทดสอบ Heartbeat ทันที</button>
-        <button class="btn btn-secondary" id="btnCheckCodex">🤖 เช็ค Codex / Claude CLI</button>
-        <button class="btn btn-secondary" id="btnCheckUpdate">🔄 ตรวจสอบการอัปเดต</button>
-      </div>
-    </div>
-  </main>
+    <main class="panel-stack" id="appMain">
+      <section id="panel-overview" class="tab-panel" role="tabpanel" aria-labelledby="tab-overview" tabindex="-1" data-panel="overview">
+        <div id="overviewHome" class="page-view">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">สถานะเครื่อง</p>
+              <h2>ภาพรวม</h2>
+              <p class="panel-description">ตรวจสิ่งที่พร้อมแล้วและเลือกขั้นตอนถัดไปจากหน้านี้</p>
+            </div>
+            <div class="heading-state" id="overviewState" role="status" aria-live="polite">กำลังตรวจสอบ…</div>
+          </div>
 
-  <div id="toast" class="toast"></div>
+          <div class="overview-grid">
+            <article class="surface-card summary-card overview-block" data-overview-page="0">
+              <div class="card-heading"><h3>สถานะการทำงาน</h3><span id="overviewWorkerTone" class="state-dot" aria-hidden="true"></span></div>
+              <div class="worker-hero"><strong id="overviewWorkerStateLarge">กำลังตรวจสอบ…</strong><span id="overviewWorkerHeartbeat">ยืนยันล่าสุด —</span></div>
+              <dl class="summary-list">
+                <div><dt>รหัสอุปกรณ์</dt><dd id="device">—</dd></div>
+                <div><dt>ตัวประมวลผล</dt><dd id="workerState">ยังไม่ได้ตรวจ</dd></div>
+                <div><dt>ตัวช่วย / โมเดล</dt><dd id="providerModelSummary">—</dd></div>
+              </dl>
+              <p id="overviewReason" class="feedback muted" role="status" aria-live="polite"></p>
+            </article>
 
-  <script>
-    const isTauri = Boolean(window.__TAURI__);
+            <article class="surface-card prerequisite-card overview-block" data-overview-page="1">
+              <div class="card-heading"><h3>ก่อนเริ่มรับงาน</h3><span id="prerequisiteCount" class="count-label">กำลังตรวจ…</span></div>
+              <ul class="state-list" id="prerequisites">
+                <li id="overviewPairing"><span class="state-icon" aria-hidden="true">•</span><span><strong>การจับคู่</strong><small>กำลังตรวจ</small></span></li>
+                <li id="overviewServer"><span class="state-icon" aria-hidden="true">•</span><span><strong>การยืนยันกับ Server</strong><small>กำลังตรวจ</small></span></li>
+                <li id="overviewProvider"><span class="state-icon" aria-hidden="true">•</span><span><strong>ตัวช่วย AI</strong><small>กำลังตรวจ</small></span></li>
+              </ul>
+              <div class="inline-actions">
+                <button id="overviewConnect" class="button primary">ไปเชื่อมต่อ</button>
+                <button id="overviewConfigure" class="button secondary" hidden>ตั้งค่าตัวช่วย AI</button>
+                <button id="overviewVerify" class="button secondary" hidden>ตรวจการเชื่อมต่อ</button>
+                <button id="overviewStart" class="button primary" hidden>เริ่มรับงาน</button>
+              </div>
+            </article>
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 4000);
-    }
+            <article class="surface-card hardware-summary-card overview-block" data-overview-page="2">
+              <div class="card-heading"><h3>สเปคเครื่อง</h3><span id="hardwareStatus" class="count-label">กำลังอ่าน…</span></div>
+              <div class="hardware-summary-grid">
+                <div><span>ระบบ</span><strong id="hardwareSystemSummary">—</strong></div>
+                <div><span>CPU</span><strong id="hardwareCpuSummary">—</strong></div>
+                <div><span>RAM</span><strong id="hardwareMemorySummary">—</strong></div>
+                <div><span>GPU</span><strong id="hardwareGpuSummary">—</strong></div>
+              </div>
+              <p id="hardwareCapturedAt" class="muted compact-text">ยังไม่มี snapshot</p>
+              <div class="inline-actions">
+                <button id="hardwareOpen" class="button secondary">ดูสเปคเครื่อง</button>
+                <button id="hardwareRefresh" class="button ghost">ตรวจอีกครั้ง</button>
+              </div>
+            </article>
+          </div>
+          <div id="overviewCompactNav" class="compact-page-nav" hidden><span id="overviewCompactLabel">ส่วนที่ 1 / 3</span><div class="pagination-actions"><button id="overviewCompactPrev" class="button secondary">ก่อนหน้า</button><button id="overviewCompactNext" class="button secondary">ถัดไป</button></div></div>
 
-    async function invokeCmd(cmd, args = {}) {
-      if (isTauri && window.__TAURI__.core?.invoke) {
-        return await window.__TAURI__.core.invoke(cmd, args);
-      }
-      console.log('Mock Tauri invoke:', cmd, args);
-      return { success: true, message: 'Mock response in browser mode' };
-    }
+          <div class="panel-message" id="overviewFeedback" role="status" aria-live="polite"></div>
+        </div>
 
-    async function loadStatus() {
-      if (isTauri) {
-        try {
-          const cfg = await invokeCmd('get_edge_status');
-          updateUI(cfg);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
+        <div id="hardwarePage" class="page-view subpage" hidden>
+          <div class="subpage-heading">
+            <button id="hardwareBack" class="button ghost back-button">← กลับภาพรวม</button>
+            <div><p class="eyebrow">รายละเอียดเครื่อง</p><h2>สเปคเครื่อง</h2></div>
+            <button id="hardwarePageRefresh" class="button secondary">ตรวจอีกครั้ง</button>
+          </div>
+          <div id="hardwarePageStatus" class="panel-message" role="status" aria-live="polite"></div>
+          <div id="hardwareContent" class="hardware-content" aria-live="polite"></div>
+          <div class="pagination-bar">
+            <span id="hardwarePageLabel">หน้า 1 / 1</span>
+            <div class="pagination-actions"><button id="hardwarePrev" class="button secondary">ก่อนหน้า</button><button id="hardwareNext" class="button secondary">ถัดไป</button></div>
+          </div>
+        </div>
+      </section>
 
-    function updateUI(cfg) {
-      if (!cfg) return;
-      document.getElementById('dispDeviceId').textContent = cfg.device_id || '—';
-      document.getElementById('dispCloudUrl').textContent = cfg.cloud_base_url || '—';
-      document.getElementById('dispHeartbeat').textContent = cfg.last_heartbeat_at || 'ยังไม่เคยส่ง';
-      document.getElementById('dispMode').textContent = `${cfg.answer_mode} (${cfg.headless_bin})`;
+      <section id="panel-connect" class="tab-panel" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1" data-panel="connect" hidden>
+        <div id="connectHome" class="page-view">
+          <div class="panel-heading">
+            <div><p class="eyebrow">IDENTITY & SERVER</p><h2>เชื่อมต่อ</h2><p class="panel-description">จับคู่เครื่องนี้กับธุรกิจผ่าน Browser หรือ import ไฟล์ที่ได้รับอนุมัติ</p></div>
+            <div class="heading-state" id="connectState" role="status" aria-live="polite">กำลังตรวจสอบ…</div>
+          </div>
+          <div class="connect-grid">
+            <article class="surface-card connect-block" data-connect-page="0">
+              <div class="card-heading"><h3>สถานะการจับคู่</h3><span id="connectionStateLabel" class="state-label">ยังไม่ได้ตรวจ</span></div>
+              <dl class="summary-list compact-list">
+                <div><dt>ธุรกิจ</dt><dd id="connectBusiness">—</dd></div>
+                <div><dt>รหัสอุปกรณ์</dt><dd id="connectDevice">—</dd></div>
+                <div><dt>Server</dt><dd id="connectServer">—</dd></div>
+                <div><dt>ผลยืนยันล่าสุด</dt><dd id="connectHeartbeat">—</dd></div>
+              </dl>
+              <div class="inline-actions">
+                <button id="verify" class="button primary" disabled>ตรวจการเชื่อมต่อ Zuri</button>
+                <button id="retryStatus" class="button secondary">อ่านสถานะอีกครั้ง</button>
+              </div>
+            </article>
+            <article class="surface-card connection-next-card connect-block" data-connect-page="1">
+              <div class="card-heading"><h3>เริ่มการจับคู่</h3><span class="step-label">ขั้นตอน 1 / 2</span></div>
+              <p class="muted">ใช้ Server origin ที่เปิดใน Zuri Web Console แล้วกดเริ่มเชื่อมต่อ ระบบจะเปิด Browser เพื่อยืนยันเครื่องนี้</p>
+              <p id="connectOriginPreview" class="origin-preview">ยังไม่ได้ตั้ง Server origin</p>
+              <div class="inline-actions"><button id="connect" class="button primary" disabled>เชื่อมต่อ Zuri</button><button id="resumePairing" class="button primary" hidden>กลับไปคำขอที่กำลังรอ</button><button id="openAdvancedFromConnect" class="button secondary">ตั้ง Server / import</button></div>
+              <p id="connectMessage" class="feedback" role="status" aria-live="polite"></p>
+            </article>
+          </div>
+          <div id="connectCompactNav" class="compact-page-nav" hidden><span id="connectCompactLabel">ส่วนที่ 1 / 2</span><div class="pagination-actions"><button id="connectCompactPrev" class="button secondary">ก่อนหน้า</button><button id="connectCompactNext" class="button secondary">ถัดไป</button></div></div>
+          <div class="panel-message" id="connectFeedback" role="status" aria-live="polite"></div>
+        </div>
 
-      const badge = document.getElementById('statusBadge');
-      const text = document.getElementById('statusText');
-      if (cfg.is_paired) {
-        badge.className = 'status-badge';
-        text.textContent = 'เชื่อมต่อแล้ว (PAIRED / READY)';
-      } else {
-        badge.className = 'status-badge offline';
-        text.textContent = 'ยังไม่ได้จับคู่ (NOT PAIRED)';
-      }
-    }
+        <div id="pending" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="pairingBack" class="button ghost back-button">← กลับการเชื่อมต่อ</button><div><p class="eyebrow">PAIRING REQUEST</p><h2>ยืนยันการเชื่อมต่อ</h2></div><span id="pairingState" class="state-label">กำลังรอ</span></div>
+          <div class="pairing-layout">
+            <article class="surface-card pairing-instructions">
+              <h3>ตรวจรหัสใน Browser</h3>
+              <p class="muted">เปิดหน้าต่าง Zuri แล้วเลือกธุรกิจที่ต้องการเชื่อมต่อ รหัสบนสองหน้าจอต้องตรงกัน</p>
+              <div class="check-code" id="checkCode" aria-label="รหัสตรวจสอบ">—</div>
+              <p id="expiry" class="expiry-text" role="status" aria-live="polite">กำลังอ่านเวลาหมดอายุ…</p>
+              <div class="stack-actions"><button id="openBrowser" class="button primary">เปิด Browser อีกครั้ง</button><button id="showQr" class="button secondary">แสดง QR</button></div>
+              <p id="pairingMessage" class="feedback" role="status" aria-live="polite"></p>
+            </article>
+            <article class="surface-card pairing-qr-card" id="pairingQrCard">
+              <h3>หรือใช้มือถือสแกน</h3>
+              <img id="qr" width="220" height="220" alt="QR สำหรับยืนยันการเชื่อมต่อเครื่องนี้">
+              <p class="muted">สแกนด้วยกล้องมือถือ แล้วล็อกอิน Zuri</p>
+            </article>
+          </div>
+          <div class="panel-footer-actions"><button id="retryPair" class="button secondary" hidden>ตรวจผลอีกครั้ง</button><button id="restartPair" class="button primary" hidden>เริ่มเชื่อมต่อใหม่</button><button id="pairingToAi" class="button secondary" hidden>ไปตั้งค่าตัวช่วย AI</button><button id="cancel" class="button danger">ยกเลิกคำขอ</button></div>
+        </div>
 
-    // Dropzone logic
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
+        <div id="qrPage" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="qrBack" class="button ghost back-button">← กลับคำขอจับคู่</button><div><p class="eyebrow">PAIRING QR</p><h2>สแกน QR เพื่อยืนยัน</h2></div></div>
+          <div class="qr-page-content"><img id="qrLarge" width="300" height="300" alt="QR สำหรับยืนยันการเชื่อมต่อเครื่องนี้"><p id="qrPageMessage" class="muted">สแกนด้วยกล้องมือถือ แล้วล็อกอิน Zuri</p></div>
+        </div>
+      </section>
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
-    });
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length) processFile(e.target.files[0]);
-    });
+      <section id="panel-ai" class="tab-panel" role="tabpanel" aria-labelledby="tab-ai" tabindex="-1" data-panel="ai" hidden>
+        <div id="aiHome" class="page-view">
+          <div class="panel-heading">
+            <div><p id="aiPanelEyebrow" class="eyebrow">PROVIDER & MODEL</p><h2>ตัวช่วย AI</h2><p id="aiPanelDescription" class="panel-description">เลือกตัวช่วยและโมเดลที่จะใช้กับงาน แล้วบันทึกแยกจากการเริ่มรับงาน</p></div>
+            <div id="aiHeadingState" class="heading-state"><span id="providerDirty" class="dirty-badge" hidden>ยังไม่บันทึก</span><span id="providerSaveState" role="status" aria-live="polite">กำลังอ่านการตั้งค่า…</span></div>
+          </div>
+          <div class="ai-layout">
+            <article class="surface-card provider-choice-card ai-block" data-ai-page="0">
+              <div class="card-heading"><h3>ตัวช่วยที่ใช้กับงาน</h3><span class="step-label">เลือก 1 รายการ</span></div>
+              <div id="providerChoices" class="provider-choices" role="radiogroup" aria-label="ตัวช่วย AI">
+                <label class="provider-option"><input id="providerOllama" type="radio" name="provider" value="ollama"><span><strong>Ollama</strong><small>โมเดลในเครื่อง</small></span></label>
+                <label class="provider-option"><input id="providerCodex" type="radio" name="provider" value="codex"><span><strong>Codex</strong><small>บัญชี Codex แยกจาก Zuri</small></span></label>
+                <label class="provider-option"><input id="providerClaude" type="radio" name="provider" value="claude"><span><strong>Claude</strong><small>บัญชี Claude แยกจาก Zuri</small></span></label>
+              </div>
+              <p id="providerChoiceMessage" class="feedback muted" role="status" aria-live="polite"></p>
+            </article>
+            <article class="surface-card provider-form-card ai-block" data-ai-page="1">
+              <div class="card-heading"><h3 id="providerFormTitle">ตั้งค่า Ollama</h3><span id="providerStateLabel" class="state-label">ยังไม่ได้ตรวจ</span></div>
+              <div id="ollamaFields">
+                <div id="ollamaConnectionFields" class="provider-subsection">
+                  <label for="ollamaUrl">ที่อยู่ Ollama บนเครื่องนี้</label>
+                  <input id="ollamaUrl" type="url" value="http://127.0.0.1:11434" autocomplete="off">
+                  <div class="field-actions"><button id="discoverModels" class="button secondary">ค้นหาโมเดลในเครื่อง</button><span id="ollamaDiscoveryStatus" class="muted compact-text" role="status" aria-live="polite"></span></div>
+                </div>
+                <div id="ollamaModelFields" class="provider-subsection">
+                  <label for="selectedOllamaModel">โมเดลที่เลือก</label>
+                  <div class="selected-model"><span id="selectedOllamaModel">ยังไม่ได้เลือก</span><button id="openModelPicker" class="button secondary">ค้นหาและเลือกโมเดล</button></div>
+                </div>
+              </div>
+              <div id="cliFields" hidden>
+                <div id="cliModelFields" class="provider-subsection">
+                  <label for="providerModel">ชื่อโมเดล</label>
+                  <input id="providerModel" type="text" autocomplete="off" placeholder="ชื่อโมเดลที่บัญชีของคุณใช้ได้">
+                  <div id="providerAuthRow" class="auth-state-row"><span id="providerAuth" role="status" aria-live="polite">ยังไม่ได้ตรวจบัญชี</span><button id="providerCheck" class="button ghost">ตรวจบัญชีอีกครั้ง</button></div>
+                </div>
+                <div id="cliAuthFields" class="provider-subsection">
+                  <div class="field-actions"><button id="providerLogin" class="button primary">Login ผ่าน Browser</button><button id="cancelLogin" class="button secondary" hidden>ยกเลิก Login</button></div>
+                  <label id="allowCloudRow" class="check-label"><input id="allowCloud" type="checkbox"><span>อนุญาตให้ตัวช่วยนี้ส่งข้อมูลงานไปยังผู้ให้บริการ ตามสิทธิ์ที่ Zuri กำหนด</span></label>
+                </div>
+              </div>
+              <p id="providerMessage" class="feedback" role="status" aria-live="polite"></p>
+            </article>
+          </div>
+          <div id="aiCompactNav" class="compact-page-nav" hidden><span id="aiCompactLabel">ส่วนที่ 1 / 2</span><div class="pagination-actions"><button id="aiCompactPrev" class="button secondary">ก่อนหน้า</button><button id="aiCompactNext" class="button secondary">ถัดไป</button></div></div>
+          <div class="panel-footer-actions"><button id="saveProvider" class="button primary">บันทึกตัวช่วยที่เลือก</button><button id="startWorker" class="button secondary" disabled>บันทึกแล้ว ไปภาพรวมเพื่อเริ่มรับงาน</button></div>
+        </div>
 
-    function processFile(file) {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const content = event.target.result;
-          const res = await invokeCmd('import_pairing_payload', { jsonStr: content });
-          showToast(res.message);
-          await loadStatus();
-        } catch (err) {
-          showToast('❌ ข้อผิดพลาด: ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-    }
+        <div id="modelPage" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="modelBack" class="button ghost back-button">← กลับตัวช่วย AI</button><div><p class="eyebrow">OLLAMA MODELS</p><h2>เลือกโมเดล</h2></div><span id="modelCount" class="count-label">0 รายการ</span></div>
+          <div class="model-toolbar"><label for="modelSearch">ค้นหาโมเดล</label><input id="modelSearch" type="search" autocomplete="off" placeholder="พิมพ์ชื่อโมเดล"><button id="modelRefresh" class="button secondary">ค้นหาอีกครั้ง</button></div>
+          <div id="modelStatus" class="panel-message" role="status" aria-live="polite"></div>
+          <div id="modelResults" class="model-results" role="listbox" aria-label="รายการโมเดล Ollama"></div>
+          <div class="pagination-bar"><span id="modelPageLabel">หน้า 1 / 1</span><div class="pagination-actions"><button id="modelPrev" class="button secondary">ก่อนหน้า</button><button id="modelNext" class="button secondary">ถัดไป</button></div></div>
+        </div>
+      </section>
 
-    document.getElementById('btnHeartbeat').addEventListener('click', async () => {
-      try {
-        const res = await invokeCmd('send_heartbeat_now');
-        showToast(res.message);
-        await loadStatus();
-      } catch (err) {
-        showToast('❌ ข้อผิดพลาด: ' + err);
-      }
-    });
+      <section id="panel-settings" class="tab-panel" role="tabpanel" aria-labelledby="tab-settings" tabindex="-1" data-panel="settings" hidden>
+        <div id="settingsHome" class="page-view">
+          <div class="panel-heading"><div><p class="eyebrow">DESKTOP CARE</p><h2>ตั้งค่า</h2><p class="panel-description">จัดการการเชื่อมต่อ ตรวจโปรแกรม และดูเวอร์ชันแอป</p></div><span id="settingsState" class="heading-state">พร้อมใช้งาน</span></div>
+          <div class="settings-grid">
+            <button id="openAdvanced" class="settings-entry"><span class="entry-icon" aria-hidden="true">↔</span><span><strong>การเชื่อมต่อขั้นสูง</strong><small>Server origin และ import pairing JSON</small></span><span aria-hidden="true">→</span></button>
+            <button id="openCli" class="settings-entry"><span class="entry-icon" aria-hidden="true">⌘</span><span><strong>ตรวจโปรแกรมบนเครื่อง</strong><small>ตรวจ Codex หรือ Claude และเวอร์ชันที่พบ</small></span><span aria-hidden="true">→</span></button>
+            <button id="openAbout" class="settings-entry"><span class="entry-icon" aria-hidden="true">i</span><span><strong>เวอร์ชันและอัปเดต</strong><small>เวอร์ชันจริงและสถานะ updater</small></span><span aria-hidden="true">→</span></button>
+          </div>
+          <div class="settings-note"><strong>Updater ยังไม่พร้อมติดตั้งอัตโนมัติ</strong><span>หน้านี้แสดงผลตรวจเท่านั้น และจะไม่อ้างว่าติดตั้งสำเร็จ</span></div>
+        </div>
 
-    document.getElementById('btnCheckCodex').addEventListener('click', async () => {
-      try {
-        const res = await invokeCmd('check_headless_cli', { bin: 'codex' });
-        showToast(res.message);
-      } catch (err) {
-        showToast('❌ ข้อผิดพลาด: ' + err);
-      }
-    });
+        <div id="advancedPage" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="advancedBack" class="button ghost back-button">← กลับตั้งค่า</button><div><p class="eyebrow">SERVER ORIGIN</p><h2>การเชื่อมต่อขั้นสูง</h2></div></div>
+          <div class="settings-form-grid">
+            <article class="surface-card settings-form-block" data-settings-page="0"><h3>Server origin</h3><label for="baseUrl">ที่อยู่ Zuri Server</label><input id="baseUrl" type="url" placeholder="https://ที่อยู่เว็บ Zuri ของคุณ" autocomplete="off"><p class="muted">ใช้ที่อยู่เดียวกับเว็บ Zuri ที่ล็อกอิน ไม่ต้องใส่ /webhook หรือ /overview</p><p id="originValidation" class="feedback" role="status" aria-live="polite"></p></article>
+            <article class="surface-card settings-form-block" data-settings-page="1"><h3>นำเข้า pairing เดิม</h3><p class="muted">เลือกไฟล์ JSON ที่ได้รับจาก Zuri Web Console ระบบจะตรวจรูปแบบก่อนบันทึก</p><label class="file-picker"><span>เลือกไฟล์ pairing</span><input id="pairingFile" type="file" accept=".json,application/json"></label><p id="importStatus" class="feedback" role="status" aria-live="polite"></p></article>
+          </div>
+          <div id="advancedCompactNav" class="compact-page-nav" hidden><span id="advancedCompactLabel">ส่วนที่ 1 / 2</span><div class="pagination-actions"><button id="advancedCompactPrev" class="button secondary">ก่อนหน้า</button><button id="advancedCompactNext" class="button secondary">ถัดไป</button></div></div>
+        </div>
 
-    document.getElementById('btnCheckUpdate').addEventListener('click', async () => {
-      try {
-        showToast('กำลังตรวจสอบอัปเดตจาก GitHub Releases...');
-        const res = await invokeCmd('check_app_update');
-        showToast(res.message);
-      } catch (err) {
-        showToast('❌ ข้อผิดพลาด: ' + err);
-      }
-    });
+        <div id="cliPage" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="cliBack" class="button ghost back-button">← กลับตั้งค่า</button><div><p class="eyebrow">LOCAL DIAGNOSTICS</p><h2>ตรวจโปรแกรมบนเครื่อง</h2></div></div>
+          <div class="settings-form-grid"><article class="surface-card settings-form-block" data-settings-page="0"><h3>เลือกโปรแกรม</h3><label for="cli">โปรแกรมที่ต้องการตรวจ</label><select id="cli"><option value="codex">Codex</option><option value="claude">Claude</option></select><button id="checkCli" class="button primary">ตรวจโปรแกรม</button><p class="muted">พบ CLI ไม่ได้ยืนยันว่า Login แล้ว หรือพร้อมรับงาน</p></article><article class="surface-card diagnostic-card settings-form-block" data-settings-page="1"><h3>ผลตรวจ</h3><div id="cliDiagnostics" class="diagnostic-result" role="status" aria-live="polite">ยังไม่ได้ตรวจ</div><button id="cliDetails" class="button ghost" hidden>ดูรายละเอียด</button></article></div>
+          <div id="cliCompactNav" class="compact-page-nav" hidden><span id="cliCompactLabel">ส่วนที่ 1 / 2</span><div class="pagination-actions"><button id="cliCompactPrev" class="button secondary">ก่อนหน้า</button><button id="cliCompactNext" class="button secondary">ถัดไป</button></div></div>
+        </div>
 
-    window.addEventListener('DOMContentLoaded', loadStatus);
-  </script>
+        <div id="aboutPage" class="page-view subpage" hidden>
+          <div class="subpage-heading"><button id="aboutBack" class="button ghost back-button">← กลับตั้งค่า</button><div><p class="eyebrow">RELEASE INFORMATION</p><h2>เวอร์ชันและอัปเดต</h2></div></div>
+          <div class="settings-form-grid"><article class="surface-card settings-form-block" data-settings-page="0"><h3>เวอร์ชันแพ็กเกจ</h3><p id="appVersion" class="version-value">กำลังอ่าน…</p><p class="muted">เวอร์ชันนี้มาจากแพ็กเกจ Desktop ที่กำลังเปิดอยู่</p></article><article class="surface-card settings-form-block" data-settings-page="1"><h3>ตรวจอัปเดต</h3><div id="updateDiagnostics" class="diagnostic-result" role="status" aria-live="polite">ยังไม่ได้ตรวจ</div><button id="checkUpdate" class="button secondary">ตรวจอัปเดต</button><button id="updateDetails" class="button ghost" hidden>ดูรายละเอียด</button></article></div>
+          <div id="aboutCompactNav" class="compact-page-nav" hidden><span id="aboutCompactLabel">ส่วนที่ 1 / 2</span><div class="pagination-actions"><button id="aboutCompactPrev" class="button secondary">ก่อนหน้า</button><button id="aboutCompactNext" class="button secondary">ถัดไป</button></div></div>
+        </div>
+      </section>
+
+      <section id="detailPage" class="detail-page" hidden aria-labelledby="detailTitle">
+        <div class="subpage-heading"><button id="detailBack" class="button ghost back-button">← กลับ</button><div><p class="eyebrow">DETAIL</p><h2 id="detailTitle">รายละเอียด</h2></div><span id="detailPageLabel" class="count-label">หน้า 1 / 1</span></div>
+        <div id="detailContent" class="detail-content" role="article"></div>
+        <div class="pagination-bar"><span id="detailProgress">รายละเอียด</span><div class="pagination-actions"><button id="detailPrev" class="button secondary">ก่อนหน้า</button><button id="detailNext" class="button secondary">ถัดไป</button></div></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div><p id="globalMessage" class="footer-message" role="status" aria-live="polite"></p><p id="globalError" class="footer-error" role="alert" aria-live="assertive"></p></div>
+      <button id="globalStop" class="button danger global-stop" disabled>หยุดรับงาน</button>
+    </footer>
+  </div>
 </body>
 </html>

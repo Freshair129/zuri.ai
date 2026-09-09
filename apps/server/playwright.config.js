@@ -160,6 +160,7 @@ module.exports = defineConfig({
       // database are the same database by construction rather than by two
       // literals that happen to match.
       DATABASE_URL: target.databaseUrl,
+      PUBLIC_BASE_URL: target.baseURL,
       ZURI_SESSION_SECRET: E2E_SESSION_SECRET,
       ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
       // @req FR-123 — the plugin boundary is fail-closed without a registered

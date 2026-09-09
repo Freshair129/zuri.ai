@@ -1088,7 +1088,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "a37606b7",
+      "hash": "9950af2d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3083,6 +3083,65 @@
         ],
         "@tested": [
           "tests/integration/fr143-asset-extraction-job.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/pairing/approve/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/edge/pairing/approve/route.js",
+      "hash": "46521247",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/pairing/poll/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/edge/pairing/poll/route.js",
+      "hash": "2784a451",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/edge/pairing/start/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/edge/pairing/start/route.js",
+      "hash": "7e03f732",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing-routes.test.js"
         ]
       }
     },
@@ -5992,6 +6051,26 @@
       }
     },
     {
+      "id": "code:src/app/edge/pair/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/edge/pair/page.jsx",
+      "hash": "5fbb49ea",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008",
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/e2e/edge-pairing.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/layout.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/layout.jsx",
@@ -6014,7 +6093,7 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/login/page.jsx",
-      "hash": "e74d69fe",
+      "hash": "170717b9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6506,7 +6585,7 @@
       "id": "code:src/context/ScopeContext.jsx",
       "type": "code_file",
       "path": "apps/server/src/context/ScopeContext.jsx",
-      "hash": "c6867546",
+      "hash": "b7c4f780",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8690,6 +8769,82 @@
       }
     },
     {
+      "id": "code:src/modules/identity/edge-pairing-download.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/edge-pairing-download.js",
+      "hash": "9a508ada",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing-download.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/edge-pairing-http.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/edge-pairing-http.js",
+      "hash": "bde01bd2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-008",
+          "SEC-025"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/edge-pairing-runtime.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/edge-pairing-runtime.js",
+      "hash": "a3d172c0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/edge-pairing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/edge-pairing.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/edge-pairing.js",
+      "hash": "fb4c1a05",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-025",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/entry-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/entry-read-model.js",
@@ -8791,6 +8946,24 @@
           "tests/integration/identity-link.test.js",
           "tests/integration/agent-action-gate.test.js",
           "tests/integration/agent-turn.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/login-destination.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/login-destination.js",
+      "hash": "69587f10",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-144"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/edge-pairing.test.js"
         ]
       }
     },
@@ -12470,7 +12643,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "0fd363fd",
+      "hash": "6d611df9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14636,9 +14809,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.53.0b",
+      "version": "1.54.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "ae56bdf4",
+      "hash": "81b36c7a",
       "status": "current"
     },
     {
@@ -15847,7 +16020,7 @@
       "path": "docs/domains/identity/features/FR-144-edge-device-credential.md",
       "title": "FR-144 — Edge device credential (`EdgeDeviceCredential`)",
       "doc_status": "Declared 2026-09-04; implementation lanes in flight",
-      "hash": "d52ae32e",
+      "hash": "bef393e2",
       "status": "current"
     },
     {
@@ -16077,9 +16250,17 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.13.0b",
+      "version": "1.14.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "cfdf76dd",
+      "hash": "d4735677",
+      "status": "current"
+    },
+    {
+      "id": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "type": "document",
+      "path": "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
+      "title": "Zuri Edge Desktop — inventory และ wireframe แบบแท็บ",
+      "hash": "ac07b523",
       "status": "current"
     },
     {
@@ -16349,7 +16530,7 @@
       "type": "document",
       "path": "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
       "title": "FR-150-P2 — Optional Edge conversation execution",
-      "hash": "3d4170d1",
+      "hash": "49071329",
       "status": "current"
     },
     {
@@ -16629,7 +16810,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "e3ada3d5",
+      "hash": "533abb89",
       "status": "current"
     },
     {
@@ -19837,11 +20018,11 @@
       "id": "req:FR-144",
       "type": "requirement",
       "family": "FR",
-      "label": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent.",
+      "label": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. ✅ implemented 2026-09-04 (PR #213) — `EdgeDeviceCredential`, mint/list/revoke, `resolveEdgeDeviceContext`, the FR-141 heartbeat acceptance and the `/platform/integrations` Edge panel that replaced the browser-side pairing-string generator; `tests/integration/fr144-edge-device-credential.test.js` plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. Key rotation remains mint-then-revoke with no grace window, as declared "
+      "row_text": "Edge device credential — `EdgeDeviceCredential`, the Business-scoped bearer credential a Zuri Edge Device presents to the cloud. It is a third, distinct credential family: FR-106's `ApiAccessKey` is Tenant-bound Enterprise API access and FR-123's `PluginSession` is a public-client plugin identity; neither is a device. A Business OWNER (`ownsBusiness`) or an installation operator mints one from `/platform/integrations` with `POST /api/platform/edge-devices/credentials` `{businessId, deviceId, label}`: the raw `edgk_…` key appears **exactly once**, in the mint response, and is persisted only as a SHA-256 `keyHash` beside a display `keyPrefix`, with `status` ACTIVE | REVOKED, `lastUsedAt`, `revokedAt` and `revokeReason`. `GET /api/platform/edge-devices/credentials?businessId=` returns metadata only and `DELETE /api/platform/edge-devices/credentials/{id}` revokes; mint and revoke each write an `EDGE_DEVICE_CREDENTIAL` audit event, and a Business the caller does not own is refused with the same 404 a nonexistent Business receives (FR-072 refusal discipline). `resolveEdgeDeviceContext(request)` turns `Authorization: Bearer edgk_…` into `{ deviceId, businessId, tenantId, credentialId }` and touches `lastUsedAt`, or refuses `401` — missing, malformed, unknown, revoked and non-`edgk_` credentials are indistinguishable in the response. It is the authority for the FR-143 device routes and is additionally accepted by the FR-141 heartbeat `POST`, closing that requirement's open \"device-scoped credential\" item: the device context supplies `businessId`, and a `businessId` in the payload must match it or be absent. Owner-approved 2026-09-08: `/edge/pair` adds browser/QR approval through `POST /api/edge/pairing/start`, `/approve` and `/poll`: five-minute, bounded process-local requests; authenticated same-origin Business-owner approval; separate initiating-device secret; authority rechecked and existing credential minted only on one-time device redemption. Browser receives no device key; restart/expiry/cancellation requires a fresh request. The existing manual export remains compatible. ✅ implemented 2026-09-04 (PR #213) — `EdgeDeviceCredential`, mint/list/revoke, `resolveEdgeDeviceContext`, the FR-141 heartbeat acceptance and the `/platform/integrations` Edge panel that replaced the browser-side pairing-string generator; `tests/integration/fr144-edge-device-credential.test.js` plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. Key rotation remains mint-then-revoke with no grace window, as declared "
     },
     {
       "id": "req:FR-145",
@@ -22006,6 +22187,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/edge/pairing/approve",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/pairing/approve",
+      "path": "apps/server/src/app/api/edge/pairing/approve/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/pairing/poll",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/pairing/poll",
+      "path": "apps/server/src/app/api/edge/pairing/poll/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/edge/pairing/start",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/edge/pairing/start",
+      "path": "apps/server/src/app/api/edge/pairing/start/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/entry",
       "type": "route",
       "kind": "api",
@@ -23270,6 +23475,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/edge/pair",
+      "type": "route",
+      "kind": "page",
+      "route": "/edge/pair",
+      "path": "apps/server/src/app/edge/pair/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/execution",
       "type": "route",
       "kind": "page",
@@ -24448,6 +24661,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/edge-desktop-ui.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+      "hash": "238c07fb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/edge-pairing.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/edge-pairing.spec.js",
+      "hash": "6e03dd16",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr040-project-work.spec.js",
@@ -24774,6 +25001,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/domain-visibility-server.test.js",
       "hash": "b8d56a41",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/edge-pairing.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/edge-pairing.test.js",
+      "hash": "3af91661",
       "status": "current"
     },
     {
@@ -25445,7 +25679,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "17dabfa9",
+      "hash": "8675bc23",
       "status": "current"
     },
     {
@@ -26363,6 +26597,27 @@
       "type": "test",
       "path": "apps/server/tests/unit/edge-extraction-poller.test.js",
       "hash": "5777e869",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-pairing-download.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/edge-pairing-download.test.js",
+      "hash": "36fc3c0d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-pairing-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/edge-pairing-routes.test.js",
+      "hash": "c686c9da",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/edge-pairing.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/edge-pairing.test.js",
+      "hash": "9c8cd1e3",
       "status": "current"
     },
     {
@@ -29126,7 +29381,7 @@
       "source_path": "src/answer/headless.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "ad7e05fb2108",
-      "content_sha256": "a90e5ea8fc8c2eabc74b271add1fb2ae4ed91ee6dd4ac85cb3263882221d04f9",
+      "content_sha256": "d9b8576c04dd01f45d81f78e6b7d3e6e9077477e5789255be0456a74f3edeaa4",
       "source_id": "code:src/answer/headless.ts"
     },
     {
@@ -29198,7 +29453,7 @@
       "source_path": "src/config/index.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "111079d59c88",
-      "content_sha256": "a70162d7db7fcf5cb2cc3105bfa285e8190b21e7b38f6c8d549c38a74d7d5737",
+      "content_sha256": "a87bb3cde0e227dc6ca70820ea298055c8801f20ad3d33014507c65b1c67298b",
       "source_id": "code:src/config/index.ts"
     },
     {
@@ -29246,7 +29501,7 @@
       "source_path": "src/conversation/executor.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "b00005c7d857",
-      "content_sha256": "7f5748ca1a1c0b6f39f15991cdcd7d58c1cdcb84bcfde3630767850e521eac61",
+      "content_sha256": "31af09b7cc1e66070c4896c76d8c42a92d872099381e0a57297a88ad3bb0217d",
       "source_id": "code:src/conversation/executor.ts"
     },
     {
@@ -29690,7 +29945,7 @@
       "source_path": "tests/unit/config.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "8705d36e9e51",
-      "content_sha256": "4179f0c727e1c6510d8dbde710490b8937fb998b6da668fc0ce140b5606c8df4",
+      "content_sha256": "9b334b5373e5e6949d4e121c5391e969121b4ac9e9f9999092bb3b8605bb97ae",
       "source_id": "test:tests/unit/config.test.ts"
     },
     {
@@ -29702,7 +29957,7 @@
       "source_path": "tests/unit/conversation-worker.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "95c2de38aecb",
-      "content_sha256": "a1715ebbf90f328344ef351301d67b783a0593e6e61c2e1e8cac5ced779e1c5a",
+      "content_sha256": "bcc82e24ed338f079cf81c08930fee60b60fbfd3aeb37fc8a0e45f7c99f89278",
       "source_id": "test:tests/unit/conversation-worker.test.ts"
     },
     {
@@ -29822,7 +30077,7 @@
       "source_path": "tests/unit/headless.test.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "be6897321cbf",
-      "content_sha256": "7be0740bed173c62cf080bc861da2f99bd6d33776f772a52c963c0ecdda48ce3",
+      "content_sha256": "4b4104cee6e3e3090ccf6316558fd21d6f507949cd133a3a822669c86caad527",
       "source_id": "test:tests/unit/headless.test.ts"
     },
     {
@@ -36154,6 +36409,83 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/edge/pairing/approve/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/approve/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/approve/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/approve/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/poll/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/poll/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/poll/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/poll/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/start/route.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/start/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/edge/pairing/start/route.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/entry/route.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -40333,6 +40665,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/edge/pair/page.jsx",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/edge/pair/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/edge/pair/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/edge/pair/page.jsx",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/layout.jsx",
       "to": "req:FR-044",
       "type": "implements",
@@ -44498,6 +44858,90 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/edge-pairing-download.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-download.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-http.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-http.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-http.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-runtime.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-runtime.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing-runtime.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/edge-pairing.js",
+      "to": "req:SEC-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/entry-read-model.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -44633,6 +45077,20 @@
     {
       "from": "code:src/modules/identity/link-line-identity.js",
       "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-destination.js",
+      "to": "req:FR-144",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-destination.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -55271,6 +55729,41 @@
       "status": "current"
     },
     {
+      "from": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "to": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "to": "doc:UI-DESIGN-SYSTEM",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "to": "req:FR-141",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "to": "req:FR-144",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "to": "req:FR-150",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
       "to": "req:FR-173",
       "type": "relates",
@@ -55961,6 +56454,13 @@
       "to": "doc:FR-150-optional-edge-execution",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PHASE-FR-150-P2-optional-edge-execution",
+      "to": "doc:INVENTORY-FR-150-edge-desktop-ui",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
@@ -61648,6 +62148,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/edge/pairing/approve",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/pairing/poll",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/edge/pairing/start",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/entry",
       "to": "domain:identity",
       "type": "owned_by",
@@ -66093,6 +66614,69 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/edge-desktop-ui.spec.js",
+      "to": "req:FR-141",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-desktop-ui.spec.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-desktop-ui.spec.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-desktop-ui.spec.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-pairing.spec.js",
+      "to": "code:src/app/edge/pair/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/edge-pairing.spec.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-pairing.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-pairing.spec.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/edge-pairing.spec.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -70477,6 +71061,34 @@
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/edge-pairing.test.js",
+      "to": "code:src/modules/identity/edge-pairing-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/edge-pairing.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/edge-pairing.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/edge-pairing.test.js",
+      "to": "req:SEC-025",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -85085,6 +85697,125 @@
     },
     {
       "from": "test:tests/unit/edge-extraction-poller.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-download.test.js",
+      "to": "code:src/modules/identity/edge-pairing-download.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-download.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-download.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "code:src/app/api/edge/pairing/approve/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "code:src/app/api/edge/pairing/poll/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "code:src/app/api/edge/pairing/start/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "code:src/modules/identity/edge-pairing-http.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing-routes.test.js",
+      "to": "req:SEC-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
+      "to": "code:src/modules/identity/edge-pairing.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
+      "to": "code:src/modules/identity/login-destination.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/edge-pairing.test.js",
       "to": "req:SEC-025",
       "type": "verifies",
       "status": "current",
@@ -102125,7 +102856,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2421,
+    "server_nodes": 2441,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

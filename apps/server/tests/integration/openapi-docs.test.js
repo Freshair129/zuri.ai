@@ -136,8 +136,9 @@ describe('OpenAPI document', () => {
       // FR-169 adds the Business capability toggle (PATCH
       // /api/businesses/{id}/capabilities): one path, one operation.
       // FR-173 adds five knowledge admission/corpus paths and six operations.
-      pathCount: 206,
-      operationCount: 284,
+      // FR-144 browser/Desktop pairing adds three POST paths.
+      pathCount: 209,
+      operationCount: 287,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

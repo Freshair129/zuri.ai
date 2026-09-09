@@ -1,7 +1,7 @@
 ---
-version: "1.12.0b"
+version: "1.14.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-07T03:20:00+07:00,RWANG"
+last_update: "2026-09-08T19:41:52+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.13.0b |
+| **Version** | 1.14.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-07 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=88; operational_domain_keys=15; operational_subdomain_entries=49; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=89; operational_domain_keys=15; operational_subdomain_entries=49; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -77,6 +77,7 @@ mean production identity, external providers or cutover gates are complete.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
+| `/edge/pair` | Desktop browser/QR pairing | EntryShell | sign in, compare device code, choose an owned Business and approve; the initiating Desktop receives its key once | loading, auth required, pending, approved, denied, expired, unavailable | FR-144; browser/QR slice implemented locally, production activation separate |
 | `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; two links out — reset, and self-serve signup (FR-120) | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
 | `/reset-password` | Password Reset Redemption (ตั้งรหัสผ่านใหม่) | EntryShell | consume a single-use reset token handed over out of band — typed by hand or carried in the link — set a new credential, and report that every active session was revoked | unauthenticated, prefilled token, invalid/used/expired token (one generic message), password too short, confirmation mismatch, done | implemented; `src/app/reset-password/page.jsx`, `/api/auth/reset-password`, FR-104 |
 | `/signup` | Self-Serve Signup (สมัครสมาชิก) | EntryShell | create your own `Person` + `PersonCredential` with no invite and no operator, be signed in, and continue into FR-066 at its `PROFILE` step — grants no scope, capability or membership | unauthenticated, confirmation mismatch (caught before any request), password below the minimum, address already taken (named plainly — no mail transport means nothing to hide it behind), rate-limited (429) | implemented; `src/app/signup/page.jsx`, `/api/auth/signup`, FR-120 |

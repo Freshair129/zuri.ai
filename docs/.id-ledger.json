@@ -2827,14 +2827,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "f208ae8023d946a69e2475326c61c2ca247a1cbf1499cc045d5b03ba77b3aeb6",
+      "statement_digest": "0bc899da1181e002ff552a29f4c92f93097765a2e2e5d0a3780c27986e82cba6",
       "history": [
         {
           "anchor": "edge device credential",
           "since": "2026-09-03",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Owner approved browser and QR handover for the same Business-scoped device credential on 2026-09-08; reviewed expiry, authority and one-use redemption contracts without changing the pinned subject."
     },
     "FR-145": {
       "family": "FR",

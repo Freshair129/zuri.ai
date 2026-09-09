@@ -1,4 +1,5 @@
 'use client'
+import { edgePairingDownload } from '@/modules/identity/edge-pairing-download'
 
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -201,16 +202,10 @@ export default function IntegrationsPage() {
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body?.error || 'ไม่สามารถออกกุญแจจับคู่ได้')
-      setGeneratedPairing({
-        deviceId: body.credential.deviceId,
-        key: body.key,
-        businessId,
-        businessCode: selectedBusiness?.code || null,
-        businessName: selectedBusiness?.name || null,
-        apiBaseUrl: publicOrigin,
-        generatedAt: body.credential.createdAt,
-        instructions: 'บันทึกกุญแจนี้ลงใน Zuri Edge Device (ZURI_EDGE_DEVICE_KEY) — ระบบจะไม่แสดงอีก',
-      })
+      setGeneratedPairing(edgePairingDownload({
+        credential: body.credential, key: body.key, businessId,
+        businessCode: selectedBusiness?.code, businessName: selectedBusiness?.name, origin: publicOrigin,
+      }))
       credentials.reload?.()
     } catch (error) {
       setPairingError(error.message)

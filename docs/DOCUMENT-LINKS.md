@@ -1658,6 +1658,20 @@ Backlinks:
 - [FR-171-P2 — Preserve authorized MSP memory provenance](domains/agent/features/PHASE-FR-171-P2-memory-provenance.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
 
+## Zuri Edge Desktop — inventory และ wireframe แบบแท็บ
+
+Source: [Zuri Edge Desktop — inventory และ wireframe แบบแท็บ](domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md)
+
+- references: [UI Design System: Zuri Heritage v2](UI-DESIGN-SYSTEM.md)
+- references: [req:FR-141](PRD-SDD-v1.0.md)
+- references: [req:FR-144](PRD-SDD-v1.0.md)
+- references: [req:FR-150](PRD-SDD-v1.0.md)
+- relates: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
+
+Backlinks:
+
+- [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (references)
+
 ## FR-149-P3 — Server-owned LINE conversation transport
 
 Source: [FR-149-P3 — Server-owned LINE conversation transport](domains/agent/features/PHASE-FR-149-P3-server-line-transport.md)
@@ -1682,6 +1696,7 @@ Backlinks:
 
 Source: [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md)
 
+- references: [Zuri Edge Desktop — inventory และ wireframe แบบแท็บ](domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md)
 - references: [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md)
 - relates: [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md)
 - relates: [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md)
@@ -1694,6 +1709,7 @@ Backlinks:
 
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (references)
 - [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
+- [Zuri Edge Desktop — inventory และ wireframe แบบแท็บ](domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md) (relates)
 - [FR-150-P1 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) (relates)
 - [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
 - [Domain — agent](domains/agent/CHARTER.md) (relates)
@@ -3557,6 +3573,7 @@ Source: [UI Design System: Zuri Heritage v2](UI-DESIGN-SYSTEM.md)
 Backlinks:
 
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
+- [Zuri Edge Desktop — inventory และ wireframe แบบแท็บ](domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md) (references)
 
 ## Zuri Workspace System — the scope model, stated once
 

@@ -1,240 +1,375 @@
+use crate::{
+    credential_store,
+    pairing::{self, Pending, Started},
+};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
-use std::process::Command;
-use std::sync::Mutex;
+use serde_json::{json, Value};
+use std::{
+    fs,
+    io::Write,
+    path::{Path, PathBuf},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex,
+    },
+};
 use tauri::State;
+use tauri_plugin_opener::OpenerExt;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+// @spec FR-144, FR-141, SEC-025 — native pairing state, protected storage and truthful telemetry.
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(default)]
 pub struct EdgePairingConfig {
-    #[serde(default)]
     pub device_id: String,
-    #[serde(default)]
     pub device_key: String,
-    #[serde(default = "default_cloud_url")]
     pub cloud_base_url: String,
-    #[serde(default = "default_answer_mode")]
+    pub business_name: String,
     pub answer_mode: String,
-    #[serde(default = "default_headless_bin")]
     pub headless_bin: String,
-    #[serde(default)]
     pub is_paired: bool,
-    #[serde(default)]
     pub last_heartbeat_at: Option<String>,
+    pub provider_settings: crate::providers::ProviderSettings,
 }
-
-fn default_cloud_url() -> String {
-    "http://localhost:3000".to_string()
-}
-
-fn default_answer_mode() -> String {
-    "HEADLESS_PLAN".to_string()
-}
-
-fn default_headless_bin() -> String {
-    "codex".to_string()
-}
-
 impl Default for EdgePairingConfig {
     fn default() -> Self {
         Self {
-            device_id: "zuri-edge-workstation".to_string(),
-            device_key: "".to_string(),
-            cloud_base_url: default_cloud_url(),
-            answer_mode: default_answer_mode(),
-            headless_bin: default_headless_bin(),
+            device_id: format!("EDGE-{}", uuid::Uuid::new_v4().simple()),
+            device_key: String::new(),
+            cloud_base_url: option_env!("ZURI_DESKTOP_SERVER_URL")
+                .unwrap_or("")
+                .to_string(),
+            business_name: String::new(),
+            answer_mode: "HEADLESS_PLAN".into(),
+            headless_bin: "codex".into(),
             is_paired: false,
             last_heartbeat_at: None,
+            provider_settings: crate::providers::ProviderSettings::default(),
         }
     }
 }
-
 pub struct AppState {
     pub config: Mutex<EdgePairingConfig>,
+    pub load_error: Mutex<Option<String>>,
+    pub verified: AtomicBool,
+    pub pairing: tokio::sync::Mutex<Option<Pending>>,
+    pub lifecycle: tokio::sync::Mutex<()>,
+    pub supervisor: crate::supervisor::Supervisor,
+    pub providers: crate::providers::ProviderManager,
+    pub quitting: AtomicBool,
 }
-
-pub fn get_config_path() -> PathBuf {
-    let mut path = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
-    path.push("zuri-edge-device");
-    let _ = fs::create_dir_all(&path);
-    path.push("edge-config.json");
-    path
+impl AppState {
+    pub fn load() -> Self {
+        let (cfg, error) = match load_persisted_config() {
+            Ok(value) => (value, None),
+            Err(error) => (EdgePairingConfig::default(), Some(error)),
+        };
+        Self {
+            config: Mutex::new(cfg),
+            load_error: Mutex::new(error),
+            verified: AtomicBool::new(false),
+            pairing: tokio::sync::Mutex::new(None),
+            lifecycle: tokio::sync::Mutex::new(()),
+            supervisor: crate::supervisor::Supervisor::default(),
+            providers: crate::providers::ProviderManager::default(),
+            quitting: AtomicBool::new(false),
+        }
+    }
 }
-
-pub fn load_persisted_config() -> EdgePairingConfig {
-    let path = get_config_path();
-    if path.exists() {
-        if let Ok(content) = fs::read_to_string(&path) {
-            if let Ok(cfg) = serde_json::from_str::<EdgePairingConfig>(&content) {
-                return cfg;
+pub fn get_config_path() -> Result<PathBuf, String> {
+    Ok(dirs::config_dir()
+        .ok_or("ไม่พบโฟลเดอร์การตั้งค่าของ Windows")?
+        .join("zuri-edge-device")
+        .join("edge-config.json"))
+}
+pub fn persist_at(cfg: &EdgePairingConfig, path: &Path) -> Result<(), String> {
+    let mut stored = cfg.clone();
+    stored.device_key = credential_store::protect(&cfg.device_key)?;
+    let parent = path.parent().ok_or("ตำแหน่งการตั้งค่าไม่ถูกต้อง")?;
+    fs::create_dir_all(parent).map_err(|_| "สร้างโฟลเดอร์การตั้งค่าไม่ได้")?;
+    let bytes = serde_json::to_vec_pretty(&stored).map_err(|_| "บันทึกการตั้งค่าไม่ได้")?;
+    let mut temp = tempfile::NamedTempFile::new_in(parent).map_err(|_| "บันทึกการตั้งค่าไม่ได้")?;
+    temp.write_all(&bytes)
+        .and_then(|_| temp.as_file().sync_all())
+        .map_err(|_| "บันทึกการตั้งค่าไม่ได้")?;
+    temp.persist(path)
+        .map_err(|_| "บันทึกการตั้งค่าไม่ได้ ข้อมูลเดิมยังคงอยู่")?;
+    Ok(())
+}
+pub fn persist_config(cfg: &EdgePairingConfig) -> Result<(), String> {
+    persist_at(cfg, &get_config_path()?)
+}
+pub fn load_persisted_config() -> Result<EdgePairingConfig, String> {
+    let path = get_config_path()?;
+    if !path.exists() {
+        return Ok(EdgePairingConfig::default());
+    }
+    let content =
+        fs::read_to_string(&path).map_err(|_| "อ่านการตั้งค่าไม่ได้ กรุณาลองใหม่หรือนำเข้าไฟล์จับคู่")?;
+    let mut cfg: EdgePairingConfig =
+        serde_json::from_str(&content).map_err(|_| "ไฟล์การตั้งค่าเสียหาย กรุณาเชื่อมต่อใหม่")?;
+    if cfg.device_key.starts_with("dpapi:") {
+        cfg.device_key = credential_store::unprotect(&cfg.device_key)?;
+    } else if !cfg.device_key.is_empty() {
+        // Only this Desktop's own old file; never read/import the legacy checkout's .env.
+        if !cfg.device_key.starts_with("edgk_") {
+            return Err("กุญแจเดิมไม่ถูกต้อง กรุณาเชื่อมต่อใหม่".into());
+        }
+        persist_at(&cfg, &path)?;
+    }
+    cfg.is_paired = !cfg.device_key.is_empty();
+    Ok(cfg)
+}
+pub fn status_value(cfg: &EdgePairingConfig, verified: bool, error: Option<String>) -> Value {
+    json!({
+        "device_id":cfg.device_id, "cloud_base_url":cfg.cloud_base_url, "business_name":cfg.business_name,
+        "configured":!cfg.device_key.is_empty(), "server_verified":verified,
+        "last_heartbeat_at":cfg.last_heartbeat_at, "worker_state":"UNVERIFIED",
+        "version":env!("CARGO_PKG_VERSION"), "load_error":error,
+    })
+}
+#[tauri::command]
+pub fn get_edge_status(state: State<'_, AppState>) -> Value {
+    let mut value = status_value(
+        &state.config.lock().unwrap(),
+        state.verified.load(Ordering::SeqCst),
+        state.load_error.lock().unwrap().clone(),
+    );
+    value["worker_state"] = state.supervisor.snapshot()["state"].clone();
+    value
+}
+#[tauri::command]
+pub async fn import_pairing_payload(
+    json_str: String,
+    state: State<'_, AppState>,
+) -> Result<Value, String> {
+    let _guard = state.lifecycle.lock().await;
+    if state.supervisor.is_active() {
+        return Err("กรุณาหยุดรับงานก่อนเปลี่ยนการจับคู่".into());
+    }
+    if json_str.len() > 16384 {
+        return Err("ไฟล์จับคู่มีขนาดเกินกำหนด".into());
+    }
+    let mut pending = state.pairing.lock().await;
+    if pending.is_some() {
+        return Err("กรุณายกเลิกคำขอที่กำลังรอก่อนนำเข้าไฟล์".into());
+    }
+    let value: Value = serde_json::from_str(&json_str).map_err(|_| "รูปแบบไฟล์จับคู่ไม่ถูกต้อง")?;
+    let mut cfg = pairing::parse_pairing(&value)?;
+    cfg.provider_settings = state.config.lock().unwrap().provider_settings.clone();
+    persist_config(&cfg)?;
+    *state.config.lock().unwrap() = cfg;
+    *state.load_error.lock().unwrap() = None;
+    state.verified.store(false, Ordering::SeqCst);
+    *pending = None;
+    Ok(json!({"success":true,"message":"บันทึกการจับคู่แล้ว กรุณาตรวจการเชื่อมต่อ"}))
+}
+#[tauri::command]
+pub async fn connect_zuri(
+    base_url: String,
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Value, String> {
+    let _guard = state.lifecycle.lock().await;
+    if state.supervisor.is_active() {
+        return Err("กรุณาหยุดรับงานก่อนเปลี่ยนการจับคู่".into());
+    }
+    let mut pending = state.pairing.lock().await;
+    if let Some(current) = pending.as_ref() {
+        return serde_json::to_value(current.view(false)?).map_err(|_| "อ่านคำขอไม่ได้".into());
+    }
+    let origin = pairing::validate_origin(&base_url)?;
+    let id = state.config.lock().unwrap().device_id.clone();
+    let label: String = std::env::var("COMPUTERNAME")
+        .unwrap_or_else(|_| "Zuri Desktop".into())
+        .chars()
+        .take(80)
+        .collect();
+    let response = pairing::client()?
+        .post(format!("{origin}/api/edge/pairing/start"))
+        .json(&json!({"deviceId":id, "label":label}))
+        .send()
+        .await
+        .map_err(|_| "ติดต่อ Zuri ไม่สำเร็จ ตรวจที่อยู่เซิร์ฟเวอร์แล้วลองใหม่")?;
+    let start: Started = serde_json::from_value(pairing::json_response(response).await?)
+        .map_err(|_| "เซิร์ฟเวอร์ยังไม่พร้อมรับคำขอ กรุณาลองใหม่")?;
+    pairing::validate_start(&start, &origin)?;
+    let opened = app
+        .opener()
+        .open_url(&start.approval_url, None::<&str>)
+        .is_ok();
+    let current = Pending {
+        start,
+        origin,
+        received: None,
+    };
+    let view = current.view(opened)?;
+    *pending = Some(current);
+    serde_json::to_value(view).map_err(|_| "อ่านคำขอไม่ได้".into())
+}
+#[tauri::command]
+pub async fn open_pairing_browser(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let pending = state.pairing.lock().await;
+    let current = pending.as_ref().ok_or("กรุณาเริ่มคำขอใหม่")?;
+    pairing::validate_start(&current.start, &current.origin)?;
+    app.opener()
+        .open_url(&current.start.approval_url, None::<&str>)
+        .map_err(|_| "เปิดเบราว์เซอร์ไม่ได้ กรุณาสแกน QR".into())
+}
+#[tauri::command]
+pub async fn poll_pairing(cancel: bool, state: State<'_, AppState>) -> Result<Value, String> {
+    let _guard = state.lifecycle.lock().await;
+    if state.supervisor.is_active() {
+        return Err("กรุณาหยุดรับงานก่อนเปลี่ยนการจับคู่".into());
+    }
+    let mut slot = state.pairing.lock().await;
+    if slot.is_none() && cancel {
+        return Ok(json!({"state":"CANCELLED"}));
+    }
+    let current = slot.as_mut().ok_or("ไม่มีคำขอที่กำลังรอ")?;
+    if cancel {
+        if current.received.is_some() {
+            return Err("ได้รับกุญแจแล้ว กรุณากดตรวจผลอีกครั้งเพื่อบันทึกให้สำเร็จ".into());
+        }
+        // Dropping the private capability locally stops redemption even offline.
+        // Server cancellation is best effort; an unpolled request expires without minting.
+        let _ = pairing::client()?
+            .post(format!("{}/api/edge/pairing/poll", current.origin))
+            .bearer_auth(&current.start.device_secret)
+            .json(&json!({"requestId":current.start.request_id,"cancel":true}))
+            .send()
+            .await;
+        *slot = None;
+        return Ok(json!({"state":"CANCELLED"}));
+    }
+    if current.received.is_none() {
+        let response = pairing::client()?
+            .post(format!("{}/api/edge/pairing/poll", current.origin))
+            .bearer_auth(&current.start.device_secret)
+            .json(&json!({"requestId":current.start.request_id,"cancel":cancel}))
+            .send()
+            .await
+            .map_err(|_| "ขาดการเชื่อมต่อ กรุณาลองตรวจสถานะอีกครั้ง")?;
+        let value = match pairing::json_response(response).await {
+            Ok(value) => value,
+            Err(error) => {
+                *slot = None;
+                return Ok(json!({"state":"FAILED","message":error}));
+            }
+        };
+        match value.get("state").and_then(Value::as_str) {
+            Some("PAIRED") => {
+                let cfg = pairing::parse_pairing(value.get("pairing").ok_or("ไม่มีข้อมูลจับคู่")?)?;
+                if cfg.cloud_base_url != current.origin
+                    || cfg.device_id != state.config.lock().unwrap().device_id
+                {
+                    *slot = None;
+                    return Err("ข้อมูลจับคู่ไม่ตรงกับคำขอ".into());
+                }
+                current.received = Some(cfg);
+            }
+            Some("CANCELLED" | "DENIED") => {
+                *slot = None;
+                return Ok(value);
+            }
+            Some("PENDING" | "WAIT" | "REDEEMING") => return Ok(value),
+            _ => {
+                *slot = None;
+                return Err("สถานะคำขอจากเซิร์ฟเวอร์ไม่ถูกต้อง".into());
             }
         }
     }
-    EdgePairingConfig::default()
+    // Keep a received key in native memory if disk persistence fails, so Retry saves
+    // the same key instead of redeeming/minting again.
+    let mut cfg = current.received.as_ref().unwrap().clone();
+    cfg.provider_settings = state.config.lock().unwrap().provider_settings.clone();
+    persist_config(&cfg)?;
+    *state.config.lock().unwrap() = cfg;
+    *state.load_error.lock().unwrap() = None;
+    state.verified.store(false, Ordering::SeqCst);
+    *slot = None;
+    Ok(json!({"state":"PAIRED"}))
 }
-
-pub fn persist_config(cfg: &EdgePairingConfig) -> Result<(), String> {
-    let path = get_config_path();
-    let content = serde_json::to_string_pretty(cfg).map_err(|e| e.to_string())?;
-    fs::write(path, content).map_err(|e| e.to_string())?;
-    Ok(())
+#[tauri::command]
+pub async fn send_heartbeat_now(state: State<'_, AppState>) -> Result<Value, String> {
+    let _guard = state.lifecycle.lock().await;
+    if state.supervisor.is_active() {
+        state.supervisor.heartbeat().await?;
+        return Ok(
+            json!({"success":true,"message":"ขอให้ตัวประมวลผลตรวจการเชื่อมต่อแล้ว ดูเวลายืนยันล่าสุด"}),
+        );
+    }
+    let cfg = state.config.lock().unwrap().clone();
+    state.verified.store(false, Ordering::SeqCst);
+    if cfg.device_key.is_empty() {
+        return Err("กรุณาเชื่อมต่อ Zuri ก่อน".into());
+    }
+    let origin = pairing::validate_origin(&cfg.cloud_base_url)?;
+    let response = pairing::client()?.post(format!("{origin}/api/agent/heartbeat"))
+        .bearer_auth(&cfg.device_key)
+        // Shell-only verification cannot advertise a healthy execution worker.
+        .json(&json!({"deviceId":cfg.device_id,"status":"unavailable","timestamp":chrono::Utc::now().to_rfc3339()}))
+        .send().await.map_err(|_| "ติดต่อ Zuri ไม่สำเร็จ")?;
+    let value = pairing::json_response(response).await?;
+    if value.get("state").and_then(Value::as_str) == Some("WAIT") {
+        return Err("กรุณารอสักครู่แล้วตรวจใหม่".into());
+    }
+    if value.get("acknowledged") != Some(&Value::Bool(true))
+        || value.get("deviceId").and_then(Value::as_str) != Some(&cfg.device_id)
+    {
+        return Err("Zuri ยังไม่ได้ยืนยันการเชื่อมต่อของเครื่องนี้".into());
+    }
+    let mut cfg = state.config.lock().unwrap();
+    cfg.last_heartbeat_at = Some(chrono::Utc::now().to_rfc3339());
+    persist_config(&cfg)?;
+    state.verified.store(true, Ordering::SeqCst);
+    Ok(json!({"success":true,"message":"Zuri ยืนยันการเชื่อมต่อแล้ว สถานะตัวประมวลผลต้องตรวจแยก"}))
 }
-
+#[tauri::command]
+pub async fn check_headless_cli(bin: String) -> Result<Value, String> {
+    crate::providers::diagnose_cli(&bin).await
+}
+#[tauri::command]
+pub fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").into()
+}
 #[derive(Serialize)]
 pub struct CommandResult {
     pub success: bool,
     pub message: String,
-    pub data: Option<serde_json::Value>,
+    pub data: Option<Value>,
 }
 
-#[tauri::command]
-pub fn get_edge_status(state: State<'_, AppState>) -> EdgePairingConfig {
-    state.config.lock().unwrap().clone()
-}
-
-#[tauri::command]
-pub fn import_pairing_payload(json_str: String, state: State<'_, AppState>) -> CommandResult {
-    #[derive(Deserialize)]
-    struct RawPairing {
-        #[serde(rename = "deviceId", alias = "device_id")]
-        device_id: Option<String>,
-        #[serde(rename = "key", alias = "token", alias = "device_key")]
-        key: Option<String>,
-        #[serde(rename = "cloudBaseUrl", alias = "cloud_base_url")]
-        cloud_base_url: Option<String>,
-        #[serde(rename = "businessName", alias = "business_name")]
-        business_name: Option<String>,
-    }
-
-    match serde_json::from_str::<RawPairing>(&json_str) {
-        Ok(parsed) => {
-            let mut cfg = state.config.lock().unwrap();
-            if let Some(id) = parsed.device_id {
-                cfg.device_id = id;
-            }
-            if let Some(k) = parsed.key {
-                cfg.device_key = k;
-            }
-            if let Some(url) = parsed.cloud_base_url {
-                cfg.cloud_base_url = url;
-            }
-            cfg.is_paired = !cfg.device_key.is_empty();
-
-            if let Err(e) = persist_config(&cfg) {
-                return CommandResult {
-                    success: false,
-                    message: format!("Failed to save config: {}", e),
-                    data: None,
-                };
-            }
-
-            CommandResult {
-                success: true,
-                message: format!(
-                    "Successfully paired device '{}' for {}",
-                    cfg.device_id,
-                    parsed.business_name.unwrap_or_else(|| "Business".to_string())
-                ),
-                data: Some(serde_json::to_value(&*cfg).unwrap()),
-            }
-        }
-        Err(e) => CommandResult {
-            success: false,
-            message: format!("Invalid JSON pairing format: {}", e),
-            data: None,
-        },
-    }
-}
-
-#[tauri::command]
-pub async fn send_heartbeat_now(state: State<'_, AppState>) -> Result<CommandResult, String> {
-    let (device_id, device_key, base_url) = {
-        let cfg = state.config.lock().unwrap();
-        (cfg.device_id.clone(), cfg.device_key.clone(), cfg.cloud_base_url.clone())
-    };
-
-    if device_key.is_empty() {
-        return Ok(CommandResult {
-            success: false,
-            message: "Device is not paired yet (Missing Device Key)".to_string(),
-            data: None,
-        });
-    }
-
-    let client = reqwest::Client::new();
-    let url = format!("{}/api/agent/heartbeat", base_url.trim_end_matches('/'));
-
-    let payload = serde_json::json!({
-        "deviceId": device_id,
-        "status": "healthy",
-        "runtime": "tauri-rust-desktop",
-        "timestamp": chrono::Utc::now().to_rfc3339()
+fn unavailable_updater(config: Option<&Value>) -> Option<CommandResult> {
+    let configured = config.is_some_and(|config| {
+        config.get("pubkey").and_then(Value::as_str).is_some_and(|key| !key.trim().is_empty())
+            && config.get("endpoints").and_then(Value::as_array).is_some_and(|urls| {
+                !urls.is_empty() && urls.iter().all(|url| url.as_str().is_some_and(|url| !url.trim().is_empty()))
+            })
     });
-
-    match client
-        .post(&url)
-        .header("Authorization", format!("Bearer {}", device_key))
-        .json(&payload)
-        .send()
-        .await
-    {
-        Ok(resp) => {
-            let status = resp.status();
-            if status.is_success() {
-                let mut cfg = state.config.lock().unwrap();
-                cfg.last_heartbeat_at = Some(chrono::Utc::now().to_rfc3339());
-                let _ = persist_config(&cfg);
-                Ok(CommandResult {
-                    success: true,
-                    message: "Heartbeat accepted by Zuri Cloud (Status: ONLINE)".to_string(),
-                    data: Some(serde_json::json!({ "httpStatus": status.as_u16() })),
-                })
-            } else {
-                Ok(CommandResult {
-                    success: false,
-                    message: format!("Cloud returned error HTTP {}", status.as_u16()),
-                    data: None,
-                })
-            }
-        }
-        Err(e) => Ok(CommandResult {
-            success: false,
-            message: format!("Network error reaching Cloud: {}", e),
-            data: None,
-        }),
+    if configured {
+        return None;
     }
-}
-
-#[tauri::command]
-pub fn check_headless_cli(bin: String) -> CommandResult {
-    let target_bin = if bin.is_empty() { "codex" } else { &bin };
-    match Command::new(target_bin).arg("--version").output() {
-        Ok(output) => {
-            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-            let version = if !stdout.is_empty() { stdout } else { stderr };
-            CommandResult {
-                success: true,
-                message: format!("Found CLI: {}", version),
-                data: Some(serde_json::json!({ "bin": target_bin, "version": version })),
-            }
-        }
-        Err(e) => CommandResult {
-            success: false,
-            message: format!("CLI binary '{}' not found in PATH: {}", target_bin, e),
-            data: None,
-        },
-    }
-}
-
-#[tauri::command]
-pub fn get_app_version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
+    Some(CommandResult {
+        success: false,
+        message: "ยังไม่เปิดใช้การอัปเดตอัตโนมัติในแพ็กเกจนี้ กรุณาใช้แพ็กเกจรุ่นใหม่จากผู้ดูแล".into(),
+        data: Some(json!({
+            "code": "UPDATER_UNAVAILABLE",
+            "available": false,
+            "currentVersion": env!("CARGO_PKG_VERSION")
+        })),
+    })
 }
 
 #[tauri::command]
 pub async fn check_app_update(app: tauri::AppHandle) -> Result<CommandResult, String> {
     use tauri_plugin_updater::UpdaterExt;
+
+    if let Some(result) = unavailable_updater(app.config().plugins.0.get("updater")) {
+        return Ok(result);
+    }
 
     match app.updater() {
         Ok(updater) => match updater.check().await {
@@ -274,41 +409,58 @@ pub async fn check_app_update(app: tauri::AppHandle) -> Result<CommandResult, St
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
-    fn test_default_config() {
-        let cfg = EdgePairingConfig::default();
-        assert_eq!(cfg.answer_mode, "HEADLESS_PLAN");
-        assert_eq!(cfg.headless_bin, "codex");
-        assert_eq!(cfg.is_paired, false);
+    fn portable_updater_is_unavailable_without_claiming_latest() {
+        let config: Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        let result = unavailable_updater(config.pointer("/plugins/updater")).unwrap();
+        assert!(!result.success);
+        let data = result.data.unwrap();
+        assert_eq!(data["code"], "UPDATER_UNAVAILABLE");
+        assert_eq!(data["available"], false);
+        assert_eq!(data["currentVersion"], env!("CARGO_PKG_VERSION"));
+        assert!(data.get("hasUpdate").is_none());
+        for partial in [None, Some(json!({"pubkey":"", "endpoints":["https://example.invalid/feed"]})), Some(json!({"pubkey":"fixture", "endpoints":[]}))] {
+            assert!(unavailable_updater(partial.as_ref()).is_some());
+        }
     }
 
     #[test]
-    fn test_import_pairing_json_parsing() {
-        let raw_json = r#"{
-            "deviceId": "DEV-TEST-001",
-            "key": "edgk_live_1234567890abcdef",
-            "cloudBaseUrl": "https://zuri.example.com",
-            "businessName": "SmartGift Thailand"
-        }"#;
-
-        #[derive(Deserialize)]
-        struct RawPairing {
-            #[serde(rename = "deviceId", alias = "device_id")]
-            device_id: Option<String>,
-            #[serde(rename = "key", alias = "token", alias = "device_key")]
-            key: Option<String>,
-            #[serde(rename = "cloudBaseUrl", alias = "cloud_base_url")]
-            cloud_base_url: Option<String>,
-            #[serde(rename = "businessName", alias = "business_name")]
-            business_name: Option<String>,
-        }
-
-        let parsed: RawPairing = serde_json::from_str(raw_json).expect("valid json");
-        assert_eq!(parsed.device_id.as_deref(), Some("DEV-TEST-001"));
-        assert_eq!(parsed.key.as_deref(), Some("edgk_live_1234567890abcdef"));
-        assert_eq!(parsed.cloud_base_url.as_deref(), Some("https://zuri.example.com"));
-        assert_eq!(parsed.business_name.as_deref(), Some("SmartGift Thailand"));
+    fn status_never_serializes_key_or_guesses_worker_readiness() {
+        let cfg = EdgePairingConfig {
+            device_key: "edgk_synthetic_test_credential".into(),
+            ..Default::default()
+        };
+        let status = status_value(&cfg, false, Some("test error".into()));
+        assert!(!status.to_string().contains(&cfg.device_key));
+        assert_eq!(status["configured"], true);
+        assert_eq!(status["server_verified"], false);
+        assert_eq!(status["worker_state"], "UNVERIFIED");
+        assert_eq!(status["load_error"], "test error");
+    }
+    #[cfg(windows)]
+    #[test]
+    fn protected_file_can_be_replaced_without_plaintext_key() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("edge-config.json");
+        let mut cfg = EdgePairingConfig {
+            device_key: "edgk_synthetic_test_credential".into(),
+            ..Default::default()
+        };
+        persist_at(&cfg, &path).unwrap();
+        cfg.business_name = "Second".into();
+        cfg.provider_settings.provider = "claude".into();
+        cfg.provider_settings.claude_model = "claude-fixture".into();
+        cfg.provider_settings.codex_model = "codex-fixture".into();
+        cfg.provider_settings.allow_cloud = true;
+        persist_at(&cfg, &path).unwrap();
+        let content = fs::read_to_string(path).unwrap();
+        assert!(!content.contains(&cfg.device_key));
+        let stored: EdgePairingConfig = serde_json::from_str(&content).unwrap();
+        assert_eq!(stored.business_name, "Second");
+        assert_eq!(stored.provider_settings, cfg.provider_settings);
+        assert_eq!(
+            credential_store::unprotect(&stored.device_key).unwrap(),
+            cfg.device_key
+        );
     }
 }
-
