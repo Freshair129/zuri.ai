@@ -132,9 +132,13 @@ describe('OpenAPI document', () => {
       // job read (GET) and the stage, gate and finish verbs (POST each) —
       // four paths, four operations. FR-110 (ADR-068) adds the pull tick
       // (POST /api/pipelines/knowledge/evidence/pull): one path, one operation.
+      // FR-171 adds the owner-only read-only execution trace GET.
+      // FR-169 adds the Business capability toggle (PATCH
+      // /api/businesses/{id}/capabilities): one path, one operation.
+      // FR-173 adds five knowledge admission/corpus paths and six operations.
       // FR-144 browser/Desktop pairing adds three POST paths.
-      pathCount: 202,
-      operationCount: 279,
+      pathCount: 209,
+      operationCount: 287,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -1,4 +1,5 @@
 // @req FR-049 — answer from a bounded evidence packet and reject unsupported claims.
+// @req FR-171 — pass an execution observer through to each provider attempt.
 // @spec SDD-025, SEC-009 — provider wording is advisory; evidence remains authoritative.
 // @tested tests/unit/grounded-business-answer.test.js
 
@@ -68,7 +69,7 @@ export function createDeterministicBusinessModel() {
   })
 }
 
-export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model }) {
+export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model, trace }) {
   if (!businessId) throw new Error('BUSINESS_ID_REQUIRED')
   if (!question?.trim()) throw new Error('QUESTION_REQUIRED')
   const selected = selectRegisteredQuery(question)
@@ -85,7 +86,7 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
   }
 
   try {
-    const generated = await model.generate({ question, evidence })
+    const generated = await model.generate({ question, evidence, ...(trace ? { trace } : {}) })
     const verification = verifyCandidate(question, evidence, generated.text)
     if (verification.supported) {
       return { text: generated.text, grounded: true, evidence, provider: generated, verification }

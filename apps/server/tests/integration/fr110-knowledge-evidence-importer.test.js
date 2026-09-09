@@ -111,7 +111,7 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
     operator = makeOperatorViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
   })
 
-  it('applies exported external-stage rows onto the run they name, and persists the scope cursor after the page', async () => {
+  it('holds legacy external-stage rows without attempt identity, and persists the scope cursor after the page', async () => {
     const run = await ingest('v-apply')
     const s = scope({ workspaceId: 'ws-apply' })
     const rows = [
@@ -121,20 +121,16 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
     const transport = transportOver(rows)
 
     const result = await pullKnowledgeStageEvidence({ scope: s }, { viewer: operator, transport })
-    expect(result).toMatchObject({ startCursor: 0, cursor: 2, pages: 1, blocked: null, unattributed: [], held: [] })
-    expect(result.applied.map((entry) => [entry.cursor, entry.pipelineStageId, entry.status])).toEqual([
-      [1, 'DPS-KI-ENTITY-RESOLVE', 'CREATED'],
-      [2, 'DPS-KI-FACT-EXTRACT', 'CREATED'],
+    expect(result).toMatchObject({ startCursor: 0, cursor: 2, pages: 1, blocked: null, unattributed: [], applied: [] })
+    expect(result.held.map((entry) => [entry.cursor, entry.pipelineStageId, entry.reason])).toEqual([
+      [1, 'DPS-KI-ENTITY-RESOLVE', 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY'],
+      [2, 'DPS-KI-FACT-EXTRACT', 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY'],
     ])
     expect(transport.calls[0]).toEqual({ name: MSP_EVIDENCE_EXPORT_TOOL, input: { actor: 'zuri-ai-knowledge-evidence-importer', scope: s, since_cursor: 0, limit: 100 } })
 
     const steps = await stepsOf(run)
-    expect(steps['DPS-KI-ENTITY-RESOLVE']).toMatchObject({ status: 'SUCCEEDED', actualCount: 4, insertedCount: 3, failedCount: 0 })
-    expect(steps['DPS-KI-FACT-EXTRACT']).toMatchObject({ status: 'SUCCEEDED', actualCount: 3, insertedCount: 2, failedCount: 1 })
-    // ADR-067 D2 — the ledger's step interval is the execution's, reconstructed
-    // from produced_at and processing_time_ms, not the moment of the pull.
-    expect(steps['DPS-KI-ENTITY-RESOLVE'].finishedAt.toISOString()).toBe(PRODUCED_AT)
-    expect(steps['DPS-KI-ENTITY-RESOLVE'].startedAt.toISOString()).toBe('2026-09-07T11:59:57.500Z')
+    expect(steps['DPS-KI-ENTITY-RESOLVE']).toMatchObject({ status: 'NOT_STARTED' })
+    expect(steps['DPS-KI-FACT-EXTRACT']).toMatchObject({ status: 'NOT_STARTED' })
     expect(steps['DPS-KI-ONTOLOGY-MAP'].status).toBe('NOT_STARTED')
 
     const cursorRow = await cursorRowFor(s)
@@ -147,7 +143,7 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
     expect(transport.calls[1].input.since_cursor).toBe(2)
   })
 
-  it('replaying a page is a no-op on the ledger — the receiver’s idempotency, not a second write', async () => {
+  it('replaying a legacy page remains held and does not select a newer step attempt', async () => {
     const run = await ingest('v-replay')
     const s = scope({ workspaceId: 'ws-replay' })
     const transport = transportOver([evidenceRow({ cursor: 1, runId: run.executionRunId, stage: 'DPS-KI-EMBED' })])
@@ -158,7 +154,8 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
     // Forget the cursor, as a crash before the upsert would.
     await prisma.knowledgeEvidenceCursor.delete({ where: { portfolioId_tenantId_businessId_workspaceId_projectId_sharing: s } })
     const replay = await pullKnowledgeStageEvidence({ scope: s }, { viewer: operator, transport })
-    expect(replay.applied.map((entry) => entry.status)).toEqual(['UNCHANGED'])
+    expect(replay.applied).toEqual([])
+    expect(replay.held.map((entry) => [entry.cursor, entry.reason])).toEqual([[1, 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY']])
     expect(await prisma.pipelineEventReceipt.count({ where: { runId: runRow.id } })).toBe(receipts)
     expect((await cursorRowFor(s)).cursor).toBe(1)
   })
@@ -174,11 +171,14 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
     ])
     const result = await pullKnowledgeStageEvidence({ scope: s }, { viewer: operator, transport })
     expect(result.unattributed.map((entry) => [entry.cursor, entry.reason])).toEqual([[1, 'NO_RUN_ID'], [2, 'RUN_NOT_FOUND']])
-    expect(result.held.map((entry) => [entry.cursor, entry.reason])).toEqual([[3, 'STAGE17_PARTIAL_EVIDENCE_NO_VERDICT']])
-    expect(result.applied.map((entry) => entry.cursor)).toEqual([4])
+    expect(result.held.map((entry) => [entry.cursor, entry.reason])).toEqual([
+      [3, 'STAGE17_PARTIAL_EVIDENCE_NO_VERDICT'],
+      [4, 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY'],
+    ])
+    expect(result.applied).toEqual([])
     expect(result).toMatchObject({ cursor: 4, blocked: null })
     const steps = await stepsOf(run)
-    expect(steps['DPS-KI-INDEX'].status).toBe('SUCCEEDED')
+    expect(steps['DPS-KI-INDEX'].status).toBe('NOT_STARTED')
     expect(steps[KNOWLEDGE_QUALITY_GATE_STAGE_ID].status).toBe('NOT_STARTED')
     expect((await prisma.pipelineGateDecision.count({ where: { runId: (await prisma.pipelineRun.findUnique({ where: { executionRunId: run.executionRunId } })).id } }))).toBe(0)
   })
@@ -192,12 +192,13 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
       evidenceRow({ cursor: 3, runId: run.executionRunId, stage: 'DPS-KI-TEMPORAL-MAP' }),
     ])
     const result = await pullKnowledgeStageEvidence({ scope: s }, { viewer: operator, transport })
-    expect(result.applied.map((entry) => entry.cursor)).toEqual([1])
+    expect(result.applied).toEqual([])
+    expect(result.held.map((entry) => [entry.cursor, entry.reason])).toEqual([[1, 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY']])
     expect(result.blocked).toMatchObject({ cursor: 2, pipelineStageId: 'DPS-KI-CHUNK', reason: 'NOT_AN_EXTERNAL_STAGE:DPS-KI-CHUNK' })
     expect(result.cursor).toBe(1)
     expect((await cursorRowFor(s)).cursor).toBe(1)
     const steps = await stepsOf(run)
-    expect(steps['DPS-KI-ENRICH'].status).toBe('SUCCEEDED')
+    expect(steps['DPS-KI-ENRICH'].status).toBe('NOT_STARTED')
     expect(steps['DPS-KI-TEMPORAL-MAP'].status).toBe('NOT_STARTED') // never reached past the block
     expect(steps['DPS-KI-CHUNK'].status).toBe('SUCCEEDED') // Tier 1's own evidence, untouched
 
@@ -225,12 +226,13 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
 
     const first = await pullKnowledgeStageEvidence({ scope: s, limit: 3, maxPages: 2 }, { viewer: operator, transport })
     expect(first).toMatchObject({ pages: 2, cursor: 6 })
-    expect(first.applied).toHaveLength(6)
+    expect(first.applied).toEqual([])
+    expect(first.held).toHaveLength(6)
     const rest = await pullKnowledgeStageEvidence({ scope: s, limit: 3 }, { viewer: operator, transport })
-    expect(rest).toMatchObject({ startCursor: 6, cursor: 8 })
-    expect(rest.applied.map((entry) => entry.cursor)).toEqual([7, 8])
+    expect(rest).toMatchObject({ startCursor: 6, cursor: 8, applied: [] })
+    expect(rest.held.map((entry) => entry.cursor)).toEqual([7, 8])
     const job = await readKnowledgeIngestionJob(run.executionRunId, { viewer: operator })
-    expect(job.job).toMatchObject({ state: 'VALIDATING', reason: 'EXTERNAL_STAGES_COMPLETE' })
+    expect(job.job).toMatchObject({ state: 'PROCESSING' })
   })
 
   it('refuses a non-operator, a missing transport, and a page that is not GKS’s contract', async () => {
@@ -249,10 +251,13 @@ describe('FR-110 — the GKS evidence pull importer (ADR-068)', () => {
   it('classifies and maps rows purely', () => {
     const run = { executionRunId: 'run-x', tenantId: 'T', businessId: 'B', dataPipelineDefinitionId: 'DPL-KNOWLEDGE-INGEST-V1' }
     const step = { executionStepId: 'step-x', attemptId: 'attempt-x' }
-    expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x' }), run, step)).toEqual({ disposition: 'apply', reason: null })
-    expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x' }), run, null)).toEqual({ disposition: 'blocked', reason: 'STEP_NOT_MATERIALISED' })
+    expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x' }), run, step)).toEqual({ disposition: 'held', reason: 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY' })
+    // A legacy row never falls back to a stage-level or latest step lookup.
+    expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x' }), run, null)).toEqual({ disposition: 'held', reason: 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY' })
     expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x' }), { ...run, dataPipelineDefinitionId: 'DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1' }, step))
       .toEqual({ disposition: 'unattributed', reason: 'NOT_A_KNOWLEDGE_RUN' })
+    expect(classifyEvidenceRow(evidenceRow({ cursor: 1, runId: 'run-x', stage: 'DPS-KI-CHUNK' }), run, step))
+      .toEqual({ disposition: 'blocked', reason: 'NOT_AN_EXTERNAL_STAGE:DPS-KI-CHUNK' })
     const report = stageReportFromEvidenceRow(evidenceRow({ cursor: 9, runId: 'run-x', metrics: { processing_time_ms: 60000 } }), run, step)
     expect(report).toMatchObject({
       executionRunId: 'run-x', executionStepId: 'step-x', attemptId: 'attempt-x',

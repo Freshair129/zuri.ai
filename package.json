@@ -18,6 +18,7 @@
     "test": "npm --prefix apps/server test",
     "test:unit": "npm --prefix apps/server run test:unit",
     "test:integration": "npm --prefix apps/server run test:integration",
+    "test:genesisrag17": "npm --prefix apps/server run test:genesisrag17",
     "test:e2e": "npm --prefix apps/server run test:e2e",
     "verify": "npm --prefix apps/server run verify",
     "docs:graph": "npm --prefix apps/server run docs:graph",

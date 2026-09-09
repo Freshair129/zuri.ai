@@ -9,7 +9,12 @@ on:
     branches: [main]
 
 jobs:
-  verify:
+  # Named `edge-verify`, not `verify`. GitHub matches a required status check by
+  # its context name alone and cannot tell two same-named jobs apart, so while
+  # this job and governance.yml's `verify` shared a name, `main`'s branch
+  # protection had one required check standing for two different runs — and
+  # whichever reported last decided the outcome. Keep these names distinct.
+  edge-verify:
     runs-on: ubuntu-latest
     defaults:
       run:

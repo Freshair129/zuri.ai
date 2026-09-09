@@ -4,7 +4,7 @@
 // @spec SDD-050, SDD-053, BR-001, BR-011, SEC-005
 // @tested tests/e2e/fr091-conversation-inbox.spec.js
 const { test, expect } = require('@playwright/test')
-const { loginAsOwner } = require('./e2e-auth')
+const { loginAsOwner, readScope } = require('./e2e-auth')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await loginAsOwner(page)
@@ -29,7 +29,7 @@ async function chooseBusiness(page, name = 'Business 01') {
  * the assertion the test measures.
  */
 async function ingest(page, { thread, userId, displayName, messages }) {
-  const scope = await (await page.request.get('/api/scope')).json()
+  const scope = await readScope(page.request)
   const business = scope.businesses.find((item) => item.code === 'BUS-001')
   const stamp = Date.now()
 
@@ -181,7 +181,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 
     const inbox = await (await page.request.get(
-      `/api/crm/conversations?businessId=${(await (await page.request.get('/api/scope')).json()).businesses.find((b) => b.code === 'BUS-001').id}`,
+      `/api/crm/conversations?businessId=${(await readScope(page.request)).businesses.find((b) => b.code === 'BUS-001').id}`,
     )).json()
 
     // The band is not a second count of its own: every figure comes from this response.

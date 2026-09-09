@@ -1,11 +1,11 @@
 ---
 id: "EDGE-DESKTOP-TAURI-RUNTIME"
-version: "1.4.1b"
+version: "1.4.2b"
 status: "beta"
 owner: "zuri-edge-device"
 scope: "Desktop pairing, truthful status and supervised optional conversation runtime"
 created_at: "2026-09-07T03:00:00+07:00,ATHER"
-last_update: "2026-09-09T01:37:00+07:00,RWANG"
+last_update: "2026-09-09T12:30:00+07:00,RWANG"
 approval: "Owner approved completing provider login, Ollama setup and managed worker in parallel with Luna max on 2026-09-08"
 ---
 
@@ -475,8 +475,19 @@ production deployment was performed in this repair.
 
 ## CHANGELOG
 
+Integration follow-up (2026-09-09): implementation was committed as `853fe6f0`
+and integrated with Server main `3fb7d1a5`. Server's newer Live Chat repair and
+trace/capability/knowledge routes are preserved; the combined inventory is 209
+paths and 287 operations. Server build and governance passed locally. Full
+Server tests and browser E2E are separate integration gates, with results in
+`apps/edge/dist-desktop/verification-tabs/merged-server-*.log`. This integration
+does not change the tested Edge runtime or publish the historical portable ZIP.
+Release/production status must be taken from the subsequent deployment evidence,
+not inferred from the source commit or the isolated acceptance above.
+
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.2b | 2026-09-09 | beta | Integrate current Server contracts and separate local artifact evidence from release status | 853fe6f0 implementation | RWANG |
 | 1.4.1b | 2026-09-09 | beta | Follow-up approved UI repair and explicit unconfigured updater contract | uncommitted | RWANG |
 | 1.4.0b | 2026-09-08 | beta | Owner approved tabbed Desktop UI and automatic local hardware diagnostics; acceptance recorded separately | uncommitted | RWANG |
 | 1.3.3b | 2026-09-08 | beta | Linked candidate real machine-name and automatic local hardware inventory extension | uncommitted | RWANG |

@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-112
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-112 — Structural knowledge chunking with parent-child lineage
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 7: GenesisRAG17 uses its versioned exact-text heading/whitespace chunker in genesisrag17-source.js. The structural chunking module described below keeps its own contract; it is not proof that every strategy is selected by the isolated adapter.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -180,3 +186,6 @@ Each criterion is checked when a test in
 - [PRD-SDD v1.0 — FR-112, SDD-059, SDD-057, BR-021](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 7 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §12 (Stage 7) is the source requirement
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

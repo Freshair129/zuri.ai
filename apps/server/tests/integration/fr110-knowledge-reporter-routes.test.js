@@ -95,7 +95,7 @@ describe('/api/pipelines/knowledge/{executionRunId} (FR-110, ADR-067)', () => {
     expect(json.stages.find((s) => s.pipelineStageId === 'DPS-KI-ENTITY-RESOLVE')).toMatchObject({ status: 'NOT_STARTED' })
   })
 
-  it('POST stages, gate and finish walk the run to PUBLISHED under the same key', async () => {
+  it('POST stages and gate succeed, while legacy finish remains refused without publication evidence', async () => {
     for (const stageId of KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS) {
       const res = await call(POST_STAGE, run.executionRunId, await stageBody(stageId), bearer())
       expect(res.status, stageId).toBe(200)
@@ -132,11 +132,11 @@ describe('/api/pipelines/knowledge/{executionRunId} (FR-110, ADR-067)', () => {
       scope: { tenantId, businessId },
       finishedAt: T1,
     }, bearer())
-    expect(finishRes.status).toBe(200)
-    expect((await finishRes.json()).terminal).toBe('SUCCEEDED')
+    expect(finishRes.status).toBe(409)
+    expect(await finishRes.json()).toMatchObject({ error: 'Successful finish requires an attempt-bound publication receipt; legacy evidence remains readable' })
 
     const read = await (await call(GET_JOB, run.executionRunId, null, bearer(), 'GET')).json()
-    expect(read.job.state).toBe('PUBLISHED')
+    expect(read.job.state).toBe('READY_TO_PUBLISH')
   })
 
   it('a body naming another run than the route is refused (400)', async () => {

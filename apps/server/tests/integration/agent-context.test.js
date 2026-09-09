@@ -4,6 +4,9 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, memoryKey, createInMemoryMemory } from '@/modules/agent'
+import { captureMspMemoryRead } from '@/modules/agent/msp-memory-evidence'
+
+// @req FR-171 — source memory versions survive the authorized context projection.
 
 // @req FR-025 — the agent read-only context contract (ADR-007 P6, Gate E): identity +
 //   principal-keyed memory + GKS knowledge + read-only tools, assembled with no writes.
@@ -89,4 +92,27 @@ describe('assembleAgentContext (FR-025)', () => {
     expect(second.memory.key).toBe(first.memory.key)
     expect(second.memory.entries).toEqual([{ note: 'prefers Thai' }])
   })
+  it('carries versioned recall evidence through allowed context and never retrieves it for an unknown identity', async () => {
+    const person = await prisma.person.create({ data: { code: 'PSN-AG-TRACE', displayName: 'Trace user' } })
+    await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Uag-trace' })
+    let recalls = 0
+    const memory = { recallAuthorized: async () => {
+      recalls += 1
+      return { key: 'opaque-vault', ...captureMspMemoryRead({ entities: [{
+        entity_id: 'msp:fact', vault_id: 'opaque-vault', current_version: 4,
+        body_json: { value: 'captured' },
+      }], next_page_token: null }, { vaultId: 'opaque-vault' }) }
+    } }
+    const input = { tenantId: tenant.id, businessId: business.id, memory,
+      serverScope: { transportVerified: true, businessId: business.id } }
+    const allowed = await assembleAgentContext({ ...input, lineUserId: 'Uag-trace' })
+    expect(allowed.memory.evidence.references[0]).toMatchObject({ memoryId: 'msp:fact', version: 4 })
+    expect(allowed.memory.entries).toEqual([{ value: 'captured' }])
+    const denied = await assembleAgentContext({ ...input, lineUserId: 'Uag-trace-unknown' })
+    expect(denied.memory).toMatchObject({ entries: [], evidence: null })
+    expect(recalls).toBe(1)
+  })
+
 })

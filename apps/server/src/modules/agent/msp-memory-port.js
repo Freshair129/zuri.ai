@@ -4,6 +4,9 @@
 // @tested tests/integration/agent-msp-port.test.js, tests/integration/msp-vault-memory-port.test.js
 
 import { validateVaultSet } from './msp-vault-resolver'
+import { captureMspMemoryRead, captureMspMemoryWrite, combineMspMemoryReads } from './msp-memory-evidence'
+
+// @req FR-171 — carry source revisions and actual write responses without inventing MSP authority.
 
 /**
  * @typedef {import('./memory-port.js').MemoryPort} MemoryPort
@@ -94,22 +97,6 @@ function assertPrincipalScopedVault(vault, rawKey) {
   }
 }
 
-/** Pull the list of memory entities out of whatever shape msp_memory_list returns. */
-function entitiesFrom(result) {
-  if (!result) return []
-  if (Array.isArray(result)) return result
-  const list =
-    result.entities ?? result.items ?? result.memories ?? result.records ?? result.hits ?? []
-  return Array.isArray(list) ? list : []
-}
-
-/** One MSP entity (or search hit) -> the opaque entry the caller originally stored. */
-function entryFromEntity(node) {
-  const entity = node && typeof node === 'object' && node.entity ? node.entity : node
-  if (entity && typeof entity === 'object' && 'body_json' in entity) return entity.body_json
-  return entity
-}
-
 /**
  * The real MSP-backed MemoryPort. Drop-in for `createInMemoryMemory()`.
  *
@@ -191,12 +178,23 @@ export function createMspMemoryPort({
     if (vault.toLowerCase().includes('line:') || BARE_CHANNEL_HANDLE.test(vault)) {
       throw new Error('MSP memory port: refusing a channel-scoped authorized vault')
     }
+    const segments = vault.split('/')
+    for (const [field, expected] of [['tenant', scope.tenantId], ['principal', scope.principalId]]) {
+      const claims = segments.filter(segment => segment.startsWith(`${field}:`))
+      if (claims.length !== 1 || claims[0] !== `${field}:${expected}`) {
+        throw new Error('MSP memory port: resolved vault does not match AuthContext')
+      }
+    }
     return vault
   }
 
-  async function listVault(vault) {
+  async function listVault(vault, authorization) {
     const result = await callTool('msp_memory_list', { vault_id: vault })
-    return entitiesFrom(result).map(entryFromEntity)
+    const conversation = authorization?.authContext?.conversation
+    return captureMspMemoryRead(result, { vaultId: vault, callerContext: conversation ? {
+      sessionId: conversation.sessionId ?? null, instanceId: conversation.instanceId ?? null,
+      threadId: conversation.threadId ?? null,
+    } : null })
   }
 
   async function resolveCanonical(authorization, operation) {
@@ -215,18 +213,28 @@ export function createMspMemoryPort({
     return vaultSet
   }
 
+  async function recallAfterWrite(recall, writeReceipt) {
+    try { return { ...(await recall()), writeReceipt } } catch {
+      // Do not lose the remote acknowledgement or expose a downstream provider error.
+      throw Object.assign(new Error('MSP_MEMORY_POST_WRITE_RECALL_FAILED'), {
+        code: 'MSP_MEMORY_POST_WRITE_RECALL_FAILED', writeReceipt, writeOutcome: writeReceipt.status,
+      })
+    }
+  }
+
   async function recallAuthorized(authorization) {
     if (vaultSetResolver) {
       const vaultSet = await resolveCanonical(authorization, 'read')
-      const entries = await listVault(vaultSet.workspacePrivateVaultId)
-      return { key: vaultSet.workspacePrivateVaultId, entries, vaultSet }
+      const snapshot = await listVault(vaultSet.workspacePrivateVaultId, authorization)
+      return { key: vaultSet.workspacePrivateVaultId, ...snapshot, vaultSet }
     }
     assertAuthorizedContext(authorization)
-    const entries = []
+    const snapshots = []
     for (const scope of authorization.authorizedVaults) {
-      entries.push(...(await listVault(vaultForScope(scope))))
+      snapshots.push(await listVault(vaultForScope(scope), authorization))
     }
-    return { key: authorization.authorizedVaults.map((scope) => scope.scopeKey).join('|'), entries }
+    return { key: authorization.authorizedVaults.map((scope) => scope.scopeKey).join('|'),
+      ...combineMspMemoryReads(snapshots) }
   }
 
   async function rememberAuthorized(authorization, entry) {
@@ -234,13 +242,14 @@ export function createMspMemoryPort({
       const vaultSet = await resolveCanonical(authorization, 'write')
       const body_json = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : { value: entry }
       const entityKey = (entry && (entry.key ?? entry.id)) ?? `${category}:${Date.now()}:${counter++}`
-      await callTool('msp_memory_upsert', {
+      const result = await callTool('msp_memory_upsert', {
         vault: { vault_id: vaultSet.workspacePrivateVaultId, vault_type: vaultType },
         category,
         key: String(entityKey),
         body_json,
       })
-      return recallAuthorized(authorization)
+      const writeReceipt = captureMspMemoryWrite(result, { vaultId: vaultSet.workspacePrivateVaultId, expectedKey: String(entityKey), expectedCategory: category })
+      return recallAfterWrite(() => recallAuthorized(authorization), writeReceipt)
     }
     assertAuthorizedContext(authorization)
     if (authorization.authorizedVaults.length !== 1) {
@@ -250,20 +259,21 @@ export function createMspMemoryPort({
     const vault = vaultForScope(scope)
     const body_json = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : { value: entry }
     const entityKey = (entry && (entry.key ?? entry.id)) ?? `${category}:${Date.now()}:${counter++}`
-    await callTool('msp_memory_upsert', {
+    const result = await callTool('msp_memory_upsert', {
       vault: { vault_id: vault, vault_type: vaultType },
       category,
       key: String(entityKey),
       body_json,
     })
-    return recallAuthorized(authorization)
+    const writeReceipt = captureMspMemoryWrite(result, { vaultId: vault, expectedKey: String(entityKey), expectedCategory: category })
+    return recallAfterWrite(() => recallAuthorized(authorization), writeReceipt)
   }
 
   async function recall(key) {
     assertCompatibilityMode()
     const vault = vaultFor(key)
-    const entries = await listVault(vault)
-    return { key, entries }
+    const snapshot = await listVault(vault)
+    return { key, ...snapshot }
   }
 
   async function remember(key, entry) {
@@ -292,10 +302,11 @@ export function createMspMemoryPort({
     if (entry && entry.valid_from) upsert.valid_from = entry.valid_from
     if (entry && entry.valid_to) upsert.valid_to = entry.valid_to
 
-    await callTool('msp_memory_upsert', upsert)
+    const result = await callTool('msp_memory_upsert', upsert)
+    const writeReceipt = captureMspMemoryWrite(result, { vaultId: vault, expectedKey: String(entityKey), expectedCategory: category })
 
     // Return the updated recall, matching the MemoryPort contract.
-    return recall(key)
+    return recallAfterWrite(() => recall(key), writeReceipt)
   }
 
   return { recall, remember, recallAuthorized, rememberAuthorized }

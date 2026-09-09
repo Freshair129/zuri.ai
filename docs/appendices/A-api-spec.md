@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.52.0b |
+| **Version** | 1.54.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-08 |
+| **Last Updated** | 2026-09-09 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -18,12 +18,12 @@ FR-019 Enterprise API surface (`POST /api/import/dry-run`, `POST /api/import/com
 `GET /api/resolve`, and non-loopback `GET /api/docs`) likewise accepts a Tenant-bound
 `Authorization: Bearer apik_...` FR-106 `ApiAccessKey`, checked before the session seam
 and scoped on every request to the key's own Tenant; an invalid, revoked or missing key
-answers identically to no credential. No other route accepts either header.
+answers identically to no credential. The FR-173 knowledge routes also accept an apik credential only when the runtime explicitly grants that service account the exact Tenant/Business read or write action; session access uses existing Business/Project authority. Other routes do not acquire those grants.
 Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=202 -->
+<!-- api-spec-counts: route_handlers=209 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -92,6 +92,7 @@ Business differs from the Goal's (FR-043 isolation, extended to writes).
 | PATCH | `/api/business/goals/[id]` | partial of the same fields; `horizonId`/`roadmapId` may move a Goal but never explicitly clear it | serialized Goal |
 | POST | `/api/business/goals/[id]/projects` | `{projectId}` | serialized Goal (with the link); re-linking an already-linked Project is `409` |
 | DELETE | `/api/business/goals/[id]/projects/[projectId]` | — | serialized Goal (without the link) |
+| PATCH | `/api/businesses/[id]/capabilities` | `{version, capability: 'physicalStock', enabled}` — OWNER-scoped, expected-version CAS (FR-169) | `{id, version, capabilities: {physicalStock: boolean}}`; `409` on a stale `version`, `404` on an unknown Business, `400` if the viewer does not own it |
 
 Isolation failures (`Roadmap does not belong to Business`, `Horizon does not
 belong to Business`, `Project does not belong to Business`, a mismatched
@@ -679,6 +680,7 @@ canary evidence; those remain owner-gated release criteria.
 |---|---|---|---|---|---|
 | 1.51.0b | 2026-09-07 | candidate | FR-110 (ADR-068): added the evidence pull tick `POST /api/pipelines/knowledge/evidence/pull` (operator; zuri-ai → MSP → GKS). Route handler count 198 → 199 | working-tree | Claude Fable 5.1 |
 | 1.50.0b | 2026-09-07 | candidate | FR-110 (ADR-067): added the knowledge ingestion reporter surface — `GET /api/pipelines/knowledge/[executionRunId]` and `POST …/stages`, `…/gate`, `…/finish`, each accepting the run's Tenant's FR-102 data-plane key ahead of the session. Route handler count 194 → 198 (rebased onto main after the Commerce/Procurement families landed) | working-tree | Claude Fable 5.1 |
+| 1.50.0b | 2026-09-07 | candidate | FR-169 (ADR-069): added `PATCH /api/businesses/[id]/capabilities` — the only writer of `Business.capabilitiesJson`, gating the Warehouse slot. Route handler count 199 → 200 | working-tree | Claude Sonnet 5 |
 | 1.49.0b | 2026-09-07 | candidate | FR-164/FR-165 (ADR-066): added the Procurement family — `GET/POST /api/procurement/suppliers`, `GET/PATCH /api/procurement/suppliers/[id]`, `GET/POST /api/procurement/purchase-orders`, `GET/PATCH /api/procurement/purchase-orders/[id]`, `GET/POST /api/procurement/purchase-orders/[id]/receipts`. Route handler count 177 → 182 | working-tree | Claude Fable 5.1 |
 | 1.48.0b | 2026-09-07 | candidate | FR-166/FR-163 (ADR-065): added the Commerce family — `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`, `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH /api/commerce/payments/[id]`, `GET /api/commerce/revenue`. Route handler count 181 → 186 | working-tree | Claude Fable 5.1 |
 | 1.47.0b | 2026-09-07 | candidate | Reconcile FR-161 CRM Sales Tasks and FR-162 Marketing Operations; the combined API inventory contains 184 route handlers and the generated OpenAPI document contains 252 operations | working-tree | RWANG |
@@ -732,6 +734,7 @@ canary evidence; those remain owner-gated release criteria.
 | POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; `{version,code}` from two contract failure codes. |
 | GET | `/api/line-oa/accounts/[id]/jobs` | Studio Business visibility; latest 100 status DTOs, no message text/recipient/token. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
+| GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
 | POST | `/api/line-oa/connections` | Business owner; register LINE provider connection and secret reference metadata. Secrets are mounted separately. |
 
 Execution contract: `contracts/line-conversation-execution.schema.json`. Job errors are redacted; Edge validation 400, missing credentials 401, unavailable/disabled 503, invisible job 404, stale lease/version 409. Transport ownership and execution policy changes increment account epoch and cancel waiting jobs; SENDING or unacknowledged UNKNOWN blocks handoff.
@@ -786,3 +789,26 @@ request or PM mutation is exposed by Content. Four paths, six operations.
 Version diff 1.43.0b → 1.44.0b: four Content route handlers, six operations; local validation is recorded in the [Content phase report](../roadmap/marketing/PHASE-CONTENT-2026-09-06.md).
 
 Version diff 1.45.0b → 1.46.0b: add the three Marketing Operations route families and update the handler count to 182; Intake writes remain Marketing-owned and Calendar/Handoffs remain owner projections.
+
+## FR-173 — Shared knowledge admission and corpus serving (ADR-072)
+
+Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-ADMISSION-CONTRACT.md). A public runId identifies the admission job; executionRunId separately identifies its actual 17-stage execution. Scope, policy and runtime credentials are never caller-selected.
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/knowledge/ingestions` | `{businessId,projectId?,idempotencyKey,source}`; TEXT contains sourceKey/version/content and optional title; FILE names an existing readable text/Markdown fileAssetId. Returns durable QUEUED identity, never synthetic stage success. |
+| GET | `/api/knowledge/ingestions` | Business/optional Project list with limit; job/source/publication metadata, no raw content. |
+| GET | `/api/knowledge/ingestions/[runId]` | Authorized admission state and separate executionRunId when attached. |
+| POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
+| GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
+| DELETE | `/api/knowledge/sources/[sourceId]` | `{expectedVersion}`; corpus writer atomically withdraws membership, retaining immutable history. This does not modify the FileAsset, and remains available to clean up membership after a file is deleted. |
+
+Validation: 400 invalid body, 401 no session/key, 404 inaccessible target, 409 version/hash/CAS conflict, 413 over 1 MiB, 415 unsupported file type, 422 invalid UTF-8/empty content, 503 unconfigured runtime. Machine grants are explicit per action; MCP continues using its existing session resolver. Isolated acceptance is not production activation.
+
+### Version diff 1.52.0b → 1.53.0b
+
+Added FR-173's five paths/six operations and explicit API grant boundary; handler count 201 → 206. Registered the same paths in the OpenAPI source inventory; its route-enumeration test remains the drift gate.
+
+### Version diff 1.53.0b → 1.54.0b
+
+Integrate FR-144 Desktop browser/QR pairing with the current Server contracts: three POST paths increase the route handler inventory from 206 to 209. Existing trace, capability and knowledge admission routes remain in the combined inventory.

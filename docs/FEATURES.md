@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.30.0b"
+version: "1.32.0b"
 status: active
-last_update: "2026-09-07T03:00:00+07:00,Claude"
+last_update: "2026-09-08T16:30:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.32.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -44,7 +44,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-010 | Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation | FR-094, FR-095, FR-096, FR-097, FR-098 | building |
 | FEAT-011 | SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline | FR-099, FR-100, FR-101 | building |
 | FEAT-012 | ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope | FR-108 | live |
-| FEAT-013 | Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run | FR-109, FR-110, FR-111 | building |
+| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173 | building |
 | FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | building |
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
@@ -110,6 +110,11 @@ writing one sentence here, or the governance chain stops.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-171",
+    "primaryDomain": "agent",
+    "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects."
+  },
   {
     "id": "FEAT-001",
     "primaryDomain": "project-manager",
@@ -719,6 +724,26 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-167",
     "primaryDomain": "inventory",
     "useCase": "ผู้ใช้กดช่อง SCM ช่องเดียวในแถบโดเมน แล้วเห็น Inventory, Warehouse, Procurement และ Order Management เรียงเป็นสี่กลุ่มในเมนูด้านซ้าย จึงข้ามจากคลังไปจัดซื้อไปคำสั่งขายได้โดยไม่ต้องกลับขึ้นแถบบน ส่วน Warehouse ที่ยังไม่ได้สร้างจะแสดงเป็นช่องที่กดไม่ได้ แทนที่จะหายไปเฉย ๆ"
+  },
+  {
+    "id": "FR-168",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจสร้าง SKU แล้วเลือกได้ว่าเป็นสินค้านับสต๊อก สินค้าไม่นับสต๊อก หรือบริการ พอเลือกบริการหรือไม่นับสต๊อก ฟอร์มจะตัดช่องการระบุหน่วยและ safety stock ออกทันทีเพราะใช้ไม่ได้ และระบบจะปฏิเสธการรับของเข้าคลังสำหรับบริการ เพราะบริการเป็นสิ่งที่ทำให้ ไม่ใช่ของที่ส่งมอบเข้าคลัง"
+  },
+  {
+    "id": "FR-169",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจที่ขายเฉพาะบริการเข้าไปที่ตั้งค่า แล้วปิดสวิตช์ Physical Stock ทันทีที่ปิด โมดูล Warehouse หายไปจากแถบเมนูบนและเมนูซ้ายของ SCM ทั้งหมด ไม่ใช่แค่กดไม่ได้ ธุรกิจอื่นที่มีสต๊อกจริงยังเห็น Warehouse เหมือนเดิมเพราะค่าเริ่มต้นเปิดไว้"
+  },
+  {
+    "id": "FR-170",
+    "primaryDomain": "procurement",
+    "useCase": "ผู้ใช้เปิดหน้าจัดซื้อแล้วเห็นแท็บ Dashboard กับ Purchase Orders อยู่ในกรอบเดียวกันด้านบน กดสลับแท็บเพื่อดูใบสั่งซื้อโดยไม่ต้องกลับไปที่เมนูซ้าย เช่นเดียวกับหน้า Order Management ที่มีแท็บ Dashboard กับ Orders สลับกันได้ในกรอบเดียว"
+  },
+  {
+    "id": "FR-172",
+    "primaryDomain": "crm",
+    "useCase": "ผู้ใช้กดช่อง CRM ช่องเดียวในแถบโดเมน แล้วเห็น Customer กับ Market Intelligence เรียงกันในเมนูด้านซ้าย จึงข้ามจากลูกค้าไปข้อมูลตลาดได้โดยไม่ต้องกลับขึ้นแถบบน เหมือนกับที่ SCM ทำไว้กับคลัง จัดซื้อ และคำสั่งขาย"
   }
 ]
 ```

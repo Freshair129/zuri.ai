@@ -25,6 +25,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
 const SPEC_PACK = workspacePath(ROOT, 'docs')
 const GRAPH_PATH = workspacePath(ROOT, 'docs', '.doc-graph.json')
+// Diagnostic only — "what changed since the last regeneration". Never read by
+// --check, docs:preflight, monorepo-graph.mjs or anything else that demands
+// byte-for-byte reproducibility, because a diff-since-last-run is trivially
+// empty the moment it is compared against itself (see the note at the drift
+// computation below and .brain/rca/2026-09-07-monorepo-graph-stale-on-fresh-checkout.md).
+const DRIFT_REPORT_PATH = workspacePath(ROOT, 'docs', '.doc-graph-drift-report.json')
 const MATRIX_PATH = workspacePath(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = workspacePath(ROOT, 'docs', 'FEATURE-MAP.md')
 const DOMAIN_MAP_PATH = workspacePath(ROOT, 'docs', 'DOMAIN-MAP.md')
@@ -626,12 +632,31 @@ if (workspaceRoot(ROOT) !== ROOT) {
   }
 }
 
-// Drift: a node whose hash changed since the last committed graph.
+// Drift: a node whose hash changed since the last committed graph. This is a
+// "what changed since the last regeneration" diagnostic for a human reviewing
+// the run — it must never be baked into the committed GRAPH_PATH itself.
+//
+// A field like that is self-invalidating the instant it is committed: it
+// describes a diff against whatever was on disk *before this run*, so a
+// second regeneration of the exact same commit (a fresh checkout has nothing
+// else to compare against) necessarily computes zero drift from itself,
+// producing a different file than the one just checked out. monorepo-graph.mjs
+// derives its own nodes from this file, so that self-inflicted difference
+// propagated into its independent staleness check even though its `canonical()`
+// already strips the unrelated per-node `status` field — the mismatch lived in
+// content the committed file had no business carrying at all.
+// See .brain/rca/2026-09-07-monorepo-graph-stale-on-fresh-checkout.md.
+//
+// The fix: the committed graph always states the trivial truth about itself
+// (no drift from itself, every node "current") — that's what makes it safe
+// for anything else to re-derive state from byte-for-byte. The real diff is
+// still computed and still reported, just never through a channel that
+// demands reproducibility: to the console here, and to DRIFT_REPORT_PATH,
+// which nothing in the governance chain reads back.
 const prevHash = new Map((previous?.nodes || []).map((n) => [n.id, n.hash]))
 const changed = nodes.filter((n) => n.hash && prevHash.has(n.id) && prevHash.get(n.id) !== n.hash)
 const added = nodes.filter((n) => !prevHash.has(n.id))
 const removed = (previous?.nodes || []).filter((n) => !nodes.some((x) => x.id === n.id))
-for (const n of changed) n.status = 'changed'
 
 const cov = coverage(nodes, edges)
 const domainState = generateDomainState({ root: ROOT, nodes, edges })
@@ -646,11 +671,10 @@ const graph = {
     node_types: nodes.reduce((a, n) => ({ ...a, [n.type]: (a[n.type] || 0) + 1 }), {}),
     coverage: cov,
   },
-  drift: {
-    changed: changed.map((n) => n.id),
-    added: added.map((n) => n.id),
-    removed: removed.map((n) => n.id),
-  },
+  // Always empty by construction (see the comment above) — a freshly-written
+  // file's own "current" state trivially has no drift from itself. The real
+  // diff for this run lives in DRIFT_REPORT_PATH, never here.
+  drift: { changed: [], added: [], removed: [] },
   nodes: nodes.sort((a, b) => a.id.localeCompare(b.id)),
   edges: edges.sort((a, b) => (a.from + a.to).localeCompare(b.from + b.to)),
   dangling_edges: dangling,
@@ -659,19 +683,25 @@ const graph = {
 const serialized = JSON.stringify(graph, null, 2) + '\n'
 const domainStateSerialized = JSON.stringify(domainState, null, 2) + '\n'
 const linksSerialized = documentLinksView(nodes, edges)
+const driftReport = {
+  generated_at: new Date().toISOString(),
+  note: 'Diagnostic only — what changed since the previous docs/.doc-graph.json regeneration. Never read by --check, docs:preflight or monorepo-graph.mjs; excluded from every staleness/consistency check by design.',
+  changed: changed.map((n) => n.id),
+  added: added.map((n) => n.id),
+  removed: removed.map((n) => n.id),
+}
+const driftReportSerialized = JSON.stringify(driftReport, null, 2) + '\n'
 
-// The question --check answers is "does the committed graph still describe the
-// filesystem?" — that lives in the nodes, edges and hashes. `drift` and a node's
-// `status` are bookkeeping the graph keeps *about its own previous revision*, so
-// they flip on the run after the content settles and never match in one pass.
-// Comparing them made the guard demand two consecutive `docs:graph` runs; a
-// genuine change still fails the guard through its node hash.
+// The question --check answers is "does the committed graph still describe
+// the filesystem?" — that lives in the nodes, edges and hashes. `generated_at`
+// is bookkeeping about the run itself, not the content, so it is still
+// stripped defensively; `drift` is always empty by construction now (see
+// above) and no node ever carries a drift-derived `status`, so neither needs
+// special handling to converge in one pass any more.
 const canonical = (text) => {
   let g
   try { g = JSON.parse(text) } catch { return text }
   delete g.generated_at
-  delete g.drift
-  for (const n of g.nodes || []) delete n.status
   return JSON.stringify(g, null, 2) + '\n'
 }
 
@@ -698,6 +728,9 @@ if (process.argv.includes('--check')) {
     console.error('document links are stale — run: npm run docs:graph')
     process.exit(1)
   }
+  if (changed.length || added.length || removed.length) {
+    console.log(`drift since last regeneration (diagnostic only, not written to ${rel(GRAPH_PATH)}): ${changed.length} changed · ${added.length} added · ${removed.length} removed`)
+  }
   process.exit(0)
 }
 
@@ -708,6 +741,7 @@ writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
 writeFileSync(TRACE_PATH, traceView(nodes, edges))
 writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
+writeFileSync(DRIFT_REPORT_PATH, driftReportSerialized)
 if (workspaceRoot(ROOT) !== ROOT) {
   mkdirSync(path.join(ROOT, 'runtime'), { recursive: true })
   writeFileSync(path.join(ROOT, 'runtime', 'domain-state.json'), domainStateSerialized)
@@ -717,6 +751,9 @@ console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangli
 console.log(`FR with code ${cov.fr_with_code} · FR with tests ${cov.fr_with_tests} · rules anchored ${cov.rules_anchored_in_code}`)
 console.log(`domain state ${Object.keys(domainState.domains).length} domains · overall ${domainState.overall.status} · gaps ${domainState.overall.gapCount}`)
 if (cov.fr_without_code.length) console.log(`FR without code: ${cov.fr_without_code.join(', ')}`)
+if (changed.length || added.length || removed.length) {
+  console.log(`drift since last regeneration: ${changed.length} changed · ${added.length} added · ${removed.length} removed — see ${rel(DRIFT_REPORT_PATH)}`)
+}
 if (cov.fr_without_tests.length) console.log(`FR without tests: ${cov.fr_without_tests.join(', ')}`)
 if (cov.rules_without_anchor.length) console.log(`rules with no code anchor: ${cov.rules_without_anchor.join(', ')}`)
 if (dangling.length) console.log(`dangling edges:\n  ${dangling.map((d) => `${d.from} → ${d.to} (${d.reason})`).join('\n  ')}`)

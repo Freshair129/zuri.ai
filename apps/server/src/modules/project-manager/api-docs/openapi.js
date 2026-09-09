@@ -15,6 +15,10 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-173 — shared source admission and scoped corpus retrieval.
+  ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
+  ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
+  ['/api/knowledge/sources/{sourceId}', ['DELETE']],
   // @req FR-159, FR-158 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
@@ -30,6 +34,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
+  ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
@@ -62,7 +67,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/inventory/recipes', ['GET', 'POST']], ['/api/inventory/recipes/{id}', ['GET', 'PATCH']], ['/api/inventory/recipes/{id}/build', ['POST']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
-  ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
+  ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
+  // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
+  ['/api/businesses/{id}/capabilities', ['PATCH']],
+  ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.

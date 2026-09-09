@@ -4,6 +4,7 @@ import { Fragment } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { sidebarDomainForPath } from '@/config/domains'
+import { useScope } from '@/context/ScopeContext'
 
 // @req FR-039 — sidebar exposes the active Business domain's sub-domains.
 // @spec SDD-018, ADR-011, SITEMAP-V2-DOMAIN-NAV §3
@@ -18,7 +19,11 @@ import { sidebarDomainForPath } from '@/config/domains'
 // leaf, which is what the route guard asks about.
 export default function Sidebar() {
   const pathname = usePathname()
-  const domain = sidebarDomainForPath(pathname)
+  // @req FR-169 — capability-gated slots (Warehouse) drop out of the group's
+  // own sidebar list the same way they drop out of the bar, from the same
+  // Business object, so the two can never disagree about which children exist.
+  const scope = useScope()
+  const domain = sidebarDomainForPath(pathname, scope.shell.activeBusiness)
 
   return (
     <aside

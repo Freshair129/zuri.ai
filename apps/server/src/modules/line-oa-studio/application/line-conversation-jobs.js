@@ -5,8 +5,12 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { appendOutbound } from '@/modules/crm/reply-record-service'
 import { assertMayView, assertMayPublish, notFound } from './line-oa-account-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/modules/agent/execution-trace'
+import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
+import { ownsBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
+// @req FR-171 — context and execution journal, attempt identity and truthful send observations.
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
 // @tested tests/integration/server-line-jobs.test.js
 
@@ -14,9 +18,18 @@ export const LINE_JOB_LEASE_MS = 300_000
 const JOB_TTL_MS = 30 * 60_000
 const RETRY_WINDOW_MS = 23 * 60 * 60_000
 const WAITING = ['QUEUED', 'CLAIMED', 'READY']
+const runtimeInstanceId = randomUUID()
 const zCompletion = z.object({ version: z.number().int().positive(), text: z.string().trim().min(1).max(5000) }).strict()
 const zFailure = z.object({ version: z.number().int().positive(), code: z.enum(['EXECUTION_FAILED', 'LOCAL_POLICY_UNAVAILABLE']) }).strict()
 const failure = (status, message) => Object.assign(new Error(message), { status })
+const sourceTime = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
+  ? new Date(timestamp).toISOString() : null
+
+function traceEvent(db, job, kind, key, payload, occurredAt = new Date()) {
+  return appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
+    turnId: job.id, executionId: job.executionId ?? null, kind,
+    idempotencyKey: `${job.id}:${key}`, payload, occurredAt })
+}
 
 function sealKey(env) {
   const key = env.ZURI_LINE_REPLY_SEAL_KEY
@@ -50,14 +63,23 @@ function activeAccount(account, job) {
 
 async function atomic(db, work) {
   for (let attempt = 0; ; attempt++) {
-    try { return await db.$transaction(work) } catch (error) {
+    try {
+      // FR-149/150's admission transaction now also appends an execution trace
+      // (#290) inside the same transaction; on 2026-09-08 that pushed real
+      // admissions past Prisma's 5s default and every one failed with P2028
+      // ("Transaction already closed") once the observed round-trip cost
+      // (~200ms/query over the session-mode pool, ADR-058 D9) accumulated
+      // across the extra trace writes. 15s gives headroom without hiding a
+      // regression silently — see .brain/rca/2026-09-08-line-webhook-*.md.
+      return await db.$transaction(work, { timeout: 15000, maxWait: 5000 })
+    } catch (error) {
       if (attempt >= 2 || !['P2002', 'P2034'].includes(error.code)) throw error
     }
   }
 }
 
 /** Called only after signature and destination validation. No authority from event text. */
-export async function admitLineConversation({ account, event, correlationId, now = new Date(), env = process.env, db = prisma }) {
+export async function admitLineConversation({ account, event, correlationId, now = new Date(), ingressReceivedAt = now, env = process.env, db = prisma }) {
   if (event.type !== 'message' || event.message?.type !== 'text') return { skipped: true }
   const userId = event.source?.userId
   const threadId = event.source?.groupId || event.source?.roomId || userId
@@ -89,6 +111,15 @@ export async function admitLineConversation({ account, event, correlationId, now
     } })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'QUEUED',
       payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId } })
+    await traceEvent(tx, job, 'TURN_RECEIVED', 'received', {
+      inboundMessageId: inbound.messageId, conversationId: inbound.conversationId,
+      inputSnapshot: { role: 'user', content: text }, inputHash: sha256({ role: 'user', content: text }),
+      externalEventId: eventId, externalNamespace: 'LINE',
+      sourceOccurredAt: sourceTime(event.timestamp),
+      ingressReceivedAt: ingressReceivedAt.toISOString(), queuedAt: now.toISOString(),
+      // The transaction's visibility is the durable admission boundary.
+      persistenceRecordedAt: new Date().toISOString(),
+    }, now)
     return { jobId: job.id, created: true, inboundMessageId: inbound.messageId }
   })
 }
@@ -115,9 +146,19 @@ async function claimExecution({ db, executionMode, claimantId, deviceContext, no
       continue
     }
     const leaseExpiresAt = new Date(now.getTime() + LINE_JOB_LEASE_MS)
-    const claimed = await db.lineConversationJob.updateMany({ where: { id: row.id, version: row.version, status: 'QUEUED' },
-      data: { status: 'CLAIMED', claimantId, leaseExpiresAt, version: { increment: 1 } } })
-    if (claimed.count) return { ...row, status: 'CLAIMED', claimantId, leaseExpiresAt, version: row.version + 1 }
+    const executionId = randomUUID()
+    const claimed = await atomic(db, async tx => {
+      const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, version: row.version, status: 'QUEUED' },
+        data: { status: 'CLAIMED', claimantId, executionId, leaseExpiresAt, version: { increment: 1 } } })
+      if (result.count) await traceEvent(tx, { ...row, executionId }, 'EXECUTION_STARTED', `execution:${executionId}`, {
+        instanceId: executionMode === 'SERVER' ? runtimeInstanceId : null,
+        claimantRef: claimantId, executionMode, claimedAt: now.toISOString(),
+        conversationId: row.inbound.conversationId, inboundMessageId: row.inboundMessageId,
+        sessionId: null, sessionDisposition: 'NOT_RESOLVED',
+      }, now)
+      return result
+    })
+    if (claimed.count) return { ...row, executionId, status: 'CLAIMED', claimantId, leaseExpiresAt, version: row.version + 1 }
   }
   return null
 }
@@ -133,7 +174,7 @@ export async function claimEdgeConversation({ deviceContext, db = prisma, now = 
     policy: { modelAccess: job.modelAccess, role: 'sales', retainHistory: false } } }
 }
 
-async function settleExecution(id, { version, text, code }, { db, claimantId, deviceContext, now }) {
+async function settleExecution(id, { version, text, code, traceFailureCode }, { db, claimantId, deviceContext, now }) {
   return db.$transaction(async tx => {
     const scope = deviceContext ? { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId, executionMode: 'EDGE' } : { executionMode: 'SERVER' }
     const job = await tx.lineConversationJob.findFirst({ where: { id, ...scope }, include: { account: true } })
@@ -144,6 +185,10 @@ async function settleExecution(id, { version, text, code }, { db, claimantId, de
       data: { status: code ? 'FAILED' : 'READY', answerText: text ?? null, errorCode: code ?? null,
         ...(code ? { sealedReplyToken: null } : {}), availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
     if (!update.count) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    await traceEvent(tx, job, code ? 'EXECUTION_FAILED' : 'ANSWER_READY', `settled:${version}`, {
+      ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null } : { text, answerReadyAt: now.toISOString() }),
+      executionEvidence: job.executionMode === 'EDGE' ? 'EXTERNAL_CONTEXT_NOT_REPORTED' : 'SERVER',
+    }, now)
     return { id, status: code ? 'FAILED' : 'READY', version: version + 1 }
   })
 }
@@ -161,14 +206,31 @@ export async function failEdgeConversation(id, input, { deviceContext, db = pris
 async function reconcileAccepted(db, job) {
   return atomic(db, async tx => {
     const current = await tx.lineConversationJob.findUnique({ where: { id: job.id } })
-    if (!current || current.status !== 'ACCEPTED') return
-    await appendOutbound({ db: tx, tenantId: current.tenantId, businessId: current.businessId,
+    if (!current || current.status !== 'ACCEPTED') return { id: job.id, status: current?.status ?? 'MISSING' }
+    // Serialize the payload read with erasure before copying it into CRM. A
+    // changed version cannot reuse this pre-lock answer snapshot.
+    const fence = await tx.lineConversationJob.updateMany({
+      where: { id: current.id, status: 'ACCEPTED', version: current.version,
+        OR: [{ errorCode: null }, { errorCode: { not: 'PDPA_ERASURE' } }] },
+      data: { id: current.id },
+    })
+    if (!fence.count) {
+      const latest = await tx.lineConversationJob.findUnique({ where: { id: job.id }, select: { status: true } })
+      return { id: job.id, status: latest?.status ?? 'MISSING' }
+    }
+    const outbound = await appendOutbound({ db: tx, tenantId: current.tenantId, businessId: current.businessId,
       channelAccountId: current.channelAccountId, correlationId: current.correlationId,
       acceptedAt: current.acceptedAt.toISOString(), providerRequestId: current.providerRequestId ?? undefined,
       receipt: { inboundMessageId: current.inboundMessageId, text: current.answerText, source: 'STACK',
         ...(current.providerMessageId ? { providerMessageId: current.providerMessageId } : {}) } })
+    await traceEvent(tx, current, 'OUTBOUND_RECORDED', 'outbound-recorded', {
+      outboundMessageId: outbound.messageId, conversationId: outbound.conversationId,
+      deliveryId: current.retryKey, providerAcceptance: 'ACCEPTED_BY_LINE',
+      recipientDeliveryStatus: 'UNKNOWN',
+    })
     await tx.lineConversationJob.updateMany({ where: { id: current.id, status: 'ACCEPTED' },
       data: { status: 'RECORDED', sealedReplyToken: null, version: { increment: 1 } } })
+    return { id: current.id, status: 'RECORDED' }
   })
 }
 
@@ -177,15 +239,17 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}` }) {
   await maintenance(db, now())
   const accepted = await db.lineConversationJob.findFirst({ where: { status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
-  if (accepted) { await reconcileAccepted(db, accepted); return { id: accepted.id, status: 'RECORDED' } }
+  if (accepted) return reconcileAccepted(db, accepted)
   const execution = await claimExecution({ db, executionMode: 'SERVER', claimantId: workerId, now: now() })
   if (execution) {
     try {
-      const response = await answer(execution)
+      const response = await answer(execution, { trace: createLineExecutionTrace({ db, job: execution }) })
       const text = zCompletion.shape.text.parse(response?.text ?? response)
       await settleExecution(execution.id, { version: execution.version, text }, { db, claimantId: workerId, now: now() })
     } catch (error) {
-      if (error.status !== 409) await settleExecution(execution.id, { version: execution.version, code: 'EXECUTION_FAILED' }, { db, claimantId: workerId, now: now() })
+      if (error.status !== 409) await settleExecution(execution.id, { version: execution.version, code: 'EXECUTION_FAILED',
+        traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE'].includes(error.code) ? error.code : null },
+      { db, claimantId: workerId, now: now() })
       return { id: execution.id, status: 'FAILED' }
     }
   }
@@ -214,35 +278,58 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   }
   if (account.transportEpoch !== job.transportEpoch) return { id: job.id, status: 'FENCED' }
   const replyToken = method === 'REPLY' ? unsealLineReplyToken(job.sealedReplyToken, job.accountId, env) : null
+  const sendAttemptId = randomUUID()
   const claimed = await atomic(db, async tx => {
     // Serialize with account actions before either side checks active sends.
     const fence = await tx.lineOaAccount.updateMany({ where: { id: job.accountId,
       version: account.version, serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', transportEpoch: job.transportEpoch },
       data: { version: { increment: 1 } } })
     if (!fence.count) return { count: 0 }
-    return tx.lineConversationJob.updateMany({ where: { id: job.id, version: job.version, status: 'READY' },
+    const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, version: job.version, status: 'READY' },
       data: { status: 'SENDING', sendMethod: method, firstSendAt: job.firstSendAt ?? at,
         attempts: { increment: 1 }, claimantId: workerId, leaseExpiresAt: new Date(at.getTime() + 30_000), version: { increment: 1 } } })
+    if (result.count) await traceEvent(tx, job, 'SEND_STARTED', `send:${sendAttemptId}`, {
+      deliveryId: job.retryKey, sendAttemptId, method, attemptNumber: job.attempts + 1,
+      sendStartedAt: at.toISOString(), recipientDeliveryStatus: 'UNKNOWN',
+    }, at)
+    return result
   })
   if (!claimed.count) return { status: 'CONTENDED' }
   let result
+  let receivedProviderResponse = true
   try {
     const messages = [{ type: 'text', text: job.answerText }]
     result = method === 'REPLY'
       ? await replyTransport.send({ account, replyToken, messages })
       : await pushTransport.send({ account, to: job.recipientId, messages, retryKey: job.retryKey })
-  } catch { result = { status: method === 'REPLY' ? 'UNKNOWN' : 'RETRYABLE_FAILURE', code: 'LINE_REQUEST_UNCONFIRMED' } }
+  } catch {
+    receivedProviderResponse = false
+    result = { status: method === 'REPLY' ? 'UNKNOWN' : 'RETRYABLE_FAILURE', code: 'LINE_REQUEST_UNCONFIRMED' }
+  }
   const status = result.status === 'ACCEPTED_BY_LINE' ? 'ACCEPTED'
     : result.status === 'UNKNOWN' ? 'UNKNOWN'
       : result.status === 'RETRYABLE_FAILURE' && method === 'PUSH' ? 'READY' : 'FAILED'
-  const changed = await db.lineConversationJob.updateMany({ where: { id: job.id, status: 'SENDING', claimantId: workerId, version: job.version + 1 },
+  const responseObservedAt = now()
+  const changed = await atomic(db, async tx => {
+    const updated = await tx.lineConversationJob.updateMany({ where: { id: job.id, status: 'SENDING', claimantId: workerId, version: job.version + 1 },
     data: { status, acceptedAt: status === 'ACCEPTED' ? now() : null,
       providerRequestId: result.requestId ?? null, providerMessageId: result.messageId ?? null,
       errorCode: result.code ?? null, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
       availableAt: new Date(now().getTime() + Math.min(60_000, 1000 * 2 ** Math.min(job.attempts, 6))), version: { increment: 1 } } })
+    await traceEvent(tx, job, 'SEND_RESULT', `send:${sendAttemptId}:result`, {
+      deliveryId: job.retryKey, sendAttemptId, method, providerOutcome: result.status,
+      providerRequestId: result.requestId ?? null, providerMessageId: result.messageId ?? null,
+      errorCode: result.code ?? null,
+      providerResponseReceivedAt: receivedProviderResponse && result.requestId ? responseObservedAt.toISOString() : null,
+      outcomeObservedAt: responseObservedAt.toISOString(),
+      stateApplied: updated.count > 0, recipientDeliveredAt: null, recipientReadAt: null,
+      recipientDeliveryStatus: 'UNKNOWN', receiptCapability: 'NOT_SUPPORTED',
+    }, responseObservedAt)
+    return updated
+  })
   if (changed.count && status === 'ACCEPTED') {
-    await reconcileAccepted(db, { id: job.id })
-    return { id: job.id, status: 'RECORDED', acceptance: 'ACCEPTED_BY_LINE' }
+    const reconciled = await reconcileAccepted(db, { id: job.id })
+    return { ...reconciled, acceptance: 'ACCEPTED_BY_LINE' }
   }
   return { id: job.id, status: changed.count ? status : 'FENCED' }
 }
@@ -256,6 +343,16 @@ export async function listLineConversationJobs(accountId, { viewer, db = prisma 
     select: { id: true, status: true, executionMode: true, modelAccess: true, sendMethod: true,
       attempts: true, errorCode: true, acceptedAt: true, createdAt: true, updatedAt: true, version: true } })
   return { accountId, jobs }
+}
+
+/** Payload inspection needs Business ownership in addition to Studio visibility. */
+export async function readLineConversationTrace(id, { viewer, db = prisma } = {}) {
+  const job = await db.lineConversationJob.findUnique({ where: { id } })
+  if (!job) throw notFound()
+  assertMayView(viewer, job.businessId)
+  if (!ownsBusiness(viewer, job.businessId)) throw notFound()
+  const events = await readExecutionTrace(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: id })
+  return { turnId: id, events, playback: playbackTrace(events) }
 }
 
 /** Operator acknowledges uncertainty without claiming delivery or resending. */

@@ -137,6 +137,13 @@ model Business {
   legalEntityId String?
   name          String
   status        String   @default("ACTIVE")
+  // @req FR-169 — feature capabilities this Business has turned on, keyed by
+  // name (`{"physicalStock": true}`). A capability differs from a domain grant
+  // (Membership.domainKeysJson): a grant says WHO may open a module, a
+  // capability says whether the module APPLIES to this Business at all. Absent
+  // keys default per-capability in code, never here, so adding a new
+  // capability is never a migration.
+  capabilitiesJson String @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   version       Int      @default(1)
@@ -1688,6 +1695,28 @@ model AuditEvent {
   @@index([occurredAt])
 }
 
+// @req FR-149, FR-171 — one scope-bound, append-only execution journal for Agent turns.
+// @spec ADR-061, ADR-070, SEC-001 — tenant/business are stored explicitly so trace reads
+// never infer isolation through an external conversation or provider identifier.
+// @tested tests/integration/execution-trace.test.js
+model AgentTraceEvent {
+  id             String   @id @default(uuid())
+  tenantId       String
+  businessId     String
+  turnId         String
+  executionId    String?
+  kind           String
+  idempotencyKey String
+  payloadJson    String
+  occurredAt     DateTime
+  createdAt      DateTime @default(now())
+  version        Int      @default(1)
+
+  @@unique([tenantId, businessId, idempotencyKey], map: "AgentTraceEvent_scope_idempotency_key")
+  @@index([tenantId, businessId, turnId, occurredAt])
+  @@index([tenantId, businessId, turnId, createdAt])
+}
+
 // @req FR-071 — server-owned full data-pipeline execution ledger.
 // @spec ADR-030 D2-D6, SDD-042, SEC-003, SEC-008
 // @tested tests/unit/platform/pipeline-tracking-service.test.js, tests/unit/platform/pipeline-tracking-migration.test.js
@@ -1912,6 +1941,375 @@ model KnowledgeEvidenceCursor {
   @@index([tenantId])
 }
 
+// @req FR-109 — the approved GenesisRAG17 TEST entrypoint owns an immutable
+// raw -> parsed -> chunk lineage in Tier 1. These rows contain source text and
+// exact offsets only; GKS facts and GenesisBlockDB substrate payloads remain
+// outside zuri-ai (ADR-050 D3-D4).
+// @spec ADR-050, ADR-063, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeRawArtifact {
+  id                  String   @id
+  rawExternalRecordId String   @unique
+  sourceId            String
+  documentId          String
+  version             String
+  contentHash         String
+  content             String
+  sourceType          String
+  sourceUri           String?
+  contentType         String
+  pipelineVersion     String
+  schemaVersion       String
+  portfolioId         String
+  tenantId            String
+  businessId          String
+  workspaceId         String
+  agentId             String
+  visibility          String
+  receivedAt          DateTime
+  createdAt           DateTime @default(now())
+
+  rawExternalRecord RawExternalRecord @relation(fields: [rawExternalRecordId], references: [id])
+  parsedArtifacts   KnowledgeParsedArtifact[]
+
+  @@unique([portfolioId, tenantId, businessId, workspaceId, agentId, visibility, sourceId, version, contentHash, pipelineVersion])
+  @@index([tenantId, documentId, version])
+  @@index([tenantId, contentHash])
+}
+
+// @req FR-109 — parsed artifacts retain their immutable link to the raw
+// artifact and the exact source content used to derive chunks.
+// @spec SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeParsedArtifact {
+  id             String   @id
+  rawArtifactId  String
+  documentId     String
+  parserVersion  String
+  contentHash    String
+  content        String
+  structureJson  String   @default("[]")
+  textBlocksJson String   @default("[]")
+  tablesJson     String   @default("[]")
+  metadataJson   String   @default("{}")
+  portfolioId    String
+  tenantId       String
+  businessId     String
+  workspaceId    String
+  agentId        String
+  visibility     String
+  createdAt      DateTime @default(now())
+
+  rawArtifact KnowledgeRawArtifact @relation(fields: [rawArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  chunks      KnowledgeChunk[]
+
+  @@unique([rawArtifactId, parserVersion])
+  @@index([tenantId, documentId])
+  @@index([rawArtifactId])
+}
+
+// @req FR-109 — every persisted chunk is an exact substring of its parsed
+// source and is addressable by parsed artifact plus ordinal.
+// @spec SDD-059, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeChunk {
+  id               String   @id
+  parsedArtifactId String
+  documentId       String
+  ordinal          Int
+  text             String
+  contentHash      String
+  startOffset      Int
+  endOffset        Int
+  headingPathJson  String   @default("[]")
+  tokenCount       Int      @default(0)
+  portfolioId      String
+  tenantId         String
+  businessId       String
+  workspaceId      String
+  agentId          String
+  visibility       String
+  createdAt        DateTime @default(now())
+
+  parsedArtifact KnowledgeParsedArtifact @relation(fields: [parsedArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([parsedArtifactId, ordinal])
+  @@index([tenantId, documentId, ordinal])
+  @@index([parsedArtifactId])
+}
+
+// @req FR-109 — a source intent captures the exact scoped input and
+// derivation configuration before local Stage 1 starts, so a process-owned
+// worker can resume an interrupted Stage 1–8 pass without caller resubmission.
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17IngestionIntent {
+  id               String   @id
+  intentKey        String   @unique
+  runId            String
+  executionRunId   String   @unique
+  scopeJson        String
+  requestJson      String
+  derivationJson   String
+  rawArtifactId    String
+  sourceId         String
+  documentId       String
+  version          String
+  contentHash      String
+  portfolioId      String
+  tenantId         String
+  businessId       String
+  workspaceId      String
+  agentId          String
+  visibility       String
+  status           String   @default("PENDING")
+  nextStageNumber  Int      @default(1)
+  lastErrorJson    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([executionRunId, status])
+}
+
+// @req FR-109 — every Stage 8 occurrence is durable, typed and bound to its
+// exact source attempt and derivation provenance before local success evidence.
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17SourceMention {
+  id                   String   @id
+  sourceMentionId      String
+  runId                String
+  executionRunId       String
+  attemptId            String
+  sourceId             String
+  documentId           String
+  version              String
+  rawArtifactId        String
+  parsedArtifactId     String
+  chunkId              String
+  resolutionKey        String
+  semanticType         String
+  name                 String
+  startOffset          Int
+  endOffset            Int
+  recognizerVersion    String
+  recognizerProvenance String
+  derivationHash       String
+  contentHash          String
+  portfolioId          String
+  tenantId             String
+  businessId           String
+  workspaceId          String
+  agentId              String
+  visibility           String
+  createdAt            DateTime @default(now())
+
+  @@unique([executionRunId, attemptId, sourceMentionId])
+  @@index([tenantId, parsedArtifactId])
+  @@index([executionRunId, attemptId])
+}
+
+// @req FR-109 — one immutable outbound batch is bound to one materialized
+// Stage 9 attempt and can be safely retried after a lost MSP reply.
+// @spec ADR-050 D3-D4, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17Batch {
+  id              String   @id
+  batchId         String   @unique
+  idempotencyKey  String   @unique
+  runId           String
+  executionRunId  String
+  stage9StepId    String
+  stage9AttemptId String
+  scopeJson       String
+  requestJson     String
+  status          String   @default("PENDING")
+  decisionId      String?
+  responseJson    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([executionRunId, stage9AttemptId])
+  @@index([runId, status])
+}
+
+// @req FR-109 — all six frozen per-stage metrics and terminal evidence are
+// durable before the evidence cursor advances.
+// @spec NFR-020, ADR-068, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17StageEvidence {
+  id                 String   @id
+  cursor             Int?
+  runId              String
+  executionRunId     String
+  pipelineStageId    String
+  executionStepId    String
+  attemptId          String
+  stageNumber        Int
+  outcome            String
+  startedAt          DateTime
+  finishedAt         DateTime
+  recordsIn          Int
+  recordsOut         Int
+  recordsQuarantined Int
+  errorCount         Int
+  retryCount         Int
+  durationMs         Float
+  detailsJson        String   @default("{}")
+  rowHash            String
+  createdAt          DateTime @default(now())
+
+  @@unique([executionRunId, pipelineStageId, executionStepId, attemptId])
+  @@index([runId, stageNumber])
+  @@index([executionRunId, cursor])
+}
+
+// @req FR-110 — the close path can prove the exact publication receipt that
+// belongs to a Stage 17 decision before marking a run complete.
+// @spec FR-110, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17PublicationReceipt {
+  id                  String   @id
+  runId               String
+  executionRunId      String
+  scopeJson           String
+  decisionId          String
+  decisionHash        String
+  snapshotId          String
+  generation          String
+  receiptHash         String
+  publishedAt         DateTime
+  pointerHash         String
+  modelRevision       String
+  transactionFrontier String
+  readbackJson        String
+  receiptJson         String
+  createdAt           DateTime @default(now())
+
+  @@unique([executionRunId, decisionId, decisionHash, snapshotId, generation, receiptHash])
+  @@index([runId, snapshotId, generation])
+}
+
+// @req FR-110 — cursor ownership is scoped by all six frozen GenesisRAG17
+// scope fields and only advances after durable local evidence writes.
+// @spec ADR-068, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17EvidenceCursor {
+  id           String    @id
+  runId        String
+  portfolioId  String
+  tenantId     String
+  businessId   String
+  workspaceId  String
+  agentId      String
+  visibility   String
+  cursor       Int       @default(0)
+  lastPulledAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([runId, portfolioId, tenantId, businessId, workspaceId, agentId, visibility])
+  @@index([tenantId])
+}
+
+// @req FR-173 — authorized source admission and immutable corpus snapshot read sets.
+// @spec ADR-072, SEC-001, SEC-008
+// @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
+model KnowledgeCorpus {
+  id          String   @id @default(uuid())
+  corpusKey   String   @unique
+  portfolioId String
+  tenantId    String
+  businessId  String
+  projectId   String?
+  workspaceId String   @default("")
+  scopeJson   String
+  policyJson  String
+  status      String   @default("ACTIVE")
+  generation  Int      @default(0)
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  sources     KnowledgeSource[]
+  ingestions  KnowledgeIngestion[]
+  generations KnowledgeCorpusGeneration[]
+
+  @@index([tenantId, businessId, projectId])
+}
+
+model KnowledgeSource {
+  id                String   @id @default(uuid())
+  corpusId          String
+  sourceKey         String
+  kind              String
+  title             String
+  fileAssetId       String?
+  desiredRevision   Int      @default(0)
+  activeIngestionId String?
+  version           Int      @default(1)
+  revokedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  corpus     KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  ingestions KnowledgeIngestion[]
+
+  @@unique([corpusId, sourceKey])
+  @@index([fileAssetId])
+}
+
+model KnowledgeIngestion {
+  id                 String   @id @default(uuid())
+  corpusId           String
+  sourceId           String
+  revision           Int
+  sourceVersion      String
+  contentHash        String
+  content            String
+  sourceMetaJson     String   @default("{}")
+  idempotencyKey     String   @unique
+  requestHash        String
+  submittedById      String?
+  status             String   @default("QUEUED")
+  executionRunId     String?  @unique
+  rawArtifactId      String?
+  parsedArtifactId   String?
+  snapshotId         String?
+  snapshotGeneration String?
+  receiptHash        String?
+  claimToken         String?
+  leaseExpiresAt     DateTime?
+  attempts           Int      @default(0)
+  failureCode        String?
+  version            Int      @default(1)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  source KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceId, sourceVersion])
+  @@index([status, leaseExpiresAt, createdAt])
+  @@index([corpusId, createdAt])
+}
+
+model KnowledgeCorpusGeneration {
+  id           String   @id @default(uuid())
+  corpusId     String
+  number       Int
+  manifestJson String
+  manifestHash String
+  createdAt    DateTime @default(now())
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+
+  @@unique([corpusId, number])
+}
+
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
@@ -2048,6 +2446,7 @@ model RawExternalRecord {
   connection   IntegrationConnection @relation(fields: [connectionId], references: [id])
   ingestionRun IngestionRun?         @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
   deadLetters  DeadLetterRecord[]
+  knowledgeRawArtifact KnowledgeRawArtifact?
 
   @@index([tenantId, entityType])
   @@index([businessId])
@@ -2517,6 +2916,7 @@ model LineConversationJob {
   eventId            String
   tenantId           String
   businessId         String
+  executionId        String?
   channelAccountId   String
   transportEpoch     Int
   executionMode      String

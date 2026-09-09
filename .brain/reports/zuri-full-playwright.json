@@ -1,0 +1,4401 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server\\playwright.config.js",
+    "rootDir": "C:/Users/pc/workspace/zuri-ai-ki17/apps/server/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server\\tests\\e2e\\global-setup.js",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/pc/workspace/zuri-ai-ki17/apps/server/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "warmup",
+        "name": "warmup",
+        "testDir": "C:/Users/pc/workspace/zuri-ai-ki17/apps/server/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/warmup\\.setup\\.js/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/pc/workspace/zuri-ai-ki17/apps/server/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "e2e",
+        "name": "e2e",
+        "testDir": "C:/Users/pc/workspace/zuri-ai-ki17/apps/server/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.spec\\.js/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- -p 3141",
+      "url": "http://localhost:3141/overview",
+      "reuseExistingServer": false,
+      "timeout": 120000,
+      "env": {
+        "ACSetupSvcPort": "23210",
+        "ALLUSERSPROFILE": "C:\\ProgramData",
+        "APPDATA": "C:\\Users\\pc\\AppData\\Roaming",
+        "asl.log": "Destination=file",
+        "BROWSER": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "CODEX_APP_TOOLS_PIPE_PATH": "\\\\.\\pipe\\codex-browser-use-7f28d072-fdf7-460b-bd8e-4b45a74c7b9a",
+        "CODEX_CI": "1",
+        "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+        "CODEX_MCP_NODE_PATH": "C:\\Users\\pc\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\b474a88d5d105afa\\bin\\node.exe",
+        "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+        "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+        "CODEX_SESSION_ID": "01a07c3b-345b-70a3-8704-fa37daa82de8",
+        "CODEX_SHELL": "1",
+        "CODEX_THREAD_ID": "01a07c66-e9f6-7110-8af3-2f130c5c77bb",
+        "COLOR": "0",
+        "COLORTERM": "",
+        "CommonProgramFiles": "C:\\Program Files\\Common Files",
+        "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+        "CommonProgramW6432": "C:\\Program Files\\Common Files",
+        "COMPUTERNAME": "DESKTOP-VETATMQ",
+        "ComSpec": "C:\\Windows\\system32\\cmd.exe",
+        "DISABLE_AUTO_UPDATE": "true",
+        "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+        "EDITOR": "C:\\Windows\\notepad.exe",
+        "GH_BROWSER": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "GH_PAGER": "cat",
+        "GIT_PAGER": "cat",
+        "HOME": "C:\\Users\\pc",
+        "HOMEDRIVE": "C:",
+        "HOMEPATH": "\\Users\\pc",
+        "INIT_CWD": "C:\\Users\\pc\\workspace\\zuri-ai-ki17",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "LC_CTYPE": "C.UTF-8",
+        "LOCALAPPDATA": "C:\\Users\\pc\\AppData\\Local",
+        "LOGONSERVER": "\\\\DESKTOP-VETATMQ",
+        "LOG_FORMAT": "json",
+        "NODE": "C:\\Program Files\\nodejs\\node.exe",
+        "NODE_EXE": "C:\\Program Files\\nodejs\\\\node.exe",
+        "NO_COLOR": "1",
+        "NPM_CLI_JS": "C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npm-cli.js",
+        "npm_command": "run",
+        "npm_config_allow_scripts": "",
+        "npm_config_cache": "C:\\Users\\pc\\AppData\\Local\\npm-cache",
+        "npm_config_globalconfig": "C:\\Users\\pc\\AppData\\Roaming\\npm\\etc\\npmrc",
+        "npm_config_global_prefix": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server",
+        "npm_config_init_module": "C:\\Users\\pc\\.npm-init.js",
+        "npm_config_local_prefix": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server",
+        "npm_config_node_gyp": "C:\\Program Files\\nodejs\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-gyp.js",
+        "npm_config_noproxy": "",
+        "npm_config_npm_version": "11.17.0",
+        "npm_config_prefix": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server",
+        "npm_config_userconfig": "C:\\Users\\pc\\.npmrc",
+        "npm_config_user_agent": "npm/11.17.0 node/v24.19.0 win32 x64 workspaces/false",
+        "npm_execpath": "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+        "npm_lifecycle_event": "test:e2e",
+        "npm_lifecycle_script": "node scripts/assert-tests-ran.mjs playwright test --fail-on-flaky",
+        "npm_node_execpath": "C:\\Program Files\\nodejs\\node.exe",
+        "npm_package_json": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server\\package.json",
+        "npm_package_name": "zuri-ai",
+        "npm_package_version": "0.1.0",
+        "NPM_PREFIX_JS": "C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npm-prefix.js",
+        "NPM_PREFIX_NPM_CLI_JS": "C:\\Users\\pc\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js",
+        "NUMBER_OF_PROCESSORS": "28",
+        "OneDrive": "C:\\Users\\pc\\OneDrive",
+        "OS": "Windows_NT",
+        "PAGER": "cat",
+        "Path": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server\\node_modules\\.bin;C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\node_modules\\.bin;C:\\Users\\pc\\workspace\\zuri-ai-ki17\\node_modules\\.bin;C:\\Users\\pc\\workspace\\node_modules\\.bin;C:\\Users\\pc\\node_modules\\.bin;C:\\Users\\node_modules\\.bin;C:\\node_modules\\.bin;C:\\Program Files\\nodejs\\node_modules\\npm\\node_modules\\@npmcli\\run-script\\lib\\node-gyp-bin;C:\\Users\\pc\\workspace\\zuri-ai-ki17\\node_modules\\.bin;C:\\Users\\pc\\workspace\\node_modules\\.bin;C:\\Users\\pc\\node_modules\\.bin;C:\\Users\\node_modules\\.bin;C:\\node_modules\\.bin;C:\\Program Files\\nodejs\\node_modules\\npm\\node_modules\\@npmcli\\run-script\\lib\\node-gyp-bin;C:\\Users\\pc\\workspace\\ki17-runtime;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell;C:\\Users\\pc\\.codex\\tmp\\arg0\\codex-arg0kYjfSX;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\libheif\\libheif\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\jxrlib\\jxrlib\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\Git\\cmd;C:\\Program Files\\nodejs\\;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\Tailscale\\;C:\\Users\\pc\\.cargo\\bin;C:\\Users\\pc\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\;C:\\Users\\pc\\AppData\\Local\\Programs\\Python\\Python312\\;C:\\Users\\pc\\AppData\\Local\\Programs\\Python\\Launcher\\;C:\\Users\\pc\\AppData\\Local\\Programs\\OpenAI\\Codex\\bin;C:\\Users\\pc\\AppData\\Local\\agy\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell;C:\\Users\\pc\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\pc\\AppData\\Local\\Programs\\Antigravity IDE\\bin;C:\\Users\\pc\\AppData\\Local\\Programs\\Ollama;C:\\Users\\pc\\AppData\\Roaming\\npm;C:\\Users\\pc\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin;C:\\Users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd;C:\\Users\\pc\\AppData\\Local\\OpenAI\\Codex\\bin\\c60635126245daef;C:\\Users\\pc\\AppData\\Local\\OpenAI\\Codex\\bin\\8e5b6932251c2c1c",
+        "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "C:\\Users\\pc\\workspace\\zuri-ai-ki17\\apps\\server\\node_modules\\.cache\\zuri-test-proof\\playwright.json",
+        "PROCESSOR_ARCHITECTURE": "AMD64",
+        "PROCESSOR_IDENTIFIER": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "PROCESSOR_LEVEL": "6",
+        "PROCESSOR_REVISION": "b701",
+        "ProgramData": "C:\\ProgramData",
+        "ProgramFiles": "C:\\Program Files",
+        "ProgramFiles(x86)": "C:\\Program Files (x86)",
+        "ProgramW6432": "C:\\Program Files",
+        "PROMPT": "$P$G",
+        "PSModulePath": "C:\\Users\\pc\\Documents\\PowerShell\\Modules;C:\\Program Files\\PowerShell\\Modules;c:\\users\\pc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\Modules;C:\\Users\\pc\\Documents\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules",
+        "PUBLIC": "C:\\Users\\Public",
+        "RlsSvcPort": "22112",
+        "RUST_LOG": "warn",
+        "SHELL": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "SystemDrive": "C:",
+        "SystemRoot": "C:\\Windows",
+        "TEMP": "C:\\Users\\pc\\AppData\\Local\\Temp",
+        "TERM": "dumb",
+        "TMP": "C:\\Users\\pc\\AppData\\Local\\Temp",
+        "USERDOMAIN": "DESKTOP-VETATMQ",
+        "USERDOMAIN_ROAMINGPROFILE": "DESKTOP-VETATMQ",
+        "USERNAME": "pc",
+        "USERPROFILE": "C:\\Users\\pc",
+        "windir": "C:\\Windows",
+        "ZSH_TMUX_AUTOSTART": "false",
+        "ZSH_TMUX_AUTOSTARTED": "true",
+        "ZURI_GKS_REPO_ROOT": "C:\\Users\\pc\\workspace\\gks-ki17",
+        "ZURI_MSP_REPO_ROOT": "C:\\Users\\pc\\workspace\\msp-ki17",
+        "DATABASE_URL": "file:./e2e-3141.db",
+        "ZURI_SESSION_SECRET": "e2e-session-c4cc78a8dc0d6025d0732e749c3c70faab070a37b90709bedb035d3dd333ccfe",
+        "ZURI_SEED_OWNER_PASSWORD": "e2e-only-c4cc78a8dc0d6025d0732e749c3c70faab070a37b90709bedb035d3dd333ccfe",
+        "ZURI_PLUGIN_CLIENT_ID": "zuri-plugin-e2e",
+        "ZURI_PLUGIN_CLIENT_NAME": "Zuri E2E Harness",
+        "ZURI_PLUGIN_REDIRECT_URIS": "http://localhost:3141/plugin/e2e-callback"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "warmup.setup.js",
+      "file": "warmup.setup.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "warm every route the suite navigates to",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "warmup",
+              "projectName": "warmup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "status": "passed",
+                  "duration": 68170,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "warmup: compiled 76 route(s)\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T16:58:24.553Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f645a9a5ff75955aec23-a13ff992949c83e13222",
+          "file": "warmup.setup.js",
+          "line": 81,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr040-project-work.spec.js",
+      "file": "fr040-project-work.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-040 Project Work views",
+          "file": "fr040-project-work.spec.js",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps WBS and Dependency Map inside one canonical Project tab shell",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 15149,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T16:59:33.950Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a979832d69faa4e69c76-251c875f368cd2335db1",
+              "file": "fr040-project-work.spec.js",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "names its Work sub-views apart from the Development sidebar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3597,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T16:59:49.365Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a979832d69faa4e69c76-827cd5c6391f51500183",
+              "file": "fr040-project-work.spec.js",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "renders the read-only Execution Roadmap over the same Project graph",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5663,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T16:59:52.965Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a979832d69faa4e69c76-19b5cdb8f601292e6f6c",
+              "file": "fr040-project-work.spec.js",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "keeps the graph inside a scrollable canvas on a narrow viewport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3095,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T16:59:58.635Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a979832d69faa4e69c76-cca4deac24cac5f75a5c",
+              "file": "fr040-project-work.spec.js",
+              "line": 80,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr041-business-first.spec.js",
+      "file": "fr041-business-first.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-041/042 Business-first shell",
+          "file": "fr041-business-first.spec.js",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Business Overview shows strategy and Business-owned Projects, not Group cards",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1027,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:01.736Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e7885b647656b69ae56-7d639d5f457994c07fb5",
+              "file": "fr041-business-first.spec.js",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "HR / People is a peer domain with a separate People Directory",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:02.765Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e7885b647656b69ae56-6f4b3b9d61e659d728c7",
+              "file": "fr041-business-first.spec.js",
+              "line": 29,
+              "column": 3
+            },
+            {
+              "title": "strategy and people API contracts stay Business-scoped",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 441,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:08.963Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e7885b647656b69ae56-dc90557c0d390e373cf6",
+              "file": "fr041-business-first.spec.js",
+              "line": 44,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr044-entry-routing.spec.js",
+      "file": "fr044-entry-routing.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-044 entry to BusinessShell",
+          "file": "fr044-entry-routing.spec.js",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps Landing, Login, and Business Routing outside final shell chrome",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2088,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:09.410Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cf18a77630eca7181995-f6d415568289b4d842ef",
+              "file": "fr044-entry-routing.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "requires an explicit Business selection before mounting BusinessShell",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3708,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:11.502Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cf18a77630eca7181995-031a36f1a28f371f69c6",
+              "file": "fr044-entry-routing.spec.js",
+              "line": 33,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr045-files.spec.js",
+      "file": "fr045-files.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-045 Business File Manager",
+          "file": "fr045-files.spec.js",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "opens Files inside Development with mount and managed-file controls",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5475,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:15.216Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "de1476e2b669a696c841-eb85967987e5e398f865",
+              "file": "fr045-files.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "fails a Business aggregation request outside the viewer scope",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 175,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:20.695Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "de1476e2b669a696c841-379d5e396420539cd738",
+              "file": "fr045-files.spec.js",
+              "line": 29,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr046-entry-contract.spec.js",
+      "file": "fr046-entry-contract.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-046 production-shaped entry boundary",
+          "file": "fr046-entry-contract.spec.js",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "fails closed without a session and enters through the owner session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2146,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:20.875Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8ad7e7d84fa4a947c1ef-d071940ff2fd1e965924",
+              "file": "fr046-entry-contract.spec.js",
+              "line": 15,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr058-file-views.spec.js",
+      "file": "fr058-file-views.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-058 File Manager view switcher",
+          "file": "fr058-file-views.spec.js",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "switches grid, timeline, by-project and preview over the same managed files",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3163,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:23.033Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3aa610bfae88d56f4857-82f7d3a8f1acbad963bb",
+              "file": "fr058-file-views.spec.js",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "By project labels a PROJECT group with the project's real code, never a raw uuid",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4388,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:26.200Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3aa610bfae88d56f4857-c04b8b83175eda0dd0ed",
+              "file": "fr058-file-views.spec.js",
+              "line": 118,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr059-strategy-edit.spec.js",
+      "file": "fr059-strategy-edit.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-059 Business Strategy editing",
+          "file": "fr059-strategy-edit.spec.js",
+          "line": 29,
+          "column": 6,
+          "specs": [
+            {
+              "title": "OWNER creates a Goal, links a Project, and sees it reflected on Overview",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5616,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:30.595Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7b169e0fbf3165f18290-d8edec6aa6cf3df2c1de",
+              "file": "fr059-strategy-edit.spec.js",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "Cancelling RoadmapModal discards the edit instead of persisting it on the next Save (T3b-1 FIX 3)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2930,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:36.217Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7b169e0fbf3165f18290-47ec75dfbf3ab2beac4c",
+              "file": "fr059-strategy-edit.spec.js",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "focus stays trapped inside an open modal across a mutation reload (T3b-1 FIX 4)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1382,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:39.150Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7b169e0fbf3165f18290-ef59c6ccec03276b8293",
+              "file": "fr059-strategy-edit.spec.js",
+              "line": 94,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr060-business-home.spec.js",
+      "file": "fr060-business-home.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-060 Business Home",
+          "file": "fr060-business-home.spec.js",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "is the landing slot and renders briefing, health and attention queue",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5618,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "buffer": "KG5vZGU6NjQ3NjQpIFtNT0RVTEVfVFlQRUxFU1NfUEFDS0FHRV9KU09OXSBXYXJuaW5nOiBNb2R1bGUgdHlwZSBvZiBmaWxlOi8vL0M6L1VzZXJzL3BjL3dvcmtzcGFjZS96dXJpLWFpLWtpMTcvYXBwcy9zZXJ2ZXIvc3JjL2NvbmZpZy9kb21haW5zLmpzIGlzIG5vdCBzcGVjaWZpZWQgYW5kIGl0IGRvZXNuJ3QgcGFyc2UgYXMgQ29tbW9uSlMuClJlcGFyc2luZyBhcyBFUyBtb2R1bGUgYmVjYXVzZSBtb2R1bGUgc3ludGF4IHdhcyBkZXRlY3RlZC4gVGhpcyBpbmN1cnMgYSBwZXJmb3JtYW5jZSBvdmVyaGVhZC4KVG8gZWxpbWluYXRlIHRoaXMgd2FybmluZywgYWRkICJ0eXBlIjogIm1vZHVsZSIgdG8gXFw/XEM6XFVzZXJzXHBjXHdvcmtzcGFjZVx6dXJpLWFpLWtpMTdcYXBwc1xzZXJ2ZXJccGFja2FnZS5qc29uLgo="
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:40.536Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "af8fe8113a859cdd8860-9dbff3f487c99f08725d",
+              "file": "fr060-business-home.spec.js",
+              "line": 29,
+              "column": 3
+            },
+            {
+              "title": "renders reserved domains as reserved, never as a zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1241,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:46.157Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "af8fe8113a859cdd8860-f25073092dc764e98ebe",
+              "file": "fr060-business-home.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "Development is a separate slot that roots at its own resource list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1753,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:47.400Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "af8fe8113a859cdd8860-047e1e64284a8253174a",
+              "file": "fr060-business-home.spec.js",
+              "line": 76,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr066-waiting-room.spec.js",
+      "file": "fr066-waiting-room.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-066 Waiting Room identity",
+          "file": "fr066-waiting-room.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows the current profile and links back to Home",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 7123,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:49.158Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddfba2c27856210339a6-67c3b690f123aa939319",
+              "file": "fr066-waiting-room.spec.js",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr077-project-inventory.spec.js",
+      "file": "fr077-project-inventory.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-077 Project Inventory",
+          "file": "fr077-project-inventory.spec.js",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "happy path renders the additive Inventory entry and operational sections",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5317,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:00:56.289Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "07f34e42613ab4a5168b-a713a3699041759ab65d",
+              "file": "fr077-project-inventory.spec.js",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "empty Project shows an empty section without treating it as an error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1739,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:01.611Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "07f34e42613ab4a5168b-7f16fea535ed6db05b1e",
+              "file": "fr077-project-inventory.spec.js",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "missing Project shows a recoverable error state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2674,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:03.353Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "07f34e42613ab4a5168b-c3e1f1648a2a4d054ff2",
+              "file": "fr077-project-inventory.spec.js",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "limit=1 exposes partial/truncated metadata instead of silently shortening the response",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1998,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:06.030Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "07f34e42613ab4a5168b-f2f5429cc1455229ccd9",
+              "file": "fr077-project-inventory.spec.js",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "unauthenticated Inventory reads fail closed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 24,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:08.030Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "07f34e42613ab4a5168b-867bcde09c2ae88fb51a",
+              "file": "fr077-project-inventory.spec.js",
+              "line": 68,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr091-conversation-inbox.spec.js",
+      "file": "fr091-conversation-inbox.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-091 CRM Conversation Inbox",
+          "file": "fr091-conversation-inbox.spec.js",
+          "line": 65,
+          "column": 6,
+          "specs": [
+            {
+              "title": "a message that arrived through the webhook is readable in the Inbox",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4745,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:08.061Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-f37755f59a8865b74826",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "the owner attests PDPA consent, and it persists across a reload (FR-103)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4688,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:12.809Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-3395e8247c06bb58f74c",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 122,
+              "column": 3
+            },
+            {
+              "title": "offers no way to reply — the reply owner is the runtime that received the message",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3114,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:17.500Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-2e706914013f94162a04",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 151,
+              "column": 3
+            },
+            {
+              "title": "the CRM Dashboard reconciles with the list one click away",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2726,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:20.618Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-8e7ac0e98945b2fdb51f",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 171,
+              "column": 3
+            },
+            {
+              "title": "the CRM domain is navigable rather than a reserved slot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1673,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:23.346Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-83b8a4d6c1eafd208a30",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 192,
+              "column": 3
+            },
+            {
+              "title": "the endpoint refuses a Business outside the viewer scope",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1568,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:25.022Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c5a34927b5bfe01dbc2-cf566970d48bd81a3209",
+              "file": "fr091-conversation-inbox.spec.js",
+              "line": 215,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr104-password-reset-redemption.spec.js",
+      "file": "fr104-password-reset-redemption.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-046 sign-in affordances",
+          "file": "fr104-password-reset-redemption.spec.js",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "reveals and re-hides the password without touching its value",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 815,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:26.598Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-2adfa417b41d726e343d",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 29,
+              "column": 3
+            },
+            {
+              "title": "leaves \"remember me\" unticked, so the default is what an unticked box means",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 819,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:27.415Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-8958550616182c9e60eb",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "sends no cookie expiry unless \"remember me\" is ticked",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1034,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:28.237Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-eb430335c8fd80b4db32",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "keeps the seven days available behind the tick",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 930,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:29.273Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-26f3c0eef575db210a79",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 66,
+              "column": 3
+            },
+            {
+              "title": "offers exactly the two ways out of Login, both outside the shell",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1401,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:30.206Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-e556d3fc631319727e32",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 80,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "FR-104 redemption screen",
+          "file": "fr104-password-reset-redemption.spec.js",
+          "line": 99,
+          "column": 6,
+          "specs": [
+            {
+              "title": "refuses a wrong token with one sentence that names nothing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1646,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:31.609Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-c3576896ae127da68a4e",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "catches a mismatched confirmation before spending the token",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 963,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:33.258Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-df61a0055a73efa66716",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "accepts a token carried in the link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 579,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:34.224Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-7e27cb5b7a594cc57fa1",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 133,
+              "column": 3
+            },
+            {
+              "title": "spends a real minted token and reports the session revocation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2949,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:34.806Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "36a0b15914d3198bf44b-a9701a41c69558037275",
+              "file": "fr104-password-reset-redemption.spec.js",
+              "line": 138,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr120-signup.spec.js",
+      "file": "fr120-signup.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-120 self-serve signup",
+          "file": "fr120-signup.spec.js",
+          "line": 34,
+          "column": 6,
+          "specs": [
+            {
+              "title": "is reachable from Login and stays outside the shell",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 602,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:37.760Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-c6fbb01ec4740c091a6d",
+              "file": "fr120-signup.spec.js",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "gives each reveal toggle a name of its own, and reveals only its own field",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 472,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:38.365Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-d8e0b17edc35475caddc",
+              "file": "fr120-signup.spec.js",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "says on the page that an account alone does not join a team",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 705,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:38.839Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-0c6612c472d1c3e12328",
+              "file": "fr120-signup.spec.js",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "catches a mismatched confirmation without creating anything",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 852,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:39.546Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-a94276838f4dd842a13b",
+              "file": "fr120-signup.spec.js",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "refuses a short password at the server, not only at the input",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 329,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:40.401Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-bdf2fc3e1c2b1232ab4e",
+              "file": "fr120-signup.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "creates a real account, signs the person in, and grants them nothing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1523,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:40.733Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-e703f6348db71c9ead7c",
+              "file": "fr120-signup.spec.js",
+              "line": 109,
+              "column": 3
+            },
+            {
+              "title": "refuses the same address the second time, and says so plainly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2003,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:42.258Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-92b9c1befbed454eb3b9",
+              "file": "fr120-signup.spec.js",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "leaves an account its owner can actually sign in with, whatever the casing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1686,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:44.263Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b99c2b478c16c666b7be-12d9800a06300c253ce3",
+              "file": "fr120-signup.spec.js",
+              "line": 149,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr123-plugin-consent.spec.js",
+      "file": "fr123-plugin-consent.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-123 plugin authorization consent",
+          "file": "fr123-plugin-consent.spec.js",
+          "line": 47,
+          "column": 6,
+          "specs": [
+            {
+              "title": "a GET navigation lands on a consent screen instead of handing the plugin a code",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3072,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:45.954Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7886ece2ca5463044b6d-72bebbf2845af6740aaa",
+              "file": "fr123-plugin-consent.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "refusing returns access_denied with the original state and no code",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3436,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:49.029Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7886ece2ca5463044b6d-6d25d740b2548ab693d2",
+              "file": "fr123-plugin-consent.spec.js",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "approving by clicking yields a code the token endpoint accepts exactly once",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3027,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:52.468Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7886ece2ca5463044b6d-e0283ce9e782264725e3",
+              "file": "fr123-plugin-consent.spec.js",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "a browser with no session is sent to sign in and no consent screen is rendered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6048,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:01:55.497Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7886ece2ca5463044b6d-4c12df74edeb9ac151e8",
+              "file": "fr123-plugin-consent.spec.js",
+              "line": 133,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr124-product-readiness.spec.js",
+      "file": "fr124-product-readiness.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-124 Product Readiness Dashboard",
+          "file": "fr124-product-readiness.spec.js",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows six KPIs and drills into one domain with feature use cases",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5927,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:02:01.554Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3e3405a1c80d4299bd92-807a793c0ddda02ff328",
+              "file": "fr124-product-readiness.spec.js",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "refuses an unknown domain key without rendering or enumerating the real ones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4015,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:02:07.487Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3e3405a1c80d4299bd92-0f5481a66902570ebfc5",
+              "file": "fr124-product-readiness.spec.js",
+              "line": 49,
+              "column": 3
+            },
+            {
+              "title": "does not send the snapshot to a browser with no session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1752,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:02:11.504Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3e3405a1c80d4299bd92-e802b07417a933ae9084",
+              "file": "fr124-product-readiness.spec.js",
+              "line": 65,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr130-connector-catalog.spec.js",
+      "file": "fr130-connector-catalog.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "FR-130 connectors catalog states the truth about GitHub",
+          "file": "fr130-connector-catalog.spec.js",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "renders the GitHub tile as not connected, with the reason and no Connect control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3617,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:02:13.263Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72802a782f3a3d04002c-c8b52b74ded7271939b0",
+              "file": "fr130-connector-catalog.spec.js",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "claims nothing is connected while the read model returns no connections",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1962,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:02:16.883Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72802a782f3a3d04002c-33a938e3b5f009f0b249",
+              "file": "fr130-connector-catalog.spec.js",
+              "line": 43,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "fr149-line-server-console.spec.js",
+      "file": "fr149-line-server-console.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "LINE account onboarding persists and activation requires an explicit handoff",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 10549,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:02:18.874Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "660de3df7ea3f2798dd9-92af2329fa6d07d3a73f",
+          "file": "fr149-line-server-console.spec.js",
+          "line": 20,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr151-line-oa-rich-menu-console.spec.js",
+      "file": "fr151-line-oa-rich-menu-console.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "authoring a rich menu persists it and freezing waits on the image the service asks for",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 5594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:02:29.430Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eec4c9f877f8a008d09a-913bc703a804d56969e6",
+          "file": "fr151-line-oa-rich-menu-console.spec.js",
+          "line": 28,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr154-inventory-dashboard.spec.js",
+      "file": "fr154-inventory-dashboard.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FR-154/FR-155 — the Inventory dashboard creates catalogue rows and records a receipt",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 12584,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:02:35.033Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c959f98be7128f6716a4-5de0e736f13d7d9d27e1",
+          "file": "fr154-inventory-dashboard.spec.js",
+          "line": 11,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr161-sales-tasks.spec.js",
+      "file": "fr161-sales-tasks.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FR-161 — a sales task is created, started and completed on the CRM page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 11725,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:02:47.624Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61980c4f98de339b7db9-1ad6882cdfe5c90a1563",
+          "file": "fr161-sales-tasks.spec.js",
+          "line": 12,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr164-procurement.spec.js",
+      "file": "fr164-procurement.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FR-164/FR-165 — a supplier, a purchase order and two receipts on the Procurement pages, landing in the Warehouse",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 11750,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:02:59.367Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "981e4bf2f07b51e626f8-51a124c4350359b7fe8c",
+          "file": "fr164-procurement.spec.js",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fr166-commerce-orders.spec.js",
+      "file": "fr166-commerce-orders.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FR-166/FR-163 — an order is created, paid, verified and completed on the Commerce pages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "e2e",
+              "projectName": "e2e",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "status": "passed",
+                  "duration": 16151,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-07T17:03:11.129Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f44e690c01f3c2e3063c-a16bbb8ce1166ccba745",
+          "file": "fr166-commerce-orders.spec.js",
+          "line": 11,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "marketing-campaigns.spec.js",
+      "file": "marketing-campaigns.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Marketing Campaign first functional slice",
+          "file": "marketing-campaigns.spec.js",
+          "line": 104,
+          "column": 6,
+          "specs": [
+            {
+              "title": "creates a Campaign, keeps all detail tabs addressable, and survives reload/back",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 15612,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:03:27.291Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "41645e4532b8dbdc0af8-a104843c088c833abbe5",
+              "file": "marketing-campaigns.spec.js",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "binds an approved PM receipt, reads real Plan and Timeline data, then persists closure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 22251,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:03:42.906Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "41645e4532b8dbdc0af8-008eb0101e584bfb6ecb",
+              "file": "marketing-campaigns.spec.js",
+              "line": 139,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "marketing-content.spec.js",
+      "file": "marketing-content.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Marketing Content first functional slice",
+          "file": "marketing-content.spec.js",
+          "line": 115,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps all six interfaces addressable and supports real review to Library asset detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 21234,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:05.167Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "57a33b35987fb2478ca7-22e092574797958908b6",
+              "file": "marketing-content.spec.js",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "creates through scoped source and PM controls, then exposes production and revision history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6890,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:26.405Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "57a33b35987fb2478ca7-6ac01a32d90ccc6cff9a",
+              "file": "marketing-content.spec.js",
+              "line": 214,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "marketing-strategy.spec.js",
+      "file": "marketing-strategy.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Marketing Strategy first functional slice",
+          "file": "marketing-strategy.spec.js",
+          "line": 66,
+          "column": 6,
+          "specs": [
+            {
+              "title": "supports keyboard sections and a usable mobile plan form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4702,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:33.309Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "333242cc7ba24f495b03-ccee0fbf5a5887b33395",
+              "file": "marketing-strategy.spec.js",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "keeps Strategy sections addressable and presents explicit unavailable provider metrics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3642,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:38.018Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "333242cc7ba24f495b03-248ece9f691a14bc0513",
+              "file": "marketing-strategy.spec.js",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "creates a plan through the native form when the real API is enabled",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4171,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:41.664Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "333242cc7ba24f495b03-a38a1f4585e8da44a408",
+              "file": "marketing-strategy.spec.js",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "keeps a selected plan addressable after reload and exposes PM KPI guardrail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6004,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:45.837Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "333242cc7ba24f495b03-d3d40af8344f7f6941da",
+              "file": "marketing-strategy.spec.js",
+              "line": 136,
+              "column": 3
+            },
+            {
+              "title": "runs create, independent review, approval, PM preview, and commit with persisted evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 9446,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:04:51.843Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "333242cc7ba24f495b03-5d68d683a080efd74813",
+              "file": "marketing-strategy.spec.js",
+              "line": 153,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "navigation-reachability.spec.js",
+      "file": "navigation-reachability.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "navigation reachability",
+          "file": "navigation-reachability.spec.js",
+          "line": 58,
+          "column": 6,
+          "specs": [
+            {
+              "title": "reaches Plan Import by clicking, not by typing the URL",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6689,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:01.299Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-e3892ef6aa97e3ff0e3b",
+              "file": "navigation-reachability.spec.js",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Execution Roadmap",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3263,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:07.990Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-396264df2aa02f992a67",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Structure Plan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5184,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:11.257Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-d5f0a7f21689dfe35677",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Board",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2859,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:16.443Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-e17a85eaca2f1c360b6e",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Work Items",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5285,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:19.304Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-6dbda5e43cfc5c419afd",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Schedule",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3055,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:24.591Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-76834da0eca250a49719",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Milestones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:27.649Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-3de0c38e692dfcb96154",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "keeps the Work sub-views reachable from Dependency Map",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4401,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:30.846Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-8a781754da2326023cce",
+              "file": "navigation-reachability.spec.js",
+              "line": 92,
+              "column": 5
+            },
+            {
+              "title": "reaches the Space list by browsing and by search",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6119,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:35.250Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-62461faa4d9fccb5e70d",
+              "file": "navigation-reachability.spec.js",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "search covers Platform, which it previously could not reach at all",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4945,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:41.371Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-1e502b4a4bd649b0f84c",
+              "file": "navigation-reachability.spec.js",
+              "line": 122,
+              "column": 3
+            },
+            {
+              "title": "search never offers a reserved domain that has no page, and finds the delivered ones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4901,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:46.319Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fe6ed18be1165053dbc7-9b9ef8e42d41c8366872",
+              "file": "navigation-reachability.spec.js",
+              "line": 141,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "universal routes",
+          "file": "smoke.spec.js",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "overview renders the group roll-up with a card per business (superseded by FR-041)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip"
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:51.238Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-13718c9326ca59b13b11",
+              "file": "smoke.spec.js",
+              "line": 20,
+              "column": 8
+            },
+            {
+              "title": "workspaces list shows seeded workspaces",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3455,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:51.238Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-3074d202e506768aab6a",
+              "file": "smoke.spec.js",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "projects list + project detail with workstreams",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2335,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:54.697Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-a5fb944e151f7f03f589",
+              "file": "smoke.spec.js",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "all work view with filters",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3684,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:05:57.036Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-8f976ec9f7b36268303a",
+              "file": "smoke.spec.js",
+              "line": 55,
+              "column": 3
+            },
+            {
+              "title": "dependencies view renders edges",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4191,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:00.723Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-5183e2d114ad5d286ce1",
+              "file": "smoke.spec.js",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "milestones & gates view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4817,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:04.918Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-3a40fde905cbf8148a16",
+              "file": "smoke.spec.js",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "timeline renders dated bars",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3348,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:09.738Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-ae6125345f3277c7aa34",
+              "file": "smoke.spec.js",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "audit log keeps the installation-wide operator boundary",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1649,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:13.090Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-6dd2baa851de27762db1",
+              "file": "smoke.spec.js",
+              "line": 81,
+              "column": 3
+            },
+            {
+              "title": "backup page has export and import preview",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4289,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:14.742Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b6fff20ab12c56289e22",
+              "file": "smoke.spec.js",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "command palette opens with Ctrl+K and navigates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2684,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:19.034Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-33a687efeac2507ccb0e",
+              "file": "smoke.spec.js",
+              "line": 93,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "seven execution views",
+          "file": "smoke.spec.js",
+          "line": 114,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Software Sprint view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 6639,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:21.720Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-581c90548a60df3d2d26",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "Data Migration view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2198,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:28.363Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-f933b30b584d8964375a",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "B2B Sales view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 3044,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:30.563Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-f24a3873c136bedc58e8",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "B2C Campaign view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2187,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:33.610Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-914d46d8e142c09d98ff",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "Product Launch view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1274,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:35.801Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-f802593829e79117852c",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "Operations view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2007,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:37.077Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-8f96190bc81e66cf18e6",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "Business Expansion view renders seeded workstream",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2472,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:39.087Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b96c941944fec8c19292",
+              "file": "smoke.spec.js",
+              "line": 126,
+              "column": 5
+            },
+            {
+              "title": "progress explanation reveals evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 1861,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:41.562Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-21f68130a9e1501f442f",
+              "file": "smoke.spec.js",
+              "line": 135,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "plan import",
+          "file": "smoke.spec.js",
+          "line": 142,
+          "column": 6,
+          "specs": [
+            {
+              "title": "human form builds PlanEnvelope JSON and sends it through dry-run",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4295,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:43.425Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-2b1582c3244a3082f043",
+              "file": "smoke.spec.js",
+              "line": 144,
+              "column": 3
+            },
+            {
+              "title": "dry run previews and rejects bad plans",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2124,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:47.723Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-64f6374755290e9ec71a",
+              "file": "smoke.spec.js",
+              "line": 167,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "FR-017 project wizard",
+          "file": "smoke.spec.js",
+          "line": 177,
+          "column": 6,
+          "specs": [
+            {
+              "title": "start-from-objective wizard creates a project through the pipeline",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 2534,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:49.850Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-ffa5c836d6bc7f38e3f1",
+              "file": "smoke.spec.js",
+              "line": 179,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "FR-018 excel intake",
+          "file": "smoke.spec.js",
+          "line": 206,
+          "column": 6,
+          "specs": [
+            {
+              "title": "download template, fill, upload through UI, confirm import",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 5939,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:52.387Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-a6f1981f2147798eef22",
+              "file": "smoke.spec.js",
+              "line": 208,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "FR-020 adaptive shell",
+          "file": "smoke.spec.js",
+          "line": 243,
+          "column": 6,
+          "specs": [
+            {
+              "title": "many businesses: switcher scopes the shell and the choice survives a reload (superseded by FR-041)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip"
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.329Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-3f16f7ac280233b8ae62",
+              "file": "smoke.spec.js",
+              "line": 244,
+              "column": 8
+            },
+            {
+              "title": "single business: no switcher, no structure vocabulary, straight to the work",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip"
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.329Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-63e3cf4a4a095113b54f",
+              "file": "smoke.spec.js",
+              "line": 270,
+              "column": 8
+            },
+            {
+              "title": "adding a business is offered in settings and from the switcher",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip"
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.329Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b72d8b1e30f5ccc3c74c",
+              "file": "smoke.spec.js",
+              "line": 303,
+              "column": 8
+            }
+          ]
+        },
+        {
+          "title": "FR-019 enterprise API",
+          "file": "smoke.spec.js",
+          "line": 321,
+          "column": 6,
+          "specs": [
+            {
+              "title": "publishes an OpenAPI contract generated from the live schema",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 322,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.329Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-f45e6f7ad4013fa29f9e",
+              "file": "smoke.spec.js",
+              "line": 358,
+              "column": 3
+            },
+            {
+              "title": "refuses an unauthenticated import instead of writing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 41,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.652Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-d26659b5d80c4bb27546",
+              "file": "smoke.spec.js",
+              "line": 371,
+              "column": 3
+            },
+            {
+              "title": "refuses an import above Business, naming the authority that does not exist",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 69,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.695Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-a994c68c2d716579b20a",
+              "file": "smoke.spec.js",
+              "line": 384,
+              "column": 3
+            },
+            {
+              "title": "upserts by the customer core id and resolves it back",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 264,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:58.765Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-f2e3ab46adb8655bfee4",
+              "file": "smoke.spec.js",
+              "line": 396,
+              "column": 3
+            },
+            {
+              "title": "rejects an unmapped external id instead of inventing one",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 192,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:59.030Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-5adf39c570ce43210b7d",
+              "file": "smoke.spec.js",
+              "line": 418,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "responsive smoke",
+          "file": "smoke.spec.js",
+          "line": 430,
+          "column": 6,
+          "specs": [
+            {
+              "title": "no horizontal page overflow at mobile viewport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e",
+                  "projectName": "e2e",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "status": "passed",
+                      "duration": 4053,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-07T17:06:59.224Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-7d847715de7ea0b563f1",
+              "file": "smoke.spec.js",
+              "line": 432,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-07T16:58:07.683Z",
+    "duration": 536108.116,
+    "expected": 112,
+    "skipped": 4,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

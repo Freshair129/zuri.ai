@@ -33,4 +33,3 @@ test('Desktop control accepts only stop and heartbeat, with a bounded stop deadl
   assert.throws(() => parseDesktopWorkerCommand({ type: 'stop', version: 1, deadlineMs: 300001 }), /INVALID_MESSAGE/);
   assert.throws(() => parseDesktopWorkerCommand({ type: 'run', version: 1, command: 'format' }), /INVALID_MESSAGE/);
 });
-

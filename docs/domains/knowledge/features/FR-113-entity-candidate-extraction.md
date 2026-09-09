@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-113
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-113 — Entity candidate extraction from chunks and structured records
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 8: GenesisRAG17 wraps the recognizer with typed occurrence extraction and preserves sourceMentionId separately from resolutionKey. New entity types must also pass GKS Stage 9 resolution and Stage 11 endpoint validation.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -238,3 +244,6 @@ fixtures, so the two stages are proven to compose.
 - [PRD-SDD v1.0 — FR-113, SDD-060, SDD-059, BR-021](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — D2 puts Stage 8 in Tier 1 and Stage 9 in GKS Tier 3
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §13 (Stage 8) is the source requirement; §14 (Stage 9) is the boundary it stops at
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

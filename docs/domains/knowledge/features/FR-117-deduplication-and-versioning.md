@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-117
 module: knowledge
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: "implemented"
 ---
 
 # FR-117 — Deduplication and version relationships within one tenant
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 6: GenesisRAG17 compares immutable source versions in scope through the dedup helper; delivery retry reuses its batch while true reprocess uses FR-071 attempts. Old raw/chunk rows and published citations remain addressable.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -236,3 +242,6 @@ proves it (18 tests).
 - [PRD-SDD v1.0 — FR-117, SDD-065, BR-021, SEC-021, FR-081](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — its stage table puts Stage 6 in Tier 1 and names BR-021 and SEC-021 as the rules it must carry
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §11 (Stage 6) is the source requirement: its four outcomes, five strategies and five version relationships
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

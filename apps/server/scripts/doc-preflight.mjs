@@ -785,7 +785,7 @@ if (existsSync(BACKUP_SERVICE) && existsSync(PRISMA_SCHEMA)) {
   const uncommented = (block) => block.replace(/\/\/.*$/gm, '')
   const listBlock = source.match(/const SNAPSHOT_MODELS = \[([\s\S]*?)\]/)
   const exclBlock = source.match(/export const SNAPSHOT_EXCLUDED_MODELS = \{([\s\S]*?)\n\}/)
-  const listed = listBlock ? [...uncommented(listBlock[1]).matchAll(/'([a-zA-Z]+)'/g)].map((m) => m[1]) : []
+  const listed = listBlock ? [...uncommented(listBlock[1]).matchAll(/'([a-zA-Z_][a-zA-Z0-9_]*)'/g)].map((m) => m[1]) : []
   // Keys only. Each value is the reason, and a key with an empty reason is not
   // an exclusion — it is the omission this pair exists to stop.
   const excluded = exclBlock

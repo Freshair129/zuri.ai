@@ -92,7 +92,11 @@ const RUNNERS = {
   playwright: {
     bin: 'playwright',
     reportFile: 'playwright.json',
-    extraArgs: () => ['--reporter=list,json'],
+    // `--reporter` on the command line replaces the config's reporters, so the
+    // step-timings reporter has to be added here, not in playwright.config.js.
+    // Opt-in by E2E_STEP_TIMINGS=<file>; an ordinary run is unchanged.
+    extraArgs: () =>
+      [`--reporter=${['list', 'json', ...(process.env.E2E_STEP_TIMINGS ? ['./tests/e2e/step-timings-reporter.js'] : [])].join(',')}`],
     env: (file) => ({ PLAYWRIGHT_JSON_OUTPUT_NAME: file }),
     parse: executedFromPlaywright,
   },

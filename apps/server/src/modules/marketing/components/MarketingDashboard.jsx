@@ -11,7 +11,8 @@ import { Card, Kpi, PageHeader, SectionTitle, StatusPill, EmptyState, ProgressBa
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 import { growthPlansPath, strategyTabHref } from './marketing-contract'
-import { MarketingDataState, ScopeNotice, SourceNote, UnavailableState } from './MarketingState'
+import { MarketingDataState, ScopeNotice, SourceNote } from './MarketingState'
+import MarketingPerformance from './MarketingPerformance'
 
 function planStatus(plan) {
   return String(plan?.status || 'DRAFT').toUpperCase()
@@ -46,10 +47,7 @@ export default function MarketingDashboard({ businessId }) {
           <Kpi label="Approved" value={counts.APPROVED || 0} meta="Current plan state" tone={counts.APPROVED ? 'good' : undefined} />
           <Kpi label="Archived" value={counts.ARCHIVED || 0} meta="Retained history" />
         </div>
-        <Card className="mb-5">
-          <SectionTitle caption="No ad, analytics, or SEO provider reader is connected to this first slice">Measured provider performance</SectionTitle>
-          <UnavailableState title="Provider metrics are unavailable" hint="Connect an approved provider reader before showing spend, reach, conversions, or return. Plan intent is not a performance observation." />
-        </Card>
+        <MarketingPerformance />
         {plans.length === 0 ? (
           <EmptyState
             title="No Marketing plans yet"

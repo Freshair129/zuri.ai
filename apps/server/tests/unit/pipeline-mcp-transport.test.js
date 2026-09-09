@@ -57,6 +57,12 @@ describe('Codex data_pipeline MCP bridge', () => {
       'data_pipeline.event_record',
       'data_pipeline.monitor_read',
       'data_pipeline.replay_request',
+      'knowledge.ingestion_create',
+      'knowledge.ingestion_list',
+      'knowledge.ingestion_status',
+      'knowledge.query',
+      'knowledge.citation',
+      'knowledge.source_withdraw',
     ])
   })
 

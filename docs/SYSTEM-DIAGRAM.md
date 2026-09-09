@@ -2,10 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0b |
 | **Status** | Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05 |
 | **Author** | Claude Fable 5.1 |
 | **Date** | 2026-09-05 |
+| **Knowledge profile update** | 2026-09-08 — ADR-073 isolated execution; other domains retain their dated snapshot |
 | **Relates to** | [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) (three-layer, data-flow and flowchart views from 2026-08-15), [ARCHITECTURE.md](ARCHITECTURE.md), [DOMAIN-MAP.md](DOMAIN-MAP.md) (generated ownership), [PRODUCT.md](PRODUCT.md), ADR-007, ADR-018, ADR-025, ADR-041, ADR-043, ADR-044, ADR-058, ADR-059, ADR-060 |
 
 หน้านี้ตอบคำถามเดียว: **ระบบทั้งหมดประกอบด้วยอะไร ใครคุยกับใคร และอะไรสร้างแล้ว/ยังไม่สร้าง** ณ วันที่วาด
@@ -70,9 +71,9 @@ flowchart TB
   APP --> FILES
   APP -->|"Phase 1 LLM turn (CLOUD)<br/>secretRef via Vault"| MODELS
   APP -.->|"episodic memory keyed by Person<br/>(ADR-007 P4 · ADR-023)"| MSP
-  APP -.->|"governed knowledge · RAG<br/>(ADR-042 · ADR-050)"| GKS
+  APP -.->|"knowledge via MSP only<br/>production integration pending"| MSP
   MSP -.-> GBDB
-  GKS -.-> GBDB
+  MSP -.->|"passive knowledge authority"| GKS
   APP --> GH
   APP -.-> FA
 
@@ -269,17 +270,25 @@ sequenceDiagram
 flowchart TB
   T1["Tier 1 — zuri-ai + Zuri Edge Device<br/>business execution · scope chain Portfolio→Tenant→Business→Workspace→Project<br/>LINE ingress · Flex/Rich Menu/LIFF · quotes · orders"]
   T2["Tier 2 — MSP (repo Memory-and-Soul-Passport)<br/>session lifecycle · episodic memory · vault gates · H0–H4 ceilings<br/>unified thread id th_usr_/th_grp_ (ADR-044)"]
-  T3["Tier 3 — GKS (repo Genesis-Knowledge-System)<br/>canonical entities · ontology · dedup · scoped RAG · radius R0–R6<br/>knowledge ingestion stages 9..17"]
-  T4["Tier 4 — GenesisBlockDB<br/>6-lane substrate: vector · lexical · graph · SQLite · bitemporal · provenance<br/>query-ir.v1"]
-  T1 -->|"task & session context"| T2 -->|"governed scope promotion & search"| T3 -->|"typed query IR"| T4
-  T1 -.->|"never directly"| T4
+  T3["Tier 3 — passive GKS (repo Genesis-Knowledge-System)<br/>canonical knowledge stages 9–14 + Stage 17 gate"]
+  T4["Tier 4 — GenesisBlock worker + native substrate<br/>physical 13, 15–16, atomic publication and scoped query"]
+  T1 -->|"source batch / evidence / query via MSP"| T2
+  T2 -->|"authenticated relay"| T3
+  T4 -->|"claim / receipts / gate via MSP"| T2
+  T2 -->|"query to worker loopback"| T4
   classDef tier fill:#eaf6ec,stroke:#3f8a4d,color:#14331b
   classDef ext fill:#eeeeee,stroke:#777,color:#222
   class T1 tier
   class T2,T3,T4 ext
 ```
 
-zuri-ai เป็น Tier 1 เท่านั้น: ไม่คุยกับ GenesisBlockDB ตรง ไม่ข้าม MSP; knowledge ingestion stage 1..8 เป็น calculator บริสุทธิ์ในโดเมน knowledge ส่วน stage 9..17 อยู่ใน GKS/GenesisBlockDB (ADR-050)
+zuri-ai เป็น Tier 1 เท่านั้น ไม่คุยกับ GKS/GenesisBlockDB ตรงและไม่ข้าม MSP.
+ADR-073 เพิ่ม durable executor/lineage สำหรับ Stage 1–8 ในระบบทดสอบจากเดิมที่มี pure calculators.
+GKS ตัดสิน 9–14/17 แบบ passive; worker เขียน 13 ก่อนส่ง graph receipt ให้ GKS ทำ 14,
+แล้วทำ 15–16 และ publish หลัง gate. Stage 17 สำเร็จหลัง publication receipt ตรงกัน.
+ดู [17-stage spec](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) และ
+[actual sequence / extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) สำหรับจุดเพิ่มความสามารถ.
+เส้นทึบในภาพนี้เป็น isolated test profile ไม่ใช่ production deployment.
 
 ---
 
@@ -333,7 +342,7 @@ prerequisite ที่พบ (ADR-060 D9): `Conversation` unique ที่ `(ten
 | CRM ingest + Inbox + reply receipt + consent + erasure | สร้างแล้ว | FEAT-009, FR-103, FR-022 |
 | Integration substrate, Platform Integrations UI, Vault resolver | สร้างแล้ว (live Vault provisioning เป็น operator gate) | FEAT-004, FR-081 |
 | Phase 1 LINE runtime (binding, canary, activation) | สร้างแล้ว; production activation ยังเป็น gate | FR-052..055 |
-| Knowledge ingestion Tier 1 stage 1..8 | สร้างแล้ว; stage 9..17 อยู่ GKS/GenesisBlockDB | FEAT-013 |
+| Knowledge ingestion 17 stages | isolated raw-to-published acceptance ผ่านแล้ว; zuri 1–8, passive GKS decisions/gate, GenesisBlock worker physical writes/publication; production ยังแยกงาน | FEAT-013, ADR-073 |
 | Market Intelligence, Asset Management (+ edge extraction) | สร้างแล้ว | FEAT-015..017 |
 | Docker Compose + ngrok deployment, health, pooler mode | สร้างแล้ว และใช้บน production | FR-142, FR-145 |
 | LINE OA Studio: `LineOaAccount` + API | สร้างแล้วใน local (migration production ยังไม่ apply) | FR-146 |

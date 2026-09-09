@@ -51,6 +51,11 @@ function assertRestoreOperator(viewer) {
 }
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
+export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
+const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
+  'genesisRag17IngestionIntent',
+  'genesisRag17SourceMention',
+])
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
@@ -136,6 +141,16 @@ const SNAPSHOT_MODELS = [
   // ledger it feeds; a lost cursor only replays a page the receiver's
   // idempotency already makes harmless. Bookkeeping, no secret: exported whole.
   'knowledgeEvidenceCursor',
+  // @req FR-109, FR-110 — restore versioned lineage after RawExternalRecord,
+  // then the pre-Stage 1 intent, durable occurrences, attempt outbox, terminal
+  // evidence and publication proof. Intent and occurrence rows deliberately
+  // carry no foreign keys to pipeline data, so this order is a restore/delete
+  // convention rather than a database constraint.
+  // @req FR-173 — restore corpus parents before sources, jobs and immutable generations.
+  'knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration',
+  'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
+  'genesisRag17IngestionIntent', 'genesisRag17SourceMention',
+  'genesisRag17Batch', 'genesisRag17StageEvidence', 'genesisRag17PublicationReceipt', 'genesisRag17EvidenceCursor',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
   // so it restores after them and deletes before them, alongside the pipeline
   // evidence it gates.
@@ -166,6 +181,7 @@ const SNAPSHOT_MODELS = [
   'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
+  'agentTraceEvent',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',
@@ -219,12 +235,63 @@ function contentManifest(snapshot) {
   return Array.isArray(snapshot?.fileContentManifest) ? snapshot.fileContentManifest : []
 }
 
+const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration']
+
+function admissionRecoveryManifest(snapshot) {
+  const manifest = snapshot?.knowledgeAdmissionRecovery
+  if (manifest === undefined) return { errors: [], warnings: ['KNOWLEDGE_ADMISSION_RECOVERY_UNAVAILABLE: snapshot has no admission recovery manifest'] }
+  const errors = []
+  if (manifest?.schemaVersion !== 'knowledge-admission-recovery.v1' || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ADMISSION_TABLES)) errors.push('Invalid knowledge admission recovery manifest')
+  for (const table of KNOWLEDGE_ADMISSION_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge admission recovery snapshot is missing required table: ${table}`)
+  return { errors, warnings: [] }
+}
+
+function recoveryManifest(snapshot) {
+  const manifest = snapshot?.genesisRag17Recovery
+  if (manifest === undefined) {
+    return {
+      errors: [],
+      warnings: ['GENESISRAG17_RECOVERY_UNAVAILABLE: snapshot has no source recovery manifest; no missing intents or mentions will be invented'],
+      recovery: { status: 'UNAVAILABLE', manifestVersion: null },
+    }
+  }
+  const errors = []
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    errors.push('GenesisRAG17 recovery manifest is not an object')
+  } else {
+    if (manifest.schemaVersion !== GENESIS_RAG17_RECOVERY_MANIFEST_VERSION) {
+      errors.push(`Unsupported GenesisRAG17 recovery manifest version: ${manifest.schemaVersion} (expected ${GENESIS_RAG17_RECOVERY_MANIFEST_VERSION})`)
+    }
+    if (!Array.isArray(manifest.requiredTables) || manifest.requiredTables.length !== GENESIS_RAG17_RECOVERY_TABLES.length
+      || manifest.requiredTables.some((model, index) => model !== GENESIS_RAG17_RECOVERY_TABLES[index])) {
+      errors.push(`GenesisRAG17 recovery manifest must name ${GENESIS_RAG17_RECOVERY_TABLES.join(' and ')}`)
+    }
+    for (const model of GENESIS_RAG17_RECOVERY_TABLES) {
+      if (!Array.isArray(snapshot?.tables?.[model])) errors.push(`GenesisRAG17 recovery snapshot is missing required table: ${model}`)
+    }
+  }
+  return {
+    errors,
+    warnings: [],
+    recovery: { status: errors.length ? 'INVALID' : 'AVAILABLE', manifestVersion: manifest?.schemaVersion || null },
+  }
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  const snapshot = { schemaVersion: SNAPSHOT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables: {} }
+  const snapshot = {
+    schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    genesisRag17Recovery: {
+      schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
+    },
+    knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    tables: {},
+  }
   for (const model of SNAPSHOT_MODELS) {
     const rows = await db[model].findMany()
     // Ciphertext is still a credential capability on the installation that has
@@ -268,18 +335,27 @@ export async function exportSnapshot({
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
+  let warnings = []
+  let recovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
   else {
     if (snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) errors.push(`Unsupported snapshot schemaVersion: ${snapshot.schemaVersion} (expected ${SNAPSHOT_SCHEMA_VERSION})`)
     if (!snapshot.tables || typeof snapshot.tables !== 'object') errors.push('Snapshot has no tables')
+    const manifest = recoveryManifest(snapshot)
+    const admission = admissionRecoveryManifest(snapshot)
+    errors.push(...admission.errors)
+    warnings.push(...admission.warnings)
+    errors.push(...manifest.errors)
+    warnings = manifest.warnings
+    recovery = manifest.recovery
   }
-  if (errors.length) return { valid: false, errors, counts: null }
+  if (errors.length) return { valid: false, errors, warnings, recovery, counts: null }
   const counts = Object.fromEntries(SNAPSHOT_MODELS.map((model) => [model, Array.isArray(snapshot.tables[model]) ? snapshot.tables[model].length : 0]))
   const remounted = new Set(remounts.map((mount) => mount.businessId))
   const businessIds = [...new Set(localAssets(snapshot).map((asset) => asset.businessId))]
   const included = new Set(contentManifest(snapshot).filter((entry) => entry.contentIncluded).map((entry) => entry.fileId))
   return {
-    valid: true, errors: [], counts, exportedAt: snapshot.exportedAt || null,
+    valid: true, errors: [], warnings, recovery, counts, exportedAt: snapshot.exportedAt || null,
     mountRequiredBusinessIds: businessIds.filter((businessId) => !remounted.has(businessId)).sort(),
     missingContentFileIds: localAssets(snapshot).filter((asset) => !included.has(asset.id)).map((asset) => asset.id).sort(),
   }
@@ -387,5 +463,5 @@ export async function importSnapshot(snapshot, {
     if (!active) unresolvedContentFileIds.push(asset.id)
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
   }
-  return { restored: true, counts: preview.counts, unresolvedContentFileIds }
+  return { restored: true, counts: preview.counts, warnings: preview.warnings, recovery: preview.recovery, unresolvedContentFileIds }
 }

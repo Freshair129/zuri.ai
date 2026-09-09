@@ -278,6 +278,12 @@
     "FR-165",
     "FR-166",
     "FR-167",
+    "FR-168",
+    "FR-169",
+    "FR-170",
+    "FR-171",
+    "FR-172",
+    "FR-173",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -595,6 +601,10 @@
     "ADR-067",
     "ADR-068",
     "ADR-069",
+    "ADR-070",
+    "ADR-071",
+    "ADR-072",
+    "ADR-073",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3172,6 +3182,102 @@
         }
       ]
     },
+    "FR-168": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5b87b2a654b1dc5bd3c132759bac8993468df98802a30338988432f163bd4338",
+      "history": [
+        {
+          "anchor": "a product declares one of three natures and they differ in",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-169": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dda24bc0f5ca31633ea98e88828c94ec154d8f6634c19fa4d460387fb62d22eb",
+      "history": [
+        {
+          "anchor": "a business declares feature capabilities business",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-170": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "562be980d567f541729c4ca9875677777e4624ec73143d72f4cc48896ace0180",
+      "history": [
+        {
+          "anchor": "a sub domain module with more than one page renders them as",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-171": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "732b331a041e6b14a490dfe558db92a46232f744a25c3bead44036f9189079e7",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-07",
+      "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
+    },
+    "FR-172": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f39c22cb605173627007e355659b7857ba740ceac66eaab4a6a7d7b652e646f",
+      "history": [
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        },
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-173. Main d36f9a61 published CRM as FR-172 before this branch; move knowledge admission to FR-173.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        },
+        {
+          "anchor": "customer facing navigation groups two domains under one crm",
+          "since": "2026-09-08",
+          "reason": "Integrate published CRM FR-172 from main d36f9a61 after the branch admission declaration moved to FR-173; preserve both histories.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        }
+      ],
+      "retired_to": "FR-173",
+      "retired_at": "2026-09-08",
+      "reason": "Main d36f9a61 published CRM as FR-172 before this branch; move knowledge admission to FR-173.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+    },
+    "FR-173": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b40eb324b84a513acbddbb17be1a07067e56ea78403793ac7f8d0e46a5a63925",
+      "history": [
+        {
+          "anchor": "knowledge source admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4198,14 +4304,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "755306dfbb770e31902c7bde38241a46491071dbfa9f8372ba232b919c9bb11a",
+      "statement_digest": "722500b8cff8a81d5d09916cd4fdff040641baf13584682c7af976f334399586",
       "history": [
         {
           "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "SDD-058": {
       "family": "SDD",
@@ -4224,14 +4332,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "4d56725ca23906aadd63a03fe27c4c48bd771d97a65251907c26afe551433c8e",
+      "statement_digest": "f89b859098ad4e38e28fc7247f17fe1bde00eb0d4fc2862997cd536d3870d38d",
       "history": [
         {
           "anchor": "chunking is a pure calculator in the knowledge lane with no",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "SDD-060": {
       "family": "SDD",
@@ -5126,14 +5236,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "2eb3b8cf812a3a450c5be785a8481e82358273778a23c7a161adbe4b290d8fc0",
+      "statement_digest": "a95107f21ede2df187105b2c4d29798b720a928667744401f40da8624265c500",
       "history": [
         {
           "anchor": "knowledge ingestion governance",
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-08",
+      "statement_digest_reason": "Reviewed same-subject reference-only update for knowledge FR-173 and ADR-073 after the main collision; runtime and subject anchor are unchanged."
     },
     "FEAT-014": {
       "family": "FEAT",
@@ -7344,6 +7456,74 @@
         {
           "anchor": "scm is a parent domain over warehouse inventory procurement",
           "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-070": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
+      "status": "current",
+      "statement_digest": "ebae89e541e877e77c4b5fb5bf2f69b7f6d78f35f40d5c18e84a97d0c0c0ada9",
+      "history": [
+        {
+          "anchor": "execution trace replay v0 3",
+          "since": "2026-09-07",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-071": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md",
+      "status": "current",
+      "statement_digest": "e7bd470bf6f1c72ee7ed8f22c8765254cdbef341d4da4c91d026acd54a7e0bd2",
+      "history": [
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        },
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
+          "reason": "Abandoned before merge; this branch renumbered itself to ADR-073. Main d36f9a61 published CRM as ADR-071 before this branch; move isolated GenesisRAG17 to ADR-073.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        },
+        {
+          "anchor": "crm is a parent domain over customer and market intelligence",
+          "since": "2026-09-08",
+          "reason": "Integrate published CRM ADR-071 from main d36f9a61 after the branch GenesisRAG declaration moved to ADR-073; preserve both histories.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+        }
+      ],
+      "retired_to": "ADR-073",
+      "retired_at": "2026-09-08",
+      "reason": "Main d36f9a61 published CRM as ADR-071 before this branch; move isolated GenesisRAG17 to ADR-073.",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.172.0b"
+    },
+    "ADR-072": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "02f8e0d65c91831c9306560e6f4b93f771ca30c96bb9c55b1e32320f06c503ef",
+      "history": [
+        {
+          "anchor": "knowledge admission and corpus publication",
+          "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-073": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "20d53cbbcacfb5735dbb10959e97f64e8082927c11d0abe292041ba976c6e425",
+      "history": [
+        {
+          "anchor": "genesisrag17 isolated execution and publication",
+          "since": "2026-09-08",
           "reason": "declared"
         }
       ]
