@@ -45,9 +45,17 @@ types into the chat, an absent field cannot.
 what the person themselves typed. Rounding to a whole baht is tolerated; anything else counts as
 invented, and the reply is discarded. See `unverifiedNumbers` in `answer/llm.ts`.
 
-**A real fallback.** No key, model disabled, an API error, a timeout, no text, or a failed number
-check all end in the same place: the pattern-based answer from `answer/parse.ts`, which is computed
-first on every turn and never guesses. A person always gets an answer, and never an unverified one.
+**A real fallback — but only when it has something to read.** No key, model disabled, an API error,
+a timeout, no text, or a failed number check all end in the same place: the pattern-based answer
+from `answer/parse.ts`, computed first on every turn and never guessing. That reader is honest only
+about a catalogue it actually loaded — with no catalogue on disk, it cannot tell a real "we do not
+carry that code" from "nothing was ever checked," so it no longer tries to. `conversation/executor.ts`
+refuses to complete a job whose only answer is the pattern reader talking against an empty catalogue;
+the turn fails instead, which is truthful, rather than completing with a denial nobody verified. A
+populated catalogue is unaffected: a genuine "code not found" or "nothing matches that search" is
+still exactly what it says, and the model path is unaffected too, since it answers from the RAG
+index rather than the local catalogue file. A person gets an answer whenever there is real data
+behind it, and never one dressed up to look like there was.
 
 ## Two providers
 

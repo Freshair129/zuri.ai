@@ -2894,14 +2894,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a5fb79e24e190d88fc405252e230ace90b126de5b268596110507b0a293669ac",
+      "statement_digest": "4b27f6b78c4511933da06591a616b151e0f8bd5d442f93b58d16e29c2adc8a29",
       "history": [
         {
           "anchor": "server owned line conversation transport",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-09",
+      "statement_digest_reason": "PR #306 moved the acknowledgement boundary from durable admission to durable capture; the FR-149 statement is reworded to describe the guarantee the route actually gives and to name the unrecovered ack-then-die gap. Same subject, no renumber."
     },
     "FR-150": {
       "family": "FR",

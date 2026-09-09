@@ -156,14 +156,18 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   scoped and idempotent: an already-tombstoned row is left byte-for-byte alone, so a
   second erasure never moves the record of when the first one happened.
 - `src/platform/integrations/providers/line/line-oa-webhook.js` — the LINE event
-  normalizer and signature verifier; drops the transient `replyToken` before
-  persistence. `normalizeLineWebhookEvent` is the one normalizer the live ingress
-  uses. `verifySignature` needs raw request bytes and is **not** exercised on that
-  path: `zuri-cli` still owns LINE authenticity and the Reply API (BR-011).
-- `src/platform/integrations/providers/line/line-oa-evidence.js` — binds the live
-  `POST /api/agent/line-webhook` ingress to this substrate: resolves the `LINE_OA`
-  connection from the binding-proved scope and records every event as raw evidence
-  before the agent turn runs. See "Wiring status" in
+  normalizer; drops the transient `replyToken` before persistence.
+  `normalizeLineWebhookEvent` is the one normalizer both ingresses use. This module's
+  own `verifySignature` is **not** exercised on either live path: the legacy seam
+  leaves authenticity to `zuri-cli` (BR-011), and the native ADR-061 seam verifies the
+  HMAC itself through `verifyServerLineWebhook` in `server-line-transport.js`.
+- `src/platform/integrations/providers/line/line-oa-evidence.js` — binds both LINE
+  ingresses to this substrate: resolves the `LINE_OA` connection from the
+  binding-proved scope and records every event as raw evidence. On the legacy
+  `POST /api/agent/line-webhook` seam that happens before the agent turn and a missing
+  connection is tolerated; on the native `POST /api/line-oa/accounts/[id]/webhook` seam
+  it happens before LINE is acknowledged and a missing or mismatched connection fails
+  the request closed with 503. See "Wiring status" in
   `docs/domains/integration/features/FR-081-raw-external-ingestion.md`.
 - `src/modules/integration/application/integration-management-service.js` — the
   owner-scoped read and create path behind `/platform/integrations`; raw secret
