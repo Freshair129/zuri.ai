@@ -727,7 +727,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Method | Path | Authority and behavior |
 |---|---|---|
-| POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence and atomic CRM/job admission before 200; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
+| POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence recorded before the 200, then atomic CRM/job admission after it; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
 | POST | `/api/line-oa/worker` | Deployment bearer token, minimum 32 characters; bounded execution/send/reconciliation tick. No browser or device authority. |
 | POST | `/api/edge/conversation-jobs/claim` | Active Business-scoped device bearer; strict empty object; 204 or v1 minimized job under 300-second lease. |
 | POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; `{version,text}` bounded 5000 characters. No provider send. |

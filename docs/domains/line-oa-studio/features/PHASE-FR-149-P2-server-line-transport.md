@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-149-P2
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-06T13:26:50+07:00,RWANG"
+last_update: "2026-09-10T00:00:00+07:00,Claude Opus 5"
 title: "Server-owned LINE conversation transport"
 parent_requirement: FR-149
 phase_id: FR-149-P2
@@ -29,7 +29,7 @@ relations:
 
 ## Responsibility
 
-Atomically admit CRM inbound and durable work. Coordinate one transaction for CRM inbound and the uniquely keyed LineConversationJob before acknowledgment. Apply account ownership epoch and version/lease fences.
+Atomically admit CRM inbound and durable work. Coordinate one transaction for CRM inbound and the uniquely keyed LineConversationJob. Since PR #306 that transaction runs after the acknowledgement, not before it: the ingress answers LINE once the event is durably captured as raw evidence, and this phase admits from that capture, in-process and retried. Apply account ownership epoch and version/lease fences.
 
 ## Entry condition
 
@@ -57,4 +57,5 @@ These anchors identify available coverage; this phase note does not assert that 
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-10 | candidate | Corrected the admission ordering: acknowledgement is durable capture and admission follows it, matching the route since PR #306 | working-tree | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | candidate | Documented current requirement ownership and phase handoffs; release gates remain separate | base 4c0cbe3 | RWANG |
