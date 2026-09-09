@@ -1,14 +1,14 @@
 ---
 id: ZAI:EDGE-DESKTOP-UI-INVENTORY
-title: Zuri Edge Desktop — tabbed interface inventory
+title: Zuri Edge Desktop — sidebar interface inventory
 parent_requirement: FR-150
 domain: agent
 source: v2-native
-version: "0.2.2b"
+version: "0.3.1b"
 status: beta
-approval: "Owner approved inventory 0.2.0b and implementation on 2026-09-08"
+approval: "Owner approved sidebar delta in section 11 on 2026-09-09"
 created_at: "2026-09-08T22:00:02+07:00,RWANG,base b17e7258"
-last_update: "2026-09-09T01:37:00+07:00,RWANG"
+last_update: "2026-09-09T14:15:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-150
@@ -22,9 +22,12 @@ relations:
     target: ../../../UI-DESIGN-SYSTEM.md
 ---
 
-# Zuri Edge Desktop — inventory และ wireframe แบบแท็บ
+# Zuri Edge Desktop — inventory และ wireframe แบบ sidebar
 
-**สถานะ: เจ้าของงานอนุมัติแบบ 0.2.0b แล้วเมื่อ 2026-09-08; กำลัง implement และตรวจรับ ยังไม่ใช่หลักฐานว่าแอปที่ติดตั้งได้รับอัปเดตแล้ว**
+**สถานะ: เจ้าของงานอนุมัติ sidebar ใน §11 เมื่อ 2026-09-09; อยู่ระหว่าง implementation และตรวจรับ แอปที่ติดตั้งไม่ได้อัปเดตตามเอกสารโดยอัตโนมัติ**
+
+§1–10 เก็บเหตุผลและสัญญาของ baseline เดิม; §11 ระบุเฉพาะส่วนต่างการนำทางตามคำขอใหม่
+§11 ที่อนุมัติแล้วแทนข้อกำหนดแท็บแนวนอนใน §2/§7 ส่วนสัญญาสถานะและ controls เดิมยังใช้ต่อ
 
 ขอบเขต C-2 / MEDIUM: เปลี่ยนโครงสร้างหน้าและการนำทางของ Desktop ใน FR-150-P2
 ใช้ pairing, provider และ worker contracts เดิม เพิ่ม local read-only diagnostics ตามคำขอชื่อเครื่อง/สเปค
@@ -34,8 +37,8 @@ Inventory ในเอกสารนี้หมายถึงหน้าจ�
 
 ## 1. ปัญหาและหลักการออกแบบ
 
-ตรวจจาก `apps/edge/public/index.html`, `desktop.css`, `desktop.js` และคำสั่ง native:
-หน้าปัจจุบันวาง Connect, AI, Worker, Device status และ Advanced ต่อกันในแนวตั้ง
+หลักฐานก่อนออกแบบ baseline 0.1 จาก `apps/edge/public/index.html`, `desktop.css`, `desktop.js` และคำสั่ง native:
+หน้าเดิมวาง Connect, AI, Worker, Device status และ Advanced ต่อกันในแนวตั้ง
 QR กับ Advanced ใช้ details ขยายลงด้านล่าง; รายการโมเดลใช้ select ที่มีรายการยาว
 ปุ่ม Start/Stop และข้อผิดพลาดบางส่วนจึงอยู่นอกจอเมื่อเปิดการตั้งค่าอื่น
 
@@ -276,10 +279,109 @@ Implementation refinement หลังตรวจรับ: จอเล็ก�
 การผ่าน browser fixtures ไม่ยืนยันว่าเครื่องที่ติดตั้งได้รับการอัปเดต
 ไม่รวมการทำ auto updater ให้เสร็จ, provider ใหม่, live login, migration หรือ production deploy
 
+## 11. Sidebar delta — 0.3.0b approved
+
+### ขอบเขตและหลักฐาน
+
+เจ้าของงานขอแถบนำทางแนวตั้งด้านซ้ายเหมือนภาพอ้างอิง โดยใช้ฟีเจอร์จริงของ Zuri Edge
+ตรวจ baseline commit `e8c6b13eb2844272aa14a8ecc825a515fa17261c` แล้วมีสี่ panel
+ใน `apps/edge/public/index.html` และ `TAB_ORDER`/`setTab` ใน `desktop.js` อยู่แล้ว
+เปลี่ยนตำแหน่งการนำทางและจัดพื้นที่เนื้อหาใหม่ ไม่เพิ่มหน้า API, IPC หรือ provider
+
+ความซับซ้อน **C-2**, ความเสี่ยง **MEDIUM**: sidebar ลดความกว้างใช้งานทุก panel
+จึงต้องทดสอบการแบ่งหน้าและข้อความขยายอีกครั้ง แม้ใช้ handlers เดิม
+สอดคล้อง FR-150-P2 และ runtime contract; inventory นี้เป็น peer ของข้อกำหนด Desktop
+ส่วน design system ยังคงกำหนดสี ฟอนต์ และไอคอน Lucide
+
+### เมนูจากฟีเจอร์จริง
+
+| ตำแหน่ง / ชื่อ | ไอคอน | panel เดิม / งานที่เปิด |
+|---|---|---|
+| บน — ภาพรวม | LayoutDashboard | `panel-overview`: worker, heartbeat, prerequisites และสเปคเครื่องที่ตรวจอัตโนมัติ |
+| บน — เชื่อมต่อ | Plug | `panel-connect`: จับคู่ผ่าน Browser/QR, ตรวจสถานะ และยกเลิก/ลองใหม่ |
+| บน — AI (ชื่อเต็ม ตัวช่วย AI) | Bot | `panel-ai`: Ollama, Codex, Claude; ตั้งค่าโมเดลและ Login ตาม provider |
+| ล่าง — ตั้งค่า | Settings | `panel-settings`: Server/import, ตรวจ CLI, เวอร์ชันและสถานะ updater |
+
+สเปคเครื่องเป็นหน้าย่อยของภาพรวม; Codex/Claude/Ollama อยู่ในตัวช่วย AI ตามเดิม
+ไม่มีการเพิ่ม Contacts, LINE chat, unread count หรือเมนูเลียนแบบภาพที่ Edge ยังไม่รองรับ
+badge ใช้เฉพาะ pending/dirty/error ที่ได้จาก state เดิม พร้อมคำอธิบายที่อ่านได้
+
+### โครงหน้าและการใช้งาน
+
+1. Native title แสดงเวอร์ชันจริงตามแพ็กเกจ; sidebar เริ่มใต้ native title กว้างประมาณ 80 px
+   มี Z ด้านบน, สามงานหลัก, ตั้งค่าชิดล่าง; ทุกเมนูมีไอคอนและชื่อสั้นให้เห็นเสมอ
+2. ย้ายแถบแท็บด้านบนออก เนื้อหาด้านขวาจึงได้ความสูงคืน; header ยังแสดงชื่อเครื่องจริง
+   ธุรกิจและสถานะตามข้อมูลที่อ่านได้ ไม่มีค่าตัวอย่างในแอปจริง
+3. หน้าเลือกใช้พื้น amber tint และ indicator ด้านซ้าย พร้อม `aria-selected`;
+   hover/focus tooltip เสริมชื่อเต็ม แต่ไม่ใช้ tooltip เป็นวิธีเดียวในการรู้ชื่อเมนู
+4. ยังคงสี่ ARIA tabs: `aria-orientation="vertical"`, roving tabindex,
+   Up/Down เลื่อน focus, Home/End ไปต้น/ท้าย, Enter/Space เปิดหน้าแบบ manual activation
+   Settings เป็นรายการสุดท้ายในลำดับแป้นพิมพ์ แม้จัดชิดล่าง
+   อ้างอิง [WAI-ARIA Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
+5. สลับหน้าแล้ว draft, login, pairing polling และ worker ownership ไม่สูญหาย;
+   หน้าย่อยและ Back ใช้ router เดิม ไม่เปิดหน้าต่างใหม่หรือเริ่มงานอัตโนมัติ
+6. Footer ยังอยู่ทุกหน้า ปุ่มหยุดรับงานใช้ ownership guard เดิม รวม FAILED+active;
+   disabled ได้เฉพาะตามสถานะจริง พื้นที่กดอย่างน้อย 44×44 px
+7. จอเล็กแสดงทีละกลุ่มและใช้ก่อนหน้า/ถัดไป; คำนวณขนาดจากพื้นที่เนื้อหาที่เหลือหลัง sidebar
+   ห้ามแก้ overflow ด้วยการซ่อน controls หรือข้อความที่ไม่มีทางเปิดอ่านครบ
+8. เมื่อขยายตัวอักษร 200% ให้ rail ขยายเป็น 120 px และจัด pagination ใหม่
+   โดยชื่อเมนูไม่ทับกันและเนื้อหาทุกส่วนยังเข้าถึงได้
+
+### แบบให้ตรวจ
+
+ภาพต่อไปนี้เป็น wireframe ของหน้าที่เลือก “เชื่อมต่อ”; สถานะยังไม่จับคู่เป็นตัวอย่าง
+ชื่อเครื่องอ้างอิงผลตรวจจริงในรอบก่อน ตัวเลข v0.3.1 เป็นเวอร์ชันแพตช์ที่เสนอสำหรับงานนี้
+ไม่ใช่หลักฐานว่ามี release v0.3.1 แล้ว; release ปัจจุบัน v0.3.0 คงเดิม
+
+- [หน้าต่างปกติ 1080×720 — PNG](assets/edge-desktop-sidebar-v0.3/sidebar-wide.png)
+  / [SVG](assets/edge-desktop-sidebar-v0.3/sidebar-wide.svg)
+- [หน้าต่างเล็ก 640×480 — PNG](assets/edge-desktop-sidebar-v0.3/sidebar-compact.png)
+  / [SVG](assets/edge-desktop-sidebar-v0.3/sidebar-compact.svg)
+
+### Acceptance หลังอนุมัติ
+
+1. เปลี่ยน navigation markup/CSS โดย reuse panel IDs, handlers และ state เดิม
+2. ทดสอบสี่เมนูจริง การเลือกด้วย pointer/keyboard, focus/ชื่อเต็ม และ dirty/pending badge
+3. ทดสอบทุกหน้า/หน้าย่อย รวม error, pending, QR, ชื่อยาว และ provider forms
+   ที่ client sizes 1050×680, 960×600, 800×560, 640×480 และ text zoom 200%
+   ต้องไม่มี scroll ทั้งสองแกนและทุก control เข้าถึงได้ด้วย pagination
+4. ทดสอบเปลี่ยนหน้าระหว่าง pairing/login/save/worker transition; draft ไม่หาย
+   และ Stop ยังใช้ได้ทุกหน้าเมื่อแอปเป็นเจ้าของ process
+5. ตรวจ native window และ scaling ตาม §10 แยกจาก browser fixtures;
+   รัน Edge/Rust/UI tests ที่เกี่ยวข้อง, build และ governance ตาม scope ก่อนส่งงาน
+6. อัปเดต version จาก 0.3.0 เป็น 0.3.1 พร้อมกันตามแหล่ง version เดิมเมื่อ implement;
+   การ build, publish และติดตั้งจริงต้องรายงานเป็นหลักฐานคนละขั้น
+
+ไม่รวมการเปิด auto updater, provider login จริง, pairing กับธุรกิจ หรือแก้ฝั่ง Server
+การอนุมัติส่วนนี้เปลี่ยนเฉพาะ layout/navigation ไม่เปลี่ยนขอบเขตระบบเดิม
+
+### ผลตรวจ implementation 0.3.1b — 2026-09-09
+
+Desktop package version เปลี่ยน **0.3.0 → 0.3.1**; four panels/IPC/worker ownership เดิม
+ใช้ grid sidebar กว้าง 80 px, ขยายเป็น 120 px เมื่อ text zoom 200%
+ตามผลวัด label จริง การแบ่งหน้าอ่านความกว้าง `appMain` หลังหัก sidebar
+และกฎ AI เมื่อขยายข้อความใช้สถานะ compact เดียวกับตัวแบ่งหน้า
+
+- Edge tests: 926 ผ่าน, 3 environment skips, 0 ล้มเหลว; TypeScript build ผ่าน
+- Rust library: 36 ผ่าน, 4 ignored; Windows release build ผ่าน
+- Browser mock IPC: 35 ผ่าน, 0 skipped, 0 retry, 0 flaky; รวม sidebar/keyboard/draft,
+  สี่ viewport, ชื่อเมนูที่ 200%, Connect/Settings/AI Save และ Stop ownership
+- Browser preview ผ่านการสลับหน้าและไม่มี page errors; ยังคง fail closed เมื่อไม่มี native IPC
+- Portable runtime lifecycle จากแพ็กเกจรอบแรก: 1 ผ่าน บน synthetic loopback;
+  ยังไม่ใช่ผลใช้งานกับธุรกิจจริงหรือผลติดตั้งผ่าน auto updater
+
+ผลวัดและสาเหตุการปรับ text zoom อยู่ใน
+[RCA](../../../../.brain/rca/2026-09-09-edge-sidebar-text-zoom-layout.md)
+ผลแพ็กเกจสุดท้ายและ native acceptance แยกบันทึกใน
+`apps/edge/dist-desktop/verification-tabs/SIDEBAR-ACCEPTANCE.md` (local evidence)
+ผลชุดนี้ไม่ใช่ hosted CI, physical multi-DPI/clean-VM acceptance หรือ public release v0.3.1
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.1b | 2026-09-09 | beta | Implemented approved sidebar; 35 mock UI tests passed including measured Thai labels and AI steps at 200%; separate local native/package evidence | uncommitted | RWANG |
+| 0.3.0b | 2026-09-09 | beta | Owner approved vertical sidebar using four existing panels, wide/compact wireframes and no-scroll regression criteria | uncommitted | RWANG |
 | 0.2.2b | 2026-09-09 | beta | Recorded approved repair refinements, complete control reachability, measured detail pages and separate acceptance evidence | uncommitted | RWANG |
 | 0.2.1b | 2026-09-08 | beta | Owner approved the combined tabbed UI and local hardware diagnostics; implementation acceptance tracked separately | uncommitted | RWANG |
 | 0.2.0b | 2026-09-08 | candidate | Real OS computer name, automatic local hardware inventory, paginated details and partial-result acceptance | uncommitted | RWANG |

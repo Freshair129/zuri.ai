@@ -391,15 +391,22 @@ test('ARIA tabs use manual activation and retain drafts, pairing and login state
   await desktop(page, desktopBridge(), { configured: false })
   const tabs = page.getByRole('tab')
   await expect(tabs).toHaveCount(4)
+  await expect(page.locator('[role="tablist"]')).toHaveAttribute('aria-orientation', 'vertical')
   await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1)
   await tabs.filter({ hasText: 'ภาพรวม' }).click()
   await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
   await tabs.filter({ hasText: 'ภาพรวม' }).focus()
-  await tabs.filter({ hasText: 'ภาพรวม' }).press('ArrowRight')
+  await tabs.filter({ hasText: 'ภาพรวม' }).press('ArrowDown')
   await expect(tabs.filter({ hasText: 'เชื่อมต่อ' })).toBeFocused()
   await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
-  await tabs.filter({ hasText: 'ตัวช่วย AI' }).focus()
-  await tabs.filter({ hasText: 'ตัวช่วย AI' }).press('Enter')
+  await tabs.filter({ hasText: 'เชื่อมต่อ' }).press('End')
+  await expect(tabs.filter({ hasText: 'ตั้งค่า' })).toBeFocused()
+  await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
+  await tabs.filter({ hasText: 'ตั้งค่า' }).press('Home')
+  await expect(tabs.filter({ hasText: 'ภาพรวม' })).toBeFocused()
+  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).focus()
+  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).press(' ')
+  await expect(page.getByRole('tab', { name: 'ตัวช่วย AI' })).toHaveAttribute('aria-selected', 'true')
   await page.locator('#providerClaude').check()
   await page.locator('#providerModel').fill('claude-draft-model')
   await tabs.filter({ hasText: 'เชื่อมต่อ' }).click()
@@ -414,12 +421,12 @@ test('ARIA tabs use manual activation and retain drafts, pairing and login state
   await expect(page.locator('#checkCode')).toBeVisible()
   await page.locator('#cancel').click()
   await expect(page.locator('#pairingState')).toContainText(/ยกเลิก|CANCELLED/)
-  await tabs.filter({ hasText: 'ตัวช่วย AI' }).click()
+  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   await expect(page.locator('#providerModel')).toHaveValue('claude-draft-model')
   await page.locator('#providerLogin').click()
   await expect(page.locator('#providerAuth')).toContainText('กำลังรอยืนยัน')
   await tabs.filter({ hasText: 'ภาพรวม' }).click()
-  await tabs.filter({ hasText: 'ตัวช่วย AI' }).click()
+  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   await expect(page.locator('#providerAuth')).toContainText('กำลังรอยืนยัน')
   await expect(page.locator('#cancelLogin')).toBeVisible()
   await page.locator('#cancelLogin').click()
@@ -429,6 +436,148 @@ test('ARIA tabs use manual activation and retain drafts, pairing and login state
   await page.locator('#providerLogin').click()
   await expect(page.locator('#providerAuth')).toContainText('กำลังรอยืนยัน')
   await expect.poll(() => page.evaluate(() => window.nativeCalls.filter(call => call.command === 'start_provider_login').length)).toBe(loginCallsBeforeRetry + 1)
+})
+
+test('sidebar exposes four real panels with visible labels, icons and an accessible AI name', async ({ page }) => {
+  await desktop(page, desktopBridge(), { configured: true })
+  const tablist = page.locator('#primaryTabs')
+  await expect(tablist).toHaveAttribute('aria-orientation', 'vertical')
+  const entries = [
+    ['overview', 'ภาพรวม'],
+    ['connect', 'เชื่อมต่อ'],
+    ['ai', 'AI'],
+    ['settings', 'ตั้งค่า'],
+  ]
+  for (const [key, label] of entries) {
+    const tab = page.locator(`#tab-${key}`)
+    await expect(tab).toBeVisible()
+    await expect(tab).toContainText(label)
+    await expect(tab.locator('svg, [data-icon], .tab-icon, [aria-hidden="true"]').first()).toBeVisible()
+    await tab.click()
+    await expect(page.locator(`#panel-${key}`)).toBeVisible()
+    await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1)
+  }
+  await expect(page.locator('#tab-ai')).toHaveAccessibleName('ตัวช่วย AI')
+  await expect(page.locator('#tab-settings')).toContainText('ตั้งค่า')
+})
+
+test('vertical sidebar keyboard activation preserves an AI draft', async ({ page }) => {
+  await desktop(page, desktopBridge(), { configured: true })
+  const overview = page.locator('#tab-overview')
+  const connect = page.locator('#tab-connect')
+  const ai = page.locator('#tab-ai')
+  const settings = page.locator('#tab-settings')
+  await overview.focus()
+  await overview.press('ArrowDown')
+  await expect(connect).toBeFocused()
+  await expect(overview).toHaveAttribute('aria-selected', 'true')
+  await connect.press('ArrowDown')
+  await expect(ai).toBeFocused()
+  await expect(overview).toHaveAttribute('aria-selected', 'true')
+  await ai.press(' ')
+  await expect(ai).toHaveAttribute('aria-selected', 'true')
+  await page.locator('#providerClaude').check()
+  await page.locator('#providerModel').fill('keyboard-preserved-draft')
+  await ai.press('ArrowDown')
+  await expect(settings).toBeFocused()
+  await expect(ai).toHaveAttribute('aria-selected', 'true')
+  await settings.press('Enter')
+  await expect(settings).toHaveAttribute('aria-selected', 'true')
+  await settings.press('ArrowUp')
+  await expect(ai).toBeFocused()
+  await expect(settings).toHaveAttribute('aria-selected', 'true')
+  await ai.press('Enter')
+  await expect(ai).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#providerModel')).toHaveValue('keyboard-preserved-draft')
+})
+
+test.describe('vertical sidebar shell geometry', () => {
+  for (const size of SUPPORTED_VIEWPORTS) {
+    test(`${size.name} keeps the rail left of content and Stop reachable`, async ({ page }) => {
+      await page.setViewportSize({ width: size.width, height: size.height })
+      await desktop(page, desktopBridge(), { configured: true, initialWorkerState: 'RUNNING', initialWorkerActive: true })
+      await expect(page.locator('#globalStop')).toBeVisible()
+      await expect(page.locator('#globalStop')).toBeEnabled()
+      await expectBounded(page)
+      const geometry = await page.evaluate(() => {
+        const rect = (selector) => {
+          const element = document.querySelector(selector)
+          if (!element) return null
+          const value = element.getBoundingClientRect()
+          return { left: value.left, right: value.right, top: value.top, bottom: value.bottom, width: value.width, height: value.height }
+        }
+        const rail = document.querySelector('#primaryTabs')
+        const tabs = [...document.querySelectorAll('#primaryTabs [role="tab"]')]
+        return {
+          orientation: rail?.getAttribute('aria-orientation'),
+          rail: rect('#primaryTabs'),
+          main: rect('#appMain'),
+          footer: rect('.app-footer'),
+          stop: rect('#globalStop'),
+          tabs: tabs.map(tab => {
+            const value = tab.getBoundingClientRect()
+            return { left: value.left, right: value.right, top: value.top, bottom: value.bottom }
+          }),
+        }
+      })
+      expect(geometry.orientation).toBe('vertical')
+      expect(geometry.rail).not.toBeNull()
+      expect(geometry.main).not.toBeNull()
+      expect(geometry.footer).not.toBeNull()
+      expect(geometry.stop).not.toBeNull()
+      expect(geometry.tabs).toHaveLength(4)
+      const lefts = geometry.tabs.map(tab => tab.left)
+      expect(Math.max(...lefts) - Math.min(...lefts)).toBeLessThanOrEqual(2)
+      expect(geometry.tabs[0].top).toBeLessThan(geometry.tabs[1].top)
+      expect(geometry.tabs[1].top).toBeLessThan(geometry.tabs[2].top)
+      expect(geometry.tabs[2].top).toBeLessThan(geometry.tabs[3].top)
+      expect(geometry.tabs[3].bottom).toBeGreaterThanOrEqual(geometry.rail.bottom - 24)
+      expect(geometry.main.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
+      expect(geometry.footer.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
+      expect(geometry.stop.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
+      expect(geometry.stop.right).toBeLessThanOrEqual(size.width + 1)
+    })
+  }
+})
+
+test.describe('sidebar text zoom navigation', () => {
+  for (const size of SUPPORTED_VIEWPORTS) {
+    test(`${size.name} keeps labels and task controls reachable at 200% text`, async ({ page }) => {
+      await page.setViewportSize({ width: size.width, height: size.height })
+      await desktop(page, desktopBridge(), { configured: false })
+      await emulateTextZoom(page)
+      await expectBounded(page)
+      const labelGeometry = await page.evaluate(() => [...document.querySelectorAll('#primaryTabs [role="tab"]')].map(tab => {
+        const label = tab.querySelector('.tab-label')
+        const tabRect = tab.getBoundingClientRect()
+        const labelRect = label?.getBoundingClientRect()
+        return {
+          text: label?.textContent?.trim(),
+          tab: { left: tabRect.left, right: tabRect.right, top: tabRect.top, bottom: tabRect.bottom },
+          label: labelRect ? { left: labelRect.left, right: labelRect.right, top: labelRect.top, bottom: labelRect.bottom } : null,
+        }
+      }))
+      expect(labelGeometry).toHaveLength(4)
+      for (const entry of labelGeometry) {
+        expect(entry.label, `${entry.text} must render a label`).not.toBeNull()
+        expect(entry.label.left, `${entry.text} starts outside its tab`).toBeGreaterThanOrEqual(entry.tab.left - 1)
+        expect(entry.label.right, `${entry.text} ends outside its tab`).toBeLessThanOrEqual(entry.tab.right + 1)
+        expect(entry.label.top, `${entry.text} starts outside its tab`).toBeGreaterThanOrEqual(entry.tab.top - 1)
+        expect(entry.label.bottom, `${entry.text} ends outside its tab`).toBeLessThanOrEqual(entry.tab.bottom + 1)
+      }
+
+      await page.getByRole('tab', { name: 'เชื่อมต่อ' }).click()
+      await reachControl(page, '#connect', '#connectCompactNext')
+      await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
+      await expect(page.locator('#openAdvanced')).toBeVisible()
+      await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
+      await reachControl(page, '#ollamaUrl', '#aiCompactNext')
+      await page.locator('#ollamaUrl').fill('http://127.0.0.1:11435')
+      await reachControl(page, '#saveProvider', '#aiCompactNext')
+      await expect(page.locator('#saveProvider')).toBeVisible()
+      await expect(page.locator('#globalStop')).toBeVisible()
+    })
+  }
 })
 
 test('provider drafts remain independent and Save never starts the worker', async ({ page }) => {

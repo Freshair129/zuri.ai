@@ -41,7 +41,7 @@ export function assemblePackage({edgeRoot,outputDir,nodePath,desktopExe,installD
   fs.writeFileSync(path.join(outputDir,'README.txt'),[
     'Zuri Edge Device '+version,'',
     'Extract the entire ZIP to a writable local directory and open zuri-edge-device.exe.',
-    'Use the Connect tab to pair, AI to configure Ollama/Codex/Claude, then Overview to Start.',
+    'Use the left sidebar: Connect to pair, AI to configure Ollama/Codex/Claude, then Overview to Start.',
     'The computer name and hardware inventory are read locally on startup; Overview > Machine specifications shows details.',
     'Use Previous/Next for long lists and compact pages. The minimum supported client area is 640 x 480 logical pixels.',
     'Requires Windows WebView2, matching Zuri Server pairing routes and local RAG service.',
@@ -61,7 +61,7 @@ function runNodeScript(node,script,args,cwd) {
 function main() {
   if(process.platform!=='win32'||process.arch!=='x64'||process.version!==NODE_VERSION)throw Error('Package with Windows x64 Node '+NODE_VERSION);
   const edgeRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-  const outputDir=path.resolve(process.argv[2]||path.join(edgeRoot,'dist-desktop','0.3.0'));
+  const outputDir=path.resolve(process.argv[2]||path.join(edgeRoot,'dist-desktop','0.3.1'));
   const npm=path.join(path.dirname(process.execPath),'node_modules','npm','bin','npm-cli.js');
   if(!fs.existsSync(npm))throw Error('Use the pinned Node distribution containing npm');
   runNodeScript(process.execPath,npm,['run','build'],edgeRoot);

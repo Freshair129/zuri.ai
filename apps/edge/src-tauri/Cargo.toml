@@ -1,6 +1,6 @@
 [package]
 name = "zuri-edge-device"
-version = "0.3.0"
+version = "0.3.1"
 description = "Zuri Edge Device Desktop Runtime & Zero-Trust Pair Manager"
 authors = ["ATHER", "Freshair129"]
 edition = "2021"
