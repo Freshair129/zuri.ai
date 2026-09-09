@@ -1,6 +1,7 @@
-// @spec FR-150, FR-144, FR-141 — tabbed Desktop UI, no mock native success, and truthful worker/provider states.
+// @spec FR-150, FR-144, FR-141 — sidebar Desktop UI, no mock native success, and truthful worker/provider states.
 const $ = id => document.getElementById(id);
 const native = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
+const panelWidth = () => $('appMain').clientWidth;
 const TAB_ORDER = ['overview', 'connect', 'ai', 'settings'];
 const HOME_PAGE = { overview: 'overviewHome', connect: 'connectHome', ai: 'aiHome', settings: 'settingsHome' };
 const PROVIDERS = ['ollama', 'codex', 'claude'];
@@ -244,7 +245,7 @@ function renderCompactPage(key, pageId, selector, navId, labelId, previousId, ne
   const total = textZoomConnect ? 5 : blocks.length;
   // Keep the two short release cards together at 800x560; the one-card
   // stepper remains for the genuinely compact 640x480 tier.
-  const compact = state.compact && !(key === 'about' && window.innerWidth >= 680 && window.innerHeight >= 500);
+  const compact = state.compact && !(key === 'about' && panelWidth() >= 680 && window.innerHeight >= 500);
   page.classList.toggle('compact-steps', compact);
   setVisible(navId, compact && blocks.length > 1);
   if (!compact) {
@@ -284,7 +285,7 @@ function renderAiCompactPage() {
   const choice = page && page.querySelector('.provider-choice-card');
   const form = page && page.querySelector('.provider-form-card');
   if (!page || !choice || !form) return;
-  const compact = state.compact || window.innerWidth <= 960 || window.innerHeight <= 600;
+  const compact = state.compact || panelWidth() <= 960 || window.innerHeight <= 600;
   const textZoom = document.body.dataset.textZoom === 'true';
   const total = compact ? (textZoom ? (state.provider === 'ollama' ? 8 : 9) : 3) : 1;
   page.classList.toggle('compact-steps', compact);
@@ -900,8 +901,8 @@ async function cancelProviderLogin() {
 
 function modelPageSize(models = state.ollamaModels) {
   if (document.body.dataset.textZoom === 'true') return 1;
-  const compact = window.innerHeight < 500 || window.innerWidth < 680;
-  const medium = window.innerHeight < 600 || window.innerWidth < 960;
+  const compact = window.innerHeight < 500 || panelWidth() < 680;
+  const medium = window.innerHeight < 600 || panelWidth() < 960;
   const longName = models.some(model => String(model && model.name || '').length > 48);
   if (compact) return 2;
   if (medium || longName) return 3;
@@ -1275,7 +1276,7 @@ async function checkUpdate() {
 }
 
 function setCompactMode() {
-  const next = window.innerWidth < 960 || window.innerHeight < 600;
+  const next = panelWidth() < 960 || window.innerHeight < 600;
   state.compact = next;
   document.body.dataset.compact = String(next);
   renderModels();
@@ -1291,10 +1292,7 @@ function installTextZoomObserver() {
     const value = String(large);
     if (document.body.dataset.textZoom === value) return;
     document.body.dataset.textZoom = value;
-    renderModels();
-    renderCompactOverview();
-    if (!$('hardwarePage').hidden) renderHardwarePage();
-    renderCompactPages();
+    setCompactMode();
   };
   new MutationObserver(update).observe(document.body, { attributes: true, attributeFilter: ['style'], subtree: true });
   update();
@@ -1381,7 +1379,7 @@ function bindNavigation() {
       state.dirty[input.value] = true;
     }
     state.provider = input.value;
-    if (state.compact || window.innerWidth <= 960 || window.innerHeight <= 600) {
+    if (state.compact || panelWidth() <= 960 || window.innerHeight <= 600) {
       compactPageState.ai = document.body.dataset.textZoom === 'true' ? 3 : 1;
     }
     renderProvider();

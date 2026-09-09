@@ -16314,8 +16314,8 @@
       "id": "doc:INVENTORY-FR-150-edge-desktop-ui",
       "type": "document",
       "path": "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
-      "title": "Zuri Edge Desktop — inventory และ wireframe แบบแท็บ",
-      "hash": "ac07b523",
+      "title": "Zuri Edge Desktop — inventory และ wireframe แบบ sidebar",
+      "hash": "96d6149d",
       "status": "current"
     },
     {
@@ -24719,7 +24719,7 @@
       "id": "test:tests/e2e/edge-desktop-ui.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-      "hash": "238c07fb",
+      "hash": "5c66fdc7",
       "status": "current"
     },
     {
