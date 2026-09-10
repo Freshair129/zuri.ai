@@ -5,7 +5,7 @@
 **Base:** `origin/main` at `f320e888`  
 **Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
 **Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.5 (inventory recovery manifest review)
+**Proposal revision:** 0.6 (FR-182 published-surface dependency review)
 
 ## Purpose
 
@@ -18,6 +18,34 @@ inventory schema, bins, campaigns, synchronization, or outbound integration.
 
 The decision requested from the owner is whether this contract is acceptable as the
 basis for a subsequent implementation and requirement note.
+
+## Published FR-182 dependency and boundary
+
+A read-only enumeration of published PR318 (`origin/feat/scm-operations-console`,
+commit `864c3a8b`) changes the implementation starting point from the reserved
+bar slot described by the original audit. PR318 delivers FR-182's SCM operations
+console over the existing Inventory services: the `/inventory` page,
+`/inventory/locations`, `/inventory/work-orders`, and `/inventory/reservations`
+pages, plus the following thin API handlers:
+
+| Existing PR318 surface | Existing Inventory authority | This proposal's use |
+|---|---|---|
+| `GET/POST /api/inventory/locations`, `GET/PATCH /api/inventory/locations/{id}` | `listLocations`, `createLocation`, `getLocation`, `applyLocationAction` | Reuse for location identity and lifecycle; add no `/warehouse/locations` adapter. |
+| `GET /api/inventory/location-stock` | `locationStock` | Reuse for located, unlocated, and Business-wide on-hand; add no second aggregation route. |
+| `POST /api/inventory/transfers` | `transferStock` | Reuse for the atomic ISSUE/RECEIPT pair; add no Warehouse transfer writer. |
+| `GET/POST /api/inventory/shelf-life` | `shelfLifeAudit`, `recordLotMaintenance` | Reuse for ageing status and maintenance; add no duplicate alert calculator. |
+| `GET /api/inventory/atp` | `availableToPromiseFor`, `maxBuildableSets` | Reuse for ATP and buildable-set figures; add no duplicate reservation/ATP route. |
+| `/inventory`, `/inventory/locations`, `/inventory/work-orders`, `/inventory/reservations` | Inventory page components and `INVENTORY_TABS` | Extend the existing Inventory console shell/page ownership; add no parallel `/warehouse` console. |
+
+The Warehouse proposal branch remains based on `origin/main` `f320e888`; PR318 is
+an external dependency observed read-only and is not changed here. After its
+integration, its routes/pages and service authorities are the baseline for this
+slice. The only behavior still proposed here is physical stocktake preview and
+commit, which PR318 explicitly leaves deferred: the reviewed NONE/LOT strict
+count input, durable preview/idempotency record, atomic adjustment transaction,
+and shared ledger fence remain pending owner approval. Any stocktake page or
+route added later must live under the existing Inventory surface and must not
+recreate location, transfer, shelf-life, or ATP reads.
 
 ## RCA
 
@@ -115,12 +143,18 @@ The Warehouse console is a page under the reserved Warehouse surface, backed by
 Inventory-owned services. It is always scoped to the selected Business; the
 server validates the viewer's Business visibility and derives tenant scope.
 
-The read contract is:
+The read contract is the published PR318 pair:
 
-`GET /api/inventory/warehouse/locations?businessId=<id>`
+- `GET /api/inventory/locations?businessId=<id>` for location identity and
+  lifecycle;
+- `GET /api/inventory/location-stock?businessId=<id>&productId=<id>` for a
+  product's located, unlocated, and Business-wide on-hand (the product filter
+  remains optional where the existing service supports the broader read).
 
-The route is a thin adapter over `listLocations` and `locationStock` (with an
-optional product filter). Its response contains:
+The existing handlers are already thin adapters over `listLocations` and
+`locationStock`; this slice must call them as-is and must not add a
+`/api/inventory/warehouse/locations` alias or a second aggregation service. The
+response consumed by the page contains:
 
 - `businessId`;
 - active locations with UUID `id`, stable `code`, name, type, virtual flag,
@@ -135,20 +169,24 @@ create default rows, parse `reference`, assign unlocated rows to a named
 location, or clamp a negative authoritative balance. Archived locations remain
 visible only when explicitly requested for history and cannot receive transfers.
 
-An optional transfer action may call the existing
-`POST /api/inventory/warehouse/transfers` adapter over `transferStock`. It
-accepts real source/target location IDs, product, quantity, lot/serial input
-according to the existing ledger contract, and an optional reference. The
-service remains the only writer. The response must expose the pair's result and
-authoritative `onHandAfter`; a failed issue, shelf-life refusal, lot mismatch,
-or permission check writes no half-transfer.
+The existing PR318 page action calls
+`POST /api/inventory/transfers`, which is already the adapter over
+`transferStock`. Any stocktake-era transfer affordance must reuse that route and
+service. It accepts real source/target location IDs, product, quantity,
+lot/serial input according to the existing ledger contract, and an optional
+reference. The service remains the only writer. The response must expose the
+pair's result and authoritative `onHandAfter`; a failed issue, shelf-life
+refusal, lot mismatch, or permission check writes no half-transfer.
 
 Location creation, rename/archive, bins, putaway rules, route optimization, and
 stock movement import remain out of this slice.
 
 ### 2. Alerts and ATP
 
-The console may combine these existing reads into one honest radar response:
+The existing PR318 `/inventory/locations` and `/inventory/reservations` pages
+already have the console shell for these reads. They consume the existing
+handlers directly; this proposal adds no combined radar adapter or duplicate
+calculator. The reads are:
 
 - FR-179 `shelfLifeAudit({ businessId, thresholdDays, includeEmpty, viewer, now })`
   for `OK`, `DUE`, and `EXPIRED` lot state. Expired stock remains visible;
@@ -159,6 +197,13 @@ The console may combine these existing reads into one honest radar response:
 - Existing Inventory stock summary/calculator for safety-stock comparison. A
   safety alert is Business-wide unless a location-specific threshold is
   explicitly defined in a later approved contract.
+
+The corresponding routes are `GET /api/inventory/shelf-life` and
+`GET /api/inventory/atp`; maintenance remains the existing
+`POST /api/inventory/shelf-life`. A future page composition may display their
+results together, but it must preserve each service's response and refusal
+semantics rather than introduce a second `/warehouse/alerts` or `/warehouse/atp`
+source.
 
 The response includes `businessId` and `generatedAt`. A failed or unavailable
 read is shown as an error/unknown state; it is never rendered as zero or as a
@@ -431,7 +476,9 @@ was sent to an external provider.
 
 ## Out of scope
 
-- New Warehouse domain/module or a duplicate stock schema.
+- New Warehouse domain/module, `/warehouse` console, or duplicate stock schema.
+- Duplicate `/api/inventory/warehouse/**` location, transfer, shelf-life, alert,
+  or ATP adapters; PR318's `/api/inventory/**` handlers remain authoritative.
 - Bin master data, putaway/pick paths, campaign scheduling, cycle-count
   assignment, or workforce workflows.
 - Numeric serial stocktake shortcuts, unknown serial auto-creation, or silent
@@ -444,21 +491,23 @@ was sent to an external provider.
 
 The implementation lane should add meaningful regression coverage for:
 
-1. real UUID location joins, explicit unlocated balances, and no reference parsing;
-2. transfer failure rollback and Business-wide conservation;
-3. alert response composition with shelf-life and ATP fields, including an
+1. reuse of PR318's location, location-stock, transfer, shelf-life, and ATP
+   handlers/pages, with no duplicate `/warehouse` route or authority;
+2. real UUID location joins, explicit unlocated balances, and no reference parsing;
+3. transfer failure rollback and Business-wide conservation;
+4. alert response composition with shelf-life and ATP fields, including an
    expired reservation and an unknown/untracked product;
-4. strict count validation (negative, decimal, missing, duplicate, wrong
+5. strict count validation (negative, decimal, missing, duplicate, wrong
    tracking mode);
-5. a movement that commits after preview and before commit returning
+6. a movement that commits after preview and before commit returning
    `INVENTORY_STOCKTAKE_SNAPSHOT_STALE` with zero count writes, plus a movement
    attempted while a commit holds the fence waiting and applying only after the
    stocktake transaction ends;
-6. one failing line rolling back every adjustment;
-7. same-key same-payload replay returning the same result with no duplicate
+7. one failing line rolling back every adjustment;
+8. same-key same-payload replay returning the same result with no duplicate
    movements, and same-key different-payload conflict;
-8. serial count refusal until the explicit serial-observation contract exists;
-9. browser proof of Business switch, located/unlocated presentation, truthful
+9. serial count refusal until the explicit serial-observation contract exists;
+10. browser proof of Business switch, located/unlocated presentation, truthful
    alert/ATP labels, preview, stale refusal, and successful refresh.
 
 Local test, build, governance, and browser evidence must be reported separately
@@ -478,6 +527,7 @@ read-only analysis only.
 
 | Revision | Date | Change |
 |---|---|---|
+| 0.6 | 2026-09-11 | Rebased the proposed console boundary on published PR318/FR-182 routes, services, and pages; explicitly excluded duplicate Warehouse adapters and kept stocktake deferred. |
 | 0.5 | 2026-09-11 | Kept global snapshot format 1.0 and specified the `inventoryStocktakeRecovery` manifest, strict declared-manifest validation, and explicit legacy UNAVAILABLE status. |
 | 0.4 | 2026-09-11 | Kept global snapshot-version selection with the integration owner and made the required stocktake/fence recovery-state refusal explicit. |
 | 0.3 | 2026-09-11 | Added the FR-045 snapshot table/FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
