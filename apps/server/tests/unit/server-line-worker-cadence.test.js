@@ -70,3 +70,31 @@ describe('the script that uses it', () => {
     expect(script).toContain('RICH_MENU_MIN_INTERVAL_MS')
   })
 })
+
+describe('everything the supervisor imports is actually in the runtime image', () => {
+  // The runtime stage copies named files, not the `scripts/` folder, so a new local import
+  // is invisible to the build and fatal at start-up. Splitting the cadence out of the
+  // supervisor did exactly that: build green, tests green, CI green — and the deployed
+  // container died with ERR_MODULE_NOT_FOUND on every restart, taking the LINE worker with
+  // it until someone read its logs. Nothing in the repository could have caught it, so this
+  // is the check that now does.
+  const root = process.cwd()
+  const supervisor = readFileSync(resolve(root, 'scripts/server-line-worker.mjs'), 'utf8')
+  const dockerfile = readFileSync(resolve(root, 'Dockerfile'), 'utf8')
+  // Only the final runtime stage matters — the builder stage copies the whole tree.
+  const runtimeStage = dockerfile.slice(dockerfile.lastIndexOf('\nFROM '))
+
+  const localImports = [...supervisor.matchAll(/^import[^'"]*['"](\.[^'"]+)['"]/gm)].map(m => m[1])
+
+  it('finds at least the cadence module, so this test cannot pass by matching nothing', () => {
+    expect(localImports).toContain('./worker-cadence.mjs')
+  })
+
+  for (const specifier of localImports) {
+    it(`ships ${specifier}`, () => {
+      const file = specifier.replace(/^\.\//, '')
+      expect(runtimeStage, `scripts/${file} is imported by server-line-worker.mjs but the runtime stage never copies it — the container will not start`)
+        .toContain(`/app/scripts/${file}`)
+    })
+  }
+})
