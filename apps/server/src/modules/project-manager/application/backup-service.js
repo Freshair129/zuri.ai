@@ -35,6 +35,11 @@ import {
   BILLING_VAT_TREATMENTS,
   BILLING_WALK_IN_POLICIES,
 } from '@/modules/commerce/domain/billing'
+import {
+  hashStocktake,
+  INT32_MAX,
+  INVENTORY_STOCKTAKE_STATUSES,
+} from '@/modules/inventory/domain/inventory-stocktake'
 
 /**
  * Guard for both entry points below.
@@ -61,12 +66,17 @@ function assertRestoreOperator(viewer) {
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
+export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
   'commerceDocument',
 ])
 const COMMERCE_BILLING_DOCUMENT_STATUSES = Object.freeze(['ISSUED'])
+const INVENTORY_STOCKTAKE_RECOVERY_TABLES = Object.freeze([
+  'inventoryLedgerFence',
+  'inventoryStocktake',
+])
 const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17IngestionIntent',
   'genesisRag17SourceMention',
@@ -156,6 +166,10 @@ const SNAPSHOT_MODELS = [
   // movement names it, so it restores BEFORE the ledger and deletes after it.
   'warehouseLocation',
   'productLot', 'serialUnit', 'stockMovement',
+  // @req FR-184 — the lock-only revision follows the append-only ledger, and
+  // the durable preview/result follows the fence. Reverse deletion removes
+  // stocktake evidence before its fence and ledger parents.
+  'inventoryLedgerFence', 'inventoryStocktake',
   // @req FR-176, FR-177, FR-180 — work orders and reservations reference
   // products, recipes and locations, all above, and nothing references them, so
   // they restore last of the Inventory block. They hold intent and progress,
@@ -431,6 +445,164 @@ function commerceBillingRecovery(snapshot) {
   return result
 }
 
+/**
+ * Stocktake is a feature-specific recovery boundary for the same reason as
+ * Commerce billing: a legacy snapshot may predate these tables, but a newly
+ * declared manifest must be complete and structurally safe before the global
+ * replacement transaction is allowed to delete anything.
+ */
+function inventoryStocktakeRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = INVENTORY_STOCKTAKE_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.inventoryStocktakeRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+
+  // Presence of the two arrays alone is not provenance. A legacy artifact may
+  // contain ad-hoc keys, but only the declared manifest makes their completeness
+  // part of the recovery contract.
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot has no stocktake recovery manifest')
+    return result
+  }
+
+  if (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(INVENTORY_STOCKTAKE_RECOVERY_TABLES)
+  ) {
+    result.errors.push(`Invalid Inventory stocktake recovery manifest (expected ${INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION})`)
+  }
+  if (missing.length) {
+    for (const model of missing) result.errors.push(`Inventory stocktake recovery snapshot is missing required table: ${model}`)
+  }
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row?.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row?.id, row]))
+  const fences = new Map()
+  const uuid = (value) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  const nonEmpty = (value, max = 200) => typeof value === 'string' && value.length > 0 && value.length <= max
+  const int32 = (value, minimum = 0) => Number.isInteger(value) && value >= minimum && value <= INT32_MAX
+  const addIdentityError = (row, label, fields) => {
+    for (const field of fields) if (!uuid(row?.[field])) result.errors.push(`Inventory stocktake ${label} ${field} is not a UUID`)
+  }
+
+  for (const row of tables.inventoryLedgerFence) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory ledger fence ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'ledger fence', ['id', 'tenantId', 'businessId'])
+    if (!int32(row.mutationRevision)) result.errors.push(`Inventory ledger fence ${row.id} has an invalid mutationRevision`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory ledger fence ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory ledger fence ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory ledger fence ${row.id} references a missing Business`)
+    const key = `${row.tenantId}|${row.businessId}`
+    if (fences.has(key)) result.errors.push(`Inventory ledger fences reuse scope ${key}`)
+    fences.set(key, row)
+  }
+
+  const stocktakeKeys = new Set()
+  for (const row of tables.inventoryStocktake) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory stocktake ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'stocktake', ['id', 'tenantId', 'businessId'])
+    if (!nonEmpty(row.idempotencyKey)) result.errors.push(`Inventory stocktake ${row.id} is missing idempotencyKey`)
+    if (!nonEmpty(row.payloadHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing payloadHash`)
+    if (!nonEmpty(row.snapshotHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing snapshotHash`)
+    if (!int32(row.snapshotVersion)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshotVersion`)
+    if (!int32(row.version, 1)) result.errors.push(`Inventory stocktake ${row.id} has an invalid version`)
+    if (!INVENTORY_STOCKTAKE_STATUSES.includes(row.status)) result.errors.push(`Inventory stocktake ${row.id} has an invalid status`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory stocktake ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory stocktake ${row.id} references a missing Business`)
+    const scopeKey = `${row.tenantId}|${row.businessId}|${row.idempotencyKey}`
+    if (stocktakeKeys.has(scopeKey)) result.errors.push(`Inventory stocktakes reuse idempotency key ${scopeKey}`)
+    stocktakeKeys.add(scopeKey)
+
+    let parsed = null
+    if (typeof row.normalizedLinesJson !== 'string') {
+      result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+    } else {
+      try {
+        parsed = JSON.parse(row.normalizedLinesJson)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not an object')
+      } catch {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+      }
+    }
+    if (parsed) {
+      if (!Array.isArray(parsed.requestLines) || !parsed.requestLines.length || !Array.isArray(parsed.lines) || !Array.isArray(parsed.missingBuckets) || typeof parsed.complete !== 'boolean') {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalized snapshot shape`)
+      }
+      if (parsed.snapshotVersion !== row.snapshotVersion || parsed.snapshotHash !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent snapshot token`)
+      const { snapshotHash, ...hashable } = parsed
+      if (snapshotHash && uuid(row.businessId) && hashStocktake({ businessId: row.businessId, snapshotVersion: row.snapshotVersion, ...hashable }) !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot hash`)
+      for (const line of parsed.requestLines || []) {
+        addIdentityError(line, 'request line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request lotId`)
+        if (!int32(line.countedQuantity)) result.errors.push(`Inventory stocktake ${row.id} has an invalid countedQuantity`)
+      }
+      for (const line of parsed.lines || []) {
+        addIdentityError(line, 'snapshot line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot lotId`)
+        if (!int32(line.countedQuantity) || !Number.isInteger(line.expectedQuantity) || !Number.isInteger(line.variance)) result.errors.push(`Inventory stocktake ${row.id} has invalid snapshot quantities`)
+      }
+    }
+
+    let resultJson = null
+    if (row.resultJson !== null && row.resultJson !== undefined) {
+      if (typeof row.resultJson !== 'string') result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+      else {
+        try {
+          resultJson = JSON.parse(row.resultJson)
+          if (!resultJson || typeof resultJson !== 'object' || Array.isArray(resultJson)) throw new Error('not an object')
+        } catch {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+        }
+      }
+    }
+    if (row.status === 'COMMITTED' && !resultJson) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without resultJson`)
+    if (row.status === 'PREVIEWED' && resultJson) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with a commit result`)
+    if (row.status === 'COMMITTED' && !row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without committedAt`)
+    if (row.status === 'PREVIEWED' && row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with committedAt`)
+    if (resultJson) {
+      if (!Array.isArray(resultJson.movementIds) || !Number.isInteger(resultJson.movementCount) || !int32(resultJson.varianceTotal, -INT32_MAX - 1) || !Array.isArray(resultJson.lineBalances) || !int32(resultJson.fenceRevision)) {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid commit result`)
+      }
+    }
+    const fence = fences.get(`${row.tenantId}|${row.businessId}`)
+    if (fence && row.snapshotVersion > fence.mutationRevision) result.errors.push(`Inventory stocktake ${row.id} exceeds its restored fence revision`)
+    if (fence && resultJson && (resultJson.fenceRevision < row.snapshotVersion || resultJson.fenceRevision > fence.mutationRevision)) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent fence revision`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
@@ -447,6 +619,10 @@ export async function exportSnapshot({
     commerceBillingRecovery: {
       schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...COMMERCE_BILLING_RECOVERY_TABLES],
+    },
+    inventoryStocktakeRecovery: {
+      schemaVersion: INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...INVENTORY_STOCKTAKE_RECOVERY_TABLES],
     },
     tables: {},
   }
@@ -524,6 +700,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
+  const inventory = inventoryStocktakeRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
   // An older snapshot may be useful for read-only inspection, but importing it
@@ -534,12 +711,20 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (billing.status === 'UNAVAILABLE' && COMMERCE_BILLING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     billing.errors.push('Commerce billing recovery is unavailable while the installation contains billing rows; refusing a restore that would erase evidence')
   }
+  // A legacy snapshot can still be previewed on an empty installation, but it
+  // cannot replace an installation that already contains stocktake evidence.
+  // That would erase pending observations and the fence revision that protects
+  // later ledger reads without giving the operator an explicit refusal.
+  if (inventory.status === 'UNAVAILABLE' && INVENTORY_STOCKTAKE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    inventory.errors.push('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
+  }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0,
-    errors: [...base.errors, ...billing.errors],
-    warnings: [...base.warnings, ...billing.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings],
     billingRecovery: billing,
+    inventoryStocktakeRecovery: inventory,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
@@ -638,5 +823,13 @@ export async function importSnapshot(snapshot, {
     if (!active) unresolvedContentFileIds.push(asset.id)
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
   }
-  return { restored: true, counts: preview.counts, warnings: preview.warnings, recovery: preview.recovery, unresolvedContentFileIds }
+  return {
+    restored: true,
+    counts: preview.counts,
+    warnings: preview.warnings,
+    recovery: preview.recovery,
+    billingRecovery: preview.billingRecovery,
+    inventoryStocktakeRecovery: preview.inventoryStocktakeRecovery,
+    unresolvedContentFileIds,
+  }
 }

@@ -14,6 +14,7 @@ import {
 } from '../domain/inventory'
 import { dedicationRule, shelfLifeIssueRule } from '../domain/inventory-wip'
 import { loadBusiness } from './inventory-authority'
+import { INT32_MAX } from '../domain/inventory-stocktake'
 
 // @req FR-155 — the only writer of the stock ledger. A movement is appended,
 //   never edited: RECEIPT adds, ISSUE removes, ADJUSTMENT corrects with its
@@ -55,6 +56,30 @@ const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true,
 const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, lastMaintainedAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
 const SERIAL_SELECT = { id: true, serialNo: true, tenantId: true, businessId: true, productId: true, lotId: true, status: true, createdAt: true, updatedAt: true, version: true }
 const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true, sourceLocationId: true, targetLocationId: true, costSatang: true, customerId: true, salesOrderId: true, workOrderId: true }
+
+// @req FR-184 — every writer that reads the ledger obtains this lock-only
+// per-Business fence before its first write-side ledger read. The revision is
+// advanced after a successful append, so stocktake snapshots can detect a
+// movement that happened after they were observed.
+// @spec ADR-074 D1, D2; BR-008, BR-012, BR-026
+// @tested tests/integration/fr184-inventory-stocktake.test.js
+export async function acquireLedgerFence(tx, { tenantId, businessId } = {}) {
+  return tx.inventoryLedgerFence.upsert({
+    where: { tenantId_businessId: { tenantId, businessId } },
+    create: { tenantId, businessId, mutationRevision: 0 },
+    // An UPDATE is intentional even when the revision is unchanged: this is
+    // the portable row lock for PostgreSQL and SQLite's writer reservation.
+    update: { mutationRevision: { increment: 0 }, updatedAt: new Date() },
+  })
+}
+
+export async function advanceLedgerFence(tx, { tenantId, businessId } = {}) {
+  const result = await tx.inventoryLedgerFence.updateMany({
+    where: { tenantId, businessId, mutationRevision: { lt: INT32_MAX } },
+    data: { mutationRevision: { increment: 1 } },
+  })
+  if (result.count !== 1) throw failure(409, 'INVENTORY_LEDGER_FENCE_EXHAUSTED')
+}
 
 async function loadProductForWrite(tx, viewer, businessId, productId) {
   const business = await loadBusiness(tx, viewer, businessId, { write: true })
@@ -142,7 +167,15 @@ async function resolveLot(tx, business, product, data) {
  * an already-parsed `zRecordMovement` value.
  */
 export async function appendMovement(tx, data, { viewer } = {}) {
-  const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, data.productId)
+  // Authorization is a read and must precede the fence. After it succeeds,
+  // acquiring the fence is the first write-side statement in this writer;
+  // reading Product or on-hand before it would let a stocktake observe a
+  // moving ledger. Provider-specific concurrency is proven by the real DB
+  // tests rather than by this ordering comment.
+  const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
+  await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+  const product = await tx.product.findUnique({ where: { id: data.productId }, select: PRODUCT_SELECT })
+  if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
   const rule = movementRule(product, data)
   if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' ? 409 : 422, rule.code)
 
@@ -258,6 +291,7 @@ export async function appendMovement(tx, data, { viewer } = {}) {
       customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId,
     },
   })
+  await advanceLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
   return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang }
 }
 
