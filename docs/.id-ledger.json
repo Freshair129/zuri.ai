@@ -302,6 +302,7 @@
     "FR-182",
     "FR-183",
     "FR-184",
+    "FR-185",
     "FR-186",
     "NFR-001",
     "NFR-002",
@@ -3536,6 +3537,19 @@
       "history": [
         {
           "anchor": "inventory physical stocktake reconciles an authorized",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-185": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "811f9fc717c9d6a0735823d9ac4908329c26a2057e5d5538e999184233e329fd",
+      "history": [
+        {
+          "anchor": "business scoped line broadcast planning intent with durable",
           "since": "2026-09-10",
           "reason": "declared"
         }

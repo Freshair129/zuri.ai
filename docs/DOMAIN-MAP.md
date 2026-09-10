@@ -127,7 +127,7 @@ Charter: [docs/domains/marketing/CHARTER.md](domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
 | Routes owned | 25 (12 api · 13 pages) |
 | FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162 |
 

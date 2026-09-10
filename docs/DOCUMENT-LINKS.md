@@ -2748,6 +2748,7 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -2818,6 +2819,14 @@ Backlinks:
 - [Appendix A — API Specification](appendices/A-api-spec.md) (references)
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+- [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## FR-185 — Business-scoped LINE broadcast planning intent
+
+Source: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
+
+Backlinks:
+
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — procurement
