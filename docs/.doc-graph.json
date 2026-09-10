@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2581,
-    "total_edges": 10427,
-    "dangling_edges": 2,
+    "total_nodes": 2583,
+    "total_edges": 10430,
+    "dangling_edges": 4,
     "node_types": {
-      "document": 216,
+      "document": 217,
       "appendix": 4,
       "adr": 74,
       "domain": 14,
@@ -15,14 +15,14 @@
       "feature": 25,
       "route": 326,
       "model": 142,
-      "requirement": 355,
+      "requirement": 356,
       "test": 603,
       "code_file": 777
     },
     "coverage": {
-      "requirements": 355,
-      "fr_with_code": "99% (174/175)",
-      "fr_with_tests": "99% (174/175)",
+      "requirements": 356,
+      "fr_with_code": "99% (174/176)",
+      "fr_with_tests": "99% (174/176)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 777,
@@ -39,9 +39,11 @@
         "FR-132"
       ],
       "fr_without_code": [
+        "FR-185",
         "FR-184"
       ],
       "fr_without_tests": [
+        "FR-185",
         "FR-184"
       ],
       "rules_without_anchor": [
@@ -16344,9 +16346,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.35.0b",
+      "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "428c850e",
+      "hash": "f7d450f8",
       "status": "current"
     },
     {
@@ -17309,6 +17311,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-185-broadcast-planning-intent",
+      "type": "document",
+      "path": "docs/domains/marketing/features/FR-185-broadcast-planning-intent.md",
+      "title": "FR-185 — Business-scoped LINE broadcast planning intent",
+      "hash": "767e8eb1",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -17719,7 +17729,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md",
       "title": "Retained branch completion",
-      "hash": "f47a4f5f",
+      "hash": "1451b2ca",
       "status": "current"
     },
     {
@@ -17933,9 +17943,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.181.0b",
+      "version": "1.182.0b",
       "doc_status": "Draft",
-      "hash": "cd7f8190",
+      "hash": "7138380a",
       "status": "current"
     },
     {
@@ -18526,7 +18536,9 @@
         "MarketingContentVersion",
         "MarketingContentReview",
         "MarketingContentDecision",
-        "MarketingOperationsIntake"
+        "MarketingOperationsIntake",
+        "MarketingBroadcastIntent",
+        "MarketingBroadcastIntentVersion"
       ],
       "owns_routes": [
         "src/app/(pm)/growth/**",
@@ -18536,7 +18548,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "bf444664",
+      "hash": "0f280c2e",
       "status": "current"
     },
     {
@@ -18784,7 +18796,7 @@
     {
       "id": "feat:FEAT-021",
       "type": "feature",
-      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain",
+      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination, PM handoff and durable LINE broadcast planning within the approved full Marketing domain",
       "declared": "building",
       "status": "current"
     },
@@ -21685,6 +21697,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface — `POST /api/inventory/stocktakes/preview` accepts only normalized tracked `NONE` or `LOT` lines with explicit location and lot identity, integer non-negative counts, and no duplicate keys; it persists a read-only `InventoryStocktake` preview containing the expected snapshot version/hash, expected/count/variance and normalized input without writing movements. `POST /api/inventory/stocktakes/commit` revalidates the stored preview and current Business scope, acquires the shared lock-only `InventoryLedgerFence` before its ledger read, refuses a changed snapshot with `409 INVENTORY_STOCKTAKE_SNAPSHOT_STALE`, and atomically appends every signed `ADJUSTMENT` through FR-155 `appendMovement` plus one audit event or writes nothing. The Business-scoped idempotency key returns the same saved result for an identical retry and refuses a different payload; zero variance is a durable no-op; SERIAL lines and untracked/service products are explicitly refused until a serial-observation contract exists. Backup export/import preserves the fence and stocktake rows through the declared `inventoryStocktakeRecovery` manifest in FK order, while a legacy snapshot reports the recovery state unavailable rather than claiming preservation. 🔵 owner-approved 2026-09-11 — contract `.brain/rca/2026-09-11-warehouse-p4-console-contract.md` revision 0.8 and feature note `docs/domains/inventory/features/FR-184-inventory-stocktake.md`; implementation and local verification in progress, production migration excluded "
+    },
+    {
+      "id": "req:FR-185",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state — Marketing persists a Business-scoped `MarketingBroadcastIntent` and append-only immutable revisions whose strict payload stores only exact LINE OA account and Marketing content references plus unavailable audience/consent planning metadata. Owner scope, content/account versions, canonical hashes, idempotent create, expected-version revision, archive, audit and snapshot recovery are validated before writes; deterministic Paid Media and AskMarketing projections preserve EMPTY, PARTIAL, UNAVAILABLE and UNKNOWN, never call CRM readers or providers, and never send or claim delivery.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state — Marketing persists a Business-scoped `MarketingBroadcastIntent` and append-only immutable revisions whose strict payload stores only exact LINE OA account and Marketing content references plus unavailable audience/consent planning metadata. Owner scope, content/account versions, canonical hashes, idempotent create, expected-version revision, archive, audit and snapshot recovery are validated before writes; deterministic Paid Media and AskMarketing projections preserve EMPTY, PARTIAL, UNAVAILABLE and UNKNOWN, never call CRM readers or providers, and never send or claim delivery. 🟠 locally implementing approved P5; provider metrics, audience/consent resolution, send, worker and production migration remain out of scope "
     },
     {
       "id": "req:FR-186",
@@ -58078,6 +58100,13 @@
     },
     {
       "from": "domain:marketing",
+      "to": "doc:FR-185-broadcast-planning-intent",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:marketing",
       "to": "doc:MARKETING-CHANNEL-CONTRACTS",
       "type": "references",
       "source": "markdown",
@@ -58597,6 +58626,13 @@
     {
       "from": "feat:FEAT-021",
       "to": "req:FR-162",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-021",
+      "to": "req:FR-185",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -61242,6 +61278,13 @@
     },
     {
       "from": "req:FR-184",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-185",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -103509,6 +103552,22 @@
       "status": "current",
       "source": "charter",
       "reason": "unknown node model:InventoryLedgerFence"
+    },
+    {
+      "from": "model:MarketingBroadcastIntent",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter",
+      "reason": "unknown node model:MarketingBroadcastIntent"
+    },
+    {
+      "from": "model:MarketingBroadcastIntentVersion",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter",
+      "reason": "unknown node model:MarketingBroadcastIntentVersion"
     }
   ]
 }

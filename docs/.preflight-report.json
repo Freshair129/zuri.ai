@@ -2,13 +2,13 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 358,
+    "docs": 359,
     "routes": 231,
     "test_files": 603
   },
   "summary": {
     "critical": 1,
-    "warning": 5,
+    "warning": 6,
     "info": 24,
     "overall": "CRITICAL"
   },
@@ -151,7 +151,7 @@
       "severity": "critical",
       "check": "requirement-coverage",
       "title": "Functional requirements with no code anchor",
-      "details": "FR-184",
+      "details": "FR-185, FR-184",
       "files": [],
       "action": "Add @req annotations or mark the FR as planned"
     },
@@ -160,7 +160,7 @@
       "severity": "warning",
       "check": "requirement-coverage",
       "title": "Functional requirements with no test path",
-      "details": "FR-184",
+      "details": "FR-185, FR-184",
       "files": [],
       "action": "Add @tested or name the FR inside a test"
     },
@@ -169,21 +169,12 @@
       "severity": "warning",
       "check": "doc-code-symlink",
       "title": "Annotations pointing at unknown nodes",
-      "details": "2 dangling edge(s)",
+      "details": "4 dangling edge(s)",
       "files": [],
       "action": "Fix the @req/@tested target"
     },
     {
-      "id": "I16",
-      "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in FR numbering",
-      "details": "FR-185",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "W17",
+      "id": "W16",
       "severity": "warning",
       "check": "domain-spine",
       "title": "Charter claims a model that is not in the schema: InventoryStocktake",
@@ -194,7 +185,7 @@
       "action": "Stale charter — sync owns_models with prisma/schema.prisma"
     },
     {
-      "id": "W18",
+      "id": "W17",
       "severity": "warning",
       "check": "domain-spine",
       "title": "Charter claims a model that is not in the schema: InventoryLedgerFence",
@@ -205,7 +196,29 @@
       "action": "Stale charter — sync owns_models with prisma/schema.prisma"
     },
     {
-      "id": "I19",
+      "id": "W18",
+      "severity": "warning",
+      "check": "domain-spine",
+      "title": "Charter claims a model that is not in the schema: MarketingBroadcastIntent",
+      "details": "domains/marketing",
+      "files": [
+        "docs/domains/marketing/CHARTER.md"
+      ],
+      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
+    },
+    {
+      "id": "W19",
+      "severity": "warning",
+      "check": "domain-spine",
+      "title": "Charter claims a model that is not in the schema: MarketingBroadcastIntentVersion",
+      "details": "domains/marketing",
+      "files": [
+        "docs/domains/marketing/CHARTER.md"
+      ],
+      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
+    },
+    {
+      "id": "I20",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -216,7 +229,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I20",
+      "id": "I21",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -227,7 +240,25 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I22",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "FEAT-021 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445 → 22a78f2662306450dc14b19b26c7581d145717efcb966823a5b41054ba8b28d0 · citation files: docs/DOCUMENT-LINKS.md, docs/domains/marketing/features/FR-157-content-creative.md, docs/PRD-SDD-v1.0.md, docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md, docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md, docs/TRACE.md",
+      "files": [
+        "docs/FEATURES.md",
+        "docs/.id-ledger.json",
+        "docs/DOCUMENT-LINKS.md",
+        "docs/domains/marketing/features/FR-157-content-creative.md",
+        "docs/PRD-SDD-v1.0.md",
+        "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
+        "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-021 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I23",
       "severity": "info",
       "check": "id-stability",
       "title": "FEAT-025 statement digest changed without an anchor move",
@@ -249,18 +280,18 @@
       "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-025 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
     },
     {
-      "id": "I22",
+      "id": "I24",
       "severity": "info",
       "check": "id-stability",
-      "title": "552 id(s) pinned across 10 families",
-      "details": "ADR 74 · BR 32 · FEAT 25 · FR 185 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 552",
+      "title": "553 id(s) pinned across 10 families",
+      "details": "ADR 74 · BR 32 · FEAT 25 · FR 186 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 553",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I23",
+      "id": "I25",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -271,7 +302,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I24",
+      "id": "I26",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -282,7 +313,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I25",
+      "id": "I27",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -293,21 +324,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "W26",
-      "severity": "warning",
-      "check": "untracked-docs",
-      "title": "1 document(s) under docs/ are untracked and invisible to every other check",
-      "details": "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
-      "files": [
-        "docs/domains/inventory/features/FR-184-inventory-stocktake.md"
-      ],
-      "action": "git add them if they belong to the repository, or delete them if they do not. Adding them to .gitignore is NOT the third option: an ignored file is hidden from this check too, which is strictly worse than an untracked one. This check CANNOT fire in CI — a CI checkout has no untracked files by construction, so it passes there regardless of what sits in any working tree. A green governance run on a pull request is not evidence that this class is clean. It is closed by running npm run govern locally, and by nothing else."
-    },
-    {
-      "id": "I27",
+      "id": "I28",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 358 document(s)",
+      "title": "table integrity checked in 359 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -315,7 +335,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I28",
+      "id": "I29",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -327,7 +347,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I29",
+      "id": "I30",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 86 file(s) that write audit events",
@@ -336,7 +356,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I30",
+      "id": "I31",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1976 column(s) across 142 model(s) against 63 migration(s)",

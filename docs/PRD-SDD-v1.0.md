@@ -1,6 +1,6 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.181.0b"
+version: "1.182.0b"
 status: draft
 last_update: "2026-09-11T03:42:14+07:00,RWANG"
 relations:
@@ -19,7 +19,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.181.0b |
+| **Version** | 1.182.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -30,7 +30,7 @@ relations:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.181.0b | 2026-09-11 | RWANG | Declare and implement approved **FR-185**: Business-scoped LINE broadcast planning intent with durable immutable revisions, idempotency, owner references, deterministic read-only Marketing projections, and explicit unavailable dispatch. No provider, audience, CRM, consent snapshot, send or production migration is claimed. |
+| 1.182.0b | 2026-09-11 | RWANG | Integrate approved **FR-184** stocktake and **FR-185** Marketing planning declarations without changing existing subjects. FR-185 adds Business-scoped planning identity, immutable revisions, owner references, deterministic read-only projections and unavailable dispatch; implementation and verification are in progress. |
 | 1.180.1b | 2026-09-11 | RWANG | Record combined local acceptance for FR-186/FR-183: 4,619 Server tests and 154 browser checks pass; build/governance pass. Production migration/provider activation remain excluded. |
 | 1.181.0b | 2026-09-11 | RWANG | Owner approved FR-184: Inventory physical stocktake preview and atomic NONE/LOT commit on the existing Inventory surface, with a durable idempotency record, shared ledger fence, strict stale refusal, and feature-specific recovery manifest. Implementation and local verification follow; serial observation, bins, campaigns, and production migration remain excluded. |
 | 1.180.0b | 2026-09-11 | RWANG | Integrate approved Billing FR-186 and POS FR-183 with published SCM FR-182. Preserve canonical SCM ledger entry; add only new Billing/POS identities through docs:ids --write. Source branch abandonment remains in b7c611b3 and the revision history. |

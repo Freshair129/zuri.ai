@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T20:42:42.869Z",
+  "generatedAt": "2026-09-10T20:52:16.344Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,10 +39,10 @@
     "domainCount": 14,
     "featureCount": 130,
     "readyFeatureCount": 107,
-    "requirementCount": 184,
+    "requirementCount": 186,
     "verifiedRequirementCount": 174,
-    "progressPercent": 94.6,
-    "gapCount": 24,
+    "progressPercent": 93.8,
+    "gapCount": 32,
     "gaps": [
       {
         "domain": "agent",
@@ -154,6 +154,39 @@
         ]
       },
       {
+        "domain": "inventory",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "inventory",
+        "id": "DB-001",
+        "severity": "high",
+        "check": "database",
+        "summary": "Charter-owned model is not present in Prisma schema",
+        "evidence": [
+          "InventoryLedgerFence",
+          "InventoryStocktake"
+        ]
+      },
+      {
+        "domain": "inventory",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "inventory",
+        "id": "REQ-FR-184",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-184 is not_implemented",
+        "evidence": []
+      },
+      {
         "domain": "knowledge",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -181,6 +214,39 @@
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "marketing",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "marketing",
+        "id": "DB-001",
+        "severity": "high",
+        "check": "database",
+        "summary": "Charter-owned model is not present in Prisma schema",
+        "evidence": [
+          "MarketingBroadcastIntent",
+          "MarketingBroadcastIntentVersion"
+        ]
+      },
+      {
+        "domain": "marketing",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "marketing",
+        "id": "REQ-FR-185",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-185 is not_implemented",
+        "evidence": []
       },
       {
         "domain": "project-manager",
@@ -2136,6 +2202,13 @@
           "status": "verified",
           "codeCount": 18,
           "testCount": 15
+        },
+        {
+          "id": "FR-184",
+          "declared": "n/a",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -2187,12 +2260,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -2200,13 +2279,23 @@
           "gaps": []
         },
         "database": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "prisma/schema.prisma"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "DB-001",
+              "severity": "high",
+              "summary": "Charter-owned model is not present in Prisma schema",
+              "evidence": [
+                "InventoryLedgerFence",
+                "InventoryStocktake"
+              ]
+            }
+          ],
           "details": {
-            "models": 16,
+            "models": 18,
             "present": 16
           }
         },
@@ -2224,11 +2313,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -2239,6 +2334,7 @@
         "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
         "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
         "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+        "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2258,14 +2354,43 @@
           "evidence": [
             "/inventory/work-orders"
           ]
+        },
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "DB-001",
+          "severity": "high",
+          "check": "database",
+          "summary": "Charter-owned model is not present in Prisma schema",
+          "evidence": [
+            "InventoryLedgerFence",
+            "InventoryStocktake"
+          ]
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-184",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-184 is not_implemented",
+          "evidence": []
         }
       ],
       "details": {
         "routes": 31,
         "apiRoutes": 27,
         "pageRoutes": 4,
-        "ownedModels": 16,
-        "featureNotes": 3
+        "ownedModels": 18,
+        "featureNotes": 4
       },
       "featureIds": [
         "FEAT-020",
@@ -2276,7 +2401,7 @@
       ],
       "featureCount": 5,
       "readyFeatureCount": 3,
-      "progressPercent": 100
+      "progressPercent": 95
     },
     "knowledge": {
       "status": "partial",
@@ -2964,6 +3089,13 @@
           "status": "verified",
           "codeCount": 14,
           "testCount": 7
+        },
+        {
+          "id": "FR-185",
+          "declared": "n/a",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -3006,12 +3138,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -3021,13 +3159,23 @@
           "gaps": []
         },
         "database": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "prisma/schema.prisma"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "DB-001",
+              "severity": "high",
+              "summary": "Charter-owned model is not present in Prisma schema",
+              "evidence": [
+                "MarketingBroadcastIntent",
+                "MarketingBroadcastIntentVersion"
+              ]
+            }
+          ],
           "details": {
-            "models": 11,
+            "models": 13,
             "present": 11
           }
         },
@@ -3045,11 +3193,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -3062,6 +3216,7 @@
         "docs/domains/marketing/features/FR-159-strategy-plans.md",
         "docs/domains/marketing/features/FR-160-campaign-initiatives.md",
         "docs/domains/marketing/features/FR-162-operations-coordination.md",
+        "docs/domains/marketing/features/FR-185-broadcast-planning-intent.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -3072,20 +3227,50 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "DB-001",
+          "severity": "high",
+          "check": "database",
+          "summary": "Charter-owned model is not present in Prisma schema",
+          "evidence": [
+            "MarketingBroadcastIntent",
+            "MarketingBroadcastIntentVersion"
+          ]
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-185",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-185 is not_implemented",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 25,
         "apiRoutes": 12,
         "pageRoutes": 13,
-        "ownedModels": 11,
-        "featureNotes": 4
+        "ownedModels": 13,
+        "featureNotes": 5
       },
       "featureIds": [
         "FEAT-021"
       ],
       "featureCount": 1,
       "readyFeatureCount": 0,
-      "progressPercent": 100
+      "progressPercent": 86.7
     },
     "platform-control": {
       "status": "partial",
@@ -6403,7 +6588,7 @@
     },
     {
       "id": "FEAT-021",
-      "title": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain",
+      "title": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination, PM handoff and durable LINE broadcast planning within the approved full Marketing domain",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -6411,7 +6596,8 @@
         "FR-158",
         "FR-159",
         "FR-160",
-        "FR-162"
+        "FR-162",
+        "FR-185"
       ],
       "primaryDomain": "marketing",
       "contributorDomains": [
@@ -6419,11 +6605,12 @@
         "project-manager"
       ],
       "useCase": "A Business drafts, independently reviews and approves an exact Marketing strategy revision, then previews and hands execution to Project Manager with an auditable receipt.",
-      "progressPercent": 100,
+      "progressPercent": 86.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-021 registry status is building"
+        "FEAT-021 registry status is building",
+        "FR-185 is not_implemented"
       ],
       "requirements": [
         {
@@ -6460,6 +6647,13 @@
           "progressPercent": 100,
           "codeCount": 14,
           "testCount": 7
+        },
+        {
+          "id": "FR-185",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "evidence": [
@@ -6832,7 +7026,7 @@
     },
     {
       "id": "FEAT-025",
-      "title": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "title": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -6844,7 +7038,8 @@
         "FR-179",
         "FR-180",
         "FR-181",
-        "FR-182"
+        "FR-182",
+        "FR-184"
       ],
       "primaryDomain": "inventory",
       "contributorDomains": [
@@ -6853,11 +7048,12 @@
         "project-manager"
       ],
       "useCase": "ฝ่ายคลังเห็นว่าของอยู่จุดไหนของซัพพลายเชน (โรงงานจีน เรือ ท่าเรือ คลังวัตถุดิบ ห้องยิงเลเซอร์ ไลน์ประกอบ คลังสินค้าสำเร็จรูป ของเสีย) ย้ายของข้ามจุดแบบตัดต้นทาง-เพิ่มปลายทางในธุรกรรมเดียว เปิดใบสั่งสกรีน/ยิงเลเซอร์ที่ล็อกของให้ลูกค้ารายนั้นถาวร เปิดใบสั่งประกอบที่ระเบิด BOM พร้อมเผื่อของเสียตามที่สูตรประกาศไว้ และได้ต้นทุนต่อชุดเป็นสตางค์ที่รวมค่ารถส่งเหมาคันไว้แล้ว ส่วนฝ่ายขายถามผ่านผู้ช่วย AI ได้ว่ารับออเดอร์กี่ชุดได้ทันที ราคาต่อชุดเท่าไร แล้วจองสต๊อกให้ลูกค้า 7 วันโดยไม่ชนกับใบเสนอราคาอื่น",
-      "progressPercent": 100,
+      "progressPercent": 92,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-025 registry status is building"
+        "FEAT-025 registry status is building",
+        "FR-184 is not_implemented"
       ],
       "requirements": [
         {
@@ -6922,6 +7118,13 @@
           "progressPercent": 100,
           "codeCount": 21,
           "testCount": 15
+        },
+        {
+          "id": "FR-184",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "evidence": [

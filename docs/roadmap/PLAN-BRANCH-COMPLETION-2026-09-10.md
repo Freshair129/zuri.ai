@@ -180,5 +180,4 @@ results. The three pending contracts are not reported as completed features.
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.4.0b → 0.5.0b; record verified implementation and remaining candidate boundaries without expanding scope.
-
+Version diff: 0.5.0b → 0.6.0b; record the verified PR #319 merge and owner approval for the three bounded continuation contracts.
