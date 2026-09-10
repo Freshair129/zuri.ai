@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T18:19:06.811Z",
+  "generatedAt": "2026-09-10T18:37:19.754Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -346,7 +346,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-081",
@@ -1731,7 +1731,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-081",
@@ -2537,7 +2537,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-091",
@@ -4720,7 +4720,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -4744,6 +4744,7 @@
         "apps/server/src/platform/integrations/core/integration-registry.js",
         "apps/server/src/platform/integrations/core/secret-manager.js",
         "apps/server/src/platform/integrations/llm/provider-catalog.js",
+        "apps/server/tests/e2e/fr080-integration-scope-switch.spec.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",

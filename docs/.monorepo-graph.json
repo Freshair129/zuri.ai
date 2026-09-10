@@ -1088,7 +1088,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "7aeb3b5b",
+      "hash": "d9276b09",
       "status": "current",
       "annotations": {
         "@req": [
@@ -25411,6 +25411,13 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr077-project-inventory.spec.js",
       "hash": "8f4b0fb2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/fr080-integration-scope-switch.spec.js",
+      "hash": "c858daf4",
       "status": "current"
     },
     {
@@ -69425,6 +69432,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "tests",
@@ -105954,7 +105975,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2511,
+    "server_nodes": 2512,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

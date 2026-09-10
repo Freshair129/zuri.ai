@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2511,
-    "total_edges": 10123,
+    "total_nodes": 2512,
+    "total_edges": 10125,
     "dangling_edges": 0,
     "node_types": {
       "document": 214,
@@ -16,7 +16,7 @@
       "route": 302,
       "model": 139,
       "requirement": 351,
-      "test": 596,
+      "test": 597,
       "code_file": 747
     },
     "coverage": {
@@ -1144,7 +1144,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "7aeb3b5b",
+      "hash": "d9276b09",
       "status": "current",
       "annotations": {
         "@req": [
@@ -25467,6 +25467,13 @@
       "type": "test",
       "path": "apps/server/tests/e2e/fr077-project-inventory.spec.js",
       "hash": "8f4b0fb2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/fr080-integration-scope-switch.spec.js",
+      "hash": "c858daf4",
       "status": "current"
     },
     {
@@ -66144,6 +66151,20 @@
     {
       "from": "test:tests/e2e/fr077-project-inventory.spec.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr080-integration-scope-switch.spec.js",
+      "to": "req:SDD-044",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, Bot, CheckCircle2, ChevronRight, KeyRound, MessageSquare, Search, ShieldCheck } from 'lucide-react'
 
 import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
-import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
+import { api, LoadingCard } from '@/modules/project-manager/components/useApi'
 import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm/provider-catalog'
 import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
 import { deriveConnectorCatalog } from '@/platform/integrations/core/connector-catalog'
@@ -15,7 +15,8 @@ import { deriveConnectorCatalog } from '@/platform/integrations/core/connector-c
 //   one owner in LINE OA Studio.
 // @req FR-130 — connector state is derived from the integration read model.
 // @spec ADR-032 D1-D4, ADR-060 D2-D3, SEC-016, SDD-044
-// @tested tests/unit/fr080-ui-contract.test.js, tests/unit/integrations-page-claims.test.js
+// @tested tests/unit/fr080-ui-contract.test.js, tests/unit/integrations-page-claims.test.js,
+//   tests/e2e/fr080-integration-scope-switch.spec.js
 
 const SECRET_REF_ERROR_ID = 'integration-secret-ref-error'
 const CONNECTOR_REASON_HINT = {
@@ -71,6 +72,46 @@ function IntegrationRow({ row }) {
   )
 }
 
+// The shared useFetch hook deliberately keeps the previous response while a
+// new URL is loading. This surface changes Business without remounting, so its
+// read model needs a local scope fence: a late response for Business A must not
+// become the rows shown for Business B.
+function useScopedIntegrationFetch(path, scopeKey) {
+  const sequence = useRef(0)
+  const [state, setState] = useState({ scopeKey: null, data: null, loading: Boolean(path), error: null })
+  const reload = useCallback(async () => {
+    const requestSequence = ++sequence.current
+    if (!path) {
+      setState({ scopeKey, data: null, loading: false, error: null })
+      return
+    }
+    setState((current) => ({
+      scopeKey,
+      data: current.scopeKey === scopeKey ? current.data : null,
+      loading: true,
+      error: null,
+    }))
+    try {
+      const data = await api(path)
+      if (requestSequence !== sequence.current) return
+      setState({ scopeKey, data, loading: false, error: null })
+    } catch (error) {
+      if (requestSequence !== sequence.current) return
+      setState({ scopeKey, data: null, loading: false, error: error.message })
+    }
+  }, [path, scopeKey])
+
+  useEffect(() => {
+    sequence.current += 1
+    setState({ scopeKey, data: null, loading: Boolean(path), error: null })
+    reload()
+    return () => { sequence.current += 1 }
+  }, [path, scopeKey, reload])
+
+  if (state.scopeKey !== scopeKey) return { data: null, loading: Boolean(path), error: null, reload }
+  return { data: state.data, loading: state.loading, error: state.error, reload }
+}
+
 export default function IntegrationsPage() {
   const scope = useScope()
   const businesses = scope.businesses || []
@@ -82,12 +123,53 @@ export default function IntegrationsPage() {
   const selectedBusiness = useMemo(() => businesses.find((business) => business.id === targetBusinessId) || currentBusiness, [businesses, targetBusinessId, currentBusiness])
   const businessId = selectedBusiness?.id || ''
 
-  useEffect(() => {
-    setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')
-  }, [businesses, currentBusiness?.id])
+  const [provider, setProvider] = useState('openrouter')
+  const [name, setName] = useState('Phase 1 LLM')
+  const [model, setModel] = useState('')
+  const [secretRef, setSecretRef] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState(null)
+  const [error, setError] = useState(null)
+  const businessScope = useRef({ businessId, version: 0 })
 
-  const integrations = useFetch(`/api/platform/integrations${businessId ? `?businessId=${encodeURIComponent(businessId)}` : ''}`, [businessId])
-  const lineRegistry = useFetch(`/api/platform/integrations/line-registry${businessId ? `?businessId=${encodeURIComponent(businessId)}` : ''}`, [businessId])
+  useEffect(() => () => {
+    businessScope.current = {
+      ...businessScope.current,
+      version: businessScope.current.version + 1,
+    }
+  }, [])
+
+  const resetModelForm = useCallback(() => {
+    setProvider('openrouter')
+    setName('Phase 1 LLM')
+    setModel('')
+    setSecretRef('')
+    setBusy(false)
+    setMessage(null)
+    setError(null)
+  }, [])
+
+  const invalidateBusinessScope = useCallback((nextBusinessId) => {
+    if (businessScope.current.businessId === nextBusinessId) return
+    businessScope.current = {
+      businessId: nextBusinessId,
+      version: businessScope.current.version + 1,
+    }
+    resetModelForm()
+  }, [resetModelForm])
+
+  useEffect(() => {
+    const nextBusinessId = currentBusiness?.id || businesses[0]?.id || ''
+    setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')
+    invalidateBusinessScope(nextBusinessId)
+  }, [businesses, currentBusiness?.id, invalidateBusinessScope])
+
+  useEffect(() => {
+    invalidateBusinessScope(businessId)
+  }, [businessId, invalidateBusinessScope])
+
+  const integrations = useScopedIntegrationFetch(businessId ? `/api/platform/integrations?businessId=${encodeURIComponent(businessId)}` : null, businessId)
+  const lineRegistry = useScopedIntegrationFetch(businessId ? `/api/platform/integrations/line-registry?businessId=${encodeURIComponent(businessId)}` : null, businessId)
   const rows = useMemo(() => Array.isArray(integrations.data) ? integrations.data : [], [integrations.data])
   const registryRows = useMemo(() => Array.isArray(lineRegistry.data) ? lineRegistry.data : [], [lineRegistry.data])
   const groupRows = useMemo(() => registryRows.filter((row) => row.kind === 'GROUP'), [registryRows])
@@ -100,36 +182,39 @@ export default function IntegrationsPage() {
     return !query || item.name.toLowerCase().includes(query) || item.description.toLowerCase().includes(query) || item.type.toLowerCase().includes(query)
   }), [derivedCatalog, filterTab, searchQuery])
 
-  const [provider, setProvider] = useState('openrouter')
-  const [name, setName] = useState('Phase 1 LLM')
-  const [model, setModel] = useState('')
-  const [secretRef, setSecretRef] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [message, setMessage] = useState(null)
-  const [error, setError] = useState(null)
   const secretRefTrimmed = secretRef.trim()
   const secretRefInvalid = secretRefTrimmed.length > 0 && !isSupabaseVaultSecretRef(secretRefTrimmed)
+
+  const handleBusinessChange = (event) => {
+    const nextBusinessId = event.target.value
+    setTargetBusinessId(nextBusinessId)
+    invalidateBusinessScope(nextBusinessId)
+  }
 
   const submitModel = async (event) => {
     event.preventDefault()
     if (secretRefInvalid) return
+    const requestScope = { ...businessScope.current }
+    if (!requestScope.businessId || requestScope.businessId !== businessId) return
     setBusy(true); setError(null); setMessage(null)
     try {
-      await api('/api/platform/integrations', { method: 'POST', body: { businessId, provider, name: name.trim(), model: model.trim(), secretRef: secretRefTrimmed || undefined } })
+      await api('/api/platform/integrations', { method: 'POST', body: { businessId: requestScope.businessId, provider, name: name.trim(), model: model.trim(), secretRef: secretRefTrimmed || undefined } })
+      const isCurrentScope = businessScope.current.businessId === requestScope.businessId && businessScope.current.version === requestScope.version
+      if (!isCurrentScope) return
       setMessage('บันทึก connection metadata แล้ว')
       setSecretRef('')
       await integrations.reload()
     } catch (caught) {
-      setError(caught?.message || 'บันทึกไม่สำเร็จ')
+      if (businessScope.current.businessId === requestScope.businessId && businessScope.current.version === requestScope.version) setError(caught?.message || 'บันทึกไม่สำเร็จ')
     } finally {
-      setBusy(false)
+      if (businessScope.current.businessId === requestScope.businessId && businessScope.current.version === requestScope.version) setBusy(false)
     }
   }
 
   return (
     <div className="space-y-6">
       {activeView === 'CATALOG' ? (
-        <PageHeader eyebrow="Platform" title="Connectors" subtitle="สถานะ connection และ model metadata ของ Business ที่เลือก" actions={<div className="flex items-center gap-2"><input className="input h-9 text-xs" placeholder="Search connectors…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /><select className="input h-9 text-xs" value={targetBusinessId} onChange={(event) => setTargetBusinessId(event.target.value)} aria-label="Business"><option value="">เลือก Business</option>{businesses.map((business) => <option key={business.id} value={business.id}>{business.name}</option>)}</select></div>} />
+        <PageHeader eyebrow="Platform" title="Connectors" subtitle="สถานะ connection และ model metadata ของ Business ที่เลือก" actions={<div className="flex items-center gap-2"><input className="input h-9 text-xs" placeholder="Search connectors…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /><select className="input h-9 text-xs" value={targetBusinessId} onChange={handleBusinessChange} aria-label="Business"><option value="">เลือก Business</option>{businesses.map((business) => <option key={business.id} value={business.id}>{business.name}</option>)}</select></div>} />
       ) : (
         <div className="flex items-center justify-between border-b border-[var(--border)] pb-3"><div className="flex items-center gap-3"><button type="button" className="btn btn-secondary h-8 px-2.5 text-xs" onClick={() => setActiveView('CATALOG')}><ArrowLeft size={14} className="mr-1" /> Back to Connectors</button><div><h1 className="text-lg font-bold">{activeView === 'LINE_STATUS' ? 'LINE OA status projection' : 'AI Model & Provider Settings'}</h1><p className="text-[11px] text-muted">{activeView === 'LINE_STATUS' ? 'การตั้งค่าบัญชีและ webhook อยู่ใน LINE OA Studio' : 'ตั้งค่า Vault reference และ Model AI'}</p></div></div><span className="rounded bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-semibold text-muted">{selectedBusiness?.name || 'เลือก Business'}</span></div>
       )}
