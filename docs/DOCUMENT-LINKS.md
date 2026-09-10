@@ -984,11 +984,13 @@ Backlinks:
 
 - [FR-110 — Published knowledge snapshot contract](domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (references)
 - [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) (relates)
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) (relates)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (relates)
 - [ADR-063 — Retire Tier 1 GenesisBlockDB direct clients: MSP, GKS and GenesisBlockDB are external systems, never zuri-ai domains](decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md) (relates)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (relates)
 
 ## ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB
 
@@ -1008,6 +1010,7 @@ Backlinks:
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (references)
 - [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
 - [ADR-044 — Unified Thread ID, Omni-Channel Identity & Live Command Console Architecture](decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
@@ -1580,6 +1583,7 @@ Backlinks:
 - [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md) (references)
 - [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md) (references)
 - [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) (references)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (references)
 - [GenesisRAG17 implementation progress](.rwang-progress.md) (relates)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (relates)
 
@@ -1596,6 +1600,17 @@ Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 - [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (references)
+
+## ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter
+
+Source: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+
+- references: [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md)
+- references: [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
+- references: [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
+- references: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
+- relates: [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 

@@ -302,6 +302,9 @@
     "FR-182",
     "FR-183",
     "FR-186",
+    "FR-187",
+    "FR-188",
+    "FR-189",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -465,6 +468,7 @@
     "FEAT-023",
     "FEAT-024",
     "FEAT-025",
+    "FEAT-026",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -627,6 +631,7 @@
     "ADR-072",
     "ADR-073",
     "ADR-074",
+    "ADR-075",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3540,6 +3545,45 @@
         }
       ]
     },
+    "FR-187": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d4a4ebbc260221ba22cb574def55eb921803c5c9645566489dd1915dfb2b9eb4",
+      "history": [
+        {
+          "anchor": "a structured record source adapter enters the 17 stage",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-188": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7756b4f2743b52adc34e35ffa703c39705833896391e1b416801f50b4badfa2b",
+      "history": [
+        {
+          "anchor": "a structured parser profile typed product mentions and an",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-189": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "faf3ea6afd93c01081b5dd0acd9f9de9f251f6c5dbc90e1bb208fb0f406aa3d0",
+      "history": [
+        {
+          "anchor": "edge answers smartgift catalog queries from the published",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5712,6 +5756,19 @@
         }
       ]
     },
+    "FEAT-026": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "fe52bfef93d712ab5633ea201534a296a8629e54c1f4f33b7900e942af18f2c9",
+      "history": [
+        {
+          "anchor": "smartgift catalog convergence",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -7839,6 +7896,19 @@
       "history": [
         {
           "anchor": "the located stock ledger wip work orders and absorbed",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-075": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
+      "status": "current",
+      "statement_digest": "5f12c3563c13789dd75bd0fa042a28c4d6445b2251de115b017659f1b1663735",
+      "history": [
+        {
+          "anchor": "smartgift catalog enters genesisblockdb only through the 17",
           "since": "2026-09-10",
           "reason": "declared"
         }

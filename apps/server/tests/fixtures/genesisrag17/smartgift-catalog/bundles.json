@@ -1,0 +1,76 @@
+[
+  {
+    "code": "PKG-XMAS-2026-SIGNATURE-CLEVEL",
+    "componentSrpQty1TotalThb": 1630.0,
+    "components": [
+      {
+        "productExternalId": "PM-NB",
+        "qty": 1,
+        "srpQty1Thb": 750.0
+      },
+      {
+        "productExternalId": "PM-PB10K",
+        "qty": 1,
+        "srpQty1Thb": 690.0
+      },
+      {
+        "productExternalId": "PM-PEN",
+        "qty": 1,
+        "srpQty1Thb": 190.0
+      }
+    ],
+    "entityType": "BundleOffer",
+    "externalId": "PKG-XMAS-2026-SIGNATURE-CLEVEL",
+    "flowaccountOfferCode": "TGC06-4",
+    "giftTier": "Signature",
+    "nameTh": "ชุด Smart Executive สำหรับผู้บริหาร",
+    "occasion": "christmas_2026",
+    "offerPriceTiersThb": [
+      {
+        "minQty": 10,
+        "unitPriceThb": 930.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 880.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 820.0
+      }
+    ],
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/BundleOffer.json",
+      "upstreamRecordId": "bundle:smartgift-christmas_2026-signature-c-level"
+    },
+    "recipientSegment": "C-Level"
+  },
+  {
+    "code": "PKG-NY-2027-REACH-OPS",
+    "componentSrpQty1TotalThb": 610.0,
+    "components": [
+      {
+        "productExternalId": "PM-TMB",
+        "qty": 1,
+        "srpQty1Thb": 320.0
+      },
+      {
+        "productExternalId": "PM-BOTTLE-LED",
+        "qty": 1,
+        "srpQty1Thb": 290.0
+      }
+    ],
+    "entityType": "BundleOffer",
+    "externalId": "PKG-NY-2027-REACH-OPS",
+    "flowaccountOfferCode": "SG-OFFER-NY-2027-REACH-OPS",
+    "giftTier": "Reach",
+    "nameTh": "ชุด Fresh Start Essentials สำหรับทีมปฏิบัติการ",
+    "occasion": "new_year_2027",
+    "offerPriceTiersThb": [],
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/BundleOffer.json",
+      "upstreamRecordId": "bundle:smartgift-new_year_2027-reach-operations"
+    },
+    "recipientSegment": "Operations"
+  }
+]
