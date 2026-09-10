@@ -92,6 +92,10 @@ model Tenant {
   suppliers                 Supplier[]
   purchaseOrders            PurchaseOrder[]
   goodsReceipts             GoodsReceipt[]
+  warehouseLocations        WarehouseLocation[]
+  customizationWorkOrders   CustomizationWorkOrder[]
+  kittingWorkOrders         KittingWorkOrder[]
+  stockReservations         StockReservation[]
 
   @@index([portfolioId])
 
@@ -198,6 +202,10 @@ model Business {
   suppliers                 Supplier[]
   purchaseOrders            PurchaseOrder[]
   goodsReceipts             GoodsReceipt[]
+  warehouseLocations        WarehouseLocation[]
+  customizationWorkOrders   CustomizationWorkOrder[]
+  kittingWorkOrders         KittingWorkOrder[]
+  stockReservations         StockReservation[]
 
   @@index([tenantId])
 
@@ -3325,6 +3333,37 @@ model Product {
   updatedAt       DateTime  @updatedAt
   version         Int       @default(1)
 
+  // @req FR-176 — the role a SKU plays in a kit, distinct from its nature
+  //   (`stockPolicy`, FR-168) and from how its units are identified
+  //   (`trackingMode`): RAW_COMPONENT, PACKAGING_MATERIAL, CUSTOM_COMPONENT or
+  //   FINISHED_SET. `CUSTOM_COMPONENT` is what makes a branded unit refusable
+  //   — the two `dedicated*` columns name the only customer and the only sales
+  //   order it may ever be issued for, and nothing but an explicit ADJUSTMENT
+  //   write-off releases it (BR-028). Both are null for every other kind.
+  // @spec ADR-074 D4
+  itemKind               String    @default("RAW_COMPONENT")
+  dedicatedCustomerId    String?
+  dedicatedSalesOrderId  String?
+
+  // @req FR-177 — the accounting system's item code for a tradeable finished
+  //   set: `[MODEL]-[COUNT]([PACKAGE])`, e.g. TMS06-4(P-16). It cannot be
+  //   `code`, whose FR-154 pattern has no parentheses, and it is deliberately
+  //   NOT an `ExternalRef` row either: that table is unique on (system, value)
+  //   across the whole installation, so two Tenants could not both sell a set
+  //   the same Chinese factory model names — which is a normal thing for two
+  //   Tenants to do. An attribute, unique per Tenant, never a key (BR-002).
+  // @spec ADR-074 D5, BR-032
+  flowAccountSku         String?
+
+  // @req FR-179 — storage ageing: a lot is *due* for maintenance at
+  //   `maintenanceIntervalDays` and *refused* past `maxStorageDays`, both
+  //   measured from `ProductLot.lastMaintainedAt ?? manufacturedAt`. Null on
+  //   both (the default) means the product does not age in storage and nothing
+  //   about it changes.
+  // @spec ADR-074 D7, BR-030
+  maintenanceIntervalDays Int?
+  maxStorageDays          Int?
+
   tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business      Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
   productMaster ProductMaster       @relation(fields: [productMasterId], references: [id])
@@ -3336,8 +3375,13 @@ model Product {
   recipeLines   ProductRecipeLine[]
   salesOrderLines SalesOrderLine[]
   purchaseOrderLines PurchaseOrderLine[]
+  customizationRawOrders    CustomizationWorkOrder[] @relation("CustomizationRawProduct")
+  customizationOutputOrders CustomizationWorkOrder[] @relation("CustomizationOutputProduct")
+  kittingWorkOrders         KittingWorkOrder[]
+  reservations              StockReservation[]
 
   @@unique([tenantId, code])
+  @@unique([tenantId, flowAccountSku])
   @@index([businessId, status])
   @@index([productMasterId])
 }
@@ -3353,6 +3397,13 @@ model ProductLot {
   expiresAt      DateTime?
   receivedQty    Int       @default(0)
   status         String    @default("OPEN")
+  // @req FR-179 — the last time this batch was restored by the operation its
+  //   product declares (a power bank recharged to storage voltage, an
+  //   instrument recalibrated). Null means never: the clock then runs from
+  //   `manufacturedAt`, and a lot with neither date has no measurable storage
+  //   age and is therefore never refused for age.
+  // @spec ADR-074 D7, BR-030
+  lastMaintainedAt DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   version        Int       @default(1)
@@ -3442,16 +3493,43 @@ model StockMovement {
   occurredAt   DateTime @default(now())
   createdAt    DateTime @default(now())
 
+  // @req FR-174 — where this quantity came from and where it went. Both
+  //   nullable: every row written before ADR-074 has neither, and a movement
+  //   whose location is genuinely unknown says so rather than being assigned
+  //   one. A transfer is the pair — an ISSUE carrying `sourceLocationId` and a
+  //   RECEIPT carrying `targetLocationId`, written in one transaction — which
+  //   is why there is no fourth movement kind (BR-026).
+  // @req FR-175 — `costSatang` is the UNIT landed cost of this row in satang
+  //   (THB × 100). Never a float, never a total: a total would have to be kept
+  //   in step with `quantity` by hand.
+  // @req FR-176, FR-177, FR-180 — what this movement was for: the customer and
+  //   sales order stock is dedicated to, and the work order (CWO or KWO) that
+  //   produced it, so a WIP quantity can be traced back to its order without
+  //   parsing `reference`.
+  // @spec ADR-074 D1, D2, D3; BR-026; BR-027
+  sourceLocationId String?
+  targetLocationId String?
+  costSatang       Int?
+  customerId       String?
+  salesOrderId     String?
+  workOrderId      String?
+
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   lot        ProductLot? @relation(fields: [lotId], references: [id], onDelete: SetNull)
   serialUnit SerialUnit? @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
+  sourceLocation WarehouseLocation? @relation("StockMovementSourceLocation", fields: [sourceLocationId], references: [id], onDelete: SetNull)
+  targetLocation WarehouseLocation? @relation("StockMovementTargetLocation", fields: [targetLocationId], references: [id], onDelete: SetNull)
 
   @@index([productId, occurredAt])
   @@index([businessId, occurredAt])
   @@index([lotId])
   @@index([serialUnitId])
+  @@index([sourceLocationId])
+  @@index([targetLocationId])
+  @@index([workOrderId])
+  @@index([salesOrderId])
 }
 
 // ── Inventory recipe / bill of materials — FR-156 ───────────────────────────
@@ -3475,6 +3553,13 @@ model ProductRecipe {
   yieldQty   Int
   unit       String    @default("EA")
   notes      String?
+  // @req FR-177 — the loss this bill of materials expects, as a fraction in
+  //   [0, 0.20]. The gross issue for a net requirement Q is
+  //   `ceil(Q × (1 + scrapAllowanceFactor))`, so the buffer leaves the shelf
+  //   with the rest rather than being fetched mid-line. Default 0: every
+  //   recipe written before ADR-074 explodes exactly as it always did.
+  // @spec ADR-074 D5, BR-029
+  scrapAllowanceFactor Float @default(0)
   status     String    @default("ACTIVE")
   archivedAt DateTime?
   createdAt  DateTime  @default(now())
@@ -3485,6 +3570,7 @@ model ProductRecipe {
   business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
   product  Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
   lines    ProductRecipeLine[]
+  kittingWorkOrders KittingWorkOrder[]
 
   @@unique([tenantId, code])
   @@unique([productId, batchSize])
@@ -3505,6 +3591,179 @@ model ProductRecipeLine {
 
   @@unique([recipeId, componentProductId])
   @@index([componentProductId])
+}
+
+// ── Warehouse locations, WIP work orders and reservations — FR-174..FR-180 ──
+// @req FR-174 — a location is a place stock can be, typed by what kind of place
+//   it is, because "how much is still at sea" and "how much failed QC" are the
+//   questions an importing manufacturer actually asks and a free-text label
+//   cannot be aggregated. `isVirtual` marks the places the Business does not
+//   hold — a partner factory, a container on a vessel.
+// @req FR-176, FR-177 — a work order holds INTENT AND PROGRESS; the FR-155
+//   ledger keeps holding FACT. Nothing here stores a quantity the ledger also
+//   stores: `issuedQty` / `completedQty` / `scrapQty` are what this order did,
+//   and on-hand anywhere is still the sum of movements.
+// @req FR-180 — a reservation is a promise, so it never writes the ledger and
+//   is never deleted; it ends as RELEASED, CONVERTED or EXPIRED.
+// @spec ADR-074 D1, D4, D5, D8; BR-026, BR-028, BR-029, BR-031
+// @tested tests/integration/fr174-warehouse-locations.test.js,
+//   tests/integration/fr176-customization-work-order.test.js,
+//   tests/integration/fr177-kitting-work-order.test.js,
+//   tests/integration/fr180-atp-reservations.test.js
+
+model WarehouseLocation {
+  id         String    @id @default(uuid())
+  code       String
+  tenantId   String
+  businessId String
+  name       String
+  type       String
+  isVirtual  Boolean   @default(false)
+  address    String?
+  status     String    @default("ACTIVE")
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  movementsFrom StockMovement[] @relation("StockMovementSourceLocation")
+  movementsTo   StockMovement[] @relation("StockMovementTargetLocation")
+
+  @@unique([tenantId, code])
+  @@index([businessId, type])
+  @@index([businessId, status])
+}
+
+model CustomizationWorkOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  salesOrderId      String?
+  customerId        String?
+  rawProductId      String
+  outputProductId   String?
+  technique         String
+  logoArtworkUrl    String?
+  pantoneColorsJson String?
+  plannedQty        Int
+  issuedQty         Int       @default(0)
+  completedQty      Int       @default(0)
+  scrapQty          Int       @default(0)
+  scrapAllowanceFactor Float  @default(0.02)
+  setupCostSatang   Int       @default(0)
+  runCostSatang     Int       @default(0)
+  status            String    @default("DRAFT")
+  wipLocationId     String?
+  scrapLocationId   String?
+  sourceLocationId  String?
+  scheduledDate     DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  notes             String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  rawProduct    Product  @relation("CustomizationRawProduct", fields: [rawProductId], references: [id])
+  outputProduct Product? @relation("CustomizationOutputProduct", fields: [outputProductId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([salesOrderId])
+  @@index([customerId])
+}
+
+model KittingWorkOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  salesOrderId      String?
+  customerId        String?
+  recipeId          String
+  finishedProductId String
+  plannedQty        Int
+  assembledQty      Int       @default(0)
+  scrapQty          Int       @default(0)
+  laborCostSatang   Int       @default(0)
+  unitCostSatang    Int?
+  // @req FR-177 — the bill of materials this run froze when it opened: the
+  //   component ids, the quantity per batch, and the net and gross quantities
+  //   the scrap allowance produced. Frozen rather than re-read, because a
+  //   recipe edited between release and completion would otherwise silently
+  //   change what this run is reconciled against.
+  plannedLinesJson  String?
+  status            String    @default("DRAFT")
+  // Three distinct places, not two: raw stock is STAGED at the assembly line
+  // (`wipLocationId`), and the finished sets are RECEIVED at finished goods
+  // (`targetLocationId`). Folding them into one column would have put a
+  // completed gift box on the workbench it was assembled on.
+  sourceLocationId  String?
+  wipLocationId     String?
+  targetLocationId  String?
+  scrapLocationId   String?
+  outputLotCode     String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  notes             String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipe          ProductRecipe @relation(fields: [recipeId], references: [id])
+  finishedProduct Product       @relation(fields: [finishedProductId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([salesOrderId])
+  @@index([recipeId])
+}
+
+model StockReservation {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  productId         String
+  purpose           String
+  quantity          Int
+  status            String    @default("ACTIVE")
+  customerId        String?
+  salesOrderId      String?
+  quoteReference    String?
+  customerCompany   String?
+  contactHandle     String?
+  notes             String?
+  reservedAt        DateTime  @default(now())
+  expiresAt         DateTime?
+  releasedAt        DateTime?
+  convertedAt       DateTime?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([productId, status])
+  @@index([expiresAt])
+  @@index([salesOrderId])
 }
 
 // ── CRM sales task — FR-161 ─────────────────────────────────────────────────

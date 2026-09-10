@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.32.0b"
+version: "1.33.0b"
 status: active
-last_update: "2026-09-08T16:30:00+07:00,RWANG"
+last_update: "2026-09-10T16:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.32.0b |
+| **Version** | 1.33.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -56,6 +56,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-022 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-161 | building |
 | FEAT-023 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-166, FR-163 | building |
 | FEAT-024 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-164, FR-165 | building |
+| FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -90,6 +91,8 @@ Version diff 1.28.0b → 1.29.0b (2026-09-07): FEAT-023 is declared and building
 
 Version diff 1.29.0b → 1.30.0b (2026-09-07): FEAT-024 is declared and building — the Procurement lane under ADR-066, the "Procurement" module of the owner's SCM row (`docs/ERP-MODULE-MAP.md`), bundling FR-164 (suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, everything about quantities and money computed on read) and FR-165 (goods receipts posted line by line against a sent order, counted lines landing in the Inventory ledger with lot, expiry and serials, the order received by the receipt that completes it). The `procurement` slot is live. Not claimed: purchase requests and approvals, RFQs, returns and credit notes, supplier invoices, landed cost, production application of the migration.
 
+
+Version diff 1.32.0b → 1.33.0b (2026-09-10): FEAT-025 is declared and building — the SmartGift SCM slice under ADR-074, bundling FR-174 (warehouse locations and the located ledger), FR-175 (landed cost in satang with the flat single-drop truck absorbed into unit valuation), FR-176 (customization work orders and the irreversible customer-dedicated lock), FR-177 (kitting work orders with a declared scrap allowance and the FlowAccount finished-set SKU), FR-178 (de-kitting), FR-179 (the shelf-life storage guard), FR-180 (Available-to-Promise with two-tier reservations) and FR-181 (six agent tools on the existing Gate E / Gate F registries). Not claimed: FlowAccount catalogue and stock synchronisation, cycle counting and stocktake campaigns, HTTP routes and console pages for locations, work orders and reservations, and production application of migration `20260910120000_smartgift_scm_wip`.
 ## Readiness Dashboard presentation metadata
 
 This block is the hand-maintained presentation contract for FR-124. It carries
@@ -719,6 +722,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-024",
     "primaryDomain": "procurement",
     "useCase": "ฝ่ายจัดซื้อสร้างผู้ขายจากหน้า /procurement ออกใบสั่งซื้อจากหน้า /procurement/purchase-orders (รายการที่ผูก SKU ในคลัง ต้นทุนที่ตกลง) ส่งให้ผู้ขาย แล้วบันทึกรับของทีละรายการเมื่อของมาถึง (Lot วันหมดอายุ Serial) โดยของที่นับสต๊อกเข้า ledger ของคลังทันทีและใบสั่งซื้อรับครบเองเมื่อทุกรายการมาครบ ยอดค้างรับและมูลค่าคำนวณจากใบรับของทุกครั้ง"
+  },
+  {
+    "id": "FEAT-025",
+    "primaryDomain": "inventory",
+    "useCase": "ฝ่ายคลังเห็นว่าของอยู่จุดไหนของซัพพลายเชน (โรงงานจีน เรือ ท่าเรือ คลังวัตถุดิบ ห้องยิงเลเซอร์ ไลน์ประกอบ คลังสินค้าสำเร็จรูป ของเสีย) ย้ายของข้ามจุดแบบตัดต้นทาง-เพิ่มปลายทางในธุรกรรมเดียว เปิดใบสั่งสกรีน/ยิงเลเซอร์ที่ล็อกของให้ลูกค้ารายนั้นถาวร เปิดใบสั่งประกอบที่ระเบิด BOM พร้อมเผื่อของเสียตามที่สูตรประกาศไว้ และได้ต้นทุนต่อชุดเป็นสตางค์ที่รวมค่ารถส่งเหมาคันไว้แล้ว ส่วนฝ่ายขายถามผ่านผู้ช่วย AI ได้ว่ารับออเดอร์กี่ชุดได้ทันที ราคาต่อชุดเท่าไร แล้วจองสต๊อกให้ลูกค้า 7 วันโดยไม่ชนกับใบเสนอราคาอื่น"
   },
   {
     "id": "FR-167",

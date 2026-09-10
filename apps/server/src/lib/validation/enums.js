@@ -246,6 +246,52 @@ export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
 // FR-156 — a recipe (bill of materials at one batch size) is edited or
 // archived through the same two versioned actions a product has.
 export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
+
+// FR-174 — where stock is. A location's type is what makes it answerable:
+// "how much is still at sea" and "how much failed QC" are the questions an
+// importing manufacturer asks, and a free-text label cannot be aggregated.
+// The list is the physical supply chain of an import-and-assemble business,
+// ordered as goods actually travel — factory, vessel, port, raw store,
+// the two workshop stages, finished goods, quarantine, and the customer.
+export const INVENTORY_LOCATION_TYPES = [
+  'CN_FACTORY',
+  'INTL_SEA_TRANSIT',
+  'TH_PORT_CUSTOMS',
+  'TH_CENTRAL_RAW',
+  'TH_WIP_CUSTOMIZATION',
+  'TH_WIP_ASSEMBLY',
+  'TH_FINISHED_GOODS',
+  'TH_QUARANTINE_SCRAP',
+  'CUSTOMER_SITE',
+]
+/** Locations that hold unbranded, freely allocatable stock. Branded stock may never be transferred into one (BR-028). */
+export const INVENTORY_GENERIC_STOCK_LOCATION_TYPES = ['CN_FACTORY', 'INTL_SEA_TRANSIT', 'TH_PORT_CUSTOMS', 'TH_CENTRAL_RAW']
+
+// FR-176 — the role a SKU plays in a kit, distinct from its nature
+// (`stockPolicy`) and from how its units are identified (`trackingMode`).
+// CUSTOM_COMPONENT is the one that carries a customer lock and can therefore
+// be refused for anyone else.
+export const INVENTORY_ITEM_KINDS = ['RAW_COMPONENT', 'PACKAGING_MATERIAL', 'CUSTOM_COMPONENT', 'FINISHED_SET']
+
+// FR-176 — how a logo is put onto a component. The list is the set of
+// processes that change the physical item irreversibly; a sticker or a hang
+// tag is packaging, not customization, and is deliberately absent.
+export const CUSTOMIZATION_TECHNIQUES = ['LASER_ENGRAVING', 'SILK_SCREEN', 'UV_DIGITAL_PRINT', 'HOT_STAMP_FOIL', 'EMBOSSING']
+
+// FR-176, FR-177 — one lifecycle for both work orders. BLOCKED_SHORTAGE is a
+// real state rather than a flag: a work order whose scrap outran its buffer
+// has stock issued and is neither in progress nor finished, and calling that
+// IN_PROGRESS would hide the one thing the shop floor needs to see.
+export const WORK_ORDER_STATUSES = ['DRAFT', 'RELEASED', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED_SHORTAGE', 'CANCELLED']
+/** Work-order states that still hold issued stock, so the order may not be forgotten. */
+export const WORK_ORDER_OPEN_STATUSES = ['RELEASED', 'IN_PROGRESS', 'BLOCKED_SHORTAGE']
+
+// FR-180 — the two tiers of promise. QUOTE is soft and expires; ORDER is
+// committed against a confirmed sales order and does not.
+export const STOCK_RESERVATION_PURPOSES = ['QUOTE', 'ORDER']
+// A reservation is never deleted, so its end state stays readable: released by
+// hand, converted into a committed one, or expired by the clock.
+export const STOCK_RESERVATION_STATUSES = ['ACTIVE', 'RELEASED', 'CONVERTED', 'EXPIRED']
 // FR-161 — sales tasks (crm): a follow-up a salesperson owes a customer,
 // distinct from project-manager's WorkItem. The legacy product's "URGENT"
 // status is a priority here, and its PROJECT task kind with milestones is
@@ -336,6 +382,12 @@ export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
 export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
 export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
 export const zInventoryRecipeAction = z.enum(INVENTORY_RECIPE_ACTIONS)
+export const zInventoryLocationType = z.enum(INVENTORY_LOCATION_TYPES)
+export const zInventoryItemKind = z.enum(INVENTORY_ITEM_KINDS)
+export const zCustomizationTechnique = z.enum(CUSTOMIZATION_TECHNIQUES)
+export const zWorkOrderStatus = z.enum(WORK_ORDER_STATUSES)
+export const zStockReservationPurpose = z.enum(STOCK_RESERVATION_PURPOSES)
+export const zStockReservationStatus = z.enum(STOCK_RESERVATION_STATUSES)
 export const zSalesTaskType = z.enum(SALES_TASK_TYPES)
 export const zSalesTaskPriority = z.enum(SALES_TASK_PRIORITIES)
 export const zSalesTaskStatus = z.enum(SALES_TASK_STATUSES)

@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { FINISHED_SET_SKU_PATTERN } from './inventory-costing'
 import {
+  INVENTORY_ITEM_KINDS,
   INVENTORY_LOT_STATUSES,
   INVENTORY_MOVEMENT_KINDS,
   INVENTORY_PRODUCT_ACTIONS,
@@ -102,7 +104,42 @@ export const zCreateProduct = zProductFields.extend({
   productMasterId: zId,
   stockPolicy: z.enum(INVENTORY_STOCK_POLICIES).optional(),
   trackingMode: z.enum(INVENTORY_TRACKING_MODES).optional(),
+  // @req FR-176 — the role this SKU plays in a kit, and (for a branded one)
+  //   the customer and order it belongs to. `dedicated*` are set by the
+  //   customization service when it creates the branded SKU, and are accepted
+  //   here so a Business can also record a branded item it already holds.
+  itemKind: z.enum(INVENTORY_ITEM_KINDS).optional(),
+  // @req FR-177 — the accounting system's code for a tradeable set, unique per
+  //   Tenant. `setFlowAccountSku` is the other writer; both validate the
+  //   pattern, so the column can never hold a code FlowAccount would reject.
+  flowAccountSku: z.string().trim().regex(FINISHED_SET_SKU_PATTERN, 'a finished set SKU is [MODEL]-[COUNT]([PACKAGE]), e.g. TMS06-4(P-16)').nullable().optional(),
+  dedicatedCustomerId: zId.nullable().optional(),
+  dedicatedSalesOrderId: zId.nullable().optional(),
+  // @req FR-179 — how long a unit of this SKU may sit in storage before it is
+  //   due for maintenance, and before it may not be issued at all. Absent on
+  //   almost every product, and absent means "does not age".
+  maintenanceIntervalDays: z.number().int().positive().max(3650).nullable().optional(),
+  maxStorageDays: z.number().int().positive().max(3650).nullable().optional(),
 }).strict().superRefine((value, ctx) => {
+  // @req FR-176 — only a CUSTOM_COMPONENT carries a customer lock. Allowing a
+  // raw component to name a dedicated customer would create stock that looks
+  // free in the catalogue and is refused by the ledger (BR-028).
+  if ((value.dedicatedCustomerId || value.dedicatedSalesOrderId) && value.itemKind !== 'CUSTOM_COMPONENT') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['itemKind'],
+      message: 'only a CUSTOM_COMPONENT is dedicated to a customer or a sales order',
+    })
+  }
+  // @req FR-179 — a maintenance interval later than the hard limit could never
+  // fire before the lot was already refused, which reads as a guard and is not one.
+  if (value.maintenanceIntervalDays && value.maxStorageDays && value.maintenanceIntervalDays > value.maxStorageDays) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['maintenanceIntervalDays'],
+      message: 'maintenance falls due before the storage limit, not after it',
+    })
+  }
   // @req FR-168 — the rule is "no ledger, no tracking mode", so it holds for a
   // SERVICE exactly as it does for an UNTRACKED good. Naming only UNTRACKED
   // would have let a service be created asking for lot or serial identity it
@@ -167,6 +204,16 @@ export const zRecordMovement = z.object({
   reason: zOptionalText(500),
   reference: zOptionalText(200),
   occurredAt: zDate.optional(),
+  // @req FR-174, FR-175, FR-176 — where this quantity moved, what it cost per
+  //   unit in satang, and what it was for. All optional: a movement that names
+  //   no location is exactly what every movement written before ADR-074 is,
+  //   and the ledger must keep accepting one.
+  sourceLocationId: zId.nullable().optional(),
+  targetLocationId: zId.nullable().optional(),
+  costSatang: z.number().int().nonnegative().nullable().optional(),
+  customerId: zId.nullable().optional(),
+  salesOrderId: zId.nullable().optional(),
+  workOrderId: zId.nullable().optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.kind !== 'ADJUSTMENT' && value.quantity <= 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'RECEIPT and ISSUE take a positive quantity' })
@@ -302,6 +349,11 @@ export const zRecipeLine = z.object({
 export const zRecipeLines = z.array(zRecipeLine).min(1).max(200)
   .refine((lines) => new Set(lines.map((l) => l.componentProductId)).size === lines.length, 'a component appears once per recipe')
 
+// @req FR-177 — the loss this bill of materials expects, a fraction in
+//   [0, 0.20]. Optional and defaulting to 0, so a recipe written before
+//   ADR-074 explodes exactly as it always did (BR-029).
+export const zScrapAllowance = z.number().finite().min(0).max(0.2)
+
 export const zCreateRecipe = z.object({
   businessId: zBusinessId,
   code: zInventoryCode,
@@ -311,6 +363,7 @@ export const zCreateRecipe = z.object({
   yieldQty: z.number().int().positive().optional(),
   unit: zText(20).optional(),
   notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance.optional(),
   lines: zRecipeLines,
 }).strict()
 
@@ -319,6 +372,7 @@ export const zRecipeFields = z.object({
   yieldQty: z.number().int().positive(),
   unit: zText(20),
   notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance,
   lines: zRecipeLines,
 }).strict()
 

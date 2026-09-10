@@ -2,9 +2,18 @@
 //   vocabulary and calculators, the authority ladder, the catalogue writer and
 //   the stock-ledger writer. Other lanes import from here, never from a file
 //   inside `application/` directly.
-// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md)
+// @req FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180 — and, since
+//   ADR-074, the located ledger (locations and transfers), the costing
+//   calculators, the two WIP work orders, de-kitting, the shelf-life guard and
+//   Available-to-Promise. The agent's tools (FR-181) bind to these exports and
+//   to nothing deeper, which is what keeps a tool from acquiring authority the
+//   service does not grant.
+// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074
 // @tested tests/unit/inventory-domain.test.js
 export * from './domain/inventory'
+export * from './domain/inventory-costing'
+export * from './domain/inventory-wip'
+export * from './domain/warehouse-location'
 export { assertMayManage, assertMayView, mayManage, mayView } from './application/inventory-authority'
 export {
   applyProductAction,
@@ -21,6 +30,9 @@ export {
   listFamilies,
   listProductMasters,
   listProducts,
+  flowAccountSkuOf,
+  productByFlowAccountSku,
+  setFlowAccountSku,
 } from './application/inventory-catalog-service'
 export {
   appendMovement,
@@ -38,3 +50,37 @@ export {
   getRecipe,
   listRecipes,
 } from './application/inventory-recipe-service'
+export {
+  applyLocationAction,
+  createLocation,
+  getLocation,
+  listLocations,
+  locationStock,
+} from './application/warehouse-location-service'
+export { transferInTransaction, transferStock } from './application/location-transfer-service'
+export {
+  cancelCustomizationWorkOrder,
+  completeCustomizationWorkOrder,
+  getCustomizationWorkOrder,
+  listCustomizationWorkOrders,
+  openCustomizationWorkOrder,
+  releaseCustomizationWorkOrder,
+} from './application/customization-work-order-service'
+export {
+  cancelKittingWorkOrder,
+  completeKittingWorkOrder,
+  getKittingWorkOrder,
+  listKittingWorkOrders,
+  openKittingWorkOrder,
+  releaseKittingWorkOrder,
+} from './application/kitting-work-order-service'
+export { deKitFinishedSets } from './application/de-kitting-service'
+export { recordLotMaintenance, shelfLifeAudit } from './application/inventory-shelf-life-service'
+export {
+  applyReservationAction,
+  availableToPromiseFor,
+  createReservation,
+  expireDueReservations,
+  listReservations,
+  maxBuildableSets,
+} from './application/inventory-atp-service'

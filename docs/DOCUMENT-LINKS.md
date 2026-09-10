@@ -1040,6 +1040,7 @@ Backlinks:
 - [Phase 1 proposal — verified channel onboarding](roadmap/PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING.md) (references)
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) (relates)
 
 ## ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull
@@ -1417,6 +1418,7 @@ Backlinks:
 - [Domain — commerce](domains/commerce/CHARTER.md) (references)
 - [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 - [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
+- [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
 
 ## ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
 
@@ -1432,6 +1434,7 @@ Backlinks:
 - [FR-165 — Goods receipts into the stock ledger (grn_id)](domains/procurement/features/FR-165-goods-receipts.md) (references)
 - [Domain — procurement](domains/procurement/CHARTER.md) (references)
 - [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
+- [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
 
 ## ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported
 
@@ -1483,6 +1486,7 @@ Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 - [ADR-071 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md) (relates)
+- [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (relates)
 
 ## ADR-070 — Execution Trace & Replay v0.3
 
@@ -1565,6 +1569,19 @@ Backlinks:
 - [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) (references)
 - [GenesisRAG17 implementation progress](.rwang-progress.md) (relates)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (relates)
+
+## ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost
+
+Source: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
+
+- references: [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+- relates: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
+
+Backlinks:
+
+- [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2928,6 +2945,7 @@ Source: [ERP module map — where each module the owner names lives](ERP-MODULE-
 
 - references: [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md)
 - references: [ADR-071 — CRM is a parent domain over Customer and Market Intelligence](decisions/ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE.md)
+- references: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
 
 Backlinks:
 

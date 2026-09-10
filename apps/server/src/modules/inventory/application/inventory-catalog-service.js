@@ -17,6 +17,7 @@ import {
   zCreateProductMaster,
   zProductAction,
 } from '../domain/inventory'
+import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku } from '../domain/inventory-costing'
 import { assertMayView, loadBusiness, notFound } from './inventory-authority'
 
 // @req FR-154 — the only writer of the Inventory catalogue: category, family,
@@ -38,7 +39,7 @@ const CATEGORY_SELECT = { id: true, code: true, tenantId: true, businessId: true
 const FAMILY_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, status: true, createdAt: true, updatedAt: true, version: true }
 const FACTORY_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, country: true, contact: true, status: true, createdAt: true, updatedAt: true, version: true }
 const MASTER_SELECT = { id: true, code: true, tenantId: true, businessId: true, categoryId: true, familyId: true, factoryId: true, nameTh: true, nameEn: true, baseCost: true, specsJson: true, status: true, createdAt: true, updatedAt: true, version: true }
-const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productMasterId: true, name: true, color: true, material: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true }
+const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productMasterId: true, name: true, color: true, material: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, flowAccountSku: true }
 const BUNDLE_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, targetRecipients: true, totalPrice: true, status: true, createdAt: true, updatedAt: true, version: true, items: { select: { id: true, productId: true, qty: true }, orderBy: { id: 'asc' } } }
 
 function parseSpecs(json) {
@@ -167,8 +168,18 @@ export function createProduct(input, { viewer, db = prisma } = {}) {
       // cannot be added later and silently inherit lot or serial identity.
       trackingMode: (d.stockPolicy ?? 'TRACKED') !== 'TRACKED' ? 'NONE' : (d.trackingMode ?? 'NONE'),
       safetyStock: d.safetyStock ?? 10,
+      // @req FR-176, FR-179 — the kit role, the customer lock a branded SKU
+      //   carries, and the storage thresholds an ageing one declares. Defaults
+      //   keep every product created before ADR-074 identical: RAW_COMPONENT,
+      //   no lock, no ageing.
+      itemKind: d.itemKind ?? 'RAW_COMPONENT',
+      flowAccountSku: d.flowAccountSku ?? null,
+      dedicatedCustomerId: d.dedicatedCustomerId ?? null,
+      dedicatedSalesOrderId: d.dedicatedSalesOrderId ?? null,
+      maintenanceIntervalDays: d.maintenanceIntervalDays ?? null,
+      maxStorageDays: d.maxStorageDays ?? null,
     }),
-    payload: (created) => ({ productMasterId: created.productMasterId, stockPolicy: created.stockPolicy, trackingMode: created.trackingMode }),
+    payload: (created) => ({ productMasterId: created.productMasterId, stockPolicy: created.stockPolicy, trackingMode: created.trackingMode, itemKind: created.itemKind, dedicatedCustomerId: created.dedicatedCustomerId, dedicatedSalesOrderId: created.dedicatedSalesOrderId }),
   })
 }
 
@@ -256,4 +267,63 @@ export async function listBundles({ businessId, viewer, db = prisma } = {}) {
   const products = await db.product.findMany({ where: { id: { in: productIds } }, select: { id: true, stockPolicy: true, movements: { select: { quantity: true } } } })
   const onHandByProductId = Object.fromEntries(products.map((p) => [p.id, p.stockPolicy === 'TRACKED' ? stockOnHand(p.movements) : null]))
   return bundles.map((b) => ({ ...b, availableSets: bundleAvailability(b.items, onHandByProductId) }))
+}
+
+// ── FR-177 — the FlowAccount SKU of a tradeable set (BR-032, BR-002) ─────────
+//
+// A FlowAccount set code carries parentheses (`TMS06-4(P-16)`), which FR-154's
+// own `code` deliberately does not allow — and that is the right answer rather
+// than an obstacle: this is an ACCOUNTING SYSTEM'S id for our product, not our
+// id for it, and BR-002's rule is that such a thing is an attribute and never a
+// key.
+//
+// It is NOT an `ExternalRef` row, which is where the first attempt put it.
+// That table is unique on `(system, value)` across the whole installation and
+// carries no `tenantId` at all — it was built for a single installation's plan
+// import — so two Tenants could not both sell a set the Chinese factory names
+// `TMS06`, which is an entirely normal thing for two Tenants to do. Running the
+// suites together is what surfaced it. So: one nullable column on `Product`,
+// unique per Tenant, written only here and validated against the pattern, so a
+// value FlowAccount would reject can never be stored.
+
+/**
+ * Bind a product to its FlowAccount item code. The value must be a finished-set
+ * SKU (`[MODEL]-[COUNT]([PACKAGE])`, BR-032) — components and packaging are not
+ * synchronised to FlowAccount at all, so a code on one would be a claim about a
+ * row that will never exist there.
+ */
+export async function setFlowAccountSku({ businessId, productId, flowAccountSku }, { viewer, db = prisma } = {}) {
+  if (!isFinishedSetSku(flowAccountSku)) {
+    throw Object.assign(failure(422, 'INVENTORY_FINISHED_SET_SKU_INVALID'), { details: { flowAccountSku, pattern: FINISHED_SET_SKU_PATTERN.source } })
+  }
+  return db.$transaction(async (tx) => {
+    const business = await loadBusiness(tx, viewer, businessId, { write: true })
+    const product = await tx.product.findUnique({ where: { id: productId }, select: PRODUCT_SELECT })
+    if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
+    if (product.status === 'ARCHIVED') throw failure(409, 'PRODUCT_ARCHIVED')
+
+    const value = flowAccountSku.trim()
+    const taken = await tx.product.findUnique({ where: { tenantId_flowAccountSku: { tenantId: business.tenantId, flowAccountSku: value } }, select: { id: true, code: true } })
+    if (taken && taken.id !== product.id) throw Object.assign(failure(409, 'INVENTORY_FLOWACCOUNT_SKU_TAKEN'), { details: { flowAccountSku: value, takenBy: taken.code } })
+
+    const updated = await tx.product.update({ where: { id: product.id }, data: { flowAccountSku: value, version: { increment: 1 } }, select: PRODUCT_SELECT })
+    await recordAudit(tx, {
+      entityType: PRODUCT_ENTITY, entityId: product.id, action: 'PRODUCT_FLOWACCOUNT_SKU_SET', actorId: actor(viewer),
+      payload: { businessId: business.id, code: product.code, from: product.flowAccountSku, to: value, version: updated.version },
+    })
+    return updated
+  })
+}
+
+/** The FlowAccount item code carried by a product, or null when it has none. */
+export async function flowAccountSkuOf(db, productId) {
+  const product = await db.product.findUnique({ where: { id: productId }, select: { flowAccountSku: true } })
+  return product?.flowAccountSku ?? null
+}
+
+/** The product a FlowAccount item code names, inside one Business. */
+export async function productByFlowAccountSku(db, businessId, flowAccountSku) {
+  const value = String(flowAccountSku ?? '').trim()
+  if (!value) return null
+  return db.product.findFirst({ where: { businessId, flowAccountSku: value } })
 }
