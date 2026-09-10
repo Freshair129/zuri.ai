@@ -1,6 +1,6 @@
 # SmartGift catalog fixture — genesisrag17 raw entrypoint
 
-Frozen, PII-free fixture for the proposed FR-183 "structured-record source
+Frozen, PII-free fixture for the proposed FR-187 "structured-record source
 adapter before Stage 1", which will feed SmartGift catalog records into the
 17-stage knowledge ingestion pipeline (`genesisrag17.v1`, ADR-073). It exists
 so Phase 1/2 tests of that adapter can run from a raw entrypoint without

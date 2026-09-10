@@ -24,7 +24,7 @@
     }
   ],
   "fixtureVersion": "smartgift-catalog-v1",
-  "generatedFor": "FR-183 structured-record source adapter (proposed) before genesisrag17.v1 Stage 1 — ADR-073",
+  "generatedFor": "FR-187 structured-record source adapter (proposed) before genesisrag17.v1 Stage 1 — ADR-073",
   "piiInvariant": {
     "deniedPattern": "05_crm_customer_data|customer|contact|quotation|ลูกค้า|ใบเสนอราคา",
     "deniedRegexSource": "business-01-smart-gift pipeline/knowledge_registry/core.py DENIED",
