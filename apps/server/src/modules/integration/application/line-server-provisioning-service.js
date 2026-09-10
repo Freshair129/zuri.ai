@@ -20,6 +20,18 @@ export async function provisionLineServerConnection(input, { viewer, db = prisma
   const data = inputSchema.parse(input)
   if (!ownsBusiness(viewer, data.businessId) || !seesBusiness(viewer, data.businessId)) throw notFound()
   assertDomainVisible(viewer, data.businessId, 'line-oa')
+  // Five sequential writes — business, provider, connection, credential metadata, audit — under
+  // Prisma's 5 s interactive default, which is not a budget anyone chose. It was measured failing
+  // on CI at **5045 ms**: a P2028 "Transaction already closed" 45 ms past the line, surfaced to the
+  // browser as a 400 with no field to blame, while two sibling reads on the same page answered
+  // SESSION_UNAVAILABLE. Nothing was slow; the connection was simply held elsewhere for a moment.
+  //
+  // This is the same defect `atomic()` in line-conversation-jobs.js was given 15 s for on
+  // 2026-09-08, for the same reason (see the comment there, and the RCA it cites). Matching that
+  // number here rather than inventing a new one: the two transactions do comparable work against
+  // the same pool, and a limit that differs per call site is a limit nobody can reason about.
+  // 15 s still fails loudly — it does not hide a regression, it stops a contended moment from
+  // being reported to an owner as invalid input.
   return db.$transaction(async tx => {
     const business = await tx.business.findUnique({ where: { id: data.businessId } })
     if (!business) throw notFound()
@@ -32,5 +44,5 @@ export async function provisionLineServerConnection(input, { viewer, db = prisma
     await recordAudit(tx, { entityType: 'INTEGRATION_CONNECTION', entityId: connection.id, action: 'LINE_SERVER_CONNECTION_PROVISIONED', actorId: viewer.principal?.id ?? null,
       payload: { businessId: business.id, provider: LINE_OA_PROVIDER_CODE } })
     return { id: connection.id, businessId: business.id, name: connection.name, destination: connection.externalAccountId }
-  })
+  }, { timeout: 15000, maxWait: 5000 })
 }

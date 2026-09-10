@@ -29,6 +29,10 @@ pub struct EdgePairingConfig {
     pub is_paired: bool,
     pub last_heartbeat_at: Option<String>,
     pub provider_settings: crate::providers::ProviderSettings,
+    // The operator's last explicit intent for the worker, not a record of what is running.
+    // Set when Start succeeds, cleared when Stop is pressed — so closing the window (which stops
+    // the child) and a power cut are both "still wanted", while an explicit Stop is not.
+    pub worker_autostart: bool,
 }
 impl Default for EdgePairingConfig {
     fn default() -> Self {
@@ -44,6 +48,7 @@ impl Default for EdgePairingConfig {
             is_paired: false,
             last_heartbeat_at: None,
             provider_settings: crate::providers::ProviderSettings::default(),
+            worker_autostart: false,
         }
     }
 }
@@ -56,6 +61,9 @@ pub struct AppState {
     pub supervisor: crate::supervisor::Supervisor,
     pub providers: crate::providers::ProviderManager,
     pub quitting: AtomicBool,
+    // Why the automatic resume gave up, if it did. Reported through get_worker_status rather than
+    // kept here, because a resume that fails silently is the failure this feature exists to remove.
+    pub autostart_error: Mutex<Option<String>>,
 }
 impl AppState {
     pub fn load() -> Self {
@@ -72,6 +80,7 @@ impl AppState {
             supervisor: crate::supervisor::Supervisor::default(),
             providers: crate::providers::ProviderManager::default(),
             quitting: AtomicBool::new(false),
+            autostart_error: Mutex::new(None),
         }
     }
 }
@@ -98,6 +107,18 @@ pub fn persist_at(cfg: &EdgePairingConfig, path: &Path) -> Result<(), String> {
 pub fn persist_config(cfg: &EdgePairingConfig) -> Result<(), String> {
     persist_at(cfg, &get_config_path()?)
 }
+/// Parse the stored config, tolerating a UTF-8 BOM.
+///
+/// This app never writes one, but Windows tooling does by default — PowerShell's
+/// `Set-Content -Encoding utf8` and Notepad both add one — and serde rejects it as malformed. The
+/// failure is out of proportion to the cause: the config is discarded, `AppState` falls back to an
+/// unpaired default, and a device that is paired and configured comes up looking like a fresh
+/// install with its worker silently not resuming. Skipping three bytes is cheaper than that.
+fn decode_config(content: &str) -> Result<EdgePairingConfig, String> {
+    serde_json::from_str(content.strip_prefix('\u{feff}').unwrap_or(content))
+        .map_err(|_| "ไฟล์การตั้งค่าเสียหาย กรุณาเชื่อมต่อใหม่".into())
+}
+
 pub fn load_persisted_config() -> Result<EdgePairingConfig, String> {
     let path = get_config_path()?;
     if !path.exists() {
@@ -105,8 +126,7 @@ pub fn load_persisted_config() -> Result<EdgePairingConfig, String> {
     }
     let content =
         fs::read_to_string(&path).map_err(|_| "อ่านการตั้งค่าไม่ได้ กรุณาลองใหม่หรือนำเข้าไฟล์จับคู่")?;
-    let mut cfg: EdgePairingConfig =
-        serde_json::from_str(&content).map_err(|_| "ไฟล์การตั้งค่าเสียหาย กรุณาเชื่อมต่อใหม่")?;
+    let mut cfg = decode_config(&content)?;
     if cfg.device_key.starts_with("dpapi:") {
         cfg.device_key = credential_store::unprotect(&cfg.device_key)?;
     } else if !cfg.device_key.is_empty() {
@@ -155,7 +175,13 @@ pub async fn import_pairing_payload(
     }
     let value: Value = serde_json::from_str(&json_str).map_err(|_| "รูปแบบไฟล์จับคู่ไม่ถูกต้อง")?;
     let mut cfg = pairing::parse_pairing(&value)?;
-    cfg.provider_settings = state.config.lock().unwrap().provider_settings.clone();
+    // Same reason as the browser-pairing path: the payload describes the device's identity, not
+    // how this machine was set up, so the local provider choice and worker intent survive it.
+    {
+        let existing = state.config.lock().unwrap();
+        cfg.provider_settings = existing.provider_settings.clone();
+        cfg.worker_autostart = existing.worker_autostart;
+    }
     persist_config(&cfg)?;
     *state.config.lock().unwrap() = cfg;
     *state.load_error.lock().unwrap() = None;
@@ -284,7 +310,14 @@ pub async fn poll_pairing(cancel: bool, state: State<'_, AppState>) -> Result<Va
     // Keep a received key in native memory if disk persistence fails, so Retry saves
     // the same key instead of redeeming/minting again.
     let mut cfg = current.received.as_ref().unwrap().clone();
-    cfg.provider_settings = state.config.lock().unwrap().provider_settings.clone();
+    // Carry forward what the operator configured on this machine. `parse_pairing` builds a fresh
+    // config from the server's payload, which knows about neither the local provider choice nor
+    // whether the worker was meant to be running — re-pairing must not silently reset either.
+    {
+        let existing = state.config.lock().unwrap();
+        cfg.provider_settings = existing.provider_settings.clone();
+        cfg.worker_autostart = existing.worker_autostart;
+    }
     persist_config(&cfg)?;
     *state.config.lock().unwrap() = cfg;
     *state.load_error.lock().unwrap() = None;
@@ -438,6 +471,29 @@ mod tests {
         assert_eq!(status["load_error"], "test error");
     }
     #[cfg(windows)]
+    #[test]
+    fn a_windows_written_config_with_a_bom_still_loads() {
+        // The exact shape PowerShell's `Set-Content -Encoding utf8` produces. Before this was
+        // tolerated it cost a paired device its identity on the next launch: the config was
+        // discarded and the app came up unpaired, so the worker never resumed.
+        let cfg = EdgePairingConfig {
+            device_key: "edgk_synthetic_test_credential".into(),
+            business_name: "SmartGift".into(),
+            worker_autostart: true,
+            ..Default::default()
+        };
+        let json = serde_json::to_string_pretty(&cfg).unwrap();
+
+        let plain = decode_config(&json).expect("plain JSON must load");
+        let with_bom =
+            decode_config(&format!("\u{feff}{json}")).expect("a BOM must not lose the config");
+
+        assert_eq!(with_bom.device_id, plain.device_id);
+        assert_eq!(with_bom.business_name, "SmartGift");
+        assert!(with_bom.worker_autostart);
+        assert!(decode_config("not json at all").is_err());
+    }
+
     #[test]
     fn protected_file_can_be_replaced_without_plaintext_key() {
         let temp = tempfile::tempdir().unwrap();

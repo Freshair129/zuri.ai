@@ -823,22 +823,6 @@
       }
     },
     {
-      "id": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "type": "code_file",
-      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
-      "hash": "e6bcb3e8",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-080",
-          "FR-146"
-        ],
-        "@spec": [
-          "SDD-044"
-        ]
-      }
-    },
-    {
       "id": "code:src/app/(pm)/line-oa/live-crm/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
@@ -6514,7 +6498,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "f08d9535",
+      "hash": "d8bec96f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9644,7 +9628,7 @@
       "id": "code:src/modules/integration/application/line-server-provisioning-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
-      "hash": "4bc76746",
+      "hash": "2652bd36",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10790,7 +10774,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-job-failures.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
-      "hash": "703adbfd",
+      "hash": "e19f7146",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11081,7 +11065,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-      "hash": "0dd7d44c",
+      "hash": "3b94a777",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11186,7 +11170,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-      "hash": "8f40e9ac",
+      "hash": "eec93629",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16321,7 +16305,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.14.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d4735677",
+      "hash": "0b0ed274",
       "status": "current"
     },
     {
@@ -16329,7 +16313,7 @@
       "type": "document",
       "path": "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
       "title": "Zuri Edge Desktop — inventory และ wireframe แบบ sidebar",
-      "hash": "96d6149d",
+      "hash": "0075ab3c",
       "status": "current"
     },
     {
@@ -23720,14 +23704,6 @@
       "status": "current"
     },
     {
-      "id": "route:page:/line-oa/integrations",
-      "type": "route",
-      "kind": "page",
-      "route": "/line-oa/integrations",
-      "path": "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
-      "status": "current"
-    },
-    {
       "id": "route:page:/line-oa/live-crm",
       "type": "route",
       "kind": "page",
@@ -25350,7 +25326,7 @@
       "id": "test:tests/integration/fr149-line-server-configuration.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-      "hash": "898ba007",
+      "hash": "45577846",
       "status": "current"
     },
     {
@@ -27464,7 +27440,7 @@
       "id": "test:tests/unit/line-job-failures.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-job-failures.test.js",
-      "hash": "bbe8c632",
+      "hash": "1de76888",
       "status": "current"
     },
     {
@@ -27569,7 +27545,7 @@
       "id": "test:tests/unit/line-studio-edge-connection-render.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-      "hash": "e3b7f62a",
+      "hash": "c990d857",
       "status": "current"
     },
     {
@@ -33205,27 +33181,6 @@
     {
       "from": "code:src/app/(pm)/line-oa/edge-connection/page.jsx",
       "to": "req:SDD-060",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:FR-080",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:FR-146",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/line-oa/integrations/page.jsx",
-      "to": "req:SDD-044",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -63577,13 +63532,6 @@
     },
     {
       "from": "route:page:/line-oa/edge-connection",
-      "to": "domain:line-oa-studio",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:page:/line-oa/integrations",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -103178,7 +103126,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2454,
+    "server_nodes": 2452,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

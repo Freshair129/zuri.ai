@@ -73,6 +73,7 @@ export default function LineStudioEdgeConnection() {
   const [minting, setMinting] = useState(false);
   const [mintError, setMintError] = useState("");
   const [minted, setMinted] = useState(null); // edgePairingDownload() shape — shown once
+  const [revokingId, setRevokingId] = useState("");
   const [publicOrigin, setPublicOrigin] = useState(() => resolvePublicBaseUrl());
   useEffect(() => {
     setPublicOrigin(resolveBrowserOrigin({ location: window.location }));
@@ -93,6 +94,29 @@ export default function LineStudioEdgeConnection() {
       setCredentialsLoading(false);
     }
   }, [business?.id]);
+
+  /**
+   * Withdraw one device's key (FR-144 DELETE).
+   *
+   * A retired device whose credential is left ACTIVE is the failure this exists to prevent: the
+   * process is gone, so nothing looks wrong, while the key still claims jobs for anyone holding a
+   * copy of it. Revocation takes effect on the next request — there is no grace window, which is
+   * why the confirmation names the device rather than asking "are you sure?".
+   */
+  async function revokeCredential(credential) {
+    if (!credential?.id || revokingId) return;
+    if (!window.confirm(`เพิกถอนกุญแจของ ${credential.deviceId}?\n\nอุปกรณ์นี้จะรับงานไม่ได้ทันที และกุญแจเดิมกู้คืนไม่ได้ — ต้องจับคู่ใหม่เท่านั้น`)) return;
+    setRevokingId(credential.id);
+    setError("");
+    try {
+      await api(`/api/platform/edge-devices/credentials/${encodeURIComponent(credential.id)}`, "DELETE");
+      await loadCredentials();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRevokingId("");
+    }
+  }
 
   async function mintPairing(event) {
     event.preventDefault();
@@ -329,9 +353,21 @@ export default function LineStudioEdgeConnection() {
                       <p className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[11px] truncate">{c.deviceId}</p>
                       <p className="text-[10px] text-slate-500 truncate">{c.label} · {c.keyPrefix}…</p>
                     </div>
-                    <span className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded ${c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
-                      {c.status}
-                    </span>
+                    <div className="shrink-0 flex items-center gap-2">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                        {c.status}
+                      </span>
+                      {c.status === "ACTIVE" && (
+                        <button
+                          type="button"
+                          onClick={() => revokeCredential(c)}
+                          disabled={revokingId === c.id}
+                          className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-40"
+                        >
+                          {revokingId === c.id ? "กำลังเพิกถอน..." : "เพิกถอน"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               )}

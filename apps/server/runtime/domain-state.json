@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-09T23:58:05.095Z",
+  "generatedAt": "2026-09-10T03:26:26.797Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -2479,7 +2479,7 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
+          "codeCount": 2,
           "testCount": 15
         },
         {
@@ -2500,7 +2500,7 @@
           "id": "FR-146",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 30,
+          "codeCount": 29,
           "testCount": 22
         },
         {
@@ -2554,8 +2554,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 10,
-            "inventoried": 10,
+            "routes": 9,
+            "inventoried": 9,
             "missing": 0
           }
         },
@@ -2670,9 +2670,9 @@
         }
       ],
       "details": {
-        "routes": 27,
+        "routes": 26,
         "apiRoutes": 17,
-        "pageRoutes": 10,
+        "pageRoutes": 9,
         "ownedModels": 6,
         "featureNotes": 10
       },
@@ -4633,12 +4633,11 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
+          "codeCount": 11,
           "testCount": 15
         }
       ],
       "evidence": [
-        "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
         "apps/server/src/app/(pm)/platform/integrations/page.jsx",
         "apps/server/src/app/api/platform/integrations/line-registry/route.js",
         "apps/server/src/app/api/platform/integrations/route.js",
@@ -5862,7 +5861,7 @@
           "id": "FR-146",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 38,
+          "codeCount": 37,
           "testCount": 22
         },
         {
@@ -5897,7 +5896,6 @@
       "evidence": [
         "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
         "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
-        "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
         "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
