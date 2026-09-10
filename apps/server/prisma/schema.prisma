@@ -92,6 +92,8 @@ model Tenant {
   billingProfiles           BusinessBillingProfile[]
   commerceDocuments         CommerceDocument[]
   commerceDocumentSequences CommerceDocumentSequence[]
+  inventoryLedgerFences     InventoryLedgerFence[]
+  inventoryStocktakes       InventoryStocktake[]
 
   @@index([portfolioId])
 
@@ -206,6 +208,8 @@ model Business {
   billingProfile            BusinessBillingProfile?
   commerceDocuments         CommerceDocument[]
   commerceDocumentSequences CommerceDocumentSequence[]
+  inventoryLedgerFences     InventoryLedgerFence[]
+  inventoryStocktakes       InventoryStocktake[]
 
   @@index([tenantId])
 
@@ -3533,6 +3537,52 @@ model StockMovement {
   @@index([targetLocationId])
   @@index([workOrderId])
   @@index([salesOrderId])
+}
+
+// ── Inventory — FR-184 physical stocktake ──────────────────────────────────
+// @req FR-184 — a per-Business mutation fence serializes the snapshot read
+//   with every append-only ledger write; a stocktake stores its normalized
+//   observation and commit result for durable, idempotent recovery.
+// @spec ADR-074 D1, D2; BR-002, BR-008, BR-012, BR-026; SEC-001
+// @tested tests/integration/fr184-inventory-stocktake.test.js,
+//   tests/integration/fr184-inventory-stocktake-backup.test.js
+
+model InventoryLedgerFence {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  mutationRevision  Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId])
+  @@index([businessId])
+}
+
+model InventoryStocktake {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  idempotencyKey      String
+  payloadHash         String
+  normalizedLinesJson String
+  snapshotVersion     Int
+  snapshotHash        String
+  status              String    @default("PREVIEWED")
+  resultJson          String?
+  committedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId, idempotencyKey])
+  @@index([businessId, status, createdAt])
 }
 
 // ── Inventory recipe / bill of materials — FR-156 ───────────────────────────
