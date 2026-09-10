@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 24,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -181,21 +181,6 @@
       "id": "I16",
       "severity": "info",
       "check": "id-stability",
-      "title": "FEAT-026 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 fe52bfef93d712ab5633ea201534a296a8629e54c1f4f33b7900e942af18f2c9 → 4100fe23dd88d2af895b4ac78e6430c3c4fe20fe88fc4c3ac7b722c646b34f45 · citation files: docs/PRD-SDD-v1.0.md, docs/roadmap/ROADMAP.md, docs/TRACE.md",
-      "files": [
-        "docs/FEATURES.md",
-        "docs/.id-ledger.json",
-        "docs/PRD-SDD-v1.0.md",
-        "docs/roadmap/ROADMAP.md",
-        "docs/TRACE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-026 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
-      "check": "id-stability",
       "title": "556 id(s) pinned across 10 families",
       "details": "ADR 75 · BR 32 · FEAT 26 · FR 187 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 556",
       "files": [
@@ -204,7 +189,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I18",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -215,7 +200,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -226,7 +211,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I20",
+      "id": "I19",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -237,7 +222,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 358 document(s)",
@@ -248,7 +233,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I22",
+      "id": "I21",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -260,7 +245,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 86 file(s) that write audit events",
@@ -269,7 +254,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I23",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 1976 column(s) across 142 model(s) against 63 migration(s)",
