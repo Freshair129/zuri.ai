@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=90; operational_domain_keys=15; operational_subdomain_entries=47; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=93; operational_domain_keys=15; operational_subdomain_entries=50; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -200,6 +200,9 @@ uncounted product shows "—", never a zero.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/inventory` | Warehouse Dashboard (domain `inventory`; labelled Warehouse because a Project's own Inventory tab, FR-077, shares the screen) | BusinessShell → Warehouse / Dashboard | KPIs (SKUs, counted, uncounted, below safety stock), the per-SKU table with stock policy, tracking mode and recomputed on-hand; console forms that create a category, a product master and a SKU (counted / uncounted, NONE / LOT / SERIAL) and append one ledger movement (receipt, issue, adjustment with lot code or serial numbers) | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy | implemented; `src/app/(pm)/inventory/page.jsx`, FR-154, FR-155 / `docs/domains/inventory/CHARTER.md` |
+| `/inventory/locations` | Locations & transfers (Inventory tab 2) | BusinessShell → Inventory / Locations | the Business's warehouse locations with type and `isVirtual`; on-hand per location for one SKU reported beside the Business-wide total and its unlocated remainder (BR-026); forms that create a location and move stock between two of them in one atomic pair | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, fewer-than-two-locations | implemented; `src/app/(pm)/inventory/locations/page.jsx`, FR-182, FR-174 / ADR-074 |
+| `/inventory/work-orders` | Work orders (Inventory tab 3) | BusinessShell → Inventory / Work Orders | both work-order lists with planned, gross issue, completed and scrapped quantities and the blended unit cost; open forms for a customization run and a kitting run; RELEASE / COMPLETE / CANCEL per row through one versioned action | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-SKU, no-recipe | implemented; `src/app/(pm)/inventory/work-orders/page.jsx`, FR-182, FR-176, FR-177 / ADR-074 |
+| `/inventory/reservations` | ATP & reservations (Inventory tab 4) | BusinessShell → Inventory / Reservations | on-hand, committed, quote-held and available per SKU side by side, with over-commitment surfaced; the reservation list with a computed `live`; forms to place a quote or order hold and release one | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-counted-SKU | implemented; `src/app/(pm)/inventory/reservations/page.jsx`, FR-182, FR-180 / ADR-074 |
 
 ### 3.7 Workspace compatibility surfaces
 

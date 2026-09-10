@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 356,
-    "routes": 212,
-    "test_files": 597
+    "routes": 225,
+    "test_files": 599
   },
   "summary": {
     "critical": 0,
@@ -172,8 +172,8 @@
       "id": "I15",
       "severity": "info",
       "check": "id-stability",
-      "title": "548 id(s) pinned across 10 families",
-      "details": "ADR 74 · BR 32 · FEAT 25 · FR 181 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 548",
+      "title": "549 id(s) pinned across 10 families",
+      "details": "ADR 74 · BR 32 · FEAT 25 · FR 182 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 549",
       "files": [
         "docs/.id-ledger.json"
       ],
