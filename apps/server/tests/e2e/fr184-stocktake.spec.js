@@ -129,3 +129,36 @@ test('a delayed Business A preview cannot appear after selecting Business B', as
   await expect(page.getByLabel('สินค้าที่ตรวจนับ', { exact: true })).not.toContainText(fixture.product.name)
   await expect(page).not.toHaveURL(/previewId=/)
 })
+
+test('returning to the blank desk while a saved preview loads releases the editor', async ({ page }) => {
+  await enter(page)
+  const response = await page.request.post('/api/inventory/stocktakes/preview', { data: { businessId: fixture.business.id, lines: [
+    { productId: fixture.product.id, locationId: fixture.location.id, lotId: null, countedQuantity: 3 },
+    { productId: fixture.product.id, locationId: null, lotId: null, countedQuantity: 2 },
+  ] } })
+  expect(response.ok()).toBe(true)
+  const saved = await response.json()
+  let release
+  let started
+  const reached = new Promise(resolve => { started = resolve })
+  const gate = new Promise(resolve => { release = resolve })
+  await page.route(`**/api/inventory/stocktakes/${saved.previewId}?*`, async route => {
+    const result = await route.fetch()
+    started()
+    await gate
+    await route.fulfill({ response: result })
+  })
+  await page.evaluate(id => {
+    window.history.pushState(null, '', `/inventory/stocktakes?previewId=${id}`)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }, saved.previewId)
+  await reached
+  await page.evaluate(() => {
+    window.history.replaceState(null, '', '/inventory/stocktakes')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+  await expect(page.getByLabel('สินค้าที่ตรวจนับ', { exact: true })).toBeEnabled()
+  release()
+  await expect(page.getByTestId('stocktake-preview')).toHaveCount(0)
+  await expect(page.getByLabel('จำนวนที่นับได้', { exact: true })).toBeEnabled()
+})

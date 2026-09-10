@@ -78,18 +78,17 @@ function StocktakeDesk({ businessId }) {
     async function loadSaved() {
       const id = new URL(window.location.href).searchParams.get('previewId')
       const token = ++operation.current
-      if (!id) { setPreview(null); return }
+      if (!id) { setPreview(null); setDraft([]); setBusy(false); return }
       setBusy(true)
       try {
         const saved = await request(`/api/inventory/stocktakes/${encodeURIComponent(id)}?${query}`, { signal: controller.signal })
         if (!alive.current || token !== operation.current) return
-        if (saved.businessId !== businessId) throw new Error('รายการไม่ตรงกับ Business ที่เลือก')
-        if (saved.status === 'COMMITTED' && (!Number.isInteger(saved.result?.movementCount) || !Array.isArray(saved.result?.lineBalances))) throw new Error('อ่านผลการบันทึกไม่สำเร็จ กรุณาลองอีกครั้ง')
+        if (saved.businessId !== businessId || !['PREVIEWED', 'COMMITTED'].includes(saved.status) || !Array.isArray(saved.lines) || saved.lines.some(line => !line || typeof line !== 'object') || (saved.status === 'COMMITTED' && (!Number.isInteger(saved.result?.movementCount) || !Array.isArray(saved.result?.lineBalances)))) throw Object.assign(new Error('ลิงก์ผลการตรวจนับไม่ถูกต้อง กรุณาเปิดรายการใหม่'), { invalidSaved: true })
         setPreview(saved); setDraft(saved.lines.map(lineInput)); setStale(false)
       } catch (error) {
         if (!alive.current || token !== operation.current || error.name === 'AbortError') return
         setPreview(null); setError(errorText(error))
-        if (error.status === 403 || error.status === 404) setPreviewUrl(null)
+        if (error.invalidSaved || error.status === 403 || error.status === 404) setPreviewUrl(null)
       } finally { if (alive.current && token === operation.current) setBusy(false) }
     }
     loadSaved()
