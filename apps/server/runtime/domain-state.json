@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T19:38:04.508Z",
+  "generatedAt": "2026-09-10T22:39:12.610Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 130,
+    "featureCount": 131,
     "readyFeatureCount": 107,
-    "requirementCount": 184,
+    "requirementCount": 187,
     "verifiedRequirementCount": 174,
-    "progressPercent": 94.6,
+    "progressPercent": 93,
     "gapCount": 24,
     "gaps": [
       {
@@ -2543,6 +2543,7 @@
       },
       "featureIds": [
         "FEAT-013",
+        "FEAT-026",
         "FR-024",
         "FR-047",
         "FR-071",
@@ -2556,9 +2557,9 @@
         "FR-119",
         "FR-131"
       ],
-      "featureCount": 13,
+      "featureCount": 14,
       "readyFeatureCount": 11,
-      "progressPercent": 93.8
+      "progressPercent": 78.9
     },
     "line-oa-studio": {
       "status": "partial",
@@ -6996,6 +6997,53 @@
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/warehouse-location.test.js"
       ]
+    },
+    {
+      "id": "FEAT-026",
+      "title": "SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized)",
+      "kind": "bundle",
+      "registryStatus": "approved",
+      "requirementIds": [
+        "FR-187",
+        "FR-188",
+        "FR-189"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [],
+      "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-026 registry status is approved",
+        "FR-187 is planned",
+        "FR-188 is planned",
+        "FR-189 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-187",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-188",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-189",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     },
     {
       "id": "FR-001",
