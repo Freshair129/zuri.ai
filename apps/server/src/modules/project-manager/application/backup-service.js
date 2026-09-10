@@ -23,6 +23,7 @@
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
@@ -64,6 +65,8 @@ function assertRestoreOperator(viewer) {
 }
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
+export const MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION = 'marketing-broadcast-recovery.v1'
+const MARKETING_BROADCAST_RECOVERY_TABLES = Object.freeze(['marketingBroadcastIntent', 'marketingBroadcastIntentVersion'])
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
@@ -155,6 +158,8 @@ const SNAPSHOT_MODELS = [
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
   'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
+  // @req FR-185 — restore planning identities before their immutable revisions.
+  'marketingBroadcastIntent', 'marketingBroadcastIntentVersion',
   // @req FR-161 — Business-scoped Marketing intake is recoverable request
   // evidence; owner-domain PM/CRM/Commerce rows remain in their own tables.
   'marketingOperationsIntake',
@@ -665,6 +670,113 @@ function lineWorkerMemoryRecovery(snapshot) {
   return result
 }
 
+function marketingBroadcastRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = MARKETING_BROADCAST_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.marketingBroadcastRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot has no broadcast recovery manifest')
+    return result
+  }
+  if (manifest !== undefined && (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(MARKETING_BROADCAST_RECOVERY_TABLES)
+  )) result.errors.push(`Invalid Marketing broadcast recovery manifest (expected ${MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION})`)
+  if (manifest !== undefined && missing.length) for (const model of missing) result.errors.push(`Marketing broadcast recovery snapshot is missing required table: ${model}`)
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row.id, row]))
+  const accounts = new Map((tables.lineOaAccount || []).map((row) => [row.id, row]))
+  const content = new Map((tables.marketingContentVersion || []).map((row) => [row.id, row]))
+  const briefs = new Map((tables.marketingContentBrief || []).map((row) => [row.id, row]))
+  const intents = new Map()
+  const idempotency = new Set()
+  const codes = new Set()
+  for (const row of tables.marketingBroadcastIntent) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast intent ${label} is not an object`)
+      continue
+    }
+    if (intents.has(row.id)) result.errors.push(`Marketing broadcast intents reuse id ${row.id}`)
+    intents.set(row.id, row)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Marketing broadcast intent ${row.id} has inconsistent Business/Tenant references`)
+    if (!row.code || !row.idempotencyKey || !row.createdBy) result.errors.push(`Marketing broadcast intent ${row.id} is missing identity fields`)
+    if (!BROADCAST_INTENT_STATUSES.includes(row.status)) result.errors.push(`Marketing broadcast intent ${row.id} has invalid status`)
+    if (!Number.isInteger(row.currentRevision) || row.currentRevision < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid currentRevision`)
+    if (!Number.isInteger(row.version) || row.version < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid version`)
+    const idempotencyKey = `${row.businessId}|${row.idempotencyKey}`
+    const codeKey = `${row.businessId}|${row.code}`
+    if (idempotency.has(idempotencyKey)) result.errors.push(`Marketing broadcast intents reuse idempotency key ${idempotencyKey}`)
+    if (codes.has(codeKey)) result.errors.push(`Marketing broadcast intents reuse code ${codeKey}`)
+    idempotency.add(idempotencyKey)
+    codes.add(codeKey)
+  }
+  const revisions = new Map()
+  for (const row of tables.marketingBroadcastIntentVersion) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast version ${label} is not an object`)
+      continue
+    }
+    const intent = intents.get(row.intentId)
+    if (!intent) {
+      result.errors.push(`Marketing broadcast version ${row.id} references a missing intent`)
+      continue
+    }
+    const key = `${row.intentId}|${row.revision}`
+    if (revisions.has(key)) result.errors.push(`Marketing broadcast versions reuse revision ${key}`)
+    revisions.set(key, row)
+    if (!Number.isInteger(row.revision) || row.revision < 1) result.errors.push(`Marketing broadcast version ${row.id} has invalid revision`)
+    try {
+      const value = parseMarketingBroadcastPayload(row.payloadJson, row.payloadHash)
+      if (hashMarketingBroadcastPayload(value) !== row.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} has a non-canonical payload hash`)
+      const brief = briefs.get(value.content.briefId)
+      const contentVersion = content.get(value.content.contentVersionId)
+      if (!brief || brief.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references content outside its Business`)
+      if (!contentVersion || contentVersion.briefId !== value.content.briefId || contentVersion.payloadHash !== value.content.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} references stale content evidence`)
+      if (value.account) {
+        const account = accounts.get(value.account.lineOaAccountId)
+        // The snapshot is historical evidence. An account version or status
+        // can legitimately advance after the planning revision was recorded;
+        // current freshness is resolved by the read DTO as UNAVAILABLE. The
+        // recovery gate validates only that the referenced identity remains in
+        // the same Business and that the immutable payload/hash is coherent.
+        if (!account || account.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references LINE account outside its Business`)
+      }
+    } catch {
+      result.errors.push(`Marketing broadcast version ${row.id} has an invalid payload or hash`)
+    }
+  }
+  for (const intent of intents.values()) {
+    const rows = tables.marketingBroadcastIntentVersion.filter((row) => row.intentId === intent.id).sort((a, b) => a.revision - b.revision)
+    if (!rows.some((row) => row.revision === 1)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing revision 1`)
+    if (!rows.some((row) => row.revision === intent.currentRevision)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing current revision ${intent.currentRevision}`)
+    for (let index = 0; index < rows.length; index += 1) if (rows[index].revision !== index + 1) result.errors.push(`Marketing broadcast intent ${intent.id} has a non-contiguous revision history`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
@@ -678,6 +790,10 @@ export async function exportSnapshot({
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
     },
     knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    marketingBroadcastRecovery: {
+      schemaVersion: MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...MARKETING_BROADCAST_RECOVERY_TABLES],
+    },
     commerceBillingRecovery: {
       schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...COMMERCE_BILLING_RECOVERY_TABLES],
@@ -766,6 +882,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
+  const marketingBroadcast = marketingBroadcastRecovery(snapshot)
   const inventory = inventoryStocktakeRecovery(snapshot)
   const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
   const current = {}
@@ -789,17 +906,21 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (inventory.status === 'UNAVAILABLE' && INVENTORY_STOCKTAKE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     inventory.errors.push('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
   }
+  if (marketingBroadcast.status === 'UNAVAILABLE' && MARKETING_BROADCAST_RECOVERY_TABLES.some(model => current[model] > 0)) {
+    marketingBroadcast.errors.push('Marketing broadcast recovery is unavailable while the installation contains broadcast rows; refusing a restore that would erase planning evidence')
+  }
   if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0)) {
     lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
   }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0,
-    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors],
-    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings],
     billingRecovery: billing,
     inventoryStocktakeRecovery: inventory,
     lineWorkerMemoryRecovery: lineWorkerMemory,
+    marketingBroadcastRecovery: marketingBroadcast,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
@@ -917,6 +1038,8 @@ export async function importSnapshot(snapshot, {
     recovery: preview.recovery,
     billingRecovery: preview.billingRecovery,
     inventoryStocktakeRecovery: preview.inventoryStocktakeRecovery,
+    lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery,
+    marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
     unresolvedContentFileIds,
   }
 }

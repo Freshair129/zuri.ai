@@ -18,6 +18,7 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
@@ -2827,6 +2828,8 @@ Source: [FR-185 — Business-scoped LINE broadcast planning intent](domains/mark
 
 Backlinks:
 
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — procurement
@@ -3043,6 +3046,7 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)

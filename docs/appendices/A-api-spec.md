@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.57.0b |
+| **Version** | 1.58.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-11 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=231 -->
+<!-- api-spec-counts: route_handlers=235 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -711,7 +711,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=108` marker matches the route-file enumeration;
+- the `route_handlers=235` marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -834,6 +834,19 @@ approved source remain unavailable. Campaign addition: two paths, four operation
 | GET | `/api/growth/operations/handoffs/[handoffId]` | Read-only validated owner receipt and PM roadmap projection; invalid or unavailable source remains explicit. |
 
 [Operations contract](../domains/marketing/features/FR-162-operations-coordination.md). The aggregate is bounded and source-aware; it does not create PM tasks, CRM conversations, Commerce stock or provider actions.
+
+## Marketing broadcast planning and read projections (FR-185)
+
+| Method | Path | Contract |
+|---|---|---|
+| GET / POST | `/api/growth/broadcast-intents` | Business-scoped list or OWNER create of a strict LINE planning intent. The persisted identity carries immutable content/account/consent references and an unavailable audience reference; it never stores private CRM text and never dispatches. Create is idempotent on the original request identity. |
+| GET / PATCH | `/api/growth/broadcast-intents/[id]` | Scoped current/history read; OWNER revise or archive with expected-version CAS. Revisions are append-only and source references are rechecked on read; stale or unavailable owner evidence stays visible. |
+| GET | `/api/growth/paid-media` | Read-only owner projection over Marketing, Integration and Commerce DTOs. Paid provider metrics are `UNAVAILABLE` with null values; verified Commerce revenue remains separately sourced and no CRM audience reader or provider call is made. |
+| POST | `/api/growth/ask-marketing` | Deterministic, read-only question classifier for the approved overview, ROAS and fatigue questions. Unsupported questions and unavailable paid metrics return explicit unavailable states; no LLM, provider, CRM audience or send action is invoked. |
+
+[Broadcast planning and projection contract](../domains/marketing/features/FR-185-broadcast-planning-intent.md). Hidden Business scope is 404, invalid input is 400, stale writes are 409, and owner read failures remain UNKNOWN. The LINE dispatch boundary and CRM audience resolution remain unavailable by contract.
+
+Version diff 1.57.0b → 1.58.0b: add the four FR-185 route families and reconcile the current route-handler marker to 235; planning and projections remain local, read-only where stated, and provider activation is not claimed.
 
 [Contract](../domains/marketing/features/FR-157-content-creative.md). Hidden scope 404,
 stale/archived/changed evidence 409, validation 400. No binary locator, provider

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.32.0b |
+| **Version** | 1.33.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-11 |
 
@@ -108,6 +108,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | MarketingContentVersion | briefId → MarketingContentBrief, revision (unique per brief), payloadJson, payloadHash, createdBy, createdAt | FR-157 — immutable creative intent and owner references |
 | MarketingContentReview | briefId, contentVersionId, payloadHash, sequence (unique per brief), verdict, rationale, rightsConfirmed, brandConfirmed, reviewerId, createdAt | FR-157 — exact-version rights and brand review evidence |
 | MarketingContentDecision | briefId, contentVersionId, payloadHash, sequence (unique per brief), reviewId?, verdict, rationale, actorId, expiresAt?, createdAt | FR-157 — append-only content approval, rejection, or revocation evidence |
+| MarketingBroadcastIntent | tenantId, businessId, code (unique per Business), status, currentRevision, version, idempotencyKey (unique per Business), createdBy, timestamps, deletedAt? | FR-185 — durable Business-scoped LINE planning identity; no private audience payload, provider credential or dispatch state |
+| MarketingBroadcastIntentVersion | intentId → MarketingBroadcastIntent, revision (unique per intent), payloadJson, payloadHash, createdBy, createdAt | FR-185 — append-only hash-bound planning references; content/account/consent evidence is revalidated on read and restore |
 | InventoryCategory | code (unique per tenant), tenantId, businessId, nameTh, nameEn, slug? (unique per business), vibe?, targetRecipient?, guardrail?, status, version | FR-154 — inventory category (`category_id`); the ontology's slug values are rows of one Business, not a system enum |
 | ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
 | Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
@@ -439,6 +441,18 @@ migration `20260908040000_genesisrag17_audit_remediation` in SQLite and the
 corresponding Supabase SQL migration. Source content/derivation and occurrences
 are immutable; only intent status, stage cursor and last error may change.
 Migration application to production is outside this isolated repair.
+
+## Marketing broadcast planning — FR-185
+
+Version diff 1.32.0b → 1.33.0b: add `MarketingBroadcastIntent` and
+`MarketingBroadcastIntentVersion` under SQLite and the Supabase migration
+`20260911030000_marketing_broadcast_intents.sql`. The root identity is
+Business-scoped with idempotency and CAS versioning; child revisions are
+append-only and contain only hash-bound references. Snapshot export/import uses
+the `marketing-broadcast-recovery.v1` manifest and validates parent-before-child
+restore, current/contiguous revisions, content ownership and LINE account
+version evidence. This local schema milestone does not activate dispatch,
+provider metrics or CRM audience resolution.
 
 Backup schema `1.0` remains compatible. New exports carry
 `genesisRag17Recovery.schemaVersion: genesisrag17-recovery.v1` and require both

@@ -1,7 +1,7 @@
 ---
-version: "1.17.0b"
+version: "1.18.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-11T02:11:17+07:00,RWANG"
+last_update: "2026-09-11T05:00:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.17.0b |
+| **Version** | 1.18.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-11 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=95; operational_domain_keys=15; operational_subdomain_entries=50; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=98; operational_domain_keys=15; operational_subdomain_entries=50; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -256,10 +256,14 @@ and does not require an active Business selection.
 |---|---|---|---|---|---|
 | `/growth` | Marketing Dashboard | BusinessShell → Marketing | Real plan summary and Strategy entry; unavailable provider measurements labelled | Business growth visibility; loading, empty, failure, unavailable | FR-159; `src/app/(pm)/growth/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
 | `/growth/strategy` | Marketing Strategy | BusinessShell → Marketing / Strategy | URL tabs; draft/edit/archive, immutable content comparisons, independent review, expiring decision and same-Business PM preview/commit receipt | Owner writes and PM preview; scoped reads; stale/version conflict; expired/revoked approval; Back/reload and Business change | FR-159, FR-158; `src/app/(pm)/growth/strategy/page.jsx`; locally verified beta; [phase evidence](roadmap/marketing/PHASE-STRATEGY-2026-09-06.md) |
+| `/growth/paid-media` | Marketing Paid Media | BusinessShell → Marketing / Paid Media | Owner projections for campaign, operations, integration and verified Commerce revenue; paid provider metrics remain null and unavailable | Business growth visibility; loading, empty, failure, unavailable and unknown source states; no provider or CRM audience call | FR-185; `src/app/(pm)/growth/paid-media/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
+| `/growth/broadcast` | Marketing Broadcast Planning | BusinessShell → Marketing / Broadcast | Backend/current-UI milestone for durable PLANNING intents with strict content, LINE account, consent and unavailable audience references; append-only revisions and archive | API owner create/revise/archive with Business scope and CAS; picker/detail UI follow-up remains; stale references, unavailable audience and dispatch stay visible | FR-185; `src/app/(pm)/growth/broadcast/page.jsx`; API locally verified beta, picker/detail UI pending; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
+| `/growth/ask-marketing` | Ask Marketing | BusinessShell → Marketing / Ask Marketing | Deterministic read-only overview, ROAS and fatigue question states over owner DTOs; unsupported questions return unavailable | Business growth visibility; loading, error, unknown and unavailable; no LLM, provider, CRM audience or send action | FR-185; `src/app/(pm)/growth/ask-marketing/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
-is a design inventory. These two native routes implement its Strategy slice;
-Campaigns and Content are the native slices described below; other Marketing screens remain planned, and automated team/provider activation
+is a design inventory. These native routes implement the Strategy and FR-185
+planning/read slices; Campaigns and Content are the native slices described
+below; other Marketing screens remain planned, and automated team/provider activation
 is not implied by human review and channel intent fields.
 
 ### Marketing Campaign slice (locally verified beta)
@@ -309,12 +313,12 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source `DOMAINS` entries | 16 | `business-home` plus fifteen operational domains |
 | Operational domain keys | 15 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `warehouse`, `procurement`, `platform`, `scm` and `crm` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 48 | includes Business Home Dashboard |
-| Operational sub-domain entries | 47 | excludes Business Home Dashboard |
+| Source sub-domain entries | 51 | includes Business Home Dashboard |
+| Operational sub-domain entries | 50 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
-| Marketing (`growth`) navigation entries | 4 | Dashboard, Strategy, Campaigns and Content & Creative (FR-157..160) |
+| Marketing (`growth`) navigation entries | 5 | Dashboard, Strategy, Campaigns, Content & Creative and Operations (FR-157..162); the three FR-185 routes remain direct planning/read surfaces |
 | Warehouse (`inventory`) navigation entries | 1 | Dashboard (FR-154, FR-155) |
 | Commerce navigation entries | 2 | Dashboard and Orders (FR-162, FR-163) |
 | Procurement navigation entries | 2 | Dashboard and Purchase Orders (FR-164, FR-165) |
@@ -361,8 +365,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 89 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 15 operational domains, 47 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 98 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 15 operational domains, 50 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -379,6 +383,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.18.0b | 2026-09-11 | candidate | FR-185: registered Paid Media, Broadcast Planning and Ask Marketing read/planning surfaces; page-route marker reconciled to 98 while direct routes remain outside the domain navigation count | working-tree | RWANG |
 | 1.16.0b | 2026-09-11 | candidate | FR-186/FR-183: registered the Billing and tax documents page and POS checkout page; page-route marker reconciled to 90 while the existing operational domain counts remain unchanged | working-tree | RWANG |
 | 1.16.0b | 2026-09-11 | candidate | FR-165: Goods Receipts registry, intake and printable detail under Procurement; 88 → 89 pages | working-tree | RWANG |
 | 1.15.1b | 2026-09-10 | candidate | Reconciled the canonical Rich Menu deep link and corrected the compatibility route behavior in the LINE OA operations inventory | working-tree | RWANG |
