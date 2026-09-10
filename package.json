@@ -26,6 +26,8 @@
     "docs:preflight": "npm --prefix apps/server run docs:preflight",
     "docs:preflight:report": "npm --prefix apps/server run docs:preflight:report",
     "docs:ids": "npm --prefix apps/server run docs:ids",
+    "docs:llms": "node scripts/build-llms-full.mjs",
+    "docs:llms:check": "node scripts/build-llms-full.mjs --check",
     "govern": "npm --prefix apps/server run govern && node apps/server/scripts/monorepo-graph.mjs && node apps/server/scripts/monorepo-graph.mjs --check",
     "phase1:evaluate": "npm --prefix apps/server run phase1:evaluate",
     "phase1:isolation:verify": "npm --prefix apps/server run phase1:isolation:verify",
