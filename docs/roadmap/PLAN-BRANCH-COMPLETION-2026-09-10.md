@@ -179,6 +179,8 @@ The subsequent PR #321 (`35b86021`) added approved catalog-convergence planning
 while this continuation was in CI. Its FR-187..FR-189, FEAT-026 and ADR-075 are
 retained without claiming their future implementation as part of this task.
 No Server/Edge application source changed when that documentation base merged.
+PR #322 (`c8be486a`) also adds the llms-full freshness gate; its workflow and
+CLAUDE instructions are retained and the corpus is regenerated after both merges.
 FR-184 delivers fenced NONE/LOT stocktake previews, stale-count rejection,
 exact-key commit replay and saved-result UI. FR-185 delivers immutable planning
 revisions with real Content/account pickers, archive history and truthful Paid

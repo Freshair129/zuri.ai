@@ -91,6 +91,10 @@ belongs to that application source revision. Registry/document checks, build,
 governance and llms-full freshness are rechecked after reconciliation, and
 hosted CI runs against the new head. Incoming catalog implementation is not
 claimed delivered by this continuation.
+PR #322 (`c8be486a`) then added the llms-full CI freshness gate and corresponding
+CLAUDE instructions. Both are retained; the corpus is regenerated against the
+combined documentation before the new head is pushed. The superseded head's
+unfinished CI is not represented as a completed E2E result.
 
 Version diff 1.0.0b -> 1.0.1b: retain exact evidence provenance while reconciling
 the concurrently approved main planning change; production boundaries remain explicit.

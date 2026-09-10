@@ -386,6 +386,10 @@ npm run docs:ids       # the id ledger's ONLY writer — run by a human, never b
                        # `-- --write` pins newly declared ids (the routine "+" block);
                        # --reword / --supersede / --abandon / --distinct / --declare each
                        # record one named change with a sentence. See ADR-039.
+npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM readers,
+                       # inlined from README/CLAUDE/AGENTS/PRODUCT + every charter.
+                       # CI fails on a stale copy, so run it when you edit one of
+                       # those; docs:llms:check is the same gate, locally.
 ```
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that
