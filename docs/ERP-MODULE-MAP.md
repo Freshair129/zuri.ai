@@ -35,14 +35,18 @@ Order Management*.
 the domain bar holds one **SCM** slot and the sidebar lists all four modules
 beneath it, in this order. Each keeps its own route key, because that is what a
 member's stored grant names — the group is a container and is never granted.
-Warehouse is listed and disabled: `inventory` holds one Business-wide stock
-position per SKU, and locations, bins, transfers and stocktake are the part
-that does not exist yet, which is what the row below says in prose.
+Warehouse is listed and disabled — but what is missing narrowed on 2026-09-10.
+[ADR-074](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
+D1 put **locations and transfers in the Inventory lane**, because the location
+columns are attributes of `StockMovement`, which only that lane may write, and
+splitting the table from the columns would have put a foreign key across a
+charter boundary. The `warehouse` slot stays reserved for what remains its own:
+bins, putaway and picking, and stocktake campaigns.
 
 | ERP module | Lane (route key · charter) | FRs / FEAT | State | What is delivered | What is still open |
 |---|---|---|---|---|---|
-| Inventory | `inventory` · `docs/domains/inventory/CHARTER.md` (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 · FEAT-020 | **built** | catalogue identity (category, family, factory, master, SKU, bundle), counted vs uncounted policy, the append-only ledger with lots (FEFO) and serial units, on-hand recomputed on read, recipes / BOM at a batch size and the atomic build | Excel / LINE stock intake, reservations, expiry alerts, costing and valuation |
-| Warehouse | `warehouse` — a reserved slot under SCM since FR-167; the stock position it reports on lives in `inventory` | FR-155 | **partial** | the ledger is one Business-wide stock position per SKU | warehouse locations and bins, transfers between locations, stocktake campaigns and reconciliation (the legacy `Warehouse`, `WarehouseStock`, `StockCount` shapes — ERD §22 row "Phase 5 shared/inventory"), putaway and picking |
+| Inventory | `inventory` · `docs/domains/inventory/CHARTER.md` (`DOM-INVENTORY`) | FR-154, FR-155, FR-156, FR-174..FR-181 · FEAT-020, FEAT-025 · ADR-074 | **built** | catalogue identity (category, family, factory, master, SKU, bundle), the three natures, the append-only ledger with lots (FEFO) and serial units, on-hand recomputed on read, recipes / BOM at a batch size and the atomic build; since ADR-074 also warehouse locations and atomic transfers, landed cost in integer satang with the flat single-drop truck absorbed, the customization and kitting work orders with a declared scrap allowance and an irreversible customer lock, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and six agent tools on the existing Gate E / Gate F registries | Excel / LINE stock intake, HTTP routes and console pages for locations, work orders and reservations, FlowAccount catalogue and stock synchronisation, cycle counting |
+| Warehouse | `warehouse` — a reserved slot under SCM since FR-167; the stock it reports on, and now its locations too, live in `inventory` | FR-155, FR-174 | **partial** | the ledger is a located stock position per SKU: nine typed locations, atomic transfers, and on-hand per location reported beside the Business-wide total (ADR-074 D1/D2) | bins and their putaway/picking rules, stocktake campaigns and reconciliation (the legacy `StockCount` shape — ERD §22 row "Phase 5 shared/inventory"), and a Warehouse console of its own |
 | Procurement | `procurement` · `docs/domains/procurement/CHARTER.md` (`DOM-PROCUREMENT`) | FR-164, FR-165 · FEAT-024 · ADR-066 | **built** (2026-09-07) | suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, goods receipts posted line by line into the Inventory ledger with lot, expiry and serials, `receiptState` computed on read, the order RECEIVED by the receipt that completes it | purchase requests and approvals, RFQs and quotes, purchase returns and credit notes, supplier invoices and payables, landed cost, promotion of a Market Intelligence `SupplierCandidate` |
 | Order Management | `commerce` · `docs/domains/commerce/CHARTER.md` (`DOM-COMMERCE`) | FR-162, FR-163 · FEAT-023 · ADR-065 | **partial** | sales orders with lines naming SKUs, DRAFT → CONFIRMED → COMPLETED, payments and refunds verified by a second hat, revenue from verified money, fulfilment that issues stock through the Inventory contract | fulfilment states (picking, packing, shipping, delivered), partial shipments and backorders, invoices and receipts, the offer / price catalogue, an order from a LINE chat, returns |
 

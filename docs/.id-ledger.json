@@ -111,6 +111,13 @@
     "BR-023",
     "BR-024",
     "BR-025",
+    "BR-026",
+    "BR-027",
+    "BR-028",
+    "BR-029",
+    "BR-030",
+    "BR-031",
+    "BR-032",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -284,6 +291,14 @@
     "FR-171",
     "FR-172",
     "FR-173",
+    "FR-174",
+    "FR-175",
+    "FR-176",
+    "FR-177",
+    "FR-178",
+    "FR-179",
+    "FR-180",
+    "FR-181",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -395,6 +410,8 @@
     "SDD-087",
     "SDD-088",
     "SDD-089",
+    "SDD-090",
+    "SDD-091",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -444,6 +461,7 @@
     "FEAT-022",
     "FEAT-023",
     "FEAT-024",
+    "FEAT-025",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -605,6 +623,7 @@
     "ADR-071",
     "ADR-072",
     "ADR-073",
+    "ADR-074",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -945,6 +964,99 @@
           "reason": "declared"
         }
       ]
+    },
+    "BR-026": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dfe83891d97b0eecd95f96425a7d2abb737d585f8015859ac836d465ddaa4ff8",
+      "history": [
+        {
+          "anchor": "stock changes place only through a transfer and a transfer",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-027": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "639b1f0fa513c548d53048f010c15f1ba3b628a1752468b732771b3bc84bff24",
+      "history": [
+        {
+          "anchor": "money in the stock ledger is integer satang and domestic",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-028": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e2115c8bb06d1a3ba7aef6211c71eb560a9b065653e659455ab1bec9a1dbf102",
+      "history": [
+        {
+          "anchor": "customization is irreversible",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-029": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "db1c47ad72100cabeaa9878ec438615c87c9a28b0655948aca02ece38778a40c",
+      "history": [
+        {
+          "anchor": "a bill of materials declares the loss it expects and the",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-030": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4517222fd9bb9263ce33ad2a4bc12828f8c2655745eb9a9859dc524fddd19cb8",
+      "history": [
+        {
+          "anchor": "a unit that degrades in storage is guarded on issue not",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-031": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0f701fce79ac369d11f2194aab8ed46e5004ee77693842f4add838827321170a",
+      "history": [
+        {
+          "anchor": "what is already promised is subtracted before anything else",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-032": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bb67e84ae473d7b82b91c928dcd09d6331cd10a936d9c950ce9e8bb811ea0cf5",
+      "history": [
+        {
+          "anchor": "a tradeable finished set carries the flowaccount normalized",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Same correction as FR-177: the FlowAccount item code is stored as Product.flowAccountSku, unique per Tenant, rather than as an installation-unique ExternalRef row. The rule itself is unchanged — the code is an external identifier, an attribute and never a key."
     },
     "FR-001": {
       "family": "FR",
@@ -3280,6 +3392,112 @@
         }
       ]
     },
+    "FR-174": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fffebbcc02d6ad337b128a1384497b08c96f80052f32aea4af152a1fd068605e",
+      "history": [
+        {
+          "anchor": "every stock movement may name where it came from and where",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-175": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b12528e8f1be4457c69c2994f174e5a58d57ade133fa312ae7b2bc09155375d5",
+      "history": [
+        {
+          "anchor": "inventory valuation is landed cost in integer satang and",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-176": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "41edc40ddd1c77b41ea376ff002fb7b49363be87e1e5f861b31437672951f5d6",
+      "history": [
+        {
+          "anchor": "a customization work order is the durable record of branded",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-177": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6b496662584dfe82bd013c6bc8ce4112d82ad9acf0722c3e8bde3c7ee76eb0f5",
+      "history": [
+        {
+          "anchor": "a kitting work order assembles a finished gift set from a",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "The FlowAccount set code moves from an ExternalRef row to a per-Tenant Product.flowAccountSku column: ExternalRef is unique on (system, value) installation-wide and carries no tenantId, so two Tenants importing from the same factory could not both name their four-item set TMS06-4(P-16). Same subject, same requirement, corrected storage."
+    },
+    "FR-178": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3be732361ce2c818e53574502f96f26b37e4a598ee6441d908f0de64171ea515",
+      "history": [
+        {
+          "anchor": "disassembly is a work order run backwards and it cannot",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-179": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "85a4e207f5f7aac3dd3529a93cb56073586a10baa33f6ac72e2f225ae35b2735",
+      "history": [
+        {
+          "anchor": "a stored unit that ages and can be restored by an operation",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-180": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9bbef9bbec4b290b909ce5fcef63f3ab9754e3c83950aab3e2838b92a034b942",
+      "history": [
+        {
+          "anchor": "available to promise subtracts what is already spoken for",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-181": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0c4396b4f005e883e180569cf23e24f0b4b1419a231d3e014c8a722e40d58b4c",
+      "history": [
+        {
+          "anchor": "the agent reaches the supply chain through six tools on the",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4743,6 +4961,34 @@
         }
       ]
     },
+    "SDD-090": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7ea58ece28cc843bb34ec040eed60e08255396a1cc2c41b064dcd9b7942e9777",
+      "history": [
+        {
+          "anchor": "the located ledger and the two wip work orders are additive",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "The additive-column list gains Product.flowAccountSku and its per-Tenant unique index, following the same FR-177 correction. No design decision changes: the entry still says every addition is nullable or defaulted and every existing reader is untouched."
+    },
+    "SDD-091": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ac6961e31c82d8b8cb791a7bb0dbe3c893a77655c2212425af8fa8be714644f1",
+      "history": [
+        {
+          "anchor": "an agent tool is a thin adapter over an application service",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5407,6 +5653,19 @@
         {
           "anchor": "procurement จ ดซ อ",
           "since": "2026-09-06",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-025": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "75703a8c209b96ad17811e41abe49bf07521fa078d0d59effabad34f08594096",
+      "history": [
+        {
+          "anchor": "smartgift scm",
+          "since": "2026-09-10",
           "reason": "declared"
         }
       ]
@@ -7526,6 +7785,19 @@
         {
           "anchor": "genesisrag17 isolated execution and publication",
           "since": "2026-09-08",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-074": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md",
+      "status": "current",
+      "statement_digest": "4e886cefbc4e9bd50df4e30f746b0d6dac5c0249dc3331f880baa75ed49024a1",
+      "history": [
+        {
+          "anchor": "the located stock ledger wip work orders and absorbed",
+          "since": "2026-09-10",
           "reason": "declared"
         }
       ]

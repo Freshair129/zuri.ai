@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T07:28:31.292Z",
+  "generatedAt": "2026-09-10T09:56:17.754Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 127,
+    "featureCount": 128,
     "readyFeatureCount": 105,
-    "requirementCount": 173,
-    "verifiedRequirementCount": 163,
-    "progressPercent": 94.2,
+    "requirementCount": 181,
+    "verifiedRequirementCount": 171,
+    "progressPercent": 94.5,
     "gapCount": 23,
     "gaps": [
       {
@@ -438,6 +438,13 @@
           "status": "verified",
           "codeCount": 8,
           "testCount": 15
+        },
+        {
+          "id": "FR-181",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 1
         }
       ],
       "checks": {
@@ -1434,7 +1441,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-161",
@@ -2025,21 +2032,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 18
         },
         {
           "id": "FR-156",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-168",
@@ -2047,6 +2054,55 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 4
+        },
+        {
+          "id": "FR-174",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 11
+        },
+        {
+          "id": "FR-175",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 5
+        },
+        {
+          "id": "FR-176",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 12
+        },
+        {
+          "id": "FR-177",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 11
+        },
+        {
+          "id": "FR-178",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 2
+        },
+        {
+          "id": "FR-179",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 5
+        },
+        {
+          "id": "FR-180",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -2108,8 +2164,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 12,
-            "present": 12
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -2156,16 +2212,17 @@
         "routes": 15,
         "apiRoutes": 14,
         "pageRoutes": 1,
-        "ownedModels": 12,
+        "ownedModels": 16,
         "featureNotes": 3
       },
       "featureIds": [
         "FEAT-020",
+        "FEAT-025",
         "FR-167",
         "FR-168",
         "FR-169"
       ],
-      "featureCount": 4,
+      "featureCount": 5,
       "readyFeatureCount": 3,
       "progressPercent": 100
     },
@@ -3626,7 +3683,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 48
+          "testCount": 55
         },
         {
           "id": "FR-073",
@@ -3934,21 +3991,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-155",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 18
         },
         {
           "id": "FR-156",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-157",
@@ -4040,6 +4097,34 @@
           "status": "verified",
           "codeCount": 9,
           "testCount": 33
+        },
+        {
+          "id": "FR-174",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
+        },
+        {
+          "id": "FR-176",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
+        },
+        {
+          "id": "FR-177",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
+        },
+        {
+          "id": "FR-180",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -6155,21 +6240,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-155",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 15
+          "testCount": 18
         },
         {
           "id": "FR-156",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -6208,6 +6293,9 @@
         "apps/server/tests/integration/fr155-inventory-stock.test.js",
         "apps/server/tests/integration/fr156-inventory-recipe.test.js",
         "apps/server/tests/integration/fr165-goods-receipt.test.js",
+        "apps/server/tests/integration/fr176-customization-work-order.test.js",
+        "apps/server/tests/integration/fr177-kitting-work-order.test.js",
+        "apps/server/tests/integration/fr178-de-kitting.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -6651,6 +6739,131 @@
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-025",
+      "title": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-174",
+        "FR-175",
+        "FR-176",
+        "FR-177",
+        "FR-178",
+        "FR-179",
+        "FR-180",
+        "FR-181"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "agent",
+        "inventory",
+        "project-manager"
+      ],
+      "useCase": "ฝ่ายคลังเห็นว่าของอยู่จุดไหนของซัพพลายเชน (โรงงานจีน เรือ ท่าเรือ คลังวัตถุดิบ ห้องยิงเลเซอร์ ไลน์ประกอบ คลังสินค้าสำเร็จรูป ของเสีย) ย้ายของข้ามจุดแบบตัดต้นทาง-เพิ่มปลายทางในธุรกรรมเดียว เปิดใบสั่งสกรีน/ยิงเลเซอร์ที่ล็อกของให้ลูกค้ารายนั้นถาวร เปิดใบสั่งประกอบที่ระเบิด BOM พร้อมเผื่อของเสียตามที่สูตรประกาศไว้ และได้ต้นทุนต่อชุดเป็นสตางค์ที่รวมค่ารถส่งเหมาคันไว้แล้ว ส่วนฝ่ายขายถามผ่านผู้ช่วย AI ได้ว่ารับออเดอร์กี่ชุดได้ทันที ราคาต่อชุดเท่าไร แล้วจองสต๊อกให้ลูกค้า 7 วันโดยไม่ชนกับใบเสนอราคาอื่น",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-025 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-174",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 11
+        },
+        {
+          "id": "FR-175",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 5
+        },
+        {
+          "id": "FR-176",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 12
+        },
+        {
+          "id": "FR-177",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 11
+        },
+        {
+          "id": "FR-178",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        },
+        {
+          "id": "FR-179",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 5
+        },
+        {
+          "id": "FR-180",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 11
+        },
+        {
+          "id": "FR-181",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
+        "apps/server/src/modules/inventory/application/customization-work-order-service.js",
+        "apps/server/src/modules/inventory/application/de-kitting-service.js",
+        "apps/server/src/modules/inventory/application/inventory-atp-service.js",
+        "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
+        "apps/server/src/modules/inventory/application/inventory-shelf-life-service.js",
+        "apps/server/src/modules/inventory/application/inventory-stock-service.js",
+        "apps/server/src/modules/inventory/application/kitting-work-order-service.js",
+        "apps/server/src/modules/inventory/application/location-transfer-service.js",
+        "apps/server/src/modules/inventory/application/warehouse-location-service.js",
+        "apps/server/src/modules/inventory/domain/inventory-costing.js",
+        "apps/server/src/modules/inventory/domain/inventory-wip.js",
+        "apps/server/src/modules/inventory/domain/inventory.js",
+        "apps/server/src/modules/inventory/domain/warehouse-location.js",
+        "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr154-inventory-catalog.test.js",
+        "apps/server/tests/integration/fr155-inventory-stock.test.js",
+        "apps/server/tests/integration/fr174-warehouse-locations.test.js",
+        "apps/server/tests/integration/fr176-customization-work-order.test.js",
+        "apps/server/tests/integration/fr177-kitting-work-order.test.js",
+        "apps/server/tests/integration/fr178-de-kitting.test.js",
+        "apps/server/tests/integration/fr179-shelf-life-guard.test.js",
+        "apps/server/tests/integration/fr180-atp-reservations.test.js",
+        "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/inventory-costing.test.js",
+        "apps/server/tests/unit/inventory-domain.test.js",
+        "apps/server/tests/unit/inventory-wip.test.js",
+        "apps/server/tests/unit/warehouse-location.test.js"
       ]
     },
     {
@@ -9571,7 +9784,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 48
+          "testCount": 55
         }
       ],
       "evidence": [
@@ -9637,6 +9850,12 @@
         "apps/server/tests/integration/fr164-procurement.test.js",
         "apps/server/tests/integration/fr165-goods-receipt.test.js",
         "apps/server/tests/integration/fr166-sales-order.test.js",
+        "apps/server/tests/integration/fr174-warehouse-locations.test.js",
+        "apps/server/tests/integration/fr176-customization-work-order.test.js",
+        "apps/server/tests/integration/fr177-kitting-work-order.test.js",
+        "apps/server/tests/integration/fr178-de-kitting.test.js",
+        "apps/server/tests/integration/fr179-shelf-life-guard.test.js",
+        "apps/server/tests/integration/fr180-atp-reservations.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -9653,7 +9872,8 @@
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
         "apps/server/tests/unit/project-file-service.test.js",
-        "apps/server/tests/unit/project-list-contract.test.js"
+        "apps/server/tests/unit/project-list-contract.test.js",
+        "apps/server/tests/unit/warehouse-location.test.js"
       ]
     },
     {

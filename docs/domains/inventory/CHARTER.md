@@ -16,6 +16,10 @@ owns_models:
   - ProductLot
   - SerialUnit
   - StockMovement
+  - WarehouseLocation
+  - CustomizationWorkOrder
+  - KittingWorkOrder
+  - StockReservation
 owns_routes:
   - src/app/(pm)/inventory/**
   - src/app/api/inventory/**
@@ -23,9 +27,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-06T23:30:00+07:00"
+updated_at: "2026-09-10T16:30:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -59,8 +63,9 @@ Route key:        inventory
 Display label:    Inventory (คลังสินค้า), under the SCM slot since FR-167.
                   It read "Warehouse" while it sat in the domain bar beside a
                   Project's own Inventory tab (FR-077); under SCM the two are
-                  never on screen together, and Warehouse is now the reserved
-                  sibling that will own locations, transfers and stocktake
+                  never on screen together, and Warehouse is the reserved
+                  sibling for bins and stocktake — locations and transfers
+                  themselves landed here with ADR-074 D1
 ```
 
 ## The eight ids the owner asked for, and where each lives
@@ -119,7 +124,19 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
   consumed FEFO for lot-tracked SKUs when an issue names no lot.
 - `ProductRecipe`, `ProductRecipeLine` — the bill of materials at a batch size
   (FR-156): explosion, shortages against the ledger, and the atomic build that
-  issues components and receives the output.
+  issues components and receives the output. Since ADR-074 a recipe also
+  declares the loss it expects (`scrapAllowanceFactor`, BR-029).
+- `WarehouseLocation` — where stock is (FR-174), typed by one of nine
+  supply-chain buckets, with `isVirtual` for the places the Business does not
+  hold. `StockMovement` gained `sourceLocationId` / `targetLocationId`, and a
+  transfer is one movement pair in one transaction (BR-026).
+- `CustomizationWorkOrder`, `KittingWorkOrder` — work in progress (FR-176,
+  FR-177): what a run intends and how far it has got. They hold **no quantity
+  the ledger also holds** — on-hand anywhere is still the sum of movements —
+  and they write stock only through this lane's own `appendMovement`.
+- `StockReservation` — what is already promised (FR-180): a soft, expiring
+  `QUOTE` hold or a committed `ORDER` one. It never writes the ledger, because
+  a promise is not a physical fact, and it is never deleted (BR-031).
 
 ## Explicitly not owned
 
@@ -128,8 +145,9 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
 | Catalogue *offers*, gift tiers, recipient segments, price tiers, corporate clients and their orders (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient`, `ORDERED` in the owner's ontology) | future Commerce lane | Inventory holds the goods an offer is made of; the offer, its price and who bought it are Commerce's. See [ONTOLOGY.md](ONTOLOGY.md) |
 | Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference; the PO and supplier stay Procurement's, and Procurement's role never widens this lane's write authority |
 | Physical company assets (equipment the Business owns and depreciates) | Asset Management | a different question — "what do we own" versus "what do we hold to sell or use up" |
-| Costing, valuation, COGS, journal posting | future Finance | `baseCost` is a catalogue attribute, not a valuation |
-| Warehouse locations / bins | not modelled in this slice | a later FR may add a location to a movement |
+| COGS, journal posting, the books | future Finance | **inventory valuation** is owned here since ADR-074 D3: `StockMovement.costSatang` is the landed unit cost of a movement, integer satang, computed by `domain/inventory-costing.js`. It is a valuation of what we hold, not a book entry; `ProductMaster.baseCost` remains a catalogue attribute and is neither |
+| Warehouse bins, stocktake campaigns and the Warehouse console | the reserved `warehouse` bar slot (ADR-069 D3), still `soon` | **locations themselves are owned here** since ADR-074 D1: the location columns are attributes of `StockMovement`, which only this lane may write, and splitting the table from the columns would put a foreign key across a charter boundary. What stays reserved is the bins-and-stocktake UI, not the model |
+| FlowAccount catalogue and stock synchronisation | future Integration lane | this lane records FlowAccount's item code for a tradeable set on `Product.flowAccountSku`, unique per Tenant and never a key (BR-002/BR-032), and refuses a kitting run whose output has none; pushing anything to FlowAccount is not this lane's |
 | The graph projection (Neo4j-style nodes and edges) | Knowledge / GKS | the relational rows are the source; a projection reads them |
 
 ## Scope and authorization
@@ -163,10 +181,20 @@ OWNER or the `INVENTORY_MANAGER` role binding (permission
 ```text
 src/modules/inventory/
 ├── domain/inventory.js                      vocabularies, Zod contracts, pure calculators
+├── domain/inventory-costing.js              landed cost in satang, WAVG, the FlowAccount set pattern (FR-175, FR-177)
+├── domain/inventory-wip.js                  scrap allowance, dedication guard, shelf life, ATP (FR-176..FR-180)
+├── domain/warehouse-location.js             location contract, transfer rules, located on-hand (FR-174)
 ├── application/inventory-authority.js       the view / manage ladder, FR-072 refusals
 ├── application/inventory-catalog-service.js the only writer of catalogue rows (FR-154)
 ├── application/inventory-stock-service.js   the only writer of the ledger (FR-155), FEFO, appendMovement
 ├── application/inventory-recipe-service.js  the only writer of recipes; explode and build (FR-156)
+├── application/warehouse-location-service.js the only writer of locations; located stock read (FR-174)
+├── application/location-transfer-service.js  the atomic transfer pair (FR-174)
+├── application/customization-work-order-service.js  branded WIP, irreversible on completion (FR-176)
+├── application/kitting-work-order-service.js assembly from a frozen BOM (FR-177)
+├── application/de-kitting-service.js         controlled disassembly (FR-178)
+├── application/inventory-shelf-life-service.js  the ageing audit and the maintenance that resets it (FR-179)
+├── application/inventory-atp-service.js      reservations and Available-to-Promise (FR-180)
 └── index.js                                 stable module exports
 ```
 
@@ -180,9 +208,18 @@ FR-154, FR-155 and FR-156 are implemented locally with both migrations
 (`20260906230000_inventory_domain`, `20260906233000_inventory_recipe`) written
 and the production SQL **not applied** (an owner-instructed operator step,
 ADR-057).
+
+FR-174…FR-181 (FEAT-025, ADR-074) are implemented locally: locations and the
+located ledger, landed cost in satang, the customization and kitting work
+orders, de-kitting, the shelf-life storage guard, ATP with two-tier
+reservations, and the six agent tools. Migration
+`20260910120000_smartgift_scm_wip` is written and **not applied**.
+
 Surfaces: the API family above and the `/inventory` console dashboard. Not in
-this slice: Excel/LINE intake converters for stock, warehouse locations,
-reservations, costing, and the graph projection of the ontology.
+this slice: HTTP routes and console pages for locations, work orders and
+reservations (services and agent tools only), Excel/LINE intake converters for
+stock, FlowAccount catalogue/stock synchronisation, cycle counting and
+stocktake campaigns, and the graph projection of the ontology.
 
 ## References
 
@@ -195,5 +232,6 @@ reservations, costing, and the graph projection of the ontology.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |

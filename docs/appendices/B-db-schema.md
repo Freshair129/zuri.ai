@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.31.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-08 |
+| **Last Updated** | 2026-09-10 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -112,10 +112,10 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
 | Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
 | ProductMaster | code (unique per tenant), tenantId, businessId, categoryId → InventoryCategory, familyId? → ProductFamily (SetNull), factoryId? → Factory (SetNull), nameTh, nameEn, baseCost, specsJson, status, version | FR-154 — product master (`product_master`) |
-| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155) |
+| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED / SERVICE), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version; **+ ADR-074:** itemKind (RAW_COMPONENT / PACKAGING_MATERIAL / CUSTOM_COMPONENT / FINISHED_SET), dedicatedCustomerId?, dedicatedSalesOrderId?, maintenanceIntervalDays?, maxStorageDays? | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155). FR-176 — `itemKind` is the role in a kit, distinct from the nature; only a CUSTOM_COMPONENT carries a customer lock. FR-179 — the two day counts make a lot ageable; both null (the default) means it never ages. `flowAccountSku?` is the accounting system's code for a tradeable set, unique per `(tenantId, flowAccountSku)` — an attribute, never a key (BR-002 / BR-032) |
 | ProductBundle | code (unique per tenant), tenantId, businessId, name, description?, targetRecipients?, totalPrice?, status, version | FR-154 — bundle (`bundle_id`) |
 | ProductBundleItem | bundleId → ProductBundle (Cascade) + productId → Product (unique pair), qty | FR-154 — one SKU line of a bundle |
-| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
+| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, scrapAllowanceFactor, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows. FR-177 — `scrapAllowanceFactor` in [0, 0.20] (default 0, so every recipe predating ADR-074 explodes unchanged) makes the gross issue ceil(net x (1 + factor)) |
 | ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
 | SalesTask | code (`TSK-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), assigneePersonId? → Person (SetNull), createdByPersonId?, title, description?, type, priority, status (OPEN / IN_PROGRESS / DONE / CANCELLED), scheduleKind (SINGLE / RANGE), dueDate, startDate?, timeStart?, timeEnd?, outcome?, completedAt?, completedByPersonId?, cancelledAt?, cancelReason?, version | FR-161 / ADR-064 — a sales follow-up owed to a customer (crm); not a project-manager WorkItem; overdue / due-today computed on read, never stored |
 | SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-166 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
@@ -126,9 +126,13 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PurchaseOrderLine | purchaseOrderId → PurchaseOrder (Cascade), productId? → Product (SetNull), description, qty, unitCostSatang, sortOrder | FR-164 — one line; may name an Inventory SKU; the cost agreed for this purchase |
 | GoodsReceipt | code (`GRN-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, purchaseOrderId → PurchaseOrder (Cascade), supplierReference?, notes?, receivedAt, postedByPersonId? | FR-165 / ADR-066 — a goods receipt; no status, no version — never edited; its stock effect is the Inventory ledger rows with reference `PO:<code>/GRN:<code>` |
 | GoodsReceiptLine | receiptId → GoodsReceipt (Cascade), purchaseOrderLineId → PurchaseOrderLine (Cascade), qty, lotCode?, expiresAt?, serialNosJson? | FR-165 — one received quantity against one order line, with the lot, expiry and serials it carried into the ledger |
-| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
+| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, lastMaintainedAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
 | SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
-| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
+| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt; **+ ADR-074:** sourceLocationId? / targetLocationId? → WarehouseLocation (SetNull), costSatang?, customerId?, salesOrderId?, workOrderId? | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product. FR-174 / FR-175 — every added column is nullable, so every row written before ADR-074 stays valid: an ISSUE leaves its source, a RECEIPT arrives at its target, a transfer is the pair, and `costSatang` is the UNIT landed cost in satang (never a total, never a float) |
+| WarehouseLocation | code (unique per tenant), tenantId, businessId, name, type (CN_FACTORY / INTL_SEA_TRANSIT / TH_PORT_CUSTOMS / TH_CENTRAL_RAW / TH_WIP_CUSTOMIZATION / TH_WIP_ASSEMBLY / TH_FINISHED_GOODS / TH_QUARANTINE_SCRAP / CUSTOMER_SITE), isVirtual, address?, status, archivedAt?, version | FR-174 — where stock is. `isVirtual` marks a place the Business does not hold (a partner factory, a container at sea). Archived, never deleted: ledger rows point at it |
+| CustomizationWorkOrder | code (`CWO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, salesOrderId?, customerId?, rawProductId → Product (Restrict), outputProductId? → Product (Restrict), technique, logoArtworkUrl?, pantoneColorsJson?, plannedQty, issuedQty, completedQty, scrapQty, scrapAllowanceFactor, setupCostSatang, runCostSatang, status (DRAFT / RELEASED / IN_PROGRESS / COMPLETED / BLOCKED_SHORTAGE / CANCELLED), sourceLocationId?, wipLocationId?, scrapLocationId?, scheduledDate?, startedAt?, completedAt?, cancelledAt?, notes?, version | FR-176 — branded work in progress. Completion receives the OUTPUT product (`itemKind` CUSTOM_COMPONENT, dedicated to one customer and one order), never the raw SKU back (BR-028). Holds intent and progress only; on-hand is still the sum of movements |
+| KittingWorkOrder | code (`KWO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, salesOrderId?, customerId?, recipeId → ProductRecipe (Restrict), finishedProductId → Product (Restrict), plannedQty, assembledQty, scrapQty, laborCostSatang, unitCostSatang?, plannedLinesJson?, status, sourceLocationId?, wipLocationId?, targetLocationId?, scrapLocationId?, outputLotCode?, startedAt?, completedAt?, cancelledAt?, notes?, version | FR-177 — assembly from one BOM. `plannedLinesJson` FREEZES the explosion at open, so a recipe edited mid-run cannot change what the run is reconciled against. Three distinct locations: staged at `wipLocationId`, received at `targetLocationId` |
+| StockReservation | code (`RSV-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, productId → Product (Cascade), purpose (QUOTE / ORDER), quantity, status (ACTIVE / RELEASED / CONVERTED / EXPIRED), customerId?, salesOrderId?, quoteReference?, customerCompany?, contactHandle?, notes?, reservedAt, expiresAt?, releasedAt?, convertedAt?, version | FR-180 — what is already promised. Never writes the stock ledger and is never deleted; expiry is evaluated on read against the clock (BR-031) |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
@@ -434,3 +438,31 @@ warning; the importer never synthesizes missing intent or occurrence history.
 ## Knowledge admission storage — ADR-072
 
 Version diff 1.29.0b → 1.30.0b: four additive models, SQLite and Supabase migration `20260908100000_knowledge_admission`. Runtime-only RLS/grants apply in Postgres. Restore order is corpus → source → ingestion → generation. The `knowledgeAdmissionRecovery` manifest requires all four arrays; absent historical manifests produce an explicit recovery-unavailable warning. Native store files/model artifacts require their own retained snapshots and are not synthesized by Tier 1 restore. No production migration is implied.
+
+## Located ledger, WIP work orders and reservations — ADR-074
+
+Version diff 1.30.0b → 1.31.0b (2026-09-10): four additive models
+(`WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder`,
+`StockReservation`) and sixteen additive columns across `StockMovement`,
+`Product`, `ProductLot` and `ProductRecipe`, under SQLite and the Supabase
+migration `20260910120000_smartgift_scm_wip` (written, **not applied** to
+production — ADR-057). Every added column is nullable or defaulted, so no
+existing row needs a backfill and no existing reader changes.
+
+Restore order in `SNAPSHOT_MODELS`: `warehouseLocation` before the ledger (a
+located movement names it), then `customizationWorkOrder`, `kittingWorkOrder`
+and `stockReservation` after the products and recipes they reference. Deletion
+is the reverse.
+
+`ProductLot.lastMaintainedAt` is when a batch was last restored — a power bank
+recharged to storage voltage, an instrument recalibrated — and the storage clock
+runs from it, or from `manufacturedAt` when it is null (FR-179).
+
+`Product.flowAccountSku` carries the accounting system's item code for a
+tradeable finished set, with a second unique index `(tenantId, flowAccountSku)`
+beside the existing `(tenantId, code)`. It is not `Product.code` — that pattern
+has no room for the parentheses a set code carries — and it is not an
+`ExternalRef` row, because that table is unique on `(system, value)` across the
+whole installation and holds no `tenantId`: two Tenants importing from the same
+factory may both name their four-item set `TMS06-4(P-16)`, and only a per-Tenant
+constraint lets them.

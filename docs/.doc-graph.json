@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2452,
-    "total_edges": 9821,
+    "total_nodes": 2496,
+    "total_edges": 10052,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
       "appendix": 4,
-      "adr": 73,
+      "adr": 74,
       "domain": 14,
       "roadmap": 44,
-      "feature": 24,
+      "feature": 25,
       "route": 298,
-      "model": 135,
-      "requirement": 334,
-      "test": 582,
-      "code_file": 731
+      "model": 139,
+      "requirement": 351,
+      "test": 592,
+      "code_file": 742
     },
     "coverage": {
-      "requirements": 334,
-      "fr_with_code": "100% (163/163)",
-      "fr_with_tests": "100% (163/163)",
-      "rules_anchored_in_code": "96% (132/137)",
+      "requirements": 351,
+      "fr_with_code": "100% (171/171)",
+      "fr_with_tests": "100% (171/171)",
+      "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 731,
+      "annotated_code_files": 742,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -45,7 +45,8 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SDD-077"
+        "SDD-077",
+        "SDD-090"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -6935,7 +6936,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "ca9f904f",
+      "hash": "215efcd2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7624,6 +7625,25 @@
         ],
         "@tested": [
           "tests/integration/agent-tools.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/tools/smartgift-inventory-tools.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
+      "hash": "170ca122",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-181"
+        ],
+        "@spec": [
+          "SDD-091",
+          "BR-027"
+        ],
+        "@tested": [
+          "tests/integration/fr181-smartgift-agent-tools.test.js"
         ]
       }
     },
@@ -9779,6 +9799,72 @@
       }
     },
     {
+      "id": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/customization-work-order-service.js",
+      "hash": "ee6a8e9a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-176"
+        ],
+        "@spec": [
+          "BR-028",
+          "BR-029",
+          "BR-002",
+          "SEC-001",
+          "FR-072",
+          "FR-155"
+        ],
+        "@tested": [
+          "tests/integration/fr176-customization-work-order.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/de-kitting-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/de-kitting-service.js",
+      "hash": "056bf6db",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-178"
+        ],
+        "@spec": [
+          "BR-028",
+          "SEC-001",
+          "FR-072",
+          "FR-155",
+          "FR-156"
+        ],
+        "@tested": [
+          "tests/integration/fr178-de-kitting.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/inventory-atp-service.js",
+      "hash": "65e325cf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-031",
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr180-atp-reservations.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/inventory/application/inventory-authority.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-authority.js",
@@ -9802,12 +9888,14 @@
       "id": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
-      "hash": "89f2d7fb",
+      "hash": "7d6e8dcc",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
-          "FR-168"
+          "FR-168",
+          "FR-176",
+          "FR-179"
         ],
         "@spec": [
           "BR-002",
@@ -9823,7 +9911,7 @@
       "id": "code:src/modules/inventory/application/inventory-recipe-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-recipe-service.js",
-      "hash": "dbe1c1f1",
+      "hash": "d5ef7793",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9840,14 +9928,39 @@
       }
     },
     {
-      "id": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "id": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
       "type": "code_file",
-      "path": "apps/server/src/modules/inventory/application/inventory-stock-service.js",
-      "hash": "0cddfe8f",
+      "path": "apps/server/src/modules/inventory/application/inventory-shelf-life-service.js",
+      "hash": "de7ea8e2",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-155"
+          "FR-179"
+        ],
+        "@spec": [
+          "BR-030",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr179-shelf-life-guard.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/inventory-stock-service.js",
+      "hash": "58dfd3c7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-155",
+          "FR-174",
+          "FR-175",
+          "FR-176",
+          "FR-179",
+          "BR-028"
         ],
         "@spec": [
           "BR-002",
@@ -9860,16 +9973,130 @@
       }
     },
     {
+      "id": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/kitting-work-order-service.js",
+      "hash": "dd8c342b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-177"
+        ],
+        "@spec": [
+          "BR-029",
+          "BR-032",
+          "BR-027",
+          "BR-028",
+          "BR-002",
+          "SEC-001",
+          "FR-072",
+          "FR-155",
+          "FR-156"
+        ],
+        "@tested": [
+          "tests/integration/fr177-kitting-work-order.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/location-transfer-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/location-transfer-service.js",
+      "hash": "31a5f0c8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-026",
+          "BR-028"
+        ],
+        "@tested": [
+          "tests/integration/fr174-warehouse-locations.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/warehouse-location-service.js",
+      "hash": "d528d6b8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-026",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/integration/fr174-warehouse-locations.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/domain/inventory-costing.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/domain/inventory-costing.js",
+      "hash": "697c27a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-175",
+          "FR-177"
+        ],
+        "@spec": [
+          "BR-027"
+        ],
+        "@tested": [
+          "tests/unit/inventory-costing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/domain/inventory-wip.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/domain/inventory-wip.js",
+      "hash": "d2c0a583",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-176",
+          "FR-177",
+          "FR-179",
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-028",
+          "BR-029",
+          "BR-030",
+          "BR-031"
+        ],
+        "@tested": [
+          "tests/unit/inventory-wip.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/inventory/domain/inventory.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory.js",
-      "hash": "c2cdef9a",
+      "hash": "ec783b58",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
           "FR-155",
+          "FR-176",
+          "FR-177",
+          "FR-179",
           "FR-168",
+          "FR-174",
+          "FR-175",
           "FR-156"
         ],
         "@spec": [
@@ -9881,15 +10108,40 @@
       }
     },
     {
+      "id": "code:src/modules/inventory/domain/warehouse-location.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/domain/warehouse-location.js",
+      "hash": "4f2d8441",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-026"
+        ],
+        "@tested": [
+          "tests/unit/warehouse-location.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/inventory/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/index.js",
-      "hash": "58ea3632",
+      "hash": "6e1a3bc0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
-          "FR-155"
+          "FR-155",
+          "FR-174",
+          "FR-175",
+          "FR-176",
+          "FR-177",
+          "FR-178",
+          "FR-179",
+          "FR-180"
         ],
         "@tested": [
           "tests/unit/inventory-domain.test.js"
@@ -12834,7 +13086,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "e6cf2bba",
+      "hash": "b7a35bf1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12863,6 +13115,10 @@
           "FR-154",
           "FR-155",
           "FR-156",
+          "FR-174",
+          "FR-176",
+          "FR-177",
+          "FR-180",
           "FR-110",
           "FR-109",
           "FR-173",
@@ -14971,9 +15227,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.30.0b",
+      "version": "1.31.0b",
       "doc_status": "Draft",
-      "hash": "d2248f3f",
+      "hash": "bfc9de00",
       "status": "current"
     },
     {
@@ -15283,7 +15539,7 @@
       "title": "ERP module map — where each module the owner names lives",
       "version": "1.1.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
-      "hash": "93f1e9ac",
+      "hash": "cb596c03",
       "status": "current"
     },
     {
@@ -15343,9 +15599,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.32.0b",
+      "version": "1.33.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "2770e331",
+      "hash": "8400dfcd",
       "status": "current"
     },
     {
@@ -16916,9 +17172,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.172.0b",
+      "version": "1.176.0b",
       "doc_status": "Draft",
-      "hash": "4cd255c7",
+      "hash": "2e6dcb31",
       "status": "current"
     },
     {
@@ -16946,7 +17202,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "87fd67a2",
+      "hash": "b0c41a25",
       "status": "current"
     },
     {
@@ -17377,7 +17633,11 @@
         "ProductRecipeLine",
         "ProductLot",
         "SerialUnit",
-        "StockMovement"
+        "StockMovement",
+        "WarehouseLocation",
+        "CustomizationWorkOrder",
+        "KittingWorkOrder",
+        "StockReservation"
       ],
       "owns_routes": [
         "src/app/(pm)/inventory/**",
@@ -17389,7 +17649,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "9f171eab",
+      "hash": "fe4d2350",
       "status": "current"
     },
     {
@@ -17768,6 +18028,13 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-025",
+      "type": "feature",
+      "label": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:AgentTraceEvent",
       "type": "model",
       "status": "current"
@@ -17893,6 +18160,11 @@
       "status": "current"
     },
     {
+      "id": "model:CustomizationWorkOrder",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:DeadLetterRecord",
       "type": "model",
       "status": "current"
@@ -18009,6 +18281,11 @@
     },
     {
       "id": "model:InventoryCategory",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:KittingWorkOrder",
       "type": "model",
       "status": "current"
     },
@@ -18388,6 +18665,11 @@
       "status": "current"
     },
     {
+      "id": "model:StockReservation",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Supplier",
       "type": "model",
       "status": "current"
@@ -18409,6 +18691,11 @@
     },
     {
       "id": "model:Tenant",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:WarehouseLocation",
       "type": "model",
       "status": "current"
     },
@@ -18691,6 +18978,76 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Asset evidence has three independently attributable layers: original FileAsset, provider candidate and human review/correction. No layer overwrites the preceding layer; only deterministic validation plus required reviewed evidence may set `READY_FOR_REGISTRATION`, and that status neither creates RegisteredAsset nor asserts Procurement/Finance acceptance. FR-137; FR-138; ADR-056 "
+    },
+    {
+      "id": "req:BR-026",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Stock changes place only through a transfer, and a transfer is one movement pair in one transaction — the issue at the source and the receipt at the target are written together or not at all, both through the FR-155 ledger writer, so a Business-wide on-hand is unchanged by construction while the located buckets move. A movement may name a source, a target, both (a transfer) or neither (a row written before FR-174, or one whose location is genuinely unknown); a located sum is therefore always reported as its own figure beside the Business-wide total, never as a replacement for it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Stock changes place only through a transfer, and a transfer is one movement pair in one transaction — the issue at the source and the receipt at the target are written together or not at all, both through the FR-155 ledger writer, so a Business-wide on-hand is unchanged by construction while the located buckets move. A movement may name a source, a target, both (a transfer) or neither (a row written before FR-174, or one whose location is genuinely unknown); a located sum is therefore always reported as its own figure beside the Business-wide total, never as a replacement for it. FR-174; ADR-074 D1, D2 "
+    },
+    {
+      "id": "req:BR-027",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Money in the stock ledger is integer satang and domestic single-drop freight is absorbed into unit valuation, never quoted as a line — `costSatang` on a movement is the unit landed cost in THB × 100; a float never enters. Shared batch costs (sea freight, duty, the flat inbound truck) are divided by the batch quantity and rounded **up** to the satang, so a batch is never valued below what it cost and the rounding gain is never redistributed, because a valuation that depends on iteration order is not reproducible. A standard single-drop delivery consequently appears to the customer as 0.00; a second drop or an island crossing is a distinct service and is charged by the Commerce lane, not by re-opening the valuation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Money in the stock ledger is integer satang and domestic single-drop freight is absorbed into unit valuation, never quoted as a line — `costSatang` on a movement is the unit landed cost in THB × 100; a float never enters. Shared batch costs (sea freight, duty, the flat inbound truck) are divided by the batch quantity and rounded **up** to the satang, so a batch is never valued below what it cost and the rounding gain is never redistributed, because a valuation that depends on iteration order is not reproducible. A standard single-drop delivery consequently appears to the customer as 0.00; a second drop or an island crossing is a distinct service and is charged by the Commerce lane, not by re-opening the valuation. FR-175; ADR-074 D3; ADR-065 D2 "
+    },
+    {
+      "id": "req:BR-028",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Customization is irreversible: once raw stock is branded it is a different, customer-dedicated product and can never return to generic stock — a completed customization work order does not receive its input SKU back. It receives a product whose `itemKind` is `CUSTOM_COMPONENT` carrying `dedicatedCustomerId` and `dedicatedSalesOrderId`, and the domain refuses by code to issue that product for another customer, to transfer it into a raw-stock location, or to consume it in a kitting order for another sales order. Disassembly obeys the same rule: a branded component comes back branded or goes to quarantine, never as raw stock. The single exit is an explicit ADJUSTMENT write-off with a stated reason, which is a decision a person makes and the audit records.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Customization is irreversible: once raw stock is branded it is a different, customer-dedicated product and can never return to generic stock — a completed customization work order does not receive its input SKU back. It receives a product whose `itemKind` is `CUSTOM_COMPONENT` carrying `dedicatedCustomerId` and `dedicatedSalesOrderId`, and the domain refuses by code to issue that product for another customer, to transfer it into a raw-stock location, or to consume it in a kitting order for another sales order. Disassembly obeys the same rule: a branded component comes back branded or goes to quarantine, never as raw stock. The single exit is an explicit ADJUSTMENT write-off with a stated reason, which is a decision a person makes and the audit records. FR-176; FR-178; ADR-074 D4, D6 "
+    },
+    {
+      "id": "req:BR-029",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A bill of materials declares the loss it expects, and the buffer is issued up front — `ProductRecipe.scrapAllowanceFactor` is a fraction in `[0, 0.20]` (default 0, so every recipe predating it is unchanged), and the gross issue for a net requirement of Q is `ceil(Q × (1 + factor))`. What the buffer did not consume is reconciled at completion and stays where it is; what it did not cover is reported as a shortage that blocks the work order (`BLOCKED_SHORTAGE`) rather than a build that half-happened. Scrap is issued to the quarantine/scrap location so the loss is visible as a movement, never as a quantity that merely failed to arrive.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A bill of materials declares the loss it expects, and the buffer is issued up front — `ProductRecipe.scrapAllowanceFactor` is a fraction in `[0, 0.20]` (default 0, so every recipe predating it is unchanged), and the gross issue for a net requirement of Q is `ceil(Q × (1 + factor))`. What the buffer did not consume is reconciled at completion and stays where it is; what it did not cover is reported as a shortage that blocks the work order (`BLOCKED_SHORTAGE`) rather than a build that half-happened. Scrap is issued to the quarantine/scrap location so the loss is visible as a movement, never as a quantity that merely failed to arrive. FR-176; FR-177; ADR-074 D5 "
+    },
+    {
+      "id": "req:BR-030",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A unit that degrades in storage is guarded on issue, not merely reported — for a product declaring `maintenanceIntervalDays` and/or `maxStorageDays`, a lot's storage age runs from `lastMaintainedAt ?? manufacturedAt`. At the maintenance interval the lot is due and is surfaced as a task while remaining fully issuable; past `maxStorageDays` it is refused for issue and for kitting until a maintenance is recorded, which resets the clock. A product declaring neither is never affected. This is FEFO's second question — FR-155's FEFO decides which lot goes first, this decides which lots may go at all.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A unit that degrades in storage is guarded on issue, not merely reported — for a product declaring `maintenanceIntervalDays` and/or `maxStorageDays`, a lot's storage age runs from `lastMaintainedAt ?? manufacturedAt`. At the maintenance interval the lot is due and is surfaced as a task while remaining fully issuable; past `maxStorageDays` it is refused for issue and for kitting until a maintenance is recorded, which resets the clock. A product declaring neither is never affected. This is FEFO's second question — FR-155's FEFO decides which lot goes first, this decides which lots may go at all. FR-179; ADR-074 D7 "
+    },
+    {
+      "id": "req:BR-031",
+      "type": "requirement",
+      "family": "BR",
+      "label": "What is already promised is subtracted before anything else is promised — `ATP = onHand − Σ committed reservations − Σ live quote reservations`, where a quote reservation is soft and expiring (7 days by default) and an order reservation is committed against a confirmed sales order. A reservation never writes the stock ledger, because a promise is not a physical fact and mixing the two would make on-hand disagree with a shelf; and a reservation is never deleted, only `RELEASED`, `CONVERTED` or `EXPIRED`, so a past refusal to promise stays explicable. Expiry is evaluated on read against the clock, so an ATP figure is correct whether or not a sweeper has run.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "What is already promised is subtracted before anything else is promised — `ATP = onHand − Σ committed reservations − Σ live quote reservations`, where a quote reservation is soft and expiring (7 days by default) and an order reservation is committed against a confirmed sales order. A reservation never writes the stock ledger, because a promise is not a physical fact and mixing the two would make on-hand disagree with a shelf; and a reservation is never deleted, only `RELEASED`, `CONVERTED` or `EXPIRED`, so a past refusal to promise stays explicable. Expiry is evaluated on read against the clock, so an ATP figure is correct whether or not a sweeper has run. FR-180; ADR-074 D8 "
+    },
+    {
+      "id": "req:BR-032",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A tradeable finished set carries the FlowAccount normalized item code — `^[A-Z0-9]+-[0-9]+\\([A-Z0-9_-]+\\)$`: factory model, item count, package code (`TMS06-4(P-16)` is a four-item set in box P-16) — and a kitting work order is refused when its output has none, or one that does not match. The code is an **external** identifier and is stored as an attribute, never a key (BR-002): `Product.flowAccountSku`, unique per `(tenantId, flowAccountSku)`. It is not `Product.code`, whose FR-154 pattern deliberately has no room for parentheses, and not an `ExternalRef` row, because that table is unique installation-wide and two Tenants may legitimately sell a set the same factory model names. Components and packaging carry no such code at all, because they are never synchronised to FlowAccount.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A tradeable finished set carries the FlowAccount normalized item code — `^[A-Z0-9]+-[0-9]+\\([A-Z0-9_-]+\\)$`: factory model, item count, package code (`TMS06-4(P-16)` is a four-item set in box P-16) — and a kitting work order is refused when its output has none, or one that does not match. The code is an **external** identifier and is stored as an attribute, never a key (BR-002): `Product.flowAccountSku`, unique per `(tenantId, flowAccountSku)`. It is not `Product.code`, whose FR-154 pattern deliberately has no room for parentheses, and not an `ExternalRef` row, because that table is unique installation-wide and two Tenants may legitimately sell a set the same factory model names. Components and packaging carry no such code at all, because they are never synchronised to FlowAccount. FR-177; ADR-074 D5; BR-002 "
     },
     {
       "id": "req:FR-001",
@@ -20423,6 +20780,86 @@
       "row_text": "Knowledge source admission and corpus publication — authorized users submit immutable Text/Markdown or readable FileAsset versions through one UI/API/MCP service under a Business and optional owned Project association; durable scoped jobs run GenesisRAG17 and become searchable only after exact publication receipts are atomically merged into an immutable multi-document corpus manifest. Queries bind authorized source snapshots and citations resolve immutable lineage with current ACL/revocation checks; duplicate requests are idempotent, conflicting versions fail, corrections preserve other documents, stale completion cannot replace a newer revision, withdrawal removes serving membership, and runtime restart resumes durable work without granting users installation-operator rights. Phases 0–4 implemented; isolated Business browser/session HTTP/MCP native acceptance passed; Project/API-grant authorization covered by unit/Prisma tests; no production activation claim "
     },
     {
+      "id": "req:FR-174",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Every stock movement may name where it came from and where it went, and a transfer is the only way stock changes place — `WarehouseLocation` is a Business-scoped row (`code` unique per Tenant, BR-002) typed by one of nine supply-chain buckets (`CN_FACTORY`, `INTL_SEA_TRANSIT`, `TH_PORT_CUSTOMS`, `TH_CENTRAL_RAW`, `TH_WIP_CUSTOMIZATION`, `TH_WIP_ASSEMBLY`, `TH_FINISHED_GOODS`, `TH_QUARANTINE_SCRAP`, `CUSTOMER_SITE`) with an `isVirtual` flag for the places the Business does not hold (a partner factory, a container at sea). `StockMovement` gains nullable `sourceLocationId` / `targetLocationId`, so every row written before this requirement stays valid. `transferStock` issues at the source and receives at the target in one transaction through FR-155's own `appendMovement`, so both halves obey every ledger rule and Business-wide on-hand is unchanged by construction; there is no fourth movement kind. Located on-hand is reported beside the Business-wide total, never instead of it, because a Business that started locating halfway has rows the located sum cannot see.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Every stock movement may name where it came from and where it went, and a transfer is the only way stock changes place — `WarehouseLocation` is a Business-scoped row (`code` unique per Tenant, BR-002) typed by one of nine supply-chain buckets (`CN_FACTORY`, `INTL_SEA_TRANSIT`, `TH_PORT_CUSTOMS`, `TH_CENTRAL_RAW`, `TH_WIP_CUSTOMIZATION`, `TH_WIP_ASSEMBLY`, `TH_FINISHED_GOODS`, `TH_QUARANTINE_SCRAP`, `CUSTOMER_SITE`) with an `isVirtual` flag for the places the Business does not hold (a partner factory, a container at sea). `StockMovement` gains nullable `sourceLocationId` / `targetLocationId`, so every row written before this requirement stays valid. `transferStock` issues at the source and receives at the target in one transaction through FR-155's own `appendMovement`, so both halves obey every ledger rule and Business-wide on-hand is unchanged by construction; there is no fourth movement kind. Located on-hand is reported beside the Business-wide total, never instead of it, because a Business that started locating halfway has rows the located sum cannot see. 🟠 implemented locally 2026-09-10 (ADR-074 D1, D2) — `WarehouseLocation` + two columns + migration `20260910120000_smartgift_scm_wip`, `inventory/domain/warehouse-location.js`, `application/location-transfer-service.js`; `tests/integration/fr174-warehouse-locations.test.js` "
+    },
+    {
+      "id": "req:FR-175",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted — `StockMovement.costSatang` is the unit landed cost of that row (THB × 100, never a float, the ADR-065 D2 money rule). `landedUnitCostSatang = factoryCostSatang + ceil(seaFreight/batch) + ceil(duty/batch) + ceil(inboundTruck/batch) + customizationPerUnit + kittingPerUnit`, each shared cost divided by the batch and rounded up to the satang so a batch is never valued below what it cost. The inbound truck defaults to the flat 250,000 satang (2,500 THB) single-drop rate, which is why a standard quote shows delivery as 0.00 and must carry no separate freight line — a second drop or an island crossing is a different service and belongs to Commerce. Valuation across receipts is moving weighted average, recomputed from the ledger like every other inventory number.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted — `StockMovement.costSatang` is the unit landed cost of that row (THB × 100, never a float, the ADR-065 D2 money rule). `landedUnitCostSatang = factoryCostSatang + ceil(seaFreight/batch) + ceil(duty/batch) + ceil(inboundTruck/batch) + customizationPerUnit + kittingPerUnit`, each shared cost divided by the batch and rounded up to the satang so a batch is never valued below what it cost. The inbound truck defaults to the flat 250,000 satang (2,500 THB) single-drop rate, which is why a standard quote shows delivery as 0.00 and must carry no separate freight line — a second drop or an island crossing is a different service and belongs to Commerce. Valuation across receipts is moving weighted average, recomputed from the ledger like every other inventory number. 🟠 implemented locally 2026-09-10 (ADR-074 D3) — `inventory/domain/inventory-costing.js` (pure), `costSatang` on the ledger; `tests/unit/inventory-costing.test.js`, `tests/integration/fr177-kitting-work-order.test.js` "
+    },
+    {
+      "id": "req:FR-176",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A customization work order is the durable record of branded work in progress, and branding is irreversible — `CustomizationWorkOrder` (`CWO-YYYYMMDD-NNN`) binds one raw SKU, one technique (`LASER_ENGRAVING`, `SILK_SCREEN`, `UV_DIGITAL_PRINT`, `HOT_STAMP_FOIL`, `EMBOSSING`), one customer and one sales order, with artwork, Pantone colours, setup and run cost in satang, and issued / completed / scrapped quantities as it runs (`DRAFT → RELEASED → IN_PROGRESS → COMPLETED | CANCELLED`, plus `BLOCKED_SHORTAGE` when scrap outruns the buffer). Releasing it transfers the gross quantity into `TH_WIP_CUSTOMIZATION`; completing it consumes the raw units, issues scrap to `TH_QUARANTINE_SCRAP` and receives a different product — `itemKind` `CUSTOM_COMPONENT` with `dedicatedCustomerId` / `dedicatedSalesOrderId` set — which the domain then refuses to issue to another customer, to transfer back into generic raw stock, or to consume for another order. The only exit is an explicit ADJUSTMENT write-off with a stated reason.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A customization work order is the durable record of branded work in progress, and branding is irreversible — `CustomizationWorkOrder` (`CWO-YYYYMMDD-NNN`) binds one raw SKU, one technique (`LASER_ENGRAVING`, `SILK_SCREEN`, `UV_DIGITAL_PRINT`, `HOT_STAMP_FOIL`, `EMBOSSING`), one customer and one sales order, with artwork, Pantone colours, setup and run cost in satang, and issued / completed / scrapped quantities as it runs (`DRAFT → RELEASED → IN_PROGRESS → COMPLETED | CANCELLED`, plus `BLOCKED_SHORTAGE` when scrap outruns the buffer). Releasing it transfers the gross quantity into `TH_WIP_CUSTOMIZATION`; completing it consumes the raw units, issues scrap to `TH_QUARANTINE_SCRAP` and receives a different product — `itemKind` `CUSTOM_COMPONENT` with `dedicatedCustomerId` / `dedicatedSalesOrderId` set — which the domain then refuses to issue to another customer, to transfer back into generic raw stock, or to consume for another order. The only exit is an explicit ADJUSTMENT write-off with a stated reason. 🟠 implemented locally 2026-09-10 (ADR-074 D4) — `inventory/domain/inventory-wip.js`, `application/customization-work-order-service.js`; `tests/integration/fr176-customization-work-order.test.js` "
+    },
+    {
+      "id": "req:FR-177",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance — `KittingWorkOrder` (`KWO-YYYYMMDD-NNN`) explodes one `ProductRecipe` for a planned quantity, and `ProductRecipe.scrapAllowanceFactor` (a fraction in `[0, 0.20]`, default 0, so every recipe written before this requirement explodes exactly as it did) makes the gross issue `ceil(net × (1 + factor))` — the buffer is issued up front rather than fetched mid-line. Completion consumes the components, records assembled and scrapped quantities, blends the component landed costs plus packaging and assembly labour into the finished unit's `costSatang`, and receives the set at `TH_FINISHED_GOODS`. The output must carry a FlowAccount item code matching `^[A-Z0-9]+-[0-9]+\\([A-Z0-9_-]+\\)$` (model, item count, package code — `TMS06-4(P-16)`), and a run without one is refused. That code is deliberately **not** `Product.code` — FR-154's code pattern has no room for parentheses, and widening it for one integration would be the wrong reading — and equally deliberately not an `ExternalRef` row, which is unique on `(system, value)` installation-wide and carries no `tenantId`, so two Tenants importing from the same factory could not both name their four-item set `TMS06-4(P-16)`. It is one nullable `Product.flowAccountSku` column, unique per `(tenantId, flowAccountSku)`, an attribute and never a key (BR-002), written only by `createProduct` and `setFlowAccountSku`, both of which validate the pattern. Validated where a set is produced rather than where a product is named, because components and packaging are never synchronised to FlowAccount at all.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance — `KittingWorkOrder` (`KWO-YYYYMMDD-NNN`) explodes one `ProductRecipe` for a planned quantity, and `ProductRecipe.scrapAllowanceFactor` (a fraction in `[0, 0.20]`, default 0, so every recipe written before this requirement explodes exactly as it did) makes the gross issue `ceil(net × (1 + factor))` — the buffer is issued up front rather than fetched mid-line. Completion consumes the components, records assembled and scrapped quantities, blends the component landed costs plus packaging and assembly labour into the finished unit's `costSatang`, and receives the set at `TH_FINISHED_GOODS`. The output must carry a FlowAccount item code matching `^[A-Z0-9]+-[0-9]+\\([A-Z0-9_-]+\\)$` (model, item count, package code — `TMS06-4(P-16)`), and a run without one is refused. That code is deliberately **not** `Product.code` — FR-154's code pattern has no room for parentheses, and widening it for one integration would be the wrong reading — and equally deliberately not an `ExternalRef` row, which is unique on `(system, value)` installation-wide and carries no `tenantId`, so two Tenants importing from the same factory could not both name their four-item set `TMS06-4(P-16)`. It is one nullable `Product.flowAccountSku` column, unique per `(tenantId, flowAccountSku)`, an attribute and never a key (BR-002), written only by `createProduct` and `setFlowAccountSku`, both of which validate the pattern. Validated where a set is produced rather than where a product is named, because components and packaging are never synchronised to FlowAccount at all. 🟠 implemented locally 2026-09-10 (ADR-074 D5) — `scrapAllowanceFactor` on `ProductRecipe`, `application/kitting-work-order-service.js`; `tests/integration/fr177-kitting-work-order.test.js` "
+    },
+    {
+      "id": "req:FR-178",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Disassembly is a work order run backwards and it cannot launder branded stock — de-kitting issues the finished set and receives its constituent components in one transaction at a stated location. A component that was branded returns as its own `CUSTOM_COMPONENT` identity with its customer lock intact, or goes to `TH_QUARANTINE_SCRAP`; it never returns as generic raw stock. Packaging the disassembly destroys is written off in the same transaction rather than optimistically returned, and the destroyed lines are named by the caller because only a person looking at the box knows which they are.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Disassembly is a work order run backwards and it cannot launder branded stock — de-kitting issues the finished set and receives its constituent components in one transaction at a stated location. A component that was branded returns as its own `CUSTOM_COMPONENT` identity with its customer lock intact, or goes to `TH_QUARANTINE_SCRAP`; it never returns as generic raw stock. Packaging the disassembly destroys is written off in the same transaction rather than optimistically returned, and the destroyed lines are named by the caller because only a person looking at the box knows which they are. 🟠 implemented locally 2026-09-10 (ADR-074 D6) — `application/de-kitting-service.js`; `tests/integration/fr178-de-kitting.test.js` "
+    },
+    {
+      "id": "req:FR-179",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A stored unit that ages and can be restored by an operation is guarded on issue, not merely reported — `Product.maintenanceIntervalDays` and `Product.maxStorageDays` (both nullable, so a product with neither behaves exactly as before) and `ProductLot.lastMaintainedAt` make a lot's storage age `now − (lastMaintainedAt ?? manufacturedAt)`. At the maintenance interval the lot is **due**: surfaced as a task, never blocked. Past `maxStorageDays` it is **refused** for issue and for kitting until a maintenance is recorded, which resets the clock. The generalisation past \"battery\" is deliberate — the rule is about a unit that degrades in storage and is restored by an operation, which is as true of a lithium cell needing a 180-day recharge as of a calibrated instrument. FEFO (FR-155) still chooses which lot goes first; this says which lots may go at all.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A stored unit that ages and can be restored by an operation is guarded on issue, not merely reported — `Product.maintenanceIntervalDays` and `Product.maxStorageDays` (both nullable, so a product with neither behaves exactly as before) and `ProductLot.lastMaintainedAt` make a lot's storage age `now − (lastMaintainedAt ?? manufacturedAt)`. At the maintenance interval the lot is **due**: surfaced as a task, never blocked. Past `maxStorageDays` it is **refused** for issue and for kitting until a maintenance is recorded, which resets the clock. The generalisation past \"battery\" is deliberate — the rule is about a unit that degrades in storage and is restored by an operation, which is as true of a lithium cell needing a 180-day recharge as of a calibrated instrument. FEFO (FR-155) still chooses which lot goes first; this says which lots may go at all. 🟠 implemented locally 2026-09-10 (ADR-074 D7, BR-030) — two columns + `lastMaintainedAt`, `inventory/domain/inventory-wip.js` shelf-life calculators, `application/inventory-shelf-life-service.js`; `tests/integration/fr179-shelf-life-guard.test.js` "
+    },
+    {
+      "id": "req:FR-180",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Available-to-Promise subtracts what is already spoken for, in two tiers — `StockReservation` holds one product's quantity for one purpose: `QUOTE` (soft, expiring, 7 days by default) or `ORDER` (committed against a confirmed sales order), so `ATP = onHand − Σ committed − Σ live quote reservations`. A reservation is never deleted: it moves to `RELEASED`, `CONVERTED` or `EXPIRED`, so \"why could we not promise those 500 on Tuesday\" stays answerable. Expiry is evaluated on read against the clock rather than by a sweeper, so an ATP figure is correct even when no worker has run. Reservations never write the stock ledger — a reservation is a promise and the ledger is physical fact — and the maximum buildable set count is computed from ATP rather than on-hand, so two quotes cannot both promise the same tumblers.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Available-to-Promise subtracts what is already spoken for, in two tiers — `StockReservation` holds one product's quantity for one purpose: `QUOTE` (soft, expiring, 7 days by default) or `ORDER` (committed against a confirmed sales order), so `ATP = onHand − Σ committed − Σ live quote reservations`. A reservation is never deleted: it moves to `RELEASED`, `CONVERTED` or `EXPIRED`, so \"why could we not promise those 500 on Tuesday\" stays answerable. Expiry is evaluated on read against the clock rather than by a sweeper, so an ATP figure is correct even when no worker has run. Reservations never write the stock ledger — a reservation is a promise and the ledger is physical fact — and the maximum buildable set count is computed from ATP rather than on-hand, so two quotes cannot both promise the same tumblers. 🟠 implemented locally 2026-09-10 (ADR-074 D8, BR-031) — `StockReservation` + migration, `application/inventory-atp-service.js`; `tests/integration/fr180-atp-reservations.test.js` "
+    },
+    {
+      "id": "req:FR-181",
+      "type": "requirement",
+      "family": "FR",
+      "label": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path — three read tools in the Gate E registry (`check_inventory_atp`, `calculate_smartgift_quote`, `audit_battery_lots`) and three write actions in the Gate F registry (`create_quote_stock_reservation` at LOW sensitivity; `dispatch_customization_work_order` and `dispatch_kitting_work_order` at HIGH, so the action gate demands step-up before stock is irreversibly branded or consumed). Every tool calls the same application service a human surface calls, with the same viewer and therefore the same authority ladder and the same FR-072 refusals; none queries Prisma directly and none carries a Business the caller did not already prove. `calculate_smartgift_quote` states the absorbed freight explicitly (`freightSatang: 0`, `freightAbsorbedSatang: 250000`) so a quote can never present it as a separate charge (FR-175). The Business's own system prompts are its agent configuration, not zuri-ai code; this requirement ships the tools they call.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path — three read tools in the Gate E registry (`check_inventory_atp`, `calculate_smartgift_quote`, `audit_battery_lots`) and three write actions in the Gate F registry (`create_quote_stock_reservation` at LOW sensitivity; `dispatch_customization_work_order` and `dispatch_kitting_work_order` at HIGH, so the action gate demands step-up before stock is irreversibly branded or consumed). Every tool calls the same application service a human surface calls, with the same viewer and therefore the same authority ladder and the same FR-072 refusals; none queries Prisma directly and none carries a Business the caller did not already prove. `calculate_smartgift_quote` states the absorbed freight explicitly (`freightSatang: 0`, `freightAbsorbedSatang: 250000`) so a quote can never present it as a separate charge (FR-175). The Business's own system prompts are its agent configuration, not zuri-ai code; this requirement ships the tools they call. 🟠 implemented locally 2026-09-10 (ADR-074 D9, SDD-091) — `agent/tools/smartgift-inventory-tools.js`, registered through the existing `createToolRegistry` / `createWriteToolRegistry`; `tests/integration/fr181-smartgift-agent-tools.test.js` "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -21531,6 +21968,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Marketing Operations is one Business-scoped composition boundary, not a second work system: a single aggregate DTO combines Marketing-owned intake and approval rows with bounded projections from the PM `getProjectRoadmap` owner port and validated Marketing-to-owner receipts. Every response carries source state, generation time and warnings; EMPTY, PARTIAL, STALE, UNAVAILABLE and FORBIDDEN remain distinct. Intake mutations use the Marketing authority gate, expected-version CAS and one AuditEvent. Detail routes re-check both the requested identity and Business scope, and no route writes PM, CRM, Commerce or provider records. FR-162; FR-158; FR-159; FR-157; SDD-039; SDD-086; SEC-001; SEC-003; ADR-025 "
+    },
+    {
+      "id": "req:SDD-090",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The located ledger and the two WIP work orders are additive columns plus four tables, never a second stock system: `WarehouseLocation` and `StockReservation` are new Business-scoped rows; `CustomizationWorkOrder` and `KittingWorkOrder` are new work-order rows that hold *intent and progress* while the FR-155 ledger keeps holding *fact*, so a work order can be queried for \"how many are on the laser bench\" without any quantity being stored twice. Every addition to an existing table is nullable or defaulted (`StockMovement.sourceLocationId`, `targetLocationId`, `costSatang`, `customerId`, `salesOrderId`, `workOrderId`; `Product.itemKind`, `dedicatedCustomerId`, `dedicatedSalesOrderId`, `maintenanceIntervalDays`, `maxStorageDays`, `flowAccountSku`; `ProductLot.lastMaintainedAt`; `ProductRecipe.scrapAllowanceFactor`), so every row and every reader written before this change stays correct. Work orders write the ledger only through Inventory's own `appendMovement`, which is what keeps append-only, FEFO, insufficient-stock refusal and one audit row per movement true for WIP as well.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The located ledger and the two WIP work orders are additive columns plus four tables, never a second stock system: `WarehouseLocation` and `StockReservation` are new Business-scoped rows; `CustomizationWorkOrder` and `KittingWorkOrder` are new work-order rows that hold *intent and progress* while the FR-155 ledger keeps holding *fact*, so a work order can be queried for \"how many are on the laser bench\" without any quantity being stored twice. Every addition to an existing table is nullable or defaulted (`StockMovement.sourceLocationId`, `targetLocationId`, `costSatang`, `customerId`, `salesOrderId`, `workOrderId`; `Product.itemKind`, `dedicatedCustomerId`, `dedicatedSalesOrderId`, `maintenanceIntervalDays`, `maxStorageDays`, `flowAccountSku`; `ProductLot.lastMaintainedAt`; `ProductRecipe.scrapAllowanceFactor`), so every row and every reader written before this change stays correct. Work orders write the ledger only through Inventory's own `appendMovement`, which is what keeps append-only, FEFO, insufficient-stock refusal and one audit row per movement true for WIP as well. FR-174..FR-180; ADR-074 "
+    },
+    {
+      "id": "req:SDD-091",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "An agent tool is a thin adapter over an application service and adds no authority of its own: each SmartGift tool takes the caller's already-resolved viewer, calls the same exported service a page or route would call, and returns its result — no direct Prisma query, no scope assembled from tool arguments, no Business id the caller did not already prove. The split across the two existing registries is by effect, not by convenience: read tools land in the Gate E `createToolRegistry` (which refuses anything not `readOnly: true`) and write actions in the Gate F `createWriteToolRegistry`, where the two irreversible dispatches declare `HIGH` sensitivity so the action gate demands step-up. Tool JSON schemas are generated from the same Zod contracts the services parse, so a tool cannot advertise a shape the service would reject.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "An agent tool is a thin adapter over an application service and adds no authority of its own: each SmartGift tool takes the caller's already-resolved viewer, calls the same exported service a page or route would call, and returns its result — no direct Prisma query, no scope assembled from tool arguments, no Business id the caller did not already prove. The split across the two existing registries is by effect, not by convenience: read tools land in the Gate E `createToolRegistry` (which refuses anything not `readOnly: true`) and write actions in the Gate F `createWriteToolRegistry`, where the two irreversible dispatches declare `HIGH` sensitivity so the action gate demands step-up. Tool JSON schemas are generated from the same Zod contracts the services parse, so a tool cannot advertise a shape the service would reject. FR-181; ADR-074 D9; ADR-007 §P6, §P7 "
     },
     {
       "id": "req:SEC-001",
@@ -24755,6 +25212,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "type": "adr",
+      "path": "docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md",
+      "title": "ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost",
+      "hash": "64beb50b",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
@@ -25059,7 +25524,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/backup.test.js",
-      "hash": "f94ce7c6",
+      "hash": "f1453b19",
       "status": "current"
     },
     {
@@ -25466,6 +25931,55 @@
       "type": "test",
       "path": "apps/server/tests/integration/fr169-business-capability.test.js",
       "hash": "3141baf6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr174-warehouse-locations.test.js",
+      "hash": "789c99e1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr176-customization-work-order.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr176-customization-work-order.test.js",
+      "hash": "dd53929b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr177-kitting-work-order.test.js",
+      "hash": "94e67ed6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr178-de-kitting.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr178-de-kitting.test.js",
+      "hash": "fb6431e8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr179-shelf-life-guard.test.js",
+      "hash": "a43ac702",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr180-atp-reservations.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr180-atp-reservations.test.js",
+      "hash": "1e4acf9a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
+      "hash": "d0d039e7",
       "status": "current"
     },
     {
@@ -27261,6 +27775,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/inventory-costing.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/inventory-costing.test.js",
+      "hash": "01194f40",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/inventory-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/inventory-domain.test.js",
@@ -27272,6 +27793,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/inventory-routes.test.js",
       "hash": "2e6a864c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/inventory-wip.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/inventory-wip.test.js",
+      "hash": "04ed6969",
       "status": "current"
     },
     {
@@ -28784,6 +29312,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/waiting-room-page.test.js",
       "hash": "f50d23a4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/warehouse-location.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/warehouse-location.test.js",
+      "hash": "2ee27146",
       "status": "current"
     },
     {
@@ -39828,6 +40363,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/tools/smartgift-inventory-tools.js",
+      "to": "req:BR-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/tools/smartgift-inventory-tools.js",
+      "to": "req:FR-181",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/tools/smartgift-inventory-tools.js",
+      "to": "req:SDD-091",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/turn.js",
       "to": "req:BR-020",
       "type": "follows",
@@ -43006,6 +43562,132 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:FR-155",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:FR-155",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:FR-156",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:FR-178",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/de-kitting-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/inventory/application/inventory-authority.js",
       "to": "req:BR-020",
       "type": "follows",
@@ -43063,6 +43745,20 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-catalog-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -43097,9 +43793,44 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
+      "to": "req:BR-030",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/inventory/application/inventory-stock-service.js",
       "to": "req:BR-002",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:BR-028",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -43119,8 +43850,239 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-175",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
       "to": "req:SEC-001",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:BR-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:BR-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:FR-155",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:FR-156",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/location-transfer-service.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/location-transfer-service.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/location-transfer-service.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-costing.js",
+      "to": "req:BR-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-costing.js",
+      "to": "req:FR-175",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-costing.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:BR-030",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:FR-180",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -43160,6 +44122,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-175",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/warehouse-location.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/warehouse-location.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/inventory/index.js",
       "to": "req:FR-154",
       "type": "implements",
@@ -43169,6 +44180,55 @@
     {
       "from": "code:src/modules/inventory/index.js",
       "to": "req:FR-155",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-175",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-178",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-180",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -47207,6 +48267,34 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -50960,6 +52048,13 @@
     {
       "from": "doc:ERP-MODULE-MAP",
       "to": "spec:ADR-071-CRM-IS-A-PARENT-DOMAIN-OVER-CUSTOMER-AND-MARKET-INTELLIGENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:ERP-MODULE-MAP",
+      "to": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -55221,6 +56316,62 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-174",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-175",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-176",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-177",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-178",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-179",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-180",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-181",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AgentTraceEvent",
       "to": "domain:agent",
       "type": "owned_by",
@@ -55396,6 +56547,13 @@
       "source": "charter"
     },
     {
+      "from": "model:CustomizationWorkOrder",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:DeadLetterRecord",
       "to": "domain:integration",
       "type": "owned_by",
@@ -55558,6 +56716,13 @@
     },
     {
       "from": "model:InventoryCategory",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:KittingWorkOrder",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -56089,6 +57254,13 @@
       "source": "charter"
     },
     {
+      "from": "model:StockReservation",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Supplier",
       "to": "domain:procurement",
       "type": "owned_by",
@@ -56119,6 +57291,13 @@
     {
       "from": "model:Tenant",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:WarehouseLocation",
+      "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -56344,6 +57523,55 @@
       "from": "req:BR-025",
       "to": "req:FR-143",
       "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-026",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-027",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-028",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-029",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-030",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-031",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-032",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
@@ -57587,6 +58815,62 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-174",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-175",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-176",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-177",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-178",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-179",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-180",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-181",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -58358,6 +59642,20 @@
     },
     {
       "from": "req:SDD-089",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-090",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-091",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -63397,6 +64695,34 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "to": "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "to": "spec:ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "to": "code:src/platform/integrations/core/genesisrag17-publication.js",
       "type": "tests",
@@ -67073,6 +68399,34 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -67494,6 +68848,34 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-180",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -69964,6 +71346,34 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -71266,6 +72676,20 @@
     },
     {
       "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr154-inventory-catalog.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -71329,6 +72753,13 @@
     },
     {
       "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
@@ -71340,6 +72771,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr155-inventory-stock.test.js",
@@ -71942,6 +73401,405 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "code:src/modules/inventory/application/location-transfer-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "code:src/modules/inventory/application/warehouse-location-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr174-warehouse-locations.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "code:src/modules/inventory/application/customization-work-order-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:BR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr176-customization-work-order.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "code:src/modules/inventory/application/kitting-work-order-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:BR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:BR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr177-kitting-work-order.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "code:src/modules/inventory/application/de-kitting-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:FR-156",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:FR-178",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr178-de-kitting.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "to": "code:src/modules/inventory/application/inventory-shelf-life-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "to": "req:BR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr179-shelf-life-guard.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "code:src/modules/inventory/application/inventory-atp-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "req:BR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr180-atp-reservations.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "code:src/modules/agent/tools/smartgift-inventory-tools.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:BR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:BR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:FR-181",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr181-smartgift-agent-tools.test.js",
+      "to": "req:SDD-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/genesisrag17-tier1.test.js",
@@ -73681,6 +75539,34 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -74143,6 +76029,34 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -74529,6 +76443,34 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-180",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -83649,6 +85591,34 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -87134,6 +89104,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/inventory-costing.test.js",
+      "to": "code:src/modules/inventory/domain/inventory-costing.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-costing.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-costing.test.js",
+      "to": "req:BR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-costing.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-costing.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/inventory-domain.test.js",
       "to": "code:src/modules/inventory/domain/inventory.js",
       "type": "tests",
@@ -87181,6 +89186,55 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-178",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
@@ -87517,6 +89571,69 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "code:src/modules/inventory/domain/inventory-wip.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:BR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:BR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:BR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/knowledge-admission-mcp.test.js",
@@ -97181,6 +99298,41 @@
     {
       "from": "test:tests/unit/waiting-room-page.test.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/warehouse-location.test.js",
+      "to": "code:src/modules/inventory/domain/warehouse-location.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/warehouse-location.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/warehouse-location.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/warehouse-location.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/warehouse-location.test.js",
+      "to": "req:FR-174",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

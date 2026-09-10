@@ -237,6 +237,60 @@ describe('snapshot backup round trip', () => {
         decidedByPersonId: person.id,
       },
     })
+
+    // @req FR-174, FR-176, FR-177, FR-180 — the ADR-074 rows, written here for
+    // the same reason the eight integration models were: a model listed in
+    // SNAPSHOT_MODELS and never created by any fixture proves nothing about the
+    // restore path, and restore ORDER (location before the ledger, work orders
+    // after the products and recipes they name) is the half preflight cannot check.
+    const inventoryCategory = await prisma.inventoryCategory.create({
+      data: { code: 'CAT-BAK', tenantId: tenant.id, businessId: business.id, nameTh: 'สำรองข้อมูล', nameEn: 'Backup' },
+    })
+    const productMaster = await prisma.productMaster.create({
+      data: { code: 'PM-BAK', tenantId: tenant.id, businessId: business.id, categoryId: inventoryCategory.id, nameTh: 'สินค้า', nameEn: 'Product' },
+    })
+    const backupProduct = await prisma.product.create({
+      data: { code: 'SKU-BAK', tenantId: tenant.id, businessId: business.id, productMasterId: productMaster.id, name: 'Backup SKU' },
+    })
+    const backupSet = await prisma.product.create({
+      data: { code: 'SET-BAK-1-P01', tenantId: tenant.id, businessId: business.id, productMasterId: productMaster.id, name: 'Backup set', itemKind: 'FINISHED_SET' },
+    })
+    const backupRecipe = await prisma.productRecipe.create({
+      data: {
+        code: 'RCP-BAK', tenantId: tenant.id, businessId: business.id, productId: backupSet.id,
+        name: 'Backup recipe', batchSize: 1, yieldQty: 1, scrapAllowanceFactor: 0.02,
+        lines: { create: [{ componentProductId: backupProduct.id, qty: 1 }] },
+      },
+    })
+    const backupLocation = await prisma.warehouseLocation.create({
+      data: { code: 'LOC-BAK', tenantId: tenant.id, businessId: business.id, name: 'คลังสำรอง', type: 'TH_CENTRAL_RAW' },
+    })
+    await prisma.stockMovement.create({
+      data: {
+        tenantId: tenant.id, businessId: business.id, productId: backupProduct.id,
+        kind: 'RECEIPT', quantity: 10, targetLocationId: backupLocation.id, costSatang: 11346,
+      },
+    })
+    await prisma.customizationWorkOrder.create({
+      data: {
+        code: 'CWO-BAK-001', tenantId: tenant.id, businessId: business.id,
+        rawProductId: backupProduct.id, technique: 'LASER_ENGRAVING', plannedQty: 10,
+        sourceLocationId: backupLocation.id,
+      },
+    })
+    await prisma.kittingWorkOrder.create({
+      data: {
+        code: 'KWO-BAK-001', tenantId: tenant.id, businessId: business.id,
+        recipeId: backupRecipe.id, finishedProductId: backupSet.id, plannedQty: 5,
+        sourceLocationId: backupLocation.id, plannedLinesJson: JSON.stringify([{ componentProductId: backupProduct.id, qtyPerBatch: 1, batchSize: 1, fixed: false, netQty: 5, grossQty: 6 }]),
+      },
+    })
+    await prisma.stockReservation.create({
+      data: {
+        code: 'RSV-BAK-001', tenantId: tenant.id, businessId: business.id, productId: backupProduct.id,
+        purpose: 'QUOTE', quantity: 3, expiresAt: new Date('2027-01-01T00:00:00Z'),
+      },
+    })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -266,6 +320,11 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.customerImportProvenance.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewCase.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewDecision.length).toBeGreaterThan(0)
+    // @req FR-174, FR-176, FR-177, FR-180 — populated, not merely present.
+    expect(snapshot.tables.warehouseLocation.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customizationWorkOrder.length).toBeGreaterThan(0)
+    expect(snapshot.tables.kittingWorkOrder.length).toBeGreaterThan(0)
+    expect(snapshot.tables.stockReservation.length).toBeGreaterThan(0)
     // @req FR-067 — populated, not merely present (the RCA discipline above).
     expect(snapshot.tables.workspaceMembership.length).toBeGreaterThan(0)
     expect(snapshot.tables.workspaceInvite.length).toBeGreaterThan(0)

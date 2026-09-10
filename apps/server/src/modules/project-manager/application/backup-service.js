@@ -132,7 +132,15 @@ const SNAPSHOT_MODELS = [
   // @req FR-156 — a recipe hangs off its output product and its lines off the
   // recipe and the component products, so both restore after `product`.
   'productRecipe', 'productRecipeLine',
+  // @req FR-174 — a location hangs off its Business only, and every located
+  // movement names it, so it restores BEFORE the ledger and deletes after it.
+  'warehouseLocation',
   'productLot', 'serialUnit', 'stockMovement',
+  // @req FR-176, FR-177, FR-180 — work orders and reservations reference
+  // products, recipes and locations, all above, and nothing references them, so
+  // they restore last of the Inventory block. They hold intent and progress,
+  // never a quantity the ledger also holds; no secret, exported whole.
+  'customizationWorkOrder', 'kittingWorkOrder', 'stockReservation',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-110 — the evidence importer's per-scope cursor into GKS's export

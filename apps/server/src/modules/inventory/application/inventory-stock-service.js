@@ -12,6 +12,7 @@ import {
   zCreateLot,
   zRecordMovement,
 } from '../domain/inventory'
+import { dedicationRule, shelfLifeIssueRule } from '../domain/inventory-wip'
 import { loadBusiness } from './inventory-authority'
 
 // @req FR-155 — the only writer of the stock ledger. A movement is appended,
@@ -30,16 +31,30 @@ import { loadBusiness } from './inventory-authority'
 //   row; manager authority throughout. `appendMovement` is the transaction-
 //   scoped core so a recipe build (FR-156) can issue several components and
 //   receive the output atomically.
-// @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072
-// @tested tests/integration/fr155-inventory-stock.test.js
+//
+// @req FR-174, FR-175 — since ADR-074 a movement may also carry where it came
+//   from, where it went and what one unit cost landed, in satang. All of those
+//   are optional and none changes an existing rule: a row that names no
+//   location is exactly what every row written before ADR-074 is.
+// @req FR-176 — an ISSUE of a customer-dedicated SKU for the wrong customer or
+//   the wrong sales order is refused here, before a row is written (BR-028).
+// @req FR-179 — an ISSUE never takes stock out of a lot past its product's
+//   storage limit; FEFO skips such lots entirely, and an issue that could only
+//   be satisfied from them is refused as `INVENTORY_LOT_STORAGE_EXPIRED`
+//   rather than as a shortage, because the two need different fixes (BR-030).
+// @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072;
+//   ADR-074 D1, D2, D3, D4, D7; BR-026, BR-027, BR-028, BR-030
+// @tested tests/integration/fr155-inventory-stock.test.js,
+//   tests/integration/fr174-warehouse-locations.test.js,
+//   tests/integration/fr179-shelf-life-guard.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null
 
-const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true }
-const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
+const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true }
+const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, lastMaintainedAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
 const SERIAL_SELECT = { id: true, serialNo: true, tenantId: true, businessId: true, productId: true, lotId: true, status: true, createdAt: true, updatedAt: true, version: true }
-const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true }
+const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true, sourceLocationId: true, targetLocationId: true, costSatang: true, customerId: true, salesOrderId: true, workOrderId: true }
 
 async function loadProductForWrite(tx, viewer, businessId, productId) {
   const business = await loadBusiness(tx, viewer, businessId, { write: true })
@@ -137,7 +152,37 @@ export async function appendMovement(tx, data, { viewer } = {}) {
 
   const lot = await resolveLot(tx, business, product, data)
   const occurredAt = data.occurredAt ?? new Date()
-  const base = { tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind, reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt }
+
+  // @req FR-176 — a customer-dedicated SKU (BR-028) leaves stock only for the
+  //   customer and the order it was branded for. An issue that names neither
+  //   is a write-off or a correction and is allowed; one that names the wrong
+  //   party is refused here, before a single row is written.
+  if (data.kind === 'ISSUE') {
+    const dedication = dedicationRule(product, { customerId: data.customerId ?? null, salesOrderId: data.salesOrderId ?? null })
+    if (!dedication.ok) throw failure(409, dedication.code)
+  }
+  // @req FR-179 — an issue never takes stock out of a lot that has been in
+  //   storage past its product's limit (BR-030). FEFO below additionally skips
+  //   such lots when no lot is named, so a pick refuses rather than dispatches
+  //   a dead battery.
+  if (data.kind === 'ISSUE' && lot) {
+    const shelfLife = shelfLifeIssueRule(product, lot, occurredAt)
+    if (!shelfLife.ok) throw Object.assign(failure(409, shelfLife.code), { details: { lotId: lot.id, lotCode: lot.code, ageDays: shelfLife.ageDays, maxStorageDays: product.maxStorageDays } })
+  }
+
+  const base = {
+    tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind,
+    reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt,
+    // @req FR-174, FR-175 — a movement carries where it moved and what a unit
+    //   cost. An ISSUE leaves its source; a RECEIPT arrives at its target; a
+    //   transfer is the pair (BR-026).
+    sourceLocationId: data.sourceLocationId ?? null,
+    targetLocationId: data.targetLocationId ?? null,
+    costSatang: data.costSatang ?? null,
+    customerId: data.customerId ?? null,
+    salesOrderId: data.salesOrderId ?? null,
+    workOrderId: data.workOrderId ?? null,
+  }
   const rows = []
   const allocations = []
 
@@ -168,9 +213,24 @@ export async function appendMovement(tx, data, { viewer } = {}) {
       allocations.push({ lotId: lot.id, qty: Math.abs(delta) })
     } else {
       // FEFO across open lots; whatever no lot holds (an adjustment without a lot) goes last.
-      const lots = await tx.productLot.findMany({ where: { productId: product.id, status: 'OPEN' }, select: { id: true, expiresAt: true, createdAt: true, status: true } })
-      const { allocations: picked, remainder } = allocateFefo(lots.map((l) => ({ ...l, onHand: byLot.get(l.id) ?? 0 })), Math.abs(delta))
-      if (remainder > (byLot.get(null) ?? 0)) throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+      const lots = await tx.productLot.findMany({ where: { productId: product.id, status: 'OPEN' }, select: { id: true, code: true, expiresAt: true, manufacturedAt: true, lastMaintainedAt: true, createdAt: true, status: true } })
+      // @req FR-179 — a lot past its storage limit is not a candidate. FEFO
+      //   still orders by expiry among the rest; this only removes the ones no
+      //   pick may take (BR-030).
+      const issuable = lots.filter((l) => shelfLifeIssueRule(product, l, occurredAt).ok)
+      const { allocations: picked, remainder } = allocateFefo(issuable.map((l) => ({ ...l, onHand: byLot.get(l.id) ?? 0 })), Math.abs(delta))
+      if (remainder > (byLot.get(null) ?? 0)) {
+        // Distinguish "there is not enough" from "there is enough, but the only
+        // lots holding it may not leave the shelf" — the second is a
+        // maintenance job, not a purchase order.
+        const blocked = lots.filter((l) => !shelfLifeIssueRule(product, l, occurredAt).ok && (byLot.get(l.id) ?? 0) > 0)
+        if (blocked.length) {
+          throw Object.assign(failure(409, 'INVENTORY_LOT_STORAGE_EXPIRED'), {
+            details: { blockedLots: blocked.map((l) => ({ lotId: l.id, lotCode: l.code, onHand: byLot.get(l.id) ?? 0 })), maxStorageDays: product.maxStorageDays },
+          })
+        }
+        throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+      }
       for (const pick of picked) {
         rows.push(await tx.stockMovement.create({ data: { ...base, lotId: pick.lotId, quantity: -pick.qty }, select: MOVEMENT_SELECT }))
         allocations.push(pick)
@@ -190,9 +250,15 @@ export async function appendMovement(tx, data, { viewer } = {}) {
   const after = before + delta
   await recordAudit(tx, {
     entityType: STOCK_MOVEMENT_ENTITY, entityId: rows[0].id, action: `STOCK_${data.kind}_RECORDED`, actorId: actor(viewer),
-    payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null },
+    payload: {
+      businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null,
+      allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0,
+      onHandBefore: before, onHandAfter: after, reference: data.reference ?? null,
+      sourceLocationId: base.sourceLocationId, targetLocationId: base.targetLocationId, costSatang: base.costSatang,
+      customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId,
+    },
   })
-  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows }
+  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang }
 }
 
 /** Append one movement in its own transaction. */
