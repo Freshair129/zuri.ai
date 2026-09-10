@@ -150,6 +150,25 @@ jobs:
             exit 1
           fi
 
+      # llms-full.txt inlines README, CLAUDE.md, AGENTS.md, PRODUCT.md and every
+      # domain charter, so editing any of them leaves the corpus stale — and a
+      # stale corpus is worse than no corpus: it reads authoritative while
+      # stating rules this repository no longer has. Same shape as the check
+      # above (regenerate, then compare) rather than the generator's own
+      # `--check`, so a failure names the drift instead of only asserting it.
+      # It needs Node and nothing else — no install, no dependency on the
+      # `apps/server` tree this job otherwise works in.
+      - name: llms-full.txt is committed and current
+        working-directory: .
+        shell: bash
+        run: |
+          node scripts/build-llms-full.mjs
+          if ! git diff --quiet -- llms-full.txt; then
+            echo "::error::llms-full.txt is out of date. Run 'npm run docs:llms' and commit the result."
+            git --no-pager diff --stat -- llms-full.txt
+            exit 1
+          fi
+
   e2e:
     # Skipped when the diff touches only `docs/` and `.brain/` — see the
     # `changes` job for why that decision is safe in the direction it fails.
