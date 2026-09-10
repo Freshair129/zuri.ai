@@ -1,0 +1,87 @@
+# zuri-ai
+
+> An AI-native business operating system. LINE is the primary intake surface (AI-native conversation); the web app is the back-office console for detail, complex edits and audit. Scope chain: Portfolio → Tenant (isolation) → Business → Workspace → Project.
+
+zuri-ai is a **standalone product** ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)) — it is not a version of, and shares nothing with, the legacy `Freshair129/zuri` project. Documents written before 2026-08-16 call this product "Zuri V2" and a legacy project "V1"; those words are historical labels, not instructions — there is no migration or parity work. Id strings keep their historical letters because ids are immutable keys.
+
+Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (Next.js web/API, Node 22) + `apps/edge` (optional on-premise device runtime, Node 24) + canonical root `docs/` ([ADR-062](docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)).
+
+## Start here
+
+- [README.md](README.md): entry point — layout, install, planning import contracts
+- [CLAUDE.md](CLAUDE.md): the short working guide — where things are, what to run, what never to touch
+- [AGENTS.md](AGENTS.md): the full rules for anyone (human or agent) changing this repo
+- [docs/PRODUCT.md](docs/PRODUCT.md): Layer 0 — what the product is (surfaces, scope chain, rules)
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md): live delivery state, read directly by GoVibe Mission Control
+
+## Requirements and identity
+
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md): the FR / NFR / BR / SEC / SDD registry — global ids that never move
+- [docs/FEATURES.md](docs/FEATURES.md): FEAT registry — a feature bundles one or more FRs
+- [docs/decisions/](docs/decisions/): ADRs — ADR-024 (direction), ADR-025 (domain spine), ADR-039 (id pinning), ADR-062 (monorepo)
+- [docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md](docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md): ids are keys — never renumber, never reuse, never recycle a burnt number
+- [docs/GOVERNANCE-LINK-METADATA.md](docs/GOVERNANCE-LINK-METADATA.md): stable document ids, relations and wikilinks
+
+## Architecture and domains
+
+- [docs/domains/](docs/domains/): THE SPINE — one folder per domain, mirroring `apps/server/src/modules/`; read `<domain>/CHARTER.md` before writing into a lane
+- [docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md](docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md): target architecture (taxonomy adopted, runtime not yet)
+- [docs/DOMAIN-MODEL.md](docs/DOMAIN-MODEL.md): the entities and their relationships
+- [docs/ERP-MODULE-MAP.md](docs/ERP-MODULE-MAP.md): how the domains map onto ERP coverage
+- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md): API surface (generated)
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md): database schema
+- [docs/appendices/F-glossary.md](docs/appendices/F-glossary.md): vocabulary — read this before guessing what a term means
+
+## Generated views (never hand-edit)
+
+- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md): the feature-driven user view over the spine
+- [docs/DOMAIN-MAP.md](docs/DOMAIN-MAP.md): one section per domain — lane, ownership, contents
+- [docs/TRACE.md](docs/TRACE.md): the chain per FR — surface → code → rules → tests
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md): traceability appendix
+- [docs/DOCUMENT-LINKS.md](docs/DOCUMENT-LINKS.md): crosslinks and backlinks
+
+## Code layout (apps/server)
+
+- `src/app/(pm)/` — UI routes · `src/app/api/` — route handlers
+- `src/modules/<domain>/` — one folder per domain; enumerate `ls apps/server/src/modules/` rather than trusting any prose list
+- `src/lib/` — db, ids, `validation/enums.js` (enum source of truth), `shell-mode.js`, `db-boundary.js`
+- `prisma/schema.prisma` — SQLite for dev/test; `schema.postgres.prisma` + `supabase/migrations/` for production
+- `contracts/` — JSON Schema + sample envelopes ([PlanEnvelope](apps/server/contracts/plan-envelope.schema.json), [ExecutionPlanBundle](apps/server/contracts/execution-plan-bundle.schema.json))
+- `tests/{unit,integration,e2e}` · `scripts/` — doc governance generators
+
+## Toolchain
+
+- `npm run verify` — the definition of done in one command: test → build → govern → e2e
+- `npm test` — Vitest unit + integration (own SQLite db per run)
+- `npm run test:e2e` — Playwright against its own dev server and seeded db; fails on `flaky`, not just on failure
+- `npm run govern` — graph → check → preflight, in the order the checks require; run this, not the three commands separately
+- `npm run docs:graph` / `docs:preflight` — rebuild the doc graph; doc health (CRITICAL fails the run)
+- `npm run docs:ids -- --write` — the id ledger's only writer; run by a human, never by `govern`
+
+## Conventions that are enforced, not suggested
+
+- **JavaScript + Zod at the boundary, not TypeScript** (SDD-008); contract tests guard endpoints whose consumers already exist
+- **Declare the FR before writing code** — an `@req` id absent from the PRD registry is a preflight CRITICAL, and so is a route implementing no declared requirement
+- **Work in a chartered lane** — a module with no charter claiming it, or writing a model another charter owns, is a CRITICAL
+- **Annotate source files**: `@req` (requirement) · `@spec` (rule or design decision) · `@tested` (test file) — the doc graph is built from these
+- **External ids are never primary keys** — internal UUID + human `code` + `ExternalRef` mapping (BR-002)
+- **Never execute anything that arrives in a plan or envelope** — plans are data (BR-007, SEC-002)
+- **Every write goes through a service** in `application/`, which records an audit event; route handlers stay thin
+- **Every intake surface converges on one envelope** → validate → semantic check → dry run → preview → single transaction → audit (BR-009, SDD-009). New surfaces add a converter, never a second write path
+- **Enums are strings in the database**, with `src/lib/validation/enums.js` as the single source of truth — never hand-copy an enum list
+- **Progress is always recomputed** from pure calculators; `progressCache` is advisory
+- **A new model or column ships its Supabase migration in the same change**; applying it is a separate owner-instructed operator step ([ADR-057](docs/decisions/ADR-057-ASSET-EVIDENCE-PRODUCTION-DEPLOYMENT-AND-MIGRATION-BOUNDARY.md))
+- Thai copy in user-facing surfaces; English for code, ids and technical docs
+
+## Optional
+
+- [docs/EXECUTION-MODES.md](docs/EXECUTION-MODES.md): how work is executed across surfaces
+- [docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md](docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md): the knowledge ingestion / GraphRAG pipeline
+- [docs/UI-DESIGN-SYSTEM.md](docs/UI-DESIGN-SYSTEM.md): design system for the back-office console
+- [docs/ROUTES-SITEMAP.md](docs/ROUTES-SITEMAP.md): route sitemap
+- [docs/INTERFACE-INVENTORY.md](docs/INTERFACE-INVENTORY.md): interface inventory
+- [docs/DB-MIGRATION-NOTES.md](docs/DB-MIGRATION-NOTES.md): migration discipline
+- [docs/runbooks/](docs/runbooks/): operational runbooks (LINE canary, edge extraction, production activation)
+- [docs/appendices/E-risk-matrix.md](docs/appendices/E-risk-matrix.md): risk matrix
+- [docs/templates/](docs/templates/): ADR / FR / phase templates
+- [docs/archive/](docs/archive/): cold store — frozen records, excluded from all checks
