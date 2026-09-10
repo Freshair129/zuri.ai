@@ -55,7 +55,7 @@ export default function AskMarketingWorkspace({ businessId }) {
   const [loading, setLoading] = useState(false)
   const mountedRef = useRef(true)
   const requestSequenceRef = useRef(0)
-  useEffect(() => () => { mountedRef.current = false }, [])
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false } }, [])
   useEffect(() => {
     requestSequenceRef.current += 1
     setResult(null)

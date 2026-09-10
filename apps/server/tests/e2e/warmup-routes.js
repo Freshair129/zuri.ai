@@ -85,10 +85,10 @@ const ROUTES = [
   '/line-oa/settings',
   // @req FR-154 — the Inventory dashboard.
   '/inventory',
-  // @req FR-182 — the three SCM operations console pages. Each is a first
+  // @req FR-182, FR-184 — the SCM operations console pages. Each is a first
   // request that compiles its own module, which is precisely the class of cold
   // start this list exists to pay for before a spec's expect does.
-  '/inventory/locations', '/inventory/work-orders', '/inventory/reservations',
+  '/inventory/locations', '/inventory/work-orders', '/inventory/reservations', '/inventory/stocktakes',
   // @req FR-167 — the reserved Warehouse slot under SCM. It has no page yet, so
   // this request 404s and `failOnStatusCode: false` below tolerates it, exactly
   // as it does for the `operations` slot above.

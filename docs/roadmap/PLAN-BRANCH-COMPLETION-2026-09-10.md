@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.6.0b"
+version: "0.7.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T03:45:00+07:00,RWANG"
+last_update: "2026-09-11T05:15:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -57,7 +57,8 @@ deployment, production migrations, activation, messaging and ad spend remain
 outside the approved implementation scope.
 
 The historical candidate statements below describe the PR #319 cutoff; these
-three contracts are now approved and in implementation, not completed features.
+three contracts are approved and integrated. Final validation and remaining release
+boundaries are recorded in the continuation evidence below.
 
 | Lane | Existing source | Contract authority | Completion evidence |
 |---|---|---|---|
@@ -98,7 +99,7 @@ verification, or any remaining dependency/approval boundary is identified with
 the concrete artifact needed to resolve it. Dispatch, code presence and a branch
 commit are intermediate progress, not completion.
 
-## Status
+## Historical PR #319 implementation evidence
 
 The approved retained implementation is integrated on top of published main
 `6400cdcb` (PR #318) in `codex/finish-integration-20260910`. Implementation
@@ -144,14 +145,15 @@ The evidence root is
 it holds the logs, SQL snapshots and result manifests. Goods Receipts' latest
 rendered evidence is in `apps/server/output/playwright/fr165-receipt-*.png`.
 
-Three new contracts remain candidates awaiting owner approval; no implementation
-for them is included:
+At the PR #319 cutoff, these three contracts were candidates and their
+implementation was not included in that PR. The later owner approval and
+continuation supersede that cutoff:
 
 - [Primary-worker memory composition](../../.brain/reports/2026-09-11-memory-worker-composition-amendment.md).
 - [Warehouse stocktake](../../.brain/rca/2026-09-11-warehouse-p4-console-contract.md).
 - [Marketing P5 planning](../../.brain/reports/2026-09-11-marketing-p5-audit.md).
 
-The direct `/api/agent/line-webhook` memory adapter is verified. The primary
+At that cutoff, the direct `/api/agent/line-webhook` memory adapter was verified. The primary
 `/api/line-oa/worker` answer path remains ADR-061 public knowledge without MSP
 memory; its amendment is separate. Warehouse reuses the now-merged PR #318
 Inventory console and proposes only the missing atomic stocktake contract.
@@ -167,12 +169,45 @@ not reset by this integration lane.
 This is local source and isolated-database acceptance. Hosted CI, installed
 native-device acceptance, live provider delivery, production migration and
 runtime activation are separate evidence states; none is inferred from these
-results. The three pending contracts are not reported as completed features.
+results. This historical table does not prove the later continuation revision.
+
+## Approved continuation integration
+
+The three independent GPT-5.6 Luna Max lanes are reconciled in
+`codex/approved-integration-20260911`, based on merged PR #319 (`196e4a9a`).
+FR-184 delivers fenced NONE/LOT stocktake previews, stale-count rejection,
+exact-key commit replay and saved-result UI. FR-185 delivers immutable planning
+revisions with real Content/account pickers, archive history and truthful Paid
+Media/AskMarketing reads. FR-171 composes opted-in primary-worker memory context,
+mandatory injection receipts and recoverable accepted-message checkpoints.
+
+The integrator retained all three recovery manifests and their validation,
+preserved legacy-snapshot refusal and accumulated unavailable-source warnings.
+Published requirement subjects remain unchanged; approved same-subject feature
+extensions were reviewed through the ID ledger tooling. The combined schema has
+146 models and 66 migrations. Source API/database/interface inventories and all
+generated graph scopes are reconciled.
+
+SQLite and PostgreSQL migrations were executed only in disposable databases.
+Catalog/default/index/FK parity, SQLite integrity, PostgreSQL RLS/FORCE policies
+and runtime/web role grant probes passed. Final SQL hashes still match that proof.
+The evidence directory is the existing root above, subdirectory
+`approved-migrations-qa`; its README and JSON results record exact scope.
+
+Final combined test/build/browser/governance evidence is recorded in the
+[integration report](../../.brain/reports/2026-09-11-approved-continuation-integration.md).
+Production deployment, migration,
+LINE sending, advertising spend and payment execution are outside this change.
+Primary-worker opt-in activation also remains gated on MSP's erasure/retention
+API and distributed fence/receipt acceptance; local checks do not make the final
+local-read-to-network interval atomic. Broader Marketing dispatch/measurement
+and memory onboarding/provisioning phases are not counted as delivered here.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.0b | 2026-09-11 | beta | Integrate approved Stocktake, Marketing planning and primary-worker memory; separate historical PR #319 proof from continuation and production gates | See git history | RWANG |
 | 0.6.0b | 2026-09-11 | beta | Record owner approval of the three remaining contracts and verified PR #319 merge; start isolated parallel implementation | 196e4a9a | RWANG |
 | 0.5.0b | 2026-09-11 | beta | Record final integrated tests, canonical ID reconciliation, migration hashes and three remaining candidate contracts | 4a74c1ed | RWANG |
 | 0.4.0b | 2026-09-11 | beta | Link pending review artifacts and record integrated Business-switch guard plus isolated Billing migration evidence | working-tree | RWANG |
@@ -180,4 +215,4 @@ results. The three pending contracts are not reported as completed features.
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.5.0b → 0.6.0b; record the verified PR #319 merge and owner approval for the three bounded continuation contracts.
+Version diff: 0.6.0b → 0.7.0b; record the implemented continuation, reconciled persistence/recovery contracts and explicit production gates.

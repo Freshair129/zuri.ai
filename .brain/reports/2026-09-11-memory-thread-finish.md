@@ -1,11 +1,19 @@
 ---
-version: "1.0.0b"
+version: "1.0.1b"
 status: beta
 created_at: "2026-09-11T00:30:00+07:00,RWANG,984b7324"
-last_update: "2026-09-11T00:45:00+07:00,RWANG"
+last_update: "2026-09-11T05:17:00+07:00,RWANG"
 ---
 
 # Memory thread and execution-trace finish
+
+This is the historical direct-adapter source handoff before PR #319. The later
+owner instruction "merge and approve" approved the linked worker composition
+amendment. The continuation integrated the primary-worker implementation in
+`16317e16` and scope/recovery follow-up in `60d2f2b6`; the gap and candidate
+language below describe the earlier cutoff. Production opt-in remains gated on
+MSP erasure/retention API and distributed fence/receipt proof. Version diff
+1.0.0b -> 1.0.1b adds this provenance note without changing the earlier evidence.
 
 This isolated lane started from `origin/main` `f320e888a7f6fbb978fd274a791eca89bf3eb7e4` in `codex/finish-memory-20260910`. It reconciles the approved P3 execution-trace memory linkage (`FR-171`) with main's existing P1/P2 work and carries forward the reviewed LINE thread-memory/context/delivery adapter slice. It does not replay the parent squash, introduce a new requirement id, activate production runtime, send LINE messages, or edit the MSP repository.
 

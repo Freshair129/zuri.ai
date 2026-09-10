@@ -1,5 +1,5 @@
 ---
-version: "1.0.1b"
+version: "1.0.2b"
 status: beta
 created_at: "2026-09-11T04:17:00+07:00,RWANG"
 last_update: "2026-09-11T04:41:13+07:00,RWANG"
@@ -57,7 +57,7 @@ repository-wide route warmup on its disposable `:3151`/`e2e-3151.db` target;
 it was interrupted before the Marketing specs ran so the `.next` tree could be
 handed off without another concurrent process. It is not browser-pass evidence.
 
-The current Broadcast page is a backend/current-UI milestone, not the final
+At source handoff, the Broadcast page was a backend/current-UI milestone, not the final
 usable picker acceptance. Its form still exposes internal idempotency,
 content-version/hash and LINE account id/version fields, and it has no saved
 detail/revise/archive controls. Root integration should finish this same FR-185
@@ -77,7 +77,13 @@ actions:
 
 The latest isolated browser attempt therefore records a product acceptance
 gap rather than a runtime failure. Root owns the picker/detail follow-up and
-the final combined browser run.
+the final combined browser run. That handoff gap is now implemented in root:
+human-readable owner pickers, internally retained create retry identity,
+saved detail/revise/archive and immutable history. Root also repaired the
+revision write flag, archive visibility and AskMarketing effect replay guard.
+The original three browser flows passed; an additional malformed stored-revision
+regression checks that unavailable data remains readable without unsafe editing.
+Final combined evidence is recorded separately from this source handoff.
 
 The initial all-unit baseline ran 415 files and 3,444 tests, with 413 files /
 3,442 tests passing. Two failures remain recorded for root review: the existing
@@ -96,4 +102,5 @@ publication/spend/canary policy; and their owning-domain UI actions and workers.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.2b | 2026-09-11 | beta | Record completed root picker/history follow-up and lifecycle regressions; preserve source handoff evidence as historical | See git history | RWANG |
 | 1.0.1b | 2026-09-11 | beta | FR-185 backend/current-UI milestone evidence; records owner-picker/detail follow-up and isolated browser handoff status | See git history | RWANG |

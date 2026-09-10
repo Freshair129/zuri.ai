@@ -407,7 +407,7 @@ export async function updateMarketingBroadcastIntent(id, input, {
     } else {
       const result = await tx.marketingBroadcastIntent.updateMany({
         where: { id: intent.id, tenantId: scope.tenantId, businessId: scope.businessId, status: 'PLANNING', deletedAt: null, version: data.expectedVersion },
-        data: { status: 'ARCHIVED', deletedAt: at, version: { increment: 1 }, updatedAt: at },
+        data: { status: 'ARCHIVED', version: { increment: 1 }, updatedAt: at },
       })
       if (result.count !== 1) throw marketingConflict('BROADCAST_INTENT_VERSION_CONFLICT')
       await recordAudit(tx, {
@@ -420,5 +420,5 @@ export async function updateMarketingBroadcastIntent(id, input, {
     }
     return loadIntent(tx, intent.id, { includeDeleted: true })
   })
-  return intentDto(updated, { canWrite: false, referenceState: await referenceStateForIntent(updated, { viewer, businessId: data.businessId, db, ports }) })
+  return intentDto(updated, { canWrite: true, referenceState: await referenceStateForIntent(updated, { viewer, businessId: data.businessId, db, ports }) })
 }

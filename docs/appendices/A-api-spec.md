@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.58.0b |
+| **Version** | 1.59.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-11 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=235 -->
+<!-- api-spec-counts: route_handlers=238 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -427,6 +427,14 @@ Thirteen handlers over the services FR-174…FR-181 already shipped. Each is thi
 | POST | `/api/inventory/shelf-life` | implemented (FR-179): `{ businessId, lotId, note?, maintainedAt? }` — records that a batch was restored, which resets its storage clock. Touches no quantity. Audited `PRODUCT_LOT_MAINTAINED` | `404`; `409 PRODUCT_LOT_CLOSED`; `422 INVENTORY_PRODUCT_DOES_NOT_AGE`; `400` |
 | POST | `/api/inventory/de-kitting` | implemented (FR-178): `{ businessId, recipeId, quantity, sourceLocationId?, targetLocationId?, destroyedComponentProductIds?, lotId?, reason?, reference? }` — issues the sets and receives the survivors; named components are written off. Audited `STOCK_DE_KITTED` | `404`; `409 INVENTORY_INSUFFICIENT_STOCK \| INVENTORY_CUSTOM_COMPONENT_NOT_RETURNABLE`; `422 PRODUCT_RECIPE_NOT_FOUND \| INVENTORY_DEKIT_LOT_COMPONENT`; `400` |
 
+### Physical stocktake (FR-184)
+
+| Method | Route | Contract | Refusal |
+|---|---|---|---|
+| POST | `/api/inventory/stocktakes/preview` | Explicit NONE/LOT lines with nullable location/lot and non-negative integer countedQuantity; returns a persisted preview, snapshot token, completeness and missing buckets without changing stock | 400 invalid payload; 404 scope; 422 reference/SERIAL refusal |
+| POST | `/api/inventory/stocktakes/commit` | Business, previewId, snapshotToken, idempotencyKey and exact normalized lines; one fenced atomic adjustment/no-op with saved per-line balances | 409 stale, incomplete or conflicting retry; no partial mutation |
+| GET | `/api/inventory/stocktakes/[id]` | Business-scoped persisted preview or commit result; reload retains identity and balances | 404 absent or hidden scope |
+
 ## CRM sales tasks (FR-161, ADR-064)
 
 The follow-ups a Business's sales team owes customers — a CRM activity record,
@@ -711,7 +719,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=235` marker matches the route-file enumeration;
+- the `route_handlers=238` marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -878,3 +886,5 @@ Added FR-173's five paths/six operations and explicit API grant boundary; handle
 ### Version diff 1.53.0b → 1.54.0b
 
 Integrate FR-144 Desktop browser/QR pairing with the current Server contracts: three POST paths increase the route handler inventory from 206 to 209. Existing trace, capability and knowledge admission routes remain in the combined inventory.
+
+Version diff 1.58.0b → 1.59.0b: add the three approved FR-184 handlers and reconcile the enumerated handler count to 238.

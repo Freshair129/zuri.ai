@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.33.0b |
+| **Version** | 1.34.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-11 |
 
@@ -110,6 +110,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | MarketingContentDecision | briefId, contentVersionId, payloadHash, sequence (unique per brief), reviewId?, verdict, rationale, actorId, expiresAt?, createdAt | FR-157 — append-only content approval, rejection, or revocation evidence |
 | MarketingBroadcastIntent | tenantId, businessId, code (unique per Business), status, currentRevision, version, idempotencyKey (unique per Business), createdBy, timestamps, deletedAt? | FR-185 — durable Business-scoped LINE planning identity; no private audience payload, provider credential or dispatch state |
 | MarketingBroadcastIntentVersion | intentId → MarketingBroadcastIntent, revision (unique per intent), payloadJson, payloadHash, createdBy, createdAt | FR-185 — append-only hash-bound planning references; content/account/consent evidence is revalidated on read and restore |
+| InventoryLedgerFence | id, tenantId, businessId, mutationRevision, timestamps; unique Tenant/Business | FR-184 — shared lock and mutation revision for stock writers; preview locking does not advance it |
+| InventoryStocktake | id, tenantId, businessId, idempotencyKey, payloadHash, normalizedLinesJson, snapshotVersion, snapshotHash, status, resultJson?, committedAt?, timestamps, version; unique Tenant/Business/key | FR-184 — durable preview and exact atomic commit result; preserved with its fence in recovery |
 | InventoryCategory | code (unique per tenant), tenantId, businessId, nameTh, nameEn, slug? (unique per business), vibe?, targetRecipient?, guardrail?, status, version | FR-154 — inventory category (`category_id`); the ontology's slug values are rows of one Business, not a system enum |
 | ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
 | Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
@@ -491,3 +493,5 @@ has no room for the parentheses a set code carries — and it is not an
 whole installation and holds no `tenantId`: two Tenants importing from the same
 factory may both name their four-item set `TMS06-4(P-16)`, and only a per-Tenant
 constraint lets them.
+
+Version diff 1.33.0b → 1.34.0b: add InventoryLedgerFence and InventoryStocktake; 146 models are now declared. No production migration was applied.

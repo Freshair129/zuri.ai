@@ -30,6 +30,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
+  // @req FR-185 — Business-scoped broadcast planning identities and
+  // read-only Marketing projections. These handlers never send to a provider.
+  ['/api/growth/ask-marketing', ['POST']],
+  ['/api/growth/broadcast-intents', ['GET', 'POST']], ['/api/growth/broadcast-intents/{id}', ['GET', 'PATCH']],
+  ['/api/growth/paid-media', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],

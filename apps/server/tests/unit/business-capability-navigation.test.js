@@ -51,14 +51,15 @@ describe('the Warehouse slot is capability-gated on top of being a domain', () =
     const sidebarOff = sidebarDomainForPath('/inventory', off)
     expect(sidebarOn.sub.map((item) => item.path)).toContain('/warehouse')
     expect(sidebarOff.sub.map((item) => item.path)).not.toContain('/warehouse')
-    // Every other entry is unaffected: Inventory and its three console pages
-    // (FR-182), Procurement, Purchase Orders, Order Management, Orders. The
+    // Every other entry is unaffected: Inventory and its console pages
+    // (FR-182/FR-184), Procurement, Purchase Orders, Order Management, Orders. The
     // capability hides Warehouse and nothing else — which is the claim.
     expect(sidebarOff.sub.map((item) => item.path)).toEqual([
       '/inventory',
       '/inventory/locations',
       '/inventory/work-orders',
       '/inventory/reservations',
+      '/inventory/stocktakes',
       '/procurement',
       '/procurement/purchase-orders',
       '/commerce',

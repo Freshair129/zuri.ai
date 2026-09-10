@@ -39,6 +39,7 @@ import {
 import {
   hashStocktake,
   INT32_MAX,
+  INVENTORY_STOCKTAKE_MAX_LINES,
   INVENTORY_STOCKTAKE_STATUSES,
 } from '@/modules/inventory/domain/inventory-stocktake'
 
@@ -554,8 +555,22 @@ function inventoryStocktakeRecovery(snapshot) {
   const uuid = (value) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
   const nonEmpty = (value, max = 200) => typeof value === 'string' && value.length > 0 && value.length <= max
   const int32 = (value, minimum = 0) => Number.isInteger(value) && value >= minimum && value <= INT32_MAX
+  const signedInt32 = (value) => int32(value, -INT32_MAX - 1)
+  const aggregateInt = (value) => Number.isSafeInteger(value)
+    && value >= (-INT32_MAX - 1) * INVENTORY_STOCKTAKE_MAX_LINES
+    && value <= INT32_MAX * INVENTORY_STOCKTAKE_MAX_LINES
+  const isObject = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  const stocktakeLineKey = (line) => JSON.stringify([line?.productId, line?.locationId ?? null, line?.lotId ?? null])
   const addIdentityError = (row, label, fields) => {
     for (const field of fields) if (!uuid(row?.[field])) result.errors.push(`Inventory stocktake ${label} ${field} is not a UUID`)
+  }
+  const movementById = new Map()
+  if (Array.isArray(tables.stockMovement)) {
+    for (const movement of tables.stockMovement) {
+      if (!isObject(movement) || !uuid(movement.id)) continue
+      if (movementById.has(movement.id)) result.errors.push(`Inventory stocktake recovery reuses StockMovement id ${movement.id}`)
+      movementById.set(movement.id, movement)
+    }
   }
 
   for (const row of tables.inventoryLedgerFence) {
@@ -611,23 +626,34 @@ function inventoryStocktakeRecovery(snapshot) {
       }
     }
     if (parsed) {
-      if (!Array.isArray(parsed.requestLines) || !parsed.requestLines.length || !Array.isArray(parsed.lines) || !Array.isArray(parsed.missingBuckets) || typeof parsed.complete !== 'boolean') {
+      if (!Array.isArray(parsed.requestLines) || !parsed.requestLines.length || !Array.isArray(parsed.lines) || !parsed.lines.length || !Array.isArray(parsed.missingBuckets) || typeof parsed.complete !== 'boolean') {
         result.errors.push(`Inventory stocktake ${row.id} has an invalid normalized snapshot shape`)
+      }
+      if (Array.isArray(parsed.requestLines) && Array.isArray(parsed.lines) && parsed.requestLines.length !== parsed.lines.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has mismatched request and snapshot line counts`)
       }
       if (parsed.snapshotVersion !== row.snapshotVersion || parsed.snapshotHash !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent snapshot token`)
       const { snapshotHash, ...hashable } = parsed
       if (snapshotHash && uuid(row.businessId) && hashStocktake({ businessId: row.businessId, snapshotVersion: row.snapshotVersion, ...hashable }) !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot hash`)
-      for (const line of parsed.requestLines || []) {
+      for (const line of (Array.isArray(parsed.requestLines) ? parsed.requestLines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed request line`)
+          continue
+        }
         addIdentityError(line, 'request line', ['productId'])
         if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request locationId`)
         if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request lotId`)
         if (!int32(line.countedQuantity)) result.errors.push(`Inventory stocktake ${row.id} has an invalid countedQuantity`)
       }
-      for (const line of parsed.lines || []) {
+      for (const line of (Array.isArray(parsed.lines) ? parsed.lines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed snapshot line`)
+          continue
+        }
         addIdentityError(line, 'snapshot line', ['productId'])
         if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot locationId`)
         if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot lotId`)
-        if (!int32(line.countedQuantity) || !Number.isInteger(line.expectedQuantity) || !Number.isInteger(line.variance)) result.errors.push(`Inventory stocktake ${row.id} has invalid snapshot quantities`)
+        if (!int32(line.countedQuantity) || !signedInt32(line.expectedQuantity) || !signedInt32(line.variance)) result.errors.push(`Inventory stocktake ${row.id} has invalid snapshot quantities`)
       }
     }
 
@@ -648,8 +674,135 @@ function inventoryStocktakeRecovery(snapshot) {
     if (row.status === 'COMMITTED' && !row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without committedAt`)
     if (row.status === 'PREVIEWED' && row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with committedAt`)
     if (resultJson) {
-      if (!Array.isArray(resultJson.movementIds) || !Number.isInteger(resultJson.movementCount) || !int32(resultJson.varianceTotal, -INT32_MAX - 1) || !Array.isArray(resultJson.lineBalances) || !int32(resultJson.fenceRevision)) {
+      const movementIdsValid = Array.isArray(resultJson.movementIds)
+      const movementCountValid = int32(resultJson.movementCount)
+      const varianceTotalValid = aggregateInt(resultJson.varianceTotal)
+      const lineBalancesValid = Array.isArray(resultJson.lineBalances)
+      const fenceRevisionValid = int32(resultJson.fenceRevision)
+      if (!movementIdsValid || !movementCountValid || !varianceTotalValid || !lineBalancesValid || !fenceRevisionValid) {
         result.errors.push(`Inventory stocktake ${row.id} has an invalid commit result`)
+      }
+      const movementIds = movementIdsValid ? resultJson.movementIds : []
+      const seenMovementIds = new Set()
+      for (const movementId of movementIds) {
+        if (!uuid(movementId)) {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid StockMovement id`)
+          continue
+        }
+        if (seenMovementIds.has(movementId)) result.errors.push(`Inventory stocktake ${row.id} has duplicate StockMovement id ${movementId}`)
+        seenMovementIds.add(movementId)
+      }
+      if (movementCountValid && resultJson.movementCount !== movementIds.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has movementCount inconsistent with movementIds`)
+      }
+
+      const snapshotLines = Array.isArray(parsed?.lines) ? parsed.lines : []
+      const validSnapshotLines = snapshotLines.length > 0 && snapshotLines.every((line) => (
+        isObject(line)
+        && uuid(line.productId)
+        && (line.locationId === null || uuid(line.locationId))
+        && (line.lotId === null || uuid(line.lotId))
+        && int32(line.countedQuantity)
+        && signedInt32(line.expectedQuantity)
+        && signedInt32(line.variance)
+      ))
+      const snapshotLineByKey = new Map(validSnapshotLines ? snapshotLines.map((line) => [stocktakeLineKey(line), line]) : [])
+      const resultLineByKey = new Map()
+      let varianceSum = 0
+      if (lineBalancesValid) {
+        if (validSnapshotLines && resultJson.lineBalances.length !== snapshotLines.length) {
+          result.errors.push(`Inventory stocktake ${row.id} has a result line count inconsistent with its snapshot`)
+        }
+        for (const line of resultJson.lineBalances) {
+          if (!isObject(line)) {
+            result.errors.push(`Inventory stocktake ${row.id} has a malformed result line`)
+            continue
+          }
+          addIdentityError(line, 'result line', ['productId'])
+          if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result locationId`)
+          if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result lotId`)
+          const quantitiesValid = int32(line.countedQuantity)
+            && signedInt32(line.expectedQuantity)
+            && signedInt32(line.variance)
+            && int32(line.postCommitQuantity)
+          if (!quantitiesValid) result.errors.push(`Inventory stocktake ${row.id} has invalid result quantities`)
+          if (quantitiesValid && line.postCommitQuantity !== line.countedQuantity) result.errors.push(`Inventory stocktake ${row.id} has an invalid post-commit quantity`)
+          const key = stocktakeLineKey(line)
+          if (resultLineByKey.has(key)) result.errors.push(`Inventory stocktake ${row.id} reuses a result line identity`)
+          resultLineByKey.set(key, line)
+          if (quantitiesValid) {
+            varianceSum += line.variance
+          }
+          const snapshotLine = snapshotLineByKey.get(key)
+          if (!snapshotLine) result.errors.push(`Inventory stocktake ${row.id} has a result line absent from its snapshot`)
+          else if (
+            line.expectedQuantity !== snapshotLine.expectedQuantity
+            || line.countedQuantity !== snapshotLine.countedQuantity
+            || line.variance !== snapshotLine.variance
+          ) result.errors.push(`Inventory stocktake ${row.id} has a result line inconsistent with its snapshot`)
+        }
+        if (validSnapshotLines) {
+          for (const line of snapshotLines) {
+            if (!resultLineByKey.has(stocktakeLineKey(line))) result.errors.push(`Inventory stocktake ${row.id} is missing a result line`)
+          }
+        }
+        if (varianceTotalValid && (!aggregateInt(varianceSum) || resultJson.varianceTotal !== varianceSum)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a varianceTotal inconsistent with its result lines`)
+        }
+      }
+
+      if (row.status === 'COMMITTED') {
+        if (!Array.isArray(tables.stockMovement)) {
+          result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without a StockMovement snapshot`)
+        }
+        const referencedMovements = []
+        for (const movementId of movementIds) {
+          const movement = movementById.get(movementId)
+          if (!movement) {
+            result.errors.push(`Inventory stocktake ${row.id} references missing StockMovement ${movementId}`)
+            continue
+          }
+          if (movement.tenantId !== row.tenantId || movement.businessId !== row.businessId) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement outside its Tenant/Business scope`)
+          }
+          if (movement.kind !== 'ADJUSTMENT') result.errors.push(`Inventory stocktake ${row.id} references a non-ADJUSTMENT StockMovement`)
+          if (movement.reference !== `STOCKTAKE:${row.id}`) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an inconsistent reference`)
+          if (!uuid(movement.productId) || (movement.lotId !== null && !uuid(movement.lotId))) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid product or lot identity`)
+          if ((movement.sourceLocationId !== null && !uuid(movement.sourceLocationId)) || (movement.targetLocationId !== null && !uuid(movement.targetLocationId))) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid location identity`)
+          }
+          if (!signedInt32(movement.quantity) || movement.quantity === 0) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid quantity`)
+          } else referencedMovements.push(movement)
+        }
+        if (referencedMovements.length === movementIds.length && varianceTotalValid) {
+          const movementVarianceTotal = referencedMovements.reduce((sum, movement) => sum + movement.quantity, 0)
+          if (!aggregateInt(movementVarianceTotal) || movementVarianceTotal !== resultJson.varianceTotal) {
+            result.errors.push(`Inventory stocktake ${row.id} has StockMovement quantities inconsistent with varianceTotal`)
+          }
+        }
+        if (validSnapshotLines && lineBalancesValid) {
+          const movementsByLine = new Map()
+          for (const movement of referencedMovements) {
+            const positive = movement.quantity > 0
+            const locationId = positive ? movement.targetLocationId : movement.sourceLocationId
+            const oppositeLocation = positive ? movement.sourceLocationId : movement.targetLocationId
+            if (oppositeLocation !== null) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement with two locations`)
+            const key = stocktakeLineKey({ productId: movement.productId, locationId: locationId ?? null, lotId: movement.lotId ?? null })
+            const line = resultLineByKey.get(key)
+            if (!line) {
+              result.errors.push(`Inventory stocktake ${row.id} has a StockMovement absent from its result lines`)
+              continue
+            }
+            movementsByLine.set(key, (movementsByLine.get(key) || 0) + 1)
+            if (movement.quantity !== line.variance) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement quantity inconsistent with its result line`)
+          }
+          for (const line of snapshotLines) {
+            const movementCount = movementsByLine.get(stocktakeLineKey(line)) || 0
+            if (line.variance === 0 && movementCount !== 0) result.errors.push(`Inventory stocktake ${row.id} has a movement for a zero-variance line`)
+            if (line.variance !== 0 && movementCount !== 1) result.errors.push(`Inventory stocktake ${row.id} has an incorrect movement count for a nonzero line`)
+          }
+        }
       }
     }
     const fence = fences.get(`${row.tenantId}|${row.businessId}`)

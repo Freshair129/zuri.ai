@@ -75,7 +75,7 @@ describe('Marketing broadcast intent persistence (FR-185)', () => {
   it('appends revisions with CAS and refuses a hidden Business', async () => {
     const created = await createMarketingBroadcastIntent({ businessId: businessA.id, idempotencyKey: `broadcast-cas-${randomUUID()}`, payload: broadcastPayload() }, { db: prisma, viewer: ownerA, now: () => NOW })
     const revised = await updateMarketingBroadcastIntent(created.id, { action: 'revise', businessId: businessA.id, expectedVersion: 1, payload: broadcastPayload() }, { db: prisma, viewer: ownerA, now: () => NOW })
-    expect(revised).toMatchObject({ currentRevision: 2, version: 2 })
+    expect(revised).toMatchObject({ currentRevision: 2, version: 2, canWrite: true })
     expect(await prisma.marketingBroadcastIntentVersion.count({ where: { intentId: created.id } })).toBe(2)
     await expect(updateMarketingBroadcastIntent(created.id, { action: 'archive', businessId: businessA.id, expectedVersion: 1 }, { db: prisma, viewer: ownerA, now: () => NOW })).rejects.toMatchObject({ status: 409 })
     const hidden = makeViewer({ principal: { id: `broadcast-hidden-${businessB.id}` }, visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id], visibleDomains: DOMAINS })
@@ -88,6 +88,16 @@ describe('Marketing broadcast intent persistence (FR-185)', () => {
     await updateMarketingBroadcastIntent(created.id, { action: 'revise', businessId: businessA.id, expectedVersion: 1, payload: broadcastPayload() }, { db: prisma, viewer: ownerA, now: () => NOW })
     const replay = await createMarketingBroadcastIntent({ businessId: businessA.id, idempotencyKey: key, payload: broadcastPayload() }, { db: prisma, viewer: ownerA, now: () => NOW })
     expect(replay).toMatchObject({ id: created.id, currentRevision: 2, version: 2 })
+  })
+
+  it('archives without deleting reviewable revision history', async () => {
+    const created = await createMarketingBroadcastIntent({ businessId: businessA.id, idempotencyKey: `broadcast-archive-${randomUUID()}`, payload: broadcastPayload() }, { db: prisma, viewer: ownerA, now: () => NOW })
+    const archived = await updateMarketingBroadcastIntent(created.id, { action: 'archive', businessId: businessA.id, expectedVersion: created.version }, { db: prisma, viewer: ownerA, now: () => NOW })
+    expect(archived).toMatchObject({ status: 'ARCHIVED', canWrite: false, deletedAt: null })
+    const reopened = await getMarketingBroadcastIntent({ id: created.id, businessId: businessA.id, viewer: ownerA }, { db: prisma, now: () => NOW })
+    expect(reopened.revisions).toHaveLength(1)
+    const listed = await listMarketingBroadcastIntents({ businessId: businessA.id, viewer: ownerA }, { db: prisma, now: () => NOW })
+    expect(listed.intents).toEqual(expect.arrayContaining([expect.objectContaining({ id: created.id, status: 'ARCHIVED' })]))
   })
 
   it('rejects a supplied LINE account from another Business before persistence', async () => {

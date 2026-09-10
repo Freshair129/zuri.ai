@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 359,
-    "routes": 231,
-    "test_files": 603
+    "routes": 238,
+    "test_files": 617
   },
   "summary": {
-    "critical": 1,
-    "warning": 6,
-    "info": 24,
-    "overall": "CRITICAL"
+    "critical": 0,
+    "warning": 0,
+    "info": 22,
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -147,78 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "C13",
-      "severity": "critical",
-      "check": "requirement-coverage",
-      "title": "Functional requirements with no code anchor",
-      "details": "FR-185, FR-184",
-      "files": [],
-      "action": "Add @req annotations or mark the FR as planned"
-    },
-    {
-      "id": "W14",
-      "severity": "warning",
-      "check": "requirement-coverage",
-      "title": "Functional requirements with no test path",
-      "details": "FR-185, FR-184",
-      "files": [],
-      "action": "Add @tested or name the FR inside a test"
-    },
-    {
-      "id": "W15",
-      "severity": "warning",
-      "check": "doc-code-symlink",
-      "title": "Annotations pointing at unknown nodes",
-      "details": "4 dangling edge(s)",
-      "files": [],
-      "action": "Fix the @req/@tested target"
-    },
-    {
-      "id": "W16",
-      "severity": "warning",
-      "check": "domain-spine",
-      "title": "Charter claims a model that is not in the schema: InventoryStocktake",
-      "details": "domains/inventory",
-      "files": [
-        "docs/domains/inventory/CHARTER.md"
-      ],
-      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
-    },
-    {
-      "id": "W17",
-      "severity": "warning",
-      "check": "domain-spine",
-      "title": "Charter claims a model that is not in the schema: InventoryLedgerFence",
-      "details": "domains/inventory",
-      "files": [
-        "docs/domains/inventory/CHARTER.md"
-      ],
-      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
-    },
-    {
-      "id": "W18",
-      "severity": "warning",
-      "check": "domain-spine",
-      "title": "Charter claims a model that is not in the schema: MarketingBroadcastIntent",
-      "details": "domains/marketing",
-      "files": [
-        "docs/domains/marketing/CHARTER.md"
-      ],
-      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
-    },
-    {
-      "id": "W19",
-      "severity": "warning",
-      "check": "domain-spine",
-      "title": "Charter claims a model that is not in the schema: MarketingBroadcastIntentVersion",
-      "details": "domains/marketing",
-      "files": [
-        "docs/domains/marketing/CHARTER.md"
-      ],
-      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
-    },
-    {
-      "id": "I20",
+      "id": "I13",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -229,7 +158,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I21",
+      "id": "I14",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -240,47 +169,7 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I22",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "FEAT-021 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445 → 22a78f2662306450dc14b19b26c7581d145717efcb966823a5b41054ba8b28d0 · citation files: docs/DOCUMENT-LINKS.md, docs/domains/marketing/features/FR-157-content-creative.md, docs/PRD-SDD-v1.0.md, docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md, docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md, docs/TRACE.md",
-      "files": [
-        "docs/FEATURES.md",
-        "docs/.id-ledger.json",
-        "docs/DOCUMENT-LINKS.md",
-        "docs/domains/marketing/features/FR-157-content-creative.md",
-        "docs/PRD-SDD-v1.0.md",
-        "docs/roadmap/marketing/PHASE-MONOREPO-2026-09-06.md",
-        "docs/roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md",
-        "docs/TRACE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-021 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I23",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "FEAT-025 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 75703a8c209b96ad17811e41abe49bf07521fa078d0d59effabad34f08594096 → 30a0c54062ffe00434c8a6f958193931c191a660aa3367b05991f8a2bf3116ab · citation files: src/app/(pm)/inventory/locations/page.jsx, src/app/(pm)/inventory/reservations/page.jsx, src/app/(pm)/inventory/work-orders/page.jsx, docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md, docs/domains/inventory/CHARTER.md, docs/domains/inventory/features/FR-184-inventory-stocktake.md, docs/ERP-MODULE-MAP.md, docs/PRD-SDD-v1.0.md, docs/roadmap/ROADMAP.md, docs/TRACE.md",
-      "files": [
-        "docs/FEATURES.md",
-        "docs/.id-ledger.json",
-        "src/app/(pm)/inventory/locations/page.jsx",
-        "src/app/(pm)/inventory/reservations/page.jsx",
-        "src/app/(pm)/inventory/work-orders/page.jsx",
-        "docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md",
-        "docs/domains/inventory/CHARTER.md",
-        "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
-        "docs/ERP-MODULE-MAP.md",
-        "docs/PRD-SDD-v1.0.md",
-        "docs/roadmap/ROADMAP.md",
-        "docs/TRACE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FEAT-025 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I24",
+      "id": "I15",
       "severity": "info",
       "check": "id-stability",
       "title": "553 id(s) pinned across 10 families",
@@ -291,7 +180,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I25",
+      "id": "I16",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -302,7 +191,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I26",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -313,7 +202,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I27",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -324,7 +213,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I28",
+      "id": "I19",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 359 document(s)",
@@ -335,7 +224,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I29",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -347,19 +236,19 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I30",
+      "id": "I21",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 86 file(s) that write audit events",
+      "title": "audit entityType checked in 88 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I31",
+      "id": "I22",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 1976 column(s) across 142 model(s) against 63 migration(s)",
+      "title": "schema-migration drift checked: 2021 column(s) across 146 model(s) against 66 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

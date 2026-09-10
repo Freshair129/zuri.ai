@@ -3,7 +3,7 @@ feature: FR-185
 module: marketing
 domain: marketing
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-11T03:44:02+07:00,RWANG"
 last_update: "2026-09-11T03:44:02+07:00,RWANG"
 status: beta
@@ -158,6 +158,14 @@ the deterministic answer, source references and real measurement windows with no
 action control. Business switching clears stale identity state; empty, denied,
 unavailable and unknown states survive reload/back at 390px width.
 
+Broadcast creation uses authorized Content and LINE OA pickers, with titles,
+codes and the current Content revision visible. Internal ids, hashes and account
+versions are captured from the owner DTOs; users do not enter them. A draft keeps
+one internal create key across an unknown response and retries that exact payload.
+Saved plans can be reopened after reload, revised through the existing CAS API,
+and archived while preserving their revision history. The interface always
+explains that planning is not approval or authorization to send.
+
 The snapshot export includes the parent before the append-only child and a
 versioned Marketing broadcast recovery manifest. Import validates parent/child
 identity, Business/Tenant scope, unique intent/revision pairs, canonical payload
@@ -181,4 +189,5 @@ delivery/reconciliation and workers under their owning domains.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-11 | beta | Owner-backed human pickers, stable unknown-response retry, revision/archive review and browser acceptance | Integration | RWANG |
 | 0.1.0b | 2026-09-11 | beta | Approved FR185 bounded planning identity, immutable version/idempotency contract, read-only projections, explicit unavailable dispatch and backup gates | Uncommitted | RWANG |

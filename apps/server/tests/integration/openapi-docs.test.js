@@ -150,9 +150,11 @@ describe('OpenAPI document', () => {
       // hold is never deleted and never read one row at a time), ATP (GET),
       // the shelf-life audit and its maintenance write (GET, POST) and
       // de-kitting (POST).
-      // FR-186/183 add six paths and seven operations.
-      pathCount: 231,
-      operationCount: 318,
+      // FR-184 adds three stocktake paths and three operations. FR-185 adds
+      // four Marketing planning/projection paths and six operations. FR-186/183
+      // add six paths and seven operations.
+      pathCount: 238,
+      operationCount: 327,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

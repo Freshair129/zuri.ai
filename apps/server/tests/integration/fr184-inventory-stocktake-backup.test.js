@@ -2,6 +2,7 @@
 // survive the existing installation-wide snapshot replacement transaction.
 // @spec ADR-074 D1, D2; BR-008; SEC-001
 // @tested tests/integration/fr184-inventory-stocktake-backup.test.js
+import { randomUUID } from 'node:crypto'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -14,6 +15,7 @@ import { createCategory, createProduct, createProductMaster } from '@/modules/in
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
 import { commitStocktake, previewStocktake } from '@/modules/inventory/application/inventory-stocktake-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
+import { hashStocktake, INT32_MAX } from '@/modules/inventory/domain/inventory-stocktake'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 
@@ -130,5 +132,117 @@ describe('FR-184 stocktake snapshot recovery', () => {
     const result = await previewImport(legacy, { db, viewer: makeOperatorViewer() })
     expect(result).toMatchObject({ valid: false, inventoryStocktakeRecovery: { status: 'UNAVAILABLE' } })
     expect(result.errors).toContain('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
+  })
+
+  it('rejects malformed normalized line fields without throwing', async () => {
+    for (const [label, requestLines, lines, expected] of [
+      ['null line entries', [null], [null], 'has a malformed request line'],
+      ['non-array line fields', {}, {}, 'has an invalid normalized snapshot shape'],
+    ]) {
+      const corrupt = structuredClone(snapshot)
+      const row = corrupt.tables.inventoryStocktake.find((item) => item.id === pendingPreview.previewId)
+      const normalized = JSON.parse(row.normalizedLinesJson)
+      normalized.requestLines = requestLines
+      normalized.lines = lines
+      row.normalizedLinesJson = JSON.stringify(normalized)
+      const result = await previewImport(corrupt, { viewer: makeOperatorViewer() })
+      expect(result.valid, label).toBe(false)
+      expect(result.inventoryStocktakeRecovery.errors.join(' '), label).toContain(expected)
+    }
+  })
+
+  it('rejects committed results that cannot reconcile their movement evidence', async () => {
+    const committed = snapshot.tables.inventoryStocktake.find((item) => item.id === committedPreview.previewId)
+    const committedResult = JSON.parse(committed.resultJson)
+    const movementId = committedResult.movementIds[0]
+    const cases = [
+      ['missing movement', (corrupt) => {
+        corrupt.tables.stockMovement = corrupt.tables.stockMovement.filter((movement) => movement.id !== movementId)
+      }, `references missing StockMovement ${movementId}`],
+      ['wrong scope', (corrupt) => {
+        corrupt.tables.stockMovement.find((movement) => movement.id === movementId).businessId = 'foreign-business'
+      }, 'outside its Tenant/Business scope'],
+      ['wrong kind', (corrupt) => {
+        corrupt.tables.stockMovement.find((movement) => movement.id === movementId).kind = 'RECEIPT'
+      }, 'non-ADJUSTMENT StockMovement'],
+      ['wrong reference', (corrupt) => {
+        corrupt.tables.stockMovement.find((movement) => movement.id === movementId).reference = 'OTHER-STOCKTAKE'
+      }, 'inconsistent reference'],
+      ['duplicate movement id', (corrupt) => {
+        const row = corrupt.tables.inventoryStocktake.find((item) => item.id === committedPreview.previewId)
+        const result = JSON.parse(row.resultJson)
+        result.movementIds = [movementId, movementId]
+        result.movementCount = 2
+        row.resultJson = JSON.stringify(result)
+      }, 'duplicate StockMovement id'],
+      ['inconsistent movement count', (corrupt) => {
+        const row = corrupt.tables.inventoryStocktake.find((item) => item.id === committedPreview.previewId)
+        const result = JSON.parse(row.resultJson)
+        result.movementCount = 2
+        row.resultJson = JSON.stringify(result)
+      }, 'movementCount inconsistent with movementIds'],
+    ]
+
+    for (const [label, mutate, expected] of cases) {
+      const corrupt = structuredClone(snapshot)
+      mutate(corrupt)
+      const result = await previewImport(corrupt, { viewer: makeOperatorViewer() })
+      expect(result.valid, label).toBe(false)
+      expect(result.inventoryStocktakeRecovery.errors.join(' '), label).toContain(expected)
+    }
+  })
+
+  it('requires result lines to preserve the committed post-count balance', async () => {
+    const corrupt = structuredClone(snapshot)
+    const row = corrupt.tables.inventoryStocktake.find((item) => item.id === committedPreview.previewId)
+    const resultJson = JSON.parse(row.resultJson)
+    resultJson.lineBalances[0].postCommitQuantity += 1
+    row.resultJson = JSON.stringify(resultJson)
+    const result = await previewImport(corrupt, { viewer: makeOperatorViewer() })
+    expect(result.valid).toBe(false)
+    expect(result.inventoryStocktakeRecovery.errors).toContain(`Inventory stocktake ${row.id} has an invalid post-commit quantity`)
+  })
+
+  it('accepts a valid multi-line aggregate variance above one Int32 value', async () => {
+    const corrupt = structuredClone(snapshot)
+    const row = corrupt.tables.inventoryStocktake.find((item) => item.id === committedPreview.previewId)
+    const normalized = JSON.parse(row.normalizedLinesJson)
+    const first = normalized.lines[0]
+    const second = { ...first, locationId: null, countedQuantity: 1, expectedQuantity: 0, variance: 1 }
+    first.countedQuantity = INT32_MAX
+    first.expectedQuantity = 0
+    first.variance = INT32_MAX
+    normalized.requestLines = [
+      { productId: first.productId, locationId: first.locationId, lotId: first.lotId, countedQuantity: INT32_MAX },
+      { productId: second.productId, locationId: second.locationId, lotId: second.lotId, countedQuantity: 1 },
+    ]
+    normalized.lines = [first, second]
+    normalized.missingBuckets = []
+    normalized.complete = true
+    const hashable = { ...normalized }
+    delete hashable.snapshotHash
+    normalized.snapshotHash = hashStocktake({ businessId: row.businessId, snapshotVersion: row.snapshotVersion, ...hashable })
+    row.snapshotHash = normalized.snapshotHash
+    row.normalizedLinesJson = JSON.stringify(normalized)
+
+    const originalMovement = corrupt.tables.stockMovement.find((movement) => movement.id === JSON.parse(row.resultJson).movementIds[0])
+    originalMovement.quantity = INT32_MAX
+    originalMovement.sourceLocationId = null
+    originalMovement.targetLocationId = first.locationId
+    const additionalMovement = { ...originalMovement, id: randomUUID(), quantity: 1, targetLocationId: null }
+    corrupt.tables.stockMovement.push(additionalMovement)
+    const resultJson = JSON.parse(row.resultJson)
+    resultJson.movementIds = [resultJson.movementIds[0], additionalMovement.id]
+    resultJson.movementCount = 2
+    resultJson.varianceTotal = INT32_MAX + 1
+    resultJson.lineBalances = [
+      { ...resultJson.lineBalances[0], countedQuantity: INT32_MAX, expectedQuantity: 0, variance: INT32_MAX, postCommitQuantity: INT32_MAX },
+      { productId: second.productId, locationId: null, lotId: null, countedQuantity: 1, expectedQuantity: 0, variance: 1, postCommitQuantity: 1 },
+    ]
+    row.resultJson = JSON.stringify(resultJson)
+
+    const result = await previewImport(corrupt, { viewer: makeOperatorViewer() })
+    expect(result.valid).toBe(true)
+    expect(result.inventoryStocktakeRecovery).toMatchObject({ status: 'AVAILABLE', errors: [] })
   })
 })

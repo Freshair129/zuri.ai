@@ -3344,7 +3344,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "732b331a041e6b14a490dfe558db92a46232f744a25c3bead44036f9189079e7",
+      "statement_digest": "aff278745f649babc2ace4b5f42fe76b77f796ab064271fbdaadc11ddb425edd",
       "history": [
         {
           "anchor": "execution trace replay v0 3",
@@ -3352,8 +3352,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-07",
-      "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved per-job native SERVER memory opt-in extends the existing execution trace scope while default-off jobs remain excluded and production activation remains gated."
     },
     "FR-172": {
       "family": "FR",
