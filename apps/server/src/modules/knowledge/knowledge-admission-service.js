@@ -11,11 +11,21 @@ import {
 import { assertKnowledgeFileWritable, resolveKnowledgeScope } from './knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from './knowledge-runtime'
 import { createKnowledgeRepository } from './knowledge-repository'
+import {
+  SMARTGIFT_CATALOG_CONTENT_TYPE,
+  SMARTGIFT_CATALOG_FORMAT,
+  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
+  SMARTGIFT_CATALOG_PROVIDER,
+  splitSmartGiftCatalogRecords,
+} from './smartgift-catalog-adapter'
 
 // @req FR-173 — Files, Project Files, HTTP and MCP share one authorized durable
 // admission boundary for immutable Text/Markdown source versions.
-// @spec ADR-072, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js
+// @req FR-187 — the same boundary admits one SmartGift structured-record
+// projection as N immutable per-record sources before Stage 1, through the
+// existing queue rather than a second caller or a second write path.
+// @spec ADR-072, ADR-075, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
+// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -28,6 +38,11 @@ const SUPPORTED_MIME_TYPES = new Set([
   'application/x-markdown',
 ])
 const SUPPORTED_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.mdown', '.mkdn', '.mkd'])
+// A JSON payload is admitted only when the caller names the structured format.
+// A bare `.json` upload stays 415, exactly as it was before FR-187.
+const STRUCTURED_MIME_TYPES = new Set(['application/json', 'text/json'])
+const STRUCTURED_EXTENSIONS = new Set(['.json'])
+const STRUCTURED_FORMATS = Object.freeze([SMARTGIFT_CATALOG_FORMAT])
 
 const identifier = z.string().trim().min(1).max(200)
 const textSource = z.object({
@@ -43,7 +58,18 @@ const fileSource = z.object({
   sourceKey: identifier.optional(),
   version: identifier.optional(),
   title: identifier.optional(),
-}).strict()
+  format: z.enum(STRUCTURED_FORMATS).optional(),
+}).strict().superRefine((source, ctx) => {
+  if (!source.format) return
+  // A structured projection derives every record's key and version from the
+  // frozen file bytes (ADR-075 D3). Accepting a caller-supplied key or version
+  // as well would mean two competing identities for the same records.
+  for (const key of ['sourceKey', 'version']) {
+    if (source[key] !== undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message: `${key} is derived from the structured file and cannot be supplied` })
+    }
+  }
+})
 
 export const knowledgeAdmissionInput = z.object({
   businessId: identifier,
@@ -124,11 +150,11 @@ function contentBytes(value) {
   return bytes
 }
 
-function decodeUtf8(value) {
+function decodeUtf8(value, maxBytes = MAX_CONTENT_BYTES) {
   const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value)
   if (bytes.length === 0) throw failure(422, 'KNOWLEDGE_CONTENT_EMPTY', 'Knowledge content cannot be empty')
-  if (bytes.length > MAX_CONTENT_BYTES) {
-    throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', 'Knowledge content exceeds the 1 MiB limit')
+  if (bytes.length > maxBytes) {
+    throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', `Knowledge content exceeds the ${maxBytes} byte limit`)
   }
   let decoded
   try {
@@ -146,8 +172,16 @@ function extensionFor(name) {
   return dot >= 0 ? value.slice(dot) : ''
 }
 
-function supportedFileType(asset) {
+function supportedFileType(asset, format = null) {
   const mime = String(asset?.mime || '').split(';', 1)[0].trim().toLowerCase()
+  if (format) {
+    // JSON becomes admissible only because the caller named a structured
+    // format the adapter knows how to split. Without `format` this branch is
+    // never reached and a `.json` upload is still refused below.
+    if (STRUCTURED_MIME_TYPES.has(mime)) return true
+    return (SUPPORTED_MIME_TYPES.has(mime) || mime === 'text/*' || mime === 'application/octet-stream')
+      && STRUCTURED_EXTENSIONS.has(extensionFor(asset?.name))
+  }
   if (SUPPORTED_MIME_TYPES.has(mime)) return true
   // Existing FileAssets created before typed Markdown MIME values may carry a
   // generic text MIME. Extension fallback stays limited to a text-looking MIME
@@ -167,11 +201,11 @@ function namespacedIdempotencyKey(businessId, projectId, idempotencyKey) {
   return `knowledge:${hashGenesisRag17Json({ businessId, projectId: projectId || null, idempotencyKey })}`
 }
 
-function sourceMeta({ source, asset, content, contentHash, sourceVersion, title, projectId }) {
+function sourceMeta({ source, asset, content, contentHash, sourceVersion, title, projectId, sourceKey, structured }) {
   return {
     kind: source.kind,
     title,
-    sourceKey: source.kind === 'TEXT' ? source.sourceKey : (source.sourceKey || asset.id),
+    sourceKey: sourceKey || (source.kind === 'TEXT' ? source.sourceKey : (source.sourceKey || asset.id)),
     sourceVersion,
     contentHash,
     projectId: projectId || null,
@@ -184,6 +218,10 @@ function sourceMeta({ source, asset, content, contentHash, sourceVersion, title,
           storageKind: asset.storageKind,
         }
       : {}),
+    // The structured descriptor is how the queue runtime learns which provider,
+    // entity type and content type this record carries. It needs no column of
+    // its own: `sourceMetaJson` is already the per-ingestion metadata record.
+    ...(structured ? { structured } : {}),
   }
 }
 
@@ -280,7 +318,7 @@ async function authorize(args, { db, env, authorization } = {}) {
   })
 }
 
-async function loadFileSource(value, { db, fileContentResolver = defaultResolveFileAssetContent, asset: authorizedAsset } = {}) {
+async function loadFileSource(value, { db, fileContentResolver = defaultResolveFileAssetContent, asset: authorizedAsset, format = null } = {}) {
   const asset = authorizedAsset || await (db.fileAsset?.findUnique
     ? db.fileAsset.findUnique({ where: { id: value.source.fileAssetId } })
     : null)
@@ -295,8 +333,10 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
   if (asset.status !== 'ACTIVE') {
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', `File asset is ${asset.status}`)
   }
-  if (!supportedFileType(asset)) {
-    throw failure(415, 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED', 'Only plain text and Markdown files can be admitted')
+  if (!supportedFileType(asset, format)) {
+    throw failure(415, 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED', format
+      ? 'Only JSON files can be admitted as a structured catalog projection'
+      : 'Only plain text and Markdown files can be admitted')
   }
 
   let loaded
@@ -312,7 +352,9 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
   }
   let content
   try {
-    content = decodeUtf8(loaded?.content ?? loaded)
+    // The 1 MiB bound is the per-record limit; a structured projection is one
+    // file holding many records, so it gets its own explicit, larger bound.
+    content = decodeUtf8(loaded?.content ?? loaded, format ? SMARTGIFT_CATALOG_MAX_FILE_BYTES : MAX_CONTENT_BYTES)
   } catch (error) {
     if (error?.status) throw error
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', 'File asset content is unavailable')
@@ -382,6 +424,245 @@ function isUniqueError(error) {
   return error?.code === 'P2002' || /unique|already exists|duplicate/i.test(error?.message || '')
 }
 
+/** Find or create the one corpus this Business/Project scope admits into. */
+async function resolveCorpus(tx, { value, scope, policy, admittedAt }) {
+  const corpus = await tx.findCorpusByKey(corpusKeyFor(value.businessId, value.projectId))
+  if (!corpus) {
+    return tx.createCorpus({
+      corpusKey: corpusKeyFor(value.businessId, value.projectId),
+      portfolioId: scope.portfolioId,
+      tenantId: scope.tenantId,
+      businessId: value.businessId,
+      projectId: value.projectId || null,
+      workspaceId: scope.workspaceId || '',
+      scopeJson: JSON.stringify(scope),
+      policyJson: JSON.stringify(policy),
+      status: 'ACTIVE',
+      generation: 0,
+      version: 1,
+      createdAt: admittedAt,
+      updatedAt: admittedAt,
+    })
+  }
+  if (corpus.deletedAt || corpus.status !== 'ACTIVE') {
+    throw failure(409, 'KNOWLEDGE_CORPUS_UNAVAILABLE', 'Knowledge corpus is unavailable')
+  }
+  if (
+    corpus.businessId !== value.businessId
+    || (corpus.projectId || null) !== (value.projectId || null)
+    || !equalJson(parseJson(corpus.scopeJson), scope)
+    || !equalJson(parseJson(corpus.policyJson), policy)
+  ) {
+    throw failure(409, 'KNOWLEDGE_CORPUS_SCOPE_CONFLICT', 'Knowledge corpus scope has changed')
+  }
+  return corpus
+}
+
+/**
+ * Queue one immutable source version. Text, plain FILE and each SmartGift
+ * structured record all land here, so there is exactly one place that writes a
+ * KnowledgeSource/KnowledgeIngestion pair.
+ */
+async function admitOneRecord(tx, {
+  corpus,
+  viewer,
+  kind,
+  fileAssetId,
+  sourceKey,
+  sourceVersion,
+  title,
+  content,
+  contentHash,
+  sourceMetaJson,
+  namespacedKey,
+  requestHashValue,
+  admittedAt,
+}) {
+  const existingKey = await tx.findIngestionByKey(namespacedKey)
+  if (existingKey) {
+    if (existingKey.requestHash !== requestHashValue) {
+      throw failure(409, 'KNOWLEDGE_IDEMPOTENCY_CONFLICT', 'Idempotency key was already used for different input')
+    }
+    const existingSource = await tx.getSource(existingKey.sourceId)
+    return resultForAdmission(existingKey, { corpus, source: existingSource, unchanged: true })
+  }
+
+  let sourceRow = await tx.findSource(corpus.id, sourceKey)
+  if (sourceRow) {
+    if (sourceRow.kind !== kind || (sourceRow.fileAssetId || null) !== (fileAssetId || null)) {
+      throw failure(409, 'KNOWLEDGE_SOURCE_CONFLICT', 'Source key belongs to a different source')
+    }
+  } else {
+    sourceRow = await tx.createSource({
+      corpusId: corpus.id,
+      sourceKey,
+      kind,
+      title,
+      fileAssetId: fileAssetId || null,
+      desiredRevision: 0,
+      activeIngestionId: null,
+      version: 1,
+      revokedAt: null,
+      createdAt: admittedAt,
+      updatedAt: admittedAt,
+    })
+  }
+
+  const existingVersion = await tx.findIngestionVersion(sourceRow.id, sourceVersion)
+  if (existingVersion) {
+    throw failure(409, 'KNOWLEDGE_SOURCE_VERSION_CONFLICT', 'Source version was already admitted with a different request')
+  }
+
+  const revision = Number(sourceRow.desiredRevision || 0) + 1
+  if (sourceRow.desiredRevision === revision) {
+    throw failure(409, 'KNOWLEDGE_SOURCE_REVISION_CONFLICT', 'Source revision could not be advanced')
+  }
+  const updatedSource = await tx.updateSource(sourceRow.id, sourceRow.version, {
+    desiredRevision: revision,
+    title,
+    revokedAt: null,
+  })
+  if (!updatedSource) throw failure(409, 'KNOWLEDGE_SOURCE_REVISION_CONFLICT', 'Source changed while it was admitted')
+
+  const ingestion = await tx.createIngestion({
+    corpusId: corpus.id,
+    sourceId: sourceRow.id,
+    revision,
+    sourceVersion,
+    contentHash,
+    content,
+    sourceMetaJson,
+    idempotencyKey: namespacedKey,
+    requestHash: requestHashValue,
+    submittedById: actorId(viewer),
+    status: 'QUEUED',
+    executionRunId: null,
+    rawArtifactId: null,
+    parsedArtifactId: null,
+    snapshotId: null,
+    snapshotGeneration: null,
+    receiptHash: null,
+    claimToken: null,
+    leaseExpiresAt: null,
+    attempts: 0,
+    failureCode: null,
+    version: 1,
+    createdAt: admittedAt,
+    updatedAt: admittedAt,
+  })
+  await tx.audit?.({
+    entityId: ingestion.id,
+    entityType: 'KNOWLEDGE_INGESTION',
+    action: 'KNOWLEDGE_ADMISSION_QUEUED',
+    actorId: actorId(viewer),
+    payload: {
+      corpusId: corpus.id,
+      sourceId: sourceRow.id,
+      sourceVersion,
+      contentHash,
+      revision,
+    },
+  })
+  return resultForAdmission(ingestion, { corpus, source: updatedSource, unchanged: false })
+}
+
+/**
+ * FR-187 — one authorized, byte-frozen SmartGift projection becomes N FILE
+ * sources that all share the one `fileAssetId`, in one transaction. Sharing the
+ * asset id is what keeps the existing ACL and revocation checks
+ * (`knowledge-corpus-service`) correct for every derived record.
+ */
+async function admitStructuredRecords({
+  value,
+  source,
+  scope,
+  policy,
+  viewer,
+  repository,
+  admittedAt,
+}) {
+  const asset = source.asset
+  const fileSha256 = source.contentHash
+  const split = splitSmartGiftCatalogRecords({
+    content: source.content,
+    fileAssetId: asset.id,
+    fileSha256,
+    fileName: asset.name,
+    maxRecordBytes: MAX_CONTENT_BYTES,
+  })
+  if (!split.records.length) {
+    throw failure(422, 'KNOWLEDGE_STRUCTURED_ALL_DENIED', 'Every record in the structured projection was denied by the Zero-PII policy', {
+      denied: split.denied,
+    })
+  }
+
+  const items = await repository.transaction(async (tx) => {
+    const corpus = await resolveCorpus(tx, { value, scope, policy, admittedAt })
+    const admitted = []
+    for (const record of split.records) {
+      const structured = {
+        format: value.source.format,
+        provider: SMARTGIFT_CATALOG_PROVIDER,
+        entityType: record.entityType,
+        contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        externalId: record.externalId,
+        recordIndex: record.index,
+        recordCount: split.recordCount,
+        fileSha256,
+      }
+      const sourceMetaJson = JSON.stringify(sourceMeta({
+        source: value.source,
+        asset,
+        content: record.content,
+        contentHash: record.contentHash,
+        sourceVersion: record.version,
+        title: record.title,
+        projectId: value.projectId,
+        sourceKey: record.sourceKey,
+        structured,
+      }))
+      const requestHashValue = requestHash({
+        value,
+        source: { kind: 'FILE', sourceKey: record.sourceKey, sourceVersion: record.version, title: record.title, asset },
+        contentHash: record.contentHash,
+        scope,
+        policy,
+      })
+      admitted.push(await admitOneRecord(tx, {
+        corpus,
+        viewer,
+        kind: 'FILE',
+        fileAssetId: asset.id,
+        sourceKey: record.sourceKey,
+        sourceVersion: record.version,
+        title: record.title,
+        content: record.content,
+        contentHash: record.contentHash,
+        sourceMetaJson,
+        namespacedKey: namespacedIdempotencyKey(value.businessId, value.projectId, record.idempotencySeed),
+        requestHashValue,
+        admittedAt,
+      }))
+    }
+    return { corpus, admitted }
+  })
+
+  return {
+    format: value.source.format,
+    corpus: corpusSummary(items.corpus),
+    fileAssetId: asset.id,
+    fileName: asset.name,
+    fileSha256,
+    recordCount: split.recordCount,
+    admittedCount: items.admitted.filter((item) => !item.unchanged).length,
+    unchangedCount: items.admitted.filter((item) => item.unchanged).length,
+    deniedCount: split.denied.length,
+    denied: split.denied,
+    unchanged: items.admitted.every((item) => item.unchanged),
+    items: items.admitted,
+  }
+}
+
 export async function admitKnowledge(input, {
   db = prisma,
   viewer,
@@ -416,8 +697,9 @@ export async function admitKnowledge(input, {
     source: sourceDescriptor,
   }, { db, env, authorization })
 
+  const format = value.source.kind === 'FILE' ? (value.source.format || null) : null
   const source = value.source.kind === 'FILE'
-    ? await loadFileSource(value, { db, fileContentResolver, asset: access?.asset })
+    ? await loadFileSource(value, { db, fileContentResolver, asset: access?.asset, format })
     : await loadTextSource(value.source)
 
   let binding
@@ -435,136 +717,37 @@ export async function admitKnowledge(input, {
   const namespacedKey = namespacedIdempotencyKey(value.businessId, value.projectId, value.idempotencyKey)
   const requestHashValue = requestHash({ value, source, contentHash, scope, policy })
   const admittedAt = typeof now === 'function' ? now() : (now || new Date())
-  const sourceMetaJson = JSON.stringify(sourceMeta({
-    source: value.source,
-    asset: source.asset,
-    content: source.content,
-    contentHash,
-    sourceVersion: source.sourceVersion,
-    title: source.title,
-    projectId: value.projectId,
-  }))
 
   try {
+    if (format) {
+      return await admitStructuredRecords({ value, source, scope, policy, viewer, repository, admittedAt })
+    }
+    const sourceMetaJson = JSON.stringify(sourceMeta({
+      source: value.source,
+      asset: source.asset,
+      content: source.content,
+      contentHash,
+      sourceVersion: source.sourceVersion,
+      title: source.title,
+      projectId: value.projectId,
+    }))
     return await repository.transaction(async (tx) => {
-      let corpus = await tx.findCorpusByKey(corpusKeyFor(value.businessId, value.projectId))
-      if (corpus) {
-        if (corpus.deletedAt || corpus.status !== 'ACTIVE') {
-          throw failure(409, 'KNOWLEDGE_CORPUS_UNAVAILABLE', 'Knowledge corpus is unavailable')
-        }
-        if (
-          corpus.businessId !== value.businessId
-          || (corpus.projectId || null) !== (value.projectId || null)
-          || !equalJson(parseJson(corpus.scopeJson), scope)
-          || !equalJson(parseJson(corpus.policyJson), policy)
-        ) {
-          throw failure(409, 'KNOWLEDGE_CORPUS_SCOPE_CONFLICT', 'Knowledge corpus scope has changed')
-        }
-      } else {
-        corpus = await tx.createCorpus({
-          corpusKey: corpusKeyFor(value.businessId, value.projectId),
-          portfolioId: scope.portfolioId,
-          tenantId: scope.tenantId,
-          businessId: value.businessId,
-          projectId: value.projectId || null,
-          workspaceId: scope.workspaceId || '',
-          scopeJson: JSON.stringify(scope),
-          policyJson: JSON.stringify(policy),
-          status: 'ACTIVE',
-          generation: 0,
-          version: 1,
-          createdAt: admittedAt,
-          updatedAt: admittedAt,
-        })
-      }
-
-      const existingKey = await tx.findIngestionByKey(namespacedKey)
-      if (existingKey) {
-        if (existingKey.requestHash !== requestHashValue) {
-          throw failure(409, 'KNOWLEDGE_IDEMPOTENCY_CONFLICT', 'Idempotency key was already used for different input')
-        }
-        const existingSource = await tx.getSource(existingKey.sourceId)
-        return resultForAdmission(existingKey, { corpus, source: existingSource, unchanged: true })
-      }
-
-      let sourceRow = await tx.findSource(corpus.id, source.sourceKey)
-      if (sourceRow) {
-        const expectedFileId = source.asset?.id || null
-        if (sourceRow.kind !== value.source.kind || (sourceRow.fileAssetId || null) !== expectedFileId) {
-          throw failure(409, 'KNOWLEDGE_SOURCE_CONFLICT', 'Source key belongs to a different source')
-        }
-      } else {
-        sourceRow = await tx.createSource({
-          corpusId: corpus.id,
-          sourceKey: source.sourceKey,
-          kind: value.source.kind,
-          title: source.title,
-          fileAssetId: source.asset?.id || null,
-          desiredRevision: 0,
-          activeIngestionId: null,
-          version: 1,
-          revokedAt: null,
-          createdAt: admittedAt,
-          updatedAt: admittedAt,
-        })
-      }
-
-      const existingVersion = await tx.findIngestionVersion(sourceRow.id, source.sourceVersion)
-      if (existingVersion) {
-        throw failure(409, 'KNOWLEDGE_SOURCE_VERSION_CONFLICT', 'Source version was already admitted with a different request')
-      }
-
-      const revision = Number(sourceRow.desiredRevision || 0) + 1
-      if (sourceRow.desiredRevision === revision) {
-        throw failure(409, 'KNOWLEDGE_SOURCE_REVISION_CONFLICT', 'Source revision could not be advanced')
-      }
-      const updatedSource = await tx.updateSource(sourceRow.id, sourceRow.version, {
-        desiredRevision: revision,
-        title: source.title,
-        revokedAt: null,
-      })
-      if (!updatedSource) throw failure(409, 'KNOWLEDGE_SOURCE_REVISION_CONFLICT', 'Source changed while it was admitted')
-
-      const ingestion = await tx.createIngestion({
-        corpusId: corpus.id,
-        sourceId: sourceRow.id,
-        revision,
+      const corpus = await resolveCorpus(tx, { value, scope, policy, admittedAt })
+      return admitOneRecord(tx, {
+        corpus,
+        viewer,
+        kind: value.source.kind,
+        fileAssetId: source.asset?.id || null,
+        sourceKey: source.sourceKey,
         sourceVersion: source.sourceVersion,
-        contentHash,
+        title: source.title,
         content: source.content,
+        contentHash,
         sourceMetaJson,
-        idempotencyKey: namespacedKey,
-        requestHash: requestHashValue,
-        submittedById: actorId(viewer),
-        status: 'QUEUED',
-        executionRunId: null,
-        rawArtifactId: null,
-        parsedArtifactId: null,
-        snapshotId: null,
-        snapshotGeneration: null,
-        receiptHash: null,
-        claimToken: null,
-        leaseExpiresAt: null,
-        attempts: 0,
-        failureCode: null,
-        version: 1,
-        createdAt: admittedAt,
-        updatedAt: admittedAt,
+        namespacedKey,
+        requestHashValue,
+        admittedAt,
       })
-      await tx.audit?.({
-        entityId: ingestion.id,
-        entityType: 'KNOWLEDGE_INGESTION',
-        action: 'KNOWLEDGE_ADMISSION_QUEUED',
-        actorId: actorId(viewer),
-        payload: {
-          corpusId: corpus.id,
-          sourceId: sourceRow.id,
-          sourceVersion: source.sourceVersion,
-          contentHash,
-          revision,
-        },
-      })
-      return resultForAdmission(ingestion, { corpus, source: updatedSource, unchanged: false })
     })
   } catch (error) {
     if (error?.status) throw error
@@ -666,3 +849,5 @@ export function createKnowledgeAdmissionService(defaults = {}) {
 
 export const KNOWLEDGE_ADMISSION_STATUSES = JOB_STATUSES
 export const KNOWLEDGE_ADMISSION_MAX_CONTENT_BYTES = MAX_CONTENT_BYTES
+export const KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS = STRUCTURED_FORMATS
+export const KNOWLEDGE_ADMISSION_MAX_STRUCTURED_FILE_BYTES = SMARTGIFT_CATALOG_MAX_FILE_BYTES

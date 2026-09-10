@@ -9,10 +9,29 @@ import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/in
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 
 // @req FR-173 — process-owned admission queue resumes immutable jobs after restart.
-// @spec ADR-072, ADR-073
-// @tested tests/unit/knowledge-runtime.test.js, tests/acceptance/knowledge-admission-native.test.js
+// @req FR-187 — a structured record carries its provider, entity type and
+// content type from the admitted row, so the Stage 5 Zero-PII gate can see it.
+// @spec ADR-072, ADR-073, ADR-075
+// @tested tests/unit/knowledge-runtime.test.js, tests/acceptance/knowledge-admission-native.test.js, tests/integration/smartgift-catalog-admission.test.js
 const unavailable = () => Object.assign(new Error('Knowledge runtime is unavailable for this Business'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
 const date = (now) => typeof now === 'function' ? now() : now || new Date()
+
+/**
+ * Read the structured descriptor the admission service recorded in
+ * `sourceMetaJson`. Absent or malformed metadata means the job is an ordinary
+ * Text/FILE document and every pre-FR-187 default applies unchanged.
+ */
+export function structuredSourceDescriptor(sourceMetaJson) {
+  try {
+    const meta = JSON.parse(sourceMetaJson || '{}')
+    const structured = meta?.structured
+    if (!structured || typeof structured !== 'object' || Array.isArray(structured)) return null
+    if (typeof structured.provider !== 'string' || !structured.provider) return null
+    return structured
+  } catch {
+    return null
+  }
+}
 
 /** No credentials escape this resolver. Public callers must authorize the target first. */
 export async function resolveKnowledgeRuntimeBinding({ businessId, projectId }, { db = prisma, env = process.env } = {}) {
@@ -84,7 +103,8 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       const viewer = createKnowledgeExecutionAuthority(binding.scope, 'execute', job.executionRunId)
       executionOptions = { db, viewer, env, transport, now, scope: binding.scope }
       if (!job.executionRunId) {
-        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: 'KNOWLEDGE_ADMISSION', sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
+        const structured = structuredSourceDescriptor(job.sourceMetaJson)
+        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType: structured?.contentType || 'text/plain', sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
           onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {
             const linked = await createKnowledgeRepository(tx).updateIngestion(job.id, { executionRunId: createdRun.executionRunId, rawArtifactId, parsedArtifactId }, { claimToken: token })
             if (!linked) throw Object.assign(new Error('Knowledge admission lease was lost'), { status: 409 })

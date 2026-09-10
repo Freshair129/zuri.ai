@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS
 title: Knowledge ingestion surfaces, endpoint inventory and user journeys
-version: "1.1.1b"
+version: "1.2.0b"
 status: beta
 created_at: "2026-09-08T12:00:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T19:37:00+07:00,RWANG"
+last_update: "2026-09-11T13:00:00+07:00,Claude Fable 5.1"
 relations:
   - type: references
     target: ZAI:ADR-072
@@ -244,8 +244,8 @@ Evidence: `apps/edge/src/rag/v4/serve.ts:139`, `apps/edge/src/rag/v4/ingest.ts:9
 
 | Journey | สถานะ phases 0–4 | สิ่งที่มีจริง / ขอบเขต |
 |---|---|---|
-| **U01 — เลือกไฟล์จากเครื่องในหน้า Files** | **SUPPORTED — evidence by scope** | `/files` ใช้ active device mount → Add file → `LOCAL_FILE` FileAsset → Add knowledge สำหรับ Text/Markdown; admission freeze bytes/hash/version แล้ว queue งาน |
-| **U02 — External URL หรือไฟล์ที่มีอยู่แล้ว** | **SUPPORTED — bounded surface** | File manager ยังบันทึก/เปิด External URL ได้; knowledge admission รับเฉพาะ existing readable Text/Markdown FileAsset, external fetch/crawl ยัง deferred |
+| **U01 — เลือกไฟล์จากเครื่องในหน้า Files** | **SUPPORTED — evidence by scope** | `/files` ใช้ active device mount → Add file → `LOCAL_FILE` FileAsset → Add knowledge สำหรับ Text/Markdown; admission freeze bytes/hash/version แล้ว queue งานฯ — FR-187 (ADR-075 Phase 1, local tests only) เพิ่ม `application/json` เฉพาะเมื่อระบุ `format: SMARTGIFT_CATALOG_V1` แล้วแตกเป็น source ต่อหนึ่ง record; `.json` ที่ไม่ระบุ format ยังคง 415 |
+| **U02 — External URL หรือไฟล์ที่มีอยู่แล้ว** | **SUPPORTED — bounded surface** | File manager ยังบันทึก/เปิด External URL ได้; knowledge admission รับเฉพาะ existing readable Text/Markdown FileAsset และ — ตาม FR-187 — JSON FileAsset ที่ระบุ `format: SMARTGIFT_CATALOG_V1`; external fetch/crawl ยัง deferred |
 | **U03 — Project Files และ attachments** | **SUPPORTED — evidence by scope** | `/projects/{projectId}/files` ส่ง `projectId` เข้า corpus identity และตรวจ Business/Project/FileAsset ACL; ไม่มี work-item picker หรือ binary adapter |
 | **U04 — วางข้อความ / เขียน Text/Markdown โดยตรง** | **SUPPORTED — evidence by scope** | Add text modal และ `POST /api/knowledge/ingestions` รับ strict TEXT descriptor แล้วคืน `QUEUED` admission |
 | **U05 — ระบบภายนอกส่ง API** | **SUPPORTED — evidence by scope** | HTTP knowledge routes ใช้ session หรือ explicit configured bearer/API grant ที่ตรง service account, tenant, Business และ action; caller ไม่ส่ง scope/policy/actor/credential ใน body |
@@ -376,6 +376,7 @@ Deferred after this contract: PDF/DOCX/Excel/image/OCR; external URL fetch/crawl
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0b | 2026-09-11 | beta | FR-187 (ADR-075 Phase 1, implemented locally, not deployed): U01/U02 now also accept a JSON `FileAsset` that names `format: SMARTGIFT_CATALOG_V1`, admitted through the same POST and split into one immutable source per record; a bare `.json` stays 415 | working-tree | Claude Fable 5.1 |
 | 1.0.0b | 2026-09-08 | draft | Enumerated Server endpoints; actual source paths versus 16 proposed/partial user journeys; admission and cross-domain extension gaps | base dfdbaf11 | RWANG |
 | 1.1.1b | 2026-09-08 | beta | Record actual Business surface/native acceptance, corpus proof and remaining Project/API-grant/browser-query evidence limits | 03256b74 + integration | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Reconciled phases 0–4 HTTP/MCP/UI surfaces, 28-path/34-operation inventory, U01–U16 status matrix and native-acceptance boundary; linked ADR-072, FR-173 and the frozen contract | 0816ed4d | RWANG |

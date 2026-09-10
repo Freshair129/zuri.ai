@@ -23,8 +23,11 @@ import {
 // as the Human UI and HTTP API.
 // @req FR-071 — Codex uses a separate data_pipeline MCP namespace over the
 // existing server-owned staging/tracking services.
-// @spec ADR-029, ADR-040, SEC-001, SEC-008
-// @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js
+// @req FR-187 — `knowledge.ingestion_create` passes a FILE source's `format`
+// through unchanged, so an agent admits a SmartGift structured projection over
+// the same tool as Text/Markdown rather than a second MCP surface.
+// @spec ADR-029, ADR-040, ADR-075, SEC-001, SEC-008
+// @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js, tests/unit/knowledge-admission-mcp.test.js
 
 export const MCP_PROTOCOL_VERSION = '2024-11-05'
 
@@ -154,7 +157,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'knowledge.ingestion_create',
-    description: 'Admit one immutable Text/Markdown source version to the authorized Business or Project corpus.',
+    description: 'Admit one immutable Text/Markdown source version, or one structured-record projection (FILE source with format=SMARTGIFT_CATALOG_V1, which is split into one immutable source per record), to the authorized Business or Project corpus.',
     handler: 'knowledge.ingestionCreate',
     readOnly: false,
     argumentKeys: KNOWLEDGE_INGESTION_CREATE_ARGUMENT_KEYS,
@@ -163,7 +166,7 @@ const TOOL_DEFINITIONS = [
       businessId: { type: 'string' },
       projectId: { type: ['string', 'null'] },
       idempotencyKey: { type: 'string' },
-      source: { type: 'object', description: 'TEXT or FILE source descriptor; content is accepted only for TEXT.' },
+      source: { type: 'object', description: 'TEXT or FILE source descriptor; content is accepted only for TEXT. A FILE source may name format=SMARTGIFT_CATALOG_V1, in which case sourceKey and version are derived from the frozen file bytes and must be omitted.' },
     },
   },
   {

@@ -37,6 +37,11 @@ import {
   parseGenesisRag17Document,
   parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
+import {
+  assertZeroPii,
+  isStructuredRecordProvider,
+  STRUCTURED_RECORD_DENY_POLICY,
+} from '@/modules/knowledge/structured-record-policy'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — one real raw entry produces one document/run, immutable raw
@@ -44,11 +49,15 @@ import {
 // materialized attempt.
 // @req FR-110 — external evidence remains bounded and a successful close is
 // receipt-backed; Tier 1 never writes a GKS or GenesisBlockDB store.
-// @spec ADR-050, ADR-063, ADR-067, ADR-068, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md
-// @tested tests/integration/genesisrag17-tier1.test.js
+// @req FR-187 — a structured-record source runs the SmartGift Zero-PII deny
+// policy at Stage 5 classify; a denied record stops there with terminal
+// evidence and never reaches Stage 6 or a Stage 9 batch (ADR-075 D5).
+// @spec ADR-050, ADR-063, ADR-067, ADR-068, ADR-075, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js
 
 const RAW_SOURCE_TYPE = 'TEXT'
 const RAW_CONTENT_TYPE = 'text/plain'
+const RAW_ENTITY_TYPE = 'KNOWLEDGE_DOCUMENT'
 
 function serviceError(status, message, code = null) {
   const error = new Error(message)
@@ -148,6 +157,9 @@ function inputValue(input) {
     replayRunId,
     connectionId: source?.connectionId ?? null,
     provider: source?.provider ?? 'genesisrag17',
+    // Free String column on RawExternalRecord. The default keeps every
+    // pre-FR-187 caller writing exactly the row it wrote before.
+    entityType: source?.entityType ?? source?.entity_type ?? RAW_ENTITY_TYPE,
     lane: source?.lane ?? 'BUSINESS',
     externalId: source?.externalId ?? `${sourceId}:${version}`,
   }
@@ -525,7 +537,7 @@ async function ensureCanonicalRawRecord(db, value, rawArtifactId, now) {
     connectionId: value.connectionId,
     provider: value.provider,
     lane: value.lane,
-    entityType: 'KNOWLEDGE_DOCUMENT',
+    entityType: value.entityType,
     externalId: value.externalId,
     sourceType: ['PULL', 'WEBHOOK', 'FILE', 'MANUAL'].includes(value.sourceType) ? value.sourceType : 'MANUAL',
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
@@ -1097,10 +1109,26 @@ export async function ingestGenesisRag17Raw(input, {
       stageId: 'DPS-KI-CLASSIFY',
       recordsIn: 1,
       action: async () => {
+        // FR-187 / ADR-075 D5 — a structured provider's record is refused here,
+        // before dedupe, chunking or any Stage 8 mention could exist. The throw
+        // is a 422, which runLocalStage commits as terminal STEP_FAILED
+        // evidence and the admission runtime treats as permanent.
+        const structured = isStructuredRecordProvider(value.provider)
+        if (structured) assertZeroPii(value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
         // The frozen v1 policy carries only the two processing permissions; the
         // six-field scope is still explicit and is validated before indexing.
         classification = { scope: value.scope, policy: value.policy, indexable: value.policy.allowEmbedding, publishable: value.policy.allowPublication }
-        return { recordsIn: 1, recordsOut: 1, details: { scope: value.scope, policy: value.policy, indexable: classification.indexable, publishable: classification.publishable } }
+        return {
+          recordsIn: 1,
+          recordsOut: 1,
+          details: {
+            scope: value.scope,
+            policy: value.policy,
+            indexable: classification.indexable,
+            publishable: classification.publishable,
+            ...(structured ? { zeroPiiPolicy: STRUCTURED_RECORD_DENY_POLICY } : {}),
+          },
+        }
       },
     },
     {
