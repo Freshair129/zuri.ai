@@ -648,6 +648,11 @@ body[data-text-zoom="true"] #aiHome.compact-steps[data-provider="claude"][data-c
 body[data-compact="true"] #hardwarePage .subpage-heading > div { display: none; }
 body[data-text-zoom="true"] #overviewHome.compact-steps .hardware-summary-grid { display: none; }
 body[data-text-zoom="true"] #overviewHome.compact-steps .prerequisite-card .card-heading { display: none; }
+/* The summary card gained a "ดูบันทึกการทำงาน" row, and at 200% text on 640x480 that row fell
+   past the card's own bottom edge — the bounds contract caught it before the operator did.
+   Shed what the prerequisite card already sheds here: the heading is the one line the hero
+   immediately below it repeats, in larger type. */
+body[data-text-zoom="true"] #overviewHome.compact-steps .summary-card .card-heading { display: none; }
 
 body[data-text-zoom="true"][data-compact="true"] #settingsHome .eyebrow,
 body[data-text-zoom="true"][data-compact="true"] #settingsHome .panel-description,
@@ -773,3 +778,41 @@ body[data-text-zoom="true"]:has(#panel-settings:not([hidden])) .settings-form-bl
   font-size: 14px !important;
   line-height: 1.2 !important;
 }
+
+/* Worker activity log (Overview).
+   No scroll container and no growth: this app's e2e contract forbids scrollable ancestors and any
+   content clipped by one, at every supported viewport. So the card shows the newest few lines at a
+   fixed single-line height and "คัดลอกทั้งหมด" hands over the whole buffer — pagination-or-truncate
+   is the same answer the hardware panel gives for a list that does not fit. */
+.worker-log-card { display: flex; flex-direction: column; gap: 8px; }
+.worker-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.worker-log li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+.worker-log time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.worker-log span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.worker-log li.warn span { color: var(--yellow); }
+.worker-log li.error span { color: var(--red); }

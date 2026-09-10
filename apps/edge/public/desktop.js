@@ -41,6 +41,8 @@ const state = {
   workerReadError: null,
   workerBusy: false,
   workerPollBusy: false,
+  workerLog: [],
+  workerLogPage: 0,
   pairingActive: false,
   pairingBusy: false,
   pairingState: 'IDLE',
@@ -218,7 +220,10 @@ function renderCompactOverview() {
   const compact = state.compact;
   const prerequisites = Array.from($('prerequisites').children);
   const enlarged = compact && document.body.dataset.textZoom === 'true';
-  const pages = enlarged ? [blocks[0], ...prerequisites.map(() => blocks[1]), blocks[2]] : blocks;
+  // `blocks.slice(2)` rather than `blocks[2]`: the enlarged path used to name the last card by
+  // index, so adding a fourth made it unreachable at 200% text zoom — visible to no one who
+  // did not test at that zoom, which is the only place this list is used.
+  const pages = enlarged ? [blocks[0], ...prerequisites.map(() => blocks[1]), ...blocks.slice(2)] : blocks;
   $('overviewHome').classList.toggle('compact-steps', compact);
   setVisible('overviewCompactNav', compact);
   if (!compact) {
@@ -1052,6 +1057,76 @@ async function saveProvider() {
   finally { state.providerBusy = false; renderProvider(); }
 }
 
+function logTime(at) {
+  const parsed = Date.parse(at || '');
+  if (!parsed) return '—';
+  const stamp = new Date(parsed);
+  return String(stamp.getHours()).padStart(2, '0') + ':' + String(stamp.getMinutes()).padStart(2, '0')
+    + ':' + String(stamp.getSeconds()).padStart(2, '0');
+}
+
+// Lines per page of the log subpage.
+//
+// The Overview cannot host this: its no-scroll budget is already spent on three cards, and a fourth
+// clipped its neighbours at every supported viewport. So the log lives on its own page and paginates,
+// which is the same answer the hardware details page gives — this app never scrolls, it pages.
+const WORKER_LOG_PER_PAGE = 8;
+
+function workerLogPages() {
+  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
+  // Newest first: a log is read from the end, and page 1 should be what just happened.
+  const ordered = entries.slice().reverse();
+  const pages = [];
+  for (let index = 0; index < ordered.length; index += WORKER_LOG_PER_PAGE) {
+    pages.push(ordered.slice(index, index + WORKER_LOG_PER_PAGE));
+  }
+  return pages.length ? pages : [[]];
+}
+
+function renderWorkerLog() {
+  const list = $('workerLog');
+  if (!list) return;
+  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
+  const pages = workerLogPages();
+  state.workerLogPage = Math.max(0, Math.min(state.workerLogPage, pages.length - 1));
+  const shown = pages[state.workerLogPage];
+  setText('workerLogCount', entries.length ? entries.length + ' รายการ' : 'ยังไม่มีบันทึก');
+  setText('workerLogPageLabel', 'หน้า ' + (state.workerLogPage + 1) + ' / ' + pages.length);
+  $('workerLogPrev').disabled = state.workerLogPage <= 0;
+  $('workerLogNext').disabled = state.workerLogPage >= pages.length - 1;
+  setVisible('workerLogEmpty', entries.length === 0);
+  // Rebuilt rather than appended: the native buffer is bounded and drops its oldest lines, so the
+  // list here has to be able to shrink from the front as well as grow at the end.
+  list.replaceChildren(...shown.map((entry) => {
+    const row = document.createElement('li');
+    const level = entry && entry.level;
+    if (level === 'warn' || level === 'error') row.className = level;
+    const time = document.createElement('time');
+    time.textContent = logTime(entry && entry.at);
+    if (entry && entry.at) time.dateTime = entry.at;
+    const message = document.createElement('span');
+    // textContent, never innerHTML: these lines come from the worker process. The row is one line
+    // high and clipped with an ellipsis, so the full text lives in the title and in the copy.
+    message.textContent = text(entry && entry.message, '');
+    message.title = message.textContent;
+    row.append(time, message);
+    return row;
+  }));
+}
+
+async function refreshWorkerLog() {
+  if (!native) return;
+  try {
+    const result = await invoke('get_worker_log');
+    state.workerLog = (result && result.entries) || [];
+    renderWorkerLog();
+  } catch (failure) {
+    // The log is a diagnostic panel; failing to read it must not raise an error over the page the
+    // operator is using. The count going stale is the signal, and the status panel still reports.
+    state.workerLog = state.workerLog || [];
+  }
+}
+
 async function refreshWorker({ silent = false } = {}) {
   if (state.workerPollBusy || !native) return;
   state.workerPollBusy = true;
@@ -1066,7 +1141,11 @@ async function refreshWorker({ silent = false } = {}) {
     if (!state.worker) state.worker = { state: 'UNKNOWN', active: false, message: errorMessage(failure) };
     renderWorker();
     renderOverview();
-  } finally { state.workerPollBusy = false; renderProvider(); }
+  } finally {
+    state.workerPollBusy = false;
+    renderProvider();
+    await refreshWorkerLog();
+  }
 }
 
 async function runWorker(command) {
@@ -1159,7 +1238,26 @@ async function pollPairing() {
     setText('expiry', seconds ? 'หมดอายุใน ' + Math.ceil(seconds / 60) + ' นาที' : 'กำลังตรวจว่าคำขอหมดอายุหรือไม่…');
     state.pairingTimer = setTimeout(pollPairing, 2000);
   } catch (failure) {
-    if (state.pairingActive) { setPairingState('POLLING_ERROR', 'warning'); setMessage('pairingMessage', errorMessage(failure), 'error'); setVisible('retryPair', true); }
+    if (!state.pairingActive) return;
+    const reason = errorMessage(failure);
+    // A poll that cannot succeed must not leave the app in pairing mode. `pairingActive` gates the
+    // whole window — it hides Connect, shows Resume in its place, locks the AI settings and
+    // disables Start — so parking here on an error left the device "waiting to connect" forever,
+    // with no way out except a button the operator had no reason to suspect. Two cases end it:
+    // the native side has already dropped the request (it clears the slot on every terminal
+    // outcome, and then answers "ไม่มีคำขอที่กำลังรอ"), or the five-minute window has passed.
+    // Anything else is transient, so keep polling rather than making a blip look like a dead request.
+    const gone = reason.includes('ไม่มีคำขอที่กำลังรอ');
+    const expired = state.pairingExpiresAt && Date.now() >= state.pairingExpiresAt;
+    if (gone || expired) {
+      finishPairing('EXPIRED', 'คำขอหมดอายุแล้ว เริ่มคำขอใหม่เพื่อสร้าง QR และรหัสใหม่', 'error');
+      await loadStatus();
+      return;
+    }
+    setPairingState('POLLING_ERROR', 'warning');
+    setMessage('pairingMessage', reason, 'error');
+    setVisible('retryPair', true);
+    state.pairingTimer = setTimeout(pollPairing, 5000);
   } finally { state.pairingBusy = false; renderPairingActions(); }
 }
 
@@ -1319,6 +1417,20 @@ function bindNavigation() {
   $('hardwareNext').addEventListener('click', () => { state.inventoryPage += 1; renderHardwarePage(); });
   $('overviewCompactPrev').addEventListener('click', () => { state.overviewPage -= 1; renderCompactOverview(); });
   $('overviewCompactNext').addEventListener('click', () => { state.overviewPage += 1; renderCompactOverview(); });
+  $('workerLogOpen').addEventListener('click', () => { state.workerLogPage = 0; showPage('overview', 'workerLogPage'); renderWorkerLog(); });
+  $('workerLogBack').addEventListener('click', () => { showHome('overview'); focusElement('workerLogOpen'); });
+  $('workerLogPrev').addEventListener('click', () => { state.workerLogPage -= 1; renderWorkerLog(); });
+  $('workerLogNext').addEventListener('click', () => { state.workerLogPage += 1; renderWorkerLog(); });
+  $('workerLogCopy').addEventListener('click', async () => {
+    const lines = (state.workerLog || []).map((entry) => logTime(entry && entry.at) + '  ' + text(entry && entry.message, ''));
+    if (!lines.length) { setMessage('workerLogEmpty', 'ยังไม่มีบันทึกให้คัดลอก', 'warning'); return; }
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      setMessage('workerLogEmpty', 'คัดลอกบันทึก ' + lines.length + ' รายการแล้ว', 'success');
+    } catch (failure) {
+      setMessage('workerLogEmpty', 'คัดลอกไม่สำเร็จ: ' + errorMessage(failure), 'error');
+    }
+  });
   for (const [key, previousId, nextId] of [
     ['connect', 'connectCompactPrev', 'connectCompactNext'],
     ['ai', 'aiCompactPrev', 'aiCompactNext'],
