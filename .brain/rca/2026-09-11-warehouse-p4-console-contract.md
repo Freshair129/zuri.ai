@@ -5,14 +5,15 @@
 **Base:** `origin/main` at `f320e888`  
 **Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
 **Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.6 (FR-182 published-surface dependency review)
+**Proposal revision:** 0.7 (consistent Inventory surface ownership)
 
 ## Purpose
 
 This proposal defines the smallest reviewable Warehouse P4 slice that can expose the
 located stock already implemented by Inventory and add a safe physical-count desk.
-It keeps the `warehouse` navigation slot as the user-facing console while
-Inventory remains the owner of `WarehouseLocation`, `StockMovement`, and all
+It extends PR318's Inventory console; the reserved `warehouse` navigation slot
+does not become a second console in this slice. Inventory owns
+`WarehouseLocation`, `StockMovement`, and all
 ledger writes. It does not introduce a second Warehouse domain, a duplicate
 inventory schema, bins, campaigns, synchronization, or outbound integration.
 
@@ -130,7 +131,7 @@ route or stocktake acceptance contract connecting them.
 
 The implementation must use the existing Inventory service/domain authorities,
 test each concurrency and tracking invariant against a real test database, and
-keep the Warehouse route/page as a thin Business-scoped projection. The
+keep the Inventory stocktake page as a thin Business-scoped projection. The
 stocktake commit must have a durable operation key and an immutable read
 snapshot; all writes must happen in one transaction through the existing ledger
 writer and audit path.
@@ -139,8 +140,8 @@ writer and audit path.
 
 ### 1. Located-stock console
 
-The Warehouse console is a page under the reserved Warehouse surface, backed by
-Inventory-owned services. It is always scoped to the selected Business; the
+The existing Inventory console owns the located-stock surface. The stocktake
+page extends that same console and its services. It is always scoped to the selected Business; the
 server validates the viewer's Business visibility and derives tenant scope.
 
 The read contract is the published PR318 pair:
@@ -527,6 +528,7 @@ read-only analysis only.
 
 | Revision | Date | Change |
 |---|---|---|
+| 0.7 | 2026-09-11 | Removed stale reserved-Warehouse-page wording from the purpose and prevention sections; all sections now use the PR318 Inventory surface without a duplicate console. |
 | 0.6 | 2026-09-11 | Rebased the proposed console boundary on published PR318/FR-182 routes, services, and pages; explicitly excluded duplicate Warehouse adapters and kept stocktake deferred. |
 | 0.5 | 2026-09-11 | Kept global snapshot format 1.0 and specified the `inventoryStocktakeRecovery` manifest, strict declared-manifest validation, and explicit legacy UNAVAILABLE status. |
 | 0.4 | 2026-09-11 | Kept global snapshot-version selection with the integration owner and made the required stocktake/fence recovery-state refusal explicit. |
