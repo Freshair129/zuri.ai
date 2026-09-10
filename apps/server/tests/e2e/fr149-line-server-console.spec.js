@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 const { PrismaClient } = require('@prisma/client')
+const { randomUUID } = require('node:crypto')
 const { e2eTarget } = require('./e2e-target')
 const createdNames = []
 test.afterEach(async () => {
@@ -33,11 +34,17 @@ test('LINE account onboarding persists and activation requires an explicit hando
   // asserted the deactivation button was visible, i.e. that creating an account
   // puts it live. That is the behaviour the owner decided to remove, so the
   // assertions below are the ones kept; main's tighter locators are adopted.
-  // One submit provisions the connection and the account together now: the
-  // display name names both, and the account code, destination and secret
-  // reference are derived from it unless the advanced block overrides them.
-  // Only the display name is required, so that is all this fixture fills.
+  // The approved onboarding contract requires explicit provider identity and
+  // a pre-existing secret reference; a display name must not fabricate either.
   await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
+  const destination = page.getByLabel(/LINE bot destination/)
+  expect(await destination.evaluate((input) => input.validity.valueMissing)).toBe(true)
+  await expect(page.getByRole('heading', { name: tag })).toHaveCount(0)
+  // Synthetic metadata in the isolated database. This deliberately resolves
+  // to no real secret/provider and does not activate transport or send LINE.
+  await destination.fill(`U${randomUUID().replaceAll('-', '')}`)
+  await page.getByLabel(/Deployment secret reference/).fill('deployment-secret:synthetic-e2e-unconfigured')
   await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // Scope through the heading's enclosing Card without relying on its styling implementation.

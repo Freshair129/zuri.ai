@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-10T23:45:58+07:00,RWANG"
+last_update: "2026-09-11T00:49:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -76,16 +76,43 @@ commit are intermediate progress, not completion.
 
 ## Status
 
-Initial state: LINE OA, memory and Billing/POS workers dispatched; Warehouse,
-Goods Receipts and Marketing P5 queued. Integration dependency installation and
-baseline validation are complete: 4,539 tests passed, 15 skipped across 556 passed and 5 skipped files. No implementation acceptance claimed.
+Goods Receipts, LINE OA and the direct-webhook Memory/Trace adapter are now
+integrated in the isolated branch. Goods Receipts has real persisted intake and
+cross-Business browser proof. The primary server LINE worker still requires the
+separate memory-composition amendment; the direct adapter is not evidence that
+the primary worker invokes MSP.
+
+Billing/POS's concrete FR-182/FR-183 specification is owner-approved and under
+implementation. Warehouse stocktake and primary-worker memory amendments are
+under contract review. Marketing P5 is queued for its retained-slice review.
+Unique superseded evidence has been copied with a SHA-256 manifest outside the
+checkout; original worktrees have not been deleted.
+
+The integrated Server build and governance pass (zero critical/warning).
+The first full regression ran 4,599 tests: 4,582 passed, 15 skipped and two failed
+because assertions retained the previous API count and URL-removal contract.
+The receipt registry/detail add two enumerated GET paths; the approved OA
+compatibility URL redirects to the one Platform workspace. The assertions now
+check those contracts; their two files pass all 17 tests. The first full E2E
+run has 149 passing tests, four skips and two failures: connector presentation
+lost its labels/reasons, and the old onboarding fixture omitted now-required
+provider identity. Both are repaired; the three focused browser tests pass with
+retries disabled. Final combined regression remains required after the other
+lanes land.
+
+Edge typecheck/build pass. The first full Edge run had 942 passing tests, three
+skips and one managed-worker stop failure (exit 2 after `stopped`). A later run
+passed 943 tests, but the initial intermittent failure is unresolved and is not
+reclassified as success. Diagnostic isolated and loaded runs have not reproduced
+it. Native-device acceptance and production activation remain unclaimed.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: new tracking plan; no requirement identity or runtime behavior changed.
+Version diff: 0.1.0b → 0.2.0b; progress and evidence updated, no requirement identity changed.
 
 

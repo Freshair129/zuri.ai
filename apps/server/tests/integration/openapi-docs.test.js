@@ -141,8 +141,9 @@ describe('OpenAPI document', () => {
       // (GET /api/line-oa/jobs/failures): one path, one operation. It is a read
       // model behind the Studio's red failure count, never a retry verb — which
       // is why it adds a GET and nothing else.
-      pathCount: 210,
-      operationCount: 288,
+      // FR-165 adds the receipt registry and persisted receipt detail GETs.
+      pathCount: 212,
+      operationCount: 290,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

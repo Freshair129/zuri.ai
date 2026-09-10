@@ -3,7 +3,6 @@
 // @spec SDD-060
 // @tested tests/unit/line-studio-edge-connection-render.test.js
 import { readFileSync } from 'node:fs'
-import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -69,9 +68,10 @@ describe('the one surface that governs device keys offers all three operations',
 
 describe('LINE OA Studio has one Integrations page, not two', () => {
   it('no longer ships an alias route that re-exports the Platform page', () => {
-    // /line-oa/integrations was a nine-line re-export of /platform/integrations: the same
-    // component at a second URL, in a second sidebar, with its own entry in the e2e warm-up list.
-    expect(existsSync(resolve(process.cwd(), 'src/app/(pm)/line-oa/integrations/page.jsx'))).toBe(false)
+    // Saved links redirect to the one workspace; they must not render a second copy.
+    const compatibility = readFileSync(resolve(process.cwd(), 'src/app/(pm)/line-oa/integrations/page.jsx'), 'utf8')
+    expect(compatibility).toContain("redirect('/platform/integrations')")
+    expect(compatibility).not.toMatch(/export\s*\{\s*default\s*\}\s*from/)
     for (const file of ['src/config/domains.js', 'src/modules/line-oa-studio/ui/LineStudioProjects.jsx', 'tests/e2e/warmup-routes.js']) {
       expect(readFileSync(resolve(process.cwd(), file), 'utf8')).not.toContain('/line-oa/integrations')
     }

@@ -1301,6 +1301,7 @@ Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-acco
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) (references)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
 - [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
@@ -1322,6 +1323,7 @@ Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
 - [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
+- [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
 - [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
 - [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
@@ -2663,6 +2665,24 @@ Backlinks:
 - [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
 - [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
+
+## LINE OA — reliability remediation record for the reviewed branch
+
+Source: [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md)
+
+- references: [req:FR-080](PRD-SDD-v1.0.md)
+- references: [req:FR-091](PRD-SDD-v1.0.md)
+- references: [req:FR-093](PRD-SDD-v1.0.md)
+- references: [req:FR-146](PRD-SDD-v1.0.md)
+- references: [req:FR-149](PRD-SDD-v1.0.md)
+- references: [req:FR-150](PRD-SDD-v1.0.md)
+- references: [req:FR-151](PRD-SDD-v1.0.md)
+- references: [req:FR-152](PRD-SDD-v1.0.md)
+- references: [req:FR-153](PRD-SDD-v1.0.md)
+- references: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+- references: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: feat:FEAT-018
+- relates: feat:FEAT-019
 
 ## SRS — LINE OA Studio domain
 
