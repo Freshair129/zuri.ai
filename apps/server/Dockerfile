@@ -59,7 +59,14 @@ ENV HOSTNAME=0.0.0.0
 # ZURI_LINE_DB_CA_FILE / ZURI_CUSTOMER_REVIEW_DB_CA_FILE point at a path that exists
 # inside the container (docker-compose.yml sets both).
 COPY --from=builder --chown=node:node /app/certs ./certs
-COPY --from=builder --chown=node:node /app/scripts/server-line-worker.mjs ./scripts/server-line-worker.mjs
+# The supervisor and everything it imports. Listed file by file on purpose — the runtime
+# image ships only what the worker actually needs — and that makes a new local import a
+# *runtime* crash rather than a build error: `worker-cadence.mjs` was split out of the
+# supervisor for testability, this line was not updated, and the deployed container died
+# with ERR_MODULE_NOT_FOUND on every restart while the build, the tests and CI all stayed
+# green. tests/unit/server-line-worker-cadence.test.js now fails if an import listed in
+# the supervisor is missing here.
+COPY --from=builder --chown=node:node /app/scripts/server-line-worker.mjs /app/scripts/worker-cadence.mjs ./scripts/
 # src/modules/integration/application/sot-plan.js reads contracts/sot-pipeline-plan.v1.json
 # from process.cwd() at request time, so the tracer cannot see it — ship the folder.
 COPY --from=builder --chown=node:node /app/contracts ./contracts
