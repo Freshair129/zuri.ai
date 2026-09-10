@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2496,
-    "total_edges": 10052,
+    "total_nodes": 2531,
+    "total_edges": 10232,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -13,19 +13,19 @@
       "domain": 14,
       "roadmap": 44,
       "feature": 25,
-      "route": 298,
+      "route": 314,
       "model": 139,
-      "requirement": 351,
-      "test": 592,
-      "code_file": 742
+      "requirement": 352,
+      "test": 594,
+      "code_file": 758
     },
     "coverage": {
-      "requirements": 351,
-      "fr_with_code": "100% (171/171)",
-      "fr_with_tests": "100% (171/171)",
+      "requirements": 352,
+      "fr_with_code": "100% (172/172)",
+      "fr_with_tests": "100% (172/172)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 742,
+      "annotated_code_files": 758,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -801,22 +801,86 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/inventory/locations/page.jsx",
+      "hash": "86d26ffc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/inventory/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/inventory/page.jsx",
-      "hash": "9c75b34b",
+      "hash": "e65742d0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-154",
           "FR-155",
+          "FR-182",
           "FR-168"
         ],
         "@spec": [
           "SEC-001"
         ],
         "@tested": [
-          "tests/unit/inventory-routes.test.js"
+          "tests/unit/inventory-routes.test.js",
+          "tests/unit/scm-console-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
+      "hash": "3490273f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-031",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
+      "hash": "40383a9c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-176",
+          "FR-177"
+        ],
+        "@spec": [
+          "BR-028",
+          "BR-029",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js"
         ]
       }
     },
@@ -3859,6 +3923,27 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/atp/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/atp/route.js",
+      "hash": "b9640259",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-031",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/inventory/bundles/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/inventory/bundles/route.js",
@@ -3901,6 +3986,72 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "hash": "db04a924",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-176"
+        ],
+        "@spec": [
+          "BR-028",
+          "BR-029",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/customization-work-orders/route.js",
+      "hash": "43fab406",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-176"
+        ],
+        "@spec": [
+          "BR-028",
+          "BR-029",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/de-kitting/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/de-kitting/route.js",
+      "hash": "05573ac3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-178"
+        ],
+        "@spec": [
+          "BR-028",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/inventory/factories/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/inventory/factories/route.js",
@@ -3939,6 +4090,116 @@
         "@tested": [
           "tests/unit/inventory-routes.test.js",
           "tests/integration/fr154-inventory-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "hash": "0c0a4512",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-177"
+        ],
+        "@spec": [
+          "BR-027",
+          "BR-029",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/kitting-work-orders/route.js",
+      "hash": "35c6afd5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-177"
+        ],
+        "@spec": [
+          "BR-029",
+          "BR-032",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/location-stock/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/location-stock/route.js",
+      "hash": "d1fc7a6d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/locations/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/locations/[id]/route.js",
+      "hash": "c97ed5a2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/locations/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/locations/route.js",
+      "hash": "3f735f8e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
         ]
       }
     },
@@ -4090,6 +4351,49 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/reservations/[id]/route.js",
+      "hash": "8c0ee9d6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-031",
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/reservations/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/reservations/route.js",
+      "hash": "e5bb4dad",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-180"
+        ],
+        "@spec": [
+          "BR-031",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/inventory/serial-units/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/inventory/serial-units/route.js",
@@ -4106,6 +4410,27 @@
         "@tested": [
           "tests/unit/inventory-routes.test.js",
           "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/shelf-life/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/shelf-life/route.js",
+      "hash": "fd0bb49d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-179"
+        ],
+        "@spec": [
+          "BR-030",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
         ]
       }
     },
@@ -4146,6 +4471,28 @@
         "@tested": [
           "tests/unit/inventory-routes.test.js",
           "tests/integration/fr155-inventory-stock.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/transfers/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/transfers/route.js",
+      "hash": "becb018b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-182",
+          "FR-174"
+        ],
+        "@spec": [
+          "BR-026",
+          "BR-028",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/scm-console-routes.test.js",
+          "tests/integration/fr182-scm-console-actions.test.js"
         ]
       }
     },
@@ -6554,7 +6901,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "d8bec96f",
+      "hash": "2fc74641",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6574,6 +6921,7 @@
           "FR-086",
           "FR-133",
           "FR-154",
+          "FR-182",
           "FR-169",
           "FR-164",
           "FR-165",
@@ -6810,11 +7158,12 @@
       "id": "code:src/lib/module-tabs.js",
       "type": "code_file",
       "path": "apps/server/src/lib/module-tabs.js",
-      "hash": "69e4e0cd",
+      "hash": "643c49f5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-170"
+          "FR-170",
+          "FR-182"
         ],
         "@tested": [
           "tests/unit/module-tabs.test.js"
@@ -6936,7 +7285,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "215efcd2",
+      "hash": "b828ad30",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9802,7 +10151,7 @@
       "id": "code:src/modules/inventory/application/customization-work-order-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/customization-work-order-service.js",
-      "hash": "ee6a8e9a",
+      "hash": "33946536",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9976,7 +10325,7 @@
       "id": "code:src/modules/inventory/application/kitting-work-order-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/kitting-work-order-service.js",
-      "hash": "dd8c342b",
+      "hash": "80ed8088",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10061,14 +10410,15 @@
       "id": "code:src/modules/inventory/domain/inventory-wip.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory-wip.js",
-      "hash": "d2c0a583",
+      "hash": "3b6e5602",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-176",
           "FR-177",
           "FR-179",
-          "FR-180"
+          "FR-180",
+          "FR-182"
         ],
         "@spec": [
           "BR-028",
@@ -10129,7 +10479,7 @@
       "id": "code:src/modules/inventory/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/index.js",
-      "hash": "6e1a3bc0",
+      "hash": "319895aa",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13003,7 +13353,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "9057157f",
+      "hash": "c9f6ce5b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13021,6 +13371,7 @@
           "FR-154",
           "FR-155",
           "FR-156",
+          "FR-182",
           "FR-169",
           "FR-022",
           "FR-166",
@@ -15175,7 +15526,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.55.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "c6d8e49d",
+      "hash": "939e624a",
       "status": "current"
     },
     {
@@ -15599,9 +15950,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.33.0b",
+      "version": "1.34.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "8400dfcd",
+      "hash": "62c57062",
       "status": "current"
     },
     {
@@ -16616,7 +16967,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.14.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0b0ed274",
+      "hash": "afe1fb2f",
       "status": "current"
     },
     {
@@ -17172,9 +17523,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.176.0b",
+      "version": "1.177.0b",
       "doc_status": "Draft",
-      "hash": "2e6dcb31",
+      "hash": "27fd0fe5",
       "status": "current"
     },
     {
@@ -17202,7 +17553,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b0c41a25",
+      "hash": "617ee4bb",
       "status": "current"
     },
     {
@@ -20860,6 +21211,16 @@
       "row_text": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path — three read tools in the Gate E registry (`check_inventory_atp`, `calculate_smartgift_quote`, `audit_battery_lots`) and three write actions in the Gate F registry (`create_quote_stock_reservation` at LOW sensitivity; `dispatch_customization_work_order` and `dispatch_kitting_work_order` at HIGH, so the action gate demands step-up before stock is irreversibly branded or consumed). Every tool calls the same application service a human surface calls, with the same viewer and therefore the same authority ladder and the same FR-072 refusals; none queries Prisma directly and none carries a Business the caller did not already prove. `calculate_smartgift_quote` states the absorbed freight explicitly (`freightSatang: 0`, `freightAbsorbedSatang: 250000`) so a quote can never present it as a separate charge (FR-175). The Business's own system prompts are its agent configuration, not zuri-ai code; this requirement ships the tools they call. 🟠 implemented locally 2026-09-10 (ADR-074 D9, SDD-091) — `agent/tools/smartgift-inventory-tools.js`, registered through the existing `createToolRegistry` / `createWriteToolRegistry`; `tests/integration/fr181-smartgift-agent-tools.test.js` "
     },
     {
+      "id": "req:FR-182",
+      "type": "requirement",
+      "family": "FR",
+      "label": "The SCM lane gets the human surface ADR-074 deferred: `/api/inventory/**` handlers and the console pages for locations, transfers, the two work orders, reservations and the shelf-life audit. Thirteen route files, each thin — resolve the viewer, call the one exported service, return what it returns — so every authority rule, refusal code and audit row is the service's and none is re-implemented at the edge; a route never touches Prisma. Two of them are new **action dispatchers** (`PATCH /api/inventory/customization-work-orders/{id}` and `.../kitting-work-orders/{id}`) whose `action` — RELEASE | COMPLETE | CANCEL — is a Zod-validated vocabulary in the domain, not a string a handler branches on, so the work-order verbs are declared in one place and a route cannot invent a fourth. Four pages: `/inventory` keeps the catalogue and ledger it already had, `/inventory/locations` shows on-hand per location beside the Business-wide total (BR-026) and moves stock, `/inventory/work-orders` opens, releases and completes both kinds, and `/inventory/reservations` shows ATP with its two tiers and holds or releases stock. Inventory now has more than one page, so it renders them as in-canvas tabs (FR-170) and lists them in the sidebar.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The SCM lane gets the human surface ADR-074 deferred: `/api/inventory/**` handlers and the console pages for locations, transfers, the two work orders, reservations and the shelf-life audit. Thirteen route files, each thin — resolve the viewer, call the one exported service, return what it returns — so every authority rule, refusal code and audit row is the service's and none is re-implemented at the edge; a route never touches Prisma. Two of them are new **action dispatchers** (`PATCH /api/inventory/customization-work-orders/{id}` and `.../kitting-work-orders/{id}`) whose `action` — RELEASE | COMPLETE | CANCEL — is a Zod-validated vocabulary in the domain, not a string a handler branches on, so the work-order verbs are declared in one place and a route cannot invent a fourth. Four pages: `/inventory` keeps the catalogue and ledger it already had, `/inventory/locations` shows on-hand per location beside the Business-wide total (BR-026) and moves stock, `/inventory/work-orders` opens, releases and completes both kinds, and `/inventory/reservations` shows ATP with its two tiers and holds or releases stock. Inventory now has more than one page, so it renders them as in-canvas tabs (FR-170) and lists them in the sidebar. 🟠 implemented locally 2026-09-10 (ADR-074, discharging consequence 5) — 13 route files under `src/app/api/inventory/**`, 3 new pages + `INVENTORY_TABS`, `applyCustomizationWorkOrderAction` / `applyKittingWorkOrderAction`; `tests/unit/scm-console-routes.test.js`, `tests/integration/fr182-scm-console-actions.test.js` "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -23032,6 +23393,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/inventory/atp",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/atp",
+      "path": "apps/server/src/app/api/inventory/atp/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/inventory/bundles",
       "type": "route",
       "kind": "api",
@@ -23048,6 +23417,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/inventory/customization-work-orders",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/customization-work-orders",
+      "path": "apps/server/src/app/api/inventory/customization-work-orders/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/customization-work-orders/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/customization-work-orders/[id]",
+      "path": "apps/server/src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/de-kitting",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/de-kitting",
+      "path": "apps/server/src/app/api/inventory/de-kitting/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/inventory/factories",
       "type": "route",
       "kind": "api",
@@ -23061,6 +23454,46 @@
       "kind": "api",
       "route": "/api/inventory/families",
       "path": "apps/server/src/app/api/inventory/families/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/kitting-work-orders",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/kitting-work-orders",
+      "path": "apps/server/src/app/api/inventory/kitting-work-orders/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/kitting-work-orders/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/kitting-work-orders/[id]",
+      "path": "apps/server/src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/location-stock",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/location-stock",
+      "path": "apps/server/src/app/api/inventory/location-stock/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/locations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/locations",
+      "path": "apps/server/src/app/api/inventory/locations/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/locations/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/locations/[id]",
+      "path": "apps/server/src/app/api/inventory/locations/[id]/route.js",
       "status": "current"
     },
     {
@@ -23120,11 +23553,35 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/inventory/reservations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/reservations",
+      "path": "apps/server/src/app/api/inventory/reservations/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/reservations/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/reservations/[id]",
+      "path": "apps/server/src/app/api/inventory/reservations/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/inventory/serial-units",
       "type": "route",
       "kind": "api",
       "route": "/api/inventory/serial-units",
       "path": "apps/server/src/app/api/inventory/serial-units/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/shelf-life",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/shelf-life",
+      "path": "apps/server/src/app/api/inventory/shelf-life/route.js",
       "status": "current"
     },
     {
@@ -23141,6 +23598,14 @@
       "kind": "api",
       "route": "/api/inventory/stock-movements",
       "path": "apps/server/src/app/api/inventory/stock-movements/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/transfers",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/transfers",
+      "path": "apps/server/src/app/api/inventory/transfers/route.js",
       "status": "current"
     },
     {
@@ -24189,6 +24654,30 @@
       "kind": "page",
       "route": "/inventory",
       "path": "apps/server/src/app/(pm)/inventory/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/inventory/locations",
+      "type": "route",
+      "kind": "page",
+      "route": "/inventory/locations",
+      "path": "apps/server/src/app/(pm)/inventory/locations/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/inventory/reservations",
+      "type": "route",
+      "kind": "page",
+      "route": "/inventory/reservations",
+      "path": "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/inventory/work-orders",
+      "type": "route",
+      "kind": "page",
+      "route": "/inventory/work-orders",
+      "path": "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
       "status": "current"
     },
     {
@@ -25983,6 +26472,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr182-scm-console-actions.test.js",
+      "hash": "f837e38e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/genesisrag17-tier1.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/genesisrag17-tier1.test.js",
@@ -26308,7 +26804,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "7553b1bb",
+      "hash": "293f080f",
       "status": "current"
     },
     {
@@ -26805,7 +27301,7 @@
       "id": "test:tests/unit/business-capability-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/business-capability-navigation.test.js",
-      "hash": "fc24ff76",
+      "hash": "c5f36ba2",
       "status": "current"
     },
     {
@@ -29056,10 +29552,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/scm-console-routes.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/scm-console-routes.test.js",
+      "hash": "dfbfa8ca",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/scm-group-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scm-group-navigation.test.js",
-      "hash": "95143f13",
+      "hash": "3f8629af",
       "status": "current"
     },
     {
@@ -30353,6 +30856,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/inventory/page.jsx",
       "to": "req:FR-154",
       "type": "implements",
@@ -30375,6 +30906,83 @@
     },
     {
       "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/work-orders/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -34938,6 +35546,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/inventory/atp/route.js",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/atp/route.js",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/atp/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/atp/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/inventory/bundles/route.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -34994,6 +35630,111 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "to": "req:FR-176",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/de-kitting/route.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/de-kitting/route.js",
+      "to": "req:FR-178",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/de-kitting/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/de-kitting/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/inventory/factories/route.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -35044,6 +35785,181 @@
     },
     {
       "from": "code:src/app/api/inventory/families/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:BR-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "to": "req:BR-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "to": "req:BR-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "to": "req:FR-177",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/location-stock/route.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/location-stock/route.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/location-stock/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/location-stock/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/[id]/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/[id]/route.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/[id]/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/route.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/route.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/locations/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -35246,6 +36162,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/route.js",
+      "to": "req:BR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/route.js",
+      "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/reservations/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/inventory/serial-units/route.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -35261,6 +36240,34 @@
     },
     {
       "from": "code:src/app/api/inventory/serial-units/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/shelf-life/route.js",
+      "to": "req:BR-030",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/shelf-life/route.js",
+      "to": "req:FR-179",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/shelf-life/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/shelf-life/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -35303,6 +36310,41 @@
     },
     {
       "from": "code:src/app/api/inventory/stock/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/transfers/route.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/transfers/route.js",
+      "to": "req:BR-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/transfers/route.js",
+      "to": "req:FR-174",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/transfers/route.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/transfers/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -38859,6 +39901,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -39147,6 +40196,13 @@
     {
       "from": "code:src/lib/module-tabs.js",
       "to": "req:FR-170",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/module-tabs.js",
+      "to": "req:FR-182",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -44087,6 +45143,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/inventory/domain/inventory-wip.js",
+      "to": "req:FR-182",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/inventory/domain/inventory.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -47932,6 +48995,13 @@
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-182",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -56372,6 +57442,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-182",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AgentTraceEvent",
       "to": "domain:agent",
       "type": "owned_by",
@@ -58871,6 +59948,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-182",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -60544,6 +61628,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/inventory/atp",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/inventory/bundles",
       "to": "domain:inventory",
       "type": "owned_by",
@@ -60558,6 +61649,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/inventory/customization-work-orders/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/customization-work-orders",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/de-kitting",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/inventory/factories",
       "to": "domain:inventory",
       "type": "owned_by",
@@ -60566,6 +61678,41 @@
     },
     {
       "from": "route:api:/api/inventory/families",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/kitting-work-orders/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/kitting-work-orders",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/location-stock",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/locations/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/locations",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -60621,7 +61768,28 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/inventory/reservations/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/reservations",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/inventory/serial-units",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/shelf-life",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -60636,6 +61804,13 @@
     },
     {
       "from": "route:api:/api/inventory/stock",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/transfers",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -61533,6 +62708,27 @@
     {
       "from": "route:page:/growth",
       "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/inventory/locations",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/inventory/reservations",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/inventory/work-orders",
+      "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -65208,6 +66404,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-182",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -73802,6 +75005,216 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/atp/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/de-kitting/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/location-stock/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/locations/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/locations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/reservations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/shelf-life/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "code:src/app/api/inventory/transfers/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:BR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-178",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr182-scm-console-actions.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/genesisrag17-tier1.test.js",
       "to": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
       "type": "tests",
@@ -77157,6 +78570,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-182",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -80978,6 +82398,13 @@
     },
     {
       "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -82252,6 +83679,13 @@
     },
     {
       "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -83484,6 +84918,13 @@
     },
     {
       "from": "test:tests/unit/crm-group-navigation.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-group-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -84223,6 +85664,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
@@ -85186,6 +86634,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-182",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -89546,6 +91001,13 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -89634,6 +91096,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-wip.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/knowledge-admission-mcp.test.js",
@@ -92472,6 +93941,13 @@
     },
     {
       "from": "test:tests/unit/marketing-navigation.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -93302,6 +94778,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/module-tabs.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/module-tabs.test.js",
@@ -96021,6 +97504,13 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -97756,6 +99246,272 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/(pm)/inventory/locations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/(pm)/inventory/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/(pm)/inventory/work-orders/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/atp/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/customization-work-orders/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/customization-work-orders/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/de-kitting/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/kitting-work-orders/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/kitting-work-orders/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/location-stock/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/locations/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/locations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/reservations/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/reservations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/shelf-life/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "code:src/app/api/inventory/transfers/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:BR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-154",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-168",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-170",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-177",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-178",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-console-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/scm-group-navigation.test.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
@@ -97898,6 +99654,13 @@
     {
       "from": "test:tests/unit/scm-group-navigation.test.js",
       "to": "req:FR-172",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-182",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

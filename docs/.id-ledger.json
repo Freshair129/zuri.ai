@@ -299,6 +299,7 @@
     "FR-179",
     "FR-180",
     "FR-181",
+    "FR-182",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3493,6 +3494,19 @@
       "history": [
         {
           "anchor": "the agent reaches the supply chain through six tools on the",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-182": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fe1769897b3074fbf39326bbf8e192866368404c8e4dec640a665afe3b0cfb72",
+      "history": [
+        {
+          "anchor": "the scm lane gets the human surface adr 074 deferred",
           "since": "2026-09-10",
           "reason": "declared"
         }

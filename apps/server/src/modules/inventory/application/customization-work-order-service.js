@@ -12,6 +12,7 @@ import {
   zCancelWorkOrder,
   zCompleteCustomizationWorkOrder,
   zOpenCustomizationWorkOrder,
+  zWorkOrderAction,
 } from '../domain/inventory-wip'
 import { loadBusiness, notFound } from './inventory-authority'
 import { appendMovement } from './inventory-stock-service'
@@ -432,4 +433,26 @@ export async function getCustomizationWorkOrder(id, { viewer, db = prisma } = {}
   if (!row) throw notFound()
   await loadBusiness(db, viewer, row.businessId)
   return customizationDto(row)
+}
+
+/**
+ * The one entry point a surface uses: dispatch a declared action to the
+ * function that implements it (FR-182). The vocabulary lives in the domain
+ * (`zWorkOrderAction`), so a route validates rather than branches, and a
+ * fourth verb cannot appear by a handler inventing one.
+ */
+export async function applyCustomizationWorkOrderAction(id, input, options = {}) {
+  const data = zWorkOrderAction.parse(input)
+  const rest = { businessId: data.businessId, version: data.version, reason: data.reason ?? null, ...(data.occurredAt ? { occurredAt: data.occurredAt } : {}) }
+  if (data.action === 'RELEASE') return releaseCustomizationWorkOrder(id, rest, options)
+  if (data.action === 'CANCEL') return cancelCustomizationWorkOrder(id, rest, options)
+  return completeCustomizationWorkOrder(id, {
+    businessId: data.businessId,
+    version: data.version,
+    completedQty: data.completedQty ?? 0,
+    ...(data.scrapQty !== undefined ? { scrapQty: data.scrapQty } : {}),
+    ...(data.outputLotCode ? { outputLotCode: data.outputLotCode } : {}),
+    reason: data.reason ?? null,
+    ...(data.occurredAt ? { occurredAt: data.occurredAt } : {}),
+  }, options)
 }

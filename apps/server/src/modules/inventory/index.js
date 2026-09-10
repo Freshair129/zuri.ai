@@ -59,6 +59,7 @@ export {
 } from './application/warehouse-location-service'
 export { transferInTransaction, transferStock } from './application/location-transfer-service'
 export {
+  applyCustomizationWorkOrderAction,
   cancelCustomizationWorkOrder,
   completeCustomizationWorkOrder,
   getCustomizationWorkOrder,
@@ -67,6 +68,7 @@ export {
   releaseCustomizationWorkOrder,
 } from './application/customization-work-order-service'
 export {
+  applyKittingWorkOrderAction,
   cancelKittingWorkOrder,
   completeKittingWorkOrder,
   getKittingWorkOrder,

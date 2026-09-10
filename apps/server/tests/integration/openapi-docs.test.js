@@ -141,8 +141,16 @@ describe('OpenAPI document', () => {
       // (GET /api/line-oa/jobs/failures): one path, one operation. It is a read
       // model behind the Studio's red failure count, never a retry verb — which
       // is why it adds a GET and nothing else.
-      pathCount: 210,
-      operationCount: 288,
+      // FR-182 adds the SCM operations console: thirteen paths and
+      // twenty-one operations — locations (GET, POST) and the location item
+      // (GET, PATCH), the located-stock read (GET), the transfer (POST), both
+      // work-order collections (GET, POST each) and items (GET, PATCH each),
+      // reservations (GET, POST) and the reservation action (PATCH only — a
+      // hold is never deleted and never read one row at a time), ATP (GET),
+      // the shelf-life audit and its maintenance write (GET, POST) and
+      // de-kitting (POST).
+      pathCount: 223,
+      operationCount: 309,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
