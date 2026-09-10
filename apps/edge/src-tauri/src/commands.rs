@@ -9,7 +9,7 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
     sync::{
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         Mutex,
     },
 };
@@ -30,8 +30,8 @@ pub struct EdgePairingConfig {
     pub last_heartbeat_at: Option<String>,
     pub provider_settings: crate::providers::ProviderSettings,
     // The operator's last explicit intent for the worker, not a record of what is running.
-    // Set when Start succeeds, cleared when Stop is pressed — so closing the window (which stops
-    // the child) and a power cut are both "still wanted", while an explicit Stop is not.
+    // Set when Start succeeds, cleared when Stop is pressed — so closing the window (which hides
+    // the app to the tray) and a power cut are both "still wanted", while an explicit Stop is not.
     pub worker_autostart: bool,
 }
 impl Default for EdgePairingConfig {
@@ -61,6 +61,10 @@ pub struct AppState {
     pub supervisor: crate::supervisor::Supervisor,
     pub providers: crate::providers::ProviderManager,
     pub quitting: AtomicBool,
+    // Monotonic fence plus notification for a pending automatic-resume loop.
+    // Stop must invalidate a retry that has not spawned its child yet.
+    pub resume_generation: AtomicU64,
+    pub resume_notify: tokio::sync::Notify,
     // Why the automatic resume gave up, if it did. Reported through get_worker_status rather than
     // kept here, because a resume that fails silently is the failure this feature exists to remove.
     pub autostart_error: Mutex<Option<String>>,
@@ -80,6 +84,8 @@ impl AppState {
             supervisor: crate::supervisor::Supervisor::default(),
             providers: crate::providers::ProviderManager::default(),
             quitting: AtomicBool::new(false),
+            resume_generation: AtomicU64::new(0),
+            resume_notify: tokio::sync::Notify::new(),
             autostart_error: Mutex::new(None),
         }
     }

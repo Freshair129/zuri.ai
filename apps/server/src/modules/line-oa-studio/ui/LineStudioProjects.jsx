@@ -1,30 +1,32 @@
 // @req FR-146, FR-151, FR-080 — LINE Studio Enterprise Accounts & Groups Directory
-// @spec SDD-060, SDD-061 — Live LINE OA & Group Directory with Test Message Actions
+// @spec SDD-060, SDD-061 — Live LINE OA & Group Directory
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useScope } from "@/context/ScopeContext";
+import { api } from "@/modules/project-manager/components/useApi";
+import { Card, Field, SectionTitle } from "@/components/ui";
 import {
-  Plus,
   Search,
   Layers,
-  Bot,
-  ExternalLink,
   ChevronRight,
-  X,
-  Sparkles,
-  CheckCircle,
   Radio,
   RefreshCw,
-  Send,
   Copy,
   Users,
   MessageSquare,
-  MessageCircle,
-  Settings,
-  Check
+  Check,
+  Plus
 } from "lucide-react";
+
+const DEPARTMENT_LABELS = {
+  SALES_TEAM: "ฝ่ายขาย",
+  EXECUTIVE: "ผู้บริหาร",
+  OPERATIONS: "ปฏิบัติการ",
+  SUPPORT: "สนับสนุน",
+  GENERAL: "ทั่วไป",
+};
 
 export default function LineStudioProjects({ onSelectProject }) {
   const router = useRouter();
@@ -33,66 +35,62 @@ export default function LineStudioProjects({ onSelectProject }) {
 
   const [accounts, setAccounts] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTabType, setActiveTabType] = useState("all"); // 'all' | 'line-oa' | 'groups'
+  const [activeTabType, setActiveTabType] = useState("all"); // 'all' | 'line-oa' | 'groups' | 'users'
   const [copiedId, setCopiedId] = useState(null);
-
-  // Test Message Modal State
-  const [testModalOpen, setTestModalOpen] = useState(false);
-  const [selectedGroupForTest, setSelectedGroupForTest] = useState(null);
-  const [testMessageText, setTestMessageText] = useState("สวัสดีครับ นี่คือข้อความทดสอบจาก Zuri LINE Studio 🤖");
-  const [testSending, setTestSending] = useState(false);
-  const [testResult, setTestResult] = useState(null);
+  const [registryTab, setRegistryTab] = useState("GROUPS");
+  const [registryBusy, setRegistryBusy] = useState(false);
+  const [registryMessage, setRegistryMessage] = useState("");
+  const [registryError, setRegistryError] = useState("");
+  const [groupForm, setGroupForm] = useState({ name: "", groupId: "", groupUrl: "", departmentType: "GENERAL" });
+  const [userForm, setUserForm] = useState({ displayName: "", userId: "", role: "MEMBER", department: "" });
+  const requestVersion = useRef(0);
 
   const fetchData = async () => {
+    const requestId = ++requestVersion.current;
     if (!business?.id) {
+      setAccounts([]);
+      setGroups([]);
+      setUsers([]);
+      setLoadError("");
       setLoading(false);
       return;
     }
     setLoading(true);
+    setLoadError("");
     try {
-      const [accRes, intRes] = await Promise.all([
-        fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ accounts: [] })),
-        fetch(`/api/platform/integrations?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ lineRegistry: [] }))
+      const [accRes, registryRes] = await Promise.all([
+        fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`).then(async response => {
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "โหลดบัญชี LINE OA ไม่สำเร็จ");
+          return data;
+        }),
+        fetch(`/api/platform/integrations/line-registry?businessId=${encodeURIComponent(business.id)}`).then(async response => {
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "โหลดทะเบียนกลุ่ม LINE ไม่สำเร็จ");
+          return data;
+        })
       ]);
+
+      if (requestId !== requestVersion.current) return;
 
       setAccounts(accRes.accounts || []);
 
-      const regGroups = (intRes.lineRegistry || []).filter(r => r.kind === "GROUP");
-      if (regGroups.length > 0) {
-        setGroups(regGroups);
-      } else {
-        // Sample fallback group for test and display
-        setGroups([
-          {
-            id: "grp-smartgift-sales",
-            name: "SmartGift - ทีมเซลล์องค์กร",
-            externalAccountId: "C423a5c290822a200bf061623aeb2c713",
-            status: "ACTIVE",
-            metadata: {
-              departmentType: "SALES",
-              groupUrl: "https://line.me/R/ti/g/sample-sales"
-            },
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: "grp-smartgift-ops",
-            name: "SmartGift - ฝ่ายปฏิบัติการ & จัดส่ง",
-            externalAccountId: "C9881ab78419200bc88912aa11e4f9102",
-            status: "ACTIVE",
-            metadata: {
-              departmentType: "LOGISTICS",
-              groupUrl: "https://line.me/R/ti/g/sample-ops"
-            },
-            updatedAt: new Date().toISOString()
-          }
-        ]);
-      }
+      const registry = Array.isArray(registryRes) ? registryRes : [];
+      setGroups(registry.filter(r => r.kind === "GROUP"));
+      setUsers(registry.filter(r => r.kind === "USER"));
     } catch (e) {
+      if (requestId !== requestVersion.current) return;
       console.error(e);
+      setAccounts([]);
+      setGroups([]);
+      setUsers([]);
+      setLoadError(e.message || "โหลดข้อมูล LINE OA ไม่สำเร็จ");
     } finally {
-      setLoading(false);
+      if (requestId === requestVersion.current) setLoading(false);
     }
   };
 
@@ -100,26 +98,42 @@ export default function LineStudioProjects({ onSelectProject }) {
     fetchData();
   }, [business?.id]);
 
-  const [activatingId, setActivatingId] = useState(null);
+  const submitRegistry = async (event) => {
+    event.preventDefault();
+    if (!business?.id) return;
+    setRegistryBusy(true);
+    setRegistryMessage("");
+    setRegistryError("");
+    const isGroup = registryTab === "GROUPS";
+    const body = isGroup
+      ? {
+          businessId: business.id,
+          name: groupForm.name.trim(),
+          groupId: groupForm.groupId.trim(),
+          groupUrl: groupForm.groupUrl.trim() || undefined,
+          departmentType: groupForm.departmentType,
+        }
+      : {
+          businessId: business.id,
+          displayName: userForm.displayName.trim(),
+          userId: userForm.userId.trim(),
+          role: userForm.role.trim(),
+          department: userForm.department.trim() || undefined,
+        };
 
-  const handleActivateServer = async (item, e) => {
-    e?.stopPropagation?.();
-    setActivatingId(item.id);
     try {
-      const res = await fetch(`/api/line-oa/accounts/${item.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "ENABLE_SERVER",
-          legacyQuiesced: true,
-          version: item.raw?.version || 1
-        })
-      });
-      if (res.ok) await fetchData();
-    } catch (err) {
-      console.error(err);
+      await api("/api/platform/integrations/line-registry", { method: "POST", body });
+      setRegistryMessage(isGroup ? "บันทึก LINE Group แล้ว" : "บันทึก LINE User แล้ว");
+      if (isGroup) {
+        setGroupForm({ name: "", groupId: "", groupUrl: "", departmentType: "GENERAL" });
+      } else {
+        setUserForm({ displayName: "", userId: "", role: "MEMBER", department: "" });
+      }
+      await fetchData();
+    } catch (caught) {
+      setRegistryError(caught?.message || "บันทึกทะเบียน LINE ไม่สำเร็จ");
     } finally {
-      setActivatingId(null);
+      setRegistryBusy(false);
     }
   };
 
@@ -127,68 +141,6 @@ export default function LineStudioProjects({ onSelectProject }) {
     navigator.clipboard?.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleOpenTestModal = (group, e) => {
-    e?.stopPropagation?.();
-    setSelectedGroupForTest(group);
-    setTestResult(null);
-    setTestMessageText(`สวัสดีครับ นี่คือข้อความทดสอบจาก Zuri LINE Studio ส่งเข้ากลุ่ม ${group.name} 🚀`);
-    setTestModalOpen(true);
-  };
-
-  const handleSendTestMessage = async (e) => {
-    e.preventDefault();
-    if (!testMessageText.trim() || !selectedGroupForTest) return;
-
-    setTestSending(true);
-    setTestResult(null);
-
-    try {
-      // Simulate/trigger webhook delivery event to this group
-      const payload = {
-        destination: business?.code || "U_ZURI_BOT",
-        events: [
-          {
-            type: "message",
-            message: {
-              id: `msg-test-${Date.now()}`,
-              type: "text",
-              text: testMessageText
-            },
-            timestamp: Date.now(),
-            source: {
-              type: "group",
-              groupId: selectedGroupForTest.externalAccountId || selectedGroupForTest.code,
-              userId: "U_ADMIN_TESTER"
-            },
-            replyToken: `nHuy${Date.now()}fakeToken`
-          }
-        ]
-      };
-
-      const res = await fetch("/api/agent/line-webhook", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-line-signature": "dev-simulation-signature"
-        },
-        body: JSON.stringify(payload)
-      }).catch(() => null);
-
-      setTestResult({
-        success: true,
-        message: `✅ ส่งข้อความทดสอบเข้ากลุ่ม "${selectedGroupForTest.name}" (ID: ${selectedGroupForTest.externalAccountId || selectedGroupForTest.code}) เรียบร้อยแล้ว!`,
-        time: new Date().toLocaleTimeString("th-TH")
-      });
-    } catch (err) {
-      setTestResult({
-        success: false,
-        message: `❌ เกิดข้อผิดพลาด: ${err.message}`
-      });
-    } finally {
-      setTestSending(false);
-    }
   };
 
   const combinedItems = [
@@ -199,23 +151,36 @@ export default function LineStudioProjects({ onSelectProject }) {
       type: "line-oa",
       typeLabel: "บัญชี LINE OA",
       serverEnabled: acc.serverEnabled,
-      status: (acc.serverEnabled || acc.status === "CONNECTED") ? "LIVE" : "DRAFT",
-      transport: acc.serverEnabled ? "Zuri Server" : "Edge Worker",
+      status: acc.effectiveStatus || acc.status || "UNKNOWN",
+      transport: acc.serverEnabled ? "Zuri Server" : acc.transportMode === "EDGE" ? "Edge worker" : "Server not enabled",
       updatedAt: acc.updatedAt || acc.createdAt,
       raw: acc
     })),
     ...groups.map(grp => ({
       id: grp.id,
-      name: grp.name,
-      code: grp.externalAccountId || grp.code || "C-GROUP-ID",
+      name: grp.name || grp.externalAccountId || "LINE Group",
+      code: grp.externalAccountId || grp.code || "—",
       type: "group",
       typeLabel: "กลุ่ม LINE Group",
       department: grp.metadata?.departmentType || "ทั่วไป",
-      status: grp.status || "ACTIVE",
-      transport: "Zuri Agent Hub",
+      status: grp.status || "UNKNOWN",
+      transport: grp.metadata?.transport || "Business registry",
       groupUrl: grp.metadata?.groupUrl,
-      updatedAt: grp.updatedAt || new Date().toISOString(),
+      updatedAt: grp.updatedAt || null,
       raw: grp
+    })),
+    ...users.map(user => ({
+      id: user.id,
+      name: user.name || user.displayName || user.externalAccountId || "LINE User",
+      code: user.externalAccountId || user.code || "—",
+      type: "user",
+      typeLabel: "ผู้ติดต่อ LINE",
+      department: user.metadata?.department || "ทั่วไป",
+      role: user.metadata?.role || "สมาชิก",
+      status: user.status || "UNKNOWN",
+      transport: user.metadata?.transport || "Business registry",
+      updatedAt: user.updatedAt || null,
+      raw: user
     }))
   ];
 
@@ -224,7 +189,8 @@ export default function LineStudioProjects({ onSelectProject }) {
                        item.code.toLowerCase().includes(searchQuery.toLowerCase());
     const matchType = activeTabType === "all" ||
                       (activeTabType === "line-oa" && item.type === "line-oa") ||
-                      (activeTabType === "groups" && item.type === "group");
+                      (activeTabType === "groups" && item.type === "group") ||
+                      (activeTabType === "users" && item.type === "user");
     return matchQuery && matchType;
   });
 
@@ -253,11 +219,14 @@ export default function LineStudioProjects({ onSelectProject }) {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
-            onClick={() => router.push("/platform/integrations")}
+            onClick={() => {
+              setRegistryTab("GROUPS");
+              document.getElementById("line-registry")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             className="px-3.5 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5"
           >
-            <Users className="w-4 h-4 text-purple-400" />
-            <span>👥 + ลงทะเบียนกลุ่มใหม่</span>
+            <Plus className="w-4 h-4 text-purple-400" />
+            <span>ลงทะเบียน Group / User</span>
           </button>
           <button
             onClick={() => router.push("/line-oa/edge-connection")}
@@ -267,6 +236,123 @@ export default function LineStudioProjects({ onSelectProject }) {
           </button>
         </div>
       </div>
+
+      <Card id="line-registry">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <SectionTitle caption={business ? `ข้อมูลนี้ผูกกับ Business: ${business.name || business.code || business.id}` : "เลือก Business ก่อนบันทึกทะเบียน LINE"}>
+            Business LINE registry
+          </SectionTitle>
+          <div className="flex gap-2" role="tablist" aria-label="LINE registry type">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={registryTab === "GROUPS"}
+              className={`btn text-xs ${registryTab === "GROUPS" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => { setRegistryTab("GROUPS"); setRegistryMessage(""); setRegistryError(""); }}
+            >
+              <Users size={14} /> Groups ({groups.length})
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={registryTab === "USERS"}
+              className={`btn text-xs ${registryTab === "USERS" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => { setRegistryTab("USERS"); setRegistryMessage(""); setRegistryError(""); }}
+            >
+              <MessageSquare size={14} /> Users ({users.length})
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={submitRegistry} className="grid gap-3 md:grid-cols-2">
+          {registryTab === "GROUPS" ? (
+            <>
+              <Field label="ชื่อกลุ่ม (Group Name)">
+                <input
+                  className="input"
+                  value={groupForm.name}
+                  onChange={(event) => setGroupForm((current) => ({ ...current, name: event.target.value }))}
+                  placeholder="เช่น ทีมขายองค์กร"
+                  required
+                />
+              </Field>
+              <Field label="LINE Group ID" hint="ต้องเป็น ID จาก LINE Webhook/provider และขึ้นต้นด้วย C">
+                <input
+                  className="input font-mono"
+                  value={groupForm.groupId}
+                  onChange={(event) => setGroupForm((current) => ({ ...current, groupId: event.target.value }))}
+                  placeholder="C..."
+                  required
+                />
+              </Field>
+              <Field label="ประเภทกลุ่ม / แผนก">
+                <select
+                  className="input"
+                  value={groupForm.departmentType}
+                  onChange={(event) => setGroupForm((current) => ({ ...current, departmentType: event.target.value }))}
+                >
+                  {Object.entries(DEPARTMENT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </Field>
+              <Field label="ลิงก์กลุ่ม (ไม่บังคับ)">
+                <input
+                  className="input"
+                  type="url"
+                  value={groupForm.groupUrl}
+                  onChange={(event) => setGroupForm((current) => ({ ...current, groupUrl: event.target.value }))}
+                  placeholder="https://line.me/R/ti/g/..."
+                />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="ชื่อผู้ใช้ / ผู้ติดต่อ">
+                <input
+                  className="input"
+                  value={userForm.displayName}
+                  onChange={(event) => setUserForm((current) => ({ ...current, displayName: event.target.value }))}
+                  placeholder="เช่น สมชาย ฝ่ายขาย"
+                  required
+                />
+              </Field>
+              <Field label="LINE User ID" hint="ต้องเป็น ID จาก LINE Webhook/provider และขึ้นต้นด้วย U">
+                <input
+                  className="input font-mono"
+                  value={userForm.userId}
+                  onChange={(event) => setUserForm((current) => ({ ...current, userId: event.target.value }))}
+                  placeholder="U..."
+                  required
+                />
+              </Field>
+              <Field label="บทบาท">
+                <input
+                  className="input"
+                  value={userForm.role}
+                  onChange={(event) => setUserForm((current) => ({ ...current, role: event.target.value }))}
+                  placeholder="เช่น Sales Manager"
+                  required
+                />
+              </Field>
+              <Field label="แผนก (ไม่บังคับ)">
+                <input
+                  className="input"
+                  value={userForm.department}
+                  onChange={(event) => setUserForm((current) => ({ ...current, department: event.target.value }))}
+                  placeholder="เช่น ฝ่ายขาย"
+                />
+              </Field>
+            </>
+          )}
+          <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+            <button type="submit" className="btn btn-primary" disabled={registryBusy || !business?.id}>
+              <Plus size={14} /> {registryBusy ? "กำลังบันทึก…" : `บันทึกใน ${business?.name || "Business"}`}
+            </button>
+            <span className="text-[11px] text-muted">ใช้ registry API เดิมและคง Business ownership/LINE ID ที่ provider ออกให้</span>
+          </div>
+        </form>
+        {registryMessage && <p className="mt-2 text-xs text-[var(--success)]" role="status">{registryMessage}</p>}
+        {registryError && <p className="mt-2 text-xs text-[var(--danger)]" role="alert">{registryError}</p>}
+      </Card>
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
@@ -304,6 +390,17 @@ export default function LineStudioProjects({ onSelectProject }) {
             <Users className="w-3.5 h-3.5" />
             <span>กลุ่มแชท / Group ID ({groups.length})</span>
           </button>
+          <button
+            onClick={() => setActiveTabType("users")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTabType === "users"
+                ? "bg-sky-600 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>ผู้ติดต่อ ({users.length})</span>
+          </button>
         </div>
 
         {/* Search Input */}
@@ -324,6 +421,11 @@ export default function LineStudioProjects({ onSelectProject }) {
         <div className="p-12 text-center text-xs text-slate-400 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
           กำลังโหลดข้อมูล...
         </div>
+      ) : loadError ? (
+        <div role="alert" className="p-12 text-center rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 space-y-2">
+          <h3 className="font-bold text-sm">โหลดข้อมูลไม่สำเร็จ</h3>
+          <p className="text-xs">{loadError}</p>
+        </div>
       ) : filteredItems.length === 0 ? (
         <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 space-y-3">
           <Layers className="w-8 h-8 text-slate-400 mx-auto" />
@@ -336,15 +438,19 @@ export default function LineStudioProjects({ onSelectProject }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
             const isGroup = item.type === "group";
+            const isUser = item.type === "user";
+            const isAccount = item.type === "line-oa";
 
             return (
               <div
                 key={item.id}
-                onClick={() => !isGroup && onSelectProject?.(item)}
+                onClick={() => isAccount && onSelectProject?.(item)}
                 className={`group rounded-2xl bg-white dark:bg-slate-900 border transition-all p-5 shadow-sm hover:shadow-md space-y-3.5 flex flex-col justify-between ${
-                  isGroup
-                    ? "border-purple-200/80 dark:border-purple-950/60 hover:border-purple-400"
-                    : "border-slate-200/80 dark:border-slate-800 hover:border-brand-amber/50 cursor-pointer"
+                  isAccount
+                    ? "border-slate-200/80 dark:border-slate-800 hover:border-brand-amber/50 cursor-pointer"
+                    : isGroup
+                      ? "border-purple-200/80 dark:border-purple-950/60 hover:border-purple-400"
+                      : "border-sky-200/80 dark:border-sky-950/60 hover:border-sky-400"
                 }`}
               >
                 <div className="space-y-3">
@@ -354,9 +460,11 @@ export default function LineStudioProjects({ onSelectProject }) {
                       <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg ${
                         isGroup
                           ? "bg-purple-500/15 text-purple-600"
-                          : "bg-emerald-500/15 text-emerald-600"
+                          : isUser
+                            ? "bg-sky-500/15 text-sky-600"
+                            : "bg-emerald-500/15 text-emerald-600"
                       }`}>
-                        {isGroup ? "👥" : "💬"}
+                        {isGroup ? "👥" : isUser ? "👤" : "💬"}
                       </div>
                       <div>
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
@@ -389,9 +497,9 @@ export default function LineStudioProjects({ onSelectProject }) {
                       }`}>
                         {item.typeLabel}
                       </span>
-                      {isGroup && item.department && (
+                      {(isGroup || isUser) && item.department && (
                         <span className="text-[9px] text-slate-400 font-semibold">
-                          {item.department}
+                          {item.department}{isUser && item.role ? ` · ${item.role}` : ""}
                         </span>
                       )}
                     </div>
@@ -402,7 +510,7 @@ export default function LineStudioProjects({ onSelectProject }) {
                     <div className="flex justify-between items-center">
                       <span>สถานะการเชื่อมต่อ:</span>
                       <span className={`font-semibold text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 ${
-                        item.status === "LIVE" || item.status === "ACTIVE"
+                        item.status === "LIVE" || item.status === "ACTIVE" || item.status === "CONNECTED"
                           ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
                           : "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
                       }`}>
@@ -414,6 +522,13 @@ export default function LineStudioProjects({ onSelectProject }) {
                     {isGroup && (
                       <div className="flex justify-between items-center text-[11px]">
                         <span>LINE Group ID:</span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[140px]">{item.code}</span>
+                      </div>
+                    )}
+
+                    {isUser && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>LINE User ID:</span>
                         <span className="font-mono font-bold text-slate-800 dark:text-slate-200 truncate max-w-[140px]">{item.code}</span>
                       </div>
                     )}
@@ -431,15 +546,6 @@ export default function LineStudioProjects({ onSelectProject }) {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={(e) => handleOpenTestModal(item, e)}
-                        className="flex-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm shadow-purple-500/20 flex items-center justify-center gap-1.5 transition-all active:scale-95"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>ทดลองส่งข้อความ</span>
-                      </button>
-
-                      <button
-                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push("/line-oa/live-crm");
@@ -451,18 +557,9 @@ export default function LineStudioProjects({ onSelectProject }) {
                         <span>แชทสด</span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push("/platform/integrations");
-                        }}
-                        className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                        title="ตั้งค่ากลุ่ม"
-                      >
-                        <Settings className="w-3.5 h-3.5" />
-                      </button>
                     </div>
+                  ) : isUser ? (
+                    <div className="text-[11px] text-slate-500">ทะเบียนผู้ติดต่อของ Business นี้</div>
                   ) : (
                     <div className="flex items-center justify-between text-[11px] text-slate-500">
                       <span>อัปเดต: {new Date(item.updatedAt).toLocaleDateString("th-TH")}</span>
@@ -479,112 +576,6 @@ export default function LineStudioProjects({ onSelectProject }) {
         </div>
       )}
 
-      {/* Test Message Modal */}
-      {testModalOpen && selectedGroupForTest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 flex items-center justify-center">
-                  <Send className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-                    ทดลองส่งข้อความเข้ากลุ่ม LINE
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    กลุ่มเป้าหมาย: <span className="font-semibold text-purple-600">{selectedGroupForTest.name}</span>
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setTestModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Target Group Info */}
-            <div className="p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 space-y-1.5 text-xs font-mono">
-              <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
-                <span>Group ID (เป้าหมาย):</span>
-                <span className="font-bold text-purple-700 dark:text-purple-300">{selectedGroupForTest.externalAccountId || selectedGroupForTest.code}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
-                <span>แผนก / ประเภท:</span>
-                <span className="text-slate-800 dark:text-slate-100 font-sans">{selectedGroupForTest.department || "ทั่วไป"}</span>
-              </div>
-            </div>
-
-            {/* Result Alert */}
-            {testResult && (
-              <div className={`p-3 rounded-xl text-xs border ${
-                testResult.success
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-rose-50 text-rose-800 border-rose-200"
-              }`}>
-                <p className="font-semibold">{testResult.message}</p>
-                {testResult.time && <p className="text-[10px] text-emerald-600 mt-0.5">เวลาที่ดำเนินการ: {testResult.time}</p>}
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSendTestMessage} className="space-y-3">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    ข้อความที่ต้องการส่ง (Text / Flex Payload)
-                  </label>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setTestMessageText("📢 [แจ้งเตือน] มียอดสั่งซื้อใหม่เข้ามาในระบบ SmartGift มูลค่า ฿15,200 บาท")}
-                      className="text-[10px] text-purple-600 hover:underline"
-                    >
-                      + ตัวอย่างแจ้งเตือน
-                    </button>
-                    <span>·</span>
-                    <button
-                      type="button"
-                      onClick={() => setTestMessageText("🤖 Zuri Agent: สรุปรายงานยอดขายประจำวันพร้อมให้บริการแล้วครับ")}
-                      className="text-[10px] text-purple-600 hover:underline"
-                    >
-                      + ตัวอย่างบอท
-                    </button>
-                  </div>
-                </div>
-                <textarea
-                  rows={4}
-                  value={testMessageText}
-                  onChange={(e) => setTestMessageText(e.target.value)}
-                  placeholder="พิมพ์ข้อความที่ต้องการทดลองส่งเข้ากลุ่ม..."
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 p-3 text-xs focus:ring-2 focus:ring-purple-500/30 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setTestModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-                >
-                  ปิด
-                </button>
-                <button
-                  type="submit"
-                  disabled={testSending || !testMessageText.trim()}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-purple-600/20 flex items-center gap-1.5 transition-all disabled:opacity-50"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{testSending ? "กำลังส่ง..." : "ส่งข้อความทดสอบ"}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

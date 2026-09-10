@@ -1,0 +1,32 @@
+
+> zuri-ai@0.1.0 test
+> node scripts/assert-tests-ran.mjs vitest run fr080-ui-contract fr080-runtime-wiring fr080-integration-management line-registry-service line-registry-scope server-line-answer line-studio-edge-connection-render fr149-line-server-configuration
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-25632-mtuixg7u-e7a87e.db" at "file:./.test-dbs/run-25632-mtuixg7u-e7a87e.db"
+
+SQLite database run-25632-mtuixg7u-e7a87e.db created at file:./.test-dbs/run-25632-mtuixg7u-e7a87e.db
+
+Your database is now in sync with your Prisma schema. Done in 3.87s
+
+ ✓ tests/integration/line-registry-scope.test.js (13 tests) 210ms
+ ✓ tests/integration/fr149-line-server-configuration.test.js (4 tests) 177ms
+ ✓ tests/unit/line-registry-service.test.js (8 tests) 6ms
+ ✓ tests/unit/fr080-ui-contract.test.js (10 tests) 4ms
+ ✓ tests/unit/server-line-answer.test.js (11 tests) 16ms
+ ✓ tests/unit/fr080-integration-management.test.js (4 tests) 7ms
+ ✓ tests/unit/fr080-runtime-wiring.test.js (2 tests) 5ms
+ ✓ tests/unit/line-studio-edge-connection-render.test.js (2 tests) 7ms
+
+ Test Files  8 passed (8)
+      Tests  54 passed (54)
+   Start at  03:01:12
+   Duration  29.06s (transform 199ms, setup 37ms, collect 17.09s, tests 431ms, environment 1ms, prepare 660ms)
+
+JSON report written to C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 54 test(s).

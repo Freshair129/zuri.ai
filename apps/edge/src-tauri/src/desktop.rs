@@ -112,6 +112,8 @@ pub fn worker_status(state: &AppState) -> Value {
             object.insert("state".into(), Value::String("FAILED".into()));
             object.insert("failure".into(), Value::String(error));
             object.insert("autoResume".into(), Value::Bool(true));
+        } else {
+            object.insert("autostartError".into(), Value::String(error));
         }
     }
     snapshot
@@ -121,7 +123,7 @@ pub fn worker_status(state: &AppState) -> Value {
 pub async fn start_worker(state: State<'_, AppState>) -> Result<Value, String> {
     let _guard = state.lifecycle.lock().await;
     let snapshot = start_worker_locked(&state).await?;
-    remember_worker_intent(&state, true);
+    let _ = remember_worker_intent(&state, true);
     Ok(snapshot)
 }
 
@@ -224,11 +226,19 @@ async fn start_worker_locked(state: &AppState) -> Result<Value, String> {
 pub async fn stop_worker(state: State<'_, AppState>) -> Result<Value, String> {
     let _guard = state.lifecycle.lock().await;
     // Pressing Stop is the operator saying "not until I say so" — it must survive a restart, or
-    // the next logon would undo the decision. Closing the window also stops the child, but that
-    // path never reaches here, so it stays a "still wanted" shutdown.
-    remember_worker_intent(&state, false);
-    *state.autostart_error.lock().unwrap() = None;
-    state.supervisor.stop().await
+    // the next logon would undo the decision. Closing the window hides the app to the tray, so it
+    // does not change that explicit worker intent.
+    state
+        .resume_generation
+        .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    state.resume_notify.notify_waiters();
+    let persist_error = remember_worker_intent(&state, false).err();
+    let stopped = state.supervisor.stop().await;
+    match (stopped, persist_error) {
+        (Ok(snapshot), None) => Ok(snapshot),
+        (Ok(_), Some(error)) => Err(error),
+        (Err(error), _) => Err(error),
+    }
 }
 
 /// Record the operator's intent for the worker so the next launch can honour it.
@@ -236,16 +246,30 @@ pub async fn stop_worker(state: State<'_, AppState>) -> Result<Value, String> {
 /// A failure to persist is deliberately not fatal: the worker in front of the operator did start
 /// (or stop) as asked, and refusing that because a config write failed would be a worse trade. The
 /// cost is bounded and self-correcting — the next successful Start or Stop rewrites the file.
-fn remember_worker_intent(state: &AppState, wanted: bool) {
+fn remember_worker_intent(state: &AppState, wanted: bool) -> Result<(), String> {
+    remember_worker_intent_with(state, wanted, persist_config)
+}
+
+fn remember_worker_intent_with<F>(state: &AppState, wanted: bool, persist: F) -> Result<(), String>
+where
+    F: FnOnce(&crate::commands::EdgePairingConfig) -> Result<(), String>,
+{
     let cfg = {
         let mut cfg = state.config.lock().unwrap();
-        if cfg.worker_autostart == wanted {
-            return;
-        }
         cfg.worker_autostart = wanted;
         cfg.clone()
     };
-    let _ = persist_config(&cfg);
+    match persist(&cfg) {
+        Ok(()) => {
+            *state.autostart_error.lock().unwrap() = None;
+            Ok(())
+        }
+        Err(error) => {
+            let visible = format!("บันทึกความตั้งใจของ worker ไม่สำเร็จ: {error}");
+            *state.autostart_error.lock().unwrap() = Some(visible.clone());
+            Err(visible)
+        }
+    }
 }
 
 /// How long a logon resume keeps waiting for the local dependencies to answer.
@@ -259,10 +283,70 @@ fn remember_worker_intent(state: &AppState, wanted: bool) {
 const RESUME_ATTEMPTS: usize = 12;
 const RESUME_INTERVAL: std::time::Duration = std::time::Duration::from_secs(15);
 
+fn automatic_resume_allowed(state: &AppState, generation: u64) -> bool {
+    !state.quitting.load(std::sync::atomic::Ordering::SeqCst)
+        && state
+            .resume_generation
+            .load(std::sync::atomic::Ordering::SeqCst)
+            == generation
+        && state.config.lock().unwrap().worker_autostart
+}
+
+/// Acquire the lifecycle lock and re-check the automatic-start intent while holding it.
+///
+/// Manual Start deliberately remains independent of `worker_autostart`; this helper is only for
+/// the launch resume path, where Stop must win even when it queued behind a failed attempt.
+async fn start_worker_for_resume(
+    state: &AppState,
+    generation: u64,
+) -> Option<Result<Value, String>> {
+    let _guard = state.lifecycle.lock().await;
+    if !automatic_resume_allowed(state, generation) {
+        return None;
+    }
+    Some(start_worker_locked(state).await)
+}
+
+/// Wait for either Stop's durable generation change or the next retry deadline.
+///
+/// Register the notification before checking the generation. `Notify::notify_waiters` only wakes
+/// futures that are already registered, while the generation check covers a Stop that happened
+/// before registration.
+async fn wait_for_resume_retry(
+    state: &AppState,
+    generation: u64,
+    interval: std::time::Duration,
+) -> bool {
+    wait_for_resume_retry_with_hook(state, generation, interval, || {}).await
+}
+
+async fn wait_for_resume_retry_with_hook<F>(
+    state: &AppState,
+    generation: u64,
+    interval: std::time::Duration,
+    after_register: F,
+) -> bool
+where
+    F: FnOnce(),
+{
+    let notified = state.resume_notify.notified();
+    after_register();
+    if !automatic_resume_allowed(state, generation) {
+        return false;
+    }
+    tokio::select! {
+        _ = notified => false,
+        _ = tokio::time::sleep(interval) => automatic_resume_allowed(state, generation),
+    }
+}
+
 /// Start the worker again at launch if that was the operator's last explicit intent.
 ///
 /// Not a command: nothing in the UI calls this, and it must run when no window has been touched.
 pub async fn resume_worker(state: &AppState) {
+    let generation = state
+        .resume_generation
+        .load(std::sync::atomic::Ordering::SeqCst);
     {
         let cfg = state.config.lock().unwrap();
         if !cfg.worker_autostart || cfg.device_key.is_empty() {
@@ -273,12 +357,11 @@ pub async fn resume_worker(state: &AppState) {
         .supervisor
         .note("info", "เริ่มรับงานอัตโนมัติตามที่ตั้งไว้ครั้งล่าสุด");
     for attempt in 1..=RESUME_ATTEMPTS {
-        if state.quitting.load(std::sync::atomic::Ordering::SeqCst) {
+        if !automatic_resume_allowed(state, generation) {
             return;
         }
-        let outcome = {
-            let _guard = state.lifecycle.lock().await;
-            start_worker_locked(state).await
+        let Some(outcome) = start_worker_for_resume(state, generation).await else {
+            return;
         };
         match outcome {
             Ok(_) => {
@@ -290,10 +373,9 @@ pub async fn resume_worker(state: &AppState) {
                 // wait shows what is being waited on rather than a bare stopped worker.
                 *state.autostart_error.lock().unwrap() = Some(error.clone());
                 if attempt == RESUME_ATTEMPTS {
-                    state.supervisor.note(
-                        "error",
-                        format!("เริ่มอัตโนมัติไม่สำเร็จ หยุดลองแล้ว: {error}"),
-                    );
+                    state
+                        .supervisor
+                        .note("error", format!("เริ่มอัตโนมัติไม่สำเร็จ หยุดลองแล้ว: {error}"));
                     return;
                 }
                 state.supervisor.note(
@@ -302,7 +384,9 @@ pub async fn resume_worker(state: &AppState) {
                         "เริ่มอัตโนมัติไม่สำเร็จ (ครั้งที่ {attempt}/{RESUME_ATTEMPTS}) จะลองใหม่: {error}"
                     ),
                 );
-                tokio::time::sleep(RESUME_INTERVAL).await;
+                if !wait_for_resume_retry(state, generation, RESUME_INTERVAL).await {
+                    return;
+                }
             }
         }
     }
@@ -317,7 +401,10 @@ mod tests {
         providers::ProviderManager,
         supervisor::Supervisor,
     };
-    use std::sync::{atomic::AtomicBool, Mutex};
+    use std::sync::{
+        atomic::{AtomicBool, AtomicU64},
+        Mutex,
+    };
 
     fn test_state() -> AppState {
         AppState {
@@ -329,6 +416,8 @@ mod tests {
             supervisor: Supervisor::default(),
             providers: ProviderManager::default(),
             quitting: AtomicBool::new(false),
+            resume_generation: AtomicU64::new(0),
+            resume_notify: tokio::sync::Notify::new(),
             autostart_error: Mutex::new(None),
         }
     }
@@ -423,5 +512,76 @@ mod tests {
 
         assert_eq!(status, state.supervisor.snapshot());
         assert!(status.get("autoResume").is_none());
+    }
+
+    #[test]
+    fn intent_persistence_failure_is_visible_and_retryable() {
+        let state = test_state();
+
+        let error = remember_worker_intent_with(&state, true, |_| Err("CONFIG_IO".into()))
+            .expect_err("the injected config failure must be returned");
+
+        assert!(error.contains("CONFIG_IO"));
+        assert!(state.config.lock().unwrap().worker_autostart);
+        assert_eq!(
+            state.autostart_error.lock().unwrap().as_deref(),
+            Some(error.as_str())
+        );
+
+        remember_worker_intent_with(&state, true, |_| Ok(()))
+            .expect("the next write should be able to retry the same intent");
+        assert_eq!(*state.autostart_error.lock().unwrap(), None);
+    }
+
+    #[tokio::test]
+    async fn queued_resume_rechecks_stop_intent_inside_the_lifecycle_lock() {
+        let state = std::sync::Arc::new(test_state());
+        state.config.lock().unwrap().device_key = "edgk_test_key_that_is_long_enough".into();
+        state.config.lock().unwrap().worker_autostart = true;
+        let generation = state
+            .resume_generation
+            .load(std::sync::atomic::Ordering::SeqCst);
+        let guard = state.lifecycle.lock().await;
+        let pending_state = std::sync::Arc::clone(&state);
+        let pending =
+            tokio::spawn(async move { start_worker_for_resume(&pending_state, generation).await });
+
+        // The resume is now queued behind the lifecycle lock. Stop wins while holding the same
+        // lock, changes the durable intent and generation, then releases the waiter to re-check.
+        tokio::task::yield_now().await;
+        state
+            .resume_generation
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        state.config.lock().unwrap().worker_autostart = false;
+        state.resume_notify.notify_waiters();
+        drop(guard);
+
+        assert!(pending.await.expect("resume task should finish").is_none());
+        assert!(!state.supervisor.is_active());
+    }
+
+    #[tokio::test]
+    async fn stop_after_retry_wait_registers_wakeup_before_the_eligibility_check() {
+        let state = test_state();
+        state.config.lock().unwrap().worker_autostart = true;
+        let generation = state
+            .resume_generation
+            .load(std::sync::atomic::Ordering::SeqCst);
+
+        let retry = wait_for_resume_retry_with_hook(
+            &state,
+            generation,
+            std::time::Duration::from_secs(60),
+            || {
+                state
+                    .resume_generation
+                    .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                state.config.lock().unwrap().worker_autostart = false;
+                state.resume_notify.notify_waiters();
+            },
+        )
+        .await;
+
+        assert!(!retry, "Stop must cancel even when it races registration");
     }
 }

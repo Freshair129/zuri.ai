@@ -1,0 +1,34 @@
+
+> zuri-ai@0.1.0 test
+> node scripts/assert-tests-ran.mjs vitest run line-crm-live-chat-render line-studio-dashboard-render line-studio-edge-connection-render fr149-line-server-configuration line-account-isolation line-registry-scope line-reply-record line-server-backup crm-conversation-inbox
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-43128-mtuhhbbi-be83ba.db" at "file:./.test-dbs/run-43128-mtuhhbbi-be83ba.db"
+
+SQLite database run-43128-mtuhhbbi-be83ba.db created at file:./.test-dbs/run-43128-mtuhhbbi-be83ba.db
+
+Your database is now in sync with your Prisma schema. Done in 3.97s
+
+ ✓ tests/integration/line-registry-scope.test.js (13 tests) 228ms
+ ✓ tests/integration/line-reply-record.test.js (10 tests) 208ms
+ ✓ tests/integration/crm-conversation-inbox.test.js (10 tests) 206ms
+ ✓ tests/integration/line-account-isolation.test.js (9 tests) 183ms
+ ✓ tests/integration/fr149-line-server-configuration.test.js (4 tests) 190ms
+ ✓ tests/integration/line-server-backup.test.js (1 test) 383ms
+   ✓ LINE server snapshot recovery > restores FK parents, redacts token capabilities, disables accounts and preserves ambiguous/accepted outcomes 383ms
+ ✓ tests/unit/line-crm-live-chat-render.test.js (5 tests) 7ms
+ ✓ tests/unit/line-studio-edge-connection-render.test.js (2 tests) 7ms
+ ✓ tests/unit/line-studio-dashboard-render.test.js (1 test) 5ms
+
+ Test Files  9 passed (9)
+      Tests  55 passed (55)
+   Start at  02:20:44
+   Duration  12.65s (transform 334ms, setup 36ms, collect 5.06s, tests 1.42s, environment 1ms, prepare 372ms)
+
+JSON report written to C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 55 test(s).

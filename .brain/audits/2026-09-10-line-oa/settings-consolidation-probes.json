@@ -1,0 +1,76 @@
+{
+  "observedAt": "2026-09-09T20:00:17.216Z",
+  "method": "Actual extracted source handlers and memo expression, injected API/FormData/time/scope; synthetic inputs only, no database, browser or provider calls",
+  "observations": {
+    "connectWithoutDestination": {
+      "inputDestinationProvided": false,
+      "provisionCalled": true,
+      "accountCreated": true,
+      "destinationWasGenerated": true,
+      "requestKeys": [
+        {
+          "url": "/api/line-oa/connections",
+          "keys": [
+            "businessId",
+            "name",
+            "destination",
+            "secretRef"
+          ]
+        },
+        {
+          "url": "/api/line-oa/accounts",
+          "keys": [
+            "businessId",
+            "integrationConnectionId",
+            "code",
+            "displayName",
+            "basicId"
+          ]
+        }
+      ],
+      "rawTokenOrSecretTransmitted": false,
+      "successMessageShown": true,
+      "formReset": true
+    },
+    "sameFormDifferentTimeChangesDestination": false,
+    "connectWithInvalidDestination": {
+      "inputDestinationProvided": true,
+      "provisionCalled": true,
+      "accountCreated": true,
+      "destinationWasGenerated": true,
+      "requestKeys": [
+        {
+          "url": "/api/line-oa/connections",
+          "keys": [
+            "businessId",
+            "name",
+            "destination",
+            "secretRef"
+          ]
+        },
+        {
+          "url": "/api/line-oa/accounts",
+          "keys": [
+            "businessId",
+            "integrationConnectionId",
+            "code",
+            "displayName",
+            "basicId"
+          ]
+        }
+      ],
+      "rawTokenOrSecretTransmitted": false,
+      "successMessageShown": true,
+      "formReset": true
+    },
+    "studioSettingsSave": {
+      "successMessageShown": true,
+      "apiCalls": 0
+    },
+    "integrationBusinessSwitch": {
+      "shellBusiness": "fixture-B",
+      "localFormBusiness": "fixture-A",
+      "staleSelection": true
+    }
+  }
+}

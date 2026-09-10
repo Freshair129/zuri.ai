@@ -58,6 +58,10 @@ fn shutdown(app: &AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
         let state = app.state::<AppState>();
+        state
+            .resume_generation
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        state.resume_notify.notify_waiters();
         let _guard = state.lifecycle.lock().await;
         let _ = state.supervisor.stop().await;
         for provider in ["codex", "claude"] {
@@ -106,7 +110,7 @@ pub fn run() {
             let quit = MenuItem::with_id(app, "quit", "หยุดรับงานและออกจากโปรแกรม", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &quit])?;
             let mut tray = TrayIconBuilder::with_id("zuri-edge-device")
-                .tooltip("Zuri Edge Device — กำลังรับงานอยู่")
+                .tooltip("Zuri Edge Device — ตรวจสอบสถานะในแอป")
                 .menu(&menu)
                 // Left click reveals; the menu belongs on right click, where Windows users expect it.
                 .show_menu_on_left_click(false)

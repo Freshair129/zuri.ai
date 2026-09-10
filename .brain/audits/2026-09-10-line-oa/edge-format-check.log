@@ -1,0 +1,92 @@
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\commands.rs:383:
+ 
+ fn unavailable_updater(config: Option<&Value>) -> Option<CommandResult> {
+     let configured = config.is_some_and(|config| {
+-        config.get("pubkey").and_then(Value::as_str).is_some_and(|key| !key.trim().is_empty())
+-            && config.get("endpoints").and_then(Value::as_array).is_some_and(|urls| {
+-                !urls.is_empty() && urls.iter().all(|url| url.as_str().is_some_and(|url| !url.trim().is_empty()))
+-            })
++        config
++            .get("pubkey")
++            .and_then(Value::as_str)
++            .is_some_and(|key| !key.trim().is_empty())
++            && config
++                .get("endpoints")
++                .and_then(Value::as_array)
++                .is_some_and(|urls| {
++                    !urls.is_empty()
++                        && urls
++                            .iter()
++                            .all(|url| url.as_str().is_some_and(|url| !url.trim().is_empty()))
++                })
+     });
+     if configured {
+         return None;
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\commands.rs:458:
+         assert_eq!(data["available"], false);
+         assert_eq!(data["currentVersion"], env!("CARGO_PKG_VERSION"));
+         assert!(data.get("hasUpdate").is_none());
+-        for partial in [None, Some(json!({"pubkey":"", "endpoints":["https://example.invalid/feed"]})), Some(json!({"pubkey":"fixture", "endpoints":[]}))] {
++        for partial in [
++            None,
++            Some(json!({"pubkey":"", "endpoints":["https://example.invalid/feed"]})),
++            Some(json!({"pubkey":"fixture", "endpoints":[]})),
++        ] {
+             assert!(unavailable_updater(partial.as_ref()).is_some());
+         }
+     }
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\lib.rs:75:
+     tauri::Builder::default()
+         // Launching it again while it sits in the tray should bring it back, not do nothing —
+         // that is how someone who forgot it was running will try to open it.
+-        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| reveal(app)))
++        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
++            reveal(app)
++        }))
+         .plugin(tauri_plugin_autostart::init(
+             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+             Some(vec!["--minimized"]),
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\lib.rs:106:
+             // The tray is what makes "keeps answering" survive the window being closed. Without
+             // it, closing the window stopped the worker and quit, so the device went off LINE with
+             // nothing left on screen to say so — which is exactly how it went quiet on 2026-09-10.
+-            let show = MenuItem::with_id(app, "show", "เปิดหน้าต่าง Zuri Edge Device", true, None::<&str>)?;
+-            let quit = MenuItem::with_id(app, "quit", "หยุดรับงานและออกจากโปรแกรม", true, None::<&str>)?;
++            let show = MenuItem::with_id(
++                app,
++                "show",
++                "เปิดหน้าต่าง Zuri Edge Device",
++                true,
++                None::<&str>,
++            )?;
++            let quit =
++                MenuItem::with_id(app, "quit", "หยุดรับงานและออกจากโปรแกรม", true, None::<&str>)?;
+             let menu = Menu::with_items(app, &[&show, &quit])?;
+             let mut tray = TrayIconBuilder::with_id("zuri-edge-device")
+                 .tooltip("Zuri Edge Device — ตรวจสอบสถานะในแอป")
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\supervisor.rs:803:
+                 push_log(
+                     &mut inner,
+                     "error",
+-                    format!("ตัวประมวลผลหยุดด้วยข้อผิดพลาด: {}", code.as_deref().unwrap_or("ไม่ทราบสาเหตุ")),
++                    format!(
++                        "ตัวประมวลผลหยุดด้วยข้อผิดพลาด: {}",
++                        code.as_deref().unwrap_or("ไม่ทราบสาเหตุ")
++                    ),
+                 );
+                 inner.failure = code;
+                 inner.state = "FAILED".into();
+Diff in \\?\C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri\src\supervisor.rs:1054:
+         assert_eq!(log.len(), LOG_CAPACITY);
+         // Oldest first, and the 25 that fell off the front are the oldest 25.
+         assert_eq!(log[0]["message"], "line 25");
+-        assert_eq!(log[LOG_CAPACITY - 1]["message"], format!("line {}", LOG_CAPACITY + 24));
++        assert_eq!(
++            log[LOG_CAPACITY - 1]["message"],
++            format!("line {}", LOG_CAPACITY + 24)
++        );
+         assert_eq!(log[0]["level"], "info");
+         assert!(log[0]["at"].as_str().is_some_and(|at| at.ends_with('Z')));
+     }
+exit_code: 1
+interpretation: existing formatting debt in commands.rs, lib.rs and supervisor.rs; no full-file reformat applied

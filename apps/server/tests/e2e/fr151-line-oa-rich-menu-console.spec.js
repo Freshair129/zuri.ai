@@ -42,6 +42,8 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // FR-149's spec): the display name names both, so the cleanup above still
   // finds the connection by it.
   await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
+  await page.getByLabel(/LINE bot destination/).fill(`U${'a'.repeat(32)}`)
+  await page.getByLabel(/Deployment secret reference/).fill('deployment-secret:line-main')
   await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 

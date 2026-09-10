@@ -1,0 +1,131 @@
+{
+  "observedAt": "2026-09-09T19:41:22.534Z",
+  "fileKeyCounts": {
+    "root": 44,
+    "server": 47,
+    "edge": 44,
+    "deployedServer": 47
+  },
+  "rootVsServer": {
+    "commonKeys": 44,
+    "differingKeys": [],
+    "onlyLeft": [],
+    "onlyRight": [
+      "ZURI_LINE_WORKER_TOKEN",
+      "ZURI_LINE_REPLY_SEAL_KEY",
+      "ZURI_LINE_SECRET_FILE_HOST"
+    ]
+  },
+  "serverVsDeployedServer": {
+    "commonKeys": 47,
+    "differingKeys": [],
+    "onlyLeft": [],
+    "onlyRight": []
+  },
+  "deployedServerVsLiveWeb": {
+    "commonKeys": 47,
+    "differingKeys": [],
+    "onlyLeft": [],
+    "onlyRight": [
+      "PUBLIC_BASE_URL",
+      "ZURI_CUSTOMER_REVIEW_DB_CA_FILE",
+      "NODE_ENV",
+      "HOSTNAME",
+      "ZURI_LINE_SECRET_FILE",
+      "ZURI_LINE_DB_CA_FILE",
+      "ZURI_LINE_SERVER_ENABLED",
+      "PORT",
+      "PATH",
+      "NODE_VERSION",
+      "YARN_VERSION",
+      "NEXT_TELEMETRY_DISABLED"
+    ]
+  },
+  "liveTokenMatches": {
+    "webAndWorker": true,
+    "rootAndWorker": false,
+    "serverAndWorker": true
+  },
+  "containers": [
+    {
+      "name": "/zuri-ai-web-1",
+      "id": "f611253d6d75",
+      "created": "2026-09-09T18:19:14.060129061Z",
+      "imageId": "sha256:57bf9b235cf2",
+      "workingDir": "/app",
+      "composeDir": "C:\\Users\\pc\\workspace\\zuri-ai-line-ack\\apps\\server",
+      "composeFiles": "C:\\Users\\pc\\workspace\\zuri-ai-line-ack\\apps\\server\\docker-compose.yml,C:\\Users\\pc\\workspace\\zuri-ai-line-ack\\apps\\server\\docker-compose.line-server.yml"
+    },
+    {
+      "name": "/zuri-ai-line-worker-1",
+      "id": "b578e7a93bb0",
+      "created": "2026-09-08T15:28:37.958305495Z",
+      "imageId": "sha256:ce485fb35b04",
+      "workingDir": "/app",
+      "composeDir": "C:\\Users\\pc\\workspace\\zuri-ai\\apps\\server",
+      "composeFiles": "C:\\Users\\pc\\workspace\\zuri-ai\\apps\\server\\docker-compose.yml,C:\\Users\\pc\\workspace\\zuri-ai\\apps\\server\\docker-compose.line-server.yml"
+    }
+  ],
+  "composeConfigChecks": [
+    {
+      "mode": "root-implicit-env",
+      "success": true,
+      "workerTokenMatchesServerFile": true,
+      "webEnvMatchesEveryServerFileKey": true
+    },
+    {
+      "mode": "server-directory-implicit-env",
+      "success": true,
+      "workerTokenMatchesServerFile": true,
+      "webEnvMatchesEveryServerFileKey": true
+    },
+    {
+      "mode": "root-explicit-server-env",
+      "success": true,
+      "workerTokenMatchesServerFile": true,
+      "webEnvMatchesEveryServerFileKey": true
+    }
+  ],
+  "syntheticComposePrecedence": [
+    {
+      "mode": "root-with-f",
+      "interpolationSource": "app",
+      "envFileSource": "app"
+    },
+    {
+      "mode": "app-directory",
+      "interpolationSource": "app",
+      "envFileSource": "app"
+    },
+    {
+      "mode": "root-explicit-app-env",
+      "interpolationSource": "app",
+      "envFileSource": "app"
+    }
+  ],
+  "composeVersion": "5.5.1",
+  "nextLoaderProbe": {
+    "version": "14.2.35",
+    "mode": "development",
+    "appRoot": "C:/Users/pc/workspace/zuri-ai/apps/server",
+    "loadedFiles": [
+      "C:/Users/pc/workspace/zuri-ai/apps/server/.env"
+    ],
+    "parentRootEnvLoaded": false
+  },
+  "desktopSourceEvidence": {
+    "installedPackage": "C:/Users/pc/ZuriEdgeDesktop/0.3.2",
+    "workerSkipDotenv": "worker/dist/desktop-worker.js:182",
+    "configGuard": "worker/dist/config/index.js:13-14",
+    "privateCwd": "worker/dist/desktop-worker.js:214",
+    "settingsMetadataOnly": "C:/Users/pc/AppData/Roaming/zuri-edge-device/edge-config.json",
+    "nativeLifecycleTested": false
+  },
+  "limits": [
+    "No environment values or hashes persisted",
+    "Current file equality does not prove historical copy provenance",
+    "No private environment file changed",
+    "No container or installed runtime recreated or restarted",
+    "No provider call sent"
+  ]
+}

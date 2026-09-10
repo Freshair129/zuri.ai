@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.8.0b |
+| **Version** | 0.8.1b |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-09-05 |
-| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-060 (LINE OA Studio — catalog reservation only), ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Date** | 2026-09-10 |
+| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-060 (LINE OA Studio — local implementation slices), ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
 sub-features, with an explicit root contract per domain** — and binds it to V2's new
@@ -57,7 +57,7 @@ domain identities used by FR-070.
 | `DOM-OPERATIONS` | `operations` | Operations | operating periods, processes and SLA outcomes |
 | `DOM-PEOPLE` | `people` | HR / People | workforce and accountable Human context |
 | `DOM-ASSET-MANAGEMENT` | `assets` | Asset Management | physical asset identity, intake, custody, location and allocation |
-| `DOM-LINE-OA-STUDIO` | `line-oa` | LINE OA Studio | design, publication and operation of LINE Official Accounts, several per Business (ADR-060 — reserved; no runtime wiring yet) |
+| `DOM-LINE-OA-STUDIO` | `line-oa` | LINE OA Studio | design, publication and operation of LINE Official Accounts, several per Business (ADR-060; local implementation slices are wired) |
 | `DOM-INVENTORY` | `inventory` | Warehouse | catalogue identity, the stock ledger (lots, serial units, FEFO) and recipes / BOM (FR-154..156; labelled Warehouse because a Project's Inventory tab shares the screen) |
 | `DOM-PROCUREMENT` | `procurement` | Procurement | suppliers, purchase orders and goods receipts that post into the Warehouse ledger (FR-164, FR-165, ADR-066) |
 | `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
@@ -272,31 +272,31 @@ The remaining entries are stable information architecture, not a claim that ever
 surface is live. Project Inventory consumes Asset allocation as a read projection and
 does not appear as an Asset writer.
 
-### LINE OA Studio — multi-account command center for LINE Official Accounts *(reserved — route key `line-oa`, ADR-060; no runtime wiring)*
+### LINE OA Studio — multi-account command center for LINE Official Accounts *(implemented locally — route key `line-oa`, ADR-060)*
 
 1. **Dashboard** — the selected Business's accounts with computed health and sourced KPIs
-2. Accounts — connect, pause, archive; per-account overview, Design Studio (Rich Menu · Flex · Flows · LIFF), Dispatches, Analytics
+2. Accounts — connect, pause, archive; Business-scoped Group/User registry; per-account overview, Design Studio (Rich Menu · Flex · Flows · LIFF), Dispatches, Analytics
 3. Templates — flow / Flex / rich menu / LIFF library at `SYSTEM` · `BUSINESS` scope (`TENANT` reserved for a later release)
 4. Analytics — translated LINE Insight facts across the Business's accounts
 5. Command Center — health, transport jobs, dispatch console, links to the CRM Inbox
 6. Media — projection of Files (`FileAsset`); owns no bytes
 7. Team — projection of identity's grants and roles; owns no membership
-8. Settings — Business-level Studio defaults
+8. Settings — account status projection and links to Edge transport/Platform model metadata; no duplicate credential or webhook editor
 
-Every entry is stable information architecture reserved by ADR-060 D12. The
-`line-oa` slot exists in `src/config/domains.js` as a hidden `soon` entry since
-FR-146 — so a Membership grant can name the domain and the account API can
-require it — and `/api/line-oa/accounts` is live locally; no page renders yet,
-so the bar still shows nothing for it. The prototype's "Project"
-is an **Account** here — `Project` stays Development's model. Publishing and
-dispatching reach LINE only as transport jobs (ADR-060 D5): an EDGE account's
-Zuri Edge Device claims them, a CLOUD account's worker executes them through the
-integration lane's Vault-resolved LINE port; the console shows no LINE secret in
-either mode.
+The Studio routes and APIs are live locally. The prototype's "Project" is an
+**Account** here — `Project` stays Development's model. Rich Menu has one owner:
+`/line-oa/design-studio?tool=rich-menu` renders the canonical versioned workspace;
+`/line-oa/rich-menus` remains a compatibility URL and is not a second navigation
+entry. Account identity, webhook and transport settings live in Studio, while
+Platform Integrations keeps model metadata and a read-only LINE status projection.
+Publishing and dispatching reach LINE only as transport jobs (ADR-060 D5): an EDGE
+account's Zuri Edge Device claims them, a CLOUD account's worker executes them
+through the integration lane's Vault-resolved LINE port; the console shows no LINE
+secret in either mode.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
-2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
+2. Integrations — Phase 1 model metadata, redacted Supabase Vault status and read-only LINE projection *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown; `/line-oa/integrations` redirects here)*
 3. ธุรกิจ·องค์กร / Business & Tenant config *(rebuild — V1 PATCH is 403 for all roles)*
 4. ผู้ใช้·สิทธิ์ / Users & Roles — Membership *(rebuild — V1 auth is per-tenant Employee)*
 5. Identity / LINE linking *(new — the P3 gate: account linking, staff/customer split)*
@@ -329,7 +329,7 @@ either mode.
 /assets                   → Asset Management Dashboard
 /assets/receiving         → evidence upload, extraction candidate, human review and readiness (FR-137..139)
 /assets/register          → physical Asset register (foundation information architecture)
-/line-oa                  → LINE OA Studio Dashboard (slot registered as hidden `soon` in `src/config/domains.js` by FR-146; API `/api/line-oa/accounts` live locally; no page yet)
+/line-oa                  → LINE OA Studio Dashboard (implemented locally; account API `/api/line-oa/accounts` and Business-scoped shell are wired)
 /line-oa/accounts/{id}/…  → one LINE Official Account as a resource: studio · dispatches · analytics (reserved)
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
@@ -371,7 +371,7 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
 
 ## 7. Decisions (resolved — [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · LINE OA Studio (slot reserved by ADR-060, hidden until its Phase 1 slice wires it) · Development · Platform.
+1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · LINE OA Studio (local Phase 1 slices are wired; remaining charter capabilities stay separately bounded) · Development · Platform.
 2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
    delivery view), never the app root.
 3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.
@@ -380,3 +380,5 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
 5. **AI Copilot & Campaigns placement** — ✅ under **Growth** (marketing lens).
 
 Version diff 0.7.0 → 0.8.0b: replace the retired Growth sketch with approved native Marketing navigation and explicit first-slice boundaries.
+
+Version diff 0.8.0b → 0.8.1b: reconcile LINE OA Studio from a reserved slot to the locally implemented dashboard, account shell, Design Studio Rich Menu owner, and Platform Integrations compatibility redirect.

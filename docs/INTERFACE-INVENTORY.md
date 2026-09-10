@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=89; operational_domain_keys=15; operational_subdomain_entries=48; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=90; operational_domain_keys=15; operational_subdomain_entries=47; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -76,7 +76,6 @@ mean production identity, external providers or cutover gates are complete.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| 1.15.0b | 2026-09-10 | candidate | Removed LINE OA Integrations & AI (`/line-oa/integrations`): it was a nine-line re-export of `/platform/integrations`, so the same component answered at two URLs and took two sidebar slots. Both navigations now point at the one page; marker reconciled to 88 page routes and 48 operational sub-domain entries | working-tree | Claude Opus 5 |
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
 | `/edge/pair` | Desktop browser/QR pairing | EntryShell | sign in, compare device code, choose an owned Business and approve; the initiating Desktop receives its key once | loading, auth required, pending, approved, denied, expired, unavailable | FR-144; browser/QR slice implemented locally, production activation separate |
 | `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; two links out — reset, and self-serve signup (FR-120) | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
@@ -301,14 +300,14 @@ explicitly so “domain count” cannot silently mix the two concepts:
 
 | Count | Current value | Source interpretation |
 |---|---:|---|
-| Source `DOMAINS` entries | 13 | `business-home` plus twelve operational domains |
-| Operational domain keys | 12 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `procurement`, `platform` |
+| Source `DOMAINS` entries | 16 | `business-home` plus fifteen operational domains |
+| Operational domain keys | 15 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `warehouse`, `procurement`, `platform`, `scm` and `crm` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 47 | includes Business Home Dashboard |
-| Operational sub-domain entries | 46 | excludes Business Home Dashboard |
+| Source sub-domain entries | 48 | includes Business Home Dashboard |
+| Operational sub-domain entries | 47 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
-| LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings (main 2a1b6a81) |
+| LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
 | Marketing (`growth`) navigation entries | 4 | Dashboard, Strategy, Campaigns and Content & Creative (FR-157..160) |
 | Warehouse (`inventory`) navigation entries | 1 | Dashboard (FR-154, FR-155) |
 | Commerce navigation entries | 2 | Dashboard and Orders (FR-162, FR-163) |
@@ -356,8 +355,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 70 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 11 operational domains, 35 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 89 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 15 operational domains, 47 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -375,6 +374,8 @@ The current route evidence is:
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.16.0b | 2026-09-11 | candidate | FR-165: Goods Receipts registry, intake and printable detail under Procurement; 88 → 89 pages | working-tree | RWANG |
+| 1.15.1b | 2026-09-10 | candidate | Reconciled the canonical Rich Menu deep link and corrected the compatibility route behavior in the LINE OA operations inventory | working-tree | RWANG |
+| 1.15.0b | 2026-09-10 | candidate | Removed the duplicate LINE OA Integrations navigation entry and recorded Business-scoped Group/User registry editing under Projects; the old URL remains a compatibility redirect | working-tree | RWANG |
 | 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
 | 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
 | 1.12.0b | 2026-09-07 | candidate | Registered LINE OA Integrations & AI (`/line-oa/integrations`) from main and reconciled the marker to 84 page routes and 45 operational sub-domain entries | working-tree | RWANG |
@@ -398,14 +399,15 @@ The current route evidence is:
 | Route | Surface | Scope | Behavior |
 |---|---|---|---|
 | `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
-| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View and manage LINE OA accounts, associated projects, credentials status, and create new connections. |
+| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View/manage LINE OA accounts plus the Business-scoped Group/User registry; account connection writes stay in the Edge & Connection flow. |
 | `/line-oa/design-studio` | LINE OA Design Studio | Business visibility | Visual designer for Rich Menus, LIFF Apps, Flex Messages, and quick reply templates with live mobile preview. |
-| `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
+| `/line-oa/rich-menus` | Rich Menu compatibility entry (FR-151, FR-152) | Business visibility | Redirects to the canonical `/line-oa/design-studio?tool=rich-menu` workspace; the versioned menu editor and publish-job ledger have one Studio owner. |
 | `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
 | `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
+| `/line-oa/integrations` | Compatibility entry | Business visibility | Redirects to Platform Integrations; LINE account, webhook and registry editing is owned by LINE OA Studio. |
 | `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
 | `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
-| `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |
+| `/line-oa/settings` | LINE Studio Settings | Business visibility | Read-only account status and links to the owning Edge transport and Platform model metadata surfaces; no duplicate credential/webhook writer. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
 

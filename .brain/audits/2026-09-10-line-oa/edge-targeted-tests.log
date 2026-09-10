@@ -1,0 +1,55 @@
+   Compiling zuri-edge-device v0.3.2 (C:\Users\pc\workspace\zuri-ai-line-oa-audit\apps\edge\src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.64s
+     Running unittests src\lib.rs (target\debug\deps\zuri_edge_lib-a8696151f8eb0b83.exe)
+
+running 47 tests
+test machine::tests::actual_windows_probe_is_local_bounded_and_allowlisted ... ignored, requires a Windows CIM provider; run explicitly on the target host
+test machine::tests::fixed_process_kills_and_reaps_on_timeout ... ignored, requires a Windows PowerShell process; run explicitly on the target host
+test machine::tests::timeout_keeps_first_complete_snapshot_before_reaping_child ... ignored, requires a Windows PowerShell process; run explicitly on the target host
+test packaged_runtime_tests::actual_portable_worker_starts_stops_and_recovers_from_owned_process_crash ... ignored, Requires freshly assembled portable package in ZURI_DESKTOP_TEST_PACKAGE; run explicitly after packaging
+test commands::tests::portable_updater_is_unavailable_without_claiming_latest ... ok
+test commands::tests::a_windows_written_config_with_a_bom_still_loads ... ok
+test machine::tests::malformed_fields_become_partial_safe_errors ... ok
+test providers::tests::defaults_are_independent_and_cloud_is_off ... ok
+test commands::tests::status_never_serializes_key_or_guesses_worker_readiness ... ok
+test pairing::tests::consumes_console_api_base_url_and_rejects_partial_or_conflicting_input ... ok
+test desktop::tests::status_reports_a_failed_resume_instead_of_a_bare_stopped_worker ... ok
+test desktop::tests::resume_does_nothing_on_an_unpaired_device ... ok
+test desktop::tests::resume_does_nothing_when_the_operator_stopped_the_worker ... ok
+test machine::tests::malformed_root_is_unavailable_without_raw_error_text ... ok
+test machine::tests::probe_section_errors_are_allowlisted_and_preserve_partial_data ... ok
+test desktop::tests::provider_mutations_reject_pending_pairing ... ok
+test desktop::tests::provider_mutations_reject_during_quit ... ok
+test pairing::tests::qr_has_only_browser_capability_and_rejects_foreign_origin ... ok
+test desktop::tests::status_is_the_supervisors_own_when_no_resume_failed ... ok
+test pairing::tests::refuses_unsafe_origins ... ok
+test providers::tests::commands_are_fixed_and_separate ... ok
+test providers::tests::installation_and_version_do_not_prove_auth ... ok
+test providers::tests::loopback_url_rejects_remote_and_credentialed_origins ... ok
+test providers::tests::managed_homes_are_absolute_and_provider_scoped ... ok
+test providers::tests::authentication_url_allowlist_is_provider_scoped ... ok
+test providers::tests::an_old_login_watchdog_cannot_match_a_new_generation ... ok
+test machine::tests::parses_multiple_records_and_keeps_numeric_bytes ... ok
+test providers::tests::cancellation_reuses_desktop_root_without_rebasing_home ... ok
+test providers::tests::provider_names_and_homes_are_explicit ... ok
+test machine::tests::duplicate_adapter_names_never_guess_vram_pairing ... ok
+test providers::tests::selected_model_uses_selected_provider ... ok
+test providers::tests::recognized_auth_states_are_redacted ... ok
+test providers::tests::settings_require_the_selected_model_and_keep_cloud_explicit ... ok
+test providers::tests::tags_are_bounded_and_deduplicated ... ok
+test supervisor::tests::package_paths_are_fixed ... ok
+test supervisor::tests::safe_event_discards_raw_output_and_unknown_types ... ok
+test supervisor::tests::bounded_stdout_reader_rejects_oversized_lines ... ok
+test tray_tests::autostart_starts_in_the_tray_and_a_manual_launch_does_not ... ok
+test window_layout::tests::small_work_area_does_not_force_a_window_off_screen ... ok
+test window_layout::tests::includes_native_frame_and_taskbar_at_each_scale ... ok
+test credential_store::tests::dpapi_round_trip_and_tamper_refusal ... ok
+test supervisor::tests::provider_init_omits_optional_nulls ... ok
+test machine::tests::nvidia_vram_over_four_gib_is_parsed_from_trusted_source ... ok
+test supervisor::tests::the_log_is_bounded_and_keeps_the_newest_lines ... ok
+test commands::tests::protected_file_can_be_replaced_without_plaintext_key ... ok
+test supervisor::tests::package_manifest_hashes_all_required_files ... ok
+test machine::tests::overlapping_requests_share_one_cached_snapshot ... ok
+
+test result: ok. 43 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.99s
+

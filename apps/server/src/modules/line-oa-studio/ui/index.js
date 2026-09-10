@@ -6,7 +6,6 @@ export { default as LineStudioProjects } from './LineStudioProjects';
 export { default as LineStudioDesignHub } from './LineStudioDesignHub';
 export { default as LineStudioFlowDesigner } from './LineStudioFlowDesigner';
 export { default as LineStudioFlexEditor } from './LineStudioFlexEditor';
-export { default as LineStudioRichMenu } from './LineStudioRichMenu';
 export { default as LineStudioLiffApp } from './LineStudioLiffApp';
 export { default as LineStudioTemplates } from './LineStudioTemplates';
 export { default as LineStudioTeam } from './LineStudioTeam';

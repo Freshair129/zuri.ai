@@ -176,7 +176,6 @@ export const DOMAINS = [
       { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard, exact: true },
       { label: 'บัญชี & กลุ่ม LINE OA', path: '/line-oa/projects', icon: Layers },
       { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
-      { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
       { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
       { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },

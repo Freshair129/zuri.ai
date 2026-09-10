@@ -1,9 +1,7 @@
 import { z } from 'zod'
 import {
   LINE_OA_RICH_MENU_ACTIONS,
-  LINE_OA_RICH_MENU_ACTION_TYPES,
   LINE_OA_RICH_MENU_LAYOUTS,
-  LINE_OA_RICH_MENU_VERSION_STATUSES,
 } from '@/lib/validation/enums'
 import { zLineOaAccountCode } from './line-oa-account'
 
@@ -161,18 +159,6 @@ export function freezeBlockers(draft) {
   const issues = validateRichMenuDraft(draft)
   if (!draft.imageFileAssetId) issues.push({ code: 'IMAGE_REQUIRED', message: 'a frozen version needs its image FileAsset' })
   return issues
-}
-
-export function isEditableVersionStatus(status) {
-  return status === 'DRAFT'
-}
-
-export function isKnownVersionStatus(status) {
-  return LINE_OA_RICH_MENU_VERSION_STATUSES.includes(status)
-}
-
-export function isKnownActionType(type) {
-  return LINE_OA_RICH_MENU_ACTION_TYPES.includes(type)
 }
 
 /** A stored areas column, or an empty list when the column cannot be trusted. */

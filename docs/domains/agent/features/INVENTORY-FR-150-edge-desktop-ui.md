@@ -4,11 +4,11 @@ title: Zuri Edge Desktop — sidebar interface inventory
 parent_requirement: FR-150
 domain: agent
 source: v2-native
-version: "0.3.2b"
+version: "0.3.3b"
 status: beta
 approval: "Owner approved sidebar delta in section 11 on 2026-09-09"
 created_at: "2026-09-08T22:00:02+07:00,RWANG,base b17e7258"
-last_update: "2026-09-10T01:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-10T04:20:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-150
@@ -389,18 +389,24 @@ Desktop package version เปลี่ยน **0.3.0 → 0.3.1**; four panels/I
 Ollama จาก Startup ของตัวเอง, embed sidecar และ RAG service จาก ZuriEdgeStack, และแอปนี้จาก Startup
 ครั้งเดียวจึงแพ้การแข่งขันเกือบทุกครั้ง ขอบเขตนี้เลียนแบบ Wait-Endpoint ของ launcher แทนที่จะลองไม่สิ้นสุด
 เพื่อให้การตั้งค่าที่ผิดจริงยังจบเป็นข้อความที่อ่านได้
+เมื่อ `start_worker` สำเร็จจะบันทึก `worker_autostart=true`; `stop_worker` บันทึก `false`, เพิ่ม generation fence
+และปลุก retry ที่กำลังรออยู่ทันที การเขียนไฟล์ที่ล้มเหลวไม่ถูกกลืน: สถานะ worker คืน `autostartError`
+ให้ผู้ดูแลเห็นและลองคำสั่งเดิมใหม่ได้
 
 **12.2 ความล้มเหลวต้องเห็น.** resume ที่ล้มก่อน spawn child จะทำให้ supervisor ยังเป็น STOPPED ซึ่ง
 แยกไม่ออกจาก "ยังไม่มีใครกด Start" — `get_worker_status` จึงรายงานเป็น `state: FAILED` พร้อม `failure`
 และ `autoResume: true` เมื่อมี resume error ค้างอยู่ ใช้ panel เดิมที่ UI แสดงผลอยู่แล้ว และ FAILED เป็นหนึ่งใน
 สองสถานะที่ปุ่ม Start ยังกดได้ ผู้ดูแลจึงอ่านสาเหตุแล้วลองเองได้โดยไม่ต้องมี control ใหม่
+ก่อนแต่ละ retry มีการตรวจ `quitting`, generation และ `worker_autostart` อีกครั้ง จึงไม่ spawn หลังผู้ดูแลกด Stop
+แม้ Stop จะเกิดระหว่างช่วงรอ 15 วินาที
 
-**12.3 Activity log.** การ์ดใหม่ "บันทึกการทำงาน" ใน Overview (`data-overview-page="3"`, compact จึงเป็น 4 หน้า)
-อ่านจาก native command ใหม่ `get_worker_log` → `{entries:[{at, level, message}]}` เก็บใน supervisor
-แบบ ring buffer 200 บรรทัด (bounded เพราะ edge device รันต่อเนื่องเป็นสัปดาห์) บรรทัดมาจาก vocabulary ของ
-`safe_event` ที่ผ่านการกรองอยู่แล้ว บวกกับ `Supervisor::note` สำหรับ lifecycle — ไม่มีเนื้อหาข้อความลูกค้า,
-device key หรือ credential ผ่านช่องทางนี้ `claim outcome=idle` ไม่ถูกบันทึก (จะกลบทุกอย่างด้วยบรรทัดทุก 5 วินาที)
-แต่การกลับจาก DEGRADED บันทึก UI ตาม tail อัตโนมัติและหยุดตามเมื่อผู้ใช้เลื่อนขึ้นไปอ่าน มีปุ่มคัดลอกทั้งหมด
+**12.3 Activity log.** หน้ารอง "บันทึกการทำงาน" แยกจาก Overview (`workerLogPage`) อ่านจาก native command
+`get_worker_log` → `{entries:[{at, level, message}]}` เก็บใน supervisor แบบ ring buffer 200 บรรทัด (bounded
+เพราะ edge device รันต่อเนื่องเป็นสัปดาห์) แสดงใหม่สุดก่อน หน้าละ 8 รายการ มีปุ่มก่อนหน้า/ถัดไปและคัดลอกทั้งหมด
+บรรทัดมาจาก vocabulary ของ `safe_event` ที่ผ่านการกรองอยู่แล้ว บวกกับ `Supervisor::note` สำหรับ lifecycle —
+ไม่มีเนื้อหาข้อความลูกค้า, device key หรือ credential ผ่านช่องทางนี้ `claim outcome=idle` ไม่ถูกบันทึก (จะกลบทุกอย่าง
+ด้วยบรรทัดทุก 5 วินาที) การเปิด log จาก Overview จะไปหน้ารองและกลับด้วยปุ่มกลับภาพรวม; ไม่มีการอ้างว่า log อยู่ใน
+Overview card หรือมีสี่หน้า compact
 
 **12.4 แก้สถานะจับคู่ค้าง.** `pollPairing` เดิมเมื่อ poll error จะหยุดที่ POLLING_ERROR โดยไม่เคลียร์
 `pairingActive` และไม่ตั้ง timer ใหม่ — `pairingActive` คุมทั้งหน้าต่าง (ซ่อนปุ่ม Connect, ล็อกการตั้งค่า AI,
@@ -415,6 +421,7 @@ Acceptance: Rust unit tests ครอบ resume guards (ไม่ทำอะไ
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.3b | 2026-09-10 | beta | Reconciled activity-log documentation with the separate paginated worker-log page and documented autoresume generation/persistence guards | working-tree | RWANG |
 | 0.3.2b | 2026-09-10 | beta | Automatic worker resume from persisted operator intent, bounded activity-log card and get_worker_log, visible auto-resume failures, and the stuck-pairing fix | uncommitted | Claude Opus 5 |
 | 0.3.1b | 2026-09-09 | beta | Implemented approved sidebar; 35 mock UI tests passed including measured Thai labels and AI steps at 200%; separate local native/package evidence | uncommitted | RWANG |
 | 0.3.0b | 2026-09-09 | beta | Owner approved vertical sidebar using four existing panels, wide/compact wireframes and no-scroll regression criteria | uncommitted | RWANG |

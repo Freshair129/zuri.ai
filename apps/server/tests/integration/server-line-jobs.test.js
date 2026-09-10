@@ -209,6 +209,20 @@ describe('server transport and acceptance recovery', () => {
     expect(await prisma.message.count({ where: { externalMessageId: `reply:${admitted.inboundMessageId}` } })).toBe(0)
   })
 
+  it('fails a malformed reply token before send so the next account is not starved', async () => {
+    const broken = await account()
+    const healthy = await account()
+    const brokenAdmitted = await admit(broken, event('reply-token-corrupt'))
+    const healthyAdmitted = await admit(healthy, event('reply-token-next'))
+    await prisma.lineConversationJob.update({ where: { id: brokenAdmitted.jobId }, data: { sealedReplyToken: 'corrupt-sealed-token' } })
+
+    const options = worker()
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthyAdmitted.jobId, status: 'RECORDED', executed: 2, sent: 2 })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect((await row(brokenAdmitted.jobId)).errorCode).toBe('LINE_REPLY_TOKEN_UNAVAILABLE')
+    expect((await row(healthyAdmitted.jobId)).status).toBe('RECORDED')
+  })
+
   it('falls back a definitively dead Reply token to delayed Push without recomputing the answer', async () => {
     const oa = await account({ allowDelayedPush: true })
     const admitted = await admit(oa, event('reply-dead-token-push'))

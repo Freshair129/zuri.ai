@@ -3,20 +3,16 @@
 // @tested tests/unit/line-studio-dashboard-render.test.js
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useScope } from "@/context/ScopeContext";
 import {
-  Layers,
   Users,
-  MessageSquare,
   Radio,
   Search,
   ArrowRight,
   Sparkles,
-  TrendingUp,
   Activity,
   Bot,
-  ExternalLink,
   ChevronRight,
   ShieldCheck,
   CheckCircle2,
@@ -29,29 +25,31 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
   const business = scope?.shell?.activeBusiness;
 
   const [accounts, setAccounts] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const requestVersion = useRef(0);
 
   const fetchData = async () => {
+    const requestId = ++requestVersion.current;
     if (!business?.id) {
+      setAccounts([]);
       setLoading(false);
       return;
     }
+    setAccounts([]);
     setLoading(true);
     try {
-      const [accRes, projRes] = await Promise.all([
-        fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ accounts: [] })),
-        fetch(`/api/projects?businessId=${encodeURIComponent(business.id)}`).then(r => r.json()).catch(() => ({ projects: [] }))
-      ]);
-
+      const response = await fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`);
+      const accRes = await response.json();
+      if (!response.ok) throw new Error(accRes.error || "โหลดบัญชี LINE OA ไม่สำเร็จ");
+      if (requestId !== requestVersion.current) return;
       setAccounts(accRes.accounts || []);
-      setProjects(projRes.projects || []);
     } catch (e) {
+      if (requestId !== requestVersion.current) return;
       console.error(e);
+      setAccounts([]);
     } finally {
-      setLoading(false);
+      if (requestId === requestVersion.current) setLoading(false);
     }
   };
 
@@ -64,6 +62,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
 
   const handleActivateServer = async (item, e) => {
     e?.stopPropagation?.();
+    if (!window.confirm("ยืนยันว่า transport LINE เดิมหยุดรับ webhook แล้ว และให้ Zuri Server เป็นเจ้าของการส่ง?")) return;
     setActivatingId(item.id);
     setActionError("");
     try {
@@ -90,46 +89,28 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
   const combinedDirectory = [
     ...accounts.map(acc => ({
       id: acc.id,
-      raw: acc,
       version: acc.version,
       serverEnabled: acc.serverEnabled,
-      name: acc.displayName || acc.code,
-      thaiName: acc.displayName || acc.code,
-      slug: acc.basicId || acc.code,
-      status: (acc.serverEnabled || acc.status === "CONNECTED") ? "active" : "draft",
-      statusLabel: (acc.serverEnabled || acc.status === "CONNECTED") ? "ออนไลน์ (LIVE)" : "พร้อมเปิด Server (Draft)",
+      name: acc.displayName || acc.code || "LINE OA",
+      slug: acc.basicId || acc.code || "—",
+      status: acc.effectiveStatus || acc.status || "UNKNOWN",
+      statusLabel: acc.effectiveStatus || acc.status || "สถานะไม่ทราบ",
       category: "line-oa",
       icon: "💬",
-      followers: acc.health?.followers || 0,
       transport: acc.serverEnabled ? "Zuri Server" : "Edge Worker",
-      updatedAgo: new Date(acc.updatedAt || acc.createdAt).toLocaleDateString("th-TH"),
-      color: "from-emerald-500/20 to-teal-500/20"
-    })),
-    ...projects.map(proj => ({
-      id: proj.id,
-      name: proj.name,
-      thaiName: proj.name,
-      slug: proj.code,
-      status: proj.status?.toLowerCase() || "active",
-      statusLabel: proj.status || "กำลังดำเนินงาน",
-      category: "project",
-      icon: "📁",
-      followers: 0,
-      transport: "Project Core",
-      updatedAgo: new Date(proj.updatedAt || proj.createdAt).toLocaleDateString("th-TH"),
-      color: "from-brand-amber/20 to-orange-500/20"
     }))
   ];
 
   const filteredDirectory = combinedDirectory.filter(p => {
     const matchQuery = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                        p.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCategory = categoryFilter === "all" || p.category === categoryFilter;
-    return matchQuery && matchCategory;
+    return matchQuery;
   });
 
   return (
     <div className="space-y-6 pb-12 font-thai">
+      {actionError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{actionError}</div>}
+
       {/* Top Welcome Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/10 via-brand-surface/40 to-emerald-500/10 border border-brand-amber/20 p-6 backdrop-blur-md">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -235,13 +216,13 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-              ONLINE
+              UNKNOWN
             </span>
-            <span className="text-xs text-slate-500 font-mono">:8787</span>
+            <span className="text-xs text-slate-500">ยังไม่มี telemetry จาก Edge Device</span>
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Zero-Trust Token Active</span>
+            <span>สถานะจะอัปเดตเมื่อมี heartbeat</span>
           </div>
         </div>
       </div>
@@ -329,7 +310,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
                       </button>
                     )}
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      item.status === "active"
+                      item.status === "CONNECTED" || item.status === "LIVE" || item.status === "ACTIVE"
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                         : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                     }`}>

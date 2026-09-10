@@ -200,17 +200,23 @@ export default function LineStudioEdgeConnection() {
     await run(() => api(`/api/line-oa/accounts/${account.id}`, "PATCH", { ...data, version: account.version }));
   }
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
   async function handleConnectAccount(event) {
     event.preventDefault();
     if (!business?.id) return;
     const form = new FormData(event.currentTarget);
     const displayName = form.get("displayName")?.trim() || "LINE Official Account";
     const basicId = form.get("basicId")?.trim() || "";
-    const channelId = form.get("channelId")?.trim() || "";
-    const channelSecret = form.get("channelSecret")?.trim() || "";
-    const channelAccessToken = form.get("channelAccessToken")?.trim() || "";
+    const destination = form.get("destination")?.trim() || "";
+    const secretRef = form.get("secretRef")?.trim() || "";
+
+    if (!/^U[0-9a-fA-F]{32}$/.test(destination)) {
+      setError("ต้องระบุ LINE bot destination ที่ออกโดยผู้ให้บริการจริง (U ตามด้วย hex 32 ตัว)");
+      return;
+    }
+    if (!/^deployment-secret:[A-Za-z0-9_-]{1,100}$/.test(secretRef)) {
+      setError("ต้องระบุ deployment-secret reference ที่มีอยู่แล้ว ห้ามสร้างชื่ออ้างอิงอัตโนมัติ");
+      return;
+    }
 
     // Auto-generate clean account code from basicId or displayName
     const cleanSlug = (basicId ? basicId.replace(/^@/, "") : displayName)
@@ -218,21 +224,6 @@ export default function LineStudioEdgeConnection() {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "line-oa";
     const code = form.get("code")?.trim() || `${cleanSlug}-${Date.now().toString(36).slice(-4)}`;
-
-    // Auto-generate valid destination (U + 32 hex chars) if not explicitly provided
-    let destination = form.get("destination")?.trim();
-    if (!destination || !/^U[0-9a-fA-F]{32}$/.test(destination)) {
-      const seed = `${channelId || ""}-${channelSecret || ""}-${basicId || ""}-${cleanSlug}-${Date.now()}`;
-      let hex = "";
-      for (let i = 0; i < 32; i++) {
-        const c = seed.charCodeAt(i % seed.length) + i * 17 + 7;
-        hex += (c % 16).toString(16);
-      }
-      destination = `U${hex}`;
-    }
-
-    // Auto-generate secret reference
-    const secretRef = form.get("secretRef")?.trim() || `deployment-secret:line-${cleanSlug}`;
 
     await run(async () => {
       // Step 1: Provision connection
@@ -565,75 +556,25 @@ export default function LineStudioEdgeConnection() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {/* Field 3: Channel ID */}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
                     <span className="flex items-center justify-between">
-                      <span>Channel ID</span>
-                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
+                      <span>LINE bot destination <span className="text-rose-500">*</span></span>
+                      <span className="text-[10px] text-slate-400 font-normal">ค่าจริงจาก LINE provider</span>
                     </span>
-                    <input
-                      name="channelId"
-                      className={fieldClass}
-                      placeholder="เช่น 2006789123 (ตัวเลข 10 หลัก)"
-                    />
+                    <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" pattern="U[0-9a-fA-F]{32}" required />
                   </label>
-
-                  {/* Field 4: Channel Secret */}
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
                     <span className="flex items-center justify-between">
-                      <span>Channel Secret</span>
-                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
+                      <span>Deployment secret reference <span className="text-rose-500">*</span></span>
+                      <span className="text-[10px] text-slate-400 font-normal">ต้อง mount ไว้แล้ว</span>
                     </span>
-                    <input
-                      name="channelSecret"
-                      type="password"
-                      className={fieldClass}
-                      placeholder="เช่น 32 ตัวอักษร/ตัวเลข"
-                    />
+                    <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" required />
                   </label>
                 </div>
-
-                {/* Field 5: Channel Access Token */}
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                  <span className="flex items-center justify-between">
-                    <span>Channel Access Token (Long-Lived)</span>
-                    <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Messaging API ➔ Issue</span>
-                  </span>
-                  <textarea
-                    name="channelAccessToken"
-                    rows={2}
-                    className={`${fieldClass} font-mono text-[11px] resize-none`}
-                    placeholder="วาง Channel access token ยาวๆ ที่กด Issue มาจาก LINE Developers"
-                  />
+                <label className="block space-y-1">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">รหัสบัญชีในระบบ (ปล่อยว่างเพื่อสร้างจาก Basic ID)</span>
+                  <input name="code" className={fieldClass} placeholder="เช่น oa-smart-gift" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
                 </label>
-
-                {/* Advanced Options Accordion */}
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1.5 font-medium transition-colors"
-                  >
-                    <span>{showAdvanced ? "▼ ซ่อนตัวเลือกขั้นสูง" : "▶ ตัวเลือกขั้นสูง (Advanced / Custom Ref)"}</span>
-                  </button>
-
-                  {showAdvanced && (
-                    <div className="mt-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">รหัสบัญชีในระบบ (Account Code - ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
-                        <input name="code" className={fieldClass} placeholder="เช่น oa-smart-gift" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">Bot user ID / destination (ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
-                        <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" pattern="U[0-9a-fA-F]{32}" />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">ชื่ออ้างอิง Secret (Secret Reference)</span>
-                        <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" />
-                      </label>
-                    </div>
-                  )}
-                </div>
 
                 {/* Submit Action */}
                 <button
@@ -705,7 +646,7 @@ function AccountCard({ account, onAction, busy }) {
             <span className="text-xs text-slate-500 font-mono">({account.basicId || account.code})</span>
           </h2>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Legacy Edge" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "พร้อม"}</span>
+            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Edge worker" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
           </p>
         </div>
         <StatusPill status={account.effectiveStatus} />
@@ -781,13 +722,20 @@ function AccountCard({ account, onAction, busy }) {
               ปิด Server transport
             </button>
           ) : account.transportMode === "CLOUD" ? (
-            <button
-              type="button"
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-1.5"
-              onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
-            >
-              <span>⚡ เปิด Server Transport (Live)</span>
-            </button>
+            <div className="grid gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+              <label className="flex items-start gap-2">
+                <input type="checkbox" checked={quiesced} onChange={(event) => setQuiesced(event.target.checked)} className="mt-0.5" />
+                <span>ยืนยันว่า transport เดิมหยุดรับ webhook แล้ว และยอมรับให้ Zuri Server เป็นเจ้าของการส่ง</span>
+              </label>
+              <button
+                type="button"
+                disabled={!quiesced}
+                className="w-fit rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm shadow-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
+              >
+                ⚡ เปิด Server Transport (Live)
+              </button>
+            </div>
           ) : (
             <button
               type="button"

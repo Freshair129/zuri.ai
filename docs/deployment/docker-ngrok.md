@@ -1,7 +1,7 @@
 ---
-version: "1.2.0b"
+version: "1.3.0b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-06T19:38:00+07:00,RWANG"
+last_update: "2026-09-10T04:18:00+07:00,RWANG"
 status: "current"
 superseded_by: null
 attributes:
@@ -12,7 +12,7 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose + ngrok
 
-**Version:** 1.2.0b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+**Version:** 1.3.0b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
 
 This is the deployment path that replaces Vercel. Nothing about the application
 changed to make it possible except a liveness probe (`GET /api/health`) and one
@@ -35,10 +35,18 @@ Docker Compose — network zuri-network
                     db-migrate            one-shot `prisma db push`, then exits
 ```
 
-`web` is the only public-facing service. The LINE Messaging API webhook itself is
-owned by the zuri-cli transport (a separate process); it forwards normalized events
-to **`POST https://<NGROK_DOMAIN>/api/agent/line-webhook`**, the one inbound webhook
-this application serves.
+`web` is the only public-facing service. Run the Compose commands from
+`apps/server`; Compose reads `apps/server/.env` as its interpolation file and as the
+web container's `env_file`, with the optional `apps/server/.env.docker` overlay.
+The repository-root `.env`, if present, is not the Server app's dotenv source for
+these commands. The standalone Edge CLI has separate working-directory dotenv
+behavior, and managed Desktop disables dotenv in favor of its private settings.
+
+The legacy zuri-cli forwarding seam remains **`POST https://<NGROK_DOMAIN>/api/agent/line-webhook`**.
+The optional Server transport also exposes the account-scoped
+`/api/line-oa/accounts/{id}/webhook` route under ADR-061; configure that account
+from LINE OA Studio. Platform Integrations shows status/model metadata and is not a
+second LINE webhook setup surface.
 
 ## Prerequisites
 
@@ -54,6 +62,12 @@ this application serves.
   (`src/lib/db.js` → `PRODUCTION_DATABASE_URL_REQUIRED`).
 
 ## Setup
+
+From the repository root, enter the Server app before running the following commands:
+
+```bash
+cd apps/server
+```
 
 1. Copy `.env.example` → `.env`.
 2. Fill the required values:
@@ -299,3 +313,7 @@ not being Vercel. Leave it unset otherwise.
 publication suspended pending private release review. The observed local service
 uses `zuri-ai-web:local` and was healthy. This change does not restart it or change
 its environment, database, ngrok configuration or existing public image versions.
+
+2026-09-10, version 1.2.0b → 1.3.0b: documented app-local Compose dotenv ownership,
+separated the legacy forwarding webhook from the account-scoped Server webhook, and
+corrected the deployment script's repository-root wording.
