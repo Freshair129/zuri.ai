@@ -5677,7 +5677,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445",
+      "statement_digest": "22a78f2662306450dc14b19b26c7581d145717efcb966823a5b41054ba8b28d0",
       "history": [
         {
           "anchor": "marketing planning and accountable execution",
@@ -5685,8 +5685,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "Reconcile the published CRM Sales Tasks feature with Marketing Operations retained under FR-162."
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved FR-185 adds durable broadcast planning to the existing Marketing capability without changing its pinned subject."
     },
     "FEAT-022": {
       "family": "FEAT",
@@ -5731,14 +5731,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "75703a8c209b96ad17811e41abe49bf07521fa078d0d59effabad34f08594096",
+      "statement_digest": "30a0c54062ffe00434c8a6f958193931c191a660aa3367b05991f8a2bf3116ab",
       "history": [
         {
           "anchor": "smartgift scm",
           "since": "2026-09-10",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved FR-184 adds physical stocktake to the existing located SCM capability without changing its pinned subject."
     },
     "RSK-001": {
       "family": "RSK",
