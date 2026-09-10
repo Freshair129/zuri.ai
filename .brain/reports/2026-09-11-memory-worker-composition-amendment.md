@@ -45,8 +45,9 @@ The memory path is eligible only when all of these are true:
 When the flag is absent at admission, `createServerLineAnswer` remains byte-for-byte on the current
 public-knowledge/no-memory path for that job. A later flag change cannot enroll an already persisted
 job, and disabling the flag cannot silently remove the opt-in from a job that was already admitted.
-Missing opt-in prerequisites fail an opted-in job closed with a stable unavailable outcome; they never
-silently fall back to a private or unscoped memory source.
+Missing opt-in prerequisites fail an opted-in attempt closed with a stable unavailable/`UNKNOWN`
+outcome and leave the enrolled job pending for bounded retry; they never silently fall back to a
+private or unscoped memory source.
 
 ### Per-job enrollment and operational index
 
