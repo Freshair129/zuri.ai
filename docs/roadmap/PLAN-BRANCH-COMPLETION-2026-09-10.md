@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.4.0b"
+version: "0.5.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T01:47:00+07:00,RWANG"
+last_update: "2026-09-11T02:36:43+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -77,77 +77,85 @@ commit are intermediate progress, not completion.
 
 ## Status
 
-Goods Receipts, LINE OA and the direct-webhook Memory/Trace adapter are now
-integrated in the isolated branch. Goods Receipts has real persisted intake and
-cross-Business browser proof. The primary server LINE worker still requires the
-separate memory-composition amendment; the direct adapter is not evidence that
-the primary worker invokes MSP.
+The approved retained implementation is integrated on top of published main
+`6400cdcb` (PR #318) in `codex/finish-integration-20260910`. Implementation
+revision `4a74c1ed` includes Goods Receipts, LINE OA/Edge reliability, scoped
+Platform Integrations callbacks, the direct-webhook Memory/Trace adapter, and
+owner-approved Billing/POS. Billing source handoff is `b7c611b3`.
 
-Billing/POS's concrete specification is owner-approved and under implementation.
-External PR #318 has since declared FR-182 for the SCM operations console;
-the unmerged Billing subject is therefore moving to FR-186, while POS remains
-FR-183. This identity correction changes no approved behavior. The local
-abandonment audit and canonical SCM ledger must be reconciled before integration.
-Warehouse stocktake, primary-worker memory and Marketing P5 planning amendments
-are documented and awaiting owner approval; they have no implementation changes.
-Warehouse's proposal reuses PR #318's Inventory pages and APIs and adds only the
-separate atomic stocktake contract. That external PR is not merged by this lane.
-Unique superseded evidence has been copied with a SHA-256 manifest outside the
-checkout; original worktrees have not been deleted.
+Canonical FR-182 remains the SCM operations console. Billing is FR-186 and POS
+is FR-183. Integration restored the canonical ledger from `430e731b` and used
+`docs:ids` to add only FR-183/FR-186; no published identity was retired or
+reworded. The source branch's transient FR-182 abandonment remains documented
+in its commit and revision history. The combined inventory has 231 API routes,
+318 HTTP operations and 95 page routes. Dangling Billing route-test annotations
+were corrected to the real browser regression, retaining the service-test links.
 
-The concrete pending review artifacts are the
-[primary-worker memory amendment](../../.brain/reports/2026-09-11-memory-worker-composition-amendment.md),
-[Warehouse stocktake contract](../../.brain/rca/2026-09-11-warehouse-p4-console-contract.md),
-and [Marketing P5 contract](../../.brain/reports/2026-09-11-marketing-p5-audit.md).
+Final local validation of the combined implementation:
 
-Platform Integrations now also fences delayed reads and save callbacks across
-Business changes. Its isolated proof is 22 passing unit checks and two passing
-Chromium regressions with real local Business membership; the source and tests
-are integrated while preserving the connector presentation repair.
+| Gate | Result | Evidence |
+|---|---|---|
+| Server unit/integration | 4,619 passed, 15 skipped; 564 passed files, 5 skipped | `integration-final-tests.log`; assert-tests-ran confirms executed tests |
+| Server production build | PASS | `integration-final-build.log` |
+| Full browser regression | 154 passed, 4 skipped, zero failures/flaky; 9.0 minutes | `integration-final-e2e.log`; normal fail-on-flaky gate retained |
+| Governance | PASS, zero critical/warning; no duplicate/dangling graph edges | `integration-final-govern.log` |
+| Edge | 944 passed, 3 skipped; typecheck/build pass in the OA lane | All `apps/edge` files match verified source `eaf40d09` byte-for-byte |
+| Billing focused source | 31 server checks and one browser flow pass | Source handoff `b7c611b3`; final combined suites also pass |
 
-Billing's isolated migration execution is verified against a generated baseline
-in SQLite and PostgreSQL 17.11. Synthetic FK checks reject deletion of an issued
-document's order, branch, Business and Tenant. PostgreSQL additionally verifies
-the exact index names/defaults, idempotent migration replay and runtime/web-login
-DML privileges. Initial SQL parity and missing-grant failures were repaired.
-The tested final PostgreSQL migration SHA-256 is
-`512becf9e45c3957d289255bc696f5a7755ab8a02163e6051abda0fa6a0d44d4`;
-integration must match that hash before reusing this proof. This is disposable
-database evidence, not production migration or rollout evidence. Billing source
-handoff and its final browser verification remain in progress.
+The Billing browser flow proves exact-key issuance retries return the same
+number, a durable document renders after reload when its order is older than
+55 newer orders, a delayed refresh cannot undo a changed selection, Business B
+cannot display A's deep-linked document, manual prices are required for every
+POS line, and recorded payment remains pending. The PostgreSQL and SQLite
+migration files in integration match the isolated execution proofs exactly:
 
-The integrated Server build and governance pass (zero critical/warning).
-The first full regression ran 4,599 tests: 4,582 passed, 15 skipped and two failed
-because assertions retained the previous API count and URL-removal contract.
-The receipt registry/detail add two enumerated GET paths; the approved OA
-compatibility URL redirects to the one Platform workspace. The assertions now
-check those contracts; their two files pass all 17 tests. The first full E2E
-run has 149 passing tests, four skips and two failures: connector presentation
-lost its labels/reasons, and the old onboarding fixture omitted now-required
-provider identity. Both are repaired; the three focused browser tests pass with
-retries disabled. Final combined regression remains required after the other
-lanes land.
+- PostgreSQL: `512becf9e45c3957d289255bc696f5a7755ab8a02163e6051abda0fa6a0d44d4`.
+- SQLite: `5ddca8cccf2592408600e30533b263a7f1874553b72faabf87769c9abf06348e`.
 
-Edge typecheck/build pass. The first full Edge run had 942 passing tests, three
-skips and one managed-worker stop failure (exit 2 after `stopped`). Review found
-that failure while deleting the private runtime directory after a successful
-stop escaped to the worker's configuration-failure handler. A real-child test
-injecting only that cleanup failure reproduced exit 2 before the repair and
-passes after cleanup becomes best effort. The OS error of the original run was
-not captured, so the injected reproduction is not represented as its exact cause.
-The OA lane's final Edge run passed 944 tests with three skips; its focused
-cleanup suite passed all ten tests. Source and tests are integrated here.
-Native-device acceptance and production activation remain unclaimed.
+PostgreSQL 17.11 proof includes migration execution, exact catalog parity,
+idempotent replay, runtime grants/SET ROLE reads and FK retention/cascade.
+SQLite proof includes actual migration execution and parent-deletion refusals.
+The disposable PostgreSQL container was removed. General seed data is unchanged.
+The evidence root is
+`C:/Users/pc/.codex/visualizations/2026/09/10/01a08aba-fa9c-7a51-9e67-415f939bd9ac`;
+it holds the logs, SQL snapshots and result manifests. Goods Receipts' latest
+rendered evidence is in `apps/server/output/playwright/fr165-receipt-*.png`.
+
+Three new contracts remain candidates awaiting owner approval; no implementation
+for them is included:
+
+- [Primary-worker memory composition](../../.brain/reports/2026-09-11-memory-worker-composition-amendment.md).
+- [Warehouse stocktake](../../.brain/rca/2026-09-11-warehouse-p4-console-contract.md).
+- [Marketing P5 planning](../../.brain/reports/2026-09-11-marketing-p5-audit.md).
+
+The direct `/api/agent/line-webhook` memory adapter is verified. The primary
+`/api/line-oa/worker` answer path remains ADR-061 public knowledge without MSP
+memory; its amendment is separate. Warehouse reuses the now-merged PR #318
+Inventory console and proposes only the missing atomic stocktake contract.
+Marketing's proposed read/planning slice does not send broadcasts or buy ads.
+
+The original cleanup removed 12 branches and nine worktrees. New isolated lanes
+were created for this continuation; the 02:14 inspection counted 41 branches and
+23 worktrees. Original dirty source evidence is preserved with a SHA-256 manifest
+outside the checkout, and no additional old or shared worktree was deleted by
+this completion stage. The shared primary checkout was advanced by other work,
+not reset by this integration lane.
+
+This is local source and isolated-database acceptance. Hosted CI, installed
+native-device acceptance, live provider delivery, production migration and
+runtime activation are separate evidence states; none is inferred from these
+results. The three pending contracts are not reported as completed features.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0b | 2026-09-11 | beta | Record final integrated tests, canonical ID reconciliation, migration hashes and three remaining candidate contracts | 4a74c1ed | RWANG |
 | 0.4.0b | 2026-09-11 | beta | Link pending review artifacts and record integrated Business-switch guard plus isolated Billing migration evidence | working-tree | RWANG |
 | 0.3.0b | 2026-09-11 | beta | Record verified Edge cleanup repair, Billing identifier collision and three pending contract approvals | working-tree | RWANG |
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.3.0b → 0.4.0b; review links and verified local evidence added; approval boundaries and approved behavior are unchanged.
+Version diff: 0.4.0b → 0.5.0b; record verified implementation and remaining candidate boundaries without expanding scope.
 
 
