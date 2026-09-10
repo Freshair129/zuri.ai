@@ -2936,6 +2936,7 @@ model LineConversationJob {
   transportEpoch     Int
   executionMode      String
   modelAccess        String
+  audienceKind       String   @default("DIRECT")
   allowDelayedPush   Boolean  @default(false)
   recipientId        String
   sourceUserId       String
@@ -2955,6 +2956,11 @@ model LineConversationJob {
   providerMessageId  String?
   acceptedAt         DateTime?
   errorCode          String?
+  memorySyncOptIn    Boolean  @default(false)
+  memoryDeliveryState String  @default("NONE")
+  memoryDeliveryAttempts Int  @default(0)
+  memoryDeliveryNextAttemptAt DateTime?
+  memoryDeliveryLeaseUntil DateTime?
   correlationId      String
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -2965,6 +2971,7 @@ model LineConversationJob {
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
+  @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.
