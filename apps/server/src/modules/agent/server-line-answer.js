@@ -63,6 +63,32 @@ function memoryServerScope(job, route) {
   }
 }
 
+function memoryAudience(value) {
+  return typeof value === 'string' ? value.toUpperCase() : null
+}
+
+/** MSP may return an opaque thread, but its bound identity must still match the
+ * route that came from the claimed LINE job before any append/model call. */
+function assertMemoryContextRoute(context, route, { requirePacket = false } = {}) {
+  const thread = context?.thread
+  const scope = context?.authContext?.scope
+  if (!thread?.threadId || thread.businessId !== route.businessId
+    || memoryAudience(thread.audienceKind) !== route.audienceKind
+    || scope?.tenantId !== route.tenantId || scope.businessId !== route.businessId) {
+    throw failure('LINE_MEMORY_SCOPE_MISMATCH')
+  }
+  if (!requirePacket) return
+  const packet = context?.threadMemory
+  const packetThread = packet?.thread
+  const packetIdentity = packet?.identity
+  if (!packet || !packetThread?.threadId || packetThread.threadId !== thread.threadId
+    || packetThread.businessId !== route.businessId
+    || memoryAudience(packetThread.audienceKind) !== route.audienceKind
+    || !packetIdentity?.principalId || packetIdentity.principalId !== context.identity?.principalId) {
+    throw failure('LINE_MEMORY_SCOPE_MISMATCH')
+  }
+}
+
 const emptyMemoryKnowledge = async () => ({ found: false, relations: [] })
 
 async function assertMemoryJobLive(job, memoryStateReader) {
@@ -155,6 +181,7 @@ export function createServerLineAnswer({
         if (!firstContext?.thread?.threadId || !firstContext.identity?.principalId) {
           throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
         }
+        assertMemoryContextRoute(firstContext, route)
         await assertMemoryJobLive(job, memoryStateReader)
         memoryInbound = await selectedThreadMemory.appendMessage({
           threadId: firstContext.thread.threadId,
@@ -178,6 +205,7 @@ export function createServerLineAnswer({
         memoryContext = await contextAssembler({ ...contextInput,
           deferThreadRecall: false, currentExchangeId: memoryInbound.message.exchangeId })
         if (!memoryContext?.threadMemory) throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
+        assertMemoryContextRoute(memoryContext, route, { requirePacket: true })
         if (route.audienceKind !== 'DIRECT' && memoryContext.threadMemory.policyDecision === 'ALLOW') {
           throw failure('LINE_MEMORY_AUDIENCE_DENIED')
         }

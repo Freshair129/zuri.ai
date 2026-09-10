@@ -93,6 +93,50 @@ const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
   'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
 ])
 
+function validSnapshotDate(value) {
+  return value instanceof Date
+    ? !Number.isNaN(value.getTime())
+    : typeof value === 'string' && value.trim() && !Number.isNaN(new Date(value).getTime())
+}
+
+function snapshotTracePayload(row) {
+  if (row?.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)) return row.payloadJson
+  if (typeof row?.payloadJson !== 'string') return null
+  try {
+    const payload = JSON.parse(row.payloadJson)
+    return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : null
+  } catch {
+    return null
+  }
+}
+
+function hasMemoryPendingCheckpoint(snapshot, job) {
+  const traces = Array.isArray(snapshot?.tables?.agentTraceEvent) ? snapshot.tables.agentTraceEvent : []
+  const messages = Array.isArray(snapshot?.tables?.message) ? snapshot.tables.message : []
+  const conversations = Array.isArray(snapshot?.tables?.conversation) ? snapshot.tables.conversation : []
+  return traces.some((trace) => {
+    if (!trace || trace.kind !== 'MEMORY_DELIVERY_PENDING' || trace.turnId !== job.id
+      || trace.tenantId !== job.tenantId || trace.businessId !== job.businessId
+      || trace.idempotencyKey !== `memory-delivery:pending:${job.id}`
+      || !validSnapshotDate(trace.occurredAt)) return false
+    const payload = snapshotTracePayload(trace)
+    if (!payload || payload.jobId !== job.id || payload.inboundMessageId !== job.inboundMessageId
+      || payload.channelAccountId !== job.channelAccountId || payload.audienceKind !== job.audienceKind
+      || payload.providerAcceptance !== 'ACCEPTED_BY_LINE'
+      || typeof payload.outboundMessageId !== 'string' || !payload.outboundMessageId.trim()
+      || payload.receiptId !== payload.outboundMessageId
+      || typeof payload.externalThreadRef !== 'string' || !payload.externalThreadRef.trim()) return false
+    const inbound = messages.find(message => message?.id === job.inboundMessageId)
+    const outbound = messages.find(message => message?.id === payload.outboundMessageId)
+    if (!inbound || inbound.direction !== 'INBOUND' || !outbound || outbound.direction !== 'OUTBOUND'
+      || inbound.conversationId !== outbound.conversationId) return false
+    const conversation = conversations.find(item => item?.id === inbound.conversationId)
+    return conversation?.tenantId === job.tenantId && conversation.businessId === job.businessId
+      && conversation.channel === 'LINE' && conversation.channelAccountId === job.channelAccountId
+      && conversation.externalThreadId === payload.externalThreadRef
+  })
+}
+
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
   'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
@@ -649,8 +693,7 @@ function lineWorkerMemoryRecovery(snapshot) {
     if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
     for (const field of ['memoryDeliveryNextAttemptAt', 'memoryDeliveryLeaseUntil']) {
       const value = row[field]
-      const validDate = value === null || (typeof value === 'string' && value.trim() && !Number.isNaN(new Date(value).getTime()))
-        || (value instanceof Date && !Number.isNaN(value.getTime()))
+      const validDate = value === null || validSnapshotDate(value)
       if (!validDate) result.errors.push(`LINE worker memory recovery job ${label} has an invalid ${field}`)
     }
     if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
@@ -663,6 +706,13 @@ function lineWorkerMemoryRecovery(snapshot) {
     if (row.memoryDeliveryState !== 'PENDING'
       && (row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
       result.errors.push(`LINE worker memory recovery job ${label} has a retry cursor on a terminal state`)
+    }
+    if (row.memoryDeliveryState === 'PENDING') {
+      if (row.status !== 'RECORDED') result.errors.push(`LINE worker memory recovery job ${label} has pending memory without RECORDED status`)
+      if (!validSnapshotDate(row.acceptedAt)) result.errors.push(`LINE worker memory recovery job ${label} has pending memory without provider acceptance time`)
+      if (!hasMemoryPendingCheckpoint(snapshot, row)) {
+        result.errors.push(`LINE worker memory recovery job ${label} has no matching scoped MEMORY_DELIVERY_PENDING checkpoint`)
+      }
     }
   }
   if (result.errors.length) result.status = 'INVALID'

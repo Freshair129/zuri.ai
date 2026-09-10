@@ -156,6 +156,7 @@ export async function prepareMemoryDeliveryPending(tx, {
 function dueWhere(now) {
   return {
     memorySyncOptIn: true,
+    status: 'RECORDED',
     memoryDeliveryState: 'PENDING',
     OR: [{ memoryDeliveryLeaseUntil: null }, { memoryDeliveryLeaseUntil: { lte: now } }],
     AND: [{ OR: [{ memoryDeliveryNextAttemptAt: null }, { memoryDeliveryNextAttemptAt: { lte: now } }] }],
@@ -274,6 +275,8 @@ async function policyAllows({ job, route, policyResolver }) {
       channelAccountId: route.channelAccountId,
       bindingId: route.channelAccountId,
       audienceKind: route.audienceKind,
+      tenantId: route.tenantId,
+      businessId: route.businessId,
       mspAuthorization: { read: true, writePrivate: false, writeShared: false },
     },
   })
@@ -430,7 +433,9 @@ export async function reconcileLineMemoryDeliveries({
 
       // Policy resolution can await identity/database state. Re-read the claim
       // after it returns so an erasure, account disable or lease loss cannot
-      // feed the pre-policy body into MSP.
+      // feed the pre-policy body into MSP. This is a local fence; the final
+      // read-to-network interval still depends on an MSP-side erasure fence
+      // before production opt-in can be activated.
       source = await loadSource(db, claimed)
       if (source.stale) continue
       if (source.closed) {

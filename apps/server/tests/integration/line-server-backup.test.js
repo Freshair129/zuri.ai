@@ -10,6 +10,7 @@ import { connectLineOaAccount } from '@/modules/line-oa-studio/application/line-
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { exportSnapshot, importSnapshot, previewImport } from '@/modules/project-manager/application/backup-service'
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
+import { appendTraceEvent } from '@/modules/agent/execution-trace'
 
 describe('LINE server snapshot recovery', () => {
   it('restores FK parents, redacts token capabilities, disables accounts and preserves ambiguous/accepted outcomes', async () => {
@@ -31,8 +32,18 @@ describe('LINE server snapshot recovery', () => {
         claimantId: 'old-worker', leaseExpiresAt: new Date(Date.now() + 60000), expiresAt: new Date(Date.now() + 60000), correlationId: `backup-${status}`,
         ...(status === 'ACCEPTED' ? { acceptedAt: new Date(), providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer' } : {}),
         ...(status === 'RECORDED' ? { memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
-          memoryDeliveryNextAttemptAt: new Date(Date.now() - 1000), memoryDeliveryLeaseUntil: new Date(Date.now() + 60000) } : {}),
+          memoryDeliveryNextAttemptAt: new Date(Date.now() - 1000), memoryDeliveryLeaseUntil: new Date(Date.now() + 60000),
+          acceptedAt: new Date(), providerRequestId: 'recorded-provider-id', answerText: 'Recorded answer' } : {}),
       } }))
+      if (status === 'RECORDED') {
+        const outbound = await prisma.message.create({ data: { conversationId: inbound.conversationId, direction: 'OUTBOUND',
+          body: 'Recorded answer', externalMessageId: `reply:${inbound.messageId}` } })
+        await appendTraceEvent(prisma, { scope: { tenantId: tenant.id, businessId: business.id }, turnId: jobs.at(-1).id,
+          kind: 'MEMORY_DELIVERY_PENDING', idempotencyKey: `memory-delivery:pending:${jobs.at(-1).id}`,
+          payload: { jobId: jobs.at(-1).id, inboundMessageId: inbound.messageId, outboundMessageId: outbound.id,
+            receiptId: outbound.id, channelAccountId: account.id, externalThreadRef: 'backup-thread', audienceKind: 'DIRECT',
+            providerAcceptance: 'ACCEPTED_BY_LINE' } })
+      }
     }
     const snapshot = await exportSnapshot()
     const exported = snapshot.tables.lineConversationJob.filter(job => job.accountId === account.id)
@@ -49,7 +60,18 @@ describe('LINE server snapshot recovery', () => {
     corruptJob.audienceKind = 'NOT_A_LINE_AUDIENCE'
     const corruptPreview = await previewImport(corrupt, { viewer: makeOperatorViewer() })
     expect(corruptPreview.valid).toBe(false)
-    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state/)
+    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state|pending memory/)
+    const foreignTrace = structuredClone(snapshot)
+    const foreign = foreignTrace.tables.agentTraceEvent.find(event => event.kind === 'MEMORY_DELIVERY_PENDING' && event.turnId === jobs.find(job => job.status === 'RECORDED').id)
+    foreign.businessId = 'foreign-business'
+    const foreignPreview = await previewImport(foreignTrace, { viewer: makeOperatorViewer() })
+    expect(foreignPreview.valid).toBe(false)
+    expect(foreignPreview.lineWorkerMemoryRecovery.errors.join(' ')).toContain('no matching scoped MEMORY_DELIVERY_PENDING')
+    const emptyTrace = structuredClone(snapshot)
+    emptyTrace.tables.agentTraceEvent = emptyTrace.tables.agentTraceEvent.filter(event => event.kind !== 'MEMORY_DELIVERY_PENDING')
+    const emptyTracePreview = await previewImport(emptyTrace, { viewer: makeOperatorViewer() })
+    expect(emptyTracePreview.valid).toBe(false)
+    expect(emptyTracePreview.lineWorkerMemoryRecovery.errors.join(' ')).toContain('no matching scoped MEMORY_DELIVERY_PENDING')
     const legacy = structuredClone(snapshot)
     delete legacy.lineWorkerMemoryRecovery
     const legacyPreview = await previewImport(legacy, { viewer: makeOperatorViewer() })

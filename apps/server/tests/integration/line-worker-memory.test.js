@@ -9,6 +9,7 @@ import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/applicat
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { playbackTrace } from '@/modules/agent/execution-trace'
+import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 
 // @req FR-149, FR-171 — immutable per-job MSP enrollment, scoped server composition and durable receipt recovery.
 // @spec ADR-061, ADR-070, SEC-001, SEC-005 — CRM/provider acceptance remains local truth; MSP receives a bounded receipt only.
@@ -139,6 +140,34 @@ describe('LINE memory enrollment and receipt recovery', () => {
     expect(memoryEvents.every(item => !JSON.stringify(item.payload).includes('tampered'))).toBe(true)
   })
 
+  it('passes the complete persisted scope to the default authorization resolver', async () => {
+    const fixture = await admittedFixture()
+    await runToPending(fixture)
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
+    const person = await prisma.person.create({ data: { code: `memory-default-${randomUUID()}`, displayName: 'Default resolver' } })
+    await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, channelAccountId: fixture.oa.bindingCode, lineUserId: job.sourceUserId, merge: true })
+    const recordDelivery = vi.fn(async input => ({ receiptId: input.receiptId, messageId: 'msp-default-message', outcome: 'ACCEPTED' }))
+    const result = await reconcileLineMemoryDeliveries({ db: prisma, threadMemory: { recordDelivery }, now: () => now,
+      workerId: 'scanner-default-resolver' })
+    expect(result).toMatchObject({ scanned: 1, acknowledged: 1, pending: 0, closed: 0 })
+    expect(recordDelivery).toHaveBeenCalledOnce()
+    expect(recordDelivery.mock.calls[0][0].route).toMatchObject({ tenantId: tenant.id, businessId: business.id,
+      channelAccountId: fixture.oa.bindingCode, audienceKind: 'DIRECT' })
+  })
+
+  it('does not scan a pending memory cursor unless the job is RECORDED', async () => {
+    const fixture = await admittedFixture()
+    await runToPending(fixture)
+    await prisma.lineConversationJob.update({ where: { id: fixture.jobId }, data: { status: 'ACCEPTED' } })
+    const recordDelivery = vi.fn()
+    const result = await reconcileLineMemoryDeliveries({ db: prisma, threadMemory: { recordDelivery }, now: () => now,
+      workerId: 'scanner-status-fence', policyResolver: policyFor() })
+    expect(result).toEqual({ scanned: 0, acknowledged: 0, pending: 0, closed: 0, unknown: 0 })
+    expect(recordDelivery).not.toHaveBeenCalled()
+  })
+
   it('accepts durable PENDING_INBOUND but leaves malformed or mismatched receipts pending', async () => {
     const fixture = await admittedFixture()
     await runToPending(fixture)
@@ -174,6 +203,31 @@ describe('LINE memory enrollment and receipt recovery', () => {
     expect(result).toMatchObject({ scanned: 1, acknowledged: 0 })
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })).memoryDeliveryState).toBe('PENDING')
+  })
+
+  it('rechecks the local erasure fence after policy awaits and makes no MSP call', async () => {
+    const fixture = await admittedFixture()
+    await runToPending(fixture)
+    const inbound = await prisma.message.findUnique({ where: { id: fixture.inboundMessageId } })
+    let policyStarted
+    let releasePolicy
+    const started = new Promise(resolve => { policyStarted = resolve })
+    const policyGate = new Promise(resolve => { releasePolicy = resolve })
+    const policyResolver = vi.fn(async input => {
+      policyStarted()
+      await policyGate
+      return policyFor()(input)
+    })
+    const recordDelivery = vi.fn()
+    const scanning = reconcileLineMemoryDeliveries({ db: prisma, threadMemory: { recordDelivery }, now: () => now,
+      workerId: 'scanner-erasure-await', policyResolver })
+    await started
+    await prisma.$transaction(tx => redactLineConversationJobs(tx, { tenantId: tenant.id, conversationIds: [inbound.conversationId] }))
+    releasePolicy()
+    const result = await scanning
+    expect(result).toMatchObject({ scanned: 1, acknowledged: 0 })
+    expect(recordDelivery).not.toHaveBeenCalled()
+    expect((await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })).memoryDeliveryState).toBe('CLOSED')
   })
 
   it('closes disabled-account and erasure races without calling MSP or recreating text', async () => {
@@ -220,16 +274,19 @@ describe('server answer memory composition', () => {
         channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: `thread-${audienceKind}` } } }
   }
 
-  function composed(audienceKind, authorizationOverrides = {}) {
+  function composed(audienceKind, authorizationOverrides = {}, contextOverrides = {}) {
     const appendMessage = vi.fn(async input => input.direction === 'INBOUND'
       ? { message: { messageId: 'msp-inbound', exchangeId: 'msp-exchange' }, session: { sessionId: 'msp-session' } }
       : { message: { messageId: 'msp-agent', exchangeId: 'msp-exchange' }, session: { sessionId: 'msp-session' } })
     const threadMemory = { appendMessage, withInjectionReceipt: vi.fn(({ model }) => model) }
     const contextAssembler = vi.fn(async input => ({
-      identity: { principalId: 'person-memory', verified: true }, thread: { threadId: 'msp-thread' },
+      identity: { principalId: 'person-memory', verified: true },
+      thread: { threadId: 'msp-thread', businessId: business.id, audienceKind, ...contextOverrides.thread },
       authContext: { scope: { tenantId: tenant.id, businessId: business.id } },
       policy: { version: 'memory-policy-v1', privateMemoryAllowed: audienceKind === 'DIRECT' },
-      threadMemory: { policyDecision: audienceKind === 'DIRECT' ? 'ALLOW' : 'DENY', thread: { threadId: 'msp-thread', audienceKind }, memory: {} },
+      threadMemory: { policyDecision: audienceKind === 'DIRECT' ? 'ALLOW' : 'DENY', thread: { threadId: 'msp-thread', businessId: business.id, audienceKind,
+        ...contextOverrides.packetThread },
+        identity: { principalId: 'person-memory', verified: true }, memory: {} },
       input,
     }))
     const authorizationResolver = policyFor(audienceKind, authorizationOverrides)
@@ -248,6 +305,18 @@ describe('server answer memory composition', () => {
     expect(composedAnswer.appendMessage.mock.calls[0][0]).toMatchObject({ direction: 'INBOUND', messageId: 'inbound-DIRECT', speakerKind: 'HUMAN' })
     expect(composedAnswer.appendMessage.mock.calls[1][0]).toMatchObject({ direction: 'OUTBOUND', deliveryState: 'QUEUED', replyToMessageId: 'msp-inbound' })
     expect(trace.recordThreadMemory).toHaveBeenCalledWith(expect.objectContaining({ inboundMessageId: 'msp-inbound', exchangeId: 'msp-exchange' }))
+  })
+
+  it('rejects an MSP thread or packet identity that differs from the persisted route before model invocation', async () => {
+    const mismatchedPacket = composed('DIRECT', {}, { packetThread: { businessId: 'other-business' } })
+    await expect(mismatchedPacket.answer(answerJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')
+    expect(mismatchedPacket.appendMessage).toHaveBeenCalledOnce()
+    expect(mismatchedPacket.threadMemory.withInjectionReceipt).not.toHaveBeenCalled()
+
+    const mismatchedThread = composed('DIRECT', {}, { thread: { audienceKind: 'GROUP' } })
+    await expect(mismatchedThread.answer(answerJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')
+    expect(mismatchedThread.appendMessage).not.toHaveBeenCalled()
+    expect(mismatchedThread.threadMemory.withInjectionReceipt).not.toHaveBeenCalled()
   })
 
   it('keeps group and room context denied even when transport signature is verified', async () => {
@@ -300,10 +369,11 @@ describe('server answer memory composition', () => {
     }
     const contextAssembler = vi.fn(async () => ({
       identity: { principalId: 'person-memory-unknown', verified: true },
-      thread: { threadId: 'msp-thread-unknown' },
+      thread: { threadId: 'msp-thread-unknown', businessId: business.id, audienceKind: 'DIRECT' },
       authContext: { scope: { tenantId: tenant.id, businessId: business.id } },
       policy: { version: 'memory-policy-unknown', privateMemoryAllowed: true },
-      threadMemory: { policyDecision: 'ALLOW', thread: { threadId: 'msp-thread-unknown' }, memory: [] },
+      threadMemory: { policyDecision: 'ALLOW', thread: { threadId: 'msp-thread-unknown', businessId: business.id, audienceKind: 'DIRECT' },
+        identity: { principalId: 'person-memory-unknown', verified: true }, memory: [] },
     }))
     const answer = vi.fn(createServerLineAnswer({ threadMemory, contextAssembler,
       knowledge: { query: vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
