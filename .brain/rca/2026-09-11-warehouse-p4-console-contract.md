@@ -5,7 +5,7 @@
 **Base:** `origin/main` at `f320e888`  
 **Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
 **Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.4 (shared snapshot-version boundary review)
+**Proposal revision:** 0.5 (inventory recovery manifest review)
 
 ## Purpose
 
@@ -354,15 +354,27 @@ FR-045 `SNAPSHOT_MODELS` list in `apps/server/src/modules/project-manager/applic
    deletion loop. It stays before work-order/reservation rows because those rows
    are independent of a stocktake record.
 
-The global snapshot format-version choice remains an integration decision and is
-not changed independently by this slice. The feature-specific recovery contract
-must nevertheless refuse a preview/import snapshot that lacks the required
-stocktake and fence tables (or an equivalent persisted recovery manifest), rather
-than silently restoring an installation without pending count retries or the
-ledger revision that makes them safe. Every export from a release that supports
-this feature contains both table keys even when their arrays are empty. The
-existing single transaction still deletes in reverse `SNAPSHOT_MODELS` order and
-creates in forward order; no separate partial Inventory restore is allowed.
+The global snapshot format remains `1.0`; this slice does not change the existing
+legacy-restore semantics. New exports add a feature-specific
+`inventoryStocktakeRecovery` manifest, following the existing recovery-manifest
+pattern:
+
+```json
+{
+  "schemaVersion": "inventory-stocktake-recovery.v1",
+  "requiredTables": ["inventoryLedgerFence", "inventoryStocktake"]
+}
+```
+
+For a declared manifest, preview/import rejects an invalid version, wrong table
+order, or missing table array before any restore deletion. A legacy snapshot with
+no `inventoryStocktakeRecovery` manifest remains eligible under the existing
+FR-045 preview/confirmation rules but reports
+`INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE`; it must never claim that pending
+stocktake operations or their ledger revision were preserved. Every new export
+contains both table keys even when their arrays are empty. The existing single
+transaction still deletes in reverse `SNAPSHOT_MODELS` order and creates in
+forward order; no separate partial Inventory restore is allowed.
 
 Restore must preserve `InventoryStocktake.id`, Business-scoped
 `idempotencyKey`, canonical `payloadHash`, `normalizedLinesJson`, status,
@@ -381,8 +393,10 @@ and `COMMITTED` stocktake row, export them, mutate/delete them, restore the
 snapshot twice, and assert exact row identity, revision, operation key, and
 result preservation. It must also prove a stale post-restore movement advances
 the restored revision and makes the restored preview stale. This extends the
-existing FR-045 backup integration/unit evidence; it does not create a second
-backup path.
+existing FR-045 backup integration/unit evidence. It must assert the valid
+`inventoryStocktakeRecovery` manifest, reject a declared manifest missing either
+table, and report `UNAVAILABLE` (without a preservation claim) for a legacy
+snapshot that has no manifest. It does not create a second backup path.
 
 Provider strategy is explicit:
 
@@ -464,6 +478,7 @@ read-only analysis only.
 
 | Revision | Date | Change |
 |---|---|---|
+| 0.5 | 2026-09-11 | Kept global snapshot format 1.0 and specified the `inventoryStocktakeRecovery` manifest, strict declared-manifest validation, and explicit legacy UNAVAILABLE status. |
 | 0.4 | 2026-09-11 | Kept global snapshot-version selection with the integration owner and made the required stocktake/fence recovery-state refusal explicit. |
 | 0.3 | 2026-09-11 | Added the FR-045 snapshot table/FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
 | 0.2 | 2026-09-11 | Made preview persistence, Business-scoped idempotency, and the lock-only `InventoryLedgerFence` / `mutationRevision` concurrency contract explicit for SQLite and PostgreSQL. |
