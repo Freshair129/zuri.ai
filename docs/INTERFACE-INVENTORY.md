@@ -1,7 +1,7 @@
 ---
-version: "1.14.0b"
+version: "1.15.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-08T19:41:52+07:00,RWANG"
+last_update: "2026-09-10T02:00:00+07:00,Claude Opus 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=89; operational_domain_keys=15; operational_subdomain_entries=49; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=88; operational_domain_keys=15; operational_subdomain_entries=48; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -76,6 +76,7 @@ mean production identity, external providers or cutover gates are complete.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
+| 1.15.0b | 2026-09-10 | candidate | Removed LINE OA Integrations & AI (`/line-oa/integrations`): it was a nine-line re-export of `/platform/integrations`, so the same component answered at two URLs and took two sidebar slots. Both navigations now point at the one page; marker reconciled to 88 page routes and 48 operational sub-domain entries | working-tree | Claude Opus 5 |
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
 | `/edge/pair` | Desktop browser/QR pairing | EntryShell | sign in, compare device code, choose an owned Business and approve; the initiating Desktop receives its key once | loading, auth required, pending, approved, denied, expired, unavailable | FR-144; browser/QR slice implemented locally, production activation separate |
 | `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; two links out — reset, and self-serve signup (FR-120) | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
@@ -400,7 +401,6 @@ The current route evidence is:
 | `/line-oa/rich-menus` | Rich menu designer and publish ledger (FR-151, FR-152) | Business visibility to read; SAVE_DRAFT/FREEZE/ARCHIVE and queueing a job require owner/publisher | Per-account menu list with every version and the freeze blockers the service computed; author a draft on the layout's grid with one LINE action per cell; freeze is gated on those blockers. Publishing is the FR-152 job lane: PUBLISH / SET_DEFAULT / SET_ALIAS are queued for a worker, each button disabled with the service's own refusal beside it, and the ledger reports the job's status — ACCEPTED is the provider's acceptance, never proof a user saw the menu. An UNKNOWN job is closed only behind an explicit operator acknowledgement. |
 | `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
 | `/line-oa/edge-connection` | Edge Device & Runtime Connection | Business visibility | Pairing keys, on-premise edge device bridge status, MCP tools routing, and heartbeat monitor. |
-| `/line-oa/integrations` | Integrations & AI | Business visibility | Provider integrations, AI capability readiness and connection metadata for the LINE OA workspace. |
 | `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
 | `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
 | `/line-oa/settings` | LINE Studio Settings | Business visibility | Storage config, cloud/edge sync parameters, webhook security, and provider certificates. |
