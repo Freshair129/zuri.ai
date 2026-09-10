@@ -2195,6 +2195,7 @@ Source: [Domain — inventory](domains/inventory/CHARTER.md)
 
 - references: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
 - references: [FR-155 — Inventory stock ledger (lot · serial · movement)](domains/inventory/features/FR-155-inventory-stock-ledger.md)
+- references: [FR-184 — Inventory physical stocktake](domains/inventory/features/FR-184-inventory-stocktake.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 
@@ -2225,6 +2226,14 @@ Backlinks:
 Source: [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md)
 
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
+## FR-184 — Inventory physical stocktake
+
+Source: [FR-184 — Inventory physical stocktake](domains/inventory/features/FR-184-inventory-stocktake.md)
+
+Backlinks:
+
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Inventory ontology (reference)
 

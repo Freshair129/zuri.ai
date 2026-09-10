@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2579,
-    "total_edges": 10424,
-    "dangling_edges": 0,
+    "total_nodes": 2581,
+    "total_edges": 10427,
+    "dangling_edges": 2,
     "node_types": {
-      "document": 215,
+      "document": 216,
       "appendix": 4,
       "adr": 74,
       "domain": 14,
@@ -15,14 +15,14 @@
       "feature": 25,
       "route": 326,
       "model": 142,
-      "requirement": 354,
+      "requirement": 355,
       "test": 603,
       "code_file": 777
     },
     "coverage": {
-      "requirements": 354,
-      "fr_with_code": "100% (174/174)",
-      "fr_with_tests": "100% (174/174)",
+      "requirements": 355,
+      "fr_with_code": "99% (174/175)",
+      "fr_with_tests": "99% (174/175)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 777,
@@ -38,8 +38,12 @@
         "FR-131",
         "FR-132"
       ],
-      "fr_without_code": [],
-      "fr_without_tests": [],
+      "fr_without_code": [
+        "FR-184"
+      ],
+      "fr_without_tests": [
+        "FR-184"
+      ],
       "rules_without_anchor": [
         "BR-017",
         "SDD-040",
@@ -16340,9 +16344,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.34.0b",
+      "version": "1.35.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "a57d579f",
+      "hash": "428c850e",
       "status": "current"
     },
     {
@@ -17297,6 +17301,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-184-inventory-stocktake",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
+      "title": "FR-184 — Inventory physical stocktake",
+      "hash": "06c4b83b",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -17921,9 +17933,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.180.1b",
+      "version": "1.181.0b",
       "doc_status": "Draft",
-      "hash": "9c28fa3c",
+      "hash": "cd7f8190",
       "status": "current"
     },
     {
@@ -18405,7 +18417,9 @@
         "WarehouseLocation",
         "CustomizationWorkOrder",
         "KittingWorkOrder",
-        "StockReservation"
+        "StockReservation",
+        "InventoryStocktake",
+        "InventoryLedgerFence"
       ],
       "owns_routes": [
         "src/app/(pm)/inventory/**",
@@ -18417,7 +18431,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "fe4d2350",
+      "hash": "3f63258d",
       "status": "current"
     },
     {
@@ -18798,7 +18812,7 @@
     {
       "id": "feat:FEAT-025",
       "type": "feature",
-      "label": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "label": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074)",
       "declared": "building",
       "status": "current"
     },
@@ -21661,6 +21675,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory — `POST /api/commerce/pos/checkout` validates an authorized Business, selected active Branch and selected active WarehouseLocation, `WALK_IN` order lines with manually supplied FR-166 `unitPrice`, exact integer-satang totals and the existing `QR`, `CASH`, `TRANSFER`, `CARD` and `OTHER` payment vocabulary. One transaction creates the `SalesOrder`, records a `PENDING` `Payment`, issues tracked stock through Inventory's exported `appendMovement` with its own authority and returns exact cash change; a separate existing FR-163 verifier is the only path to `VERIFIED` money. Invalid line/product/customer scope, missing location, insufficient cash, duplicate reference, inventory shortage, lot/serial refusal or any later audit failure rolls back every row. `GET /api/commerce/pos/catalogue` exposes same-Business active product identity and recomputed stock without deriving a price from inventory cost or a fallback. A terminal label is request/receipt metadata only; P3 introduces no persistent terminal registry or default station. 🔵 owner-approved and locally verified 2026-09-11 — proposal `docs/change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md`; implemented and verified locally in 4a74c1ed, production migration/activation excluded "
+    },
+    {
+      "id": "req:FR-184",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface — `POST /api/inventory/stocktakes/preview` accepts only normalized tracked `NONE` or `LOT` lines with explicit location and lot identity, integer non-negative counts, and no duplicate keys; it persists a read-only `InventoryStocktake` preview containing the expected snapshot version/hash, expected/count/variance and normalized input without writing movements. `POST /api/inventory/stocktakes/commit` revalidates the stored preview and current Business scope, acquires the shared lock-only `InventoryLedgerFence` before its ledger read, refuses a changed snapshot with `409 INVENTORY_STOCKTAKE_SNAPSHOT_STALE`, and atomically appends every signed `ADJUSTMENT` through FR-155 `appendMovement` plus one audit event or writes nothing. The Business-scoped idempotency key returns the same saved result for an identical retry and refuses a different payload; zero variance is a durable no-op; SERIAL lines and untracked/service products are explicitly refused until a serial-observation contract exists. Backup export/import preserves the fence and stocktake rows through the declared `inventoryStocktakeRecovery` manifest in FK order, while a legacy snapshot reports the recovery state unavailable rather than claiming preservation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface — `POST /api/inventory/stocktakes/preview` accepts only normalized tracked `NONE` or `LOT` lines with explicit location and lot identity, integer non-negative counts, and no duplicate keys; it persists a read-only `InventoryStocktake` preview containing the expected snapshot version/hash, expected/count/variance and normalized input without writing movements. `POST /api/inventory/stocktakes/commit` revalidates the stored preview and current Business scope, acquires the shared lock-only `InventoryLedgerFence` before its ledger read, refuses a changed snapshot with `409 INVENTORY_STOCKTAKE_SNAPSHOT_STALE`, and atomically appends every signed `ADJUSTMENT` through FR-155 `appendMovement` plus one audit event or writes nothing. The Business-scoped idempotency key returns the same saved result for an identical retry and refuses a different payload; zero variance is a durable no-op; SERIAL lines and untracked/service products are explicitly refused until a serial-observation contract exists. Backup export/import preserves the fence and stocktake rows through the declared `inventoryStocktakeRecovery` manifest in FK order, while a legacy snapshot reports the recovery state unavailable rather than claiming preservation. 🔵 owner-approved 2026-09-11 — contract `.brain/rca/2026-09-11-warehouse-p4-console-contract.md` revision 0.8 and feature note `docs/domains/inventory/features/FR-184-inventory-stocktake.md`; implementation and local verification in progress, production migration excluded "
     },
     {
       "id": "req:FR-186",
@@ -57865,6 +57889,13 @@
     },
     {
       "from": "domain:inventory",
+      "to": "doc:FR-184-inventory-stocktake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:inventory",
       "to": "doc:ONTOLOGY",
       "type": "references",
       "source": "markdown",
@@ -58664,6 +58695,13 @@
     {
       "from": "feat:FEAT-025",
       "to": "req:FR-182",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-184",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -61197,6 +61235,13 @@
     },
     {
       "from": "req:FR-183",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-184",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -103448,5 +103493,22 @@
       "source": "test-reference"
     }
   ],
-  "dangling_edges": []
+  "dangling_edges": [
+    {
+      "from": "model:InventoryStocktake",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter",
+      "reason": "unknown node model:InventoryStocktake"
+    },
+    {
+      "from": "model:InventoryLedgerFence",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter",
+      "reason": "unknown node model:InventoryLedgerFence"
+    }
+  ]
 }

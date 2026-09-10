@@ -20,6 +20,8 @@ owns_models:
   - CustomizationWorkOrder
   - KittingWorkOrder
   - StockReservation
+  - InventoryStocktake
+  - InventoryLedgerFence
 owns_routes:
   - src/app/(pm)/inventory/**
   - src/app/api/inventory/**
@@ -27,9 +29,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.2.0"
+version: "1.3.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-10T16:30:00+07:00"
+updated_at: "2026-09-11T03:42:14+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -137,6 +139,10 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
 - `StockReservation` — what is already promised (FR-180): a soft, expiring
   `QUOTE` hold or a committed `ORDER` one. It never writes the ledger, because
   a promise is not a physical fact, and it is never deleted (BR-031).
+- `InventoryStocktake` and `InventoryLedgerFence` — the durable physical-count
+  preview/idempotency record and the Business-scoped lock-only revision that
+  serializes every write-side ledger read (FR-184). A stocktake adjusts through
+  `appendMovement`; it is never a second stock ledger.
 
 ## Explicitly not owned
 
@@ -195,6 +201,7 @@ src/modules/inventory/
 ├── application/de-kitting-service.js         controlled disassembly (FR-178)
 ├── application/inventory-shelf-life-service.js  the ageing audit and the maintenance that resets it (FR-179)
 ├── application/inventory-atp-service.js      reservations and Available-to-Promise (FR-180)
+├── application/inventory-stocktake-service.js physical count preview/commit (FR-184)
 └── index.js                                 stable module exports
 ```
 
@@ -215,23 +222,25 @@ orders, de-kitting, the shelf-life storage guard, ATP with two-tier
 reservations, and the six agent tools. Migration
 `20260910120000_smartgift_scm_wip` is written and **not applied**.
 
-Surfaces: the API family above and the `/inventory` console dashboard. Not in
-this slice: HTTP routes and console pages for locations, work orders and
-reservations (services and agent tools only), Excel/LINE intake converters for
-stock, FlowAccount catalogue/stock synchronisation, cycle counting and
-stocktake campaigns, and the graph projection of the ontology.
+Surfaces: the API family above and the `/inventory` console dashboard. FR-184
+adds the bounded stocktake preview/commit to that existing surface; it does not
+create a `/warehouse` console. Not in this slice: bins, campaign scheduling,
+numeric SERIAL counts, Excel/LINE intake converters for stock, FlowAccount
+catalogue/stock synchronisation, or the graph projection of the ontology.
 
 ## References
 
 - [ONTOLOGY.md](ONTOLOGY.md) — the owner's node/edge ontology and how each concept maps here
 - [FR-154 catalogue identity](features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 stock ledger](features/FR-155-inventory-stock-ledger.md)
+- [FR-184 stocktake](features/FR-184-inventory-stocktake.md)
 - [ADR-025](../../decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) — the domain spine this charter lives in
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |

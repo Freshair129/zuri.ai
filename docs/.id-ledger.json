@@ -301,6 +301,7 @@
     "FR-181",
     "FR-182",
     "FR-183",
+    "FR-184",
     "FR-186",
     "NFR-001",
     "NFR-002",
@@ -3522,6 +3523,19 @@
       "history": [
         {
           "anchor": "atomic pos checkout composes existing commerce orders",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-184": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "af9d8716677f2e597fe60d9984feb6dc43f9c72a14cb9199ae966b5d12ac5634",
+      "history": [
+        {
+          "anchor": "inventory physical stocktake reconciles an authorized",
           "since": "2026-09-10",
           "reason": "declared"
         }

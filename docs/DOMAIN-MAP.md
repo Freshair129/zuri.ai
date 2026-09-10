@@ -83,7 +83,7 @@ Charter: [docs/domains/inventory/CHARTER.md](domains/inventory/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/inventory` |
-| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation |
+| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation, InventoryStocktake, InventoryLedgerFence |
 | Routes owned | 31 (27 api · 4 pages) |
 | FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182 |
 
