@@ -1,14 +1,15 @@
 // @req FR-149 — a portable restore preserves provider evidence without resuming external sends.
 // @spec ADR-061, BR-008, SEC-016
 // @tested tests/integration/line-server-backup.test.js
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { provisionLineServerConnection } from '@/modules/integration/application/line-server-provisioning-service'
 import { connectLineOaAccount } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
-import { exportSnapshot, importSnapshot } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, importSnapshot, previewImport } from '@/modules/project-manager/application/backup-service'
+import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 
 describe('LINE server snapshot recovery', () => {
   it('restores FK parents, redacts token capabilities, disables accounts and preserves ambiguous/accepted outcomes', async () => {
@@ -29,13 +30,32 @@ describe('LINE server snapshot recovery', () => {
         recipientId: 'backup-user', sourceUserId: 'backup-user', status, sealedReplyToken: `ciphertext-${status}`,
         claimantId: 'old-worker', leaseExpiresAt: new Date(Date.now() + 60000), expiresAt: new Date(Date.now() + 60000), correlationId: `backup-${status}`,
         ...(status === 'ACCEPTED' ? { acceptedAt: new Date(), providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer' } : {}),
+        ...(status === 'RECORDED' ? { memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
+          memoryDeliveryNextAttemptAt: new Date(Date.now() - 1000), memoryDeliveryLeaseUntil: new Date(Date.now() + 60000) } : {}),
       } }))
     }
     const snapshot = await exportSnapshot()
     const exported = snapshot.tables.lineConversationJob.filter(job => job.accountId === account.id)
     expect(exported).toHaveLength(jobs.length)
+    expect(snapshot.lineWorkerMemoryRecovery).toEqual({ schemaVersion: 'line-worker-memory-recovery.v1', requiredTables: ['lineConversationJob', 'agentTraceEvent'] })
     expect(exported.every(job => !Object.hasOwn(job, 'sealedReplyToken'))).toBe(true)
     expect(JSON.stringify(snapshot)).not.toContain('ciphertext-')
+    const corrupt = structuredClone(snapshot)
+    const corruptJob = corrupt.tables.lineConversationJob.find(job => job.id === jobs.find((job) => job.status === 'RECORDED').id)
+    corruptJob.memorySyncOptIn = false
+    corruptJob.memoryDeliveryAttempts = -1
+    corruptJob.memoryDeliveryState = 'ACKNOWLEDGED'
+    corruptJob.memoryDeliveryNextAttemptAt = new Date()
+    corruptJob.audienceKind = 'NOT_A_LINE_AUDIENCE'
+    const corruptPreview = await previewImport(corrupt, { viewer: makeOperatorViewer() })
+    expect(corruptPreview.valid).toBe(false)
+    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state/)
+    const legacy = structuredClone(snapshot)
+    delete legacy.lineWorkerMemoryRecovery
+    const legacyPreview = await previewImport(legacy, { viewer: makeOperatorViewer() })
+    expect(legacyPreview.valid).toBe(false)
+    expect(legacyPreview.lineWorkerMemoryRecovery.status).toBe('UNAVAILABLE')
+    expect(legacyPreview.errors.join(' ')).toMatch(/enrolled jobs or memory evidence/)
     // Even an older or tampered snapshot cannot reintroduce a sealed token.
     for (const job of exported) job.sealedReplyToken = 'injected-restored-token'
     const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
@@ -51,6 +71,12 @@ describe('LINE server snapshot recovery', () => {
       else if (original.status === 'SENDING' || original.status === 'READY') expect(restored).toMatchObject({ status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' })
       else expect(restored.status).toBe(original.status)
       if (original.status === 'ACCEPTED') expect(restored).toMatchObject({ providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer', acceptedAt: original.acceptedAt })
+      if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
     }
+    const recordDelivery = vi.fn()
+    const memoryRun = await reconcileLineMemoryDeliveries({ db: prisma, threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
+    expect(memoryRun.closed).toBe(1)
+    expect(recordDelivery).not.toHaveBeenCalled()
+    expect((await prisma.lineConversationJob.findUnique({ where: { id: jobs.find((job) => job.status === 'RECORDED').id } })).memoryDeliveryState).toBe('CLOSED')
   })
 })

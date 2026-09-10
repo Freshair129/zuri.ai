@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-171-NOTE
-version: "1.1.0"
+version: "1.1.1"
 status: accepted
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-08T00:26:00+07:00,RWANG"
+last_update: "2026-09-11T04:31:00+07:00,RWANG"
 domain: agent
 feature: FR-171
 module: agent
@@ -50,8 +50,9 @@ and label what is missing. It must not create a second business conversation,
 memory, knowledge, delivery or provider authority.
 
 The first implementation lane is the native SERVER LINE path and one reusable
-local journal contract. MSP, GKS and the optional Edge executor remain adapter
-and external-evidence gates described below.
+local journal contract. An approved immutable per-job opt-in may compose the
+MSP thread adapter through the server worker; MSP, GKS and the optional Edge
+executor remain authority and external-evidence gates described below.
 
 ## Surface and ownership
 
@@ -95,8 +96,8 @@ hash. The implementation must maintain SQLite and Postgres schema parity.
 | `toolId` / `actionId` | Stable registered tool identity and stable action intent identity; neither identifies an attempt |
 | `documentVersionRefs` / `artifactVersionRefs` | Arrays of stable owning-service references with version and hash/reference; no source body copy |
 | `retrievalRefs` | Opaque GKS retrieval/evidence references with retrieval, corpus, snapshot or index version where supplied |
-| `memory` | Opaque MSP memory/session references, including version data where supplied; native SERVER uses an empty array when no private memory adapter is configured |
-| `privateContextDisposition` | MSP context/memory policy disposition; native SERVER uses `EXCLUDED_BY_POLICY` with `memory: []` |
+| `memory` | Opaque MSP memory/session references, including version data where supplied; native SERVER uses an empty array unless an approved per-job opt-in composes the MSP adapter |
+| `privateContextDisposition` | MSP context/memory policy disposition; jobs without the approved opt-in use `EXCLUDED_BY_POLICY` with `memory: []` |
 | `sendAttemptId` / `receiptRefs` | Fresh transport attempt identity and evidence references; receipt callbacks reference the attempt they evidence, while acceptance, delivery and read remain separate states |
 | `requestBody` / semantic snapshot | Canonical semantic JSON input, maximum 1 MiB, immutable and never silently truncated; absent only with an explicit snapshot state |
 | `requestHash` / `inputHash` | SHA-256 of the canonical semantic JSON bytes; this is not an exact HTTP wire-body hash |
@@ -240,11 +241,13 @@ The first implementation is deliberately narrow:
 | Edge | Owns optional local execution under ADR-061 and returns bounded callbacks | External adapter, installed-device proof and canary pending |
 | LINE transport | Owns provider calls and factual delivery receipts under FR-093 | Native send-attempt integration implemented; live delivery/canary evidence pending |
 
-Native SERVER v0.3 has no private memory adapter. Its trace therefore records
-`sessionId: null`, `memory: []` and
-`privateContextDisposition: EXCLUDED_BY_POLICY`. It never mints a fake MSP id.
-Zuri never writes an MSP, GKS or GenesisBlockDB database directly; each future
-adapter returns typed references through a port.
+Native SERVER v0.3 defaults to no private memory adapter. Jobs without the
+approved immutable opt-in therefore record `sessionId: null`, `memory: []`
+and `privateContextDisposition: EXCLUDED_BY_POLICY`. An opted-in worker job may
+compose one trusted MSP thread adapter and records only its bounded context
+packet and returned references; it never mints a fake MSP id. Zuri never writes
+an MSP, GKS or GenesisBlockDB database directly; each adapter returns typed
+references through a port.
 
 ## Delivery and usage truth
 
@@ -289,7 +292,7 @@ adapter and live Postgres criteria open.
 | AC-171.5 | Given an oversized or policy-excluded input, when it is recorded, then it is never silently truncated and playback is `REPLAY_INCOMPLETE` with the reason | Native P1 coverage recorded; adapter/retention limits in phase report |
 | AC-171.6 | Given retries and lifecycle events, when stable `toolId`/`actionId` values are compared, then those registry/intent ids remain stable while `toolInvocationId` and other attempt ids are fresh and the runtime `instanceId` remains process-stable | Follow-on typed adapter evidence pending |
 | AC-171.7 | Given document, artifact, retrieval and memory references, when a source version changes, then the journal preserves the old version reference and never copies foreign authority data | Follow-on typed adapter evidence pending |
-| AC-171.8 | Given native SERVER with no private memory adapter, when the trace is read, then `sessionId` is null, `memory` is empty and `privateContextDisposition` is `EXCLUDED_BY_POLICY`, never a fabricated MSP id | Native P1 verified locally; see phase report |
+| AC-171.8 | Given a native SERVER job without the approved memory opt-in, when the trace is read, then `sessionId` is null, `memory` is empty and `privateContextDisposition` is `EXCLUDED_BY_POLICY`, never a fabricated MSP id | Native P1 and worker off-path verified locally; see phase report |
 | AC-171.9 | Given a provider that omits usage or timestamps, when the event is recorded, then the corresponding `usage` fields remain null, source fields state unavailable (or a total is explicitly `DERIVED_FROM_PROVIDER_COUNTS`), and no estimate or local-time substitute is written | Native P1 verified locally; see phase report |
 | AC-171.10 | Given a delivery without a trustworthy recipient or receipt, when playback is read, then recipient remains `UNKNOWN` and acceptance is not reported as delivery/read | Native P1 verified locally; see phase report |
 | AC-171.11 | Given an owner with `line-oa` visibility, when `GET /api/line-oa/jobs/{id}/trace` is called, then only the job's Business-scoped events are returned | Native P1 verified locally; see phase report |
@@ -322,5 +325,6 @@ verified. Those are named phase and rollout gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.1 | 2026-09-11 | accepted | Clarify conditional server-worker MSP composition: default-off jobs remain EXCLUDED_BY_POLICY while opted-in jobs use the trusted adapter and durable local checkpoint | pending implementation commit | RWANG |
 | 1.1.0 | 2026-09-08 | accepted | Link approved P2 memory provenance implementation and remaining authority gates | pending | RWANG |
 | 1.0.0 | 2026-09-07 | accepted | Approved Execution Trace & Replay v0.3 feature contract and unverified acceptance tests | uncommitted | RWANG |

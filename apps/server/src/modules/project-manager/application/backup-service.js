@@ -67,6 +67,7 @@ export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
+export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v1'
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
@@ -80,6 +81,13 @@ const INVENTORY_STOCKTAKE_RECOVERY_TABLES = Object.freeze([
 const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17IngestionIntent',
   'genesisRag17SourceMention',
+])
+const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
+const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
+const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
+const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
+  'MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
+  'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
 ])
 
 // Parents precede children for restore; reverse order is used for deletion.
@@ -603,6 +611,60 @@ function inventoryStocktakeRecovery(snapshot) {
   return result
 }
 
+function lineWorkerMemoryRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const manifest = snapshot?.lineWorkerMemoryRecovery
+  const rows = Array.isArray(tables.lineConversationJob) ? tables.lineConversationJob : []
+  const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
+  if (manifest === undefined) {
+    result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: snapshot has no memory recovery manifest; pending memory receipts are not claimed as preserved')
+    if (rows.some((row) => row?.memorySyncOptIn === true
+      || (typeof row?.memoryDeliveryState === 'string' && row.memoryDeliveryState !== 'NONE'))) {
+      result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: memory fields in a legacy snapshot are untrusted and will be restored as opt-out defaults')
+    }
+    return result
+  }
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(LINE_WORKER_MEMORY_RECOVERY_TABLES)) {
+    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
+  }
+  for (const model of LINE_WORKER_MEMORY_RECOVERY_TABLES) {
+    if (!Array.isArray(tables[model])) result.errors.push(`LINE worker memory recovery snapshot is missing required table: ${model}`)
+  }
+  for (const row of rows) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`LINE worker memory recovery job ${label} is not an object`)
+      continue
+    }
+    if (typeof row.memorySyncOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid memorySyncOptIn`)
+    if (!LINE_WORKER_MEMORY_STATES.includes(row.memoryDeliveryState)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryState`)
+    if (!Number.isInteger(row.memoryDeliveryAttempts) || row.memoryDeliveryAttempts < 0) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryAttempts`)
+    if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
+    for (const field of ['memoryDeliveryNextAttemptAt', 'memoryDeliveryLeaseUntil']) {
+      const value = row[field]
+      const validDate = value === null || (typeof value === 'string' && value.trim() && !Number.isNaN(new Date(value).getTime()))
+        || (value instanceof Date && !Number.isNaN(value.getTime()))
+      if (!validDate) result.errors.push(`LINE worker memory recovery job ${label} has an invalid ${field}`)
+    }
+    if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
+      result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
+    }
+    if (row.memoryDeliveryState === 'NONE'
+      && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has operational memory fields with NONE state`)
+    }
+    if (row.memoryDeliveryState !== 'PENDING'
+      && (row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has a retry cursor on a terminal state`)
+    }
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  else result.status = 'AVAILABLE'
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
@@ -623,6 +685,10 @@ export async function exportSnapshot({
     inventoryStocktakeRecovery: {
       schemaVersion: INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...INVENTORY_STOCKTAKE_RECOVERY_TABLES],
+    },
+    lineWorkerMemoryRecovery: {
+      schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...LINE_WORKER_MEMORY_RECOVERY_TABLES],
     },
     tables: {},
   }
@@ -701,8 +767,13 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
   const inventory = inventoryStocktakeRecovery(snapshot)
+  const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
+  const currentMemoryJobs = await db.lineConversationJob.count({ where: {
+    OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
+  } })
+  const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
   // An older snapshot may be useful for read-only inspection, but importing it
   // while any billing row exists would silently turn omitted arrays into deletes.
   // An installation with no billing rows can still restore the older snapshot;
@@ -718,27 +789,43 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (inventory.status === 'UNAVAILABLE' && INVENTORY_STOCKTAKE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     inventory.errors.push('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
   }
+  if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0)) {
+    lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
+  }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0,
-    errors: [...base.errors, ...billing.errors, ...inventory.errors],
-    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings],
     billingRecovery: billing,
     inventoryStocktakeRecovery: inventory,
+    lineWorkerMemoryRecovery: lineWorkerMemory,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
-function restoredRow(model, row) {
+function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,
   }
   if (model !== 'lineConversationJob') return row
   const { sealedReplyToken, ...rest } = row
-  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: (row.version ?? 1) + 1 }
+  const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
+  const memory = preserveMemoryRecovery
+    ? { memorySyncOptIn: row.memorySyncOptIn, memoryDeliveryState: row.memoryDeliveryState,
+      memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
+      memoryDeliveryLeaseUntil: null }
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+      memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
+  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
+    // A restored account is disabled above. Preserve the durable pending receipt
+    // and its retry cursor for inspection/recovery, but never restore an active
+    // scanner lease that could cause an external MSP effect automatically.
+    ...memory,
+    version: (row.version ?? 1) + 1 }
   // A send in progress at export may have reached LINE. Keep that uncertainty
   // visible and blocking cutover rather than inventing a safe failure.
   if (row.status === 'SENDING' || (row.status === 'READY' && row.firstSendAt)) return { ...restored, status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' }
@@ -775,7 +862,7 @@ export async function importSnapshot(snapshot, {
     await tx.localWorkspaceMount.deleteMany()
     for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
     for (const model of SNAPSHOT_MODELS) {
-      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row) })
+      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row, { lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery }) })
     }
     for (const mount of remounts) {
       const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })

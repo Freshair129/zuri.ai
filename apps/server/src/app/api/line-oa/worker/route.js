@@ -38,7 +38,9 @@ export async function POST(request) {
     reconciled = { scanned: 0, admitted: 0, skipped: 0, failed: 0, error: true }
   }
   try {
-    const result = await runLineConversationWorker({ ...serverLinePorts(), answer: createServerLineAnswer() })
+    const ports = serverLinePorts()
+    const result = await runLineConversationWorker({ ...ports,
+      answer: createServerLineAnswer({ threadMemory: ports.threadMemory }) })
     return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }
