@@ -150,7 +150,7 @@ Charter: [docs/domains/procurement/CHARTER.md](domains/procurement/CHARTER.md)
 |---|---|
 | Modules | `src/modules/procurement` |
 | Models owned | Supplier, PurchaseOrder, PurchaseOrderLine, GoodsReceipt, GoodsReceiptLine |
-| Routes owned | 7 (5 api · 2 pages) |
+| Routes owned | 10 (7 api · 3 pages) |
 | FRs implemented in lane | FR-164, FR-165, FR-168 |
 
 ## project-manager

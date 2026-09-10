@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.55.0b |
+| **Version** | 1.56.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-10 |
+| **Last Updated** | 2026-09-11 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=210 -->
+<!-- api-spec-counts: route_handlers=212 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -456,6 +456,8 @@ the receipt lines.
 
 | Method | Path | Success | Failure |
 |---|---|---|---|
+| GET | `/api/procurement/receipts?businessId=&limit=&offset=` | FR-165: scoped receipt registry, latest first; `{ receipts, hasMore, limit, offset }`; limit 1–200 (default 50), nonnegative offset; persisted PO/supplier/line joins | `404 Business not found`; `400` validation |
+| GET | `/api/procurement/receipts/[id]` | FR-165: one scoped persisted receipt, PO/supplier and purchase-order-line joins with lot, expiry and serial values | `404` |
 | GET | `/api/procurement/suppliers?businessId=&includeArchived=` | implemented (FR-164): the ACTIVE suppliers (archived on request), each with `code`, contact, `paymentTerms`, `leadTimeDays`, `status`, `purchaseOrders` (count), `version` | `404 Business not found`; `400` |
 | POST | `/api/procurement/suppliers` | implemented (FR-164): `{ businessId, code, name, taxId?, contactName?, phone?, email?, address?, paymentTerms?, leadTimeDays?, notes? }` — `code` unique per Tenant. Audited `SUPPLIER_CREATED` | `404` (also a viewer without OWNER / PROCUREMENT_BUYER); `409 SUPPLIER_CODE_TAKEN`; `400` validation |
 | GET | `/api/procurement/suppliers/[id]` | implemented (FR-164): one supplier | `404` |
@@ -678,6 +680,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.56.0b | 2026-09-11 | candidate | FR-165: scoped paginated receipt registry and persisted receipt detail; 210 → 212 handlers, existing posting contract retained | working-tree | RWANG |
 | 1.55.0b | 2026-09-10 | candidate | FR-149: added `GET /api/line-oa/jobs/failures?businessId=` — the honest count of terminal FAILED conversation jobs behind the Studio's red failure card. Also corrected the webhook row (since PR #306 the 200 acknowledges evidence capture, not admission) and recorded the worker tick's new abandoned-admission sweep. Route handler count 209 → 210 | working-tree | Claude Opus 5 |
 | 1.51.0b | 2026-09-07 | candidate | FR-110 (ADR-068): added the evidence pull tick `POST /api/pipelines/knowledge/evidence/pull` (operator; zuri-ai → MSP → GKS). Route handler count 198 → 199 | working-tree | Claude Fable 5.1 |
 | 1.50.0b | 2026-09-07 | candidate | FR-110 (ADR-067): added the knowledge ingestion reporter surface — `GET /api/pipelines/knowledge/[executionRunId]` and `POST …/stages`, `…/gate`, `…/finish`, each accepting the run's Tenant's FR-102 data-plane key ahead of the session. Route handler count 194 → 198 (rebased onto main after the Commerce/Procurement families landed) | working-tree | Claude Fable 5.1 |

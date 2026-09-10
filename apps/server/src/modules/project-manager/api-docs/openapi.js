@@ -92,6 +92,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/procurement/suppliers', ['GET', 'POST']], ['/api/procurement/suppliers/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders', ['GET', 'POST']], ['/api/procurement/purchase-orders/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders/{id}/receipts', ['GET', 'POST']],
+  ['/api/procurement/receipts', ['GET']], ['/api/procurement/receipts/{id}', ['GET']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.

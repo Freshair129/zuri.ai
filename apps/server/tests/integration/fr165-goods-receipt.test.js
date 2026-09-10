@@ -16,7 +16,7 @@ import { createCategory, createProduct, createProductMaster } from '@/modules/in
 import { listLots, listSerialUnits, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
 import { createSupplier } from '@/modules/procurement/application/supplier-service'
 import { applyPurchaseOrderAction, createPurchaseOrder, getPurchaseOrder } from '@/modules/procurement/application/purchase-order-service'
-import { listGoodsReceipts, postGoodsReceipt } from '@/modules/procurement/application/goods-receipt-service'
+import { listGoodsReceipts, postGoodsReceipt, listAllGoodsReceipts, getGoodsReceiptDetail } from '@/modules/procurement/application/goods-receipt-service'
 
 const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'procurement', 'inventory']
@@ -146,5 +146,29 @@ describe('FR-165 GoodsReceipt', () => {
     await expect(listGoodsReceipts(order.id, { viewer: noDomain })).rejects.toMatchObject({ status: 404 })
     await expect(listGoodsReceipts('no-such', { viewer: owner })).rejects.toMatchObject({ status: 404 })
     expect((await getPurchaseOrder(order.id, { viewer: member })).status).toBe('RECEIVED')
+  })
+
+  it('registry and printable detail preserve actual PO/line data, enforce scope, and validate pagination', async () => {
+    const order = await sentOrder([{ productId: box.id, qty: 2, unitCost: 20 }, { description: 'uncounted packing', qty: 1, unitCost: 5 }])
+    const result = await postGoodsReceipt(order.id, { lines: order.lines.map(line => ({ purchaseOrderLineId: line.id, qty: line.qty })) }, { viewer: owner })
+    const detail = await getGoodsReceiptDetail(result.receipt.id, { viewer: member })
+    expect(detail).toMatchObject({ businessId: b(), purchaseOrder: { id: order.id, code: order.code, supplier: { name: supplier.name } } })
+    expect(detail.lines.find(line => line.purchaseOrderLineId === order.lines[0].id)).toMatchObject({ qty: 2, purchaseOrderLine: { description: 'Gift box', product: { code: box.code, stockPolicy: 'TRACKED' } }, serialNos: [] })
+    expect(detail.lines.find(line => line.purchaseOrderLineId === order.lines[1].id).purchaseOrderLine.product).toBeNull()
+    const first = await listAllGoodsReceipts(b(), { viewer: member, limit: '1', offset: '0' })
+    const second = await listAllGoodsReceipts(b(), { viewer: member, limit: 1, offset: 1 })
+    expect(first).toMatchObject({ limit: 1, offset: 0, hasMore: true })
+    expect(first.receipts).toHaveLength(1)
+    expect(second.receipts[0].id).not.toBe(first.receipts[0].id)
+    const outsider = makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [], visibleDomains: DOMAINS })
+    for (const viewer of [outsider, noDomain]) {
+      await expect(getGoodsReceiptDetail(detail.id, { viewer })).rejects.toMatchObject({ status: 404 })
+      await expect(listAllGoodsReceipts(b(), { viewer })).rejects.toMatchObject({ status: 404 })
+    }
+    for (const limit of ['10junk', '1.5', '', '0', '-1', 201, Infinity]) {
+      await expect(listAllGoodsReceipts(b(), { viewer: member, limit })).rejects.toThrow()
+    }
+    await expect(listAllGoodsReceipts(b(), { viewer: member, offset: -1 })).rejects.toThrow()
+    await expect(getGoodsReceiptDetail('missing', { viewer: owner })).rejects.toMatchObject({ status: 404 })
   })
 })

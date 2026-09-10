@@ -30,3 +30,13 @@ the existing writer and its receipt/stock transaction. Validate pagination,
 reset state on Business change, and add database and browser regressions.
 The owner has authorized completion of this existing FR-165 workstation;
 no new schema, receiving policy or production action is required.
+
+## Verification observations
+The initial browser scope-race fixture substituted `/api/scope`, but Business
+Routing reads `/api/entry`; its second Business was therefore not selectable.
+The replacement arranges a real isolated-database membership and lets the
+server resolve entry/viewer grants. A redundant purchase-order mock omitted
+the dashboard's summary and was removed. Neither failure required weakening
+the application guards. Final focused browser tests passed 2/2, no retries.
+Visual review also caught UTC date slicing beside a Bangkok-numbered GRN;
+the workstation now formats receipt dates in the numbering timezone.

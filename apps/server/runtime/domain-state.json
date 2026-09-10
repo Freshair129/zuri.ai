@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T16:52:09.530Z",
+  "generatedAt": "2026-09-10T17:34:59.315Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -463,7 +463,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -718,7 +718,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -881,7 +881,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -1469,7 +1469,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-166",
@@ -1502,7 +1502,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -1883,7 +1883,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -2128,7 +2128,7 @@
           "details": {
             "routes": 14,
             "inventoried": 14,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -2626,7 +2626,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -2782,7 +2782,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -2936,7 +2936,7 @@
           "details": {
             "routes": 12,
             "inventoried": 12,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -3096,7 +3096,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -3184,7 +3184,7 @@
       "progressPercent": 100
     },
     "procurement": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-164",
@@ -3197,8 +3197,8 @@
           "id": "FR-165",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 28
+          "codeCount": 10,
+          "testCount": 29
         },
         {
           "id": "FR-168",
@@ -3210,14 +3210,14 @@
       ],
       "checks": {
         "ui": {
-          "status": "verified",
+          "status": "unknown",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 3,
+            "inventoried": 3,
             "missing": 0
           }
         },
@@ -3229,9 +3229,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 5,
-            "inventoried": 5,
-            "openApiPaths": 210,
+            "routes": 7,
+            "inventoried": 7,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -3280,7 +3280,7 @@
           "details": {
             "mutations": 5,
             "guardedMutations": 5,
-            "reads": 5,
+            "reads": 7,
             "unguardedReads": 0
           }
         },
@@ -3311,9 +3311,9 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 7,
-        "apiRoutes": 5,
-        "pageRoutes": 2,
+        "routes": 10,
+        "apiRoutes": 7,
+        "pageRoutes": 3,
         "ownedModels": 5,
         "featureNotes": 2
       },
@@ -3683,7 +3683,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 55
+          "testCount": 57
         },
         {
           "id": "FR-073",
@@ -4061,7 +4061,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-166",
@@ -4159,7 +4159,7 @@
           "details": {
             "routes": 121,
             "inventoried": 121,
-            "openApiPaths": 210,
+            "openApiPaths": 212,
             "missingFromOpenApi": 0
           }
         },
@@ -6687,16 +6687,19 @@
           "id": "FR-165",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 28
+          "codeCount": 15,
+          "testCount": 29
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
+        "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
         "apps/server/src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
         "apps/server/src/app/api/procurement/purchase-orders/[id]/route.js",
         "apps/server/src/app/api/procurement/purchase-orders/route.js",
+        "apps/server/src/app/api/procurement/receipts/[id]/route.js",
+        "apps/server/src/app/api/procurement/receipts/route.js",
         "apps/server/src/app/api/procurement/suppliers/[id]/route.js",
         "apps/server/src/app/api/procurement/suppliers/route.js",
         "apps/server/src/config/domains.js",
@@ -6712,6 +6715,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -9784,7 +9788,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 55
+          "testCount": 57
         }
       ],
       "evidence": [
@@ -9820,6 +9824,7 @@
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/src/modules/project-manager/application/work-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -9870,6 +9875,7 @@
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
         "apps/server/tests/unit/people-service.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",

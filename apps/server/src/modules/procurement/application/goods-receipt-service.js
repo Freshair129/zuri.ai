@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { z } from 'zod'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendMovement, mayManage as mayManageInventory } from '@/modules/inventory'
 import {
@@ -48,6 +49,43 @@ async function nextCode(tx, business, now) {
 }
 
 const isCounted = (orderLine) => orderLine.product?.stockPolicy === 'TRACKED'
+
+// @req FR-165 — explicit Business-wide receipt projection, including the
+// persisted purchase-order lines used by the registry and printed receipt.
+// @tested tests/integration/fr165-goods-receipt.test.js
+const RECEIPT_DETAIL_SELECT = {
+  ...RECEIPT_SELECT, businessId: true,
+  purchaseOrder: { select: { id: true, code: true, supplier: { select: { id: true, code: true, name: true } } } },
+  lines: { select: {
+    ...RECEIPT_SELECT.lines.select,
+    purchaseOrderLine: { select: { description: true, product: { select: { code: true, stockPolicy: true } } } },
+  } },
+}
+const pageNumber = (maximum, fallback) => z.preprocess(
+  value => typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : value,
+  z.number().int().min(fallback === 0 ? 0 : 1).max(maximum).default(fallback),
+)
+const receiptQuery = z.object({ limit: pageNumber(200, 50), offset: pageNumber(1000000, 0) })
+
+export async function listAllGoodsReceipts(businessId, { viewer, db = prisma, limit, offset } = {}) {
+  const business = await loadBusiness(db, viewer, businessId)
+  const query = receiptQuery.parse({ limit, offset })
+  const rows = await db.goodsReceipt.findMany({
+    where: { businessId: business.id, tenantId: business.tenantId },
+    orderBy: [{ receivedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+    skip: query.offset, take: query.limit + 1, select: RECEIPT_DETAIL_SELECT,
+  })
+  return { receipts: rows.slice(0, query.limit).map(receiptDto), hasMore: rows.length > query.limit, ...query }
+}
+
+export async function getGoodsReceiptDetail(receiptId, { viewer, db = prisma } = {}) {
+  const id = typeof receiptId === 'string' ? receiptId.trim() : ''
+  if (!id) throw notFound()
+  const row = await db.goodsReceipt.findUnique({ where: { id }, select: RECEIPT_DETAIL_SELECT })
+  if (!row) throw notFound()
+  await loadBusiness(db, viewer, row.businessId)
+  return receiptDto(row)
+}
 
 export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, now = new Date() } = {}) {
   const id = typeof orderId === 'string' ? orderId.trim() : ''

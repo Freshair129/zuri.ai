@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2497,
-    "total_edges": 10056,
+    "total_nodes": 2504,
+    "total_edges": 10077,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -13,11 +13,11 @@
       "domain": 14,
       "roadmap": 45,
       "feature": 25,
-      "route": 298,
+      "route": 301,
       "model": 139,
       "requirement": 351,
-      "test": 592,
-      "code_file": 742
+      "test": 593,
+      "code_file": 745
     },
     "coverage": {
       "requirements": 351,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (171/171)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 742,
+      "annotated_code_files": 745,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -1313,6 +1313,25 @@
         "@tested": [
           "tests/e2e/fr164-procurement.spec.js",
           "tests/unit/procurement-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/procurement/receipts/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
+      "hash": "e7b9a8c1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-165"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/e2e/fr165-receipt-workstation.spec.js"
         ]
       }
     },
@@ -5345,6 +5364,46 @@
       }
     },
     {
+      "id": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/procurement/receipts/[id]/route.js",
+      "hash": "61ba7260",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-165"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/procurement-routes.test.js",
+          "tests/integration/fr165-goods-receipt.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/procurement/receipts/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/procurement/receipts/route.js",
+      "hash": "41a75a40",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-165"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-072"
+        ],
+        "@tested": [
+          "tests/unit/procurement-routes.test.js",
+          "tests/integration/fr165-goods-receipt.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/procurement/suppliers/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/procurement/suppliers/[id]/route.js",
@@ -6810,7 +6869,7 @@
       "id": "code:src/lib/module-tabs.js",
       "type": "code_file",
       "path": "apps/server/src/lib/module-tabs.js",
-      "hash": "69e4e0cd",
+      "hash": "420d6dbe",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12883,7 +12942,7 @@
       "id": "code:src/modules/procurement/application/goods-receipt-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
-      "hash": "f6945b36",
+      "hash": "b4c3ec0e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12987,7 +13046,7 @@
       "id": "code:src/modules/procurement/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/index.js",
-      "hash": "ed4c3c0c",
+      "hash": "342650f5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13003,7 +13062,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "9057157f",
+      "hash": "46c968f5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -15173,9 +15232,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.55.0b",
+      "version": "1.56.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "c6d8e49d",
+      "hash": "69306371",
       "status": "current"
     },
     {
@@ -16528,7 +16587,7 @@
       "type": "document",
       "path": "docs/domains/procurement/features/FR-165-goods-receipts.md",
       "title": "FR-165 — Goods receipts into the stock ledger (grn_id)",
-      "hash": "1913a5f1",
+      "hash": "198432ec",
       "status": "current"
     },
     {
@@ -16614,9 +16673,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.14.0b",
+      "version": "1.16.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0b0ed274",
+      "hash": "68fe9312",
       "status": "current"
     },
     {
@@ -23640,6 +23699,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/procurement/receipts",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/procurement/receipts",
+      "path": "apps/server/src/app/api/procurement/receipts/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/procurement/receipts/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/procurement/receipts/[id]",
+      "path": "apps/server/src/app/api/procurement/receipts/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/procurement/suppliers",
       "type": "route",
       "kind": "api",
@@ -24413,6 +24488,14 @@
       "kind": "page",
       "route": "/procurement/purchase-orders",
       "path": "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/procurement/receipts",
+      "type": "route",
+      "kind": "page",
+      "route": "/procurement/receipts",
+      "path": "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
       "status": "current"
     },
     {
@@ -25403,6 +25486,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr165-receipt-workstation.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
+      "hash": "43b80d00",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr166-commerce-orders.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
@@ -25924,7 +26014,7 @@
       "id": "test:tests/integration/fr165-goods-receipt.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr165-goods-receipt.test.js",
-      "hash": "0036e67c",
+      "hash": "fd1f9892",
       "status": "current"
     },
     {
@@ -28815,7 +28905,7 @@
       "id": "test:tests/unit/procurement-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/procurement-routes.test.js",
-      "hash": "68a5060b",
+      "hash": "3df1874b",
       "status": "current"
     },
     {
@@ -30999,6 +31089,27 @@
     },
     {
       "from": "code:src/app/(pm)/procurement/purchase-orders/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/procurement/receipts/page.jsx",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/procurement/receipts/page.jsx",
+      "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/procurement/receipts/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -36788,6 +36899,48 @@
     },
     {
       "from": "code:src/app/api/procurement/purchase-orders/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/route.js",
+      "to": "req:FR-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/route.js",
+      "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/procurement/receipts/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -61105,6 +61258,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/procurement/receipts/[id]",
+      "to": "domain:procurement",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/procurement/receipts",
+      "to": "domain:procurement",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/procurement/suppliers/[id]",
       "to": "domain:procurement",
       "type": "owned_by",
@@ -61757,6 +61924,13 @@
     },
     {
       "from": "route:page:/procurement/purchase-orders",
+      "to": "domain:procurement",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/procurement/receipts",
       "to": "domain:procurement",
       "type": "owned_by",
       "status": "current",
@@ -66279,6 +66453,34 @@
     },
     {
       "from": "test:tests/e2e/fr164-procurement.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr165-receipt-workstation.spec.js",
+      "to": "code:src/app/(pm)/procurement/receipts/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr165-receipt-workstation.spec.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr165-receipt-workstation.spec.js",
+      "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr165-receipt-workstation.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -73189,6 +73391,20 @@
     {
       "from": "test:tests/integration/fr165-goods-receipt.test.js",
       "to": "code:src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr165-goods-receipt.test.js",
+      "to": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr165-goods-receipt.test.js",
+      "to": "code:src/app/api/procurement/receipts/route.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -95854,6 +96070,20 @@
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "code:src/app/api/procurement/receipts/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "code:src/app/api/procurement/receipts/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
       "to": "code:src/app/api/procurement/suppliers/[id]/route.js",
       "type": "tests",
       "status": "current",
@@ -95928,6 +96158,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",

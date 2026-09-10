@@ -1,7 +1,7 @@
 ---
-version: "1.15.0b"
+version: "1.16.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-10T02:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-11T00:20:31+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.14.0b |
+| **Version** | 1.16.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-07 |
+| **Last Updated** | 2026-09-11 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=88; operational_domain_keys=15; operational_subdomain_entries=48; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=89; operational_domain_keys=15; operational_subdomain_entries=48; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -128,6 +128,7 @@ receipt lines — never from the page.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
+| `/procurement/receipts` | Goods Receipts workstation | BusinessShell → Procurement / Goods Receipts | paged receipt registry; actual quantity/lot/serial intake against SENT orders; persisted printable receipt with PO and supplier | Business and Procurement read authority; existing receipt plus Inventory write ladders; no-Business, loading, error, ready, busy states; stale responses discarded on Business change | local implementation under verification; FR-165 / ADR-066 |
 | `/procurement` | Procurement Dashboard | BusinessShell → Procurement / Dashboard | open purchase orders, awaiting delivery, partially received, outstanding value; the supplier list with archive; create-supplier form | Business and `procurement` domain visibility to read; suppliers need OWNER or `PROCUREMENT_BUYER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/page.jsx`, FR-164 / ADR-066 |
 | `/procurement/purchase-orders` | Purchase Orders console | BusinessShell → Procurement / Purchase Orders | order list with total, receipt state and status; send / close / cancel; per-order lines (ordered, received, outstanding), receipts, and the receipt form (quantity per line, lot and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked one, delivery-note number); create form with a supplier and lines that may name an inventory SKU at the agreed cost | Business and `procurement` domain visibility to read; orders and receipts need OWNER or `PROCUREMENT_BUYER`; the ledger half of a receipt needs OWNER or `INVENTORY_MANAGER` too; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/purchase-orders/page.jsx`, FR-164, FR-165 / ADR-066 |
 
@@ -373,6 +374,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.16.0b | 2026-09-11 | candidate | FR-165: Goods Receipts registry, intake and printable detail under Procurement; 88 → 89 pages | working-tree | RWANG |
 | 1.9.0b | 2026-09-06 | candidate | Reconcile Warehouse and Marketing after Server relocation; 70 pages and 35 operational navigation entries | See git history | RWANG |
 | 1.10.0b | 2026-09-07 | candidate | Register the LineCRM-MCP workspace route from main and reconcile the inventory to 71 page routes | See git history | RWANG |
 | 1.12.0b | 2026-09-07 | candidate | Registered LINE OA Integrations & AI (`/line-oa/integrations`) from main and reconciled the marker to 84 page routes and 45 operational sub-domain entries | working-tree | RWANG |
