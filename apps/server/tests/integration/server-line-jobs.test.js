@@ -467,7 +467,11 @@ describe('one tick serves more than one customer', () => {
   // leases from the start, and `claimExecution` already read twenty candidates.
   it('answers concurrently — the second customer no longer waits out the first', async () => {
     const oa = await account()
-    const admitted = await Promise.all(['fan-a', 'fan-b', 'fan-c'].map(id => admit(oa, event(id))))
+    // Sequentially, not Promise.all: the concurrency under test is the worker's, and six
+    // simultaneous admission transactions against the suite's single SQLite file only buys a
+    // busy-timeout on a slow runner — which is exactly how this failed on CI once.
+    const admitted = []
+    for (const id of ['fan-a', 'fan-b', 'fan-c']) admitted.push(await admit(oa, event(id)))
     let started = 0
     let openGate
     const gate = new Promise(resolve => { openGate = resolve })
@@ -498,7 +502,7 @@ describe('one tick serves more than one customer', () => {
     // READY — exactly two sent.
     const oa = await account()
     const ids = ['cap-a', 'cap-b', 'cap-c', 'cap-d', 'cap-e', 'cap-f']
-    await Promise.all(ids.map(id => admit(oa, event(id))))
+    for (const id of ids) await admit(oa, event(id))
     const options = worker({ executionConcurrency: 2, sendBatch: 2 })
     expect(await runLineConversationWorker(options)).toMatchObject({ executed: 2, sent: 2 })
     expect(options.answer).toHaveBeenCalledTimes(2)
