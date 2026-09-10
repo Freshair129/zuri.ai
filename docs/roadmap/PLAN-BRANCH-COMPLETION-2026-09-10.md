@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T00:49:00+07:00,RWANG"
+last_update: "2026-09-11T01:17:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -30,7 +30,8 @@ annotations into new requirement declarations, approve external sending or
 spending, or certify deployment.
 
 The initial integration base is `f320e888` (PR #316). The shared primary checkout
-stays unchanged. Existing worktrees and their uncommitted files remain source
+is not modified by this integration lane. Other sessions may advance it.
+Existing worktrees and their uncommitted files remain source
 evidence; each implementation lane works on an independent sibling worktree.
 
 ## Ownership and order
@@ -82,9 +83,15 @@ cross-Business browser proof. The primary server LINE worker still requires the
 separate memory-composition amendment; the direct adapter is not evidence that
 the primary worker invokes MSP.
 
-Billing/POS's concrete FR-182/FR-183 specification is owner-approved and under
-implementation. Warehouse stocktake and primary-worker memory amendments are
-under contract review. Marketing P5 is queued for its retained-slice review.
+Billing/POS's concrete specification is owner-approved and under implementation.
+External PR #318 has since declared FR-182 for the SCM operations console;
+the unmerged Billing subject is therefore moving to FR-186, while POS remains
+FR-183. This identity correction changes no approved behavior. The local
+abandonment audit and canonical SCM ledger must be reconciled before integration.
+Warehouse stocktake, primary-worker memory and Marketing P5 planning amendments
+are documented and awaiting owner approval; they have no implementation changes.
+Warehouse's proposal reuses PR #318's Inventory pages and APIs and adds only the
+separate atomic stocktake contract. That external PR is not merged by this lane.
 Unique superseded evidence has been copied with a SHA-256 manifest outside the
 checkout; original worktrees have not been deleted.
 
@@ -101,18 +108,24 @@ retries disabled. Final combined regression remains required after the other
 lanes land.
 
 Edge typecheck/build pass. The first full Edge run had 942 passing tests, three
-skips and one managed-worker stop failure (exit 2 after `stopped`). A later run
-passed 943 tests, but the initial intermittent failure is unresolved and is not
-reclassified as success. Diagnostic isolated and loaded runs have not reproduced
-it. Native-device acceptance and production activation remain unclaimed.
+skips and one managed-worker stop failure (exit 2 after `stopped`). Review found
+that failure while deleting the private runtime directory after a successful
+stop escaped to the worker's configuration-failure handler. A real-child test
+injecting only that cleanup failure reproduced exit 2 before the repair and
+passes after cleanup becomes best effort. The OS error of the original run was
+not captured, so the injected reproduction is not represented as its exact cause.
+The OA lane's final Edge run passed 944 tests with three skips; its focused
+cleanup suite passed all ten tests. Source and tests are integrated here.
+Native-device acceptance and production activation remain unclaimed.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-09-11 | beta | Record verified Edge cleanup repair, Billing identifier collision and three pending contract approvals | working-tree | RWANG |
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.1.0b → 0.2.0b; progress and evidence updated, no requirement identity changed.
+Version diff: 0.2.0b → 0.3.0b; evidence and approval states updated; record the Billing collision correction without changing approved behavior.
 
 
