@@ -216,7 +216,8 @@ test('private runtime cleanup failure does not turn a graceful stop into exit 2'
     const exit = await new Promise<number | null>((resolve) => child.once('exit', resolve));
     assert.equal(exit, 0);
     assert.equal(fs.existsSync(markerPath), true, `cleanup fault was not triggered; stdout=${stdout}; stderr=${stderr}`);
-    assert.equal(events.some((event) => event.type === 'failure'), false);
+    const outputEvents = stdout.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line) as WorkerEvent);
+    assert.equal(outputEvents.some((event) => event.type === 'failure'), false);
     assert.equal(fs.existsSync(path.join(dataRoot, '.zuri-worker.lock')), false);
   } finally {
     child.kill();
