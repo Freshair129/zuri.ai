@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   CUSTOMIZATION_TECHNIQUES,
   STOCK_RESERVATION_PURPOSES,
+  WORK_ORDER_ACTIONS,
 } from '@/lib/validation/enums'
 import { INVENTORY_CODE_PATTERN } from './inventory'
 
@@ -81,6 +82,26 @@ export const zCancelWorkOrder = z.object({
   reason: zOptionalText(500),
   occurredAt: z.coerce.date().optional(),
 }).strict()
+
+// @req FR-182 — one contract for what a surface may ask of a work order. The
+//   action is a declared vocabulary rather than a string a route branches on,
+//   and COMPLETE carries the counts only COMPLETE has: a RELEASE that quietly
+//   accepted `completedQty` would be a shape the service never reads.
+export const zWorkOrderAction = z.object({
+  businessId: zBusinessId,
+  action: z.enum(WORK_ORDER_ACTIONS),
+  version: z.number().int().positive(),
+  completedQty: z.number().int().nonnegative().optional(),
+  assembledQty: z.number().int().nonnegative().optional(),
+  scrapQty: z.number().int().nonnegative().optional(),
+  outputLotCode: zCode.nullable().optional(),
+  reason: zOptionalText(500),
+  occurredAt: z.coerce.date().optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.action !== 'COMPLETE' && (value.completedQty !== undefined || value.assembledQty !== undefined || value.scrapQty !== undefined)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['action'], message: 'only COMPLETE carries produced and scrapped quantities' })
+  }
+})
 
 /**
  * The gross quantity to issue for a net requirement when a declared fraction

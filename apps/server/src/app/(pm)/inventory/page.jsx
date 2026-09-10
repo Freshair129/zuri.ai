@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
+import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
+import { INVENTORY_TABS } from '@/lib/module-tabs'
 import { INVENTORY_MOVEMENT_KINDS, INVENTORY_STOCK_POLICIES, INVENTORY_TRACKING_MODES } from '@/lib/validation/enums'
 
 // @req FR-154 — the Inventory dashboard (คลังสินค้า): the Business's SKUs with
@@ -14,7 +15,10 @@ import { INVENTORY_MOVEMENT_KINDS, INVENTORY_STOCK_POLICIES, INVENTORY_TRACKING_
 //   count, and the form that appends one ledger movement.
 // @spec SEC-001 — every request names the selected Business as a selector the
 //   server validates against the trusted viewer; nothing here widens scope.
-// @tested tests/unit/inventory-routes.test.js
+// @req FR-182 — Inventory has more than one page since the SCM operations
+//   console, so its views render as in-canvas tabs (FR-170) rather than only as
+//   sidebar links; this page is the Dashboard tab.
+// @tested tests/unit/inventory-routes.test.js, tests/unit/scm-console-routes.test.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -125,6 +129,7 @@ export default function InventoryPage() {
       subtitle={`สินค้าแบบนับสต๊อกและไม่นับสต๊อก · หมวดหมู่ · สินค้าหลัก · SKU · Lot · Serial · Bundle${business ? ` · ${business.name}` : ''}`}
       actions={<button type="button" className="btn" onClick={() => refresh().catch((err) => setError(err.message))} disabled={busy}><RefreshCw size={15} /> โหลดใหม่</button>}
     />
+    <ModuleTabs tabs={INVENTORY_TABS} />
 
     {!business && <Card><p className="text-sm text-muted">เลือก Business ก่อนเพื่อดูคลังสินค้า</p></Card>}
     {error && <p role="alert" className="mb-3 text-sm text-red-700">{error}</p>}

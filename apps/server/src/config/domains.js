@@ -202,9 +202,16 @@ export const DOMAINS = [
     // stays `inventory`: keys are immutable (AGENTS.md §18).
     // @spec ADR-025, ADR-069, SEC-001
     // @tested tests/unit/inventory-routes.test.js, tests/unit/scm-group-navigation.test.js
+    // @req FR-182 — the SCM operations console: locations, the two work orders
+    // and reservations join the catalogue dashboard. Listed here for the
+    // sidebar and mirrored by `INVENTORY_TABS` for the in-canvas tabs (FR-170),
+    // from one source each, so the two cannot drift.
     key: 'inventory', label: 'Inventory', icon: Warehouse, basePath: '/inventory',
     sub: [
-      { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard },
+      { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard, exact: true },
+      { label: 'Locations', path: '/inventory/locations', icon: LayoutGrid },
+      { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
+      { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
     ],
   },
   {

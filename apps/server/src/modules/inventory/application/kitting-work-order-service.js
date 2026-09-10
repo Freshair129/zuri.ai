@@ -13,6 +13,7 @@ import {
   zCancelWorkOrder,
   zCompleteKittingWorkOrder,
   zOpenKittingWorkOrder,
+  zWorkOrderAction,
 } from '../domain/inventory-wip'
 import { loadBusiness, notFound } from './inventory-authority'
 import { availableToPromiseFor } from './inventory-atp-service'
@@ -396,4 +397,20 @@ export async function getKittingWorkOrder(id, { viewer, db = prisma } = {}) {
   if (!row) throw notFound()
   await loadBusiness(db, viewer, row.businessId)
   return kittingDto(row)
+}
+
+/** The kitting half of the FR-182 dispatcher; same vocabulary, same reason. */
+export async function applyKittingWorkOrderAction(id, input, options = {}) {
+  const data = zWorkOrderAction.parse(input)
+  const rest = { businessId: data.businessId, version: data.version, reason: data.reason ?? null, ...(data.occurredAt ? { occurredAt: data.occurredAt } : {}) }
+  if (data.action === 'RELEASE') return releaseKittingWorkOrder(id, rest, options)
+  if (data.action === 'CANCEL') return cancelKittingWorkOrder(id, rest, options)
+  return completeKittingWorkOrder(id, {
+    businessId: data.businessId,
+    version: data.version,
+    assembledQty: data.assembledQty ?? 0,
+    ...(data.scrapQty !== undefined ? { scrapQty: data.scrapQty } : {}),
+    reason: data.reason ?? null,
+    ...(data.occurredAt ? { occurredAt: data.occurredAt } : {}),
+  }, options)
 }

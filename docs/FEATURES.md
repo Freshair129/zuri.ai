@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.33.0b"
+version: "1.34.0b"
 status: active
 last_update: "2026-09-10T16:00:00+07:00,Claude Opus 5"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.33.0b |
+| **Version** | 1.34.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -56,7 +56,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-022 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-161 | building |
 | FEAT-023 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-166, FR-163 | building |
 | FEAT-024 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-164, FR-165 | building |
-| FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181 | building |
+| FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181, FR-182 | building |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -93,6 +93,8 @@ Version diff 1.29.0b → 1.30.0b (2026-09-07): FEAT-024 is declared and building
 
 
 Version diff 1.32.0b → 1.33.0b (2026-09-10): FEAT-025 is declared and building — the SmartGift SCM slice under ADR-074, bundling FR-174 (warehouse locations and the located ledger), FR-175 (landed cost in satang with the flat single-drop truck absorbed into unit valuation), FR-176 (customization work orders and the irreversible customer-dedicated lock), FR-177 (kitting work orders with a declared scrap allowance and the FlowAccount finished-set SKU), FR-178 (de-kitting), FR-179 (the shelf-life storage guard), FR-180 (Available-to-Promise with two-tier reservations) and FR-181 (six agent tools on the existing Gate E / Gate F registries). Not claimed: FlowAccount catalogue and stock synchronisation, cycle counting and stocktake campaigns, HTTP routes and console pages for locations, work orders and reservations, and production application of migration `20260910120000_smartgift_scm_wip`.
+
+Version diff 1.33.0b → 1.34.0b (2026-09-10): FEAT-025 gains FR-182 — the console and API surface ADR-074 consequence 5 deferred. Thirteen `/api/inventory/**` route files and four pages (`/inventory`, `/inventory/locations`, `/inventory/work-orders`, `/inventory/reservations`) over the services FR-174..FR-181 already shipped: no new model, no migration, no new authority, and Inventory becomes the third module to render in-canvas tabs (FR-170). Still not claimed: FlowAccount synchronisation, cycle counting and stocktake campaigns.
 ## Readiness Dashboard presentation metadata
 
 This block is the hand-maintained presentation contract for FR-124. It carries

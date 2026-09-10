@@ -286,6 +286,11 @@ export const WORK_ORDER_STATUSES = ['DRAFT', 'RELEASED', 'IN_PROGRESS', 'COMPLET
 /** Work-order states that still hold issued stock, so the order may not be forgotten. */
 export const WORK_ORDER_OPEN_STATUSES = ['RELEASED', 'IN_PROGRESS', 'BLOCKED_SHORTAGE']
 
+// FR-182 — the verbs a work order accepts from a surface, declared once so a
+// route dispatches on a validated vocabulary rather than branching on a string
+// it invented. DRAFT → RELEASE → COMPLETE is the run; CANCEL ends it early.
+export const WORK_ORDER_ACTIONS = ['RELEASE', 'COMPLETE', 'CANCEL']
+
 // FR-180 — the two tiers of promise. QUOTE is soft and expires; ORDER is
 // committed against a confirmed sales order and does not.
 export const STOCK_RESERVATION_PURPOSES = ['QUOTE', 'ORDER']
@@ -386,6 +391,7 @@ export const zInventoryLocationType = z.enum(INVENTORY_LOCATION_TYPES)
 export const zInventoryItemKind = z.enum(INVENTORY_ITEM_KINDS)
 export const zCustomizationTechnique = z.enum(CUSTOMIZATION_TECHNIQUES)
 export const zWorkOrderStatus = z.enum(WORK_ORDER_STATUSES)
+export const zWorkOrderAction = z.enum(WORK_ORDER_ACTIONS)
 export const zStockReservationPurpose = z.enum(STOCK_RESERVATION_PURPOSES)
 export const zStockReservationStatus = z.enum(STOCK_RESERVATION_STATUSES)
 export const zSalesTaskType = z.enum(SALES_TASK_TYPES)

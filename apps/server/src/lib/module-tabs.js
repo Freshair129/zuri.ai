@@ -3,8 +3,18 @@
 // the identical tab strip rather than two hand-kept copies that could drift.
 // `path` is the real route each tab is `<ModuleTabs>`'s `Link`, so no route
 // moves and no existing test's URL assertion changes.
-// @spec ADR-069
+// @spec ADR-069, ADR-074
 // @tested tests/unit/module-tabs.test.js
+
+// @req FR-182 — Inventory crosses one page into four with the SCM operations
+// console, so FR-170's rule applies to it for the first time: the views live in
+// the canvas and switch by clicking a tab.
+export const INVENTORY_TABS = [
+  { key: 'dashboard', label: 'Dashboard', path: '/inventory' },
+  { key: 'locations', label: 'Locations', path: '/inventory/locations' },
+  { key: 'work-orders', label: 'Work Orders', path: '/inventory/work-orders' },
+  { key: 'reservations', label: 'Reservations', path: '/inventory/reservations' },
+]
 
 export const PROCUREMENT_TABS = [
   { key: 'dashboard', label: 'Dashboard', path: '/procurement' },

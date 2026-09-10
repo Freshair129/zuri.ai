@@ -66,6 +66,17 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (list + create), item (read exploded to a quantity + versioned action)
   // and the atomic build (POST only).
   ['/api/inventory/recipes', ['GET', 'POST']], ['/api/inventory/recipes/{id}', ['GET', 'PATCH']], ['/api/inventory/recipes/{id}/build', ['POST']],
+  // @req FR-182 — the SCM operations surface (ADR-074): locations and the
+  // atomic transfer, both work orders with their versioned action, reservations
+  // and ATP, the shelf-life audit and de-kitting. Every one is a thin handler
+  // over the service FR-174..FR-181 already shipped.
+  ['/api/inventory/locations', ['GET', 'POST']], ['/api/inventory/locations/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/location-stock', ['GET']], ['/api/inventory/transfers', ['POST']],
+  ['/api/inventory/customization-work-orders', ['GET', 'POST']], ['/api/inventory/customization-work-orders/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/kitting-work-orders', ['GET', 'POST']], ['/api/inventory/kitting-work-orders/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/reservations', ['GET', 'POST']], ['/api/inventory/reservations/{id}', ['PATCH']],
+  ['/api/inventory/atp', ['GET']], ['/api/inventory/shelf-life', ['GET', 'POST']],
+  ['/api/inventory/de-kitting', ['POST']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
