@@ -25,4 +25,6 @@ export const PROCUREMENT_TABS = [
 export const COMMERCE_TABS = [
   { key: 'dashboard', label: 'Dashboard', path: '/commerce' },
   { key: 'orders', label: 'Orders', path: '/commerce/orders' },
+  { key: 'billing', label: 'Billing', path: '/commerce/invoices' },
+  { key: 'pos', label: 'POS', path: '/commerce/pos' },
 ]

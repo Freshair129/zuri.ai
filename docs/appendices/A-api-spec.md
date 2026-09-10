@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.56.0b |
+| **Version** | 1.57.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-11 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=225 -->
+<!-- api-spec-counts: route_handlers=231 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -468,6 +468,24 @@ the VERIFIED payments.
 | PATCH | `/api/commerce/payments/[id]` | implemented (FR-163): `{ action, version, reason? }` — `VERIFY` or `REJECT` a PENDING payment; answers `{ payment, order }` with the order's money recomputed. Audited `PAYMENT_VERIFIED` / `PAYMENT_REJECTED`. No DELETE | `404` (also a viewer without OWNER / PAYMENT_VERIFIER); `409 PAYMENT_VERSION_CONFLICT \| PAYMENT_STATUS_INVALID \| PAYMENT_REFUND_EXCEEDS_PAID`; `400` |
 | GET | `/api/commerce/revenue?businessId=&from=&to=` | implemented (FR-163): `{ verifiedNet, refunded, byOrigin: { CHAT, WALK_IN, ONLINE }, byDay: [{ day, net }], pending: { count, amount }, orders: { open, completed } }` — VERIFIED payments net of VERIFIED refunds on the day paid (Asia/Bangkok); `from` / `to` as YYYY-MM-DD | `404`; `400` |
 
+### Commerce — Billing documents and POS (FR-186, FR-183)
+
+Billing uses the Business's configured LegalEntity/Branch identity, tax policy and
+verified PromptPay recipient. Preview is non-persistent; issue is an immutable
+document with a Business/type/year sequence and idempotency hash. POS composes an
+existing SalesOrder, a PENDING payment and the Inventory append-only movement;
+verification remains the existing payment authority. The slice accepts THB only.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| GET | `/api/commerce/billing/config?businessId=` | implemented (FR-186): active Business billing profile, authoritative LegalEntity link and active Branch choices; missing/inactive configuration is `UNAVAILABLE` | `404` scoped Business |
+| PATCH | `/api/commerce/billing/config?businessId=` | implemented (FR-186): OWNER updates Business tax/non-VAT/walk-in/PromptPay settings and selects an existing active Branch; LegalEntity address changes are refused when shared | `404`; `409 BILLING_PROFILE_VERSION_CONFLICT \| BILLING_SHARED_LEGAL_ENTITY`; `422` configuration/recipient/Branch validation |
+| POST | `/api/commerce/billing/documents/preview` | implemented (FR-186): `{ orderId, branchId, documentType, buyer: { source: ISSUANCE_INPUT \| ANONYMOUS_WALK_IN, ... }, includePromptPay? }` returns a tax/payment snapshot with no number, persistence or audit event | `401`; `404`; `422 BILLING_CURRENCY_UNSUPPORTED \| BILLING_TAX_NOT_CONFIGURED \| BILLING_NON_VAT_POLICY_DENIED \| BILLING_WALK_IN_POLICY_DENIED \| PROMPTPAY_NOT_CONFIGURED` |
+| POST | `/api/commerce/billing/documents` | implemented (FR-186): same request plus required `idempotencyKey`; atomically persists the immutable snapshot, request hash, audit event and per-Business/type/year sequence; identical retries return the original | `400`; `404`; `409` idempotency/sequence conflict; `422` configuration, payment or THB validation |
+| GET | `/api/commerce/billing/documents/[id]` | implemented (FR-186): reads one immutable document only when the viewer can view its Business; response includes document number, request hash and parsed snapshot | `404` for missing or out-of-scope document |
+| GET | `/api/commerce/pos/catalogue?businessId=&branchId=&warehouseLocationId=` | implemented (FR-183): active Inventory products and available on-hand quantities for a configured Business Branch/WarehouseLocation | `404`; `422` invalid or inactive location |
+| POST | `/api/commerce/pos/checkout` | implemented (FR-183): `{ businessId, branchId, warehouseLocationId, lines, payment }` creates the existing SalesOrder, records a PENDING payment and appends counted Inventory movements; no provider call or same-request verification | `400`; `403` missing Commerce/Inventory write authority; `404`; `422` monetary, quantity, stock or location validation |
+
 ## Procurement — suppliers, purchase orders, goods receipts (FR-164, FR-165, ADR-066)
 
 What the Business buys and what arrived. Every route takes the Business as a
@@ -708,6 +726,8 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.57.0b | 2026-09-11 | candidate | Reconcile SCM, receipt reads and approved Billing/POS routes: 231 handlers | working-tree | RWANG |
+| 1.56.0b | 2026-09-11 | candidate | FR-186/FR-183: registered the Business-scoped billing configuration, preview/issue/read document routes and POS catalogue/checkout routes; the current route-handler marker is 216. Preview remains non-persistent, issue persists an immutable THB snapshot with idempotency, and POS leaves payment PENDING until the existing verifier acts | working-tree | RWANG |
 | 1.56.0b | 2026-09-11 | candidate | FR-165: scoped paginated receipt registry and persisted receipt detail; 210 → 212 handlers, existing posting contract retained | working-tree | RWANG |
 | 1.55.0b | 2026-09-10 | candidate | FR-149: added `GET /api/line-oa/jobs/failures?businessId=` — the honest count of terminal FAILED conversation jobs behind the Studio's red failure card. Also corrected the webhook row (since PR #306 the 200 acknowledges evidence capture, not admission) and recorded the worker tick's new abandoned-admission sweep. Route handler count 209 → 210 | working-tree | Claude Opus 5 |
 | 1.51.0b | 2026-09-07 | candidate | FR-110 (ADR-068): added the evidence pull tick `POST /api/pipelines/knowledge/evidence/pull` (operator; zuri-ai → MSP → GKS). Route handler count 198 → 199 | working-tree | Claude Fable 5.1 |

@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.31.0b |
+| **Version** | 1.32.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-10 |
+| **Last Updated** | 2026-09-11 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -121,6 +121,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-166 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
 | SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-166 — one line; may name an Inventory SKU; price given at sale time |
 | Payment | code (`PAY-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, orderId → SalesOrder (Cascade), kind (PAYMENT / REFUND), method, amountSatang, status (PENDING / VERIFIED / REJECTED), bankReference? (unique per tenant — an attribute), slipFileAssetId? → FileAsset (SetNull), note?, paidAt, verifiedAt?, verifiedByPersonId?, rejectReason?, createdByPersonId?, version | FR-163 / ADR-065 — a payment or refund; only VERIFIED money counts; the slip's bytes are the FileAsset's |
+| BusinessBillingProfile | businessId (unique), tenantId, VAT/tax policy fields, non-VAT and walk-in policy, PromptPay provider/target/verification, active, version, timestamps | FR-186 / ADR-065 — Business-owned editable billing configuration; nullable policy/recipient values remain explicitly unavailable until an OWNER supplies verified settings. Legal name/tax identifier/address authority remains the linked LegalEntity; profile and Business/Tenant parents cascade on replacement restore |
+| CommerceDocumentSequence | tenantId, businessId, documentType, calendarYear, lastSequence, timestamps; unique `(businessId, documentType, calendarYear)` | FR-186 — atomic per-Business/type/year sequence allocator; restored before documents and never reset below the highest issued sequence |
+| CommerceDocument | tenantId, businessId, orderId, branchId, documentType, documentNumber, calendarYear, sequenceNumber, status, idempotencyKey, requestHash, issuedAt, issuedByPersonId?, immutable `snapshotJson`, timestamps; unique Business/idempotency, Business/document number and Business/type/year/sequence | FR-186 — immutable issued invoice/receipt/tax snapshot; all parent links restrict deletion so the order, Branch, Business and Tenant cannot remove issued evidence |
 | Supplier | code (unique per tenant), tenantId, businessId, name, taxId?, contactName?, phone?, email?, address?, paymentTerms?, leadTimeDays?, notes?, status (ACTIVE / ARCHIVED), archivedAt?, version | FR-164 / ADR-066 — an approved supplier (procurement); archived, never deleted |
 | PurchaseOrder | code (`PO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, supplierId → Supplier (Restrict), status (DRAFT / SENT / RECEIVED / SHORT_CLOSED / CANCELLED), currency, expectedAt?, notes?, orderedAt, sentAt?, receivedAt?, closedAt?, closeReason?, cancelledAt?, cancelReason?, createdByPersonId?, version | FR-164 / ADR-066 — a purchase order; **no total, received or outstanding column** — computed on read from lines and receipt lines; RECEIVED is set by the completing receipt |
 | PurchaseOrderLine | purchaseOrderId → PurchaseOrder (Cascade), productId? → Product (SetNull), description, qty, unitCostSatang, sortOrder | FR-164 — one line; may name an Inventory SKU; the cost agreed for this purchase |
@@ -208,6 +211,14 @@ Version diff 1.26.0b → 1.27.0b (2026-09-07): added `KnowledgeEvidenceCursor` (
 per exact knowledge scope over GKS's `gks_stage_evidence_export`, advanced only after a page's ledger writes committed)
 with one additive migration in each tree (`20260907120000_knowledge_evidence_cursor`) in the same change; the Supabase
 SQL is written and **not applied**.
+
+Version diff 1.31.0b → 1.32.0b (2026-09-11): added `BusinessBillingProfile`,
+`CommerceDocumentSequence` and `CommerceDocument` (FR-186 / ADR-065) with the
+additive SQLite and Supabase migration `20260911010000_commerce_billing_pos`.
+The profile keeps Business tax/PromptPay policy while LegalEntity/Branch remain
+the issuer identity authority; issued documents retain request hashes and
+restrict parent deletion. Backup export/restore validates the billing manifest
+and continues numbering. The Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

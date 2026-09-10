@@ -258,6 +258,14 @@ Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
 
+## Approved contract — Commerce Billing, PromptPay and POS
+
+Source: [Approved contract — Commerce Billing, PromptPay and POS](change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
+
 ## ZV2-CR-004 — Supabase production tenant bootstrap
 
 Source: [ZV2-CR-004 — Supabase production tenant bootstrap](changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)
@@ -1838,6 +1846,7 @@ Source: [Domain — commerce](domains/commerce/CHARTER.md)
 - references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
 - references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+- references: [Approved contract — Commerce Billing, PromptPay and POS](change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
 ## FR-163 — Payments, verification and revenue (payment_id)

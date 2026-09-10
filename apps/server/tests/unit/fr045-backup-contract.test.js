@@ -2,7 +2,8 @@
 // @spec SDD-023, BR-008, ADR-016 D10
 // @tested tests/unit/fr045-backup-contract.test.js
 import { describe, expect, it, vi } from 'vitest'
-import { exportSnapshot, GENESIS_RAG17_RECOVERY_MANIFEST_VERSION, previewSnapshot } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, GENESIS_RAG17_RECOVERY_MANIFEST_VERSION, previewImport, previewSnapshot, COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION } from '@/modules/project-manager/application/backup-service'
+import { makeOperatorViewer } from '../factories/viewer'
 
 describe('FR-045 portable backup contract', () => {
   it('exports FileAsset/FileLink and content manifest but excludes absolute mounts', async () => {
@@ -56,5 +57,27 @@ describe('FR-045 portable backup contract', () => {
       errors: [expect.stringContaining('genesisRag17SourceMention')],
       recovery: { status: 'INVALID' },
     })
+  })
+
+  it('rejects a declared Commerce recovery manifest with missing tables even on an empty target', async () => {
+    const db = new Proxy({}, {
+      get: () => ({ count: vi.fn().mockResolvedValue(0) }),
+    })
+    const snapshot = {
+      schemaVersion: '1.0',
+      commerceBillingRecovery: {
+        schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
+        requiredTables: ['businessBillingProfile', 'commerceDocumentSequence', 'commerceDocument'],
+      },
+      tables: {},
+    }
+
+    const preview = await previewImport(snapshot, { db, viewer: makeOperatorViewer() })
+    expect(preview).toMatchObject({ valid: false, billingRecovery: { status: 'INVALID' } })
+    expect(preview.errors).toEqual(expect.arrayContaining([
+      'Commerce billing recovery snapshot is missing required table: businessBillingProfile',
+      'Commerce billing recovery snapshot is missing required table: commerceDocumentSequence',
+      'Commerce billing recovery snapshot is missing required table: commerceDocument',
+    ]))
   })
 })

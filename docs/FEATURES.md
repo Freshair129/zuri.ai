@@ -754,6 +754,16 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-172",
     "primaryDomain": "crm",
     "useCase": "ผู้ใช้กดช่อง CRM ช่องเดียวในแถบโดเมน แล้วเห็น Customer กับ Market Intelligence เรียงกันในเมนูด้านซ้าย จึงข้ามจากลูกค้าไปข้อมูลตลาดได้โดยไม่ต้องกลับขึ้นแถบบน เหมือนกับที่ SCM ทำไว้กับคลัง จัดซื้อ และคำสั่งขาย"
+  },
+  {
+    "id": "FR-186",
+    "primaryDomain": "commerce",
+    "useCase": "Business owner configures authoritative issuer, tax and PromptPay settings, then an authorized user previews or durably issues an immutable invoice, receipt or Thai tax document with an exact money snapshot and no fabricated identity"
+  },
+  {
+    "id": "FR-183",
+    "primaryDomain": "commerce",
+    "useCase": "An authorized cashier submits a manually priced walk-in sale for a selected Branch and WarehouseLocation, and one transaction records the order, pending payment, exact change and Inventory ledger issue without claiming verification"
   }
 ]
 ```

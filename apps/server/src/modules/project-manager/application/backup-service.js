@@ -27,6 +27,14 @@ import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import {
+  BILLING_DOCUMENT_TYPES,
+  BILLING_NON_VAT_POLICIES,
+  BILLING_PROMPTPAY_PROVIDER,
+  BILLING_TARGET_TYPES,
+  BILLING_VAT_TREATMENTS,
+  BILLING_WALK_IN_POLICIES,
+} from '@/modules/commerce/domain/billing'
 
 /**
  * Guard for both entry points below.
@@ -52,6 +60,13 @@ function assertRestoreOperator(viewer) {
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
+export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
+const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
+  'businessBillingProfile',
+  'commerceDocumentSequence',
+  'commerceDocument',
+])
+const COMMERCE_BILLING_DOCUMENT_STATUSES = Object.freeze(['ISSUED'])
 const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17IngestionIntent',
   'genesisRag17SourceMention',
@@ -60,6 +75,11 @@ const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
   'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
+  // @req FR-186 — issuer/tax/PromptPay settings are Business-owned operating
+  // configuration, while the LegalEntity and Branch identity above remain the
+  // authoritative seller records.  The profile and numbering sequence must
+  // restore before a CommerceDocument can be recreated.
+  'businessBillingProfile', 'commerceDocumentSequence',
   // @req FR-081 — the ingestion tables hang off a connection, so they restore after
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
@@ -181,6 +201,11 @@ const SNAPSHOT_MODELS = [
   // and the slip FileAsset — all restored above this line, so these restore
   // here and delete in the reverse. Money and slip references, no secret.
   'salesOrder', 'salesOrderLine', 'payment',
+  // @req FR-186 — issued documents are immutable evidence.  Their order and
+  // branch parents are above, so restore them after payments and before the
+  // audit stream; requestHash and sequenceNumber preserve idempotency and the
+  // next number after recovery.
+  'commerceDocument',
   // @req FR-164, FR-165 — a supplier hangs off Tenant and Business, a purchase
   // order off the supplier, its lines off the order and Product, a goods
   // receipt off the order and its lines off the receipt and the order lines —
@@ -285,6 +310,127 @@ function recoveryManifest(snapshot) {
   }
 }
 
+/**
+ * Billing is a feature-specific recovery boundary. Older snapshots can still
+ * be inspected by previewSnapshot, but previewImport must never replace live
+ * billing evidence with empty arrays when those older snapshots omit the new
+ * tables. A complete export also gets referential and sequence checks here so
+ * a bad document cannot be restored as detached evidence.
+ */
+function commerceBillingRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = COMMERCE_BILLING_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.commerceBillingRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+
+  // A manifest is an explicit claim that the artifact carries a complete
+  // Commerce recovery set.  Treating a declared-but-incomplete manifest as an
+  // old snapshot would make a malformed new export look safely importable on an
+  // empty installation.  Only an artifact with no manifest at all gets the
+  // backwards-compatible UNAVAILABLE state.
+  if (manifest !== undefined && (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(COMMERCE_BILLING_RECOVERY_TABLES)
+  )) {
+    result.errors.push(`Invalid Commerce billing recovery manifest (expected ${COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION})`)
+  }
+  if (manifest !== undefined && missing.length) {
+    for (const model of missing) result.errors.push(`Commerce billing recovery snapshot is missing required table: ${model}`)
+  }
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`COMMERCE_BILLING_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row.id, row]))
+  const branches = new Map((tables.branch || []).map((row) => [row.id, row]))
+  const orders = new Map((tables.salesOrder || []).map((row) => [row.id, row]))
+  const sequences = new Map()
+  for (const row of tables.businessBillingProfile) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce billing profile ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce billing profile ${row.id} has inconsistent Business/Tenant references`)
+    if (!Number.isInteger(row.version) || row.version <= 0 || row.version > 2_147_483_647) result.errors.push(`Commerce billing profile ${row.id} has an invalid version`)
+    if (row.vatRateBps !== null && row.vatRateBps !== undefined && (!Number.isInteger(row.vatRateBps) || row.vatRateBps < 0 || row.vatRateBps > 10000)) result.errors.push(`Commerce billing profile ${row.id} has an invalid VAT rate`)
+    if (row.vatTreatment !== null && row.vatTreatment !== undefined && !BILLING_VAT_TREATMENTS.includes(row.vatTreatment)) result.errors.push(`Commerce billing profile ${row.id} has an invalid VAT treatment`)
+    if (row.nonVatDocumentPolicy !== null && row.nonVatDocumentPolicy !== undefined && !BILLING_NON_VAT_POLICIES.includes(row.nonVatDocumentPolicy)) result.errors.push(`Commerce billing profile ${row.id} has an invalid non-VAT policy`)
+    if (row.walkInDocumentPolicy !== null && row.walkInDocumentPolicy !== undefined && !BILLING_WALK_IN_POLICIES.includes(row.walkInDocumentPolicy)) result.errors.push(`Commerce billing profile ${row.id} has an invalid walk-in policy`)
+    if (row.promptPayProvider !== null && row.promptPayProvider !== undefined && row.promptPayProvider !== BILLING_PROMPTPAY_PROVIDER) result.errors.push(`Commerce billing profile ${row.id} has an invalid PromptPay provider`)
+    if (row.promptPayTargetType !== null && row.promptPayTargetType !== undefined && !BILLING_TARGET_TYPES.includes(row.promptPayTargetType)) result.errors.push(`Commerce billing profile ${row.id} has an invalid PromptPay target type`)
+  }
+  for (const row of tables.commerceDocumentSequence) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce billing sequence ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce billing sequence ${row.id} has inconsistent Business/Tenant references`)
+    if (!BILLING_DOCUMENT_TYPES.includes(row.documentType)) result.errors.push(`Commerce billing sequence ${row.id} has an invalid documentType`)
+    if (!Number.isInteger(row.calendarYear) || row.calendarYear <= 0 || row.calendarYear > 2_147_483_647) result.errors.push(`Commerce billing sequence ${row.id} has an invalid calendarYear`)
+    if (!Number.isInteger(row.lastSequence) || row.lastSequence < 0 || row.lastSequence > 2_147_483_647) result.errors.push(`Commerce billing sequence ${row.id} has an invalid lastSequence`)
+    sequences.set(`${row.businessId}|${row.documentType}|${row.calendarYear}`, row)
+  }
+  const documentKeys = new Set()
+  for (const row of tables.commerceDocument) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce document ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    const order = orders.get(row.orderId)
+    const branch = branches.get(row.branchId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce document ${row.id} has inconsistent Business/Tenant references`)
+    if (!order || order.businessId !== row.businessId || order.tenantId !== row.tenantId) result.errors.push(`Commerce document ${row.id} has an inconsistent SalesOrder reference`)
+    if (!branch || branch.businessId !== row.businessId || branch.tenantId !== row.tenantId) result.errors.push(`Commerce document ${row.id} has an inconsistent Branch reference`)
+    if (!BILLING_DOCUMENT_TYPES.includes(row.documentType)) result.errors.push(`Commerce document ${row.id} has an invalid documentType`)
+    if (!COMMERCE_BILLING_DOCUMENT_STATUSES.includes(row.status)) result.errors.push(`Commerce document ${row.id} has an invalid status`)
+    if (!Number.isInteger(row.calendarYear) || row.calendarYear <= 0 || row.calendarYear > 2_147_483_647) result.errors.push(`Commerce document ${row.id} has an invalid calendarYear`)
+    if (!row.requestHash || typeof row.requestHash !== 'string') result.errors.push(`Commerce document ${row.id} is missing requestHash`)
+    if (!Number.isInteger(row.sequenceNumber) || row.sequenceNumber <= 0 || row.sequenceNumber > 2_147_483_647) result.errors.push(`Commerce document ${row.id} has an invalid sequenceNumber`)
+    if (!row.idempotencyKey || typeof row.idempotencyKey !== 'string') result.errors.push(`Commerce document ${row.id} is missing idempotencyKey`)
+    if (!row.documentNumber || typeof row.documentNumber !== 'string') result.errors.push(`Commerce document ${row.id} is missing documentNumber`)
+    if (typeof row.snapshotJson !== 'string') {
+      result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+    } else {
+      try {
+        const parsed = JSON.parse(row.snapshotJson)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+      } catch {
+        result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+      }
+    }
+    const sequenceKey = `${row.businessId}|${row.documentType}|${row.calendarYear}`
+    const sequence = sequences.get(sequenceKey)
+    if (!sequence) result.errors.push(`Commerce document ${row.id} has no matching sequence row`)
+    else if (row.sequenceNumber > sequence.lastSequence) result.errors.push(`Commerce document ${row.id} exceeds its restored sequence counter`)
+    const duplicateKey = `${row.businessId}|${row.documentType}|${row.calendarYear}|${row.sequenceNumber}`
+    if (documentKeys.has(duplicateKey)) result.errors.push(`Commerce documents reuse sequence ${duplicateKey}`)
+    documentKeys.add(duplicateKey)
+  }
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
@@ -298,6 +444,10 @@ export async function exportSnapshot({
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
     },
     knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    commerceBillingRecovery: {
+      schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...COMMERCE_BILLING_RECOVERY_TABLES],
+    },
     tables: {},
   }
   for (const model of SNAPSHOT_MODELS) {
@@ -373,9 +523,26 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   assertRestoreOperator(viewer)
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
+  const billing = commerceBillingRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
-  return { ...base, current, wouldReplace: Object.values(current).some((count) => count > 0) }
+  // An older snapshot may be useful for read-only inspection, but importing it
+  // while any billing row exists would silently turn omitted arrays into deletes.
+  // An installation with no billing rows can still restore the older snapshot;
+  // the explicit UNAVAILABLE status tells the operator that this feature had no
+  // recoverable source in that artifact.
+  if (billing.status === 'UNAVAILABLE' && COMMERCE_BILLING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    billing.errors.push('Commerce billing recovery is unavailable while the installation contains billing rows; refusing a restore that would erase evidence')
+  }
+  return {
+    ...base,
+    valid: base.valid && billing.errors.length === 0,
+    errors: [...base.errors, ...billing.errors],
+    warnings: [...base.warnings, ...billing.warnings],
+    billingRecovery: billing,
+    current,
+    wouldReplace: Object.values(current).some((count) => count > 0),
+  }
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */

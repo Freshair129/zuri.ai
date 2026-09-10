@@ -89,6 +89,9 @@ model Tenant {
   customizationWorkOrders   CustomizationWorkOrder[]
   kittingWorkOrders         KittingWorkOrder[]
   stockReservations         StockReservation[]
+  billingProfiles           BusinessBillingProfile[]
+  commerceDocuments         CommerceDocument[]
+  commerceDocumentSequences CommerceDocumentSequence[]
 
   @@index([portfolioId])
 
@@ -102,6 +105,7 @@ model LegalEntity {
   code        String   @unique
   portfolioId String
   legalName   String
+  legalAddress String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -199,6 +203,9 @@ model Business {
   customizationWorkOrders   CustomizationWorkOrder[]
   kittingWorkOrders         KittingWorkOrder[]
   stockReservations         StockReservation[]
+  billingProfile            BusinessBillingProfile?
+  commerceDocuments         CommerceDocument[]
+  commerceDocumentSequences CommerceDocumentSequence[]
 
   @@index([tenantId])
 
@@ -213,6 +220,8 @@ model Branch {
   tenantId   String
   businessId String
   name       String
+  address    String?
+  taxBranchCode String?
   status     String   @default("ACTIVE")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -220,6 +229,7 @@ model Branch {
   business       Business               @relation(fields: [businessId], references: [id])
   memberships    Membership[]
   assetLocations AssetLocationHistory[]
+  commerceDocuments CommerceDocument[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -3811,6 +3821,94 @@ model SalesTask {
   @@index([conversationId])
 }
 
+// ── Commerce billing/POS — FR-186/FR-183 ─────────────────────────────────────
+// @req FR-186 — Business-owned issuer, VAT and PromptPay configuration plus
+//   immutable fiscal document snapshots. Configuration is intentionally
+//   nullable until an owner supplies verified values; absence is an explicit
+//   unavailable state, never a fabricated identity or recipient.
+// @req FR-183 — POS composes the existing order/payment/Inventory contracts;
+//   no terminal hardware registry is stored here.
+// @spec ADR-065; BR-001; BR-002; SEC-001
+// @tested tests/integration/fr186-billing.test.js, tests/integration/fr183-pos.test.js
+
+model BusinessBillingProfile {
+  id                     String   @id @default(uuid())
+  tenantId               String
+  businessId             String   @unique
+  vatRegistered          Boolean  @default(false)
+  vatRateBps             Int?
+  vatTreatment           String?
+  taxPolicyVersion       String?
+  taxEffectiveAt         DateTime?
+  taxVerifiedAt          DateTime?
+  nonVatDocumentPolicy   String?
+  walkInDocumentPolicy   String?
+  promptPayProvider      String?
+  promptPayTargetType    String?
+  promptPayTarget        String?
+  promptPayActive        Boolean  @default(false)
+  promptPayVerifiedAt    DateTime?
+  active                 Boolean  @default(true)
+  version                Int      @default(1)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model CommerceDocumentSequence {
+  id            String   @id @default(uuid())
+  tenantId      String
+  businessId    String
+  documentType  String
+  calendarYear  Int
+  lastSequence  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, documentType, calendarYear])
+  @@index([tenantId, businessId])
+}
+
+model CommerceDocument {
+  id               String   @id @default(uuid())
+  tenantId         String
+  businessId       String
+  orderId          String
+  branchId         String
+  documentType     String
+  documentNumber   String
+  calendarYear     Int
+  sequenceNumber   Int
+  status           String   @default("ISSUED")
+  idempotencyKey   String
+  requestHash      String
+  issuedAt         DateTime @default(now())
+  issuedByPersonId String?
+  snapshotJson     String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Issued evidence survives ordinary source deletion attempts; parent removal
+  // is refused while a document still anchors the record.
+  tenant   Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  // Issued evidence keeps its order anchor; deleting the source order is refused.
+  order   SalesOrder    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  branch  Branch        @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, idempotencyKey])
+  @@unique([businessId, documentNumber])
+  @@unique([businessId, documentType, calendarYear, sequenceNumber])
+  @@index([businessId, orderId, issuedAt])
+}
+
 // ── Commerce — FR-166 sales orders, FR-163 payments ─────────────────────────
 // @req FR-166 — a sales order (order_id) is what a Business sold: lines that
 //   may name an inventory SKU, an optional Customer and the Conversation the
@@ -3854,6 +3952,7 @@ model SalesOrder {
   conversation Conversation?    @relation(fields: [conversationId], references: [id], onDelete: SetNull)
   lines        SalesOrderLine[]
   payments     Payment[]
+  commerceDocuments CommerceDocument[]
 
   @@unique([tenantId, code])
   @@index([businessId, status, orderedAt])

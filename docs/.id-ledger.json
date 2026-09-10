@@ -300,6 +300,8 @@
     "FR-180",
     "FR-181",
     "FR-182",
+    "FR-183",
+    "FR-186",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3507,6 +3509,32 @@
       "history": [
         {
           "anchor": "the scm lane gets the human surface adr 074 deferred",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-183": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cf4a0a1192c0031f65f480019dd67068f665491a230900f51e7315a72f26cdf5",
+      "history": [
+        {
+          "anchor": "atomic pos checkout composes existing commerce orders",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-186": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8ca08059af146bb5443bf6067c0df5747739e71af4d0a1bf410a32017db70a44",
+      "history": [
+        {
+          "anchor": "business scoped durable commerce document issuance and",
           "since": "2026-09-10",
           "reason": "declared"
         }
