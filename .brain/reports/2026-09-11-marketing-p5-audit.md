@@ -2,7 +2,7 @@
 version: "1.0.1b"
 status: candidate
 created_at: "2026-09-11T00:56:37+07:00,RWANG"
-last_update: "2026-09-11T00:56:37+07:00,RWANG"
+last_update: "2026-09-11T01:05:05+07:00,RWANG"
 ---
 
 # Marketing P5 audit and bounded implementation contract proposal
@@ -87,7 +87,7 @@ cross-domain Prisma reader is assumed.
 | Integration | `listPhase1Integrations({db,resolve,businessId,now,staleAfterMs})` | Redacted connection metadata: id, tenant/business, provider, purpose, role, status, version, secret readiness/ref mask, expiry, update time and health. It has no paid-media metrics, audience or provider action receipt. |
 | Integration | `readLineOaConnectionHealth({db,connectionIds,now,staleAfterMs})` | Redacted LINE connection health and last inbound event. It never returns credential material or quota. |
 | Commerce | `getRevenueSummary({businessId,from,to},{viewer,db})` | Verified net/refunds/by-origin/by-day/pending/open/completed counts. It has no ad-source attribution, so it cannot produce ROAS by ad. |
-| CRM | `getConversationInbox({viewer,businessId,limit})`, `getConversationThread({viewer,businessId,conversationId})` | Tenant-shared, authorized conversation DTOs; customer DTO includes `consentStatus`, `consentRecordedAt` and `consentNote`. There is no audience/filter or consent-snapshot resolver. |
+| CRM | `getConversationInbox({viewer,businessId,limit})`, `getConversationThread({viewer,businessId,conversationId})` | Inspected tenant-shared, authorized boundary; customer DTO includes `consentStatus`, `consentRecordedAt` and `consentNote`. No planning or AskMarketing path calls these readers to manufacture an audience; there is no audience/filter or consent-snapshot resolver. |
 | LINE OA Studio | `listLineOaAccounts({businessId,viewer,db,ports})`, `getLineOaAccount(id,{viewer,db,ports})` | Business-scoped account DTO with internal id/version, transport/status/execution flags and computed redacted health. It has no broadcast writer or provider send receipt. |
 
 The consequence is explicit: paid provider metrics and recipient audience resolution are currently
@@ -170,7 +170,8 @@ The strict payload is exactly:
   },
   "audience": {
     "source": "CRM_CONVERSATION_READ_MODEL",
-    "sourceVersion": "1.0",
+    "sourceVersion": null,
+    "audienceSpecVersion": "1.0",
     "filter": { "consentStatus": "GRANTED" },
     "criteriaHash": "64 lowercase hex characters",
     "resolutionState": "UNAVAILABLE",
@@ -180,7 +181,7 @@ The strict payload is exactly:
     "source": "CRM_CUSTOMER.consentStatus",
     "requiredValue": "GRANTED",
     "policyReference": "FR-103",
-    "policyVersion": "1.0",
+    "policyVersion": null,
     "snapshotRef": null,
     "snapshotVersion": null,
     "state": "UNAVAILABLE"
@@ -195,8 +196,11 @@ quota or account display text is copied into the intent. `content` is required a
 through `getMarketingContent` against the exact Business/Tenant, version and hash. The intent stores
 no raw message body; the content owner remains authoritative.
 
-The audience filter is deliberately limited to the existing CRM consent field. CRM currently has no
-audience query or consent-snapshot export, so `resolutionState` and `consent.state` remain
+The audience filter is deliberately limited to the existing CRM consent field. `audienceSpecVersion`
+is the proposed planning-payload schema version; `audience.sourceVersion` remains null until a CRM
+owner publishes a versioned audience resolver. The FR-103 policy version also remains null because
+this audit did not enumerate a canonical policy version. CRM currently has no audience query or
+consent-snapshot export, so `resolutionState` and `consent.state` remain
 `UNAVAILABLE`, `resolutionRef` and `snapshotRef` remain null, and no customer ID or count may be
 fabricated. A future CRM owner port may replace those null references with an actual scoped snapshot;
 that future port is outside this slice. Lifecycle/tag/intent-score filters from the retained fixture
@@ -305,8 +309,9 @@ The owner-approved implementation must prove:
    missing LINE account each produce explicit `UNAVAILABLE`; timeout/ambiguous reads produce
    `UNKNOWN`; no missing source becomes zero.
 4. Existing real owner DTOs are used in integration tests: `getRevenueSummary`, Marketing campaign/
-   Operations readers, `getMarketingContent`, `getConversationInbox` and `listLineOaAccounts`.
-   Fixture-only tests are labelled as contract tests and cannot support a production claim.
+   Operations readers, `getMarketingContent` and `listLineOaAccounts`. The CRM inbox/thread exports
+   are inspected boundary evidence only and are not invoked to claim audience resolution. Fixture-only
+   tests are labelled as contract tests and cannot support a production claim.
 5. AskMarketing classification and output are deterministic, source IDs/hashes/windows round-trip,
    and no provider/CRM/Commerce/PM mutation or model action occurs.
 6. Browser tests cover Business switching, reload/back, empty, denied, unavailable and unknown
