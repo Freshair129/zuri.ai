@@ -161,7 +161,7 @@ function StocktakeDesk({ businessId }) {
   return <div className="space-y-4">
     {error && <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</div>}
     {committed && <div role="status" className="rounded-lg bg-green-50 p-3 text-sm text-green-800">บันทึกยอดนับแล้ว · ปรับยอด {preview.result.movementCount} รายการ</div>}
-    <Card className="p-4">
+    {!committed && <Card className="p-4">
       <form onSubmit={addLine} className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">สินค้าที่ตรวจนับ<select aria-label="สินค้าที่ตรวจนับ" className={inputClass} value={productId} disabled={loading || busy || committed} onChange={event => setProductId(event.target.value)}><option value="">เลือกสินค้า</option>{eligible.map(row => <option key={row.productId} value={row.productId}>{row.code} · {row.name}</option>)}</select></label>
         <label className="text-sm">จุดจัดเก็บที่ตรวจนับ<select aria-label="จุดจัดเก็บที่ตรวจนับ" className={inputClass} value={locationId} disabled={loading || busy || committed} onChange={event => setLocationId(event.target.value)}><option value="">เลือกจุดจัดเก็บ</option><option value="UNLOCATED">ยังไม่ระบุจุดจัดเก็บ</option>{locations.filter(row => row.status !== 'ARCHIVED').map(row => <option key={row.id} value={row.id}>{row.code} · {row.name}</option>)}</select></label>
@@ -175,8 +175,8 @@ function StocktakeDesk({ businessId }) {
         <p>ยอดรวมทั้ง Business: {located.total} · ยังไม่ระบุจุดจัดเก็บ: {located.unlocated}</p>
         {located.located.map(row => <p key={row.locationId}>{row.code} · {row.name}: {row.onHand}</p>)}
       </div>}
-    </Card>
-    {draft.length > 0 && <Card className="p-4">
+    </Card>}
+    {!committed && draft.length > 0 && <Card className="p-4">
       <h2 className="mb-3 font-semibold">รายการที่นับได้ ({draft.length})</h2>
       <div className="space-y-2">{draft.map((row, index) => <div key={keyOf(row)} className="flex items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
         <div className="min-w-0 flex-1"><p className="break-words font-medium">{productName(row.productId)}</p><p>{locationName(row.locationId)} · นับได้ {row.countedQuantity}</p>{row.lotId && <p>ล็อต: {row.lotCode || lots.find(lot => lot.id === row.lotId)?.code || preview?.lines.find(line => line.lotId === row.lotId)?.lotCode || 'เลือกแล้ว'}</p>}</div>
