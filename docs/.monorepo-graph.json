@@ -16906,6 +16906,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md",
+      "title": "Retained branch completion",
+      "hash": "6e96f2f0",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-FEAT-019-DOMAIN-PHASES",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md",
@@ -57853,6 +57861,34 @@
       "to": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "type": "references",
+      "source": "metadata",
       "status": "current"
     },
     {
@@ -105277,7 +105313,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2496,
+    "server_nodes": 2497,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

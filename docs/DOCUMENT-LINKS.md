@@ -650,6 +650,7 @@ Source: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent 
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 - [ADR-026 — Agent Topology for the Visual Office](decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
@@ -914,6 +915,7 @@ Source: [ADR-039 — Requirement ids are pinned by subject anchor](decisions/ADR
 Backlinks:
 
 - [Document link metadata](GOVERNANCE-LINK-METADATA.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
 - [ADR-051 — The primary checkout is not a working lane](decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
@@ -1319,6 +1321,7 @@ Source: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/AD
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
 - [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
 - [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
@@ -1582,6 +1585,7 @@ Source: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Land
 Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -3312,6 +3316,15 @@ Backlinks:
 
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
+## Retained branch completion
+
+Source: [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md)
+
+- references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+- references: [ADR-039 — Requirement ids are pinned by subject anchor](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+- references: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- references: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
 
 ## FEAT-019 — Domain-owned execution phases
 

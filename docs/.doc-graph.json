@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2496,
-    "total_edges": 10052,
+    "total_nodes": 2497,
+    "total_edges": 10056,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
       "appendix": 4,
       "adr": 74,
       "domain": 14,
-      "roadmap": 44,
+      "roadmap": 45,
       "feature": 25,
       "route": 298,
       "model": 139,
@@ -16959,6 +16959,14 @@
       "path": "docs/roadmap/PLAN-ASSET-MANAGEMENT-4-PHASES.md",
       "title": "Asset Management — Four-phase implementation plan",
       "hash": "72675686",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md",
+      "title": "Retained branch completion",
+      "hash": "6e96f2f0",
       "status": "current"
     },
     {
@@ -54577,6 +54585,34 @@
       "to": "doc:PLAN-MARKETING-DOMAIN-IMPLEMENTATION",
       "type": "references",
       "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:PLAN-BRANCH-COMPLETION-2026-09-10",
+      "to": "spec:ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST",
+      "type": "references",
+      "source": "metadata",
       "status": "current"
     },
     {
