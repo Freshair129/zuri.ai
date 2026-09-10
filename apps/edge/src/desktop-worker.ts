@@ -594,7 +594,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     lock = null;
     if (privateCwd) {
       try { process.chdir(packageRoot); } catch { /* exit path */ }
-      fs.rmSync(privateCwd, { recursive: true, force: true });
+      try { fs.rmSync(privateCwd, { recursive: true, force: true }); } catch { /* exit path */ }
     }
     return fatalWorker ? 1 : 0;
   } catch (error) {
