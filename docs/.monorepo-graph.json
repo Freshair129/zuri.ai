@@ -4324,6 +4324,24 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/jobs/failures/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/line-oa/jobs/failures/route.js",
+      "hash": "a95bdc62",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/line-job-failures-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/liff-apps/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/liff-apps/[id]/route.js",
@@ -4440,7 +4458,7 @@
       "id": "code:src/app/api/line-oa/worker/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/worker/route.js",
-      "hash": "031db05b",
+      "hash": "5fb050fb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4451,7 +4469,8 @@
           "SEC-001"
         ],
         "@tested": [
-          "tests/integration/server-line-jobs.test.js"
+          "tests/integration/server-line-jobs.test.js",
+          "tests/integration/line-admission-reconciler.test.js"
         ]
       }
     },
@@ -9609,7 +9628,7 @@
       "id": "code:src/modules/integration/application/line-server-provisioning-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
-      "hash": "4bc76746",
+      "hash": "2652bd36",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10692,6 +10711,24 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-admission-reconciler.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-admission-reconciler.js",
+      "hash": "35440337",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/line-admission-reconciler.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
@@ -10730,6 +10767,24 @@
         ],
         "@tested": [
           "tests/integration/server-line-jobs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/application/line-job-failures.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
+      "hash": "e19f7146",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/line-job-failures.test.js"
         ]
       }
     },
@@ -10952,7 +11007,7 @@
       "id": "code:src/modules/line-oa-studio/ui/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/index.js",
-      "hash": "b925f05c",
+      "hash": "a644c9bf",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11061,6 +11116,21 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
+      "hash": "e7522b2e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149"
+        ],
+        "@tested": [
+          "tests/unit/line-studio-job-failures.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
@@ -11154,7 +11224,7 @@
       "id": "code:src/modules/line-oa-studio/ui/LineStudioShell.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
-      "hash": "51e34d46",
+      "hash": "4c25f3b4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12626,7 +12696,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "6d611df9",
+      "hash": "9057157f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14792,9 +14862,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.54.0b",
+      "version": "1.55.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "5894c17f",
+      "hash": "c6d8e49d",
       "status": "current"
     },
     {
@@ -16473,7 +16543,7 @@
       "type": "document",
       "path": "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
       "title": "FR-149-P2 — Server-owned LINE conversation transport",
-      "hash": "9a3ca292",
+      "hash": "90f16a9a",
       "status": "current"
     },
     {
@@ -16793,7 +16863,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "0019d61e",
+      "hash": "ce081146",
       "status": "current"
     },
     {
@@ -20051,11 +20121,11 @@
       "id": "req:FR-149",
       "type": "requirement",
       "family": "FR",
-      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record every event as durable raw evidence before acknowledging LINE, persist inbound CRM and a uniquely keyed conversation job in one transaction after that acknowledgement — in-process, retried, and labelled back onto the evidence row, so a process exit in between leaves the event captured but unadmitted with no automatic recovery today — and use the Integration-owned LINE port to send and record provider acceptance. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
     },
     {
       "id": "req:FR-150",
@@ -22658,6 +22728,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/line-oa/jobs/failures",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/jobs/failures",
+      "path": "apps/server/src/app/api/line-oa/jobs/failures/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/line-oa/liff-apps",
       "type": "route",
       "kind": "api",
@@ -24522,7 +24600,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "471a0e66",
+      "hash": "2743fb0f",
       "status": "current"
     },
     {
@@ -25248,7 +25326,7 @@
       "id": "test:tests/integration/fr149-line-server-configuration.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-      "hash": "898ba007",
+      "hash": "45577846",
       "status": "current"
     },
     {
@@ -25438,6 +25516,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/line-account-isolation.test.js",
       "hash": "7fe701b8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-admission-reconciler.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/line-admission-reconciler.test.js",
+      "hash": "b6de4565",
       "status": "current"
     },
     {
@@ -25654,7 +25739,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "8675bc23",
+      "hash": "7553b1bb",
       "status": "current"
     },
     {
@@ -27345,6 +27430,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-job-failures-route.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-job-failures-route.test.js",
+      "hash": "1dd4a9cb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-job-failures.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-job-failures.test.js",
+      "hash": "1de76888",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-oa-account-domain.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-oa-account-domain.test.js",
@@ -27422,6 +27521,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-oa-worker-route-reconciler.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
+      "hash": "59dace07",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-registry-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-registry-service.test.js",
@@ -27440,6 +27546,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
       "hash": "c990d857",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-studio-job-failures.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/line-studio-job-failures.test.js",
+      "hash": "82dc7941",
       "status": "current"
     },
     {
@@ -38197,6 +38310,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/jobs/failures/route.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/jobs/failures/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/liff-apps/[id]/route.js",
       "to": "req:BR-012",
       "type": "follows",
@@ -47332,6 +47459,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-admission-reconciler.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-admission-reconciler.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "to": "req:FR-148",
       "type": "follows",
@@ -47397,6 +47538,20 @@
     {
       "from": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
       "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-failures.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-job-failures.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -47853,6 +48008,13 @@
       "from": "code:src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
       "to": "req:SDD-061",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
+      "to": "req:FR-149",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -62536,6 +62698,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/line-oa/jobs/failures",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/line-oa/liff-apps/[id]",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -75836,6 +76005,41 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "code:src/app/api/line-oa/worker/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-admission-reconciler.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-binding-activation.postgres.test.js",
       "to": "code:src/modules/agent/line-operator.js",
       "type": "tests",
@@ -78143,7 +78347,7 @@
       "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -91761,6 +91965,48 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-job-failures-route.test.js",
+      "to": "code:src/app/api/line-oa/jobs/failures/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-job-failures-route.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-job-failures-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-job-failures.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-job-failures.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-job-failures.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-job-failures.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-oa-account-domain.test.js",
       "to": "code:src/modules/line-oa-studio/domain/line-oa-account.js",
       "type": "tests",
@@ -92125,6 +92371,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-oa-worker-route-reconciler.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-oa-worker-route-reconciler.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-registry-service.test.js",
       "to": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "tests",
@@ -92253,6 +92513,20 @@
     {
       "from": "test:tests/unit/line-studio-edge-connection-render.test.js",
       "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-studio-job-failures.test.js",
+      "to": "code:src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-studio-job-failures.test.js",
+      "to": "req:FR-149",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -102831,7 +103105,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2441,
+    "server_nodes": 2451,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

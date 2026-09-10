@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server'
 import { timingSafeEqual } from 'node:crypto'
 import { serverLinePorts } from '@/modules/line-oa-studio/application/server-line-runtime'
 import { runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { reconcileAbandonedLineAdmissions } from '@/modules/line-oa-studio/application/line-admission-reconciler'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 // @req FR-149, FR-150 — deployment-authenticated bounded durable worker tick.
 // @spec ADR-061, SEC-001
-// @tested tests/integration/server-line-jobs.test.js
+// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-admission-reconciler.test.js
 export const dynamic = 'force-dynamic'
 export async function POST(request) {
   const secret = process.env.ZURI_LINE_WORKER_TOKEN
@@ -15,8 +16,29 @@ export async function POST(request) {
     || !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
     return NextResponse.json({ error: 'WORKER_CREDENTIAL_REQUIRED' }, { status: 401 })
   }
+  // Reconcile before the send tick, not after: a row recovered here becomes an
+  // eligible QUEUED/READY job this same tick, but at a ~1s cadence there is no
+  // observable difference between "sent this tick" and "sent next tick" — so
+  // ordering is chosen for the read, not for latency. This also means a
+  // recovered job never races the send half of the very tick that revived it.
+  //
+  // Its failure must never surface as this route's failure: the reconciler
+  // covers a rare crash-recovery path, and the existing worker tick (which
+  // already carries its own 503) must keep running even on a bad reconciler
+  // sweep. Reported as a `reconciled` count of `0` with a boolean error flag,
+  // rather than thrown, so a monitoring reader sees "did not run" distinctly
+  // from "ran and found nothing".
+  // No `serverLinePorts()` here: the reconciler only needs `db`/`admit`/`env`
+  // (all defaulted), not the reply/push transports that call carries — this
+  // sweep re-admits into the queue, it never sends.
+  let reconciled
+  try {
+    reconciled = await reconcileAbandonedLineAdmissions({})
+  } catch {
+    reconciled = { scanned: 0, admitted: 0, skipped: 0, failed: 0, error: true }
+  }
   try {
     const result = await runLineConversationWorker({ ...serverLinePorts(), answer: createServerLineAnswer() })
-    return NextResponse.json(result)
+    return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }

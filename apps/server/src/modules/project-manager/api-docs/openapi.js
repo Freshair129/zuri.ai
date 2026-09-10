@@ -35,6 +35,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
+  ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three

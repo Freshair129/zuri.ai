@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.54.0b |
+| **Version** | 1.55.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-09 |
+| **Last Updated** | 2026-09-10 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=209 -->
+<!-- api-spec-counts: route_handlers=210 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -678,6 +678,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.55.0b | 2026-09-10 | candidate | FR-149: added `GET /api/line-oa/jobs/failures?businessId=` — the honest count of terminal FAILED conversation jobs behind the Studio's red failure card. Also corrected the webhook row (since PR #306 the 200 acknowledges evidence capture, not admission) and recorded the worker tick's new abandoned-admission sweep. Route handler count 209 → 210 | working-tree | Claude Opus 5 |
 | 1.51.0b | 2026-09-07 | candidate | FR-110 (ADR-068): added the evidence pull tick `POST /api/pipelines/knowledge/evidence/pull` (operator; zuri-ai → MSP → GKS). Route handler count 198 → 199 | working-tree | Claude Fable 5.1 |
 | 1.50.0b | 2026-09-07 | candidate | FR-110 (ADR-067): added the knowledge ingestion reporter surface — `GET /api/pipelines/knowledge/[executionRunId]` and `POST …/stages`, `…/gate`, `…/finish`, each accepting the run's Tenant's FR-102 data-plane key ahead of the session. Route handler count 194 → 198 (rebased onto main after the Commerce/Procurement families landed) | working-tree | Claude Fable 5.1 |
 | 1.50.0b | 2026-09-07 | candidate | FR-169 (ADR-069): added `PATCH /api/businesses/[id]/capabilities` — the only writer of `Business.capabilitiesJson`, gating the Warehouse slot. Route handler count 199 → 200 | working-tree | Claude Sonnet 5 |
@@ -727,12 +728,13 @@ canary evidence; those remain owner-gated release criteria.
 
 | Method | Path | Authority and behavior |
 |---|---|---|
-| POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence recorded before the 200, then atomic CRM/job admission after it; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
-| POST | `/api/line-oa/worker` | Deployment bearer token, minimum 32 characters; bounded execution/send/reconciliation tick. No browser or device authority. |
+| POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence capture is what the 200 acknowledges (PR #306), and atomic CRM/job admission runs after it, in-process and reconcilable; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
+| POST | `/api/line-oa/worker` | Deployment bearer token, minimum 32 characters; bounded execution/send/reconciliation tick. Also sweeps at most 5 LINE evidence rows left `ADMITTING` for over 60 s and re-admits them from the stored payload, reporting `reconciled: { scanned, admitted, skipped, failed }` beside the tick result; a reconciler failure is reported, never raised. No browser or device authority. |
 | POST | `/api/edge/conversation-jobs/claim` | Active Business-scoped device bearer; strict empty object; 204 or v1 minimized job under 300-second lease. |
 | POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; `{version,text}` bounded 5000 characters. No provider send. |
 | POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; `{version,code}` from two contract failure codes. |
 | GET | `/api/line-oa/accounts/[id]/jobs` | Studio Business visibility; latest 100 status DTOs, no message text/recipient/token. |
+| GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
 | GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
 | POST | `/api/line-oa/connections` | Business owner; register LINE provider connection and secret reference metadata. Secrets are mounted separately. |
