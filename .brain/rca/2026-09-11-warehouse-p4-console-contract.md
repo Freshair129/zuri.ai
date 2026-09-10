@@ -5,7 +5,7 @@
 **Base:** `origin/main` at `f320e888`  
 **Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
 **Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.3 (backup and restore durability review)
+**Proposal revision:** 0.4 (shared snapshot-version boundary review)
 
 ## Purpose
 
@@ -354,13 +354,15 @@ FR-045 `SNAPSHOT_MODELS` list in `apps/server/src/modules/project-manager/applic
    deletion loop. It stays before work-order/reservation rows because those rows
    are independent of a stocktake record.
 
-The snapshot schema version must advance from `1.0` to `1.1` when these models
-land. A `1.0` snapshot must be refused by preview after the change rather than
-silently restoring an installation without pending count retries or the ledger
-revision that makes them safe. Every `1.1` export contains both table keys even
-when their arrays are empty. The existing single transaction still deletes in
-reverse `SNAPSHOT_MODELS` order and creates in forward order; no separate partial
-Inventory restore is allowed.
+The global snapshot format-version choice remains an integration decision and is
+not changed independently by this slice. The feature-specific recovery contract
+must nevertheless refuse a preview/import snapshot that lacks the required
+stocktake and fence tables (or an equivalent persisted recovery manifest), rather
+than silently restoring an installation without pending count retries or the
+ledger revision that makes them safe. Every export from a release that supports
+this feature contains both table keys even when their arrays are empty. The
+existing single transaction still deletes in reverse `SNAPSHOT_MODELS` order and
+creates in forward order; no separate partial Inventory restore is allowed.
 
 Restore must preserve `InventoryStocktake.id`, Business-scoped
 `idempotencyKey`, canonical `payloadHash`, `normalizedLinesJson`, status,
@@ -462,7 +464,8 @@ read-only analysis only.
 
 | Revision | Date | Change |
 |---|---|---|
-| 0.3 | 2026-09-11 | Added the FR-045 snapshot schema/version, FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
+| 0.4 | 2026-09-11 | Kept global snapshot-version selection with the integration owner and made the required stocktake/fence recovery-state refusal explicit. |
+| 0.3 | 2026-09-11 | Added the FR-045 snapshot table/FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
 | 0.2 | 2026-09-11 | Made preview persistence, Business-scoped idempotency, and the lock-only `InventoryLedgerFence` / `mutationRevision` concurrency contract explicit for SQLite and PostgreSQL. |
 | 0.1 | 2026-09-11 | Initial located-stock, alerts/ATP, and physical-count contract and RCA. |
 
