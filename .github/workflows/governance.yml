@@ -199,3 +199,17 @@ jobs:
           path: apps/server/node_modules/.cache/zuri-test-proof/e2e-step-timings.json
           if-no-files-found: ignore
           retention-days: 14
+
+      # Playwright already writes a screenshot — and a trace on retry — for every
+      # failure, and until now every one of them was deleted with the runner. A
+      # suite that fails only on CI is then unreadable from here: the timings say
+      # which step ran long, never what the page was showing. Uploaded on failure
+      # only, so a green run costs nothing.
+      - name: Keep the failure screenshots and traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure-evidence
+          path: apps/server/test-results/
+          if-no-files-found: ignore
+          retention-days: 14

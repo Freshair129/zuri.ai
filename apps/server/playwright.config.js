@@ -145,6 +145,13 @@ module.exports = defineConfig({
     baseURL: target.baseURL,
     headless: true,
     screenshot: 'only-on-failure',
+    // A screenshot says the heading was missing; it never says why. The trace
+    // carries the network log and the DOM, so a failure that only reproduces on
+    // CI can still be read from here. `on-first-retry` and not `retain-on-failure`
+    // deliberately: retries are already kept to label flakiness (see `retries`
+    // above), so the trace rides an attempt that was going to happen anyway and
+    // a passing test records nothing.
+    trace: 'on-first-retry',
     launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {
