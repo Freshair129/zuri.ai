@@ -1,15 +1,15 @@
 ---
-version: "1.0.1b"
-status: candidate
+version: "1.0.1"
+status: beta
 created_at: "2026-09-11T00:55:00+07:00,RWANG,799f0ae9"
-last_update: "2026-09-11T01:25:00+07:00,RWANG"
+last_update: "2026-09-11T03:46:15+07:00,RWANG"
 ---
 
-# Proposed amendment — opt-in MSP composition for the server LINE worker
+# Approved amendment — opt-in MSP composition for the server LINE worker
 
-This is an owner-review amendment to the existing LINE/MSP thread-memory plan. It is a design
-proposal only; it does not authorize code, schema, production activation, provider credentials or
-LINE sends. The delivered memory lane covers the direct `/api/agent/line-webhook` ->
+This is the approved implementation amendment to the existing LINE/MSP thread-memory plan. It
+authorizes the bounded local code, schema, tests and recovery evidence described here; it does not
+authorize production activation, provider credentials or LINE sends. The delivered memory lane covers the direct `/api/agent/line-webhook` ->
 `handleAgentTurn` seam. This amendment closes the separately observed server-worker composition gap
 without replacing the server worker's queue, CRM or transport contracts.
 
@@ -26,6 +26,39 @@ The amendment therefore targets the smallest new composition seam: an opt-in ans
 by `server-line-answer.js`, invoked by the existing worker after it claims a persisted job. It does
 not call `handleAgentTurn`, because that would ingest a second CRM message, resolve a second LINE
 identity or expose the webhook action pipeline inside a queue worker.
+
+## Approved implementation record
+
+Owner approval was granted by Boss/root on 2026-09-11 for this exact scope. The implementation
+must retain the default-off behavior, use the existing CRM and MSP ports, preserve provider
+acceptance as a separate state, and keep the MSP erasure API plus cross-repository erasure receipt
+as a release dependency. No new requirement id is allocated by this amendment.
+
+The bounded sequence is:
+
+```mermaid
+sequenceDiagram
+    participant W as LINE worker
+    participant J as LineConversationJob
+    participant M as MSP thread port
+    participant K as Business knowledge
+    participant L as LINE provider
+    participant C as CRM
+    W->>J: claim persisted job (CAS + lease)
+    W->>M: resolve/append admitted inbound (opt-in only)
+    W->>M: read bounded context after live policy check
+    W->>K: query scoped business evidence
+    W->>W: model + grounded verifier + injection receipts
+    W->>J: settle answer READY
+    W->>L: provider send
+    L-->>W: ACCEPTED_BY_LINE
+    W->>C: outbound + acceptance in one transaction
+    W->>J: RECORDED + MEMORY_DELIVERY_PENDING checkpoint
+    W->>J: scanner CAS lease/attempt
+    W->>M: record same persisted CRM receipt
+    M-->>W: ACK or UNKNOWN/PENDING
+    W->>J: ACKNOWLEDGED or bounded PENDING/CLOSED
+```
 
 ## Proposed opt-in contract
 
@@ -224,7 +257,14 @@ requirement id, provider action, private payload or production activation is int
 
 ## Approval boundary
 
-This amendment requests review of the server-worker composition and durable checkpoint only. The
+This amendment approves the server-worker composition and durable checkpoint only. The
 full onboarding/provisioning flow, policy inspector UI, production session/compaction worker host,
 retention deployment, group private-memory disclosure, automatic protected-memory extraction,
 browser/native acceptance and production activation remain separate phase work.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---------|------|--------|---------|-------------|-------|
+| 1.0.1 | 2026-09-11 | beta | Owner-approved bounded server LINE worker memory composition, durable delivery checkpoint, recovery boundary and sequence proof | pending implementation commit | RWANG |
+| 1.0.1b | 2026-09-11 | superseded | Candidate amendment defining immutable opt-in, scoped checkpoint and fair retry contract | 799f0ae9 | RWANG |
