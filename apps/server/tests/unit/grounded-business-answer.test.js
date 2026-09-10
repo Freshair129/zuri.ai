@@ -77,4 +77,15 @@ describe('answerBusinessQuestion (FR-049)', () => {
     expect(result.provider.status).toBe('fallback')
     expect(JSON.stringify(result)).not.toContain('secret abc')
   })
+
+  it('does not turn an unknown memory receipt into a fallback answer', async () => {
+    const knowledge = { query: vi.fn(async () => evidence) }
+    const model = {
+      provider: 'groq', model: 'test',
+      generate: vi.fn(async () => { throw Object.assign(new Error('receipt uncertain'), { code: 'MSP_INJECTION_RECEIPT_UNKNOWN' }) }),
+    }
+
+    await expect(answerBusinessQuestion({ businessId: 'smartgift', question: 'USB-001 ราคาเท่าไร' }, { knowledge, model }))
+      .rejects.toMatchObject({ code: 'MSP_INJECTION_RECEIPT_UNKNOWN' })
+  })
 })

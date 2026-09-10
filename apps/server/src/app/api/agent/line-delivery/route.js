@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import prisma from '@/lib/db'
 import { handle } from '../../_helpers'
 import { createPhase1BusinessAgentPortsFromEnv, resolvePhase1RequestScope } from '@/modules/agent'
 import { recordLineReply, zReplyReceipt } from '@/modules/crm/reply-record-service'
@@ -22,6 +23,24 @@ import { assertLegacyLineTransportOwnership, resolvedLineChannelAccountId } from
 // @tested tests/integration/line-reply-record.test.js
 
 export const dynamic = 'force-dynamic'
+
+// Re-read the persisted reply: a retry cannot replace memory with caller text.
+async function recordThreadDelivery({ runtime, scope, receipt, recorded }) {
+  if (!runtime?.threadMemory?.recordDelivery) return
+  const message = await prisma.message.findFirst({
+    where: { id: recorded.messageId, direction: 'OUTBOUND', conversation: {
+      id: recorded.conversationId, tenantId: scope.tenantId, channel: 'LINE',
+      businessId: scope.businessId ?? null, channelAccountId: resolvedLineChannelAccountId(scope),
+    } }, include: { conversation: true },
+  })
+  if (!message) throw new Error('MSP_DELIVERY_SCOPE_NOT_FOUND')
+  await runtime.threadMemory.recordDelivery({
+    route: { tenantId: message.conversation.tenantId, businessId: message.conversation.businessId,
+      channelAccountId: message.conversation.channelAccountId, externalRoomRef: message.conversation.externalThreadId },
+    inboundMessageId: receipt.inboundMessageId, receiptId: message.id,
+    text: message.body, outcome: 'ACCEPTED',
+  })
+}
 
 const zBody = z.object({
   bindingId: z.string().uuid().optional(),
@@ -54,8 +73,9 @@ export function createLineDeliveryPost({
       const body = zBody.parse(await request.json())
 
       let scope
+      let runtime
       try {
-        const runtime = await runtimeFactory()
+        runtime = await runtimeFactory()
         scope = await resolvePhase1RequestScope({ runtime, headers: request.headers, body })
         await ownershipGuard({ scope, destination: body.destination })
       } catch (err) {
@@ -82,6 +102,7 @@ export function createLineDeliveryPost({
             channelAccountId: resolvedLineChannelAccountId(scope),
             receipt, correlationId,
           })
+          await recordThreadDelivery({ runtime, scope, receipt, recorded })
           logger.info('line.delivery.recorded', {
             correlationId,
             correlationSource,

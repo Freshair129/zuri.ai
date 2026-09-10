@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
+import { inspectMemoryWriteLink } from './memory-trace-contract'
 
 // @req FR-149, FR-171 — one append-only, scope-bound journal for an admitted agent turn.
 // @spec ADR-061, ADR-070, SEC-001 — the journal stores bounded data snapshots only; it never
@@ -319,6 +320,14 @@ async function appendTraceEventInternal(db, input, { bypassTurnGuard = false, re
   }
   const existing = await findByIdempotency(model, normalized)
   if (existing) return assertExistingMatches(existing, normalized)
+
+  if (normalized.kind === 'MEMORY_WRITTEN') {
+    const parents = await readExecutionTrace(db, { scope: normalized, turnId: normalized.turnId })
+    const link = inspectMemoryWriteLink(normalized, parents, { verifyContext: verifyContextPayload, digest: sha256 })
+    if (link.reasons.length) {
+      throw traceError('MEMORY_TRACE_LINK_INVALID', link.reasons.join(', '), 409)
+    }
+  }
 
   const data = {
     tenantId: normalized.tenantId,
@@ -709,6 +718,30 @@ export function playbackTrace(events) {
     execution.reasons = [...new Set(execution.reasons)]
   }
 
+  const memoryWrites = []
+  if (!globalTombstone) {
+    for (const event of list) {
+      if (event?.kind !== 'MEMORY_WRITTEN') continue
+      const link = inspectMemoryWriteLink(event, list, { verifyContext: verifyContextPayload, digest: sha256 })
+      const reasons = [...link.reasons]
+      if (link.payload) {
+        if (link.payload.receipt.status !== 'ACKNOWLEDGED') reasons.push('MEMORY_RECEIPT_INCOMPLETE')
+        // API-009 acknowledges an upsert; it does not attest a replayable MSP session.
+        reasons.push('MSP_SESSION_AUTHORITY_UNAVAILABLE')
+      }
+      globalReasons.push(...reasons)
+      const execution = executions.get(event.executionId ?? '__unscoped__')
+      if (execution && reasons.length) {
+        execution.failed = true
+        execution.status = 'REPLAY_INCOMPLETE'
+        for (const reason of reasons) addReason(execution, reason)
+      }
+      memoryWrites.push({ eventId: event.id ?? null, executionId: event.executionId ?? null,
+        status: 'REPLAY_INCOMPLETE', reasons,
+        evidence: link.reasons.length ? null : link.payload })
+    }
+  }
+
   const executionsDto = [...executions.values()].map((execution) => deepFreeze({
     executionId: execution.executionId,
     status: execution.status,
@@ -750,6 +783,7 @@ export function playbackTrace(events) {
     playbackStatus: status,
     executions: Object.freeze(executionsDto),
     modelCalls: Object.freeze(modelCalls),
+    memoryWrites,
     deliveries: Object.freeze([...deliveries.values()].map(value => deepFreeze(value))),
     context: singular?.context ?? null,
     modelContext: singular?.context ?? null,

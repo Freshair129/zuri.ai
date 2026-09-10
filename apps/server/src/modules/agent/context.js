@@ -7,6 +7,7 @@ import { resolveAgentAuthorization } from './auth-context'
 // @spec ADR-007 §P6 / ADR-022 / ADR-045 / Gate E — authorization and vault selection happen before
 //   retrieval; the model receives no raw scope authority.
 // @tested tests/integration/agent-context.test.js, tests/integration/agent-multi-principal.test.js
+// @tested tests/integration/agent-msp-thread-memory.test.js
 
 /**
  * Assemble the read-only context an agent binds to at Gate E, for one LINE subject in
@@ -49,6 +50,10 @@ export async function assembleAgentContext({
   memory,
   tools,
   knowledge: knowledgeReader,
+  threadMemory,
+  threadRoute,
+  deferThreadRecall = false,
+  currentExchangeId,
 }) {
   const authorization = await resolveAgentAuthorization({
     tenantId,
@@ -62,7 +67,7 @@ export async function assembleAgentContext({
     capability,
     sensitivity,
     consent,
-    serverScope,
+    serverScope: { ...serverScope, audienceKind: threadMemory ? threadRoute?.audienceKind ?? 'UNKNOWN' : serverScope?.audienceKind },
   })
   const { principal, authContext, policy, authorizedVaults } = authorization
 
@@ -94,6 +99,36 @@ export async function assembleAgentContext({
 
   const toolList = (tools ?? defaultReadOnlyTools({ authorization })).list()
 
+  let thread = null
+  let threadMemoryPacket = null
+  if (threadMemory) {
+    if (!threadRoute || typeof threadMemory.resolveThread !== 'function' || typeof threadMemory.context !== 'function') {
+      throw new Error('MSP thread memory requires a trusted threadRoute and resolver')
+    }
+    const resolved = await threadMemory.resolveThread({
+      ...threadRoute,
+      tenantId,
+      businessId,
+    })
+    thread = resolved.thread
+    // Resolve the route before reading memory. A denied or pending identity may
+    // still be recorded in the thread, but it must never retrieve its private
+    // transcript or protected records.
+    const threadContext = policy.privateMemoryAllowed && !deferThreadRecall
+      ? await threadMemory.context({ threadId: thread.threadId, currentExchangeId, authorization, requesterId: identity.principalId })
+      : { thread }
+    const buildPacket = typeof threadMemory.buildContextPacket === 'function'
+      ? threadMemory.buildContextPacket
+      : null
+    if (!buildPacket) throw new Error('MSP thread memory requires a context packet builder')
+    threadMemoryPacket = deferThreadRecall ? null : buildPacket({
+      authorization,
+      threadContext,
+      identity,
+      knowledge,
+    })
+  }
+
   return {
     identity,
     memory: { key: mem.key ?? scopedKey, legacyKey: key, entries: mem.entries,
@@ -105,5 +140,7 @@ export async function assembleAgentContext({
     authContext,
     policy,
     authorizedVaults,
+    thread,
+    threadMemory: threadMemoryPacket,
   }
 }

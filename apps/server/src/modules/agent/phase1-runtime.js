@@ -17,6 +17,8 @@ import {
   readRuntimeDatabaseCa,
 } from '../knowledge/runtime-postgres-config.js'
 import pg from 'pg'
+import { createMspTransportFromEnvironment } from './msp-stdio-transport'
+import { createMspThreadMemoryPort } from './msp-thread-memory-port'
 
 // @req FR-047, FR-048, FR-052, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
 // @spec SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016 — disabled by default; partial configuration fails closed.
@@ -131,7 +133,7 @@ function parseConnectionMetadata(connection) {
 
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
-  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager, bindingRequired = true } = {},
+  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager, mspTransport, bindingRequired = true } = {},
 ) {
   if (bindingRequired && env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
@@ -280,6 +282,21 @@ export function createPhase1BusinessAgentPortsFromEnv(
     model: legacyModel,
     resolveModel,
     close: async () => {},
+  }
+  if (env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true') {
+    const transport = mspTransport ?? createMspTransportFromEnvironment(env)
+    if (!transport) throw new Error('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED')
+    if ((env.ZURI_MSP_THREAD_SERVICE_KEY ?? '').length < 32) throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+    ports.threadMemory = createMspThreadMemoryPort({
+      transport,
+      actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+      serviceKey: env.ZURI_MSP_THREAD_SERVICE_KEY,
+      maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
+      idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),
+      recentExchangeCount: Number(env.MSP_THREAD_RECENT_EXCHANGES ?? 6),
+    })
+  } else {
+    ports.threadMemory = null
   }
   return ports
 }
