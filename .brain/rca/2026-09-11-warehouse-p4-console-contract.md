@@ -5,7 +5,7 @@
 **Base:** `origin/main` at `f320e888`  
 **Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
 **Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.2 (concurrency and preview-authority review)
+**Proposal revision:** 0.3 (backup and restore durability review)
 
 ## Purpose
 
@@ -340,6 +340,48 @@ changes a lot's ageing metadata, not its physical quantity, so it does not
 invalidate a numeric count. Any future writer that changes tracked quantity or
 serial state must call the same fence before reading/writing.
 
+#### FR-045 backup and restore durability
+
+`InventoryStocktake` and `InventoryLedgerFence` are recoverable Inventory state,
+not transient UI/cache rows. The implementation must add both to the existing
+FR-045 `SNAPSHOT_MODELS` list in `apps/server/src/modules/project-manager/application/backup-service.js`:
+
+1. `inventoryLedgerFence` follows `stockMovement`, because its revision fences
+   the complete located ledger and has no child foreign keys.
+2. `inventoryStocktake` follows `inventoryLedgerFence`, because its persisted
+   normalized lines and result refer to the already-restored product, lot,
+   serial, and location identities. The reverse order is used by the existing
+   deletion loop. It stays before work-order/reservation rows because those rows
+   are independent of a stocktake record.
+
+The snapshot schema version must advance from `1.0` to `1.1` when these models
+land. A `1.0` snapshot must be refused by preview after the change rather than
+silently restoring an installation without pending count retries or the ledger
+revision that makes them safe. Every `1.1` export contains both table keys even
+when their arrays are empty. The existing single transaction still deletes in
+reverse `SNAPSHOT_MODELS` order and creates in forward order; no separate partial
+Inventory restore is allowed.
+
+Restore must preserve `InventoryStocktake.id`, Business-scoped
+`idempotencyKey`, canonical `payloadHash`, `normalizedLinesJson`, status,
+`resultJson`, and the exact `snapshotVersion`/`snapshotHash`. It must preserve
+`InventoryLedgerFence.mutationRevision` exactly; restore must not reset it to
+zero or increment it merely because rows were recreated. Neither model contains
+secret material, so no redaction transform is needed. Repeating the same full
+snapshot import must recreate the same operation key and fence revision without
+duplicate rows, using the existing destructive restore transaction. A post-restore
+same-key stocktake commit must return the persisted result when the payload is
+the same and must raise the existing Business-scoped conflict for a different
+payload.
+
+The backup proof must seed a fence at a nonzero revision and both a `PREVIEWED`
+and `COMMITTED` stocktake row, export them, mutate/delete them, restore the
+snapshot twice, and assert exact row identity, revision, operation key, and
+result preservation. It must also prove a stale post-restore movement advances
+the restored revision and makes the restored preview stale. This extends the
+existing FR-045 backup integration/unit evidence; it does not create a second
+backup path.
+
 Provider strategy is explicit:
 
 - PostgreSQL uses the row update/upsert lock held to commit. No claim relies on
@@ -420,6 +462,7 @@ read-only analysis only.
 
 | Revision | Date | Change |
 |---|---|---|
+| 0.3 | 2026-09-11 | Added the FR-045 snapshot schema/version, FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
 | 0.2 | 2026-09-11 | Made preview persistence, Business-scoped idempotency, and the lock-only `InventoryLedgerFence` / `mutationRevision` concurrency contract explicit for SQLite and PostgreSQL. |
 | 0.1 | 2026-09-11 | Initial located-stock, alerts/ATP, and physical-count contract and RCA. |
 
