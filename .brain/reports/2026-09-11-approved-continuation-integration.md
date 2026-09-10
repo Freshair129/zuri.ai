@@ -1,7 +1,7 @@
 ---
-version: "1.0.0b"
+version: "1.0.1b"
 created_at: "2026-09-11T05:29:00+07:00,RWANG"
-last_update: "2026-09-11T05:41:00+07:00,RWANG"
+last_update: "2026-09-11T06:23:00+07:00,RWANG"
 status: beta
 ---
 
@@ -80,5 +80,17 @@ phases remain separately scoped work. Local fixtures do not prove live delivery.
 Hosted CI is checked on the exact final PR head before merge; its result belongs
 to the PR, not to the earlier source-lane test reports.
 
-Version diff: approved contracts move from source handoffs to combined local
-implementation and review evidence; production boundaries remain explicit.
+## Concurrent main reconciliation
+
+PR #321 merged at `35b86021` while PR #323 head `12fd48f1` was in hosted E2E.
+The incoming change adds approved ADR-075/FEAT-026/FR-187..FR-189 planning and
+fixtures. The merge retains both registry histories, all approved subjects and
+generated views; Server/Edge application source and migrations remain identical
+to the locally verified `12fd48f1`. The local full-suite/browser evidence above
+belongs to that application source revision. Registry/document checks, build,
+governance and llms-full freshness are rechecked after reconciliation, and
+hosted CI runs against the new head. Incoming catalog implementation is not
+claimed delivered by this continuation.
+
+Version diff 1.0.0b -> 1.0.1b: retain exact evidence provenance while reconciling
+the concurrently approved main planning change; production boundaries remain explicit.

@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.7.0b"
+version: "0.7.1b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T05:15:00+07:00,RWANG"
+last_update: "2026-09-11T06:23:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -175,6 +175,10 @@ results. This historical table does not prove the later continuation revision.
 
 The three independent GPT-5.6 Luna Max lanes are reconciled in
 `codex/approved-integration-20260911`, based on merged PR #319 (`196e4a9a`).
+The subsequent PR #321 (`35b86021`) added approved catalog-convergence planning
+while this continuation was in CI. Its FR-187..FR-189, FEAT-026 and ADR-075 are
+retained without claiming their future implementation as part of this task.
+No Server/Edge application source changed when that documentation base merged.
 FR-184 delivers fenced NONE/LOT stocktake previews, stale-count rejection,
 exact-key commit replay and saved-result UI. FR-185 delivers immutable planning
 revisions with real Content/account pickers, archive history and truthful Paid
@@ -207,6 +211,7 @@ and memory onboarding/provisioning phases are not counted as delivered here.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.1b | 2026-09-11 | beta | Reconcile concurrent approved PR #321 planning and generated views without changing application source | 35b86021 | RWANG |
 | 0.7.0b | 2026-09-11 | beta | Integrate approved Stocktake, Marketing planning and primary-worker memory; separate historical PR #319 proof from continuation and production gates | See git history | RWANG |
 | 0.6.0b | 2026-09-11 | beta | Record owner approval of the three remaining contracts and verified PR #319 merge; start isolated parallel implementation | 196e4a9a | RWANG |
 | 0.5.0b | 2026-09-11 | beta | Record final integrated tests, canonical ID reconciliation, migration hashes and three remaining candidate contracts | 4a74c1ed | RWANG |
@@ -215,4 +220,4 @@ and memory onboarding/provisioning phases are not counted as delivered here.
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.6.0b → 0.7.0b; record the implemented continuation, reconciled persistence/recovery contracts and explicit production gates.
+Version diff: 0.6.0b → 0.7.1b; record the implemented continuation, reconciled persistence/recovery contracts, concurrent approved catalog planning and explicit production gates.

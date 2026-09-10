@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.36.0b"
+version: "1.37.0b"
 status: active
-last_update: "2026-09-11T03:42:14+07:00,RWANG"
+last_update: "2026-09-11T06:21:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -57,6 +57,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-023 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-166, FR-163 | building |
 | FEAT-024 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-164, FR-165 | building |
 | FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181, FR-182, FR-184 | building |
+| FEAT-026 | SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized) | FR-187, FR-188, FR-189 | approved |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -99,6 +100,10 @@ Version diff 1.33.0b → 1.34.0b (2026-09-10): FEAT-025 gains FR-182 — the con
 Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-025 gains owner-approved FR-184 — the existing Inventory surface's durable NONE/LOT stocktake preview and atomic fenced commit, with strict stale/idempotency outcomes and feature-specific recovery. SERIAL observation, bins, campaigns, and production migration remain outside the slice.
 
 Version diff 1.35.0b → 1.36.0b (2026-09-11): FEAT-021 gains approved FR-185 — Business-scoped LINE broadcast planning identity and append-only revisions with strict owner references, deterministic read projections and unavailable dispatch. The slice does not add provider metrics, audience resolution, consent snapshots, sends or workers.
+
+Version diff 1.35.0b → 1.36.0b (2026-09-11): ADR-075 approved by the owner on PR #321; FEAT-026 moves to `approved`, Phase 1 (FR-187) authorized, no code yet.
+
+Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-026 is declared `proposed` — the SmartGift Catalog Convergence slice under **ADR-075**, which is itself `status: proposed` and owner-unapproved. Bundles FR-187 (structured-record source adapter before Stage 1), FR-188 (structured parser profile and `ontology_v2` contract) and FR-189 (edge reads the published generation through MSP, with Genesis RAG v4 as a time-boxed transitional fallback). Docs only: no code, no schema, no migration, no production deployment. Declines CR-002's `Workspace.catalogVaultId`/`vaultNamespace` proposal per `PLAN-PENDING-KNOWLEDGE-20260831` D7.
 ## Readiness Dashboard presentation metadata
 
 This block is the hand-maintained presentation contract for FR-124. It carries
@@ -768,6 +773,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-183",
     "primaryDomain": "commerce",
     "useCase": "An authorized cashier submits a manually priced walk-in sale for a selected Branch and WarehouseLocation, and one transaction records the order, pending payment, exact change and Inventory ledger issue without claiming verification"
+  },
+  {
+    "id": "FEAT-026",
+    "primaryDomain": "knowledge",
+    "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from"
   }
 ]
 ```
@@ -780,3 +790,5 @@ writing one sentence here, or the governance chain stops.
 Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
 
 Version diff 1.25.0b → 1.26.0b: FEAT-021 includes FR-157 Content and Creative from approved CR-018.
+
+Version diff 1.36.0b → 1.37.0b: reconcile PR #321 approved FEAT-026 with the retained FR-184/FR-185 extensions; preserve both parallel revision histories and all published subjects.

@@ -1,0 +1,90 @@
+{
+  "documentedExamples": {
+    "included": "BW00-0(P-BAG) IS present with real structured data: it is the flowaccountModelCode ('factory_product_code' in ProductMaster.json) of canonical product PM-TMB (Thermal Tumbler SUS316), confirmed via factory_match_status=confirmed_supplier_mapping. PM-TMB is included in products.json and in the PKG-NY-2027-REACH-OPS bundle.",
+    "note": "TMS06-3(P-06) and TMS06-4(P-16) are documented in business-01-smart-gift docs/specs/TMS06-3-PRICING-CATALOG-INFOGRAPHIC-2026-09-10.md and TMS06-4-PRICING-CATALOG-INFOGRAPHIC-2026-09-10.md, and as raw offer codes in CatalogOffer.json source_projection (rowKey OFFER_TMS06-3 / OFFER_TMS06-4). They were NOT included as fixture bundle records: within the four permitted 02_prepared files, BundleOffer.json's bom array (the only structured, cost-stripped BOM source) has no rows for these offer codes, and CatalogOffer.json's price_rows/price_comparisons and the raw source_projection entries both carry empty source_price_tiers — so a bundle record for TMS06-3/TMS06-4 could not be built without inventing SRP or component data, which is disallowed."
+  },
+  "files": [
+    {
+      "file": "products.json",
+      "recordCount": 5,
+      "sha256": "7864f2ff687a1d930ef8e810239757e1386ae951320ee6bd277ced11e883f82b",
+      "sizeBytes": 6754
+    },
+    {
+      "file": "bundles.json",
+      "recordCount": 2,
+      "sha256": "baea81296c68232620564899c67342442d672f33ed53a280f1d7233e641b29c7",
+      "sizeBytes": 2016
+    },
+    {
+      "file": "pricelist.json",
+      "recordCount": 15,
+      "sha256": "591d88fd5b9806d007632e38f11830e6b6ca8537c1709f973360864e8d3228c5",
+      "sizeBytes": 5130
+    }
+  ],
+  "fixtureVersion": "smartgift-catalog-v1",
+  "generatedFor": "FR-187 structured-record source adapter (proposed) before genesisrag17.v1 Stage 1 — ADR-073",
+  "piiInvariant": {
+    "deniedPattern": "05_crm_customer_data|customer|contact|quotation|ลูกค้า|ใบเสนอราคา",
+    "deniedRegexSource": "business-01-smart-gift pipeline/knowledge_registry/core.py DENIED",
+    "excludedFields": [
+      "factory/base cost (base_cost, factory_provenance.exw_cost_thb, factory_provenance.exw_price)",
+      "landed cost (total_landed_cost_thb, delivered_unit_cost)",
+      "margin/profit (margin_percent, unit_profit, *_gross_margin_pct, *_gross_profit_*)",
+      "freight/logistics cost (freight_*, sea_freight_*, domestic_freight_thb, logistics_freight_est, packaging_carton rate fields)",
+      "supplier/internal reviewer names (factory_provenance.mapping_confirmed_by, factory catalog notes)",
+      "anything under data-pipeline/01_raw/05_crm_customer_data/ (never read for this fixture)"
+    ],
+    "neverRead": [
+      "data-pipeline/01_raw/05_crm_customer_data/"
+    ],
+    "source": "business-01-smart-gift docs/ZURI_ECOSYSTEM_BOUNDARIES.md §3.1 (Zero-PII Invariant)"
+  },
+  "recordMapping": "One record in products.json / bundles.json / pricelist.json becomes exactly one RawExternalRecord (payloadJson = canonical JSON of the record, entityType/externalId as shown) + one KnowledgeRawArtifact (content = frozen byte-stable JSON text of the record, contentHash = sha256 of that text, sourceId = smartgift-catalog:<file>, version = fixtureVersion).",
+  "registryEntries": {
+    "exports_registry.json": "No entry keys to data-pipeline/02_prepared/*.json (registry tracks raw 01_raw exports only, e.g. flowaccount-product-2026-06-21.xlsx); checked and confirmed absent.",
+    "factory_cost_registry.json": "No entry for the four upstream files (tracks raw factory-cost source documents, e.g. '01-ต้นทุน-20260612 Business Office Gift set catalog.xlsx'); confirms tenant_id=Org-EtohGroup, business_id=SmartGift.",
+    "pricing_formula_registry.json": "No entry for the four upstream files (tracks pricing_rules_formula.yaml only); confirms tenant_id=Org-EtohGroup, business_id=SmartGift, vault_id=vlt-catalog-product."
+  },
+  "scope": {
+    "business": "SmartGift",
+    "classification": "product_metadata",
+    "note": "Business-facing names, matching tenant_id/business_id as recorded in business-01-smart-gift data-pipeline/01_raw/factory_cost_registry.json and pricing_formula_registry.json. The adapter resolves these to the runtime genesisrag17.v1 scope object (portfolioId/tenantId/businessId/workspaceId/agentId/visibility) at ingestion time; this fixture does not assign runtime UUIDs.",
+    "sourceProvider": "SMARTGIFT_CATALOG",
+    "tenant": "Org-EtohGroup"
+  },
+  "upstream": {
+    "BundleOffer.json": {
+      "gitCommit": "fbf3f8850cd7a4b86ee18d58c07ee743b4b07a8a",
+      "path": "data-pipeline/02_prepared/BundleOffer.json",
+      "sha256": "46ce2a5874ce1952fdab178ea2dc0e6212b1647fa3ef42b21d742591cb3a7fb3",
+      "sizeBytes": 87617
+    },
+    "CatalogOffer.json": {
+      "gitCommit": "fbf3f8850cd7a4b86ee18d58c07ee743b4b07a8a",
+      "path": "data-pipeline/02_prepared/CatalogOffer.json",
+      "sha256": "840ddc47173d321914c55b98dabdda02ceee78f2e72d50eb18545a822567c43c",
+      "sizeBytes": 4516259,
+      "usedAs": "cross-reference only (confirmed TMS06-3/TMS06-4/BW00-0 raw offer codes exist in source_projection; not used as a direct fixture source — see documentedExamples)"
+    },
+    "ProductMaster.json": {
+      "gitCommit": "908b567bcda94bea87e30802d6b38718d6caa331",
+      "path": "data-pipeline/02_prepared/ProductMaster.json",
+      "sha256": "347311b5ce50f1c65570bacde91c08ac0c28bdb576b5c9271ae34fb24a553368",
+      "sizeBytes": 1257000
+    },
+    "pricelist_master.json": {
+      "gitCommit": "c222ce63b77192d9c2342a7a981f8369a9d7c7eb",
+      "path": "data-pipeline/02_prepared/pricelist_master.json",
+      "sha256": "ab18b2a228bb38a11a586cd21f6e10ba50f018d90f830f64cfe5104396a26cde",
+      "sizeBytes": 6413701
+    },
+    "smartgift_catalog_master.json": {
+      "gitCommit": "4a7aefeb5ac78ab312ddf0df05f48b51da112847",
+      "path": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "sha256": "d4227ecdbd83afc95b7f9fe785181215c9eb0f46ffbd57f3b5f4bdfc1f6e2541",
+      "sizeBytes": 854047
+    }
+  }
+}
