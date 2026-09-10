@@ -486,6 +486,18 @@ interleave, and the first one to finish commits a graph describing files the oth
 has not committed yet. Say what you changed and let the graph-owning session
 reconcile in a single pass.
 
+**Second exception, and it is about scope, not tooling:** a `DOMAIN_GROUPS`
+entry in `apps/server/src/config/domains.js` (SCM, CRM, and whatever groups
+the domain bar next) owns no model, no route and no module, so ADR-069 D5
+deliberately gives it no `docs/domains/<d>/CHARTER.md` — there is no
+`src/modules/<d>` for a charter to bind to. Working on this kind of
+domain-bar grouping, or anything the owner describes as organising the top
+nav bar "ตามหลัก ERP"? Read [`.claude/AGENTS.md`](.claude/AGENTS.md) first —
+it holds the pattern, the ADR-069/071 precedent, the judgment call for
+grouping two domains versus leaving them standalone, and the governance
+sequence specific to this task shape, none of which belongs in `docs/` for
+the same reason the group itself does not.
+
 ### 20. The legacy project's documentation (retired)
 
 Retired by [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
