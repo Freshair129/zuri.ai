@@ -8,6 +8,25 @@ import { test } from 'node:test';
 
 type WorkerEvent = { type?: string; code?: string; outcome?: string; [key: string]: unknown };
 
+function createCleanupFaultPreload(markerPath: string): string {
+  const preloadRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-desktop-worker-preload-'));
+  const preloadPath = path.join(preloadRoot, 'cleanup-fault.cjs');
+  fs.writeFileSync(preloadPath, [
+    "const fs = require('node:fs');",
+    'const originalRmSync = fs.rmSync;',
+    'fs.rmSync = function cleanupFault(target, options) {',
+    "  if (String(target).includes('.worker-runtime-')) {",
+    `    fs.writeFileSync(${JSON.stringify(markerPath)}, 'triggered');`,
+    "    const error = new Error('synthetic private runtime cleanup failure');",
+    "    error.code = 'EBUSY';",
+    '    throw error;',
+    '  }',
+    '  return originalRmSync.call(this, target, options);',
+    '};',
+  ].join('\n'));
+  return preloadRoot;
+}
+
 function waitForEvent(child: ReturnType<typeof spawn>, events: WorkerEvent[], predicate: (event: WorkerEvent) => boolean): Promise<WorkerEvent> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('worker event timeout')), 15_000);
@@ -143,6 +162,67 @@ test('EOF during module initialization is preserved as a graceful parent stop', 
   } finally {
     child.kill();
     await new Promise<void>((resolve) => server.close(() => resolve()));
+    fs.rmSync(dataRoot, { recursive: true, force: true });
+  }
+});
+
+test('private runtime cleanup failure does not turn a graceful stop into exit 2', async () => {
+  const server = http.createServer((request, response) => {
+    if (request.url === '/health') {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ ok: true }));
+      return;
+    }
+    response.statusCode = request.url?.endsWith('/claim') ? 204 : 200;
+    response.end(request.url?.endsWith('/claim') ? undefined : JSON.stringify({ acknowledged: true }));
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+  const dataRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-desktop-worker-cleanup-'));
+  const markerPath = path.join(dataRoot, 'cleanup-fault.marker');
+  const preloadRoot = createCleanupFaultPreload(markerPath);
+  const preloadPath = path.join(preloadRoot, 'cleanup-fault.cjs');
+  const events: WorkerEvent[] = [];
+  let stdout = '';
+  let stderr = '';
+  const child = spawn(process.execPath, ['--import', 'tsx', 'src/desktop-worker.ts'], {
+    cwd: path.resolve('.'),
+    env: {
+      PATH: process.env.PATH || '',
+      SystemRoot: process.env.SystemRoot || '',
+      NODE_OPTIONS: `--require=${preloadPath}`,
+      ZURI_HEADLESS_ENABLED: 'false',
+      ZURI_LLM_ENABLED: 'false',
+    },
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  child.stdout?.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
+  child.stderr?.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
+  try {
+    const origin = `http://127.0.0.1:${address.port}`;
+    child.stdin?.write(`${JSON.stringify({
+      type: 'initialize', version: 1, deviceId: 'DEV-DESKTOP-CLEANUP',
+      deviceKey: 'edgk_synthetic_test_credential', cloudBaseUrl: origin, dataRoot,
+      ragUrl: origin, pollIntervalMs: 250, heartbeatIntervalMs: 5000,
+      provider: { llmEnabled: false, llmAllowCloud: false, headlessEnabled: false, headlessBin: 'claude' },
+    })}\n`);
+    await waitForEvent(child, events, (event) => event.type === 'ready').catch((error) => {
+      throw new Error(`${error instanceof Error ? error.message : error}; stdout=${stdout}; stderr=${stderr}`);
+    });
+    await waitForEvent(child, events, (event) => event.type === 'claim' && event.outcome === 'idle');
+    child.stdin?.write('{"type":"stop","version":1,"reason":"operator","deadlineMs":5000}\n');
+    await waitForEvent(child, events, (event) => event.type === 'stopped');
+    const exit = await new Promise<number | null>((resolve) => child.once('exit', resolve));
+    assert.equal(exit, 0);
+    assert.equal(fs.existsSync(markerPath), true, `cleanup fault was not triggered; stdout=${stdout}; stderr=${stderr}`);
+    const outputEvents = stdout.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line) as WorkerEvent);
+    assert.equal(outputEvents.some((event) => event.type === 'failure'), false);
+    assert.equal(fs.existsSync(path.join(dataRoot, '.zuri-worker.lock')), false);
+  } finally {
+    child.kill();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    fs.rmSync(preloadRoot, { recursive: true, force: true });
     fs.rmSync(dataRoot, { recursive: true, force: true });
   }
 });

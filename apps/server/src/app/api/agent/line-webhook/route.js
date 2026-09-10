@@ -193,6 +193,8 @@ export function createLineWebhookPost({
           resolvedModel = await phase1Ports.resolveModel(scope)
           modelResolved = true
         }
+        const channelAccountId = resolvedLineChannelAccountId(scope)
+        const threadKind = ev.source?.groupId ? 'GROUP' : ev.source?.roomId ? 'ROOM' : 'DIRECT'
         const turn = await turnHandler({
           tenantId: scope.tenantId,
           businessId: scope.businessId,
@@ -208,8 +210,16 @@ export function createLineWebhookPost({
           serverScope: {
             transportVerified: Boolean(phase1Ports),
             bindingId: scope.id ?? scope.bindingId ?? null,
-            channelAccountId: resolvedLineChannelAccountId(scope),
+            channelAccountId,
             businessId: scope.businessId ?? null,
+            audienceKind: threadKind,
+          },
+          threadRoute: {
+            threadKind,
+            audienceKind: threadKind,
+            channelType: 'LINE',
+            channelAccountId,
+            externalRoomRef: threadId,
           },
         })
         logger.info('line.webhook.event', {
@@ -240,6 +250,7 @@ export function createLineWebhookPost({
           // which is not a place another process can read from.
           conversationId: turn.inbound?.conversationId ?? null,
           inboundMessageId: turn.inbound?.messageId ?? null,
+          memoryExchange: turn.memoryExchange ?? null,
         })
       } catch (err) {
         logger.error('line.webhook.event', {

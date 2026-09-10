@@ -457,7 +457,19 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     return { id: job.id, status: job.firstSendAt ? 'UNKNOWN' : 'FAILED' }
   }
   if (account.transportEpoch !== job.transportEpoch) return { id: job.id, status: 'FENCED' }
-  const replyToken = method === 'REPLY' ? unsealLineReplyToken(job.sealedReplyToken, job.accountId, env) : null
+  // Decrypt before claiming the external send. A missing/invalid token is a
+  // local failure; letting it escape here used to leave the READY row untouched
+  // forever, starving every account behind it.
+  let replyToken = null
+  try {
+    if (method === 'REPLY') replyToken = unsealLineReplyToken(job.sealedReplyToken, job.accountId, env)
+  } catch {
+    const status = job.firstSendAt ? 'UNKNOWN' : 'FAILED'
+    const errorCode = job.firstSendAt ? 'REPLY_OUTCOME_UNKNOWN' : 'LINE_REPLY_TOKEN_UNAVAILABLE'
+    await db.lineConversationJob.updateMany({ where: { id: job.id, version: job.version, status: 'READY' },
+      data: { status, errorCode, sealedReplyToken: null, version: { increment: 1 } } })
+    return { id: job.id, status }
+  }
   const sendAttemptId = randomUUID()
   const claimed = await atomic(db, async tx => {
     // Serialize with account actions before either side checks active sends.

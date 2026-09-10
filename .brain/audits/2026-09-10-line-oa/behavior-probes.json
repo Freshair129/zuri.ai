@@ -1,0 +1,114 @@
+{
+  "basis": "actual source handlers and services; injected dependencies; no provider calls or production database",
+  "results": [
+    {
+      "probe": "group-test-false-success",
+      "mode": "HTTP_503",
+      "requests": 1,
+      "successReported": true
+    },
+    {
+      "probe": "group-test-false-success",
+      "mode": "NETWORK_REJECTION",
+      "requests": 1,
+      "successReported": true
+    },
+    {
+      "probe": "live-chat-send",
+      "error": "ReferenceError",
+      "message": "isLive is not defined"
+    },
+    {
+      "probe": "designer-request-contract",
+      "file": "src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+      "valid": false,
+      "issues": [
+        {
+          "path": [
+            "accountId"
+          ],
+          "code": "invalid_type"
+        },
+        {
+          "path": [
+            "draft"
+          ],
+          "code": "invalid_type"
+        },
+        {
+          "path": [],
+          "code": "unrecognized_keys",
+          "keys": [
+            "lineOaAccountId",
+            "layout",
+            "chatBarText",
+            "areasJson"
+          ]
+        }
+      ]
+    },
+    {
+      "probe": "designer-request-contract",
+      "file": "src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+      "valid": false,
+      "issues": [
+        {
+          "path": [
+            "accountId"
+          ],
+          "code": "invalid_type"
+        },
+        {
+          "path": [],
+          "code": "unrecognized_keys",
+          "keys": [
+            "lineOaAccountId",
+            "scopesJson"
+          ]
+        }
+      ]
+    },
+    {
+      "probe": "unsealable-oldest-job",
+      "tick": 1,
+      "error": "LINE_REPLY_TOKEN_UNAVAILABLE",
+      "oldestJobStatus": "READY",
+      "sendCalls": 0,
+      "jobSpecificSettlement": false
+    },
+    {
+      "probe": "unsealable-oldest-job",
+      "tick": 2,
+      "error": "LINE_REPLY_TOKEN_UNAVAILABLE",
+      "oldestJobStatus": "READY",
+      "sendCalls": 0,
+      "jobSpecificSettlement": false
+    },
+    {
+      "probe": "activation-validation-fallback",
+      "fixture": {
+        "secretMount": "missing",
+        "connection": "ACTIVE",
+        "credential": "REVOKED",
+        "provider": "INACTIVE"
+      },
+      "outcome": {
+        "ready": true
+      }
+    },
+    {
+      "probe": "empty-real-registry-ui",
+      "apiIntegrationsShape": "array of channel/model metadata; registry explicitly excluded",
+      "inventedGroupCount": 2,
+      "allMarkedActive": true
+    },
+    {
+      "probe": "paused-account-label",
+      "storedStatus": "PAUSED",
+      "serverEnabled": true,
+      "uiStatus": "active",
+      "uiLabel": "ออนไลน์ (LIVE)",
+      "contractEffectiveStatus": "PAUSED"
+    }
+  ]
+}

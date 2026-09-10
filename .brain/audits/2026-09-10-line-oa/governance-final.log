@@ -1,0 +1,53 @@
+
+> zuri-monorepo@0.1.0 govern
+> npm --prefix apps/server run govern && node apps/server/scripts/monorepo-graph.mjs && node apps/server/scripts/monorepo-graph.mjs --check
+
+
+> zuri-ai@0.1.0 govern
+> npm run docs:graph && npm run docs:check && npm run docs:preflight
+
+
+> zuri-ai@0.1.0 docs:graph
+> node scripts/doc-graph.mjs
+
+nodes 2443 · edges 9813 · dangling 0
+FR with code 100% (163/163) · FR with tests 100% (163/163) · rules anchored 96% (132/137)
+domain state 14 domains · overall partial · gaps 23
+drift since last regeneration: 2 changed · 0 added · 0 removed — see docs/.doc-graph-drift-report.json
+rules with no code anchor: BR-017, SDD-040, SDD-041, SDD-046, SDD-077
+changed nodes: 2
+
+> zuri-ai@0.1.0 docs:check
+> node scripts/doc-graph.mjs --check
+
+doc-graph is up to date
+
+> zuri-ai@0.1.0 docs:preflight
+> node scripts/doc-preflight.mjs --strict
+
+docs 354 · routes 209 · test files 576
+critical 0 · warning 0 · info 22 → PASS
+  [INFO] doc-control: Missing control fields: Version, Status — ARCHITECTURE-TARGET-MODULAR-MONOLITH.md
+  [INFO] doc-control: Missing control fields: Version, Status — DOCUMENT-LINKS.md
+  [INFO] doc-control: Missing control fields: Version — DOMAIN-MAP.md
+  [INFO] doc-control: Missing control fields: Version, Status — DOMAIN-MODEL.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version — CONTEXT-MAP.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — EXECUTION-MODES.md
+  [INFO] doc-control: Missing control fields: Version, Status — EXTRACT-MSP.codex.md
+  [INFO] doc-control: Missing control fields: Version — TRACE.md
+  [INFO] enum-copy: 1 baseline entr(ies) no longer copy an enum — src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES
+  [INFO] client-mutation: 7 file(s) still swallow a failed mutation (accepted debt) — src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:308 · src/modules/project-manager/views/universal/DependenciesView.jsx:133
+  [INFO] id-stability: 529 id(s) pinned across 10 families — ADR 73 · BR 25 · FEAT 24 · FR 173 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 89 · SEC 25 · ZV2-CR 10 · roster 529
+  [INFO] roadmap-evidence: 1 roadmap reference(s) name a document that no longer exists (accepted debt) — baseline: docs/.roadmap-evidence-baseline.json
+  [INFO] roadmap-coverage: 1 baseline requirement(s) now have a roadmap row — FR-052
+  [INFO] roadmap-coverage: 22 delivered requirement(s) carry no roadmap row (accepted debt) — baseline: docs/.roadmap-coverage-baseline.json
+  [INFO] table-integrity: table integrity checked in 354 document(s) — swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md
+  [INFO] table-integrity: 2 document(s) contain rows shorter than their table's header — docs/PRD-SDD-v1.0.md:20, docs/SITEMAP-DOMAIN-NAV.md:4 — GFM pads a short row with empty cells, so each renders exactly as written; counted, not reported per row
+  [INFO] audit-entity-type: audit entityType checked in 77 file(s) that write audit events — every value is SCREAMING_SNAKE_CASE
+  [INFO] schema-migration-drift: schema-migration drift checked: 1820 column(s) across 135 model(s) against 61 migration(s) — every declared column outside the baseline is created by a migration
+{"server_nodes":2443,"edge_source_nodes":272,"edge_scanned_nodes":293,"edge_source_edges":360,"edge_scanned_edges":376,"external_nodes":0,"link_findings":0,"duplicate_ids":0,"dangling_edges":0}
+{"server_nodes":2443,"edge_source_nodes":272,"edge_scanned_nodes":293,"edge_source_edges":360,"edge_scanned_edges":376,"external_nodes":0,"link_findings":0,"duplicate_ids":0,"dangling_edges":0}

@@ -2,7 +2,7 @@
 // @spec SDD-060, SDD-061 — Unified Tab Navigation & Multi-View Workspace
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import LineStudioDashboard from "./LineStudioDashboard";
 import LineStudioProjects from "./LineStudioProjects";
 import LineStudioDesignHub from "./LineStudioDesignHub";
@@ -13,51 +13,59 @@ import LineStudioTemplates from "./LineStudioTemplates";
 import LineStudioTeam from "./LineStudioTeam";
 import LineStudioSettings from "./LineStudioSettings";
 import { useScope } from "@/context/ScopeContext";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
-  LayoutDashboard,
-  Layers,
-  Bookmark,
-  BarChart3,
-  Users,
-  Settings,
-  Search,
-  Bell,
-  Sparkles,
-  Bot,
-  ChevronRight,
-  SlidersHorizontal,
-  MessageSquare,
-  Cpu,
-  Server
+  Search
 } from "lucide-react";
 
 export default function LineStudioShell({ initialTab = "dashboard" }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const scope = useScope();
   const business = scope?.shell?.activeBusiness;
+  const requestedAccountId = searchParams.get("accountId") || "";
 
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedAccount, setSelectedAccount] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [projectsList, setProjectsList] = useState([]);
+  const [accountsList, setAccountsList] = useState([]);
+  const [accountLoadError, setAccountLoadError] = useState("");
+  const accountRequestVersion = useRef(0);
 
   useEffect(() => {
-    if (!business?.id) return;
-    fetch(`/api/projects?businessId=${encodeURIComponent(business.id)}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.projects && data.projects.length > 0) {
-          setProjectsList(data.projects);
-          if (!selectedProject) {
-            setSelectedProject(data.projects[0]);
-          }
-        }
+    const requestId = ++accountRequestVersion.current;
+    if (!business?.id) {
+      setAccountsList([]);
+      setSelectedAccount(null);
+      setAccountLoadError("");
+      return;
+    }
+    setSelectedAccount(null);
+    setAccountLoadError("");
+    fetch(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`)
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "โหลดบัญชี LINE OA ไม่สำเร็จ");
+        return data;
       })
-      .catch(() => {});
-  }, [business?.id]);
+      .then(data => {
+        if (requestId !== accountRequestVersion.current) return;
+        const accounts = data.accounts || [];
+        setAccountsList(accounts);
+        setSelectedAccount(previous => accounts.find(account => account.id === requestedAccountId)
+          || accounts.find(account => account.id === previous?.id)
+          || accounts[0]
+          || null);
+      })
+      .catch((error) => {
+        if (requestId !== accountRequestVersion.current) return;
+        setAccountsList([]);
+        setSelectedAccount(null);
+        setAccountLoadError(error.message || "โหลดบัญชี LINE OA ไม่สำเร็จ");
+      });
+  }, [business?.id, requestedAccountId]);
 
   useEffect(() => {
     if (initialTab) {
@@ -65,18 +73,33 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
     }
   }, [initialTab]);
 
-  const handleNavigate = (tabId) => {
+  const updateAccountInUrl = (accountId) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (accountId) params.set("accountId", accountId);
+    else params.delete("accountId");
+    router.replace(`${pathname}${params.toString() ? `?${params}` : ""}`);
+  };
+
+  const handleAccountChange = (account) => {
+    setSelectedAccount(account);
+    updateAccountInUrl(account?.id);
+  };
+
+  const handleNavigate = (tabId, accountId = selectedAccount?.id) => {
     setActiveTab(tabId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (accountId) params.set("accountId", accountId);
+    else params.delete("accountId");
     if (tabId === "dashboard") {
-      router.push("/line-oa");
+      router.push(`/line-oa${params.toString() ? `?${params}` : ""}`);
     } else {
-      router.push(`/line-oa/${tabId}`);
+      router.push(`/line-oa/${tabId}${params.toString() ? `?${params}` : ""}`);
     }
   };
 
-  const handleSelectProject = (proj) => {
-    setSelectedProject(proj);
-    handleNavigate("design-studio");
+  const handleSelectProject = (account) => {
+    setSelectedAccount(account);
+    handleNavigate("design-studio", account.id);
   };
 
   return (
@@ -99,24 +122,24 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
             </div>
             <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
               <span>ธุรกิจ / บัญชีปัจจุบัน:</span>
-              {projectsList.length > 0 ? (
+              {accountsList.length > 0 ? (
                 <select
-                  value={selectedProject?.id || ""}
+                  value={selectedAccount?.id || ""}
                   onChange={(e) => {
-                    const found = projectsList.find(p => p.id === e.target.value);
-                    if (found) setSelectedProject(found);
+                    const found = accountsList.find(account => account.id === e.target.value);
+                    if (found) handleAccountChange(found);
                   }}
                   className="font-bold text-brand-dark dark:text-brand-amber bg-transparent border-0 p-0 text-xs focus:ring-0 cursor-pointer underline decoration-dotted"
                 >
-                  {projectsList.map(p => (
-                    <option key={p.id} value={p.id} className="text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900">
-                      {p.name}
+                  {accountsList.map(account => (
+                    <option key={account.id} value={account.id} className="text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900">
+                      {account.displayName || account.name || account.code}
                     </option>
                   ))}
                 </select>
               ) : (
                 <span className="font-bold text-brand-dark dark:text-brand-amber">
-                  {selectedProject?.name || business?.name || "SmartGift"}
+                  {selectedAccount?.displayName || selectedAccount?.name || business?.name || "ยังไม่ได้เลือกบัญชี"}
                 </span>
               )}
             </div>
@@ -144,6 +167,12 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         </div>
       </div>
 
+      {accountLoadError && (
+        <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+          {accountLoadError}
+        </div>
+      )}
+
       {/* Main Studio Viewport */}
       <div className="flex-1 w-full">
         {activeTab === "dashboard" && (
@@ -161,7 +190,8 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
 
         {activeTab === "design-studio" && (
           <LineStudioDesignHub
-            project={selectedProject}
+            project={selectedAccount}
+            onAccountChange={(accountId) => handleAccountChange(accountsList.find(account => account.id === accountId) || null)}
             onBackToProjects={() => handleNavigate("projects")}
           />
         )}

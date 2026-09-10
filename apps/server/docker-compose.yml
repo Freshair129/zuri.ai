@@ -6,8 +6,9 @@
 #                                                            or an external Postgres (Supabase) via DATABASE_URL
 #
 # Real services only: this repository is ONE Next.js app. There is no separate API,
-# gateway or Redis. The optional line-server worker ticks durable database jobs; the LINE webhook
-# seam (`POST /api/agent/line-webhook`) and the console are served by `web`.
+# gateway or Redis. The optional line-server worker ticks durable database jobs; the
+# legacy forwarding seam (`POST /api/agent/line-webhook`), account-scoped Server
+# webhook and the console are served by `web`.
 #
 # Configuration:
 #   .env         — required; interpolates this file and is the web container's env_file

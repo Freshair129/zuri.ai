@@ -7,6 +7,9 @@ owns_models:
   - SalesOrder
   - SalesOrderLine
   - Payment
+  - BusinessBillingProfile
+  - CommerceDocument
+  - CommerceDocumentSequence
 owns_routes:
   - src/app/(pm)/commerce/**
   - src/app/api/commerce/**
@@ -29,10 +32,11 @@ updated_at: "2026-09-07T00:30:00+07:00"
 
 ## Mission
 
-Commerce is the Business-scoped authority for **what the Business sold and how
-the money settled**: the sales order with its lines, the payments and refunds
-against it, and the revenue that only verified money makes. It answers, for
-every Business,
+Commerce is the Business-scoped authority for **what the Business sold, how the
+money settled, and which local document snapshot records that sale**: the sales
+order with its lines, the payments and refunds against it, revenue that only
+verified money makes, and immutable invoice/receipt/tax-document snapshots. It
+answers, for every Business,
 
 1. What did we sell, to whom, from which conversation, for how much?
 2. What has actually been paid — verified, not merely claimed — and what is
@@ -40,6 +44,8 @@ every Business,
 3. Where did the revenue come from: chat (attributed to a Conversation), the
    shop floor, online?
 4. Which stock did a sale consume?
+5. Which configured issuer, buyer, tax and payment facts were captured when a
+   document was previewed or issued?
 
 Stable identities:
 
@@ -63,6 +69,20 @@ Architecture decision: [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AN
 - `Payment` (`payment_id`) — `code` `PAY-YYYYMMDD-NNN`, PAYMENT or REFUND,
   method, amount, PENDING → VERIFIED | REJECTED, `bankReference` unique per
   Tenant as an attribute, the slip as a `FileAsset` (FR-163).
+- `BusinessBillingProfile` — one Business-scoped profile for the configured
+  non-VAT/VAT policy and verified PromptPay recipient. Seller legal identity is
+  read from the existing `LegalEntity`; it is not copied into a Commerce seller
+  master. The owner configuration flow may update `LegalEntity.legalAddress`
+  and the selected `Branch` address/tax code only when the shared-identity
+  guard permits it (FR-186).
+- `CommerceDocument` (`commerce_document_id`) — immutable `INVOICE`,
+  `RECEIPT`, `TAX_INVOICE` or `ABB_TAX_INVOICE` snapshot for one Business,
+  order and active Branch. Issue allocates one per-Business/type/calendar-year
+  sequence, stores the canonical request hash beside the idempotency key, and
+  writes one audit row; preview has no number, timestamp or row (FR-186).
+- `CommerceDocumentSequence` — the transactional per-Business/type/year
+  counter used by `CommerceDocument`; it is an implementation record, never a
+  user-editable numbering input.
 
 **Never stored:** an order's total, paid, balance or payment state. They are
 computed on every read from the lines and the VERIFIED payments — the same
@@ -77,7 +97,9 @@ rule progress and stock on-hand follow.
 | `FileAsset` bytes | file management | the slip is a reference; bytes stay where every file lives |
 | Catalogue offers, gift tiers, recipient segments, price tiers, corporate clients (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient` in the owner's ontology) | **this lane, later** — each its own FR | a line's price is given at sale time until an offer catalogue exists |
 | Slip OCR | a later candidate extraction (the Asset evidence rule: a candidate never verifies itself) | a human verifies; `PAYMENT_VERIFIER` or the owner |
-| Invoices, receipts, tax documents, store credit | future Finance / Commerce FRs | not modelled |
+| LegalEntity and Branch identity | Identity / Business master data | Billing reads the verified LegalEntity and selected active Branch; Billing may update address fields only through the owner flow and refuses a shared LegalEntity edit |
+| Statutory e-tax certification, tax filing and provider settlement | external legal/provider boundary | local snapshots and PromptPay payloads carry no statutory or bank-success claim |
+| Store credit | future Finance / Commerce FR | not modelled |
 | Ads, ROAS, attribution to an ad | future Marketing lane | `origin` CHAT and `conversationId` are the hook; no ad id is stored (ADR-054 D5) |
 | Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165) | the buy side; Commerce is the sell side. Both meet only in the Inventory ledger (a receipt adds, a fulfilled order removes) |
 
@@ -103,8 +125,23 @@ verifying or rejecting a payment needs Business OWNER or `PAYMENT_VERIFIER`
 - Only VERIFIED payments count — for the order's state and for revenue.
 - Fulfilment issues every counted line or nothing; a SERIAL-tracked line is
   refused (a sale cannot pick serials).
+- A document request carries buyer `ISSUANCE_INPUT` or the explicitly allowed
+  anonymous walk-in receipt policy. Seller identity, tax policy and PromptPay
+  recipient come from current Business configuration; missing or unverified
+  values fail explicitly.
+- A durable `RECEIPT` requires verified payment at least equal to its document
+  gross amount. Preview may show unpaid or pending state without claiming that
+  money was received.
+- Preview is POST and non-persistent. Issue is POST, requires an idempotency
+  key, persists an immutable snapshot and canonical request hash, and retries
+  the exact request to the same document. Reusing the key with a changed
+  order, type, branch, buyer or PromptPay choice fails with 409.
+- POS checkout creates a WALK_IN order, a PENDING payment and tracked stock
+  issues atomically; the existing payment verifier is the only path to
+  VERIFIED money. Cash change is computed from integer satang.
 - Every write is one transaction that bumps `version` and appends one
-  `AuditEvent` (`SALES_ORDER`, `PAYMENT`).
+  `AuditEvent` (`SALES_ORDER`, `PAYMENT`, `BUSINESS_BILLING_PROFILE`,
+  `COMMERCE_DOCUMENT`).
 
 ## Source layout
 
@@ -115,24 +152,35 @@ src/modules/commerce/
 ├── application/sales-order-service.js          the only writer of orders and lines (FR-166)
 ├── application/payment-service.js              the only writer of payments (FR-163)
 ├── application/revenue-read-model.js           verified revenue by origin and day (read-only)
+├── domain/billing.js                            billing/POS schemas, VAT and PromptPay calculators (FR-186/183)
+├── application/billing-invoice-service.js      profile, preview, issue and immutable document reads (FR-186)
+├── application/pos-cashier-service.js           atomic POS order/payment/Inventory composition (FR-183)
+├── components/BillingWorkspace.jsx              owner config and preview/issue UI
+├── components/PosWorkspace.jsx                  manual-price POS and pending-payment UI
 └── index.js                                    stable module exports
 ```
 
-Runtime surfaces are `/commerce`, `/commerce/orders` and `/api/commerce/**`.
+Runtime surfaces are `/commerce`, `/commerce/orders`, `/commerce/invoices`,
+`/commerce/pos` and `/api/commerce/**`.
 
 ## Delivery state
 
 FR-166 and FR-163 are implemented locally with both migrations written
 (`20260907000000_commerce_orders_payments`) and the production SQL **not
-applied** (an owner-instructed operator step, ADR-057). Not in this slice: the
-offer catalogue, slip OCR, invoices and receipts, store credit, LINE intake of
-an order from a chat.
+applied** (an owner-instructed operator step, ADR-057). FR-186 and FR-183 are
+implemented locally with migration `20260911010000_commerce_billing_pos` and
+the production SQL **not applied**. Local document snapshots are not statutory
+e-tax certification, and a local PromptPay payload is not evidence of bank
+settlement. Not in this slice: the offer catalogue, slip OCR, store credit,
+terminal registry, price catalogue, provider calls, or LINE intake of an order
+from a chat.
 
 ## References
 
 - [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 - [FR-166 sales orders](features/FR-166-sales-orders.md)
 - [FR-163 payments and revenue](features/FR-163-payments-and-revenue.md)
+- [Owner-approved Billing/POS contract](../../change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
 - [Inventory ontology record](../inventory/ONTOLOGY.md) — the offer layer this lane still owes
 
 ## CHANGELOG
@@ -140,3 +188,5 @@ an order from a chat.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Commerce lane with sales orders, lines and payments; corrections from the legacy Orders & Payments shape recorded in ADR-065 | working-tree | Claude Fable 5.1 |
+| 1.1.0b | 2026-09-11 | owner-approved beta | Added FR-186 durable billing documents and issuer/tax/PromptPay configuration plus FR-183 atomic manual-price POS composition; production migration/provider activation remains pending | working-tree | RWANG |
+| 1.1.1b | 2026-09-11 | owner-approved beta | Published PR #318 claimed FR-182 for SCM, so the already-approved billing subject is recorded as FR-186 through the id-ledger abandonment path; POS remains FR-183 and behavior is unchanged | working-tree | RWANG |

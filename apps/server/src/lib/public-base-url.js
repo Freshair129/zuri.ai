@@ -8,7 +8,7 @@
 
 export const DEFAULT_PUBLIC_BASE_URL = 'http://localhost:3100'
 
-/** `POST /api/agent/line-webhook` is the only inbound webhook this app serves. */
+/** The zuri-cli forwarding seam; account-scoped Server webhooks have their own route. */
 export const LINE_WEBHOOK_PATH = '/api/agent/line-webhook'
 
 function normalizeOrigin(value) {

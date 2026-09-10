@@ -1,0 +1,9 @@
+
+> zuri-monorepo@0.1.0 docs:check
+> npm --prefix apps/server run docs:check
+
+
+> zuri-ai@0.1.0 docs:check
+> node scripts/doc-graph.mjs --check
+
+doc-graph is up to date

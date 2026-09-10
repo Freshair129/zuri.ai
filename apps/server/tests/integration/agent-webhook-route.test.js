@@ -123,6 +123,33 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
     expect(turnInput.externalMessageId).toBe('msg-binding-v1')
   })
 
+  it('passes a trusted group route to the thread-memory seam', async () => {
+    let turnPorts
+    const handler = createLineWebhookPost({
+      runtimeFactory: () => ({
+        bindingResolver: { resolve: async () => ({ id: 'binding-group', tenantId: tenant.id, businessId: business.id }) },
+        threadMemory: {},
+      }),
+      turnHandler: async (_input, ports) => {
+        turnPorts = ports
+        return { identity: { principalType: 'CUSTOMER' }, response: { kind: 'ANSWER', skipReply: false } }
+      },
+    })
+    const res = await post({
+      bindingId: '84ed2c90-ab44-46f3-9618-1f24df0744b9',
+      destination: 'U-smartgift',
+      events: [{ type: 'message', source: { userId: 'Uwh-group', groupId: 'Cwh-group' }, message: { id: 'MWH-GROUP', type: 'text', text: 'hello' } }],
+    }, handler, { authorization: `Bearer ${'x'.repeat(32)}` })
+    expect(res.status).toBe(200)
+    expect(turnPorts.threadRoute).toEqual({
+      threadKind: 'GROUP',
+      audienceKind: 'GROUP',
+      channelType: 'LINE',
+      channelAccountId: 'binding-group',
+      externalRoomRef: 'Cwh-group',
+    })
+  })
+
   it('rejects legacy client scope before turn work when Phase 1 runtime is enabled', async () => {
     let turnCalls = 0
     const handler = createLineWebhookPost({

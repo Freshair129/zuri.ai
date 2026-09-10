@@ -258,6 +258,14 @@ Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
 
+## Approved contract — Commerce Billing, PromptPay and POS
+
+Source: [Approved contract — Commerce Billing, PromptPay and POS](change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
+
+Backlinks:
+
+- [Domain — commerce](domains/commerce/CHARTER.md) (references)
+
 ## ZV2-CR-004 — Supabase production tenant bootstrap
 
 Source: [ZV2-CR-004 — Supabase production tenant bootstrap](changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)
@@ -650,6 +658,7 @@ Source: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent 
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 - [Domain — inventory](domains/inventory/CHARTER.md) (references)
 - [ADR-026 — Agent Topology for the Visual Office](decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
@@ -914,6 +923,7 @@ Source: [ADR-039 — Requirement ids are pinned by subject anchor](decisions/ADR
 Backlinks:
 
 - [Document link metadata](GOVERNANCE-LINK-METADATA.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (references)
 - [ADR-051 — The primary checkout is not a working lane](decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
@@ -1299,6 +1309,7 @@ Source: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-acco
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) (references)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (references)
 - [UI Specification: LINE Studio Enterprise Suite](domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
@@ -1319,6 +1330,8 @@ Source: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/AD
 Backlinks:
 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
+- [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) (references)
 - [Architecture](ARCHITECTURE.md) (relates)
 - [Context map — LINE OA Studio](domains/line-oa-studio/CONTEXT-MAP.md) (relates)
 - [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md) (relates)
@@ -1582,6 +1595,7 @@ Source: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Land
 Backlinks:
 
 - [ERP module map — where each module the owner names lives](ERP-MODULE-MAP.md) (references)
+- [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -1832,6 +1846,7 @@ Source: [Domain — commerce](domains/commerce/CHARTER.md)
 - references: [FR-163 — Payments, verification and revenue (payment_id)](domains/commerce/features/FR-163-payments-and-revenue.md)
 - references: [FR-166 — Sales orders (order_id)](domains/commerce/features/FR-166-sales-orders.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+- references: [Approved contract — Commerce Billing, PromptPay and POS](change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 
 ## FR-163 — Payments, verification and revenue (payment_id)
@@ -2660,6 +2675,24 @@ Backlinks:
 - [FR-150-P2 — Optional Edge conversation execution](domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md) (relates)
 - [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md) (relates)
 
+## LINE OA — reliability remediation record for the reviewed branch
+
+Source: [LINE OA — reliability remediation record for the reviewed branch](domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md)
+
+- references: [req:FR-080](PRD-SDD-v1.0.md)
+- references: [req:FR-091](PRD-SDD-v1.0.md)
+- references: [req:FR-093](PRD-SDD-v1.0.md)
+- references: [req:FR-146](PRD-SDD-v1.0.md)
+- references: [req:FR-149](PRD-SDD-v1.0.md)
+- references: [req:FR-150](PRD-SDD-v1.0.md)
+- references: [req:FR-151](PRD-SDD-v1.0.md)
+- references: [req:FR-152](PRD-SDD-v1.0.md)
+- references: [req:FR-153](PRD-SDD-v1.0.md)
+- references: [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+- references: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- relates: feat:FEAT-018
+- relates: feat:FEAT-019
+
 ## SRS — LINE OA Studio domain
 
 Source: [SRS — LINE OA Studio domain](domains/line-oa-studio/SRS.md)
@@ -3312,6 +3345,15 @@ Backlinks:
 
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+
+## Retained branch completion
+
+Source: [Retained branch completion](roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md)
+
+- references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+- references: [ADR-039 — Requirement ids are pinned by subject anchor](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+- references: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
+- references: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
 
 ## FEAT-019 — Domain-owned execution phases
 

@@ -4,7 +4,6 @@ import React, { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   MessageSquare,
-  Filter,
   Send,
   Sparkles,
   Paperclip,
@@ -14,13 +13,9 @@ import {
   Tag,
   Star,
   CheckCircle2,
-  Clock,
   MoreVertical,
   Bot,
-  ExternalLink,
   ChevronRight,
-  UserCheck,
-  Plus
 } from 'lucide-react'
 // @req FR-091, FR-093 — LineCRM-MCP 3-Column Live Chat with AI Assist & Member 360°
 // @spec SDD-050, ADR-060, ADR-061
@@ -30,7 +25,7 @@ import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 
 export default function LineCrmLiveChat() {
-  const { shell, currentBusiness: selectedBusiness } = useScope()
+  const { shell } = useScope()
   const businessId = shell.activeBusinessId
   const [selectedChatId, setSelectedChatId] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
@@ -38,7 +33,6 @@ export default function LineCrmLiveChat() {
   const [inputText, setInputText] = useState('')
   const [aiAutoReply, setAiAutoReply] = useState(true)
   const [aiActionMessage, setAiActionMessage] = useState(null)
-  const [simulating, setSimulating] = useState(false)
 
   // Live DB Fetch
   const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : null
@@ -116,70 +110,10 @@ export default function LineCrmLiveChat() {
     return matchesSearch && c.category === filterCategory
   })
 
-  // Function to simulate a real incoming message from LINE Webhook
-  const handleSimulateIncomingMessage = async () => {
-    setSimulating(true)
-    try {
-      const res = await fetch('/api/agent/line-webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          destination: selectedBusiness?.code || 'U_SMARTGIFT',
-          events: [
-            {
-              type: 'message',
-              message: {
-                id: `msg-sim-${Date.now()}`,
-                type: 'text',
-                text: 'สวัสดีครับ สนใจสอบถามรายละเอียดสินค้าและโปรโมชั่น SmartGift ครับ 🎁'
-              },
-              timestamp: Date.now(),
-              source: {
-                type: 'user',
-                userId: 'U2962d3754b3390ec16c5a74ea154f742'
-              },
-              replyToken: `nHuySimToken_${Date.now()}`
-            }
-          ]
-        })
-      })
-      if (res.ok) {
-        liveInbox.reload?.()
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setSimulating(false)
-    }
-  }
-
   const handleSendMessage = (e) => {
     e?.preventDefault()
     if (!inputText.trim()) return
-
-    const newMsg = {
-      id: `msg-${Date.now()}`,
-      sender: 'agent',
-      text: inputText,
-      time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-      status: 'sent'
-    }
-
-    if (!isLive) {
-      const base = localConversations.length > 0 ? localConversations : CHAT_CONVERSATIONS
-      setLocalConversations(
-        base.map((c) => {
-          if (c.id === activeChat.id) {
-            return {
-              ...c,
-              lastMessage: inputText,
-              messages: [...(c.messages || []), newMsg]
-            }
-          }
-          return c
-        })
-      )
-    }
+    setAiActionMessage('บันทึกข้อความเป็นฉบับร่างแล้ว — ยังไม่มี outbound LINE send contract ใน Live CRM')
     setInputText('')
   }
 
@@ -260,14 +194,7 @@ export default function LineCrmLiveChat() {
               <p className="text-[11px] text-slate-400 leading-relaxed">
                 เมื่อมีลูกค้าทักเข้ามาใน LINE OA หรือส่ง Webhook เข้ามา รายชื่อห้องแชทจะปรากฏที่นี่โดยอัตโนมัติ
               </p>
-              <button
-                onClick={handleSimulateIncomingMessage}
-                disabled={simulating}
-                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>{simulating ? 'กำลังจำลอง...' : '🚀 ทดลองส่งแชทจำลองเข้า DB'}</span>
-              </button>
+              <p className="text-[11px] text-slate-400">การสนทนาจะปรากฏเมื่อมี webhook จริงจากบัญชีที่เปิดใช้งาน</p>
             </div>
           ) : (
             filteredChats.map((chat) => (
@@ -319,7 +246,7 @@ export default function LineCrmLiveChat() {
           </div>
           <h3 className="font-bold text-sm text-slate-800 dark:text-white">ยังไม่ได้เลือกห้องแชท</h3>
           <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-            เลือกห้องแชทจากกล่องข้อความทางด้านซ้าย หรือกดปุ่ม <strong>"ทดลองส่งแชทจำลองเข้า DB"</strong> เพื่อทดสอบส่งข้อความเข้ามาในระบบ
+             เลือกห้องแชทจากกล่องข้อความทางด้านซ้าย ข้อมูลจะแสดงเมื่อมี webhook จริงเข้ามาในระบบ
           </p>
         </div>
       ) : (
@@ -514,8 +441,8 @@ export default function LineCrmLiveChat() {
             </div>
             <div className="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800">
               <div className="text-[10px] text-slate-500 dark:text-slate-400">ยอดใช้จ่ายรวม</div>
-              <div className="text-sm font-black text-slate-900 dark:text-white">{activeChat.totalSpent}</div>
-              <div className="text-[9px] text-slate-400">จาก {activeChat.orderCount} รายการ</div>
+              <div className="text-sm font-black text-slate-900 dark:text-white">฿{(activeChat.totalSpend || 0).toLocaleString()}</div>
+              <div className="text-[9px] text-slate-400">จาก {activeChat.ordersCount || 0} รายการ</div>
             </div>
           </div>
 

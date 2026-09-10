@@ -1,0 +1,486 @@
+{
+  "baseCommit": "861e9fb4cd0a1343f67d5dde71437b701c06b767",
+  "method": "tracked-file enumeration; TypeScript AST exported names; identifier scan across tracked runtime, tests and scripts; framework entrypoints and internal/test seams are not deletion candidates",
+  "trackedFiles": 3150,
+  "runtimeFiles": 843,
+  "scopedRuntimeFiles": 54,
+  "scopeFiles": [
+    "apps/edge/src/conversation/client.ts",
+    "apps/edge/src/conversation/contract.ts",
+    "apps/edge/src/conversation/executor.ts",
+    "apps/edge/src/conversation/worker.ts",
+    "apps/edge/src/desktop-worker.ts",
+    "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
+    "apps/server/src/modules/line-crm/LineCrmAiMcp.jsx",
+    "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
+    "apps/server/src/modules/line-crm/LineCrmAutomation.jsx",
+    "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
+    "apps/server/src/modules/line-crm/LineCrmDashboard.jsx",
+    "apps/server/src/modules/line-crm/LineCrmHub.jsx",
+    "apps/server/src/modules/line-crm/LineCrmLiveChat.jsx",
+    "apps/server/src/modules/line-crm/LineCrmLoyalty.jsx",
+    "apps/server/src/modules/line-crm/LineCrmMemberPortal.jsx",
+    "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
+    "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
+    "apps/server/src/modules/line-crm/LineCrmRichMenu.jsx",
+    "apps/server/src/modules/line-crm/LineCrmSettings.jsx",
+    "apps/server/src/modules/line-crm/LineCrmShell.jsx",
+    "apps/server/src/modules/line-crm/mockData.js",
+    "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+    "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+    "apps/server/src/modules/line-oa-studio/application/line-oa-account-authority.js",
+    "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+    "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
+    "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
+    "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+    "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
+    "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
+    "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+    "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+    "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
+    "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+    "apps/server/src/modules/line-oa-studio/index.js",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioDashboard.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioFlexEditor.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioFlowDesigner.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioRichMenu.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioShell.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/LineStudioTemplates.jsx",
+    "apps/server/src/modules/line-oa-studio/ui/index.js",
+    "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
+    "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
+    "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
+    "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
+    "apps/server/src/platform/integrations/providers/line/server-line-transport.js"
+  ],
+  "relatedDocumentation": [
+    ".brain/rca/2026-09-07-line-crm-build-syntax.md",
+    ".brain/rca/2026-09-07-line-crm-jsx-build-blocker.md",
+    ".brain/rca/2026-09-08-edge-desktop-runtime-contract-gap.md",
+    ".brain/rca/2026-09-08-line-crm-client-exception.md",
+    "apps/edge/docs/DEVLOG-SERVER-LINE-OPTIONAL-EDGE.md",
+    "apps/edge/docs/EDGE-DESKTOP-TAURI-RUNTIME.md",
+    "apps/edge/docs/LINE-REPLY-OWNERSHIP-DECISION.md",
+    "apps/edge/docs/SERVER-LINE-OPTIONAL-EDGE.md",
+    "apps/server/src/modules/line-oa-studio/README.md",
+    "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
+    "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
+    "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
+    "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
+    "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
+    "docs/domains/crm/features/FR-148-account-scoped-conversations.md",
+    "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
+    "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
+    "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
+    "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
+    "docs/domains/line-oa-studio/CHARTER.md",
+    "docs/domains/line-oa-studio/CONTEXT-MAP.md",
+    "docs/domains/line-oa-studio/SRS.md",
+    "docs/domains/line-oa-studio/UI-SPEC-LINE-STUDIO-ENTERPRISE.md",
+    "docs/domains/line-oa-studio/features/FR-146-line-oa-account.md",
+    "docs/domains/line-oa-studio/features/FR-149-server-line-transport.md",
+    "docs/domains/line-oa-studio/features/FR-150-optional-edge-execution.md",
+    "docs/domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md",
+    "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
+    "docs/domains/line-oa-studio/features/FR-153-line-oa-liff-app-registry.md",
+    "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
+    "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
+    "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
+    "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-02-CLOUD-RUNTIME-OPERATIONS.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-03-IDENTITY-PERMISSION.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-06-GROUP-ASSISTANT-ACTIONS.md",
+    "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
+    "docs/roadmap/line-oa-business-agent/README.md",
+    "docs/runbooks/line-oa-provider-merge.md"
+  ],
+  "entrypoints": [
+    "apps/edge/src-tauri/src/lib.rs",
+    "apps/edge/src-tauri/src/main.rs",
+    "apps/edge/src/cli/commands.ts",
+    "apps/edge/src/cli/conversation.ts",
+    "apps/edge/src/cli/extraction.ts",
+    "apps/edge/src/cli/index.ts",
+    "apps/edge/src/cli/output.ts",
+    "apps/edge/src/cli/price.ts",
+    "apps/edge/src/desktop-worker.ts",
+    "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/design-studio/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/projects/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/team/page.jsx",
+    "apps/server/src/app/(pm)/line-oa/templates/page.jsx",
+    "apps/server/src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+    "apps/server/src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+    "apps/server/src/app/(pm)/platform/sot-pipeline/page.jsx",
+    "apps/server/src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+    "apps/server/src/app/(pm)/timeline/page.jsx",
+    "apps/server/src/app/api/agent/line-asset-handoff/route.js",
+    "apps/server/src/app/api/agent/line-delivery/route.js",
+    "apps/server/src/app/api/agent/line-webhook/route.js",
+    "apps/server/src/app/api/edge/conversation-jobs/[id]/complete/route.js",
+    "apps/server/src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+    "apps/server/src/app/api/edge/conversation-jobs/claim/route.js",
+    "apps/server/src/app/api/edge/extraction-jobs/[id]/complete/route.js",
+    "apps/server/src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
+    "apps/server/src/app/api/edge/extraction-jobs/[id]/fail/route.js",
+    "apps/server/src/app/api/edge/extraction-jobs/claim/route.js",
+    "apps/server/src/app/api/edge/pairing/approve/route.js",
+    "apps/server/src/app/api/edge/pairing/poll/route.js",
+    "apps/server/src/app/api/edge/pairing/start/route.js",
+    "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
+    "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
+    "apps/server/src/app/api/knowledge/ingestions/route.js",
+    "apps/server/src/app/api/knowledge/queries/route.js",
+    "apps/server/src/app/api/knowledge/sources/[sourceId]/route.js",
+    "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
+    "apps/server/src/app/api/line-oa/accounts/[id]/route.js",
+    "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
+    "apps/server/src/app/api/line-oa/accounts/route.js",
+    "apps/server/src/app/api/line-oa/connections/route.js",
+    "apps/server/src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
+    "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
+    "apps/server/src/app/api/line-oa/liff-apps/[id]/route.js",
+    "apps/server/src/app/api/line-oa/liff-apps/route.js",
+    "apps/server/src/app/api/line-oa/rich-menu-worker/route.js",
+    "apps/server/src/app/api/line-oa/rich-menus/[id]/jobs/route.js",
+    "apps/server/src/app/api/line-oa/rich-menus/[id]/route.js",
+    "apps/server/src/app/api/line-oa/rich-menus/route.js",
+    "apps/server/src/app/api/line-oa/worker/route.js",
+    "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
+    "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
+    "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/route.js",
+    "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
+    "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
+    "apps/server/src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+    "apps/server/src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+    "apps/server/src/app/api/pipelines/runs/[executionRunId]/route.js",
+    "apps/server/src/app/api/pipelines/runs/route.js",
+    "apps/server/src/app/api/platform/edge-devices/credentials/[id]/route.js",
+    "apps/server/src/app/api/platform/edge-devices/credentials/route.js",
+    "apps/server/src/app/api/platform/integrations/line-registry/route.js",
+    "apps/server/src/app/edge/pair/page.jsx"
+  ],
+  "exportCandidates": [
+    {
+      "file": "apps/edge/src/conversation/executor.ts",
+      "name": "headlessProviderHome",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/edge/tests/unit/conversation-worker.test.ts"
+      ]
+    },
+    {
+      "file": "apps/edge/src/conversation/executor.ts",
+      "name": "validateExecutionPolicy",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/edge/tests/unit/conversation-worker.test.ts"
+      ]
+    },
+    {
+      "file": "apps/edge/src/conversation/worker.ts",
+      "name": "ConversationWorkerDeps",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/edge/src/desktop-worker.ts",
+      "name": "DesktopWorkerInit",
+      "internal": 6,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/edge/src/desktop-worker.ts",
+      "name": "DesktopWorkerCommand",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/edge/src/desktop-worker.ts",
+      "name": "parseDesktopWorkerInit",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/edge/tests/unit/desktop-worker.test.ts"
+      ]
+    },
+    {
+      "file": "apps/edge/src/desktop-worker.ts",
+      "name": "parseDesktopWorkerCommand",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/edge/tests/unit/desktop-worker.test.ts"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "name": "LINE_JOB_LEASE_MS",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/integration/server-line-jobs.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "name": "sealLineReplyToken",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "name": "unsealLineReplyToken",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+      "name": "zBotProfile",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+      "name": "LINE_OA_LIFF_APP_STATUSES",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-liff-app-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+      "name": "LIFF_BASE_URL",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+      "name": "LIFF_ID_PATTERN",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+      "name": "zLiffId",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-liff-app-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-liff-app.js",
+      "name": "zLiffAppFields",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
+      "name": "LINE_OA_RICH_MENU_JOB_STATUSES",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
+      "name": "translateAction",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-liff-app-domain.test.js",
+        "apps/server/tests/unit/line-oa-rich-menu-publish.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "RICH_MENU_MAX_AREAS",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-rich-menu-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "zBounds",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "zRichMenuAction",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-rich-menu-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "zRichMenuArea",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "zRichMenuDraft",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+        "apps/server/tests/unit/line-oa-rich-menu-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "zRichMenuAlias",
+      "internal": 3,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isAllowedImageSize",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/unit/line-oa-rich-menu-domain.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isEditableVersionStatus",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isKnownVersionStatus",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isKnownActionType",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
+      "name": "MOCK_RICH_MENU_LAYOUTS",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
+      "name": "LINE_OA_SCHEMA_VERSION",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
+      "name": "LINE_OA_RESOURCE_TYPE",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
+      "name": "createLineOaWebhookConnector",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": [
+        "apps/server/tests/integration/platform/integration-persistence.test.js",
+        "apps/server/tests/unit/platform/line-oa-webhook.test.js"
+      ]
+    },
+    {
+      "file": "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
+      "name": "zLineRichMenuObject",
+      "internal": 2,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    }
+  ],
+  "zeroConsumerSymbols": [
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu-publish.js",
+      "name": "LINE_OA_RICH_MENU_JOB_STATUSES",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isEditableVersionStatus",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isKnownVersionStatus",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
+      "name": "isKnownActionType",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    },
+    {
+      "file": "apps/server/src/modules/line-oa-studio/ui/mockStudioData.js",
+      "name": "MOCK_RICH_MENU_LAYOUTS",
+      "internal": 1,
+      "runtimeReferences": [],
+      "testOrScriptReferences": []
+    }
+  ],
+  "incrementalReview": {
+    "head": "20bea237da73dbbaf7aabd440b1848194cda1c7f",
+    "changedPaths": [
+      "apps/edge/src-tauri/src/lib.rs",
+      "apps/edge/src-tauri/tauri.conf.json"
+    ],
+    "scannedJavaScriptAndTypeScriptUnchanged": true
+  }
+}

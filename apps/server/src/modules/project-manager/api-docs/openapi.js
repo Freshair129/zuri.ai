@@ -96,6 +96,16 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],
   ['/api/commerce/orders/{id}/payments', ['GET', 'POST']], ['/api/commerce/payments/{id}', ['GET', 'PATCH']],
   ['/api/commerce/revenue', ['GET']],
+  // @req FR-186 — Business-scoped billing configuration, durable document
+  // preview/issuance, and read-only issued-document retrieval.
+  ['/api/commerce/billing/config', ['GET', 'PATCH']],
+  ['/api/commerce/billing/documents/preview', ['POST']],
+  ['/api/commerce/billing/documents', ['POST']],
+  ['/api/commerce/billing/documents/{id}', ['GET']],
+  // @req FR-183 — POS catalogue reads and atomic checkout composition over
+  // existing Commerce payments plus the Inventory append-only ledger.
+  ['/api/commerce/pos/catalogue', ['GET']],
+  ['/api/commerce/pos/checkout', ['POST']],
   // @req FR-164, FR-165 — procurement: suppliers (list + create; archive is
   // an action, never a DELETE), purchase orders (list + create, read +
   // versioned action) and the goods receipts of one order (list + post —
@@ -103,6 +113,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/procurement/suppliers', ['GET', 'POST']], ['/api/procurement/suppliers/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders', ['GET', 'POST']], ['/api/procurement/purchase-orders/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders/{id}/receipts', ['GET', 'POST']],
+  ['/api/procurement/receipts', ['GET']], ['/api/procurement/receipts/{id}', ['GET']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.

@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   CheckCircle2
 } from 'lucide-react'
-import { CRM_MEMBERS_DIRECTORY, TIERS } from './mockData'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 
@@ -23,29 +22,25 @@ import { useFetch } from '@/modules/project-manager/components/useApi'
 
 export default function LineCrmMembers() {
   const { businessId, selectedBusiness } = useScope()
-  const [dataMode, setDataMode] = useState('auto') // 'auto' | 'demo'
   const [search, setSearch] = useState('')
   const [selectedTier, setSelectedTier] = useState('ALL')
   const [activeMember, setActiveMember] = useState(null)
 
   // Fetch real registered LINE users & customers
-  const regPath = businessId ? `/api/platform/integrations?businessId=${encodeURIComponent(businessId)}` : '/api/platform/integrations'
+  const regPath = businessId ? `/api/platform/integrations/line-registry?businessId=${encodeURIComponent(businessId)}` : '/api/platform/integrations/line-registry'
   const integrations = useFetch(regPath, [businessId])
 
   const convPath = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : '/api/crm/conversations'
   const liveInbox = useFetch(convPath, [businessId])
 
   const registeredUsers = useMemo(() => {
-    const registry = integrations.data?.lineRegistry || []
+    const registry = Array.isArray(integrations.data) ? integrations.data : []
     return registry.filter(r => r.kind === 'USER')
   }, [integrations.data])
 
   const realCustomers = useMemo(() => {
     return liveInbox.data?.conversations || []
   }, [liveInbox.data])
-
-  const hasRealMembers = registeredUsers.length > 0 || realCustomers.length > 0
-  const isLive = dataMode === 'demo' ? false : hasRealMembers
 
   const members = useMemo(() => {
     const list = []

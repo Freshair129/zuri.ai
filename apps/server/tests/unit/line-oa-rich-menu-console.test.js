@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { LINE_OA_RICH_MENU_ACTIONS, LINE_OA_RICH_MENU_ACTION_TYPES, LINE_OA_RICH_MENU_LAYOUTS, LINE_OA_RICH_MENU_JOB_KINDS } from '@/lib/validation/enums'
 import { DOMAINS } from '@/config/domains'
+import { shouldCommitScopedResponse } from '@/app/(pm)/line-oa/rich-menus/page'
 
 // @req FR-151 — the rich menu console offers exactly the actions the service
 //   implements, and claims nothing beyond them.
@@ -118,14 +119,61 @@ describe('the console reads its vocabulary from the source of truth', () => {
 describe('the nav entry matches a page that exists', () => {
   const lineOa = DOMAINS.find((domain) => domain.key === 'line-oa')
 
-  it('lists Rich Menu under LINE OA Studio', () => {
-    expect(lineOa.sub.map((item) => item.path)).toContain('/line-oa/rich-menus')
+  it('lists one Design Studio owner and keeps the old route as compatibility only', () => {
+    expect(lineOa.sub.map((item) => item.path)).toContain('/line-oa/design-studio')
+    expect(lineOa.sub.map((item) => item.path)).not.toContain('/line-oa/rich-menus')
+    expect(src('src/app/(pm)/line-oa/rich-menus/page.jsx')).toMatch(/RichMenusWorkspace/)
   })
 
   it('points every LINE OA nav path at a real page file', () => {
     for (const item of lineOa.sub) {
       expect(() => src(`src/app/(pm)${item.path}/page.jsx`)).not.toThrow()
     }
+  })
+
+  it('keeps the compatibility URL addressable by accountId', () => {
+    expect(src(PAGE)).toMatch(/useSearchParams/)
+    expect(src(PAGE)).toMatch(/initialAccountId=\{searchParams\.get\('accountId'\) \|\| ''\}/)
+    expect(src(PAGE)).toMatch(/<Suspense fallback=/)
+  })
+})
+
+describe('the rich menu workspace fences asynchronous Business and account changes', () => {
+  it('drops delayed Business A data after fast Business B data becomes current', async () => {
+    let current = { version: 1, businessId: 'business-a', accountId: 'account-a' }
+    const delayedA = Promise.resolve({
+      request: { version: current.version, businessId: current.businessId, accountId: current.accountId },
+      payload: { richMenus: [{ id: 'menu-a' }] },
+    })
+    current = { version: 2, businessId: 'business-b', accountId: 'account-b' }
+    const fastB = Promise.resolve({
+      request: { version: current.version, businessId: current.businessId, accountId: current.accountId },
+      payload: { richMenus: [{ id: 'menu-b' }] },
+    })
+
+    const accepted = []
+    for (const response of await Promise.all([delayedA, fastB])) {
+      if (shouldCommitScopedResponse(response.request, current)) accepted.push(response.payload.richMenus[0].id)
+    }
+    expect(accepted).toEqual(['menu-b'])
+  })
+
+  it('requires the selected account to stay inside the current Business', () => {
+    expect(shouldCommitScopedResponse(
+      { version: 4, businessId: 'business-a', accountId: 'account-a' },
+      { version: 4, businessId: 'business-b', accountId: 'account-b' },
+    )).toBe(false)
+    expect(shouldCommitScopedResponse(
+      { version: 4, businessId: 'business-b', accountId: 'account-b' },
+      { version: 4, businessId: 'business-b', accountId: 'account-b' },
+    )).toBe(true)
+  })
+
+  it('flushes dependent menus when the parent selection changes, even if local state already matches', () => {
+    expect(src(PAGE)).toMatch(/initialAccountChangePending/)
+    expect(src(PAGE)).toMatch(/setMenus\(\[\]\)/)
+    expect(src(PAGE)).toMatch(/setJobsByMenu\(\{\}\)/)
+    expect(src(PAGE)).not.toMatch(/if \(initialAccountId === accountId\) return/)
   })
 })
 

@@ -69,7 +69,7 @@ export default function LineCrmHub({ onSelectModule }) {
       subtitle: 'Multi-OA + สถานะ Webhook',
       icon: Radio,
       color: 'bg-emerald-500/10 text-emerald-600 border-emerald-200',
-      badge: '3 บัญชีเชื่อมต่อ',
+      badge: 'Studio status',
     },
     {
       id: 'rich-menu',
@@ -77,7 +77,7 @@ export default function LineCrmHub({ onSelectModule }) {
       subtitle: 'ตัวออกแบบเมนู + preview',
       icon: Grid,
       color: 'bg-green-500/10 text-green-600 border-green-200',
-      badge: '3 เมนู',
+      badge: 'Studio owner',
     },
     {
       id: 'automation',

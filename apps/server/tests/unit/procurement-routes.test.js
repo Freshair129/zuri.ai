@@ -21,6 +21,8 @@ const ROUTES = {
   'src/app/api/procurement/purchase-orders/route.js': ['GET', 'POST'],
   'src/app/api/procurement/purchase-orders/[id]/route.js': ['GET', 'PATCH'],
   'src/app/api/procurement/purchase-orders/[id]/receipts/route.js': ['GET', 'POST'],
+  'src/app/api/procurement/receipts/route.js': ['GET'],
+  'src/app/api/procurement/receipts/[id]/route.js': ['GET'],
 }
 const MODELS = ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine']
 

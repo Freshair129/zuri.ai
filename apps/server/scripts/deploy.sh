@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build and start the zuri-ai Docker Compose stack (web + ngrok, optional local Postgres).
-# Idempotent. Reads .env (and the optional .env.docker) from the repository root.
+# Idempotent. Resolves the Server app directory and reads apps/server/.env (and the
+# optional apps/server/.env.docker); the repository-root .env is not used by Compose.
 # Usage: scripts/deploy.sh [--no-build] [--pull]
 # See docs/deployment/docker-ngrok.md.
 set -euo pipefail

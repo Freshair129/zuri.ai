@@ -195,7 +195,9 @@ export async function resolveAgentAuthorization({
     : Boolean(principal.verifiedAt && principal.linkedAt)
   const knownPrincipal = principal.principalType !== 'UNKNOWN' && (staffScope || customerScope)
   const transportVerified = serverScope.transportVerified === true
-  const privateMemoryAllowed = transportVerified && identityVerified && resolvedScope.authorized && knownPrincipal
+  // Mixed-audience disclosure requires its own verified audience contract.
+  const directAudience = (serverScope.audienceKind ?? 'DIRECT') === 'DIRECT'
+  const privateMemoryAllowed = transportVerified && identityVerified && resolvedScope.authorized && knownPrincipal && directAudience
   const configuredMspAuthorization = serverScope.mspAuthorization && typeof serverScope.mspAuthorization === 'object'
     ? serverScope.mspAuthorization
     : {}

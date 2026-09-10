@@ -192,6 +192,26 @@ describe('LINE reply delivery receipt (FR-093)', () => {
     expect((await response.json()).error).toBe('TENANT_ID_REQUIRED')
   })
 
+  it('reconciles MSP only from the scoped persisted reply and retries memory after a transport failure', async () => {
+    const channelAccountId = 'oa-memory-receipt'
+    const inbound = await ingestLineMessage({ tenantId: tenantA.id, businessId: busA.id, channelAccountId,
+      lineUserId: 'U-memory-receipt', threadId: 'dm-memory-receipt', text: 'question', externalMessageId: 'memory-receipt-in' })
+    const memory = []
+    const bound = createLineDeliveryPost({ logger: quietLogger, ownershipGuard: async () => {},
+      runtimeFactory: async () => ({ bindingResolver: { resolve: async () => ({ tenantId: tenantA.id, businessId: busA.id, channelAccountId }) },
+        threadMemory: { recordDelivery: async (receipt) => { memory.push(receipt); if (memory.length === 1) throw new Error('MSP_UNAVAILABLE') } } }) })
+    const body = (text) => ({ bindingId: '11111111-1111-4111-8111-111111111111', destination: 'test-oa',
+      deliveries: [{ inboundMessageId: inbound.messageId, text }] })
+    expect((await (await post(bound, body('actual sent text'))).json()).results[0].ok).toBe(false)
+    expect((await (await post(bound, body('forged retry text'))).json()).results[0].ok).toBe(true)
+    expect(memory[1]).toMatchObject({ text: 'actual sent text', outcome: 'ACCEPTED', inboundMessageId: inbound.messageId,
+      route: { tenantId: tenantA.id, businessId: busA.id, channelAccountId, externalRoomRef: 'dm-memory-receipt' } })
+    expect(memory[1].receiptId).toBe(memory[0].receiptId)
+    const wrong = { ...body('cross tenant'), deliveries: [{ inboundMessageId: inboundB.messageId, text: 'cross tenant' }] }
+    expect((await (await post(bound, wrong)).json()).results[0].ok).toBe(false)
+    expect(memory).toHaveLength(2)
+  })
+
   it('refuses client-selected scope when a binding runtime is composed', async () => {
     // BR-012 — with a runtime present, Tenant/Business are server authority and a
     // caller naming its own is refused before anything is written (FR-052).

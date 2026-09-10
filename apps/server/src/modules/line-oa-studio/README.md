@@ -4,7 +4,7 @@ This directory reserves the technical ownership lane `TD-LINE-OA-STUDIO`
 proposed by ADR-060 — the multi-account command center for LINE Official
 Accounts.
 
-Phase 1, slice 1 (FR-146) is built here:
+The locally implemented Phase 1 slices (FR-146, FR-151, FR-152 and the Studio shell) are built here:
 
 ```text
 src/modules/line-oa-studio/
@@ -16,9 +16,11 @@ src/modules/line-oa-studio/
 └── index.js                                  stable exports
 ```
 
-Routes: `src/app/api/line-oa/accounts/route.js` (GET, POST) and
-`src/app/api/line-oa/accounts/[id]/route.js` (GET, PATCH). Everything else in
-the charter's owned-concepts list is still a claim, not code.
+Routes include the account API (`src/app/api/line-oa/accounts/route.js` and
+`src/app/api/line-oa/accounts/[id]/route.js`), the Rich Menu API/job lane, the
+Business-scoped LINE registry, and the local Studio shell under
+`src/app/(pm)/line-oa/**`. The remaining charter concepts are still bounded
+claims until their own implementation requirement is approved.
 
 Before adding another JavaScript file, route, Prisma model or runtime
 navigation entry, the implementing slice must:
