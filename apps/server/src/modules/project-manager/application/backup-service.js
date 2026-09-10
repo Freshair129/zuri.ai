@@ -493,7 +493,7 @@ export async function exportSnapshot({
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
-  let warnings = []
+  const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
   else {
@@ -504,7 +504,7 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
     errors.push(...admission.errors)
     warnings.push(...admission.warnings)
     errors.push(...manifest.errors)
-    warnings = manifest.warnings
+    warnings.push(...manifest.warnings)
     recovery = manifest.recovery
   }
   if (errors.length) return { valid: false, errors, warnings, recovery, counts: null }

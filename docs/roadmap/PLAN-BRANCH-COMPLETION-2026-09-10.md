@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.5.0b"
+version: "0.6.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T02:36:43+07:00,RWANG"
+last_update: "2026-09-11T03:45:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -35,6 +35,29 @@ Existing worktrees and their uncommitted files remain source
 evidence; each implementation lane works on an independent sibling worktree.
 
 ## Ownership and order
+
+### Owner approval and merged baseline — 2026-09-11
+
+The owner's instruction **"merge and approve"** authorizes merging PR #319 and
+implementing all three contracts linked in the preceding completion report:
+primary-worker memory composition, Inventory stocktake, and Marketing P5 read/planning.
+PR #319 merged at `196e4a9ab4ee3b2b73f76e55e744e39e6f0c364a` after all seven
+hosted checks passed on `b03f9751`; the hosted Server result is 4,619 passed / 15
+skipped and browser result is 154 passed / 4 skipped, without flaky failures.
+The merged base additionally includes PR #317's documentation-only `llms.txt`.
+
+Implementation proceeds in three independent worktrees with the existing
+GPT-5.6 Luna Max agents. Root owns integration, shared schema/backup reconciliation,
+canonical identity reconciliation and combined validation. Stocktake reserves
+FR-184; Marketing planning reserves FR-185; existing subjects remain unchanged.
+Each lane records this approval in its contract and completes its specified
+tests, build and governance before integration. This is C-3 / HIGH work because
+it changes durable recovery and authorization-sensitive state. Production
+deployment, production migrations, activation, messaging and ad spend remain
+outside the approved implementation scope.
+
+The historical candidate statements below describe the PR #319 cutoff; these
+three contracts are now approved and in implementation, not completed features.
 
 | Lane | Existing source | Contract authority | Completion evidence |
 |---|---|---|---|
@@ -150,6 +173,7 @@ results. The three pending contracts are not reported as completed features.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0b | 2026-09-11 | beta | Record owner approval of the three remaining contracts and verified PR #319 merge; start isolated parallel implementation | 196e4a9a | RWANG |
 | 0.5.0b | 2026-09-11 | beta | Record final integrated tests, canonical ID reconciliation, migration hashes and three remaining candidate contracts | 4a74c1ed | RWANG |
 | 0.4.0b | 2026-09-11 | beta | Link pending review artifacts and record integrated Business-switch guard plus isolated Billing migration evidence | working-tree | RWANG |
 | 0.3.0b | 2026-09-11 | beta | Record verified Edge cleanup repair, Billing identifier collision and three pending contract approvals | working-tree | RWANG |
@@ -157,5 +181,4 @@ results. The three pending contracts are not reported as completed features.
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
 Version diff: 0.4.0b → 0.5.0b; record verified implementation and remaining candidate boundaries without expanding scope.
-
 

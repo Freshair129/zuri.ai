@@ -13826,7 +13826,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "f3626ac8",
+      "hash": "343b2ebe",
       "status": "current",
       "annotations": {
         "@req": [
@@ -17707,7 +17707,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md",
       "title": "Retained branch completion",
-      "hash": "2edc84c9",
+      "hash": "f47a4f5f",
       "status": "current"
     },
     {
@@ -28388,7 +28388,7 @@
       "id": "test:tests/unit/fr045-backup-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
-      "hash": "71bcf8ab",
+      "hash": "6158503c",
       "status": "current"
     },
     {
