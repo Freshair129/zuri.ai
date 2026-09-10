@@ -1,9 +1,9 @@
 ---
 id: ZAI:PLAN-BRANCH-COMPLETION-2026-09-10
 title: Complete the retained branch work after the September cleanup
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-09-10T23:45:58+07:00,RWANG,base f320e888"
-last_update: "2026-09-11T01:17:00+07:00,RWANG"
+last_update: "2026-09-11T01:47:00+07:00,RWANG"
 status: beta
 superseded_by: null
 attributes:
@@ -95,6 +95,27 @@ separate atomic stocktake contract. That external PR is not merged by this lane.
 Unique superseded evidence has been copied with a SHA-256 manifest outside the
 checkout; original worktrees have not been deleted.
 
+The concrete pending review artifacts are the
+[primary-worker memory amendment](../../.brain/reports/2026-09-11-memory-worker-composition-amendment.md),
+[Warehouse stocktake contract](../../.brain/rca/2026-09-11-warehouse-p4-console-contract.md),
+and [Marketing P5 contract](../../.brain/reports/2026-09-11-marketing-p5-audit.md).
+
+Platform Integrations now also fences delayed reads and save callbacks across
+Business changes. Its isolated proof is 22 passing unit checks and two passing
+Chromium regressions with real local Business membership; the source and tests
+are integrated while preserving the connector presentation repair.
+
+Billing's isolated migration execution is verified against a generated baseline
+in SQLite and PostgreSQL 17.11. Synthetic FK checks reject deletion of an issued
+document's order, branch, Business and Tenant. PostgreSQL additionally verifies
+the exact index names/defaults, idempotent migration replay and runtime/web-login
+DML privileges. Initial SQL parity and missing-grant failures were repaired.
+The tested final PostgreSQL migration SHA-256 is
+`512becf9e45c3957d289255bc696f5a7755ab8a02163e6051abda0fa6a0d44d4`;
+integration must match that hash before reusing this proof. This is disposable
+database evidence, not production migration or rollout evidence. Billing source
+handoff and its final browser verification remain in progress.
+
 The integrated Server build and governance pass (zero critical/warning).
 The first full regression ran 4,599 tests: 4,582 passed, 15 skipped and two failed
 because assertions retained the previous API count and URL-removal contract.
@@ -122,10 +143,11 @@ Native-device acceptance and production activation remain unclaimed.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-09-11 | beta | Link pending review artifacts and record integrated Business-switch guard plus isolated Billing migration evidence | working-tree | RWANG |
 | 0.3.0b | 2026-09-11 | beta | Record verified Edge cleanup repair, Billing identifier collision and three pending contract approvals | working-tree | RWANG |
 | 0.2.0b | 2026-09-11 | beta | Record integrated receipt/OA/direct-memory scope, approved Billing work and unresolved worker/E2E gates | working-tree | RWANG |
 | 0.1.0b | 2026-09-10 | beta | Record the owner's parallel continuation request, bounded lanes and verification order | base f320e888 | RWANG |
 
-Version diff: 0.2.0b → 0.3.0b; evidence and approval states updated; record the Billing collision correction without changing approved behavior.
+Version diff: 0.3.0b → 0.4.0b; review links and verified local evidence added; approval boundaries and approved behavior are unchanged.
 
 
