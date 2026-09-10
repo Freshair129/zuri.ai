@@ -70,6 +70,27 @@ a return.
 
 ## Not in this slice
 
+## Retained workstation completion (2026-09-11)
+
+The owner's parallel completion request resumes the retained Goods Receipts
+workstation under FR-165 and ADR-066. Risk LOW; C-2, no schema change. Add
+`/procurement/receipts` with scoped registry and detail reads, intake against
+SENT purchase orders, and a printable receipt. Posting continues through
+`postGoodsReceipt`, retaining both permission ladders and atomic stock/audit
+writes. Quantity starts blank: the receiver supplies what actually arrived.
+The receipt shows persisted PO/line/lot/serial data and distinguishes counted
+goods from lines that do not affect stock. No quality-inspection or warehouse
+location capability is introduced by this workstation.
+
+List queries validate a bounded positive limit and return an explicit
+`hasMore` flag; the UI describes the displayed subset rather than calling its
+length a Business total. Business changes discard selection, intake and stale
+responses. Verification covers real persisted detail and scope refusals,
+malformed pagination, stale response isolation and the browser intake/read
+flow. Delivery claims are added only after these checks pass.
+
+## Remaining exclusions
+
 Purchase returns and credit notes; a receipt against no order (a direct
 receipt stays Inventory's own RECEIPT movement); warehouse locations; quality
 inspection and quarantine on receipt; landed cost; production application of
