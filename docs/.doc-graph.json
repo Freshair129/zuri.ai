@@ -16345,7 +16345,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.34.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "0a3d60cf",
+      "hash": "e110b390",
       "status": "current"
     },
     {
@@ -17926,7 +17926,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.181.0b",
       "doc_status": "Draft",
-      "hash": "4819a1cd",
+      "hash": "4f84643d",
       "status": "current"
     },
     {
@@ -17962,7 +17962,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "eb0e218c",
+      "hash": "1964e9d9",
       "status": "current"
     },
     {
@@ -18808,8 +18808,8 @@
     {
       "id": "feat:FEAT-026",
       "type": "feature",
-      "label": "SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, proposed — owner approval pending)",
-      "declared": "proposed",
+      "label": "SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized)",
+      "declared": "approved",
       "status": "current"
     },
     {
@@ -21690,7 +21690,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2, proposed) — SmartGift's 5-stage ETL becomes a source producer: its prepared JSON projection plus its own SHA-256-versioned registry is the version identity the adapter authorizes, freezes and enqueues into `DPL-KNOWLEDGE-INGEST-V1`, never synthesizing any stage result (extension map, `KNOWLEDGE-INGESTION-17-STAGE-FLOW.md` \"Before Stage 1\" row). Classification at Stage 5 (`DPS-KI-CLASSIFY`) enforces Zero-PII with the same deny policy SmartGift already runs (`pipeline/knowledge_registry/core.py` `DENIED` regex), so a customer/contact/quotation record can never be admitted as a product occurrence. SKU / FlowAccount codes travel as an attribute of the occurrence, never as its `resolutionKey`, and resolve through the existing per-Tenant `Product.flowAccountSku` (FR-174…FR-181 / ADR-074 D5) rather than a new catalog-vault mapping (BR-002). Replaces SmartGift Stage 5's direct `vaults/vlt-catalog-product/genesis-db` write; opens no Stage 18. 🔜 proposed — ADR-075 is `status: proposed`, owner approval pending; no code, no schema, no migration "
+      "row_text": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2, proposed) — SmartGift's 5-stage ETL becomes a source producer: its prepared JSON projection plus its own SHA-256-versioned registry is the version identity the adapter authorizes, freezes and enqueues into `DPL-KNOWLEDGE-INGEST-V1`, never synthesizing any stage result (extension map, `KNOWLEDGE-INGESTION-17-STAGE-FLOW.md` \"Before Stage 1\" row). Classification at Stage 5 (`DPS-KI-CLASSIFY`) enforces Zero-PII with the same deny policy SmartGift already runs (`pipeline/knowledge_registry/core.py` `DENIED` regex), so a customer/contact/quotation record can never be admitted as a product occurrence. SKU / FlowAccount codes travel as an attribute of the occurrence, never as its `resolutionKey`, and resolve through the existing per-Tenant `Product.flowAccountSku` (FR-174…FR-181 / ADR-074 D5) rather than a new catalog-vault mapping (BR-002). Replaces SmartGift Stage 5's direct `vaults/vlt-catalog-product/genesis-db` write; opens no Stage 18. 🔜 approved 2026-09-11 (ADR-075 approved, Phase 1 authorized) — not started; no code, no schema, no migration "
     },
     {
       "id": "req:FR-188",
@@ -21700,7 +21700,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "A structured parser profile, typed product mentions and an `ontology_v2` contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed) — a parser profile distinct from `genesisrag17-parser-1` produces Stage 8 (`DPS-KI-ENTITY-EXTRACT`) occurrences typed as catalog entities (e.g. `ProductMaster` / `CatalogOffer` / `BOM`), and `ontology_v2` declares the predicate(s) a product catalog needs beyond the frozen `ontology_v1` (`WORKS_FOR`, `PURCHASED`). Schema, hash, policy and receipt changes are agreed by zuri-ai, MSP, GKS and the GenesisBlock worker together before any one repo adds a field, per the flow doc's own \"ขั้นตอนเพิ่มความสามารถ\" change protocol; existing `ontology_v1` snapshots remain queryable as an older generation and are never rewritten. 🔜 proposed — ADR-075 is `status: proposed`, owner approval pending; no code, no schema/contract change "
+      "row_text": "A structured parser profile, typed product mentions and an `ontology_v2` contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed) — a parser profile distinct from `genesisrag17-parser-1` produces Stage 8 (`DPS-KI-ENTITY-EXTRACT`) occurrences typed as catalog entities (e.g. `ProductMaster` / `CatalogOffer` / `BOM`), and `ontology_v2` declares the predicate(s) a product catalog needs beyond the frozen `ontology_v1` (`WORKS_FOR`, `PURCHASED`). Schema, hash, policy and receipt changes are agreed by zuri-ai, MSP, GKS and the GenesisBlock worker together before any one repo adds a field, per the flow doc's own \"ขั้นตอนเพิ่มความสามารถ\" change protocol; existing `ontology_v1` snapshots remain queryable as an older generation and are never rewritten. 🔜 approved 2026-09-11 (ADR-075 approved) — Phase 2 needs its own gate and the four-repo contract agreement; no code, no contract change "
     },
     {
       "id": "req:FR-189",
@@ -21710,7 +21710,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB. 🔜 proposed — ADR-075 is `status: proposed`, owner approval pending; no code, no cutover "
+      "row_text": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB. 🔜 approved 2026-09-11 (ADR-075 approved) — Phase 4 needs its own gate; no code, no cutover "
     },
     {
       "id": "req:NFR-001",
@@ -26301,7 +26301,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
       "title": "ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter",
-      "hash": "428a5c9e",
+      "hash": "728cb8e1",
       "status": "current"
     },
     {

@@ -1,8 +1,8 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-status: "proposed"
+last_update: "2026-09-11T06:05:00+07:00,Claude Fable 5.1"
+status: "approved"
 superseded_by: null
 attributes:
   domain: "knowledge"
@@ -12,13 +12,16 @@ attributes:
 
 # ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter
 
-**Status:** Proposed. Owner has **not** approved this direction. Nothing in this ADR
-authorizes code, schema, migration or deployment; Phase 1 onward each require a
-separate, explicit owner approval (D8).
+**Status:** Approved by the owner on 2026-09-11 (instruction "approve" on PR #321).
+The approval covers the direction (D1–D9) and authorizes Phase 1 (Tier 1 adapter code;
+no schema, migration or deployment). Phases 2–5 each still require their own explicit
+owner approval (D8). Owner questions 2–4 were not answered; the working assumptions
+recorded below stand until the owner states otherwise and are re-confirmed at the gate
+of the phase that first depends on each.
 **Date:** 2026-09-11
-**Decided by:** Drafted for owner review (governance instruction of 2026-09-11 to
-document the convergence of the three independent SmartGift catalog writers found
-during the 2026-09-10 architecture review). No decision has been made yet.
+**Decided by:** Owner, 2026-09-11, on the draft written the same day to document the
+convergence of the three independent SmartGift catalog writers found during the
+2026-09-10 architecture review.
 **Relates to:** [ADR-042](ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) (D4),
 [ADR-043](ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) (D2.1),
 [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md),
@@ -164,8 +167,8 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
 
 | Phase | Content | Gate |
 |---|---|---|
-| 0 | This ADR + FR-187/FR-188/FR-189 declared `proposed`. No code. | This document, awaiting approval |
-| 1 | The structured-record source adapter itself (D2), Tier 1, before Stage 1. Runs the existing `rule_v1`/`ontology_v1` through Stage 17 unchanged — the catalog record travels as an opaque structured document until Phase 2. | Owner approves Phase 0 first |
+| 0 | This ADR + FR-187/FR-188/FR-189 declared `proposed`. No code. | Approved 2026-09-11 |
+| 1 | The structured-record source adapter itself (D2), Tier 1, before Stage 1. Runs the existing `rule_v1`/`ontology_v1` through Stage 17 unchanged — the catalog record travels as an opaque structured document until Phase 2. | Authorized by the 2026-09-11 approval; runs in its own lane |
 | 2 | Structured parser profile + `ontology_v2` four-repo contract change (D6). | Owner approves; zuri-ai/MSP/GKS/worker agree the contract before any repo implements |
 | 3 | Deploy topology — **owner decision**, not made here. [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) already states no production deployment for the 17-stage pipeline generally; this phase cannot start before that changes. | Owner |
 | 4 | Edge shadow-then-cutover: edge queries both v4 and the new published generation, compares, then cuts over; v4 kept as a stated fallback. | Owner sets the fallback window |
@@ -185,13 +188,17 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
   a consequence of this document. Phase 1 is the first phase that touches code, and
   it needs its own approval.
 
-### Owner questions (open; blocking Phase 1 and beyond)
+### Owner questions and working assumptions (question 1 answered 2026-09-11)
 
-1. Approve this direction at all?
+1. Approve this direction at all? — **Yes** (owner, 2026-09-11).
 2. Where do MSP/GKS/worker run for this profile in production — on the edge device or
    a server host? Today they are external development-machine repositories; ADR-073
    states no production deployment and does not settle this either.
+   **Working assumption (not answered):** the edge device, because the native store and
+   the LINE answer path already live there. Re-confirm at the Phase 3 gate.
 3. How long does Genesis RAG v4 stay as the Phase 4 fallback once cutover begins?
+   **Working assumption (not answered):** one campaign cycle after cutover, then sunset
+   in Phase 5. Re-confirm at the Phase 4 gate.
 4. Does the structured adapter read SmartGift's prepared JSON from the sibling
    checkout's file path (today's convention, the same one `apps/edge/src/rag/v4/paths.ts`
    uses) or does that file become a `FileAsset` uploaded through the existing
@@ -200,6 +207,9 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
    ACL, revocation, idempotent resubmission) instead of a second sibling-directory
    convention, and it is the only option that survives a checkout not laid out with
    `business-01-smart-gift` as a literal sibling of this repository.
+   **Working assumption (not answered):** `FileAsset`, as recommended. Phase 1 is built
+   against it; if the owner prefers the sibling-file convention, only the adapter's byte
+   source changes.
 
 ## Alternatives considered
 
@@ -250,10 +260,15 @@ citable published generation once Phase 4 lands.
    GKS, MSP and the GenesisBlock worker must each accept the same version before any
    one of them ships a field. This ADR can declare the zuri-ai side of that agreement;
    it cannot commit the other three repositories.
-4. **The FileAsset recommendation (owner question 4) is a recommendation, not a
-   decision.** Until the owner picks, the existing sibling-checkout file convention
-   `apps/edge/src/rag/v4/paths.ts` already uses is the documented working assumption
-   and is unchanged by this ADR.
+4. **The FileAsset choice (owner question 4) is a working assumption, not an owner
+   decision.** Phase 1 builds against `FileAsset`; the sibling-checkout convention
+   `apps/edge/src/rag/v4/paths.ts` uses stays in place for edge v4 until Phase 5.
 5. **No production migration, no new model, no deployment.** Phase 1 is the first
-   phase that touches code, and its own approval gate — not this document — is what
-   authorizes it.
+   phase that touches code; the 2026-09-11 approval authorizes it and nothing beyond.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.1.0 | 2026-09-11 | approved | Owner approved the direction and Phase 1 on PR #321; questions 2–4 recorded as working assumptions to re-confirm at their phase gates | PR #321 | Claude Fable 5.1 |
+| 1.0.0 | 2026-09-11 | proposed | Initial draft: single entry path, adapter before Stage 1, SmartGift as source producer, edge as published-generation reader, phase gates | 4a8b0ab3 | Claude Sonnet 5 |
