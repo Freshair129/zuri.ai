@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2451,
-    "total_edges": 9819,
+    "total_nodes": 2452,
+    "total_edges": 9821,
     "dangling_edges": 0,
     "node_types": {
       "document": 213,
@@ -16,7 +16,7 @@
       "route": 298,
       "model": 135,
       "requirement": 334,
-      "test": 581,
+      "test": 582,
       "code_file": 731
     },
     "coverage": {
@@ -10787,7 +10787,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "bd2aad4b",
+      "hash": "83acb567",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16918,7 +16918,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.172.0b",
       "doc_status": "Draft",
-      "hash": "ce081146",
+      "hash": "4cd255c7",
       "status": "current"
     },
     {
@@ -20176,11 +20176,11 @@
       "id": "req:FR-149",
       "type": "requirement",
       "family": "FR",
-      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
+      "label": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. One worker tick answers several waiting customers at once and delivers several ready answers in turn, so nobody is queued behind another customer's model call, and the supervisor's polling cadence follows the work — quick while there is any, backing off while there is none, with admission waking it directly when it queues a job. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
+      "row_text": "Server-owned LINE conversation transport — native signed webhooks resolve an explicitly enabled CLOUD account, record each event as Integration evidence and acknowledge LINE on that durable capture, admit it asynchronously into inbound CRM and a uniquely keyed conversation job in one transaction, and use the Integration-owned LINE port to send and record provider acceptance. An admission abandoned by process exit is not lost: the evidence row is labelled `ADMITTING` before the first attempt, and the bounded worker tick re-admits rows stranded there from the stored payload. A reconciled event carries no reply token — evidence strips it, and LINE's token is dead long before a reconciler runs — so it is delivered by Push where the account permits delayed Push, and otherwise ends `FAILED` visibly rather than silently. Terminal `FAILED` jobs are counted with their `errorCode` for the selected Business on the Studio conversation surface, so a customer who received no answer is visible without a database query. One worker tick answers several waiting customers at once and delivers several ready answers in turn, so nobody is queued behind another customer's model call, and the supervisor's polling cadence follows the work — quick while there is any, backing off while there is none, with admission waking it directly when it queues a job. Per-account ownership fencing, immutable send payload, bounded retries, secret redaction and receipt recovery prevent duplicate or falsely reported sends. 🟠 implementing ADR-061 "
     },
     {
       "id": "req:FR-150",
@@ -24655,7 +24655,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "2743fb0f",
+      "hash": "7e019780",
       "status": "current"
     },
     {
@@ -25906,7 +25906,7 @@
       "id": "test:tests/integration/server-line-jobs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/server-line-jobs.test.js",
-      "hash": "f7ae2278",
+      "hash": "e9ee94e0",
       "status": "current"
     },
     {
@@ -27432,7 +27432,7 @@
       "id": "test:tests/unit/line-admission-after-ack.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/line-admission-after-ack.test.js",
-      "hash": "85d0ae56",
+      "hash": "a540b7ea",
       "status": "current"
     },
     {
@@ -28560,6 +28560,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/server-line-answer.test.js",
       "hash": "5cc38af2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/server-line-worker-cadence.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/server-line-worker-cadence.test.js",
+      "hash": "63ff5129",
       "status": "current"
     },
     {
@@ -96061,6 +96068,20 @@
     {
       "from": "test:tests/unit/server-line-answer.test.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-cadence.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/server-line-worker-cadence.test.js",
+      "to": "req:FR-152",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

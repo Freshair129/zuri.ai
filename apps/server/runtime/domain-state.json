@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T02:27:25.227Z",
+  "generatedAt": "2026-09-10T04:19:47.271Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -423,7 +423,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-150",
@@ -1066,7 +1066,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-153",
@@ -1836,14 +1836,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-152",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-173",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 20,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-150",
@@ -2529,7 +2529,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-153",
@@ -3899,7 +3899,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-150",
@@ -3920,7 +3920,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-153",
@@ -5883,7 +5883,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-153",
@@ -5986,7 +5986,8 @@
         "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
-        "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js"
+        "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js",
+        "apps/server/tests/unit/server-line-worker-cadence.test.js"
       ]
     },
     {
@@ -6028,7 +6029,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-150",
@@ -6121,6 +6122,7 @@
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/scope-external-ids-migration.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
+        "apps/server/tests/unit/server-line-worker-cadence.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js"
       ]
     },

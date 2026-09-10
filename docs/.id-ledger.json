@@ -2894,7 +2894,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "5f0a4727bc22b43ddc9ce65c7adf77bdfd15374ee31ec8a7e90dea6948493758",
+      "statement_digest": "adeb23b767caa481f4778167788c2368ece0cf813e785badd1b3827839efd759",
       "history": [
         {
           "anchor": "server owned line conversation transport",
@@ -2902,8 +2902,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-09",
-      "statement_digest_reason": "ADR-061 D4 and the FR-149 row now state the acknowledgment boundary the code has had since PR #306 (LINE answered on durable evidence capture, admission asynchronous) and add reconciliation of abandoned admissions plus an operator-visible terminal-failure count. Same subject: server-owned LINE conversation transport."
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "ADR-061 D6 amended: a worker tick answers a bounded number of jobs in parallel and sends a bounded number of ready answers in order, and the supervisor polls on a work-following cadence with a direct wake from admission. The subject anchor is unchanged; only the statement gained the new guarantee."
     },
     "FR-150": {
       "family": "FR",
