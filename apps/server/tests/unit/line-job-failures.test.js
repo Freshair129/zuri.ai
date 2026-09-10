@@ -82,8 +82,12 @@ describe('FR-149 job-failure summary — the honest shape', () => {
     expect(result.failures).toHaveLength(1)
 
     // Every query is scoped to this Business and to terminal FAILED rows only.
-    expect(count.mock.calls[0][0]).toMatchObject({ where: { businessId: BUSINESS_ID, status: 'FAILED' } })
     expect(groupBy.mock.calls[0][0]).toMatchObject({ by: ['errorCode'], where: { businessId: BUSINESS_ID, status: 'FAILED' } })
+    // And there is no separate count: the total is summed from the buckets the groupBy already
+    // returned. Not a micro-optimisation — this card mounts on a provisioning screen whose
+    // sibling transaction failed on CI at 45 ms past Prisma's default under exactly this
+    // contention, so a read we do not need is a read we do not issue.
+    expect(count).not.toHaveBeenCalled()
     const findManyArgs = findMany.mock.calls[0][0]
     expect(findManyArgs.where).toEqual({ businessId: BUSINESS_ID, status: 'FAILED' })
     expect(findManyArgs.orderBy).toEqual({ updatedAt: 'desc' })

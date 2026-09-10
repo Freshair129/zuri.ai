@@ -42,8 +42,17 @@ export async function summarizeLineConversationJobFailures({ businessId, viewer,
 
   const where = { businessId: business, status: 'FAILED' }
 
-  const [total, groups, failures] = await Promise.all([
-    db.lineConversationJob.count({ where }),
+  // Two reads, not three. The separate `count` asked for a number the groupBy already carries:
+  // every FAILED row falls in exactly one errorCode bucket, `null` included, so summing the
+  // buckets is not an estimate — it is the identical total, one round trip cheaper.
+  //
+  // Worth trimming because of where this runs. The card mounts on a provisioning screen that is
+  // already issuing several requests, and on CI that extra contention pushed a *sibling's*
+  // interactive transaction 45 ms past Prisma's 5 s default: account creation failed outright with
+  // P2028 and was reported to the browser as a 400 (seen in the e2e traces for fr151 and fr149).
+  // Raising that transaction's timeout is the real fix; not asking for an answer we already hold
+  // is the part that belongs here.
+  const [groups, failures] = await Promise.all([
     db.lineConversationJob.groupBy({ by: ['errorCode'], where, _count: { _all: true } }),
     db.lineConversationJob.findMany({ where, orderBy: { updatedAt: 'desc' }, take: 20, select: FAILURE_SELECT }),
   ])
@@ -51,6 +60,7 @@ export async function summarizeLineConversationJobFailures({ businessId, viewer,
   const byErrorCode = groups
     .map((group) => ({ errorCode: group.errorCode ?? null, count: group._count._all }))
     .sort((a, b) => b.count - a.count)
+  const total = byErrorCode.reduce((sum, bucket) => sum + bucket.count, 0)
 
   return { businessId: business, total, byErrorCode, failures }
 }
