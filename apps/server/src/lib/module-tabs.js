@@ -14,6 +14,7 @@ export const INVENTORY_TABS = [
   { key: 'locations', label: 'Locations', path: '/inventory/locations' },
   { key: 'work-orders', label: 'Work Orders', path: '/inventory/work-orders' },
   { key: 'reservations', label: 'Reservations', path: '/inventory/reservations' },
+  { key: 'stocktakes', label: 'Stocktake', path: '/inventory/stocktakes' },
 ]
 
 export const PROCUREMENT_TABS = [

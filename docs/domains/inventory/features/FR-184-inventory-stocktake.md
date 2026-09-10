@@ -92,6 +92,14 @@ the next mutation continues from the restored revision.
 
 ## Acceptance evidence
 
+The console lives at `/inventory/stocktakes` in the existing Inventory navigation.
+An observation starts blank and requires an explicit non-negative integer, including
+zero. The preview URL carries only its durable preview id; reloading reads the
+Business-scoped saved result. A commit retry retains the same preview-derived
+idempotency key after a lost response. Changing Business unmounts the desk and
+invalidates pending responses. Saved results show the authoritative movement count
+and per-line post-commit balances returned by the service.
+
 The implementation closes the approved contract with focused domain/integration
 tests for viewer and Business scope, strict NONE/LOT validation, integer and
 cross-Business identity joins, snapshot staleness, fence ordering, rollback,
