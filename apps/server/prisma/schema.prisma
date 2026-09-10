@@ -100,6 +100,7 @@ model Tenant {
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
   marketingContentBriefs MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model LegalEntity {
@@ -216,6 +217,7 @@ model Business {
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
   marketingContentBriefs MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model Branch {
@@ -3218,6 +3220,50 @@ model MarketingOperationsIntake {
 
   @@index([tenantId, businessId, status])
   @@index([businessId, requiredAt])
+}
+
+// @req FR-185 — Business-scoped LINE broadcast planning identity and its
+// append-only revisions; no provider send or audience payload is stored here.
+// @spec FR-157, FR-159, FR-160, FR-103, SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntent {
+  id              String   @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  status          String   @default("PLANNING")
+  currentRevision Int      @default(1)
+  version         Int      @default(1)
+  idempotencyKey  String
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  tenant    Tenant                          @relation(fields: [tenantId], references: [id])
+  business  Business                        @relation(fields: [businessId], references: [id])
+  revisions MarketingBroadcastIntentVersion[]
+
+  @@unique([businessId, idempotencyKey])
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
+}
+
+// @req FR-185 — broadcast planning payloads are immutable and hash-bound.
+// @spec SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntentVersion {
+  id          String   @id @default(uuid())
+  intentId    String
+  revision    Int
+  payloadJson String
+  payloadHash String
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  intent MarketingBroadcastIntent @relation(fields: [intentId], references: [id], onDelete: Cascade)
+
+  @@unique([intentId, revision])
 }
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),
