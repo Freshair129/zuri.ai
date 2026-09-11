@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2638,
-    "total_edges": 10679,
+    "total_nodes": 2644,
+    "total_edges": 10727,
     "dangling_edges": 0,
     "node_types": {
-      "document": 217,
+      "document": 218,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -16,16 +16,16 @@
       "route": 337,
       "model": 146,
       "requirement": 359,
-      "test": 617,
-      "code_file": 798
+      "test": 620,
+      "code_file": 800
     },
     "coverage": {
       "requirements": 359,
-      "fr_with_code": "100% (176/176)",
-      "fr_with_tests": "100% (176/176)",
+      "fr_with_code": "100% (177/177)",
+      "fr_with_tests": "100% (177/177)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 798,
+      "annotated_code_files": 800,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -37,7 +37,6 @@
         "FR-128",
         "FR-131",
         "FR-132",
-        "FR-187",
         "FR-188",
         "FR-189"
       ],
@@ -4959,11 +4958,12 @@
       "id": "code:src/app/api/knowledge/ingestions/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/knowledge/ingestions/route.js",
-      "hash": "78a38601",
+      "hash": "f14c1fee",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-173"
+          "FR-173",
+          "FR-187"
         ],
         "@spec": [
           "SEC-001",
@@ -4971,7 +4971,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/knowledge-admission-routes.test.js"
+          "tests/unit/knowledge-admission-routes.test.js",
+          "tests/integration/smartgift-catalog-admission.test.js"
         ]
       }
     },
@@ -11388,18 +11389,21 @@
       "id": "code:src/modules/knowledge/knowledge-admission-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/knowledge-admission-service.js",
-      "hash": "797af808",
+      "hash": "7ce6bc80",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-173"
+          "FR-173",
+          "FR-187"
         ],
         "@spec": [
           "SEC-001",
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/knowledge-admission-service.test.js"
+          "tests/unit/knowledge-admission-service.test.js",
+          "tests/unit/smartgift-catalog-adapter.test.js",
+          "tests/integration/smartgift-catalog-admission.test.js"
         ]
       }
     },
@@ -11502,15 +11506,17 @@
       "id": "code:src/modules/knowledge/knowledge-runtime.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/knowledge-runtime.js",
-      "hash": "c9a5fe69",
+      "hash": "ee02721f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-173"
+          "FR-173",
+          "FR-187"
         ],
         "@tested": [
           "tests/unit/knowledge-runtime.test.js",
-          "tests/acceptance/knowledge-admission-native.test.js"
+          "tests/acceptance/knowledge-admission-native.test.js",
+          "tests/integration/smartgift-catalog-admission.test.js"
         ]
       }
     },
@@ -11736,6 +11742,25 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+      "hash": "f62ee2ce",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-187"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/smartgift-catalog-adapter.test.js",
+          "tests/integration/smartgift-catalog-admission.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/smartgift-knowledge-catalog.js",
@@ -11770,6 +11795,25 @@
         "@tested": [
           "tests/unit/knowledge-stage-runner.test.js",
           "tests/unit/knowledge-stage-runner-trace.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/structured-record-policy.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/structured-record-policy.js",
+      "hash": "5e5341c2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-187"
+        ],
+        "@spec": [
+          "FR-111",
+          "SEC-021"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-zero-pii-policy.test.js"
         ]
       }
     },
@@ -15582,12 +15626,13 @@
       "id": "code:src/modules/project-manager/mcp/transport.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/mcp/transport.js",
-      "hash": "e2194b62",
+      "hash": "343d5dbf",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-069",
-          "FR-071"
+          "FR-071",
+          "FR-187"
         ],
         "@spec": [
           "SEC-001",
@@ -15595,7 +15640,8 @@
         ],
         "@tested": [
           "tests/unit/project-manager-mcp.test.js",
-          "tests/unit/pipeline-mcp-transport.test.js"
+          "tests/unit/pipeline-mcp-transport.test.js",
+          "tests/unit/knowledge-admission-mcp.test.js"
         ]
       }
     },
@@ -15898,20 +15944,22 @@
       "id": "code:src/platform/integrations/core/genesisrag17-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-      "hash": "111f466e",
+      "hash": "9e18ebe6",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-173",
           "FR-109",
-          "FR-110"
+          "FR-110",
+          "FR-187"
         ],
         "@spec": [
           "NFR-020",
-          "ADR-050, ADR-063, ADR-067, ADR-068, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md"
+          "ADR-050, ADR-063, ADR-067, ADR-068, ADR-075, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md"
         ],
         "@tested": [
-          "tests/integration/genesisrag17-tier1.test.js"
+          "tests/integration/genesisrag17-tier1.test.js",
+          "tests/integration/smartgift-catalog-admission.test.js"
         ]
       }
     },
@@ -17754,6 +17802,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-187-smartgift-catalog-adapter",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
+      "title": "FR-187 — SmartGift structured-record source adapter (Phase 1)",
+      "hash": "eed2e06d",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -17856,7 +17912,7 @@
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md",
       "title": "Knowledge ingestion — surfaces, data flow และ user journey",
-      "hash": "271e37b4",
+      "hash": "37d189f5",
       "status": "current"
     },
     {
@@ -18380,7 +18436,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "eb91d3d0",
+      "hash": "243efe39",
       "status": "current"
     },
     {
@@ -18416,7 +18472,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b0745890",
+      "hash": "80227dfe",
       "status": "current"
     },
     {
@@ -22186,9 +22242,9 @@
       "family": "FR",
       "label": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2, proposed) — SmartGift's 5-stage ETL becomes a source producer: its prepared JSON projection plus its own SHA-256-versioned registry is the version identity the adapter authorizes, freezes and enqueues into `DPL-KNOWLEDGE-INGEST-V1`, never synthesizing any stage result (extension map, `KNOWLEDGE-INGESTION-17-STAGE-FLOW.md` \"Before Stage 1\" row). Classification at Stage 5 (`DPS-KI-CLASSIFY`) enforces Zero-PII with the same deny policy SmartGift already runs (`pipeline/knowledge_registry/core.py` `DENIED` regex), so a customer/contact/quotation record can never be admitted as a product occurrence. SKU / FlowAccount codes travel as an attribute of the occurrence, never as its `resolutionKey`, and resolve through the existing per-Tenant `Product.flowAccountSku` (FR-174…FR-181 / ADR-074 D5) rather than a new catalog-vault mapping (BR-002). Replaces SmartGift Stage 5's direct `vaults/vlt-catalog-product/genesis-db` write; opens no Stage 18.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2, proposed) — SmartGift's 5-stage ETL becomes a source producer: its prepared JSON projection plus its own SHA-256-versioned registry is the version identity the adapter authorizes, freezes and enqueues into `DPL-KNOWLEDGE-INGEST-V1`, never synthesizing any stage result (extension map, `KNOWLEDGE-INGESTION-17-STAGE-FLOW.md` \"Before Stage 1\" row). Classification at Stage 5 (`DPS-KI-CLASSIFY`) enforces Zero-PII with the same deny policy SmartGift already runs (`pipeline/knowledge_registry/core.py` `DENIED` regex), so a customer/contact/quotation record can never be admitted as a product occurrence. SKU / FlowAccount codes travel as an attribute of the occurrence, never as its `resolutionKey`, and resolve through the existing per-Tenant `Product.flowAccountSku` (FR-174…FR-181 / ADR-074 D5) rather than a new catalog-vault mapping (BR-002). Replaces SmartGift Stage 5's direct `vaults/vlt-catalog-product/genesis-db` write; opens no Stage 18. 🔜 approved 2026-09-11 (ADR-075 approved, Phase 1 authorized) — not started; no code, no schema, no migration "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2, proposed) — SmartGift's 5-stage ETL becomes a source producer: its prepared JSON projection plus its own SHA-256-versioned registry is the version identity the adapter authorizes, freezes and enqueues into `DPL-KNOWLEDGE-INGEST-V1`, never synthesizing any stage result (extension map, `KNOWLEDGE-INGESTION-17-STAGE-FLOW.md` \"Before Stage 1\" row). Classification at Stage 5 (`DPS-KI-CLASSIFY`) enforces Zero-PII with the same deny policy SmartGift already runs (`pipeline/knowledge_registry/core.py` `DENIED` regex), so a customer/contact/quotation record can never be admitted as a product occurrence. SKU / FlowAccount codes travel as an attribute of the occurrence, never as its `resolutionKey`, and resolve through the existing per-Tenant `Product.flowAccountSku` (FR-174…FR-181 / ADR-074 D5) rather than a new catalog-vault mapping (BR-002). Replaces SmartGift Stage 5's direct `vaults/vlt-catalog-product/genesis-db` write; opens no Stage 18. 🟢 implemented locally (tests), not deployed — ADR-075 Phase 1 only (adapter, admission fan-out, Stage 5 Zero-PII gate); no model, no column, no migration; parser profile/`ontology_v2` remain FR-188 "
     },
     {
       "id": "req:FR-188",
@@ -28207,6 +28263,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+      "hash": "07d3d412",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
@@ -29726,6 +29789,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-zero-pii-policy.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+      "hash": "c665d67f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/legacy-line-transport-ownership.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/legacy-line-transport-ownership.test.js",
@@ -30990,6 +31060,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/sign-out.test.js",
       "hash": "86eb3815",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+      "hash": "a8535d1a",
       "status": "current"
     },
     {
@@ -38291,6 +38368,13 @@
     {
       "from": "code:src/app/api/knowledge/ingestions/route.js",
       "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/knowledge/ingestions/route.js",
+      "to": "req:FR-187",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -47824,6 +47908,13 @@
     },
     {
       "from": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "to": "req:FR-187",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-admission-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -47937,6 +48028,13 @@
     {
       "from": "code:src/modules/knowledge/knowledge-runtime.js",
       "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-runtime.js",
+      "to": "req:FR-187",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48166,6 +48264,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "to": "req:FR-187",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -48210,6 +48322,27 @@
     {
       "from": "code:src/modules/knowledge/stage-runner.js",
       "to": "req:SDD-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/structured-record-policy.js",
+      "to": "req:FR-111",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/structured-record-policy.js",
+      "to": "req:FR-187",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/structured-record-policy.js",
+      "to": "req:SEC-021",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -54103,6 +54236,13 @@
     },
     {
       "from": "code:src/modules/project-manager/mcp/transport.js",
+      "to": "req:FR-187",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/mcp/transport.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -54440,6 +54580,13 @@
     {
       "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
       "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:FR-187",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -57149,6 +57296,20 @@
     {
       "from": "doc:FR-173-knowledge-admission-and-corpus",
       "to": "spec:ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-187-smartgift-catalog-adapter",
+      "to": "req:FR-173",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-187-smartgift-catalog-adapter",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
       "type": "references",
       "source": "metadata",
       "status": "current"
@@ -69005,6 +69166,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/acceptance/knowledge-admission-native.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/e2e/edge-desktop-ui.spec.js",
       "to": "req:FR-141",
       "type": "verifies",
@@ -79009,6 +79177,13 @@
     },
     {
       "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
       "to": "req:NFR-018",
       "type": "verifies",
       "status": "current",
@@ -83962,6 +84137,104 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "code:src/app/api/knowledge/ingestions/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "code:src/modules/knowledge/knowledge-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
@@ -95256,10 +95529,38 @@
     },
     {
       "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "code:src/modules/project-manager/mcp/transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
       "to": "req:FR-173",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-mcp.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/knowledge-admission-mcp.test.js",
@@ -95305,6 +95606,13 @@
     },
     {
       "from": "test:tests/unit/knowledge-admission-routes.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-routes.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -95337,6 +95645,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-admission-service.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/knowledge-admission-service.test.js",
@@ -95907,6 +96222,13 @@
     },
     {
       "from": "test:tests/unit/knowledge-runtime.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-runtime.test.js",
       "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
@@ -96030,6 +96352,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-zero-pii-policy.test.js",
+      "to": "code:src/modules/knowledge/structured-record-policy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-zero-pii-policy.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-zero-pii-policy.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-zero-pii-policy.test.js",
+      "to": "req:SEC-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/legacy-line-transport-ownership.test.js",
@@ -100037,6 +100387,13 @@
     },
     {
       "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -102774,6 +103131,13 @@
     },
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -104724,6 +105088,55 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "code:src/modules/knowledge/knowledge-admission-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/smartgift-document-intake-migration.test.js",

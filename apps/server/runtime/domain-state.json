@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T23:25:30.945Z",
+  "generatedAt": "2026-09-11T03:04:25.043Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,8 +40,8 @@
     "featureCount": 131,
     "readyFeatureCount": 107,
     "requirementCount": 189,
-    "verifiedRequirementCount": 176,
-    "progressPercent": 93.1,
+    "verifiedRequirementCount": 177,
+    "progressPercent": 93.7,
     "gapCount": 24,
     "gaps": [
       {
@@ -1743,7 +1743,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-079",
@@ -1806,14 +1806,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-118",
@@ -1883,7 +1883,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 33
+          "testCount": 35
+        },
+        {
+          "id": "FR-187",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -2329,28 +2336,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-109",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-111",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-112",
@@ -2420,7 +2427,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 33
+          "testCount": 35
+        },
+        {
+          "id": "FR-187",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -2512,6 +2526,7 @@
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
         "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
+        "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2547,7 +2562,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 13,
-        "featureNotes": 14
+        "featureNotes": 15
       },
       "featureIds": [
         "FEAT-013",
@@ -2567,7 +2582,7 @@
       ],
       "featureCount": 14,
       "readyFeatureCount": 11,
-      "progressPercent": 78.9
+      "progressPercent": 84.2
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3732,7 +3747,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-070",
@@ -3746,7 +3761,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-072",
@@ -3921,14 +3936,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-123",
@@ -4166,7 +4181,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 33
+          "testCount": 35
         },
         {
           "id": "FR-174",
@@ -4230,6 +4245,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 12
+        },
+        {
+          "id": "FR-187",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -4735,7 +4757,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-070",
@@ -4771,6 +4793,7 @@
         "apps/server/tests/unit/contract-plan-artifacts.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/human-plan-builder.test.js",
+        "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/marketing-campaign-ui.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -5526,28 +5549,28 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-111",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-173",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
-          "testCount": 33
+          "testCount": 35
         }
       ],
       "evidence": [
@@ -5615,6 +5638,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
+        "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
@@ -5642,6 +5666,7 @@
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
+        "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -5652,7 +5677,8 @@
         "apps/server/tests/unit/platform/pipeline-tracking-service.test.js",
         "apps/server/tests/unit/platform/raw-ingest-service.test.js",
         "apps/server/tests/unit/platform/raw-record-repository-read.test.js",
-        "apps/server/tests/unit/project-manager-mcp.test.js"
+        "apps/server/tests/unit/project-manager-mcp.test.js",
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
       ]
     },
     {
@@ -7091,24 +7117,27 @@
         "FR-189"
       ],
       "primaryDomain": "knowledge",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "integration",
+        "knowledge",
+        "project-manager"
+      ],
       "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 0,
+      "progressPercent": 33.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-026 registry status is approved",
-        "FR-187 is planned",
         "FR-188 is planned",
         "FR-189 is planned"
       ],
       "requirements": [
         {
           "id": "FR-187",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 11
         },
         {
           "id": "FR-188",
@@ -7125,7 +7154,26 @@
           "testCount": 0
         }
       ],
-      "evidence": []
+      "evidence": [
+        "apps/server/src/app/api/knowledge/ingestions/route.js",
+        "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+        "apps/server/src/modules/knowledge/knowledge-runtime.js",
+        "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+        "apps/server/src/modules/knowledge/structured-record-policy.js",
+        "apps/server/src/modules/project-manager/mcp/transport.js",
+        "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+        "apps/server/tests/unit/knowledge-admission-routes.test.js",
+        "apps/server/tests/unit/knowledge-admission-service.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
+        "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+        "apps/server/tests/unit/pipeline-mcp-transport.test.js",
+        "apps/server/tests/unit/project-manager-mcp.test.js",
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+      ]
     },
     {
       "id": "FR-001",
@@ -9985,7 +10033,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 24
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -10011,6 +10059,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",
+        "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",

@@ -1613,6 +1613,10 @@ Source: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17
 - references: [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
 - relates: [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md)
 
+Backlinks:
+
+- [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) (references)
+
 ## Deploying zuri-ai with Docker Compose + ngrok
 
 Source: [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.md)
@@ -2539,6 +2543,13 @@ Source: [FR-173 — Source admission and corpus serving](domains/knowledge/featu
 
 - references: [Knowledge ingestion — surfaces, data flow และ user journey](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
 - references: [ADR-072 — Knowledge admission and corpus publication](decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
+- relates: [req:FR-173](PRD-SDD-v1.0.md)
+
+## FR-187 — SmartGift structured-record source adapter (Phase 1)
+
+Source: [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md)
+
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 - relates: [req:FR-173](PRD-SDD-v1.0.md)
 
 ## Domain — line-oa-studio
