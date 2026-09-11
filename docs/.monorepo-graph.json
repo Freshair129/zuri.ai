@@ -8232,7 +8232,7 @@
       "id": "code:src/modules/agent/msp-stdio-transport.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/msp-stdio-transport.js",
-      "hash": "5afd2852",
+      "hash": "34e6ebf4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -30329,7 +30329,7 @@
       "id": "test:tests/unit/msp-stdio-transport.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/msp-stdio-transport.test.js",
-      "hash": "371b4f41",
+      "hash": "7c940350",
       "status": "current"
     },
     {
