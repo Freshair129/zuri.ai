@@ -58,7 +58,7 @@ acceptance note cites, is summarised here.
 | C-7 | Unknown relations | Every relation the fixture emits maps to a v2 predicate with valid endpoints, or else it is HELD. One record in the fixture is deliberately held, to prove a documented WARN/no-publish result (§D.4). |
 | C-8 | Fixtures/tests | The shared corpus lives at zuri-ai:apps/server/tests/fixtures/genesisrag17/smartgift-catalog/ (commit 87184a97, re-pinned at implementation). Each repo also keeps local cases (§I). Metrics are unchanged. |
 | C-9 | Changes per repo | zuri-ai: source/parser/recognizer, acceptance tests and doc pins. MSP: none. GKS: contracts, core table, gate and docs. Worker: version check, predicate table and `entityKind()`, plus tests (§F, §G). |
-| C-10 | Mixed-temporal lane count (pre-existing) | GKS expects `facts.length` bitemporal objects unless every fact is `not_applicable`; the worker counts only `mapped` rows. A mixed generation fails the Stage 17 graph dimension. C-5 keeps catalog batches uniform, so Phase 2 does not depend on it; the fix is GKS-side, tracked separately. |
+| C-10 | Mixed-temporal lane count (pre-existing) | GKS expects `facts.length` bitemporal objects unless every fact is `not_applicable`; the worker counts only `mapped` rows. A mixed generation fails the Stage 17 graph dimension. C-5 keeps catalog batches uniform, so Phase 2 does not depend on it. Fixed GKS-side in Genesis-Knowledge-System PR #6 (merged `f72e3160`, 2026-09-11). |
 
 ## 0. Problem statement
 
@@ -302,8 +302,11 @@ as `mapped` (GenesisBlock@5dc75ff:genesisrag17-worker/src/worker.mjs:243-258, 14
 two counts differ, and GKS's graph dimension then FAILS on the lane-count comparison
 (pipeline.mjs:528). This was confirmed by reading both sides on 2026-09-11. The C-5 rendering
 rule keeps every catalog batch uniform, so the structured-record profile never produces a mixed
-generation. The fix belongs in GKS: expect the count of `mapped` facts. It is tracked as its own
-change with a mixed-generation test in GKS and the worker, and is not bundled into Phase 2.
+generation. The fix belongs in GKS: expect the count of `mapped` facts. It shipped as its own
+change in Genesis-Knowledge-System PR #6 (merged `f72e3160`, 2026-09-11), with a GKS
+mixed-generation contract test; it is not bundled into Phase 2. The matching worker test in
+GenesisBlock `genesisrag17-worker/test/worker.test.mjs`, pinning the mapped-only count, is a
+proposed follow-up.
 
 ## F. Stage 13 / 14 / 15-16 / 17
 
