@@ -8,6 +8,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/modules/agent/execution-trace'
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -84,6 +85,7 @@ export async function admitLineConversation({ account, event, correlationId, now
   if (event.type !== 'message' || event.message?.type !== 'text') return { skipped: true }
   const userId = event.source?.userId
   const threadId = event.source?.groupId || event.source?.roomId || userId
+  const audienceKind = event.source?.type === 'group' ? 'GROUP' : event.source?.type === 'room' ? 'ROOM' : 'DIRECT'
   const eventId = event.webhookEventId || event.message?.id
   const text = event.message?.text
   if (!userId || !threadId || !eventId || !event.message?.id || typeof text !== 'string' || !text.trim()) return { skipped: true }
@@ -112,6 +114,10 @@ export async function admitLineConversation({ account, event, correlationId, now
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       transportEpoch: current.transportEpoch, executionMode: current.executionMode,
       modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
+      // This is immutable trusted LINE admission provenance. The opt-in flag is
+      // a per-job decision captured at the same boundary; later env changes do
+      // not enroll or silently drop an already admitted job.
+      audienceKind, memorySyncOptIn: env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true',
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
@@ -284,22 +290,25 @@ export async function claimEdgeConversation({ deviceContext, db = prisma, now = 
     policy: { modelAccess: job.modelAccess, role: 'sales', retainHistory: false } } }
 }
 
-async function settleExecution(id, { version, text, code, traceFailureCode }, { db, claimantId, deviceContext, now }) {
+async function settleExecution(id, { version, text, code, traceFailureCode, outcome }, { db, claimantId, deviceContext, now }) {
   return db.$transaction(async tx => {
     const scope = deviceContext ? { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId, executionMode: 'EDGE' } : { executionMode: 'SERVER' }
     const job = await tx.lineConversationJob.findFirst({ where: { id, ...scope }, include: { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
     if (!activeAccount(job.account, job) || job.status !== 'CLAIMED' || job.version !== version
       || job.claimantId !== claimantId || !job.leaseExpiresAt || job.leaseExpiresAt <= now || job.expiresAt <= now) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    const finalStatus = outcome === 'UNKNOWN' ? 'UNKNOWN' : code ? 'FAILED' : 'READY'
     const update = await tx.lineConversationJob.updateMany({ where: { id, version, status: 'CLAIMED', claimantId },
-      data: { status: code ? 'FAILED' : 'READY', answerText: text ?? null, errorCode: code ?? null,
+      data: { status: finalStatus, answerText: finalStatus === 'UNKNOWN' ? null : text ?? null, errorCode: code ?? null,
         ...(code ? { sealedReplyToken: null } : {}), availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
     if (!update.count) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     await traceEvent(tx, job, code ? 'EXECUTION_FAILED' : 'ANSWER_READY', `settled:${version}`, {
-      ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null } : { text, answerReadyAt: now.toISOString() }),
+      ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null,
+        ...(outcome === 'UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) }
+        : { text, answerReadyAt: now.toISOString() }),
       executionEvidence: job.executionMode === 'EDGE' ? 'EXTERNAL_CONTEXT_NOT_REPORTED' : 'SERVER',
     }, now)
-    return { id, status: code ? 'FAILED' : 'READY', version: version + 1 }
+    return { id, status: finalStatus, version: version + 1 }
   })
 }
 
@@ -315,7 +324,8 @@ export async function failEdgeConversation(id, input, { deviceContext, db = pris
 
 async function reconcileAccepted(db, job) {
   return atomic(db, async tx => {
-    const current = await tx.lineConversationJob.findUnique({ where: { id: job.id } })
+    const current = await tx.lineConversationJob.findUnique({ where: { id: job.id },
+      include: { account: true, inbound: { include: { conversation: true } } } })
     if (!current || current.status !== 'ACCEPTED') return { id: job.id, status: current?.status ?? 'MISSING' }
     // Serialize the payload read with erasure before copying it into CRM. A
     // changed version cannot reuse this pre-lock answer snapshot.
@@ -338,8 +348,18 @@ async function reconcileAccepted(db, job) {
       deliveryId: current.retryKey, providerAcceptance: 'ACCEPTED_BY_LINE',
       recipientDeliveryStatus: 'UNKNOWN',
     })
+    const memory = await prepareMemoryDeliveryPending(tx, {
+      job: current,
+      outboundMessageId: outbound.messageId,
+      conversation: current.inbound?.conversation,
+      acceptedAt: current.acceptedAt ?? new Date(),
+    })
     await tx.lineConversationJob.updateMany({ where: { id: current.id, status: 'ACCEPTED' },
-      data: { status: 'RECORDED', sealedReplyToken: null, version: { increment: 1 } } })
+      data: { status: 'RECORDED', sealedReplyToken: null,
+        ...(memory ? { memoryDeliveryState: memory.memoryDeliveryState,
+          memoryDeliveryNextAttemptAt: memory.memoryDeliveryNextAttemptAt,
+          memoryDeliveryLeaseUntil: memory.memoryDeliveryLeaseUntil } : {}),
+        version: { increment: 1 } } })
     return { id: current.id, status: 'RECORDED' }
   })
 }
@@ -377,15 +397,26 @@ const boundedCount = (value, fallback) => {
  */
 async function executeClaimed({ db, answer, execution, claimantId, now }) {
   try {
-    const response = await answer(execution, { trace: createLineExecutionTrace({ db, job: execution }) })
+    const response = await answer(execution, {
+      trace: createLineExecutionTrace({ db, job: execution }),
+      ...(execution.memorySyncOptIn ? { memoryStateReader: id => db.lineConversationJob.findUnique({
+        where: { id },
+        select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
+          account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
+      }) } : {}),
+    })
     const text = zCompletion.shape.text.parse(response?.text ?? response)
     await settleExecution(execution.id, { version: execution.version, text }, { db, claimantId, now: now() })
     return null
   } catch (error) {
-    if (error.status !== 409) await settleExecution(execution.id, { version: execution.version, code: 'EXECUTION_FAILED',
-      traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE'].includes(error.code) ? error.code : null },
+    if (error.status === 409) return { id: execution.id, status: 'FAILED' }
+    const settled = await settleExecution(execution.id, {
+      version: execution.version,
+      code: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? error.code : 'EXECUTION_FAILED',
+      outcome: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? 'UNKNOWN' : undefined,
+      traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE', 'MSP_INJECTION_RECEIPT_UNKNOWN'].includes(error.code) ? error.code : null },
     { db, claimantId, now: now() })
-    return { id: execution.id, status: 'FAILED' }
+    return { id: execution.id, status: settled.status }
   }
 }
 
@@ -399,11 +430,23 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
  */
 export async function runLineConversationWorker({ db = prisma, answer, resolveAccount, replyTransport, pushTransport,
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
+  threadMemory = null,
+  memoryDeliveryBatch,
+  memoryDeliveryLeaseMs,
   executionConcurrency = boundedCount(env.ZURI_LINE_WORKER_EXECUTION_CONCURRENCY, EXECUTION_CONCURRENCY),
   sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
   await maintenance(db, now())
+  const scanMemory = () => threadMemory?.recordDelivery
+    ? reconcileLineMemoryDeliveries({ db, threadMemory, now, workerId: `${workerId}:memory`,
+      batchSize: memoryDeliveryBatch, leaseMs: memoryDeliveryLeaseMs })
+    : null
+  await scanMemory()
   const accepted = await db.lineConversationJob.findFirst({ where: { status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
-  if (accepted) return reconcileAccepted(db, accepted)
+  if (accepted) {
+    const result = await reconcileAccepted(db, accepted)
+    await scanMemory()
+    return result
+  }
   // Claiming is sequential and cheap; answering is what takes seconds, so only that runs in parallel.
   const claims = []
   for (let index = 0; index < executionConcurrency; index += 1) {
@@ -425,12 +468,16 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   }
   const ready = await db.lineConversationJob.findMany({ where: { status: 'READY', availableAt: { lte: now() } },
     include: { account: true }, orderBy: { createdAt: 'asc' }, take: sendBatch })
-  if (!ready.length) return last ? { ...last, executed: claims.length, sent: 0 } : { status: 'IDLE' }
+  if (!ready.length) {
+    await scanMemory()
+    return last ? { ...last, executed: claims.length, sent: 0 } : { status: 'IDLE' }
+  }
   let sent = 0
   for (const job of ready) {
     last = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now })
     sent += 1
   }
+  await scanMemory()
   return { ...last, executed: claims.length, sent }
 }
 

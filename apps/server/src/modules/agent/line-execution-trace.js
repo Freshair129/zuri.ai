@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto'
 import { appendTraceEvent, sha256 } from './execution-trace'
 
 // @req FR-171 — preserve the evidence and exact model inputs used by a SERVER job.
-// @spec ADR-070, ADR-061, SEC-001 — current public-only policy remains explicit in the trace.
+// @spec ADR-070, ADR-061, SEC-001 — public-only remains the default; an opted-in
+// worker records the bounded MSP context packet used by the model.
 // @tested tests/integration/server-line-trace.test.js
 
 const digest = sha256
@@ -12,6 +13,7 @@ export function createLineExecutionTrace({ db, job }) {
   const scope = { tenantId: job.tenantId, businessId: job.businessId }
   let failure = null
   let retrieval = null
+  let memoryContext = null
   const contextStartedAt = new Date().toISOString()
   async function record(kind, key, payload) {
     try {
@@ -31,16 +33,30 @@ export function createLineExecutionTrace({ db, job }) {
         snapshotHash: digest(evidence), observedAt: new Date().toISOString() }
       await record('EVIDENCE_SELECTED', `retrieval:${retrieval.retrievalRunId}`, retrieval)
     },
+    recordThreadMemory(details) {
+      // The packet is persisted with CONTEXT_COMMITTED by beforeModelCall. Keeping
+      // this setter synchronous ensures a failed provider never races a second
+      // trace write, while the existing trace observer remains the write boundary.
+      memoryContext = details && typeof details === 'object' ? details : null
+    },
     async beforeModelCall({ provider, model, requestBody, promptVersion, systemPrompt }) {
       if (failure) throw failure
       const ctxId = randomUUID()
       const modelCallId = randomUUID()
       const handle = { ctxId, modelCallId }
+      const packet = memoryContext?.contextPacket
+      const privateContextDisposition = packet?.policyDecision === 'ALLOW' ? 'MSP_CONTEXT' : 'EXCLUDED_BY_POLICY'
       await record('CONTEXT_COMMITTED', `ctx:${ctxId}`, {
         ...handle, schemaVersion: '0.3', assemblerVersion: 'server-line-v1', provider, model,
-        // This path does not resolve MSP private memory or a Soul passport.
-        sessionId: null, soul: null, memory: [], history: [], documents: [], tools: [],
-        privateContextDisposition: 'EXCLUDED_BY_POLICY',
+        sessionId: packet?.thread?.sessionId ?? null, soul: null,
+        memory: packet?.memory ?? [], history: packet?.memory?.recentExchanges ?? [], documents: [], tools: [],
+        privateContextDisposition,
+        threadMemory: packet ? {
+          thread: packet.thread ?? null,
+          manifest: packet.manifest ?? null,
+          exchangeId: memoryContext?.exchangeId ?? null,
+          inboundMessageId: memoryContext?.inboundMessageId ?? null,
+        } : null,
         authorizationReceipt: { ...scope, accountId: job.accountId, transportEpoch: job.transportEpoch,
           modelAccess: job.modelAccess, executionMode: job.executionMode },
         systemPrompt: systemPrompt ?? { version: promptVersion, availability: 'NOT_REPORTED' },

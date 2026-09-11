@@ -29,6 +29,10 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   'ACTION_STARTED',
   'ACTION_RESULT',
   'MEMORY_WRITTEN',
+  'MEMORY_DELIVERY_PENDING',
+  'MEMORY_DELIVERY_ATTEMPT',
+  'MEMORY_DELIVERY_ACKNOWLEDGED',
+  'MEMORY_DELIVERY_CLOSED',
   'ARTIFACT_CREATED',
   'RETENTION_TOMBSTONE',
 ])
@@ -741,6 +745,28 @@ export function playbackTrace(events) {
         evidence: link.reasons.length ? null : link.payload })
     }
   }
+  const memoryDeliveries = new Map()
+  if (!globalTombstone) {
+    const memoryKinds = new Set(['MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
+      'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED'])
+    for (const event of list) {
+      if (!memoryKinds.has(event?.kind)) continue
+      let payload
+      try { payload = parseStoredPayload(event) } catch { globalReasons.push('MEMORY_DELIVERY_PAYLOAD_INVALID'); continue }
+      const jobId = payload?.jobId
+      if (!jobId) { globalReasons.push('MEMORY_DELIVERY_JOB_ID_MISSING'); continue }
+      const delivery = memoryDeliveries.get(jobId) ?? { jobId, state: 'NONE', events: [] }
+      delivery.events.push({ eventId: event.id ?? null, kind: event.kind,
+        occurredAt: event.occurredAt ?? null, payload })
+      if (event.kind === 'MEMORY_DELIVERY_PENDING') delivery.state = 'PENDING'
+      if (event.kind === 'MEMORY_DELIVERY_ATTEMPT') {
+        delivery.state = payload.outcome === 'UNKNOWN' ? 'UNKNOWN' : 'PENDING'
+      }
+      if (event.kind === 'MEMORY_DELIVERY_ACKNOWLEDGED') delivery.state = 'ACKNOWLEDGED'
+      if (event.kind === 'MEMORY_DELIVERY_CLOSED') delivery.state = 'CLOSED'
+      memoryDeliveries.set(jobId, delivery)
+    }
+  }
 
   const executionsDto = [...executions.values()].map((execution) => deepFreeze({
     executionId: execution.executionId,
@@ -785,6 +811,11 @@ export function playbackTrace(events) {
     modelCalls: Object.freeze(modelCalls),
     memoryWrites,
     deliveries: Object.freeze([...deliveries.values()].map(value => deepFreeze(value))),
+    memoryDelivery: Object.freeze([...memoryDeliveries.values()].map(value => deepFreeze({
+      jobId: value.jobId,
+      state: value.state,
+      events: Object.freeze(value.events.map(event => deepFreeze(event))),
+    }))),
     context: singular?.context ?? null,
     modelContext: singular?.context ?? null,
     output: singular?.output ?? null,

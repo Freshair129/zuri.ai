@@ -2753,9 +2753,9 @@ Charter: [docs/domains/inventory/CHARTER.md](docs/domains/inventory/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/inventory` |
-| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation |
-| Routes owned | 31 (27 api · 4 pages) |
-| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182 |
+| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation, InventoryStocktake, InventoryLedgerFence |
+| Routes owned | 35 (30 api · 5 pages) |
+| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182, FR-184 |
 
 ## knowledge
 
@@ -2797,9 +2797,9 @@ Charter: [docs/domains/marketing/CHARTER.md](docs/domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake |
-| Routes owned | 25 (12 api · 13 pages) |
-| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162 |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
+| Routes owned | 32 (16 api · 16 pages) |
+| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185 |
 
 ## platform-control
 
@@ -2832,7 +2832,7 @@ Charter: [docs/domains/project-manager/CHARTER.md](docs/domains/project-manager/
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt |
 | Routes owned | 166 (121 api · 45 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-186, SDD-037 |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, SDD-037 |
 
 
 # Vocabulary
@@ -3791,7 +3791,7 @@ See [the domain phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZA
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/inventory/CHARTER.md — version: 1.2.0 · status: active-foundation -->
+<!-- source: docs/domains/inventory/CHARTER.md — version: 1.3.0 · status: active-foundation -->
 <!-- ======================================================================== -->
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -3899,6 +3899,10 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
 - `StockReservation` — what is already promised (FR-180): a soft, expiring
   `QUOTE` hold or a committed `ORDER` one. It never writes the ledger, because
   a promise is not a physical fact, and it is never deleted (BR-031).
+- `InventoryStocktake` and `InventoryLedgerFence` — the durable physical-count
+  preview/idempotency record and the Business-scoped lock-only revision that
+  serializes every write-side ledger read (FR-184). A stocktake adjusts through
+  `appendMovement`; it is never a second stock ledger.
 
 ## Explicitly not owned
 
@@ -3957,6 +3961,7 @@ src/modules/inventory/
 ├── application/de-kitting-service.js         controlled disassembly (FR-178)
 ├── application/inventory-shelf-life-service.js  the ageing audit and the maintenance that resets it (FR-179)
 ├── application/inventory-atp-service.js      reservations and Available-to-Promise (FR-180)
+├── application/inventory-stocktake-service.js physical count preview/commit (FR-184)
 └── index.js                                 stable module exports
 ```
 
@@ -3977,23 +3982,25 @@ orders, de-kitting, the shelf-life storage guard, ATP with two-tier
 reservations, and the six agent tools. Migration
 `20260910120000_smartgift_scm_wip` is written and **not applied**.
 
-Surfaces: the API family above and the `/inventory` console dashboard. Not in
-this slice: HTTP routes and console pages for locations, work orders and
-reservations (services and agent tools only), Excel/LINE intake converters for
-stock, FlowAccount catalogue/stock synchronisation, cycle counting and
-stocktake campaigns, and the graph projection of the ontology.
+Surfaces: the API family above and the `/inventory` console dashboard. FR-184
+adds the bounded stocktake preview/commit to that existing surface; it does not
+create a `/warehouse` console. Not in this slice: bins, campaign scheduling,
+numeric SERIAL counts, Excel/LINE intake converters for stock, FlowAccount
+catalogue/stock synchronisation, or the graph projection of the ontology.
 
 ## References
 
 - [ONTOLOGY.md](docs/domains/inventory/ONTOLOGY.md) — the owner's node/edge ontology and how each concept maps here
 - [FR-154 catalogue identity](docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 stock ledger](docs/domains/inventory/features/FR-155-inventory-stock-ledger.md)
+- [FR-184 stocktake](docs/domains/inventory/features/FR-184-inventory-stocktake.md)
 - [ADR-025](docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) — the domain spine this charter lives in
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |
@@ -4720,7 +4727,7 @@ Long-running polling/browser/translation work may execute in a separate worker *
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/marketing/CHARTER.md — version: 0.4.0b · status: beta -->
+<!-- source: docs/domains/marketing/CHARTER.md — version: 0.5.0b · status: beta -->
 <!-- ======================================================================== -->
 
 # Marketing domain charter
@@ -4749,6 +4756,13 @@ adding one scoped association while preserving Strategy evidence and PM executio
 Operations follows [the coordination contract](docs/domains/marketing/features/FR-162-operations-coordination.md):
 Marketing owns intake requests and composes approval, PM schedule and validated handoff
 receipts without creating a second work or stock system.
+
+Broadcast planning follows [the FR-185 contract](docs/domains/marketing/features/FR-185-broadcast-planning-intent.md):
+Marketing owns a Business-scoped planning identity and append-only version references,
+while LINE OA Studio owns account configuration and any future delivery contract. The
+planning payload stores no message body, recipients or provider credentials. Paid
+provider metrics and CRM audience/consent resolution remain explicit unavailable owner
+states until those domains publish approved read contracts.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
@@ -4780,6 +4794,14 @@ Workspace and PM receipt. Scope derives from the server-loaded Business; no tena
 identifier supplied in a plan controls authorization. Repository operations and
 audit participate in the same transaction, with expected-version compare-and-swap.
 
+MarketingBroadcastIntent is a Business-scoped planning identity with a unique
+Business/idempotency key and a current revision. Its child
+MarketingBroadcastIntentVersion is append-only and stores only canonical payload
+references and a hash. Create, revise and archive resolve the same owner gate and
+write one audit event; snapshot export/import preserves parent-before-child order
+and refuses invalid references before deletion. Dispatch is always unavailable in
+this slice.
+
 Local SQLite is the test/runtime baseline. The generated Postgres schema and
 additive SQL migration accompany schema changes; no production migration or live
 PM intake is implied by source delivery. Completion evidence is recorded in the
@@ -4793,6 +4815,7 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |
 | 0.4.0b | 2026-09-07 | beta | Add Operations intake ownership and the PM/approval/handoff projection boundary | See git history | RWANG |
+| 0.5.0b | 2026-09-11 | beta | Add approved FR-185 broadcast planning identity, append-only revision boundary and unavailable dispatch/read-state contract | See git history | RWANG |
 
 
 <!-- ======================================================================== -->
@@ -5129,6 +5152,7 @@ boundary. Bodies are not inlined — follow the link for the reasoning.
 - [ADR-072 — Knowledge admission and corpus publication](docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 
 # Not inlined
 
@@ -5136,12 +5160,12 @@ These are machine-written and regenerated by `npm run govern`; a frozen copy
 here would be stale within a day, and together they outweigh the prose above by
 an order of magnitude. Read them from the repository:
 
-- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (420KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
-- [docs/FEATURES.md](docs/FEATURES.md) (64KB): the FEAT registry
-- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (182KB): generated — the feature-driven view over the domain spine
-- [docs/TRACE.md](docs/TRACE.md) (404KB): generated — per FR: surface to code to rules to tests
-- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (119KB): generated — the API surface
-- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (58KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (561KB): generated — the traceability appendix
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (178KB): live delivery state (Thai) — read by GoVibe Mission Control
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (428KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
+- [docs/FEATURES.md](docs/FEATURES.md) (67KB): the FEAT registry
+- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (187KB): generated — the feature-driven view over the domain spine
+- [docs/TRACE.md](docs/TRACE.md) (418KB): generated — per FR: surface to code to rules to tests
+- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (122KB): generated — the API surface
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (60KB): the database schema
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (575KB): generated — the traceability appendix
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (183KB): live delivery state (Thai) — read by GoVibe Mission Control
 

@@ -2,7 +2,7 @@
 //   vocabulary and calculators, the authority ladder, the catalogue writer and
 //   the stock-ledger writer. Other lanes import from here, never from a file
 //   inside `application/` directly.
-// @req FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180 — and, since
+// @req FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-184 — and, since
 //   ADR-074, the located ledger (locations and transfers), the costing
 //   calculators, the two WIP work orders, de-kitting, the shelf-life guard and
 //   Available-to-Promise. The agent's tools (FR-181) bind to these exports and
@@ -14,6 +14,7 @@ export * from './domain/inventory'
 export * from './domain/inventory-costing'
 export * from './domain/inventory-wip'
 export * from './domain/warehouse-location'
+export * from './domain/inventory-stocktake'
 export { assertMayManage, assertMayView, mayManage, mayView } from './application/inventory-authority'
 export {
   applyProductAction,
@@ -35,6 +36,8 @@ export {
   setFlowAccountSku,
 } from './application/inventory-catalog-service'
 export {
+  acquireLedgerFence,
+  advanceLedgerFence,
   appendMovement,
   createLot,
   listLots,
@@ -58,6 +61,7 @@ export {
   locationStock,
 } from './application/warehouse-location-service'
 export { transferInTransaction, transferStock } from './application/location-transfer-service'
+export { commitStocktake, getStocktake, previewStocktake } from './application/inventory-stocktake-service'
 export {
   applyCustomizationWorkOrderAction,
   cancelCustomizationWorkOrder,

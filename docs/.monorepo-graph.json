@@ -529,6 +529,46 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/growth/ask-marketing/page.jsx",
+      "hash": "bc232693",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/growth/broadcast/page.jsx",
+      "hash": "141de6d3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
@@ -765,6 +805,24 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/growth/paid-media/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/growth/paid-media/page.jsx",
+      "hash": "1b9c136d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/growth/strategy/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/growth/strategy/page.jsx",
@@ -843,6 +901,25 @@
         ],
         "@tested": [
           "tests/unit/scm-console-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/inventory/stocktakes/page.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/app/(pm)/inventory/stocktakes/page.jsx",
+      "hash": "c5575547",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-008",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/e2e/fr184-stocktake.spec.js"
         ]
       }
     },
@@ -3658,6 +3735,66 @@
       }
     },
     {
+      "id": "code:src/app/api/growth/ask-marketing/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/growth/ask-marketing/route.js",
+      "hash": "166f8a7e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-insights-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/growth/broadcast-intents/[id]/route.js",
+      "hash": "40fba5b9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-broadcast-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/broadcast-intents/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/growth/broadcast-intents/route.js",
+      "hash": "8f6a88d5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-broadcast-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/growth/campaigns/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/growth/campaigns/[id]/route.js",
@@ -3835,6 +3972,25 @@
         ],
         "@tested": [
           "tests/unit/marketing/marketing-operations-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/growth/paid-media/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/growth/paid-media/route.js",
+      "hash": "deeda95e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-insights-route.test.js"
         ]
       }
     },
@@ -4615,6 +4771,70 @@
       }
     },
     {
+      "id": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/stocktakes/[id]/route.js",
+      "hash": "df210fa4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-012",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/stocktakes/commit/route.js",
+      "hash": "a5a28565",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-008",
+          "BR-012",
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/inventory/stocktakes/preview/route.js",
+      "hash": "bcc8c949",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-008",
+          "BR-012",
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/inventory/transfers/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/inventory/transfers/route.js",
@@ -5001,7 +5221,7 @@
       "id": "code:src/app/api/line-oa/worker/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/worker/route.js",
-      "hash": "5fb050fb",
+      "hash": "974e98a2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7081,7 +7301,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "apps/server/src/config/domains.js",
-      "hash": "97ae9fdd",
+      "hash": "d54d31df",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7338,7 +7558,7 @@
       "id": "code:src/lib/module-tabs.js",
       "type": "code_file",
       "path": "apps/server/src/lib/module-tabs.js",
-      "hash": "c624ff9f",
+      "hash": "9474d224",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7651,7 +7871,7 @@
       "id": "code:src/modules/agent/execution-trace.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/execution-trace.js",
-      "hash": "5af32823",
+      "hash": "388e4718",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7863,7 +8083,7 @@
       "id": "code:src/modules/agent/line-execution-trace.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/line-execution-trace.js",
-      "hash": "5714e8d9",
+      "hash": "a05d8322",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8150,7 +8370,7 @@
       "id": "code:src/modules/agent/server-line-answer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/agent/server-line-answer.js",
-      "hash": "4aa26382",
+      "hash": "0a876cb5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10643,7 +10863,7 @@
       "id": "code:src/modules/inventory/application/inventory-stock-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/application/inventory-stock-service.js",
-      "hash": "58dfd3c7",
+      "hash": "1e788f78",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10652,15 +10872,42 @@
           "FR-175",
           "FR-176",
           "FR-179",
+          "FR-184",
           "BR-028"
         ],
         "@spec": [
           "BR-002",
           "SEC-001",
-          "FR-072"
+          "FR-072",
+          "BR-008",
+          "BR-012",
+          "BR-026"
         ],
         "@tested": [
-          "tests/integration/fr155-inventory-stock.test.js"
+          "tests/integration/fr155-inventory-stock.test.js",
+          "tests/integration/fr184-inventory-stocktake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/application/inventory-stocktake-service.js",
+      "hash": "84150d69",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-008",
+          "BR-012",
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/fr184-inventory-stocktake.test.js"
         ]
       }
     },
@@ -10750,6 +10997,28 @@
       }
     },
     {
+      "id": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/inventory/domain/inventory-stocktake.js",
+      "hash": "1c561c6c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-184"
+        ],
+        "@spec": [
+          "BR-002",
+          "BR-008",
+          "BR-012",
+          "BR-026",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/inventory-stocktake-domain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/inventory/domain/inventory-wip.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/domain/inventory-wip.js",
@@ -10822,7 +11091,7 @@
       "id": "code:src/modules/inventory/index.js",
       "type": "code_file",
       "path": "apps/server/src/modules/inventory/index.js",
-      "hash": "319895aa",
+      "hash": "8409cf52",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10834,7 +11103,8 @@
           "FR-177",
           "FR-178",
           "FR-179",
-          "FR-180"
+          "FR-180",
+          "FR-184"
         ],
         "@tested": [
           "tests/unit/inventory-domain.test.js"
@@ -11735,7 +12005,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-conversation-jobs.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-      "hash": "3fdb39bd",
+      "hash": "549cd9c8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11756,7 +12026,7 @@
       "id": "code:src/modules/line-oa-studio/application/line-job-erasure.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
-      "hash": "2a0e2d51",
+      "hash": "3474584d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11788,6 +12058,25 @@
         ],
         "@tested": [
           "tests/unit/line-job-failures.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/application/line-memory-delivery.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
+      "hash": "1285861c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-149",
+          "FR-171"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/line-worker-memory.test.js"
         ]
       }
     },
@@ -11909,7 +12198,7 @@
       "id": "code:src/modules/line-oa-studio/application/server-line-runtime.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
-      "hash": "97da6bb7",
+      "hash": "cdee1679",
       "status": "current",
       "annotations": {
         "@req": [
@@ -12624,6 +12913,29 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/application/marketing-broadcast-service.js",
+      "hash": "a0e6605a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "FR-157",
+          "FR-159",
+          "FR-160",
+          "FR-103",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/marketing-broadcast-intent.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/application/marketing-campaign-execution.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/application/marketing-campaign-execution.js",
@@ -12705,6 +13017,26 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/application/marketing-insights-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/application/marketing-insights-service.js",
+      "hash": "bfbcd71e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-insights-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/application/marketing-operations-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/application/marketing-operations-service.js",
@@ -12766,6 +13098,46 @@
         ],
         "@tested": [
           "tests/integration/marketing-pm-handoff.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "hash": "3425ab4f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "hash": "2384afcf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
         ]
       }
     },
@@ -13061,6 +13433,26 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "hash": "c8c25a04",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-broadcast-client-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/components/marketing-contract.js",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/marketing-contract.js",
@@ -13083,11 +13475,12 @@
       "id": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
-      "hash": "071bf885",
+      "hash": "0498e001",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-159"
+          "FR-159",
+          "FR-185"
         ],
         "@spec": [
           "SDD-086"
@@ -13250,6 +13643,24 @@
       }
     },
     {
+      "id": "code:src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+      "hash": "42db7a71",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "SDD-086"
+        ],
+        "@tested": [
+          "tests/e2e/marketing-p5.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/marketing/components/PlanForm.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/marketing/components/PlanForm.jsx",
@@ -13342,6 +13753,29 @@
         "@tested": [
           "tests/unit/marketing-strategy-ui.test.js",
           "tests/e2e/marketing-strategy.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "hash": "7eea6bd8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-185"
+        ],
+        "@spec": [
+          "FR-157",
+          "FR-159",
+          "FR-160",
+          "FR-103",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/marketing/marketing-broadcast-contract.test.js"
         ]
       }
     },
@@ -13684,7 +14118,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "f9f37e13",
+      "hash": "c807eff7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13694,6 +14128,7 @@
           "FR-158",
           "FR-161",
           "FR-157",
+          "FR-185",
           "FR-149",
           "FR-150",
           "FR-143",
@@ -13703,6 +14138,7 @@
           "FR-155",
           "FR-156",
           "FR-182",
+          "FR-184",
           "FR-169",
           "FR-022",
           "FR-166",
@@ -13770,7 +14206,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "f3626ac8",
+      "hash": "b408d85d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -13796,11 +14232,13 @@
           "FR-159",
           "FR-158",
           "FR-160",
+          "FR-185",
           "FR-161",
           "FR-154",
           "FR-155",
           "FR-156",
           "FR-174",
+          "FR-184",
           "FR-176",
           "FR-177",
           "FR-180",
@@ -15858,9 +16296,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.57.0b",
+      "version": "1.59.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "ba03186d",
+      "hash": "23c6beb2",
       "status": "current"
     },
     {
@@ -15912,9 +16350,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.32.0b",
+      "version": "1.34.0b",
       "doc_status": "Draft",
-      "hash": "04280703",
+      "hash": "f35caeca",
       "status": "current"
     },
     {
@@ -16284,9 +16722,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.34.0b",
+      "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "e110b390",
+      "hash": "c46da4b4",
       "status": "current"
     },
     {
@@ -17229,7 +17667,7 @@
       "type": "document",
       "path": "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
       "title": "FR-171 — Execution Trace & Replay v0.3",
-      "hash": "94645639",
+      "hash": "a9286b21",
       "status": "current"
     },
     {
@@ -17238,6 +17676,22 @@
       "path": "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
       "title": "FR-173 — Source admission and corpus serving",
       "hash": "d1303e48",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-184-inventory-stocktake",
+      "type": "document",
+      "path": "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
+      "title": "FR-184 — Inventory physical stocktake",
+      "hash": "a67b95a3",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-185-broadcast-planning-intent",
+      "type": "document",
+      "path": "docs/domains/marketing/features/FR-185-broadcast-planning-intent.md",
+      "title": "FR-185 — Business-scoped LINE broadcast planning intent",
+      "hash": "cb06ea2d",
       "status": "current"
     },
     {
@@ -17299,9 +17753,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.17.0b",
+      "version": "1.19.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "6e6379eb",
+      "hash": "bfa4c694",
       "status": "current"
     },
     {
@@ -17651,7 +18105,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-BRANCH-COMPLETION-2026-09-10.md",
       "title": "Retained branch completion",
-      "hash": "2edc84c9",
+      "hash": "4174d33f",
       "status": "current"
     },
     {
@@ -17865,9 +18319,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.181.0b",
+      "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "4f84643d",
+      "hash": "eb91d3d0",
       "status": "current"
     },
     {
@@ -17903,7 +18357,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "1964e9d9",
+      "hash": "b0745890",
       "status": "current"
     },
     {
@@ -18349,7 +18803,9 @@
         "WarehouseLocation",
         "CustomizationWorkOrder",
         "KittingWorkOrder",
-        "StockReservation"
+        "StockReservation",
+        "InventoryStocktake",
+        "InventoryLedgerFence"
       ],
       "owns_routes": [
         "src/app/(pm)/inventory/**",
@@ -18361,7 +18817,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "fe4d2350",
+      "hash": "3f63258d",
       "status": "current"
     },
     {
@@ -18456,7 +18912,9 @@
         "MarketingContentVersion",
         "MarketingContentReview",
         "MarketingContentDecision",
-        "MarketingOperationsIntake"
+        "MarketingOperationsIntake",
+        "MarketingBroadcastIntent",
+        "MarketingBroadcastIntentVersion"
       ],
       "owns_routes": [
         "src/app/(pm)/growth/**",
@@ -18466,7 +18924,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "bf444664",
+      "hash": "0f280c2e",
       "status": "current"
     },
     {
@@ -18714,7 +19172,7 @@
     {
       "id": "feat:FEAT-021",
       "type": "feature",
-      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain",
+      "label": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination, PM handoff and durable LINE broadcast planning within the approved full Marketing domain",
       "declared": "building",
       "status": "current"
     },
@@ -18742,7 +19200,7 @@
     {
       "id": "feat:FEAT-025",
       "type": "feature",
-      "label": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "label": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074)",
       "declared": "building",
       "status": "current"
     },
@@ -19019,6 +19477,16 @@
       "status": "current"
     },
     {
+      "id": "model:InventoryLedgerFence",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:InventoryStocktake",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:KittingWorkOrder",
       "type": "model",
       "status": "current"
@@ -19105,6 +19573,16 @@
     },
     {
       "id": "model:LocalWorkspaceMount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingBroadcastIntent",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketingBroadcastIntentVersion",
       "type": "model",
       "status": "current"
     },
@@ -21487,11 +21965,11 @@
       "id": "req:FR-171",
       "type": "requirement",
       "family": "FR",
-      "label": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
+      "label": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER defaults to no private memory adapter: jobs without the approved immutable per-job opt-in retain empty memory refs plus `EXCLUDED_BY_POLICY`, while opted-in worker jobs may compose the trusted MSP thread adapter and durable local receipt checkpoint. MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters remain separate external gates and receive no direct foreign DB writes.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes. 🟡 native SERVER P1 implemented locally under ADR-070; tool/document/artifact/MSP/GKS/Edge adapters and live migration/canary evidence remain pending "
+      "row_text": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER defaults to no private memory adapter: jobs without the approved immutable per-job opt-in retain empty memory refs plus `EXCLUDED_BY_POLICY`, while opted-in worker jobs may compose the trusted MSP thread adapter and durable local receipt checkpoint. MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters remain separate external gates and receive no direct foreign DB writes. 🟡 native SERVER P1 and approved worker composition implemented locally under ADR-070/ADR-061; MSP erasure API, live Postgres and deployed canary evidence remain pending "
     },
     {
       "id": "req:FR-172",
@@ -21612,6 +22090,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory — `POST /api/commerce/pos/checkout` validates an authorized Business, selected active Branch and selected active WarehouseLocation, `WALK_IN` order lines with manually supplied FR-166 `unitPrice`, exact integer-satang totals and the existing `QR`, `CASH`, `TRANSFER`, `CARD` and `OTHER` payment vocabulary. One transaction creates the `SalesOrder`, records a `PENDING` `Payment`, issues tracked stock through Inventory's exported `appendMovement` with its own authority and returns exact cash change; a separate existing FR-163 verifier is the only path to `VERIFIED` money. Invalid line/product/customer scope, missing location, insufficient cash, duplicate reference, inventory shortage, lot/serial refusal or any later audit failure rolls back every row. `GET /api/commerce/pos/catalogue` exposes same-Business active product identity and recomputed stock without deriving a price from inventory cost or a fallback. A terminal label is request/receipt metadata only; P3 introduces no persistent terminal registry or default station. 🔵 owner-approved and locally verified 2026-09-11 — proposal `docs/change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md`; implemented and verified locally in 4a74c1ed, production migration/activation excluded "
+    },
+    {
+      "id": "req:FR-184",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface — `POST /api/inventory/stocktakes/preview` accepts only normalized tracked `NONE` or `LOT` lines with explicit location and lot identity, integer non-negative counts, and no duplicate keys; it persists a read-only `InventoryStocktake` preview containing the expected snapshot version/hash, expected/count/variance and normalized input without writing movements. `POST /api/inventory/stocktakes/commit` revalidates the stored preview and current Business scope, acquires the shared lock-only `InventoryLedgerFence` before its ledger read, refuses a changed snapshot with `409 INVENTORY_STOCKTAKE_SNAPSHOT_STALE`, and atomically appends every signed `ADJUSTMENT` through FR-155 `appendMovement` plus one audit event or writes nothing. The Business-scoped idempotency key returns the same saved result for an identical retry and refuses a different payload; zero variance is a durable no-op; SERIAL lines and untracked/service products are explicitly refused until a serial-observation contract exists. Backup export/import preserves the fence and stocktake rows through the declared `inventoryStocktakeRecovery` manifest in FK order, while a legacy snapshot reports the recovery state unavailable rather than claiming preservation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface — `POST /api/inventory/stocktakes/preview` accepts only normalized tracked `NONE` or `LOT` lines with explicit location and lot identity, integer non-negative counts, and no duplicate keys; it persists a read-only `InventoryStocktake` preview containing the expected snapshot version/hash, expected/count/variance and normalized input without writing movements. `POST /api/inventory/stocktakes/commit` revalidates the stored preview and current Business scope, acquires the shared lock-only `InventoryLedgerFence` before its ledger read, refuses a changed snapshot with `409 INVENTORY_STOCKTAKE_SNAPSHOT_STALE`, and atomically appends every signed `ADJUSTMENT` through FR-155 `appendMovement` plus one audit event or writes nothing. The Business-scoped idempotency key returns the same saved result for an identical retry and refuses a different payload; zero variance is a durable no-op; SERIAL lines and untracked/service products are explicitly refused until a serial-observation contract exists. Backup export/import preserves the fence and stocktake rows through the declared `inventoryStocktakeRecovery` manifest in FK order, while a legacy snapshot reports the recovery state unavailable rather than claiming preservation. 🔵 owner-approved 2026-09-11 — contract `.brain/rca/2026-09-11-warehouse-p4-console-contract.md` revision 0.8 and feature note `docs/domains/inventory/features/FR-184-inventory-stocktake.md`; implementation and local verification in progress, production migration excluded "
+    },
+    {
+      "id": "req:FR-185",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state — Marketing persists a Business-scoped `MarketingBroadcastIntent` and append-only immutable revisions whose strict payload stores only exact LINE OA account and Marketing content references plus unavailable audience/consent planning metadata. Owner scope, content/account versions, canonical hashes, idempotent create, expected-version revision, archive, audit and snapshot recovery are validated before writes; deterministic Paid Media and AskMarketing projections preserve EMPTY, PARTIAL, UNAVAILABLE and UNKNOWN, never call CRM readers or providers, and never send or claim delivery.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state — Marketing persists a Business-scoped `MarketingBroadcastIntent` and append-only immutable revisions whose strict payload stores only exact LINE OA account and Marketing content references plus unavailable audience/consent planning metadata. Owner scope, content/account versions, canonical hashes, idempotent create, expected-version revision, archive, audit and snapshot recovery are validated before writes; deterministic Paid Media and AskMarketing projections preserve EMPTY, PARTIAL, UNAVAILABLE and UNKNOWN, never call CRM readers or providers, and never send or claim delivery. 🟠 locally implementing approved P5; provider metrics, audience/consent resolution, send, worker and production migration remain out of scope "
     },
     {
       "id": "req:FR-186",
@@ -23714,6 +24212,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/growth/ask-marketing",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/ask-marketing",
+      "path": "apps/server/src/app/api/growth/ask-marketing/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/broadcast-intents",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/broadcast-intents",
+      "path": "apps/server/src/app/api/growth/broadcast-intents/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/broadcast-intents/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/broadcast-intents/[id]",
+      "path": "apps/server/src/app/api/growth/broadcast-intents/[id]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/growth/campaigns",
       "type": "route",
       "kind": "api",
@@ -23783,6 +24305,14 @@
       "kind": "api",
       "route": "/api/growth/operations/intake/[intakeId]",
       "path": "apps/server/src/app/api/growth/operations/intake/[intakeId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/growth/paid-media",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/growth/paid-media",
+      "path": "apps/server/src/app/api/growth/paid-media/route.js",
       "status": "current"
     },
     {
@@ -24079,6 +24609,30 @@
       "kind": "api",
       "route": "/api/inventory/stock-movements",
       "path": "apps/server/src/app/api/inventory/stock-movements/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/stocktakes/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/stocktakes/[id]",
+      "path": "apps/server/src/app/api/inventory/stocktakes/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/stocktakes/commit",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/stocktakes/commit",
+      "path": "apps/server/src/app/api/inventory/stocktakes/commit/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/inventory/stocktakes/preview",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/inventory/stocktakes/preview",
+      "path": "apps/server/src/app/api/inventory/stocktakes/preview/route.js",
       "status": "current"
     },
     {
@@ -25066,6 +25620,22 @@
       "status": "current"
     },
     {
+      "id": "route:page:/growth/ask-marketing",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/ask-marketing",
+      "path": "apps/server/src/app/(pm)/growth/ask-marketing/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/growth/broadcast",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/broadcast",
+      "path": "apps/server/src/app/(pm)/growth/broadcast/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/growth/campaigns",
       "type": "route",
       "kind": "page",
@@ -25154,6 +25724,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/growth/paid-media",
+      "type": "route",
+      "kind": "page",
+      "route": "/growth/paid-media",
+      "path": "apps/server/src/app/(pm)/growth/paid-media/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/growth/strategy",
       "type": "route",
       "kind": "page",
@@ -25183,6 +25761,14 @@
       "kind": "page",
       "route": "/inventory/reservations",
       "path": "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/inventory/stocktakes",
+      "type": "route",
+      "kind": "page",
+      "route": "/inventory/stocktakes",
+      "path": "apps/server/src/app/(pm)/inventory/stocktakes/page.jsx",
       "status": "current"
     },
     {
@@ -26130,7 +26716,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
       "title": "ADR-061 — Server-owned LINE and optional Edge execution",
-      "hash": "7e019780",
+      "hash": "83bd4070",
       "status": "current"
     },
     {
@@ -26442,6 +27028,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr184-stocktake.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/fr184-stocktake.spec.js",
+      "hash": "377c53a8",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr186-billing-pos.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr186-billing-pos.spec.js",
@@ -26460,6 +27053,13 @@
       "type": "test",
       "path": "apps/server/tests/e2e/marketing-content.spec.js",
       "hash": "24e4414b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/marketing-p5.spec.js",
+      "type": "test",
+      "path": "apps/server/tests/e2e/marketing-p5.spec.js",
+      "hash": "ae616928",
       "status": "current"
     },
     {
@@ -27051,6 +27651,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "hash": "dc401563",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
+      "hash": "a77fb474",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/fr186-billing.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr186-billing.test.js",
@@ -27257,7 +27871,7 @@
       "id": "test:tests/integration/line-server-backup.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/line-server-backup.test.js",
-      "hash": "79d3f675",
+      "hash": "28b485bc",
       "status": "current"
     },
     {
@@ -27272,6 +27886,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/line-webhook-unbound-production.test.js",
       "hash": "31c3fc99",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-worker-memory.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/line-worker-memory.test.js",
+      "hash": "d5f34f5e",
       "status": "current"
     },
     {
@@ -27307,6 +27928,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/marketing-backup.test.js",
       "hash": "940dbc53",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/marketing-broadcast-intent.test.js",
+      "hash": "b0218630",
       "status": "current"
     },
     {
@@ -27390,7 +28018,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "537dc117",
+      "hash": "2cb0ec0b",
       "status": "current"
     },
     {
@@ -27887,7 +28515,7 @@
       "id": "test:tests/unit/business-capability-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/business-capability-navigation.test.js",
-      "hash": "c5f36ba2",
+      "hash": "5210d83a",
       "status": "current"
     },
     {
@@ -28377,7 +29005,7 @@
       "id": "test:tests/unit/fr045-backup-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
-      "hash": "71bcf8ab",
+      "hash": "6158503c",
       "status": "current"
     },
     {
@@ -28881,7 +29509,14 @@
       "id": "test:tests/unit/inventory-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/inventory-routes.test.js",
-      "hash": "2e6a864c",
+      "hash": "dc3f09a6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/inventory-stocktake-domain.test.js",
+      "hash": "912cfd28",
       "status": "current"
     },
     {
@@ -29431,6 +30066,41 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "hash": "9c768db0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "hash": "569175e2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "hash": "6379dc19",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-broadcast-route.test.js",
+      "hash": "d7586700",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-broadcast-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-broadcast-service.test.js",
+      "hash": "3a780984",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/marketing/marketing-campaign-contract.test.js",
@@ -29463,6 +30133,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/marketing/marketing-content-route.test.js",
       "hash": "ddad2a01",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-insights-route.test.js",
+      "hash": "d4156a96",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/marketing/marketing-insights-service.test.js",
+      "hash": "00f5f7c7",
       "status": "current"
     },
     {
@@ -30155,14 +30839,14 @@
       "id": "test:tests/unit/scm-console-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scm-console-routes.test.js",
-      "hash": "dfbfa8ca",
+      "hash": "5ad24f9a",
       "status": "current"
     },
     {
       "id": "test:tests/unit/scm-group-navigation.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scm-group-navigation.test.js",
-      "hash": "3f8629af",
+      "hash": "e03dfa76",
       "status": "current"
     },
     {
@@ -30211,7 +30895,7 @@
       "id": "test:tests/unit/service-role-grant-baseline.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/service-role-grant-baseline.test.js",
-      "hash": "4da79ae5",
+      "hash": "eebc7227",
       "status": "current"
     },
     {
@@ -34571,6 +35255,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
       "to": "req:FR-160",
       "type": "implements",
@@ -34817,6 +35557,20 @@
     },
     {
       "from": "code:src/app/(pm)/growth/page.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/paid-media/page.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/growth/paid-media/page.jsx",
       "to": "req:SDD-086",
       "type": "follows",
       "status": "current",
@@ -34929,6 +35683,27 @@
     },
     {
       "from": "code:src/app/(pm)/inventory/reservations/page.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/stocktakes/page.jsx",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/stocktakes/page.jsx",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/inventory/stocktakes/page.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -39058,6 +39833,90 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/growth/ask-marketing/route.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/ask-marketing/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/ask-marketing/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/ask-marketing/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/route.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/broadcast-intents/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/growth/campaigns/[id]/route.js",
       "to": "req:FR-160",
       "type": "implements",
@@ -39312,6 +40171,27 @@
     {
       "from": "code:src/app/api/growth/operations/route.js",
       "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/paid-media/route.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/paid-media/route.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/growth/paid-media/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -40473,6 +41353,118 @@
     },
     {
       "from": "code:src/app/api/inventory/stock/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/inventory/stocktakes/preview/route.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -49314,6 +50306,27 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
       "to": "req:BR-028",
       "type": "implements",
       "status": "current",
@@ -49363,6 +50376,55 @@
     },
     {
       "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/application/inventory-stocktake-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -49512,6 +50574,48 @@
       "from": "code:src/modules/inventory/domain/inventory-costing.js",
       "to": "req:FR-177",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:BR-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "to": "req:SEC-001",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -49721,6 +50825,13 @@
     {
       "from": "code:src/modules/inventory/index.js",
       "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/inventory/index.js",
+      "to": "req:FR-184",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50833,6 +51944,27 @@
     },
     {
       "from": "code:src/modules/line-oa-studio/application/line-job-failures.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-memory-delivery.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-memory-delivery.js",
+      "to": "req:FR-171",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-memory-delivery.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -51966,6 +53098,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:FR-103",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:FR-157",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:FR-159",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:FR-160",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/application/marketing-campaign-execution.js",
       "to": "req:FR-160",
       "type": "implements",
@@ -52079,6 +53260,34 @@
     },
     {
       "from": "code:src/modules/marketing/application/marketing-content-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-insights-service.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-insights-service.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-insights-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/application/marketing-insights-service.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -52204,6 +53413,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/campaigns/campaign-contract.js",
       "to": "req:FR-160",
       "type": "implements",
@@ -52470,6 +53735,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/marketing-contract.js",
       "to": "req:FR-158",
       "type": "implements",
@@ -52493,6 +53786,13 @@
     {
       "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
       "to": "req:FR-159",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/MarketingDashboard.jsx",
+      "to": "req:FR-185",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -52666,6 +53966,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+      "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/marketing/components/PlanForm.jsx",
       "to": "req:FR-159",
       "type": "implements",
@@ -52738,6 +54052,55 @@
     {
       "from": "code:src/modules/marketing/components/StrategyWorkspace.jsx",
       "to": "req:SDD-086",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:FR-103",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:FR-157",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:FR-159",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:FR-160",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -53409,6 +54772,20 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-185",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-186",
       "type": "implements",
       "status": "current",
@@ -53767,6 +55144,20 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-180",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-184",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-185",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -57077,6 +58468,13 @@
     },
     {
       "from": "doc:A-api-spec",
+      "to": "doc:FR-185-broadcast-planning-intent",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:A-api-spec",
       "to": "doc:KNOWLEDGE-ADMISSION-CONTRACT",
       "type": "references",
       "source": "markdown",
@@ -59101,6 +60499,13 @@
     {
       "from": "doc:INTERFACE-INVENTORY",
       "to": "doc:FR-162-operations-coordination",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:INTERFACE-INVENTORY",
+      "to": "doc:FR-185-broadcast-planning-intent",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -61186,6 +62591,13 @@
     },
     {
       "from": "domain:inventory",
+      "to": "doc:FR-184-inventory-stocktake",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:inventory",
       "to": "doc:ONTOLOGY",
       "type": "references",
       "source": "markdown",
@@ -61362,6 +62774,13 @@
     {
       "from": "domain:marketing",
       "to": "doc:FR-162-operations-coordination",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "domain:marketing",
+      "to": "doc:FR-185-broadcast-planning-intent",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -61892,6 +63311,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-021",
+      "to": "req:FR-185",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "feat:FEAT-022",
       "to": "req:FR-161",
       "type": "bundles",
@@ -61985,6 +63411,13 @@
     {
       "from": "feat:FEAT-025",
       "to": "req:FR-182",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-025",
+      "to": "req:FR-184",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -62382,6 +63815,20 @@
       "source": "charter"
     },
     {
+      "from": "model:InventoryLedgerFence",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:InventoryStocktake",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:KittingWorkOrder",
       "to": "domain:inventory",
       "type": "owned_by",
@@ -62503,6 +63950,20 @@
     {
       "from": "model:LocalWorkspaceMount",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingBroadcastIntent",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketingBroadcastIntentVersion",
+      "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -64545,6 +66006,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-184",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-185",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-186",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -66148,6 +67623,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/growth/ask-marketing",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/broadcast-intents/[id]",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/broadcast-intents",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/growth/campaigns/[id]",
       "to": "domain:marketing",
       "type": "owned_by",
@@ -66205,6 +67701,13 @@
     },
     {
       "from": "route:api:/api/growth/operations",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/growth/paid-media",
       "to": "domain:marketing",
       "type": "owned_by",
       "status": "current",
@@ -66464,6 +67967,27 @@
     },
     {
       "from": "route:api:/api/inventory/stock",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/stocktakes/[id]",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/stocktakes/commit",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/inventory/stocktakes/preview",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -67310,6 +68834,20 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/growth/ask-marketing",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/growth/broadcast",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/growth/campaigns/[initiativeId]",
       "to": "domain:marketing",
       "type": "owned_by",
@@ -67387,6 +68925,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/growth/paid-media",
+      "to": "domain:marketing",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/growth/strategy",
       "to": "domain:marketing",
       "type": "owned_by",
@@ -67409,6 +68954,13 @@
     },
     {
       "from": "route:page:/inventory/reservations",
+      "to": "domain:inventory",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/inventory/stocktakes",
       "to": "domain:inventory",
       "type": "owned_by",
       "status": "current",
@@ -72273,6 +73825,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr184-stocktake.spec.js",
+      "to": "code:src/app/(pm)/inventory/stocktakes/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr184-stocktake.spec.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr184-stocktake.spec.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr184-stocktake.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/fr186-billing-pos.spec.js",
       "to": "code:src/app/api/commerce/billing/config/route.js",
       "type": "tests",
@@ -72546,6 +74126,76 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/app/(pm)/growth/ask-marketing/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/app/(pm)/growth/broadcast/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/app/(pm)/growth/paid-media/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/modules/marketing/components/AskMarketingWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "code:src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-p5.spec.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/marketing-strategy.spec.js",
       "to": "code:src/app/(pm)/growth/page.jsx",
       "type": "tests",
@@ -72607,6 +74257,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/marketing-strategy.spec.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/marketing-strategy.spec.js",
@@ -74598,6 +76255,20 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-186",
       "type": "verifies",
       "status": "current",
@@ -75054,6 +76725,20 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-185",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -77559,6 +79244,20 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-186",
       "type": "verifies",
       "status": "current",
@@ -78938,7 +80637,21 @@
     },
     {
       "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
       "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:BR-026",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78988,6 +80701,13 @@
     {
       "from": "test:tests/integration/fr155-inventory-stock.test.js",
       "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr155-inventory-stock.test.js",
+      "to": "req:FR-184",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -80289,6 +82009,139 @@
     },
     {
       "from": "test:tests/integration/fr183-pos.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake-backup.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "code:src/modules/inventory/application/inventory-stock-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "code:src/modules/inventory/application/inventory-stocktake-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:BR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-155",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-174",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-175",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-176",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-179",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr184-inventory-stocktake.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -82144,6 +83997,20 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:FR-186",
       "type": "verifies",
       "status": "current",
@@ -82222,6 +84089,41 @@
     {
       "from": "test:tests/integration/line-webhook-unbound-production.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-worker-memory.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-memory-delivery.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-worker-memory.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-worker-memory.test.js",
+      "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-worker-memory.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-worker-memory.test.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -82641,6 +84543,20 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:FR-186",
       "type": "verifies",
       "status": "current",
@@ -82666,6 +84582,69 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "code:src/modules/marketing/application/marketing-broadcast-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/marketing-broadcast-intent.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/marketing-campaign-execution.test.js",
@@ -83062,6 +85041,20 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-185",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -83793,6 +85786,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -88906,6 +90913,13 @@
     },
     {
       "from": "test:tests/unit/business-capability-navigation.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-capability-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -92337,6 +94351,20 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-180",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-185",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -95989,6 +98017,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/inventory-domain.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/app/(pm)/inventory/page.jsx",
       "type": "tests",
@@ -96095,6 +98130,27 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/stocktakes/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/stocktakes/commit/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "code:src/app/api/inventory/stocktakes/preview/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
       "status": "current",
@@ -96109,7 +98165,21 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:BR-026",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -96305,6 +98375,13 @@
     },
     {
       "from": "test:tests/unit/inventory-routes.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -96327,6 +98404,55 @@
     {
       "from": "test:tests/unit/inventory-routes.test.js",
       "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "code:src/modules/inventory/domain/inventory-stocktake.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:BR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/inventory-stocktake-domain.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -99413,6 +101539,13 @@
     },
     {
       "from": "test:tests/unit/marketing-strategy-ui.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing-strategy-ui.test.js",
       "to": "req:SDD-086",
       "type": "verifies",
       "status": "current",
@@ -99459,6 +101592,181 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-backup.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "to": "code:src/modules/marketing/components/marketing-broadcast-client-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "code:src/modules/marketing/domain/marketing-broadcast-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:FR-157",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:FR-159",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:FR-160",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "code:src/app/api/growth/broadcast-intents/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "code:src/app/api/growth/broadcast-intents/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-route.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-broadcast-service.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/marketing/marketing-campaign-contract.test.js",
@@ -99662,6 +101970,83 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "code:src/app/api/growth/ask-marketing/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "code:src/app/api/growth/paid-media/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-route.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "to": "code:src/modules/marketing/application/marketing-insights-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "to": "req:FR-185",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "to": "req:SDD-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/marketing/marketing-insights-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/marketing/marketing-operations-contract.test.js",
@@ -105020,6 +107405,13 @@
     },
     {
       "from": "test:tests/unit/scm-group-navigation.test.js",
+      "to": "req:FR-184",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scm-group-navigation.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -109117,7 +111509,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2584,
+    "server_nodes": 2638,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

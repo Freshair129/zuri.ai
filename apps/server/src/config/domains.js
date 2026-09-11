@@ -211,6 +211,7 @@ export const DOMAINS = [
       { label: 'Locations', path: '/inventory/locations', icon: LayoutGrid },
       { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
       { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
+      { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
     ],
   },
   {

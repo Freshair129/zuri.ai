@@ -83,9 +83,9 @@ Charter: [docs/domains/inventory/CHARTER.md](domains/inventory/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/inventory` |
-| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation |
-| Routes owned | 31 (27 api · 4 pages) |
-| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182 |
+| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation, InventoryStocktake, InventoryLedgerFence |
+| Routes owned | 35 (30 api · 5 pages) |
+| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182, FR-184 |
 
 ## knowledge
 
@@ -127,9 +127,9 @@ Charter: [docs/domains/marketing/CHARTER.md](domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake |
-| Routes owned | 25 (12 api · 13 pages) |
-| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162 |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
+| Routes owned | 32 (16 api · 16 pages) |
+| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185 |
 
 ## platform-control
 
@@ -162,4 +162,4 @@ Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHART
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt |
 | Routes owned | 166 (121 api · 45 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-186, SDD-037 |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, SDD-037 |

@@ -30,6 +30,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
+  // @req FR-185 — Business-scoped broadcast planning identities and
+  // read-only Marketing projections. These handlers never send to a provider.
+  ['/api/growth/ask-marketing', ['POST']],
+  ['/api/growth/broadcast-intents', ['GET', 'POST']], ['/api/growth/broadcast-intents/{id}', ['GET', 'PATCH']],
+  ['/api/growth/paid-media', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
@@ -77,6 +82,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/inventory/reservations', ['GET', 'POST']], ['/api/inventory/reservations/{id}', ['PATCH']],
   ['/api/inventory/atp', ['GET']], ['/api/inventory/shelf-life', ['GET', 'POST']],
   ['/api/inventory/de-kitting', ['POST']],
+  // @req FR-184 — strict NONE/LOT physical stocktake preview, atomic commit
+  // and read-only durable detail; SERIAL and unconfigured locations remain
+  // explicit service refusals rather than hidden ledger writes.
+  ['/api/inventory/stocktakes/preview', ['POST']], ['/api/inventory/stocktakes/commit', ['POST']],
+  ['/api/inventory/stocktakes/{id}', ['GET']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],

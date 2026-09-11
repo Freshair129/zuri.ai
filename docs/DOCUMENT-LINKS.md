@@ -18,6 +18,7 @@ Source: [Appendix A — API Specification](appendices/A-api-spec.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Knowledge admission contract — phases 0–4](plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)
 
@@ -2210,6 +2211,7 @@ Source: [Domain — inventory](domains/inventory/CHARTER.md)
 
 - references: [FR-154 — Inventory catalogue identity (คลังสินค้า)](domains/inventory/features/FR-154-inventory-catalogue-identity.md)
 - references: [FR-155 — Inventory stock ledger (lot · serial · movement)](domains/inventory/features/FR-155-inventory-stock-ledger.md)
+- references: [FR-184 — Inventory physical stocktake](domains/inventory/features/FR-184-inventory-stocktake.md)
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 
@@ -2240,6 +2242,14 @@ Backlinks:
 Source: [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md)
 
 - references: [Inventory ontology (reference)](domains/inventory/ONTOLOGY.md)
+
+## FR-184 — Inventory physical stocktake
+
+Source: [FR-184 — Inventory physical stocktake](domains/inventory/features/FR-184-inventory-stocktake.md)
+
+Backlinks:
+
+- [Domain — inventory](domains/inventory/CHARTER.md) (references)
 
 ## Inventory ontology (reference)
 
@@ -2754,6 +2764,7 @@ Source: [Domain — marketing](domains/marketing/CHARTER.md)
 - references: [Marketing Strategy: draft to accountable execution](domains/marketing/features/FR-159-strategy-plans.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Marketing — Channel & Measurement Contracts](change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - references: [Marketing — Navigation & Views](change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - references: [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
@@ -2824,6 +2835,16 @@ Backlinks:
 - [Appendix A — API Specification](appendices/A-api-spec.md) (references)
 - [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Marketing — Project Manager implementation tracking plan](roadmap/PLAN-MARKETING-DOMAIN-IMPLEMENTATION.md) (references)
+- [Domain — marketing](domains/marketing/CHARTER.md) (references)
+
+## FR-185 — Business-scoped LINE broadcast planning intent
+
+Source: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
+
+Backlinks:
+
+- [Appendix A — API Specification](appendices/A-api-spec.md) (references)
+- [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md) (references)
 - [Domain — marketing](domains/marketing/CHARTER.md) (references)
 
 ## Domain — procurement
@@ -3040,6 +3061,7 @@ Source: [Zuri V2 — Interface Inventory](INTERFACE-INVENTORY.md)
 - references: [Content and Creative — immutable briefs and approved file references](domains/marketing/features/FR-157-content-creative.md)
 - references: [Campaign initiatives and receipt-bound execution](domains/marketing/features/FR-160-campaign-initiatives.md)
 - references: [FR-162 — Marketing Operations coordination](domains/marketing/features/FR-162-operations-coordination.md)
+- references: [FR-185 — Business-scoped LINE broadcast planning intent](domains/marketing/features/FR-185-broadcast-planning-intent.md)
 - references: [Marketing — Interface Inventory & Mockup Coverage](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - references: [Marketing Campaigns — phase evidence](roadmap/marketing/PHASE-CAMPAIGNS-2026-09-06.md)
 - references: [Marketing Content — phase evidence](roadmap/marketing/PHASE-CONTENT-2026-09-06.md)

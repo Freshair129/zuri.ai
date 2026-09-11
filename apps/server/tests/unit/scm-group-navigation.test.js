@@ -65,7 +65,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
     for (const path of ['/inventory', '/procurement/purchase-orders', '/commerce']) {
       const sidebar = sidebarDomainForPath(path)
       expect(sidebar.key).toBe('scm')
-      // @req FR-182 — Inventory's three console pages join the list. The row
+      // @req FR-182/FR-184 — Inventory's console pages join the list. The row
       // count is not the point being pinned here; the ORDER is: each child's
       // own pages sit under that child, and no child's pages leak above it.
       expect(sidebar.sub.map((item) => item.path)).toEqual([
@@ -73,6 +73,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
         '/inventory/locations',
         '/inventory/work-orders',
         '/inventory/reservations',
+        '/inventory/stocktakes',
         '/warehouse',
         '/procurement',
         '/procurement/purchase-orders',
@@ -91,7 +92,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
       const labels = sidebar.sub.map((item) => item.label)
       expect(new Set(labels).size, `duplicate sidebar labels: ${labels.join(', ')}`).toBe(labels.length)
       expect(labels).not.toContain('Dashboard')
-      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders'])
+      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Stocktake', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders'])
     }
   })
 

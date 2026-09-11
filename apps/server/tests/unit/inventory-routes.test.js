@@ -1,6 +1,6 @@
-// @req FR-154, FR-155 — what the Inventory routes and persistence are, in
+// @req FR-154, FR-155, FR-184 — what the Inventory routes and persistence are, in
 //   source terms: every handler resolves a browser viewer, stays thin and is
-//   inventoried for OpenAPI; the ten models are in both schemas, snapshotted
+//   inventoried for OpenAPI; the Inventory models are in both schemas, snapshotted
 //   parents-first, and migrated in both trees in the same change; the domain
 //   is registered for navigation and Membership grants; the manager role
 //   declares its permission.
@@ -30,8 +30,12 @@ const ROUTES = {
   'src/app/api/inventory/recipes/route.js': ['GET', 'POST'],
   'src/app/api/inventory/recipes/[id]/route.js': ['GET', 'PATCH'],
   'src/app/api/inventory/recipes/[id]/build/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/preview/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/commit/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/[id]/route.js': ['GET'],
 }
-const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement']
+const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'InventoryStocktake']
+const LEGACY_MODELS = MODELS.filter((model) => !['InventoryLedgerFence', 'InventoryStocktake'].includes(model))
 
 describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
@@ -42,7 +46,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
         expect(declared, `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-15[456]/)
+      expect(source).toMatch(/@req FR-(?:15[456]|184)/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })
@@ -84,6 +88,8 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(at('productRecipe')).toBeLessThan(at('productRecipeLine'))
     expect(at('productLot')).toBeLessThan(at('serialUnit'))
     expect(at('serialUnit')).toBeLessThan(at('stockMovement'))
+    expect(at('stockMovement')).toBeLessThan(at('inventoryLedgerFence'))
+    expect(at('inventoryLedgerFence')).toBeLessThan(at('inventoryStocktake'))
     expect(at('business')).toBeLessThan(at('inventoryCategory'))
   })
 
@@ -95,7 +101,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     const productions = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations')).filter((name) => /inventory_(domain|recipe)/.test(name))
     expect(productions).toHaveLength(2)
     const sql = productions.map((name) => read(`supabase/migrations/${name}`)).join('\n')
-    for (const model of MODELS) {
+    for (const model of LEGACY_MODELS) {
       expect(twin).toContain(`CREATE TABLE "${model}"`)
       expect(sql).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
     }
@@ -105,13 +111,26 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(twin).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
   })
 
+  it('ships additive stocktake migrations in both database trees', () => {
+    const local = read('prisma/migrations/20260911020000_inventory_stocktake/migration.sql')
+    const production = read('supabase/migrations/20260911020000_inventory_stocktake.sql')
+    for (const model of ['InventoryLedgerFence', 'InventoryStocktake']) {
+      expect(local).toContain(`CREATE TABLE "${model}"`)
+      expect(production).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
+    }
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
   it('registers one live inventory domain with Dashboard first, reachable by Membership grant', () => {
     const domains = DOMAINS.filter((domain) => domain.key === 'inventory')
     expect(domains).toHaveLength(1)
     // Labelled Inventory again since ADR-069: SCM holds the bar slot, so this
     // list is only on screen while SCM is selected and the old collision with a
-    // Project's own Inventory section tab (FR-077) cannot happen. `Warehouse`
-    // is now the reserved sibling that owns locations, transfers and stocktake.
+    // Project's own Inventory section tab (FR-077) cannot happen. Inventory
+    // owns the existing locations, transfers and stocktake surface.
     expect(domains[0]).toMatchObject({ label: 'Inventory', basePath: '/inventory' })
     expect(domains[0].soon).not.toBe(true)
     expect(domains[0].sub[0]).toMatchObject({ label: 'Dashboard', path: '/inventory' })

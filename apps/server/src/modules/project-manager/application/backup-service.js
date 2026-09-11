@@ -23,6 +23,7 @@
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
@@ -35,6 +36,12 @@ import {
   BILLING_VAT_TREATMENTS,
   BILLING_WALK_IN_POLICIES,
 } from '@/modules/commerce/domain/billing'
+import {
+  hashStocktake,
+  INT32_MAX,
+  INVENTORY_STOCKTAKE_MAX_LINES,
+  INVENTORY_STOCKTAKE_STATUSES,
+} from '@/modules/inventory/domain/inventory-stocktake'
 
 /**
  * Guard for both entry points below.
@@ -59,18 +66,77 @@ function assertRestoreOperator(viewer) {
 }
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
+export const MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION = 'marketing-broadcast-recovery.v1'
+const MARKETING_BROADCAST_RECOVERY_TABLES = Object.freeze(['marketingBroadcastIntent', 'marketingBroadcastIntentVersion'])
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
+export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
+export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v1'
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
   'commerceDocument',
 ])
 const COMMERCE_BILLING_DOCUMENT_STATUSES = Object.freeze(['ISSUED'])
+const INVENTORY_STOCKTAKE_RECOVERY_TABLES = Object.freeze([
+  'inventoryLedgerFence',
+  'inventoryStocktake',
+])
 const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17IngestionIntent',
   'genesisRag17SourceMention',
 ])
+const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
+const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
+const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
+const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
+  'MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
+  'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
+])
+
+function validSnapshotDate(value) {
+  return value instanceof Date
+    ? !Number.isNaN(value.getTime())
+    : typeof value === 'string' && value.trim() && !Number.isNaN(new Date(value).getTime())
+}
+
+function snapshotTracePayload(row) {
+  if (row?.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)) return row.payloadJson
+  if (typeof row?.payloadJson !== 'string') return null
+  try {
+    const payload = JSON.parse(row.payloadJson)
+    return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : null
+  } catch {
+    return null
+  }
+}
+
+function hasMemoryPendingCheckpoint(snapshot, job) {
+  const traces = Array.isArray(snapshot?.tables?.agentTraceEvent) ? snapshot.tables.agentTraceEvent : []
+  const messages = Array.isArray(snapshot?.tables?.message) ? snapshot.tables.message : []
+  const conversations = Array.isArray(snapshot?.tables?.conversation) ? snapshot.tables.conversation : []
+  return traces.some((trace) => {
+    if (!trace || trace.kind !== 'MEMORY_DELIVERY_PENDING' || trace.turnId !== job.id
+      || trace.tenantId !== job.tenantId || trace.businessId !== job.businessId
+      || trace.idempotencyKey !== `memory-delivery:pending:${job.id}`
+      || !validSnapshotDate(trace.occurredAt)) return false
+    const payload = snapshotTracePayload(trace)
+    if (!payload || payload.jobId !== job.id || payload.inboundMessageId !== job.inboundMessageId
+      || payload.channelAccountId !== job.channelAccountId || payload.audienceKind !== job.audienceKind
+      || payload.providerAcceptance !== 'ACCEPTED_BY_LINE'
+      || typeof payload.outboundMessageId !== 'string' || !payload.outboundMessageId.trim()
+      || payload.receiptId !== payload.outboundMessageId
+      || typeof payload.externalThreadRef !== 'string' || !payload.externalThreadRef.trim()) return false
+    const inbound = messages.find(message => message?.id === job.inboundMessageId)
+    const outbound = messages.find(message => message?.id === payload.outboundMessageId)
+    if (!inbound || inbound.direction !== 'INBOUND' || !outbound || outbound.direction !== 'OUTBOUND'
+      || inbound.conversationId !== outbound.conversationId) return false
+    const conversation = conversations.find(item => item?.id === inbound.conversationId)
+    return conversation?.tenantId === job.tenantId && conversation.businessId === job.businessId
+      && conversation.channel === 'LINE' && conversation.channelAccountId === job.channelAccountId
+      && conversation.externalThreadId === payload.externalThreadRef
+  })
+}
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
@@ -137,6 +203,8 @@ const SNAPSHOT_MODELS = [
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
   'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
+  // @req FR-185 — restore planning identities before their immutable revisions.
+  'marketingBroadcastIntent', 'marketingBroadcastIntentVersion',
   // @req FR-161 — Business-scoped Marketing intake is recoverable request
   // evidence; owner-domain PM/CRM/Commerce rows remain in their own tables.
   'marketingOperationsIntake',
@@ -156,6 +224,10 @@ const SNAPSHOT_MODELS = [
   // movement names it, so it restores BEFORE the ledger and deletes after it.
   'warehouseLocation',
   'productLot', 'serialUnit', 'stockMovement',
+  // @req FR-184 — the lock-only revision follows the append-only ledger, and
+  // the durable preview/result follows the fence. Reverse deletion removes
+  // stocktake evidence before its fence and ledger parents.
+  'inventoryLedgerFence', 'inventoryStocktake',
   // @req FR-176, FR-177, FR-180 — work orders and reservations reference
   // products, recipes and locations, all above, and nothing references them, so
   // they restore last of the Inventory block. They hold intent and progress,
@@ -431,6 +503,483 @@ function commerceBillingRecovery(snapshot) {
   return result
 }
 
+/**
+ * Stocktake is a feature-specific recovery boundary for the same reason as
+ * Commerce billing: a legacy snapshot may predate these tables, but a newly
+ * declared manifest must be complete and structurally safe before the global
+ * replacement transaction is allowed to delete anything.
+ */
+function inventoryStocktakeRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = INVENTORY_STOCKTAKE_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.inventoryStocktakeRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+
+  // Presence of the two arrays alone is not provenance. A legacy artifact may
+  // contain ad-hoc keys, but only the declared manifest makes their completeness
+  // part of the recovery contract.
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot has no stocktake recovery manifest')
+    return result
+  }
+
+  if (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(INVENTORY_STOCKTAKE_RECOVERY_TABLES)
+  ) {
+    result.errors.push(`Invalid Inventory stocktake recovery manifest (expected ${INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION})`)
+  }
+  if (missing.length) {
+    for (const model of missing) result.errors.push(`Inventory stocktake recovery snapshot is missing required table: ${model}`)
+  }
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row?.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row?.id, row]))
+  const fences = new Map()
+  const uuid = (value) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  const nonEmpty = (value, max = 200) => typeof value === 'string' && value.length > 0 && value.length <= max
+  const int32 = (value, minimum = 0) => Number.isInteger(value) && value >= minimum && value <= INT32_MAX
+  const signedInt32 = (value) => int32(value, -INT32_MAX - 1)
+  const aggregateInt = (value) => Number.isSafeInteger(value)
+    && value >= (-INT32_MAX - 1) * INVENTORY_STOCKTAKE_MAX_LINES
+    && value <= INT32_MAX * INVENTORY_STOCKTAKE_MAX_LINES
+  const isObject = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  const stocktakeLineKey = (line) => JSON.stringify([line?.productId, line?.locationId ?? null, line?.lotId ?? null])
+  const addIdentityError = (row, label, fields) => {
+    for (const field of fields) if (!uuid(row?.[field])) result.errors.push(`Inventory stocktake ${label} ${field} is not a UUID`)
+  }
+  const movementById = new Map()
+  if (Array.isArray(tables.stockMovement)) {
+    for (const movement of tables.stockMovement) {
+      if (!isObject(movement) || !uuid(movement.id)) continue
+      if (movementById.has(movement.id)) result.errors.push(`Inventory stocktake recovery reuses StockMovement id ${movement.id}`)
+      movementById.set(movement.id, movement)
+    }
+  }
+
+  for (const row of tables.inventoryLedgerFence) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory ledger fence ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'ledger fence', ['id', 'tenantId', 'businessId'])
+    if (!int32(row.mutationRevision)) result.errors.push(`Inventory ledger fence ${row.id} has an invalid mutationRevision`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory ledger fence ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory ledger fence ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory ledger fence ${row.id} references a missing Business`)
+    const key = `${row.tenantId}|${row.businessId}`
+    if (fences.has(key)) result.errors.push(`Inventory ledger fences reuse scope ${key}`)
+    fences.set(key, row)
+  }
+
+  const stocktakeKeys = new Set()
+  for (const row of tables.inventoryStocktake) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory stocktake ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'stocktake', ['id', 'tenantId', 'businessId'])
+    if (!nonEmpty(row.idempotencyKey)) result.errors.push(`Inventory stocktake ${row.id} is missing idempotencyKey`)
+    if (!nonEmpty(row.payloadHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing payloadHash`)
+    if (!nonEmpty(row.snapshotHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing snapshotHash`)
+    if (!int32(row.snapshotVersion)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshotVersion`)
+    if (!int32(row.version, 1)) result.errors.push(`Inventory stocktake ${row.id} has an invalid version`)
+    if (!INVENTORY_STOCKTAKE_STATUSES.includes(row.status)) result.errors.push(`Inventory stocktake ${row.id} has an invalid status`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory stocktake ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory stocktake ${row.id} references a missing Business`)
+    const scopeKey = `${row.tenantId}|${row.businessId}|${row.idempotencyKey}`
+    if (stocktakeKeys.has(scopeKey)) result.errors.push(`Inventory stocktakes reuse idempotency key ${scopeKey}`)
+    stocktakeKeys.add(scopeKey)
+
+    let parsed = null
+    if (typeof row.normalizedLinesJson !== 'string') {
+      result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+    } else {
+      try {
+        parsed = JSON.parse(row.normalizedLinesJson)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not an object')
+      } catch {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+      }
+    }
+    if (parsed) {
+      if (!Array.isArray(parsed.requestLines) || !parsed.requestLines.length || !Array.isArray(parsed.lines) || !parsed.lines.length || !Array.isArray(parsed.missingBuckets) || typeof parsed.complete !== 'boolean') {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalized snapshot shape`)
+      }
+      if (Array.isArray(parsed.requestLines) && Array.isArray(parsed.lines) && parsed.requestLines.length !== parsed.lines.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has mismatched request and snapshot line counts`)
+      }
+      if (parsed.snapshotVersion !== row.snapshotVersion || parsed.snapshotHash !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent snapshot token`)
+      const { snapshotHash, ...hashable } = parsed
+      if (snapshotHash && uuid(row.businessId) && hashStocktake({ businessId: row.businessId, snapshotVersion: row.snapshotVersion, ...hashable }) !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot hash`)
+      for (const line of (Array.isArray(parsed.requestLines) ? parsed.requestLines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed request line`)
+          continue
+        }
+        addIdentityError(line, 'request line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request lotId`)
+        if (!int32(line.countedQuantity)) result.errors.push(`Inventory stocktake ${row.id} has an invalid countedQuantity`)
+      }
+      for (const line of (Array.isArray(parsed.lines) ? parsed.lines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed snapshot line`)
+          continue
+        }
+        addIdentityError(line, 'snapshot line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot lotId`)
+        if (!int32(line.countedQuantity) || !signedInt32(line.expectedQuantity) || !signedInt32(line.variance)) result.errors.push(`Inventory stocktake ${row.id} has invalid snapshot quantities`)
+      }
+    }
+
+    let resultJson = null
+    if (row.resultJson !== null && row.resultJson !== undefined) {
+      if (typeof row.resultJson !== 'string') result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+      else {
+        try {
+          resultJson = JSON.parse(row.resultJson)
+          if (!resultJson || typeof resultJson !== 'object' || Array.isArray(resultJson)) throw new Error('not an object')
+        } catch {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+        }
+      }
+    }
+    if (row.status === 'COMMITTED' && !resultJson) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without resultJson`)
+    if (row.status === 'PREVIEWED' && resultJson) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with a commit result`)
+    if (row.status === 'COMMITTED' && !row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without committedAt`)
+    if (row.status === 'PREVIEWED' && row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with committedAt`)
+    if (resultJson) {
+      const movementIdsValid = Array.isArray(resultJson.movementIds)
+      const movementCountValid = int32(resultJson.movementCount)
+      const varianceTotalValid = aggregateInt(resultJson.varianceTotal)
+      const lineBalancesValid = Array.isArray(resultJson.lineBalances)
+      const fenceRevisionValid = int32(resultJson.fenceRevision)
+      if (!movementIdsValid || !movementCountValid || !varianceTotalValid || !lineBalancesValid || !fenceRevisionValid) {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid commit result`)
+      }
+      const movementIds = movementIdsValid ? resultJson.movementIds : []
+      const seenMovementIds = new Set()
+      for (const movementId of movementIds) {
+        if (!uuid(movementId)) {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid StockMovement id`)
+          continue
+        }
+        if (seenMovementIds.has(movementId)) result.errors.push(`Inventory stocktake ${row.id} has duplicate StockMovement id ${movementId}`)
+        seenMovementIds.add(movementId)
+      }
+      if (movementCountValid && resultJson.movementCount !== movementIds.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has movementCount inconsistent with movementIds`)
+      }
+
+      const snapshotLines = Array.isArray(parsed?.lines) ? parsed.lines : []
+      const validSnapshotLines = snapshotLines.length > 0 && snapshotLines.every((line) => (
+        isObject(line)
+        && uuid(line.productId)
+        && (line.locationId === null || uuid(line.locationId))
+        && (line.lotId === null || uuid(line.lotId))
+        && int32(line.countedQuantity)
+        && signedInt32(line.expectedQuantity)
+        && signedInt32(line.variance)
+      ))
+      const snapshotLineByKey = new Map(validSnapshotLines ? snapshotLines.map((line) => [stocktakeLineKey(line), line]) : [])
+      const resultLineByKey = new Map()
+      let varianceSum = 0
+      if (lineBalancesValid) {
+        if (validSnapshotLines && resultJson.lineBalances.length !== snapshotLines.length) {
+          result.errors.push(`Inventory stocktake ${row.id} has a result line count inconsistent with its snapshot`)
+        }
+        for (const line of resultJson.lineBalances) {
+          if (!isObject(line)) {
+            result.errors.push(`Inventory stocktake ${row.id} has a malformed result line`)
+            continue
+          }
+          addIdentityError(line, 'result line', ['productId'])
+          if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result locationId`)
+          if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result lotId`)
+          const quantitiesValid = int32(line.countedQuantity)
+            && signedInt32(line.expectedQuantity)
+            && signedInt32(line.variance)
+            && int32(line.postCommitQuantity)
+          if (!quantitiesValid) result.errors.push(`Inventory stocktake ${row.id} has invalid result quantities`)
+          if (quantitiesValid && line.postCommitQuantity !== line.countedQuantity) result.errors.push(`Inventory stocktake ${row.id} has an invalid post-commit quantity`)
+          const key = stocktakeLineKey(line)
+          if (resultLineByKey.has(key)) result.errors.push(`Inventory stocktake ${row.id} reuses a result line identity`)
+          resultLineByKey.set(key, line)
+          if (quantitiesValid) {
+            varianceSum += line.variance
+          }
+          const snapshotLine = snapshotLineByKey.get(key)
+          if (!snapshotLine) result.errors.push(`Inventory stocktake ${row.id} has a result line absent from its snapshot`)
+          else if (
+            line.expectedQuantity !== snapshotLine.expectedQuantity
+            || line.countedQuantity !== snapshotLine.countedQuantity
+            || line.variance !== snapshotLine.variance
+          ) result.errors.push(`Inventory stocktake ${row.id} has a result line inconsistent with its snapshot`)
+        }
+        if (validSnapshotLines) {
+          for (const line of snapshotLines) {
+            if (!resultLineByKey.has(stocktakeLineKey(line))) result.errors.push(`Inventory stocktake ${row.id} is missing a result line`)
+          }
+        }
+        if (varianceTotalValid && (!aggregateInt(varianceSum) || resultJson.varianceTotal !== varianceSum)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a varianceTotal inconsistent with its result lines`)
+        }
+      }
+
+      if (row.status === 'COMMITTED') {
+        if (!Array.isArray(tables.stockMovement)) {
+          result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without a StockMovement snapshot`)
+        }
+        const referencedMovements = []
+        for (const movementId of movementIds) {
+          const movement = movementById.get(movementId)
+          if (!movement) {
+            result.errors.push(`Inventory stocktake ${row.id} references missing StockMovement ${movementId}`)
+            continue
+          }
+          if (movement.tenantId !== row.tenantId || movement.businessId !== row.businessId) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement outside its Tenant/Business scope`)
+          }
+          if (movement.kind !== 'ADJUSTMENT') result.errors.push(`Inventory stocktake ${row.id} references a non-ADJUSTMENT StockMovement`)
+          if (movement.reference !== `STOCKTAKE:${row.id}`) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an inconsistent reference`)
+          if (!uuid(movement.productId) || (movement.lotId !== null && !uuid(movement.lotId))) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid product or lot identity`)
+          if ((movement.sourceLocationId !== null && !uuid(movement.sourceLocationId)) || (movement.targetLocationId !== null && !uuid(movement.targetLocationId))) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid location identity`)
+          }
+          if (!signedInt32(movement.quantity) || movement.quantity === 0) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid quantity`)
+          } else referencedMovements.push(movement)
+        }
+        if (referencedMovements.length === movementIds.length && varianceTotalValid) {
+          const movementVarianceTotal = referencedMovements.reduce((sum, movement) => sum + movement.quantity, 0)
+          if (!aggregateInt(movementVarianceTotal) || movementVarianceTotal !== resultJson.varianceTotal) {
+            result.errors.push(`Inventory stocktake ${row.id} has StockMovement quantities inconsistent with varianceTotal`)
+          }
+        }
+        if (validSnapshotLines && lineBalancesValid) {
+          const movementsByLine = new Map()
+          for (const movement of referencedMovements) {
+            const positive = movement.quantity > 0
+            const locationId = positive ? movement.targetLocationId : movement.sourceLocationId
+            const oppositeLocation = positive ? movement.sourceLocationId : movement.targetLocationId
+            if (oppositeLocation !== null) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement with two locations`)
+            const key = stocktakeLineKey({ productId: movement.productId, locationId: locationId ?? null, lotId: movement.lotId ?? null })
+            const line = resultLineByKey.get(key)
+            if (!line) {
+              result.errors.push(`Inventory stocktake ${row.id} has a StockMovement absent from its result lines`)
+              continue
+            }
+            movementsByLine.set(key, (movementsByLine.get(key) || 0) + 1)
+            if (movement.quantity !== line.variance) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement quantity inconsistent with its result line`)
+          }
+          for (const line of snapshotLines) {
+            const movementCount = movementsByLine.get(stocktakeLineKey(line)) || 0
+            if (line.variance === 0 && movementCount !== 0) result.errors.push(`Inventory stocktake ${row.id} has a movement for a zero-variance line`)
+            if (line.variance !== 0 && movementCount !== 1) result.errors.push(`Inventory stocktake ${row.id} has an incorrect movement count for a nonzero line`)
+          }
+        }
+      }
+    }
+    const fence = fences.get(`${row.tenantId}|${row.businessId}`)
+    if (fence && row.snapshotVersion > fence.mutationRevision) result.errors.push(`Inventory stocktake ${row.id} exceeds its restored fence revision`)
+    if (fence && resultJson && (resultJson.fenceRevision < row.snapshotVersion || resultJson.fenceRevision > fence.mutationRevision)) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent fence revision`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
+function lineWorkerMemoryRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const manifest = snapshot?.lineWorkerMemoryRecovery
+  const rows = Array.isArray(tables.lineConversationJob) ? tables.lineConversationJob : []
+  const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
+  if (manifest === undefined) {
+    result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: snapshot has no memory recovery manifest; pending memory receipts are not claimed as preserved')
+    if (rows.some((row) => row?.memorySyncOptIn === true
+      || (typeof row?.memoryDeliveryState === 'string' && row.memoryDeliveryState !== 'NONE'))) {
+      result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: memory fields in a legacy snapshot are untrusted and will be restored as opt-out defaults')
+    }
+    return result
+  }
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(LINE_WORKER_MEMORY_RECOVERY_TABLES)) {
+    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
+  }
+  for (const model of LINE_WORKER_MEMORY_RECOVERY_TABLES) {
+    if (!Array.isArray(tables[model])) result.errors.push(`LINE worker memory recovery snapshot is missing required table: ${model}`)
+  }
+  for (const row of rows) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`LINE worker memory recovery job ${label} is not an object`)
+      continue
+    }
+    if (typeof row.memorySyncOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid memorySyncOptIn`)
+    if (!LINE_WORKER_MEMORY_STATES.includes(row.memoryDeliveryState)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryState`)
+    if (!Number.isInteger(row.memoryDeliveryAttempts) || row.memoryDeliveryAttempts < 0) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryAttempts`)
+    if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
+    for (const field of ['memoryDeliveryNextAttemptAt', 'memoryDeliveryLeaseUntil']) {
+      const value = row[field]
+      const validDate = value === null || validSnapshotDate(value)
+      if (!validDate) result.errors.push(`LINE worker memory recovery job ${label} has an invalid ${field}`)
+    }
+    if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
+      result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
+    }
+    if (row.memoryDeliveryState === 'NONE'
+      && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has operational memory fields with NONE state`)
+    }
+    if (row.memoryDeliveryState !== 'PENDING'
+      && (row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has a retry cursor on a terminal state`)
+    }
+    if (row.memoryDeliveryState === 'PENDING') {
+      if (row.status !== 'RECORDED') result.errors.push(`LINE worker memory recovery job ${label} has pending memory without RECORDED status`)
+      if (!validSnapshotDate(row.acceptedAt)) result.errors.push(`LINE worker memory recovery job ${label} has pending memory without provider acceptance time`)
+      if (!hasMemoryPendingCheckpoint(snapshot, row)) {
+        result.errors.push(`LINE worker memory recovery job ${label} has no matching scoped MEMORY_DELIVERY_PENDING checkpoint`)
+      }
+    }
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  else result.status = 'AVAILABLE'
+  return result
+}
+
+function marketingBroadcastRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = MARKETING_BROADCAST_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.marketingBroadcastRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot has no broadcast recovery manifest')
+    return result
+  }
+  if (manifest !== undefined && (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(MARKETING_BROADCAST_RECOVERY_TABLES)
+  )) result.errors.push(`Invalid Marketing broadcast recovery manifest (expected ${MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION})`)
+  if (manifest !== undefined && missing.length) for (const model of missing) result.errors.push(`Marketing broadcast recovery snapshot is missing required table: ${model}`)
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row.id, row]))
+  const accounts = new Map((tables.lineOaAccount || []).map((row) => [row.id, row]))
+  const content = new Map((tables.marketingContentVersion || []).map((row) => [row.id, row]))
+  const briefs = new Map((tables.marketingContentBrief || []).map((row) => [row.id, row]))
+  const intents = new Map()
+  const idempotency = new Set()
+  const codes = new Set()
+  for (const row of tables.marketingBroadcastIntent) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast intent ${label} is not an object`)
+      continue
+    }
+    if (intents.has(row.id)) result.errors.push(`Marketing broadcast intents reuse id ${row.id}`)
+    intents.set(row.id, row)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Marketing broadcast intent ${row.id} has inconsistent Business/Tenant references`)
+    if (!row.code || !row.idempotencyKey || !row.createdBy) result.errors.push(`Marketing broadcast intent ${row.id} is missing identity fields`)
+    if (!BROADCAST_INTENT_STATUSES.includes(row.status)) result.errors.push(`Marketing broadcast intent ${row.id} has invalid status`)
+    if (!Number.isInteger(row.currentRevision) || row.currentRevision < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid currentRevision`)
+    if (!Number.isInteger(row.version) || row.version < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid version`)
+    const idempotencyKey = `${row.businessId}|${row.idempotencyKey}`
+    const codeKey = `${row.businessId}|${row.code}`
+    if (idempotency.has(idempotencyKey)) result.errors.push(`Marketing broadcast intents reuse idempotency key ${idempotencyKey}`)
+    if (codes.has(codeKey)) result.errors.push(`Marketing broadcast intents reuse code ${codeKey}`)
+    idempotency.add(idempotencyKey)
+    codes.add(codeKey)
+  }
+  const revisions = new Map()
+  for (const row of tables.marketingBroadcastIntentVersion) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast version ${label} is not an object`)
+      continue
+    }
+    const intent = intents.get(row.intentId)
+    if (!intent) {
+      result.errors.push(`Marketing broadcast version ${row.id} references a missing intent`)
+      continue
+    }
+    const key = `${row.intentId}|${row.revision}`
+    if (revisions.has(key)) result.errors.push(`Marketing broadcast versions reuse revision ${key}`)
+    revisions.set(key, row)
+    if (!Number.isInteger(row.revision) || row.revision < 1) result.errors.push(`Marketing broadcast version ${row.id} has invalid revision`)
+    try {
+      const value = parseMarketingBroadcastPayload(row.payloadJson, row.payloadHash)
+      if (hashMarketingBroadcastPayload(value) !== row.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} has a non-canonical payload hash`)
+      const brief = briefs.get(value.content.briefId)
+      const contentVersion = content.get(value.content.contentVersionId)
+      if (!brief || brief.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references content outside its Business`)
+      if (!contentVersion || contentVersion.briefId !== value.content.briefId || contentVersion.payloadHash !== value.content.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} references stale content evidence`)
+      if (value.account) {
+        const account = accounts.get(value.account.lineOaAccountId)
+        // The snapshot is historical evidence. An account version or status
+        // can legitimately advance after the planning revision was recorded;
+        // current freshness is resolved by the read DTO as UNAVAILABLE. The
+        // recovery gate validates only that the referenced identity remains in
+        // the same Business and that the immutable payload/hash is coherent.
+        if (!account || account.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references LINE account outside its Business`)
+      }
+    } catch {
+      result.errors.push(`Marketing broadcast version ${row.id} has an invalid payload or hash`)
+    }
+  }
+  for (const intent of intents.values()) {
+    const rows = tables.marketingBroadcastIntentVersion.filter((row) => row.intentId === intent.id).sort((a, b) => a.revision - b.revision)
+    if (!rows.some((row) => row.revision === 1)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing revision 1`)
+    if (!rows.some((row) => row.revision === intent.currentRevision)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing current revision ${intent.currentRevision}`)
+    for (let index = 0; index < rows.length; index += 1) if (rows[index].revision !== index + 1) result.errors.push(`Marketing broadcast intent ${intent.id} has a non-contiguous revision history`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
@@ -444,9 +993,21 @@ export async function exportSnapshot({
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
     },
     knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    marketingBroadcastRecovery: {
+      schemaVersion: MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...MARKETING_BROADCAST_RECOVERY_TABLES],
+    },
     commerceBillingRecovery: {
       schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...COMMERCE_BILLING_RECOVERY_TABLES],
+    },
+    inventoryStocktakeRecovery: {
+      schemaVersion: INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...INVENTORY_STOCKTAKE_RECOVERY_TABLES],
+    },
+    lineWorkerMemoryRecovery: {
+      schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...LINE_WORKER_MEMORY_RECOVERY_TABLES],
     },
     tables: {},
   }
@@ -493,7 +1054,7 @@ export async function exportSnapshot({
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
-  let warnings = []
+  const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
   else {
@@ -504,7 +1065,7 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
     errors.push(...admission.errors)
     warnings.push(...admission.warnings)
     errors.push(...manifest.errors)
-    warnings = manifest.warnings
+    warnings.push(...manifest.warnings)
     recovery = manifest.recovery
   }
   if (errors.length) return { valid: false, errors, warnings, recovery, counts: null }
@@ -524,8 +1085,15 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
+  const marketingBroadcast = marketingBroadcastRecovery(snapshot)
+  const inventory = inventoryStocktakeRecovery(snapshot)
+  const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
+  const currentMemoryJobs = await db.lineConversationJob.count({ where: {
+    OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
+  } })
+  const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
   // An older snapshot may be useful for read-only inspection, but importing it
   // while any billing row exists would silently turn omitted arrays into deletes.
   // An installation with no billing rows can still restore the older snapshot;
@@ -534,26 +1102,54 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (billing.status === 'UNAVAILABLE' && COMMERCE_BILLING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     billing.errors.push('Commerce billing recovery is unavailable while the installation contains billing rows; refusing a restore that would erase evidence')
   }
+  // A legacy snapshot can still be previewed on an empty installation, but it
+  // cannot replace an installation that already contains stocktake evidence.
+  // That would erase pending observations and the fence revision that protects
+  // later ledger reads without giving the operator an explicit refusal.
+  if (inventory.status === 'UNAVAILABLE' && INVENTORY_STOCKTAKE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    inventory.errors.push('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
+  }
+  if (marketingBroadcast.status === 'UNAVAILABLE' && MARKETING_BROADCAST_RECOVERY_TABLES.some(model => current[model] > 0)) {
+    marketingBroadcast.errors.push('Marketing broadcast recovery is unavailable while the installation contains broadcast rows; refusing a restore that would erase planning evidence')
+  }
+  if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0)) {
+    lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
+  }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0,
-    errors: [...base.errors, ...billing.errors],
-    warnings: [...base.warnings, ...billing.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings],
     billingRecovery: billing,
+    inventoryStocktakeRecovery: inventory,
+    lineWorkerMemoryRecovery: lineWorkerMemory,
+    marketingBroadcastRecovery: marketingBroadcast,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
-function restoredRow(model, row) {
+function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,
   }
   if (model !== 'lineConversationJob') return row
   const { sealedReplyToken, ...rest } = row
-  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: (row.version ?? 1) + 1 }
+  const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
+  const memory = preserveMemoryRecovery
+    ? { memorySyncOptIn: row.memorySyncOptIn, memoryDeliveryState: row.memoryDeliveryState,
+      memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
+      memoryDeliveryLeaseUntil: null }
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+      memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
+  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
+    // A restored account is disabled above. Preserve the durable pending receipt
+    // and its retry cursor for inspection/recovery, but never restore an active
+    // scanner lease that could cause an external MSP effect automatically.
+    ...memory,
+    version: (row.version ?? 1) + 1 }
   // A send in progress at export may have reached LINE. Keep that uncertainty
   // visible and blocking cutover rather than inventing a safe failure.
   if (row.status === 'SENDING' || (row.status === 'READY' && row.firstSendAt)) return { ...restored, status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' }
@@ -590,7 +1186,7 @@ export async function importSnapshot(snapshot, {
     await tx.localWorkspaceMount.deleteMany()
     for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
     for (const model of SNAPSHOT_MODELS) {
-      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row) })
+      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row, { lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery }) })
     }
     for (const mount of remounts) {
       const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })
@@ -638,5 +1234,15 @@ export async function importSnapshot(snapshot, {
     if (!active) unresolvedContentFileIds.push(asset.id)
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
   }
-  return { restored: true, counts: preview.counts, warnings: preview.warnings, recovery: preview.recovery, unresolvedContentFileIds }
+  return {
+    restored: true,
+    counts: preview.counts,
+    warnings: preview.warnings,
+    recovery: preview.recovery,
+    billingRecovery: preview.billingRecovery,
+    inventoryStocktakeRecovery: preview.inventoryStocktakeRecovery,
+    lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery,
+    marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
+    unresolvedContentFileIds,
+  }
 }

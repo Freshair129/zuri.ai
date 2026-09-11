@@ -92,12 +92,15 @@ model Tenant {
   billingProfiles           BusinessBillingProfile[]
   commerceDocuments         CommerceDocument[]
   commerceDocumentSequences CommerceDocumentSequence[]
+  inventoryLedgerFences     InventoryLedgerFence[]
+  inventoryStocktakes       InventoryStocktake[]
 
   @@index([portfolioId])
 
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
   marketingContentBriefs MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model LegalEntity {
@@ -206,12 +209,15 @@ model Business {
   billingProfile            BusinessBillingProfile?
   commerceDocuments         CommerceDocument[]
   commerceDocumentSequences CommerceDocumentSequence[]
+  inventoryLedgerFences     InventoryLedgerFence[]
+  inventoryStocktakes       InventoryStocktake[]
 
   @@index([tenantId])
 
   marketingPlans MarketingPlan[]
   marketingInitiatives MarketingInitiative[]
   marketingContentBriefs MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model Branch {
@@ -2932,6 +2938,7 @@ model LineConversationJob {
   transportEpoch     Int
   executionMode      String
   modelAccess        String
+  audienceKind       String   @default("DIRECT")
   allowDelayedPush   Boolean  @default(false)
   recipientId        String
   sourceUserId       String
@@ -2951,6 +2958,11 @@ model LineConversationJob {
   providerMessageId  String?
   acceptedAt         DateTime?
   errorCode          String?
+  memorySyncOptIn    Boolean  @default(false)
+  memoryDeliveryState String  @default("NONE")
+  memoryDeliveryAttempts Int  @default(0)
+  memoryDeliveryNextAttemptAt DateTime?
+  memoryDeliveryLeaseUntil DateTime?
   correlationId      String
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -2961,6 +2973,7 @@ model LineConversationJob {
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
+  @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.
@@ -3207,6 +3220,50 @@ model MarketingOperationsIntake {
 
   @@index([tenantId, businessId, status])
   @@index([businessId, requiredAt])
+}
+
+// @req FR-185 — Business-scoped LINE broadcast planning identity and its
+// append-only revisions; no provider send or audience payload is stored here.
+// @spec FR-157, FR-159, FR-160, FR-103, SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntent {
+  id              String   @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  status          String   @default("PLANNING")
+  currentRevision Int      @default(1)
+  version         Int      @default(1)
+  idempotencyKey  String
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  tenant    Tenant                          @relation(fields: [tenantId], references: [id])
+  business  Business                        @relation(fields: [businessId], references: [id])
+  revisions MarketingBroadcastIntentVersion[]
+
+  @@unique([businessId, idempotencyKey])
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
+}
+
+// @req FR-185 — broadcast planning payloads are immutable and hash-bound.
+// @spec SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntentVersion {
+  id          String   @id @default(uuid())
+  intentId    String
+  revision    Int
+  payloadJson String
+  payloadHash String
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  intent MarketingBroadcastIntent @relation(fields: [intentId], references: [id], onDelete: Cascade)
+
+  @@unique([intentId, revision])
 }
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),
@@ -3533,6 +3590,52 @@ model StockMovement {
   @@index([targetLocationId])
   @@index([workOrderId])
   @@index([salesOrderId])
+}
+
+// ── Inventory — FR-184 physical stocktake ──────────────────────────────────
+// @req FR-184 — a per-Business mutation fence serializes the snapshot read
+//   with every append-only ledger write; a stocktake stores its normalized
+//   observation and commit result for durable, idempotent recovery.
+// @spec ADR-074 D1, D2; BR-002, BR-008, BR-012, BR-026; SEC-001
+// @tested tests/integration/fr184-inventory-stocktake.test.js,
+//   tests/integration/fr184-inventory-stocktake-backup.test.js
+
+model InventoryLedgerFence {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  mutationRevision  Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId])
+  @@index([businessId])
+}
+
+model InventoryStocktake {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  idempotencyKey      String
+  payloadHash         String
+  normalizedLinesJson String
+  snapshotVersion     Int
+  snapshotHash        String
+  status              String    @default("PREVIEWED")
+  resultJson          String?
+  committedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId, idempotencyKey])
+  @@index([businessId, status, createdAt])
 }
 
 // ── Inventory recipe / bill of materials — FR-156 ───────────────────────────

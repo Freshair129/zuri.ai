@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-10T22:39:12.610Z",
+  "generatedAt": "2026-09-10T23:25:30.945Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -39,9 +39,9 @@
     "domainCount": 14,
     "featureCount": 131,
     "readyFeatureCount": 107,
-    "requirementCount": 187,
-    "verifiedRequirementCount": 174,
-    "progressPercent": 93,
+    "requirementCount": 189,
+    "verifiedRequirementCount": 176,
+    "progressPercent": 93.1,
     "gapCount": 24,
     "gaps": [
       {
@@ -440,7 +440,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-150",
@@ -454,7 +454,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-181",
@@ -480,7 +480,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -735,7 +735,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -912,7 +912,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -1064,7 +1064,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 16
         },
         {
           "id": "FR-127",
@@ -1397,7 +1397,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 16
         },
         {
           "id": "FR-104",
@@ -1535,7 +1535,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -1869,7 +1869,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-152",
@@ -1909,7 +1909,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -2065,7 +2065,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-156",
@@ -2086,21 +2086,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-175",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-176",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-177",
@@ -2121,7 +2121,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-180",
@@ -2136,6 +2136,13 @@
           "status": "verified",
           "codeCount": 18,
           "testCount": 15
+        },
+        {
+          "id": "FR-184",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 17
         }
       ],
       "checks": {
@@ -2155,8 +2162,8 @@
             }
           ],
           "details": {
-            "routes": 4,
-            "inventoried": 4,
+            "routes": 5,
+            "inventoried": 5,
             "missing": 0
           }
         },
@@ -2168,9 +2175,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 27,
-            "inventoried": 27,
-            "openApiPaths": 231,
+            "routes": 30,
+            "inventoried": 30,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -2206,8 +2213,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 16,
-            "present": 16
+            "models": 18,
+            "present": 18
           }
         },
         "authorization": {
@@ -2217,9 +2224,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 23,
-            "guardedMutations": 23,
-            "reads": 23,
+            "mutations": 25,
+            "guardedMutations": 25,
+            "reads": 24,
             "unguardedReads": 0
           }
         },
@@ -2239,6 +2246,7 @@
         "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
         "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
         "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+        "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2261,11 +2269,11 @@
         }
       ],
       "details": {
-        "routes": 31,
-        "apiRoutes": 27,
-        "pageRoutes": 4,
-        "ownedModels": 16,
-        "featureNotes": 3
+        "routes": 35,
+        "apiRoutes": 30,
+        "pageRoutes": 5,
+        "ownedModels": 18,
+        "featureNotes": 4
       },
       "featureIds": [
         "FEAT-020",
@@ -2617,8 +2625,8 @@
           "id": "FR-149",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 20,
-          "testCount": 33
+          "codeCount": 21,
+          "testCount": 34
         },
         {
           "id": "FR-150",
@@ -2652,8 +2660,8 @@
           "id": "FR-171",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 17
+          "codeCount": 4,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -2679,7 +2687,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -2836,7 +2844,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -2936,7 +2944,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-158",
@@ -2950,14 +2958,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 17,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-162",
@@ -2965,6 +2973,13 @@
           "status": "verified",
           "codeCount": 14,
           "testCount": 7
+        },
+        {
+          "id": "FR-185",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 15,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -2975,8 +2990,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 13,
-            "inventoried": 13,
+            "routes": 16,
+            "inventoried": 16,
             "missing": 0
           }
         },
@@ -2988,9 +3003,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 12,
-            "inventoried": 12,
-            "openApiPaths": 231,
+            "routes": 16,
+            "inventoried": 16,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -3028,8 +3043,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 11,
-            "present": 11
+            "models": 13,
+            "present": 13
           }
         },
         "authorization": {
@@ -3039,9 +3054,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 9,
-            "guardedMutations": 9,
-            "reads": 11,
+            "mutations": 12,
+            "guardedMutations": 12,
+            "reads": 14,
             "unguardedReads": 0
           }
         },
@@ -3063,6 +3078,7 @@
         "docs/domains/marketing/features/FR-159-strategy-plans.md",
         "docs/domains/marketing/features/FR-160-campaign-initiatives.md",
         "docs/domains/marketing/features/FR-162-operations-coordination.md",
+        "docs/domains/marketing/features/FR-185-broadcast-planning-intent.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -3075,11 +3091,11 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 25,
-        "apiRoutes": 12,
-        "pageRoutes": 13,
-        "ownedModels": 11,
-        "featureNotes": 4
+        "routes": 32,
+        "apiRoutes": 16,
+        "pageRoutes": 16,
+        "ownedModels": 13,
+        "featureNotes": 5
       },
       "featureIds": [
         "FEAT-021"
@@ -3150,7 +3166,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -3285,7 +3301,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -3625,7 +3641,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-046",
@@ -3737,7 +3753,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 59
+          "testCount": 60
         },
         {
           "id": "FR-073",
@@ -3863,7 +3879,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 16
         },
         {
           "id": "FR-104",
@@ -4010,7 +4026,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-150",
@@ -4052,7 +4068,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-156",
@@ -4066,7 +4082,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-158",
@@ -4080,14 +4096,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-160",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-161",
@@ -4157,14 +4173,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-176",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-177",
@@ -4193,6 +4209,20 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-184",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 17
+        },
+        {
+          "id": "FR-185",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 18
         },
         {
           "id": "FR-186",
@@ -4234,7 +4264,7 @@
           "details": {
             "routes": 121,
             "inventoried": 121,
-            "openApiPaths": 231,
+            "openApiPaths": 238,
             "missingFromOpenApi": 0
           }
         },
@@ -4502,7 +4532,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-058",
@@ -4555,6 +4585,7 @@
         "apps/server/tests/integration/fr072-project-file-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr151-line-oa-rich-menu.test.js",
+        "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -6196,8 +6227,8 @@
           "id": "FR-149",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 32,
-          "testCount": 33
+          "codeCount": 33,
+          "testCount": 34
         },
         {
           "id": "FR-150",
@@ -6241,6 +6272,7 @@
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
+        "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -6268,6 +6300,7 @@
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -6332,7 +6365,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-156",
@@ -6381,6 +6414,7 @@
         "apps/server/tests/integration/fr176-customization-work-order.test.js",
         "apps/server/tests/integration/fr177-kitting-work-order.test.js",
         "apps/server/tests/integration/fr178-de-kitting.test.js",
+        "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -6404,7 +6438,7 @@
     },
     {
       "id": "FEAT-021",
-      "title": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain",
+      "title": "Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination, PM handoff and durable LINE broadcast planning within the approved full Marketing domain",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -6412,7 +6446,8 @@
         "FR-158",
         "FR-159",
         "FR-160",
-        "FR-162"
+        "FR-162",
+        "FR-185"
       ],
       "primaryDomain": "marketing",
       "contributorDomains": [
@@ -6432,7 +6467,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-158",
@@ -6446,14 +6481,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-160",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-162",
@@ -6461,9 +6496,18 @@
           "progressPercent": 100,
           "codeCount": 14,
           "testCount": 7
+        },
+        {
+          "id": "FR-185",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 17,
+          "testCount": 18
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/growth/ask-marketing/page.jsx",
+        "apps/server/src/app/(pm)/growth/broadcast/page.jsx",
         "apps/server/src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx",
         "apps/server/src/app/(pm)/growth/campaigns/new/page.jsx",
         "apps/server/src/app/(pm)/growth/campaigns/page.jsx",
@@ -6476,7 +6520,11 @@
         "apps/server/src/app/(pm)/growth/operations/new/page.jsx",
         "apps/server/src/app/(pm)/growth/operations/page.jsx",
         "apps/server/src/app/(pm)/growth/page.jsx",
+        "apps/server/src/app/(pm)/growth/paid-media/page.jsx",
         "apps/server/src/app/(pm)/growth/strategy/page.jsx",
+        "apps/server/src/app/api/growth/ask-marketing/route.js",
+        "apps/server/src/app/api/growth/broadcast-intents/[id]/route.js",
+        "apps/server/src/app/api/growth/broadcast-intents/route.js",
         "apps/server/src/app/api/growth/campaigns/[id]/route.js",
         "apps/server/src/app/api/growth/campaigns/route.js",
         "apps/server/src/app/api/growth/content/assets/[id]/route.js",
@@ -6486,19 +6534,23 @@
         "apps/server/src/app/api/growth/operations/handoffs/[handoffId]/route.js",
         "apps/server/src/app/api/growth/operations/intake/[intakeId]/route.js",
         "apps/server/src/app/api/growth/operations/route.js",
+        "apps/server/src/app/api/growth/paid-media/route.js",
         "apps/server/src/app/api/growth/plans/[id]/handoff/route.js",
         "apps/server/src/app/api/growth/plans/[id]/route.js",
         "apps/server/src/app/api/growth/plans/route.js",
         "apps/server/src/components/layouts/Sidebar.jsx",
         "apps/server/src/config/domains.js",
         "apps/server/src/modules/marketing/application/marketing-authority.js",
+        "apps/server/src/modules/marketing/application/marketing-broadcast-service.js",
         "apps/server/src/modules/marketing/application/marketing-campaign-execution.js",
         "apps/server/src/modules/marketing/application/marketing-campaign-service.js",
         "apps/server/src/modules/marketing/application/marketing-content-references.js",
         "apps/server/src/modules/marketing/application/marketing-content-service.js",
+        "apps/server/src/modules/marketing/application/marketing-insights-service.js",
         "apps/server/src/modules/marketing/application/marketing-operations-service.js",
         "apps/server/src/modules/marketing/application/marketing-plan-service.js",
         "apps/server/src/modules/marketing/application/marketing-pm-handoff-service.js",
+        "apps/server/src/modules/marketing/components/AskMarketingWorkspace.jsx",
         "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
         "apps/server/src/modules/marketing/components/MarketingPerformance.jsx",
         "apps/server/src/modules/marketing/components/MarketingState.jsx",
@@ -6508,6 +6560,7 @@
         "apps/server/src/modules/marketing/components/PlanReviewDecision.jsx",
         "apps/server/src/modules/marketing/components/PlanVersionHistory.jsx",
         "apps/server/src/modules/marketing/components/StrategyWorkspace.jsx",
+        "apps/server/src/modules/marketing/components/campaigns/BroadcastWorkspace.jsx",
         "apps/server/src/modules/marketing/components/campaigns/CampaignBriefTab.jsx",
         "apps/server/src/modules/marketing/components/campaigns/CampaignCollection.jsx",
         "apps/server/src/modules/marketing/components/campaigns/CampaignDecisionsTab.jsx",
@@ -6523,12 +6576,15 @@
         "apps/server/src/modules/marketing/components/content/ContentCollection.jsx",
         "apps/server/src/modules/marketing/components/content/ContentVersionHistory.jsx",
         "apps/server/src/modules/marketing/components/content/content-contract.js",
+        "apps/server/src/modules/marketing/components/marketing-broadcast-client-contract.js",
         "apps/server/src/modules/marketing/components/marketing-contract.js",
         "apps/server/src/modules/marketing/components/operations/OperationsCollection.jsx",
         "apps/server/src/modules/marketing/components/operations/OperationsHandoffDetail.jsx",
         "apps/server/src/modules/marketing/components/operations/OperationsIntakeDetail.jsx",
         "apps/server/src/modules/marketing/components/operations/OperationsIntakeForm.jsx",
         "apps/server/src/modules/marketing/components/operations/operations-contract.js",
+        "apps/server/src/modules/marketing/components/paid-media/PaidMediaWorkspace.jsx",
+        "apps/server/src/modules/marketing/domain/marketing-broadcast-contract.js",
         "apps/server/src/modules/marketing/domain/marketing-campaign-contract.js",
         "apps/server/src/modules/marketing/domain/marketing-content-contract.js",
         "apps/server/src/modules/marketing/domain/marketing-operations-contract.js",
@@ -6541,6 +6597,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/marketing-campaigns.spec.js",
         "apps/server/tests/e2e/marketing-content.spec.js",
+        "apps/server/tests/e2e/marketing-p5.spec.js",
         "apps/server/tests/e2e/marketing-strategy.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -6548,6 +6605,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-broadcast-intent.test.js",
         "apps/server/tests/integration/marketing-campaign-execution.test.js",
         "apps/server/tests/integration/marketing-campaign.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -6571,11 +6629,17 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/marketing-strategy-ui.test.js",
         "apps/server/tests/unit/marketing/marketing-authority.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-backup.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-client-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-route.test.js",
         "apps/server/tests/unit/marketing/marketing-campaign-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-campaign-route.test.js",
         "apps/server/tests/unit/marketing/marketing-content-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-content-references-route.test.js",
         "apps/server/tests/unit/marketing/marketing-content-route.test.js",
+        "apps/server/tests/unit/marketing/marketing-insights-route.test.js",
+        "apps/server/tests/unit/marketing/marketing-insights-service.test.js",
         "apps/server/tests/unit/marketing/marketing-operations-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-operations-route.test.js",
         "apps/server/tests/unit/marketing/marketing-operations-service.test.js",
@@ -6833,7 +6897,7 @@
     },
     {
       "id": "FEAT-025",
-      "title": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, and six agent tools over all of it on the existing Gate E / Gate F registries (ADR-074)",
+      "title": "SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -6845,7 +6909,8 @@
         "FR-179",
         "FR-180",
         "FR-181",
-        "FR-182"
+        "FR-182",
+        "FR-184"
       ],
       "primaryDomain": "inventory",
       "contributorDomains": [
@@ -6866,21 +6931,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-175",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-176",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-177",
@@ -6901,7 +6966,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-180",
@@ -6923,12 +6988,20 @@
           "progressPercent": 100,
           "codeCount": 21,
           "testCount": 15
+        },
+        {
+          "id": "FR-184",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 17
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/inventory/locations/page.jsx",
         "apps/server/src/app/(pm)/inventory/page.jsx",
         "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
+        "apps/server/src/app/(pm)/inventory/stocktakes/page.jsx",
         "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
         "apps/server/src/app/api/inventory/atp/route.js",
         "apps/server/src/app/api/inventory/customization-work-orders/[id]/route.js",
@@ -6942,6 +7015,9 @@
         "apps/server/src/app/api/inventory/reservations/[id]/route.js",
         "apps/server/src/app/api/inventory/reservations/route.js",
         "apps/server/src/app/api/inventory/shelf-life/route.js",
+        "apps/server/src/app/api/inventory/stocktakes/[id]/route.js",
+        "apps/server/src/app/api/inventory/stocktakes/commit/route.js",
+        "apps/server/src/app/api/inventory/stocktakes/preview/route.js",
         "apps/server/src/app/api/inventory/transfers/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/module-tabs.js",
@@ -6952,10 +7028,12 @@
         "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
         "apps/server/src/modules/inventory/application/inventory-shelf-life-service.js",
         "apps/server/src/modules/inventory/application/inventory-stock-service.js",
+        "apps/server/src/modules/inventory/application/inventory-stocktake-service.js",
         "apps/server/src/modules/inventory/application/kitting-work-order-service.js",
         "apps/server/src/modules/inventory/application/location-transfer-service.js",
         "apps/server/src/modules/inventory/application/warehouse-location-service.js",
         "apps/server/src/modules/inventory/domain/inventory-costing.js",
+        "apps/server/src/modules/inventory/domain/inventory-stocktake.js",
         "apps/server/src/modules/inventory/domain/inventory-wip.js",
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/domain/warehouse-location.js",
@@ -6963,6 +7041,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr184-stocktake.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -6976,6 +7055,8 @@
         "apps/server/tests/integration/fr180-atp-reservations.test.js",
         "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
         "apps/server/tests/integration/fr182-scm-console-actions.test.js",
+        "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
+        "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -6989,6 +7070,7 @@
         "apps/server/tests/unit/inventory-costing.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/inventory-stocktake-domain.test.js",
         "apps/server/tests/unit/inventory-wip.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/module-tabs.test.js",
@@ -9969,7 +10051,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 59
+          "testCount": 60
         }
       ],
       "evidence": [
@@ -10043,6 +10125,7 @@
         "apps/server/tests/integration/fr179-shelf-life-guard.test.js",
         "apps/server/tests/integration/fr180-atp-reservations.test.js",
         "apps/server/tests/integration/fr182-scm-console-actions.test.js",
+        "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -10545,7 +10628,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -10560,6 +10643,7 @@
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-customer-consent.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/marketing-broadcast-intent.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/crm-customer-consent-route.test.js",
         "apps/server/tests/unit/customer-consent-migration.test.js",
@@ -10567,6 +10651,9 @@
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/e2e-scope-transport.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-backup.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-contract.test.js",
+        "apps/server/tests/unit/marketing/marketing-broadcast-service.test.js",
         "apps/server/tests/unit/sot-decision-service.test.js"
       ]
     },
@@ -11710,7 +11797,7 @@
     },
     {
       "id": "FR-171",
-      "title": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER has no private memory adapter, so empty memory refs plus `EXCLUDED_BY_POLICY` are required; MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters are separate external gates and receive no direct foreign DB writes.",
+      "title": "Execution Trace & Replay v0.3 — the agent domain owns one scoped append-only `AgentTraceEvent` journal for the native SERVER LINE path. It records one event per actual turn input, model call, tool/action invocation, retrieval, memory or delivery observation, separating UUID `turnId`/`executionId`/`instanceId`/opaque MSP `sessionId`/`ctxId` from stable tool registry/action-intent ids, fresh model/tool/action/send attempt ids, document/artifact versions, retrieval/memory references and delivery receipts. Runtime instanceId is process-stable; executionId changes per claimed attempt. It reuses `LineConversationJob.id` as `turnId`, stores exact semantic input snapshots up to 1 MiB plus SHA-256 and explicit retention/redaction states, keeps provider usage subsets, timestamps and recipient evidence nullable/truthful in UTC, and returns owner-only, `line-oa`-visible read-only playback at `GET /api/line-oa/jobs/{id}/trace`; missing retention makes playback `REPLAY_INCOMPLETE`, and playback performs no effects. Native SERVER defaults to no private memory adapter: jobs without the approved immutable per-job opt-in retain empty memory refs plus `EXCLUDED_BY_POLICY`, while opted-in worker jobs may compose the trusted MSP thread adapter and durable local receipt checkpoint. MSP Soul/session/memory authority, GKS retrieval and optional Edge adapters remain separate external gates and receive no direct foreign DB writes.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -11731,8 +11818,8 @@
           "id": "FR-171",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 17
+          "codeCount": 13,
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -11748,11 +11835,13 @@
         "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+        "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/memory-trace-linkage.test.js",
         "apps/server/tests/integration/msp-memory-lineage.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
