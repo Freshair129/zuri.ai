@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T04:49:20.285Z",
+  "generatedAt": "2026-09-11T06:09:50.353Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,9 +40,9 @@
     "featureCount": 131,
     "readyFeatureCount": 107,
     "requirementCount": 189,
-    "verifiedRequirementCount": 177,
-    "progressPercent": 94.1,
-    "gapCount": 26,
+    "verifiedRequirementCount": 178,
+    "progressPercent": 94.2,
+    "gapCount": 24,
     "gaps": [
       {
         "domain": "agent",
@@ -144,23 +144,6 @@
         "evidence": []
       },
       {
-        "domain": "integration",
-        "id": "REQ-FR-188",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-188 is partial",
-        "evidence": [
-          "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/knowledge-corpus.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-          "apps/server/tests/unit/genesisrag17-source.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
-      },
-      {
         "domain": "inventory",
         "id": "UI-STATUS-001",
         "severity": "medium",
@@ -191,26 +174,6 @@
         "check": "requirements",
         "summary": "FR-131 is planned",
         "evidence": []
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-188",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-188 is partial",
-        "evidence": [
-          "apps/server/src/modules/knowledge/genesisrag17-source.js",
-          "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
-          "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-          "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/knowledge-corpus.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-          "apps/server/tests/unit/genesisrag17-source.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
       },
       {
         "domain": "line-oa-studio",
@@ -1931,20 +1894,10 @@
         },
         {
           "id": "FR-188",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 7,
-          "evidence": [
-            "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/knowledge-corpus.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-            "apps/server/tests/unit/genesisrag17-source.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2088,22 +2041,6 @@
           "check": "requirements",
           "summary": "FR-125 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-188",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-188 is partial",
-          "evidence": [
-            "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/knowledge-corpus.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-            "apps/server/tests/unit/genesisrag17-source.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
         }
       ],
       "details": {
@@ -2508,23 +2445,10 @@
         },
         {
           "id": "FR-188",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 4,
-          "testCount": 7,
-          "evidence": [
-            "apps/server/src/modules/knowledge/genesisrag17-source.js",
-            "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
-            "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-            "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/knowledge-corpus.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-            "apps/server/tests/unit/genesisrag17-source.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2646,25 +2570,6 @@
           "check": "requirements",
           "summary": "FR-131 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-188",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-188 is partial",
-          "evidence": [
-            "apps/server/src/modules/knowledge/genesisrag17-source.js",
-            "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
-            "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-            "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/knowledge-corpus.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
-            "apps/server/tests/unit/genesisrag17-source.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
         }
       ],
       "details": {
@@ -2692,7 +2597,7 @@
       ],
       "featureCount": 14,
       "readyFeatureCount": 11,
-      "progressPercent": 88.4
+      "progressPercent": 89.5
     },
     "line-oa-studio": {
       "status": "partial",
@@ -7234,13 +7139,12 @@
         "knowledge",
         "project-manager"
       ],
-      "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 60,
+      "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
+      "progressPercent": 66.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-026 registry status is approved",
-        "FR-188 is partial",
         "FR-189 is planned"
       ],
       "requirements": [
@@ -7253,8 +7157,8 @@
         },
         {
           "id": "FR-188",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 5,
           "testCount": 7
         },
