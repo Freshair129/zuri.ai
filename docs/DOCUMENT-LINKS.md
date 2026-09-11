@@ -1567,6 +1567,7 @@ Source: [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/
 - references: [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md)
 - references: [req:FR-109](PRD-SDD-v1.0.md)
 - references: [req:FR-110](PRD-SDD-v1.0.md)
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 - relates: [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
 - relates: [ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported](decisions/ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE.md)
 - relates: [ADR-068 — Tier-3 stage evidence is pulled: zuri-ai → MSP → `gks_stage_evidence_export`, cursor owned here, every row attributed or named](decisions/ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP.md)
@@ -1587,6 +1588,7 @@ Backlinks:
 - [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) (references)
 - [GenesisRAG17 implementation progress](.rwang-progress.md) (relates)
 - [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md) (relates)
+- [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (relates)
 
 ## ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost
 
@@ -1616,6 +1618,8 @@ Source: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17
 Backlinks:
 
 - [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) (references)
+- [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (references)
+- [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -3201,7 +3205,16 @@ Backlinks:
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
+- [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (relates)
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) (relates)
+
+## GenesisRAG17 on the edge device: Phase 3 deployment design
+
+Source: [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md)
+
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+- relates: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- relates: [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 
 ## Knowledge admission contract — phases 0–4
 

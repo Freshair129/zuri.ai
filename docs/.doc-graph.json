@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2644,
-    "total_edges": 10727,
+    "total_nodes": 2645,
+    "total_edges": 10731,
     "dangling_edges": 0,
     "node_types": {
-      "document": 218,
+      "document": 219,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -17836,6 +17836,14 @@
       "status": "current"
     },
     {
+      "id": "doc:GENESISRAG17-EDGE-DEPLOYMENT",
+      "type": "document",
+      "path": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+      "title": "GenesisRAG17 on the edge device: Phase 3 deployment design",
+      "hash": "257e82be",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVERNANCE-LINK-METADATA",
       "type": "document",
       "path": "docs/GOVERNANCE-LINK-METADATA.md",
@@ -26927,7 +26935,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
       "title": "ADR-073 — GenesisRAG17 isolated execution and publication",
-      "hash": "ae48c040",
+      "hash": "a72a3a2b",
       "status": "current"
     },
     {
@@ -26943,7 +26951,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
       "title": "ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter",
-      "hash": "01c94e2e",
+      "hash": "6317139a",
       "status": "current"
     },
     {
@@ -57350,6 +57358,27 @@
       "status": "current"
     },
     {
+      "from": "doc:GENESISRAG17-EDGE-DEPLOYMENT",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-EDGE-DEPLOYMENT",
+      "to": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:GENESISRAG17-EDGE-DEPLOYMENT",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:GOVERNANCE-LINK-METADATA",
       "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
       "type": "relates",
@@ -69030,6 +69059,13 @@
       "to": "spec:ADR-068-KNOWLEDGE-EVIDENCE-PULL-THROUGH-MSP",
       "type": "relates",
       "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "markdown",
       "status": "current"
     },
     {
