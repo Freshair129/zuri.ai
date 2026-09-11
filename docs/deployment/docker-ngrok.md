@@ -1,7 +1,7 @@
 ---
-version: "1.3.0b"
+version: "1.3.1b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-10T04:18:00+07:00,RWANG"
+last_update: "2026-09-11T14:50:00+07:00,CLAUDE"
 status: "current"
 superseded_by: null
 attributes:
@@ -204,6 +204,25 @@ PowerShell wrappers: `scripts/deploy.ps1 [-NoBuild] [-Pull]`, `scripts/logs.ps1
 
 Local development is unchanged: `npm run dev` (SQLite) still works from the same
 checkout; Docker is an additional execution path.
+
+**Production includes the LINE server overlay on every deploy.** The ADR-061
+server transport lives in `docker-compose.line-server.yml` (worker token, reply
+sealing key, the read-only credential mount, `ZURI_LINE_SERVER_ENABLED`) plus the
+`line-worker` service behind the `line-server` profile. The production `.env` makes
+that the default for every command in this section:
+
+```bash
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml   # ':' on Linux/macOS
+COMPOSE_PROFILES=line-server
+```
+
+Two traps. An explicit `-f` replaces `COMPOSE_FILE`, so
+`docker compose -f docker-compose.yml up -d` silently drops the overlay — list both
+files and `--profile line-server` whenever you pass `-f`. And a host without the LINE
+credential must not set these, because the overlay refuses to interpolate without
+its variables. Dropping the overlay is not a degraded mode: `web` answers every LINE
+delivery and every edge job claim with 503 until it is back
+([RCA 2026-09-11](../../.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)).
 
 **Every checkout of this repo shares the one Compose project.**
 `docker-compose.yml` pins `name: zuri-ai` explicitly, so `docker compose`

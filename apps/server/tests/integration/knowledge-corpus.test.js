@@ -13,6 +13,8 @@ import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
 // @req FR-173 — an authorized corpus is an immutable manifest of verified
 // per-source snapshots, with current ACL and revocation checks at every read.
+// @req FR-188 — a parser-2 batch hash is accepted only for the parser-2 parsed
+// child of the admitted raw artifact.
 // @spec ADR-072, SEC-001, SEC-008
 // @tested apps/server/tests/integration/knowledge-corpus.test.js
 
@@ -230,6 +232,9 @@ function chunkFor(ingestion, over = {}) {
   }
 }
 
+// FR-188: parsed artifacts the publication check reads for a parser-2 batch.
+const parsedArtifactRows = new Map()
+
 class MemoryKnowledgeRepository {
   constructor(state = {}) {
     this.corpora = new Map([...state.corpora || []].map(([id, row]) => [id, clone(row)]))
@@ -266,6 +271,7 @@ class MemoryKnowledgeRepository {
   getSource(id) { return Promise.resolve(clone(this.sources.get(id) || null)) }
   listSources(corpusId) { return Promise.resolve(clone([...this.sources.values()].filter((row) => row.corpusId === corpusId).sort((a, b) => a.id.localeCompare(b.id)))) }
   getIngestion(id) { return Promise.resolve(clone(this.ingestions.get(id) || null)) }
+  getParsedArtifact(id) { return Promise.resolve(clone(parsedArtifactRows.get(id) || null)) }
   getGeneration(corpusId, number) { return Promise.resolve(clone(this.generations.get(`${corpusId}:${number}`) || null)) }
   async resolveLineage({ sourceId, documentId, version, rawArtifactId, parsedArtifactId, chunkId }) {
     const chunk = this.chunks.get(chunkId)
@@ -396,6 +402,30 @@ describe('knowledge corpus publication, query and citation boundary', () => {
     repo.intents.get(firstIngestion.executionRunId).documentId = 'source-1'
     repo.batches.delete(firstIngestion.executionRunId)
     await expect(publish(repo, db, firstIngestion)).rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_PUBLICATION_PREREQUISITE' })
+  })
+
+  it('accepts a parser-2 batch hash only for the parser-2 child of the admitted raw (FR-188)', async () => {
+    parsedArtifactRows.clear()
+    const rendered = 'ProductMaster PM-X\nnameTh: x\n\n{"object":"cat","predicate":"IN_CATEGORY","subject":"PM-X"}'
+    const batch = repo.batches.get(firstIngestion.executionRunId)
+    const request = JSON.parse(batch.requestJson)
+    request.source.contentHash = hashGenesisRag17Text(rendered)
+    batch.requestJson = JSON.stringify(request)
+    const refused = { status: 409, code: 'KNOWLEDGE_PUBLICATION_PREREQUISITE' }
+
+    await expect(publish(repo, db, firstIngestion)).rejects.toMatchObject(refused)
+    parsedArtifactRows.set('parsed-1', { id: 'parsed-1', rawArtifactId: 'raw-1', parserVersion: 'genesisrag17-parser-1', content: rendered })
+    await expect(publish(repo, db, firstIngestion)).rejects.toMatchObject(refused)
+    parsedArtifactRows.set('parsed-1', { id: 'parsed-1', rawArtifactId: 'raw-elsewhere', parserVersion: 'genesisrag17-parser-2', content: rendered })
+    await expect(publish(repo, db, firstIngestion)).rejects.toMatchObject(refused)
+    parsedArtifactRows.set('parsed-1', { id: 'parsed-1', rawArtifactId: 'raw-1', parserVersion: 'genesisrag17-parser-2', content: `${rendered} ` })
+    await expect(publish(repo, db, firstIngestion)).rejects.toMatchObject(refused)
+
+    parsedArtifactRows.set('parsed-1', { id: 'parsed-1', rawArtifactId: 'raw-1', parserVersion: 'genesisrag17-parser-2', content: rendered })
+    const result = await publish(repo, db, firstIngestion)
+    expect(result.status).toBe('PUBLISHED')
+    expect(result.manifest.entries[0]).toMatchObject({ parsedArtifactId: 'parsed-1', contentHash: firstIngestion.contentHash })
+    parsedArtifactRows.clear()
   })
 
   it('does not treat an ingestion lease as publication authority', async () => {

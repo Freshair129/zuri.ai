@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.3.0"
 created_at: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-11T06:05:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-11T19:15:00+07:00,Claude Opus 5"
 status: "approved"
 superseded_by: null
 attributes:
@@ -15,9 +15,15 @@ attributes:
 **Status:** Approved by the owner on 2026-09-11 (instruction "approve" on PR #321).
 The approval covers the direction (D1–D9) and authorizes Phase 1 (Tier 1 adapter code;
 no schema, migration or deployment). Phases 2–5 each still require their own explicit
-owner approval (D8). Owner questions 2–4 were not answered; the working assumptions
-recorded below stand until the owner states otherwise and are re-confirmed at the gate
-of the phase that first depends on each.
+owner approval (D8). Owner questions 2–4 were answered on 2026-09-11 (edge device;
+a 120-day Phase 4 fallback window; `FileAsset`). The same day the owner opened the
+Phase 2 gate: Option A for tier-qualified prices, Option B deferred as a future option,
+and contract revision 2 of the structured-record profile. Phase 2 implementation starts
+only when all four repositories have merged an acceptance note (D8). Later the same day
+the owner approved Phases 3–5. That approval is conditional and stepwise. Phase 3 deploys
+only after the Phase 2 acceptance run passes, and only when the owner triggers the operator
+step. Phase 5 executes only when Phase 4 evidence meets the owner's exit condition. See
+"Phases 3–5 approval" under D8.
 **Date:** 2026-09-11
 **Decided by:** Owner, 2026-09-11, on the draft written the same day to document the
 convergence of the three independent SmartGift catalog writers found during the
@@ -149,6 +155,31 @@ Existing `ontology_v1` snapshots are never rewritten — they remain queryable a
 older generation, exactly as the flow doc's correction/replay rule already requires
 for every processing-version change (declared as **FR-188**).
 
+**Revision 2 of the contract (owner-approved 2026-09-11, four-repo acceptance pending).**
+A four-repo review on 2026-09-11 corrected the first draft. It is recorded in
+`.brain/proposals/2026-09-11-genesisrag17-structured-record-profile.md` (revision 2):
+
+- **Option A is chosen.** A tier-qualified price is a `PRICE_TIER` entity, so the fact
+  shape does not change. **Option B**, an optional `qualifiers` field on facts and edges,
+  is deferred as a future option rather than rejected. Adopting it later needs a new
+  contract revision and its own four-repo gate, because it changes the frozen decision
+  shape (`docs/plans/GENESISRAG17-CONTRACT.md`).
+- **The vocabulary is final for `ontology_v2`.** It is a superset of `ontology_v1` and adds
+  `HAS_COMPONENT` (package to product), `PRICED_AT` (product or package to price tier) and
+  `IN_CATEGORY` (product or package to category). `PACKAGED_AS` is dropped because it only
+  reverses `HAS_COMPONENT`. `OFFER` is dropped because no predicate uses it, so SmartGift
+  bundle offers map to `PACKAGE`.
+- **The GenesisBlock worker changes too.** GKS hands the worker the whole stored decision,
+  and the worker hard-codes `ontology_v1` and the two v1 predicates. The first draft said
+  the worker needed no change, which was wrong.
+- **Rollout is accept-before-produce.** The worker and GKS both accept the fixed set
+  `{ontology_v1, ontology_v2}`. The worker ships that first, GKS then starts producing v2,
+  and zuri-ai sends parser-2 batches last. In-flight v1 runs finish under v1 rules.
+- **Chunking keeps `rule_v1` unchanged.** Each catalog record becomes one descriptive chunk
+  with exactly one mention, plus one claim chunk per relation whose whole text is the JSON
+  triple. The reason is that Stage 10 reads at most one structured claim per chunk.
+- **MSP needs no code change.** It relays the batch without inspecting it.
+
 ### D7 — Edge becomes a reader of the published generation through MSP; v4 is transitional
 
 The flow doc already describes the query path a finished generation is read through:
@@ -160,7 +191,7 @@ edge answer today can name no `query-ir.v1` generation and cite no publication
 receipt. **FR-189** declares that edge queries the published GenesisRAG17 generation
 for the SmartGift corpus through that existing query path instead. v4 is kept, but
 only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover (D8),
-with a sunset date the owner sets — it is never a second production write path into
+with a sunset window the owner set on 2026-09-11 (question 3) — it is never a second production write path into
 GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
 
 ### D8 — Phases, each gated on the previous and on a separate owner approval before code
@@ -169,10 +200,48 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
 |---|---|---|
 | 0 | This ADR + FR-187/FR-188/FR-189 declared `proposed`. No code. | Approved 2026-09-11 |
 | 1 | The structured-record source adapter itself (D2), Tier 1, before Stage 1. Runs the existing `rule_v1`/`ontology_v1` through Stage 17 unchanged — the catalog record travels as an opaque structured document until Phase 2. | Authorized by the 2026-09-11 approval; runs in its own lane |
-| 2 | Structured parser profile + `ontology_v2` four-repo contract change (D6). | Owner approves; zuri-ai/MSP/GKS/worker agree the contract before any repo implements |
-| 3 | Deploy topology — **owner decision**, not made here. [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) already states no production deployment for the 17-stage pipeline generally; this phase cannot start before that changes. | Owner |
-| 4 | Edge shadow-then-cutover: edge queries both v4 and the new published generation, compares, then cuts over; v4 kept as a stated fallback. | Owner sets the fallback window |
-| 5 | Sunset: SmartGift Stage 5's direct `vaults/*/genesis-db` write and edge v4's direct sibling-file read are both retired. | Owner confirms Phase 4 evidence |
+| 2 | Structured parser profile + `ontology_v2` four-repo contract change (D6). | Owner approved 2026-09-11 (Option A, contract revision 2). The gate passes when an acceptance note is merged in zuri-ai, MSP, GKS and the GenesisBlock worker; no repo implements before that |
+| 3 | Deploy MSP, GKS and the GenesisBlock worker on the edge device for the SmartGift structured-record profile (question 2). [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) states no production deployment for the 17-stage pipeline generally; its 2026-09-11 Amendment lifts that for this profile only. The topology is designed in [`GENESISRAG17-EDGE-DEPLOYMENT.md`](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md). | **Owner approved 2026-09-11.** Deploys only after the Phase 2 acceptance run passes. The deployment itself is a separate operator step that the owner triggers |
+| 4 | FR-189 edge shadow-then-cutover: edge queries both v4 and the new published generation, compares, then cuts over; v4 kept as a stated fallback. | **Owner approved 2026-09-11.** Fallback window: 120 days after cutover or the end of the New Year 2027 season, whichever is later (question 3). Starts only after Phase 3 is deployed and healthy |
+| 5 | Sunset: SmartGift Stage 5's direct `vaults/*/genesis-db` write and edge v4's direct sibling-file read are both retired. | **Owner approved 2026-09-11, conditionally.** Executes only when Phase 4 evidence shows two things: the fallback window has elapsed, and there were zero shadow mismatches across both the Christmas 2026 and New Year 2027 campaign windows |
+
+#### Phases 3–5 approval (owner, 2026-09-11)
+
+The owner's instruction, verbatim: "approve phases 3–5 of ADR-075 and fix issues pararell".
+It came after the owner answered questions 2–4 (below). The approval covers the following,
+and nothing beyond it.
+
+- **Phase 3 authorizes three things.** First, the deployment design in
+  [`GENESISRAG17-EDGE-DEPLOYMENT.md`](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md). Second,
+  the build, Compose and configuration changes that design names, each landing in its own
+  reviewed PR. Third, a production deployment of MSP, GKS and the GenesisBlock worker on
+  the edge device, for the SmartGift structured-record profile only. The deployment happens
+  only after the Phase 2 acceptance passes. That acceptance is the four-process run of
+  zuri-ai, MSP, GKS and the GenesisBlock worker, from the raw entrypoint, with no skips.
+  **Deploying to the live `zuri-ai` stack is a separate operator step that the owner
+  triggers.** Neither this ADR nor any merged PR performs it.
+- **Phase 3 does not authorize** any of the following:
+  - a deployment for any other source, profile or Business;
+  - a server-host topology or a network transport between the tiers (none exists);
+  - applying a migration, which stays an owner-instructed operator step under ADR-057;
+  - any change to edge query traffic, which belongs to Phase 4.
+- **Phase 4 authorizes FR-189.** Edge shadow-queries both v4 and the published generation,
+  compares the two, and then cuts over. v4 stays as the fallback for 120 days after cutover
+  or until the end of the New Year 2027 season, whichever is later. The cutover date is
+  recorded when it happens, because it starts that clock. Shadow comparison continues after
+  cutover for the rest of the fallback window, because the Phase 5 condition is measured on
+  it.
+- **Phase 5 is approved conditionally.** It executes only when Phase 4 evidence meets the
+  owner's exit condition. The condition has two parts: the fallback window has elapsed, and
+  there were zero shadow mismatches across both the Christmas 2026 and New Year 2027
+  campaign windows. Only then are SmartGift Stage 5's direct vault write and edge v4's
+  sibling-file read retired. If shadow comparison does not cover the whole of either
+  campaign window, the condition cannot be met as written. The decision then returns to
+  the owner; it does not pass by default.
+- **Still open: the New Year 2027 season needs dates.** The owner has not yet confirmed the
+  season's ship and cut-off dates. Both campaign windows need written start and end dates
+  before the Christmas 2026 window opens, because a zero-mismatch claim over an undated
+  window cannot be checked.
 
 ### D9 — Non-goals
 
@@ -184,21 +253,38 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
   parser อย่างเดียวไม่พอ") — out of scope here.
 - **No Stage 18.** The flow doc says so explicitly for the query-path extension row
   ("ไม่เพิ่ม Stage 18 โดยอัตโนมัติ"), and D2's row is "Before Stage 1", not after 17.
-- **No migration is applied, no model is added, no production deployment happens** as
-  a consequence of this document. Phase 1 is the first phase that touches code, and
-  it needs its own approval.
+- **No migration is applied, no model is added, and no production deployment happens** as
+  a consequence of this document alone. Phase 1 is the first phase that touches code.
+  The Phase 3 deployment is an operator step that the owner triggers after the Phase 2
+  acceptance passes (D8).
 
-### Owner questions and working assumptions (question 1 answered 2026-09-11)
+### Owner questions (all answered 2026-09-11)
 
 1. Approve this direction at all? — **Yes** (owner, 2026-09-11).
 2. Where do MSP/GKS/worker run for this profile in production — on the edge device or
    a server host? Today they are external development-machine repositories; ADR-073
    states no production deployment and does not settle this either.
-   **Working assumption (not answered):** the edge device, because the native store and
-   the LINE answer path already live there. Re-confirm at the Phase 3 gate.
+   **Decision (owner, 2026-09-11): the edge device.** Today that device also runs the
+   zuri-ai Tier 1 server, and the current transport requires exactly that co-location.
+   zuri-ai starts MSP as a child process (`ZURI_MSP_COMMAND`,
+   `apps/server/src/modules/agent/msp-stdio-transport.js`), MSP starts GKS as a child
+   process, and MSP accepts only a loopback worker URL (`MSP_PIPELINE_WORKER_URL`, MSP
+   `docs/ADR-MSP-GENESISRAG17-RELAY.md`). The decision reopens if the Tier 1 server ever
+   leaves the edge device, because no network transport exists yet. Phase 3 still needs
+   ADR-073's "no production deployment" lifted, and it must decide how the containerised
+   Tier 1 server reaches an MSP process on the same host. Both were addressed on
+   2026-09-11. ADR-073's Amendment lifts the statement for this profile only, and
+   [`GENESISRAG17-EDGE-DEPLOYMENT.md`](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md) designs
+   the container topology.
 3. How long does Genesis RAG v4 stay as the Phase 4 fallback once cutover begins?
-   **Working assumption (not answered):** one campaign cycle after cutover, then sunset
-   in Phase 5. Re-confirm at the Phase 4 gate.
+   **Decision (owner, 2026-09-11): 120 days.** v4 stays as the fallback for 120 days after
+   the Phase 4 cutover or until the end of the New Year 2027 season, whichever is later.
+   The season's end is set once the owner confirms its ship and cut-off dates. Phase 5 sunset
+   additionally requires zero shadow mismatches across both the Christmas 2026 and New Year
+   2027 campaign windows. Neither repository defines a campaign cadence, so the figure was
+   chosen rather than derived. It is anchored on the 30–120-day campaign timing in
+   SmartGift's go-to-market plan (`business-01-smart-gift`,
+   `docs/business/SMARTGIFT-GO-TO-MARKET-PLAN-2026-08.md`).
 4. Does the structured adapter read SmartGift's prepared JSON from the sibling
    checkout's file path (today's convention, the same one `apps/edge/src/rag/v4/paths.ts`
    uses) or does that file become a `FileAsset` uploaded through the existing
@@ -207,9 +293,7 @@ GenesisBlockDB, and after Phase 5 it stops reading the sibling file at all.
    ACL, revocation, idempotent resubmission) instead of a second sibling-directory
    convention, and it is the only option that survives a checkout not laid out with
    `business-01-smart-gift` as a literal sibling of this repository.
-   **Working assumption (not answered):** `FileAsset`, as recommended. Phase 1 is built
-   against it; if the owner prefers the sibling-file convention, only the adapter's byte
-   source changes.
+   **Decision (owner, 2026-09-11): `FileAsset`.** Phase 1 (FR-187) is already built on it.
 
 ## Alternatives considered
 
@@ -260,15 +344,19 @@ citable published generation once Phase 4 lands.
    GKS, MSP and the GenesisBlock worker must each accept the same version before any
    one of them ships a field. This ADR can declare the zuri-ai side of that agreement;
    it cannot commit the other three repositories.
-4. **The FileAsset choice (owner question 4) is a working assumption, not an owner
-   decision.** Phase 1 builds against `FileAsset`; the sibling-checkout convention
+4. **`FileAsset` is the owner's decision (question 4, 2026-09-11).** Phase 1 is built
+   on it; the sibling-checkout convention
    `apps/edge/src/rag/v4/paths.ts` uses stays in place for edge v4 until Phase 5.
-5. **No production migration, no new model, no deployment.** Phase 1 is the first
-   phase that touches code; the 2026-09-11 approval authorizes it and nothing beyond.
+5. **No production migration or new model follows from this ADR, and nothing deploys
+   without the operator step.** Phase 1 was the first phase to touch code. The Phases 3–5
+   approval (D8) allows a deployment only after the Phase 2 acceptance passes and the
+   owner triggers it. It allows a sunset only when the owner's exit condition is met.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-11 | approved | Owner approved Phases 3–5. Phase 3 (edge-device deployment for the SmartGift structured-record profile) deploys only after Phase 2 acceptance passes, as a separate owner-triggered operator step. Phase 4 is FR-189 shadow-then-cutover with the 120-day fallback window. Phase 5 is conditional on the window elapsing and zero shadow mismatches over Christmas 2026 and New Year 2027. The New Year 2027 dates still need owner confirmation. ADR-073 amended; deployment design added | — | Claude Opus 5 |
+| 1.2.0 | 2026-09-11 | approved | Owner answered questions 2–4 (edge device, 120-day v4 fallback window, `FileAsset`) and opened the Phase 2 gate: Option A chosen, Option B deferred as a future option, contract revision 2 recorded (worker changes too, `ontology_v2` superset with accept-before-produce rollout, one claim chunk per relation) | — | Claude Opus 5 |
 | 1.1.0 | 2026-09-11 | approved | Owner approved the direction and Phase 1 on PR #321; questions 2–4 recorded as working assumptions to re-confirm at their phase gates | PR #321 | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-11 | proposed | Initial draft: single entry path, adapter before Stage 1, SmartGift as source producer, edge as published-generation reader, phase gates | 4a8b0ab3 | Claude Sonnet 5 |

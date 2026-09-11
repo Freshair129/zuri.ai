@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T05:22:51.028Z",
+  "generatedAt": "2026-09-11T09:03:42.447Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,8 +40,8 @@
     "featureCount": 131,
     "readyFeatureCount": 107,
     "requirementCount": 189,
-    "verifiedRequirementCount": 177,
-    "progressPercent": 93.7,
+    "verifiedRequirementCount": 178,
+    "progressPercent": 94.2,
     "gapCount": 25,
     "gaps": [
       {
@@ -1814,14 +1814,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-118",
@@ -1891,14 +1891,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-187",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 13
+        },
+        {
+          "id": "FR-188",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2351,14 +2358,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-111",
@@ -2435,14 +2442,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-187",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 13
+        },
+        {
+          "id": "FR-188",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 7
         },
         {
           "id": "FR-189",
@@ -2542,6 +2556,7 @@
         "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
         "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
         "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
+        "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
         "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
@@ -2585,7 +2600,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 13,
-        "featureNotes": 16
+        "featureNotes": 17
       },
       "featureIds": [
         "FEAT-013",
@@ -2605,7 +2620,7 @@
       ],
       "featureCount": 14,
       "readyFeatureCount": 11,
-      "progressPercent": 84.2
+      "progressPercent": 89.5
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3819,7 +3834,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-078",
@@ -3959,14 +3974,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-110",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-123",
@@ -4204,7 +4219,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-174",
@@ -4274,7 +4289,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "checks": {
@@ -4948,7 +4963,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -4956,6 +4971,7 @@
         "apps/server/src/app/api/projects/[id]/inventory/route.js",
         "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
+        "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
         "apps/server/tests/unit/e2e-reconnecting-request.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
@@ -5572,14 +5588,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-110",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-111",
@@ -5593,7 +5609,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
-          "testCount": 35
+          "testCount": 36
         }
       ],
       "evidence": [
@@ -5651,6 +5667,7 @@
         "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission-backup.test.js",
         "apps/server/tests/integration/knowledge-admission.integration.test.js",
@@ -5671,6 +5688,7 @@
         "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
         "apps/server/tests/unit/genesisrag17-contract.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+        "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/genesisrag17-worker.test.js",
@@ -7145,13 +7163,12 @@
         "knowledge",
         "project-manager"
       ],
-      "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 33.3,
+      "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
+      "progressPercent": 66.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-026 registry status is approved",
-        "FR-188 is planned",
         "FR-189 is planned"
       ],
       "requirements": [
@@ -7160,14 +7177,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-188",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 7
         },
         {
           "id": "FR-189",
@@ -7179,15 +7196,22 @@
       ],
       "evidence": [
         "apps/server/src/app/api/knowledge/ingestions/route.js",
+        "apps/server/src/modules/knowledge/genesisrag17-source.js",
+        "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+        "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
         "apps/server/src/modules/knowledge/structured-record-policy.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+        "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+        "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",

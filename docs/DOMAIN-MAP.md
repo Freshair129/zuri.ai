@@ -98,7 +98,7 @@ Charter: [docs/domains/knowledge/CHARTER.md](domains/knowledge/CHARTER.md)
 | Modules | `src/modules/knowledge` |
 | Models owned | KnowledgeCorpus, KnowledgeSource, KnowledgeIngestion, KnowledgeCorpusGeneration, KnowledgeRawArtifact, KnowledgeParsedArtifact, KnowledgeChunk, GenesisRag17IngestionIntent, GenesisRag17SourceMention, GenesisRag17Batch, GenesisRag17StageEvidence, GenesisRag17EvidenceCursor, GenesisRag17PublicationReceipt |
 | Routes owned | 0 (0 api · 0 pages) |
-| FRs implemented in lane | BR-022, FR-024, FR-047, FR-051, FR-052, FR-054, FR-071, FR-109, FR-110, FR-111, FR-112, FR-113, FR-114, FR-115, FR-116, FR-117, FR-118, FR-119, FR-173, FR-187 |
+| FRs implemented in lane | BR-022, FR-024, FR-047, FR-051, FR-052, FR-054, FR-071, FR-109, FR-110, FR-111, FR-112, FR-113, FR-114, FR-115, FR-116, FR-117, FR-118, FR-119, FR-173, FR-187, FR-188 |
 
 ## line-oa-studio
 

@@ -31,9 +31,11 @@ import {
   GENESIS_RAG17_CHUNKER_VERSION,
   GENESIS_RAG17_DEFAULT_MAX_TOKENS,
   GENESIS_RAG17_PARSER_VERSION,
-  GENESIS_RAG17_RECOGNIZER_PROVENANCE,
-  GENESIS_RAG17_RECOGNIZER_VERSION,
+  GENESIS_RAG17_PARSER_PROFILES,
+  GENESIS_RAG17_PARSER_VERSION_2,
   genesisRag17ParserIdentity,
+  genesisRag17ParserProfileForProvider,
+  genesisRag17RecognizerIdentity,
   parseGenesisRag17Document,
   parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
@@ -52,8 +54,11 @@ import {
 // @req FR-187 — a structured-record source runs the SmartGift Zero-PII deny
 // policy at Stage 5 classify; a denied record stops there with terminal
 // evidence and never reaches Stage 6 or a Stage 9 batch (ADR-075 D5).
+// @req FR-188 — a SMARTGIFT_CATALOG source is parsed by genesisrag17-parser-2
+// and recognized by genesisrag17-structured-recognizer-1; its batch carries
+// the rendered parsed content so every chunk stays an exact substring of it.
 // @spec ADR-050, ADR-063, ADR-067, ADR-068, ADR-075, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md
-// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/genesisrag17-parser-2.test.js
 
 const RAW_SOURCE_TYPE = 'TEXT'
 const RAW_CONTENT_TYPE = 'text/plain'
@@ -99,14 +104,18 @@ function inputValue(input) {
   if (!policy || typeof policy.allowEmbedding !== 'boolean' || typeof policy.allowPublication !== 'boolean') {
     throw serviceError(400, 'GenesisRAG17 raw entry requires explicit allowEmbedding and allowPublication policy', 'GENESISRAG17_POLICY_REQUIRED')
   }
+  // FR-188: the Stage 2 profile follows the provider, never a caller option.
+  const provider = source?.provider ?? 'genesisrag17'
+  const parserProfile = genesisRag17ParserProfileForProvider(provider)
+  const recognizerIdentity = genesisRag17RecognizerIdentity(parserProfile)
   const recognizerVersionValues = [input?.recognizerVersion, input?.recognizer_version, source?.recognizerVersion, source?.recognizer_version]
     .filter((value) => value !== undefined)
   const recognizerProvenanceValues = [input?.recognizerProvenance, input?.recognizer_provenance, source?.recognizerProvenance, source?.recognizer_provenance]
     .filter((value) => value !== undefined)
-  if (new Set(recognizerVersionValues).size > 1 || recognizerVersionValues.some((value) => value !== GENESIS_RAG17_RECOGNIZER_VERSION)) {
+  if (new Set(recognizerVersionValues).size > 1 || recognizerVersionValues.some((value) => value !== recognizerIdentity.recognizerVersion)) {
     throw serviceError(400, 'GenesisRAG17 recognizer version is unsupported or inconsistent', 'GENESISRAG17_RECOGNIZER_CONFIG_UNSUPPORTED')
   }
-  if (new Set(recognizerProvenanceValues).size > 1 || recognizerProvenanceValues.some((value) => value !== GENESIS_RAG17_RECOGNIZER_PROVENANCE)) {
+  if (new Set(recognizerProvenanceValues).size > 1 || recognizerProvenanceValues.some((value) => value !== recognizerIdentity.recognizerProvenance)) {
     throw serviceError(400, 'GenesisRAG17 recognizer provenance is unsupported or inconsistent', 'GENESISRAG17_RECOGNIZER_CONFIG_UNSUPPORTED')
   }
   const replayRunId = input?.replayRunId ?? source?.replayRunId ?? null
@@ -122,15 +131,22 @@ function inputValue(input) {
     throw serviceError(400, 'GenesisRAG17 parser configuration identity is inconsistent between input and source', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
   }
   const parserVersion = input?.parserVersion ?? source?.parserVersion
-  const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens })
+  let expectedParserVersion
+  try {
+    expectedParserVersion = genesisRag17ParserIdentity({ maxTokens, profile: parserProfile })
+  } catch {
+    throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
+  }
   if (parserVersion !== undefined && parserVersion !== expectedParserVersion) {
     throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
   }
   if (input?.chunkerVersion !== undefined && source?.chunkerVersion !== undefined && input.chunkerVersion !== source.chunkerVersion) {
     throw serviceError(400, 'GenesisRAG17 chunker configuration identity is inconsistent between input and source', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
   }
+  const structuredProfile = parserProfile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD
   const chunkerVersion = input?.chunkerVersion ?? source?.chunkerVersion
-  if (chunkerVersion !== undefined && chunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION) {
+  // Parser-2 chunks by rendered section, so no token chunker identity applies.
+  if (chunkerVersion !== undefined && (structuredProfile || chunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION)) {
     throw serviceError(400, 'GenesisRAG17 chunker configuration identity is unsupported', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
   }
   const temporalFields = ['temporal', 'temporalMetadata', 'temporal_metadata', 'validFrom', 'validTo', 'valid_from', 'valid_to']
@@ -149,14 +165,15 @@ function inputValue(input) {
     contentType: source?.contentType ?? source?.content_type ?? RAW_CONTENT_TYPE,
     policy: { allowEmbedding: policy.allowEmbedding, allowPublication: policy.allowPublication },
     maxTokens,
+    parserProfile,
     parserVersion: expectedParserVersion,
-    chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION,
-    recognizerVersion: GENESIS_RAG17_RECOGNIZER_VERSION,
-    recognizerProvenance: GENESIS_RAG17_RECOGNIZER_PROVENANCE,
+    chunkerVersion: structuredProfile ? null : GENESIS_RAG17_CHUNKER_VERSION,
+    recognizerVersion: recognizerIdentity.recognizerVersion,
+    recognizerProvenance: recognizerIdentity.recognizerProvenance,
     rawExternalRecordId: source?.rawExternalRecordId ?? null,
     replayRunId,
     connectionId: source?.connectionId ?? null,
-    provider: source?.provider ?? 'genesisrag17',
+    provider,
     // Free String column on RawExternalRecord. The default keeps every
     // pre-FR-187 caller writing exactly the row it wrote before.
     entityType: source?.entityType ?? source?.entity_type ?? RAW_ENTITY_TYPE,
@@ -180,7 +197,7 @@ function sourceIdentity(value) {
 function genesisIdentity(value) {
   return hashGenesisRag17Json({
     sourceIdentity: sourceIdentity(value),
-    parserVersion: genesisRag17ParserIdentity({ maxTokens: value.maxTokens }),
+    parserVersion: value.parserVersion,
   })
 }
 
@@ -188,14 +205,33 @@ function deterministicId(prefix, identity) {
   return `${prefix}_${identity.slice(0, 48)}`
 }
 
+function isStructuredProfile(value) {
+  return value.parserProfile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD
+}
+
+// The text-profile derivation is byte-identical to the pre-FR-188 shape, so
+// every existing intent replays unchanged. A structured intent records the
+// parser-2 / structured-recognizer-1 identity and no token budget.
 function intentDerivation(value) {
   return {
-    parserVersion: genesisRag17ParserIdentity({ maxTokens: value.maxTokens }),
-    chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION,
-    maxTokens: value.maxTokens,
-    recognizerVersion: GENESIS_RAG17_RECOGNIZER_VERSION,
-    recognizerProvenance: GENESIS_RAG17_RECOGNIZER_PROVENANCE,
+    parserVersion: value.parserVersion,
+    chunkerVersion: value.chunkerVersion,
+    maxTokens: isStructuredProfile(value) ? null : value.maxTokens,
+    recognizerVersion: value.recognizerVersion,
+    recognizerProvenance: value.recognizerProvenance,
   }
+}
+
+function parseForValue(value, rawArtifactId, parsedArtifactId) {
+  return parseGenesisRag17Document({
+    documentId: value.documentId,
+    rawArtifactId,
+    parsedArtifactId,
+    content: value.content,
+    maxTokens: value.maxTokens,
+    parserVersion: value.parserVersion,
+    profile: value.parserProfile,
+  })
 }
 
 function intentRequest(value) {
@@ -577,8 +613,11 @@ async function ensureRaw(repository, value, rawArtifactId, canonicalRawRecord, n
 }
 
 async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArtifactId, now) {
-  const parserVersion = genesisRag17ParserIdentity({ maxTokens: value.maxTokens })
-  const parsedAndChunks = parseGenesisRag17Document({ documentId: value.documentId, rawArtifactId, parsedArtifactId, content: value.content, maxTokens: value.maxTokens, parserVersion })
+  const parserVersion = value.parserVersion
+  const parsedAndChunks = parseForValue(value, rawArtifactId, parsedArtifactId)
+  // Parser-1's parsed content is the raw text; parser-2's is the rendered
+  // record text (FR-188, C-4). Either way it is the parser's own output.
+  const parsedContent = parsedAndChunks.parsed.content
   const parsedHash = parsedArtifactContentHash(parsedAndChunks.parsed)
   let parsed = await repository.findParsedByRawAndParser(rawArtifactId, parserVersion)
   if (parsed) {
@@ -591,7 +630,7 @@ async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArti
         legacyDefaultMetadata = false
       }
     }
-    if (parsed.id !== parsedArtifactId || parsed.content !== value.content || (parsed.contentHash !== parsedHash && !legacyDefaultMetadata)) throw serviceError(409, 'GenesisRAG17 parsed identity was reused with different immutable content')
+    if (parsed.id !== parsedArtifactId || parsed.content !== parsedContent || (parsed.contentHash !== parsedHash && !legacyDefaultMetadata)) throw serviceError(409, 'GenesisRAG17 parsed identity was reused with different immutable content')
   } else {
     parsed = await repository.createParsed({
       id: parsedArtifactId,
@@ -599,7 +638,7 @@ async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArti
       documentId: value.documentId,
       parserVersion,
       contentHash: parsedHash,
-      content: value.content,
+      content: parsedContent,
       structureJson: json(parsedAndChunks.parsed.structure),
       textBlocksJson: json(parsedAndChunks.parsed.textBlocks),
       tablesJson: json(parsedAndChunks.parsed.tables),
@@ -612,8 +651,8 @@ async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArti
 }
 
 async function ensureChunks(repository, value, rawArtifactId, parsedArtifactId, now) {
-  const parserVersion = genesisRag17ParserIdentity({ maxTokens: value.maxTokens })
-  const parsedAndChunks = parseGenesisRag17Document({ documentId: value.documentId, rawArtifactId, parsedArtifactId, content: value.content, maxTokens: value.maxTokens, parserVersion })
+  const parserVersion = value.parserVersion
+  const parsedAndChunks = parseForValue(value, rawArtifactId, parsedArtifactId)
   const parsed = await repository.findParsedByRawAndParser(rawArtifactId, parserVersion)
   if (!parsed || parsed.id !== parsedArtifactId) throw serviceError(409, 'GenesisRAG17 chunking requires the matching parsed artifact')
   const chunks = []
@@ -705,7 +744,8 @@ function mentionContract(row) {
 async function ensureSourceMentions(repository, value, run, stage8, raw, parsed, chunks, now) {
   const derivation = intentDerivation(value)
   const derivationHash = hashGenesisRag17Json(derivation)
-  const expected = extractGenesisRag17Mentions(chunks.map((chunk) => ({ chunkId: chunk.id, chunk_id: chunk.id, text: chunk.text })))
+  const { recognizer } = genesisRag17RecognizerIdentity(value.parserProfile)
+  const expected = extractGenesisRag17Mentions(chunks.map((chunk) => ({ chunkId: chunk.id, chunk_id: chunk.id, text: chunk.text })), { recognizer })
   const existing = await repository.listMentions({ executionRunId: run.executionRunId, attemptId: stage8.attemptId, parsedArtifactId: parsed.id })
   const existingById = new Map(existing.map((row) => [row.sourceMentionId, row]))
   if (existingById.size !== existing.length || existing.some((row) => !expected.some((hit) => hit.sourceMentionId === row.sourceMentionId))) {
@@ -731,8 +771,8 @@ async function ensureSourceMentions(repository, value, run, stage8, raw, parsed,
         || current.chunkId !== hit.chunkId
         || current.startOffset !== hit.startOffset
         || current.endOffset !== hit.endOffset
-        || current.recognizerVersion !== GENESIS_RAG17_RECOGNIZER_VERSION
-        || current.recognizerProvenance !== GENESIS_RAG17_RECOGNIZER_PROVENANCE
+        || current.recognizerVersion !== value.recognizerVersion
+        || current.recognizerProvenance !== value.recognizerProvenance
         || current.derivationHash !== derivationHash
       ) {
         throw serviceError(409, 'GenesisRAG17 durable source mention derivation identity does not match the requested replay', 'GENESISRAG17_MENTION_DERIVATION_MISMATCH')
@@ -757,8 +797,8 @@ async function ensureSourceMentions(repository, value, run, stage8, raw, parsed,
       name: hit.name,
       startOffset: hit.startOffset,
       endOffset: hit.endOffset,
-      recognizerVersion: GENESIS_RAG17_RECOGNIZER_VERSION,
-      recognizerProvenance: GENESIS_RAG17_RECOGNIZER_PROVENANCE,
+      recognizerVersion: value.recognizerVersion,
+      recognizerProvenance: value.recognizerProvenance,
       derivationHash,
       contentHash: value.contentHash,
       ...value.scope,
@@ -852,7 +892,18 @@ export async function resolveGenesisRag17RawLineage({
   })
   if (!canonicalRaw || canonicalRaw.artifactId !== raw.id || payloadText(canonicalRaw) !== raw.content) throw serviceError(409, 'GenesisRAG17 canonical RawExternalRecord link is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   const parsed = await lineageRepository.findParsedById(parsedArtifactId)
-  if (!parsed || parsed.content !== raw.content || parsed.documentId !== raw.documentId) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
+  // Parser-1 keeps the raw text as its parsed content. Parser-2's parsed
+  // content is re-derived from the raw bytes here, so a citation still proves
+  // raw -> parsed -> chunk rather than trusting the stored rendering.
+  let expectedParsedContent = raw.content
+  if (parsed?.parserVersion === GENESIS_RAG17_PARSER_VERSION_2) {
+    try {
+      expectedParsedContent = parseGenesisRag17Document({ documentId: raw.documentId, rawArtifactId: raw.id, parsedArtifactId: parsed.id, content: raw.content, profile: GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD }).parsed.content
+    } catch {
+      throw serviceError(409, 'GenesisRAG17 parsed artifact cannot be re-derived from its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
+    }
+  }
+  if (!parsed || parsed.content !== expectedParsedContent || parsed.documentId !== raw.documentId) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
   let expectedParsedHash
   try {
     expectedParsedHash = parsedArtifactContentHash({
@@ -864,7 +915,7 @@ export async function resolveGenesisRag17RawLineage({
   if (parsed.contentHash !== expectedParsedHash) throw serviceError(409, 'GenesisRAG17 parsed artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   if (parsed.rawArtifactId !== raw.id) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
   const chunk = await lineageRepository.findChunkById(chunkId)
-  if (!chunk || chunk.endOffset < chunk.startOffset || raw.content.slice(chunk.startOffset, chunk.endOffset) !== chunk.text || chunk.contentHash !== hashGenesisRag17Text(chunk.text)) throw serviceError(409, 'GenesisRAG17 chunk does not match its immutable source substring', 'GENESISRAG17_LINEAGE_BROKEN')
+  if (!chunk || chunk.endOffset < chunk.startOffset || parsed.content.slice(chunk.startOffset, chunk.endOffset) !== chunk.text || chunk.contentHash !== hashGenesisRag17Text(chunk.text)) throw serviceError(409, 'GenesisRAG17 chunk does not match its immutable source substring', 'GENESISRAG17_LINEAGE_BROKEN')
   if (chunk.parsedArtifactId !== parsed.id) throw serviceError(409, 'GenesisRAG17 chunk does not match its parsed parent', 'GENESISRAG17_LINEAGE_BROKEN')
   return {
     sourceId: raw.sourceId,
@@ -881,18 +932,23 @@ export async function resolveGenesisRag17RawLineage({
   }
 }
 
-function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifactId, chunks, mentions }) {
+function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifactId, parsedContent, chunks, mentions }) {
   const stages = buildGenesisRag17StageIdentities(run.executionRunId, steps)
   const stage9 = stages.find((stage) => stage.stageNumber === 9)
   const batchId = deterministicId('grb', hashGenesisRag17Json({ executionRunId: run.executionRunId, attemptId: stage9.attemptId }))
+  // The wire requires every chunk to be an exact substring of source.content
+  // (GKS and the worker both check it). Chunks are cut from the parsed
+  // content, so that is what the batch carries. For parser-1 it is the raw
+  // text byte for byte; for parser-2 it is the rendered record text (C-4).
+  const content = typeof parsedContent === 'string' ? parsedContent : value.content
   const source = {
     sourceId: value.sourceId,
     rawArtifactId,
     parsedArtifactId,
     documentId: value.documentId,
     version: value.version,
-    contentHash: value.contentHash,
-    content: value.content,
+    contentHash: content === value.content ? value.contentHash : hashGenesisRag17Text(content),
+    content,
   }
   const contractChunks = chunks.map((chunk) => ({
     chunkId: chunk.id,
@@ -1167,7 +1223,7 @@ export async function ingestGenesisRag17Raw(input, {
       action: async () => {
         if (!chunks.length) throw serviceError(409, 'GenesisRAG17 entity extraction requires persisted chunks')
         mentions = await ensureSourceMentions(lineageRepository, value, run, stage8ForMentions, raw, parsed, chunks, now)
-        return { recordsIn: chunks.length, recordsOut: mentions.length, details: { mentionCount: mentions.length, semanticTypes: [...new Set(mentions.map((mention) => mention.semanticType))], recognizer: GENESIS_RAG17_RECOGNIZER_VERSION, recognizerVersion: GENESIS_RAG17_RECOGNIZER_VERSION, recognizerProvenance: GENESIS_RAG17_RECOGNIZER_PROVENANCE, derivationHash: hashGenesisRag17Json(intentDerivation(value)) } }
+        return { recordsIn: chunks.length, recordsOut: mentions.length, details: { mentionCount: mentions.length, semanticTypes: [...new Set(mentions.map((mention) => mention.semanticType))], recognizer: value.recognizerVersion, recognizerVersion: value.recognizerVersion, recognizerProvenance: value.recognizerProvenance, derivationHash: hashGenesisRag17Json(intentDerivation(value)) } }
       },
     },
   ]
@@ -1212,7 +1268,7 @@ export async function ingestGenesisRag17Raw(input, {
   if (!mentions.length && raw && parsed && chunks.length) mentions = await ensureSourceMentions(lineageRepository, value, run, stage8ForMentions, raw, parsed, chunks, now)
   if (!raw || !parsed || !chunks.length) throw serviceError(409, 'GenesisRAG17 local lineage is incomplete; cannot create the Stage 9 batch')
   intent = await lineageRepository.updateIntent(intent.id, { status: 'RUNNING', nextStageNumber: 9, lastErrorJson: null })
-  const { batch, stage9 } = buildBatch({ value, identity, run, steps, rawArtifactId: raw.id, parsedArtifactId: parsed.id, chunks, mentions })
+  const { batch, stage9 } = buildBatch({ value, identity, run, steps, rawArtifactId: raw.id, parsedArtifactId: parsed.id, parsedContent: parsed.content, chunks, mentions })
   assertGenesisRag17BatchIntegrity(batch)
   let batchRow = await persistBatch(db, { batch, run, stage9, now, idFactory })
   let response = batchRow.responseJson ? JSON.parse(batchRow.responseJson) : null

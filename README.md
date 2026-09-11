@@ -89,6 +89,10 @@ docker compose up -d --build
 docker compose ps      # web healthy, ngrok running
 ```
 
+Production also runs the ADR-061 LINE server overlay: `apps/server/.env` sets
+`COMPOSE_FILE` and `COMPOSE_PROFILES` so the commands above include it. Passing `-f`
+explicitly bypasses that — see the deployment guide.
+
 Public URL: `https://<NGROK_DOMAIN>`; LINE webhook seam:
 `https://<NGROK_DOMAIN>/api/agent/line-webhook`. Full guide, verification steps
 and the VPS migration path: [docs/deployment/docker-ngrok.md](docs/deployment/docker-ngrok.md)

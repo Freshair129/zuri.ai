@@ -59,7 +59,7 @@ test.describe('FR-077 Project Inventory', () => {
     expect(resolved.id.length, 'Project fixture id must not be empty').toBeGreaterThan(0)
 
     const response = await api(page.request).get(`/api/projects/${resolved.id}/inventory?limit=1`)
-    expect(response.ok(), `Inventory limit=1 returned HTTP ${response.status()}`).toBe(true)
+    expect(response.ok(), `Inventory limit=1 returned HTTP ${response.status()}: ${response.ok() ? '' : await response.text()}`).toBe(true)
     const body = await response.json()
     expect(body.sections.work.workstreams.status).toBe('PARTIAL')
     expect(body.sections.work.workstreams.truncated).toBe(true)
