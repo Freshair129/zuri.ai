@@ -135,6 +135,18 @@ cd apps/server                                    # ← new, and not optional
 docker compose up -d --build web
 ```
 
+**That command includes the ADR-061 LINE server overlay only because `apps/server/.env`
+says so.** `.env` sets `COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml`
+and `COMPOSE_PROFILES=line-server`; without them `web` comes up with no
+`ZURI_LINE_SERVER_ENABLED`, no worker token and no credential mount, and answers every
+LINE delivery and every edge job claim with 503. That happened on 2026-09-10/11 and
+lasted about eleven hours ([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)).
+An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a deploy that
+passes `-f` (the deploy-override pattern) must list both files and
+`--profile line-server` itself. After any deploy, check that the web container's
+`com.docker.compose.project.config_files` label names both files and that
+`docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'` prints `true`.
+
 **`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
 `required: true`, and compose looks for it beside the compose file, not at the
 repo root. A root `.env` left over from the old layout is invisible to it — and
