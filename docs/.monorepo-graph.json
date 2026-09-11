@@ -14637,7 +14637,7 @@
       "id": "code:src/modules/project-manager/application/project-inventory-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
-      "hash": "3fc7a037",
+      "hash": "6bead104",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14648,7 +14648,8 @@
         ],
         "@tested": [
           "tests/unit/project-inventory-read-model.test.js",
-          "tests/integration/project-inventory.test.js"
+          "tests/integration/project-inventory.test.js",
+          "tests/integration/project-inventory-stall.test.js"
         ]
       }
     },
@@ -27017,7 +27018,7 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "8f4b0fb2",
+      "hash": "82ee4813",
       "status": "current"
     },
     {
@@ -28180,6 +28181,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/project-core.test.js",
       "hash": "a0c7ec6b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/project-inventory-stall.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/project-inventory-stall.test.js",
+      "hash": "04c42b90",
       "status": "current"
     },
     {
@@ -87125,6 +87133,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/project-inventory-stall.test.js",
+      "to": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-inventory-stall.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-inventory-stall.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/project-inventory.test.js",
       "to": "code:src/app/api/projects/[id]/inventory/route.js",
       "type": "tests",
@@ -112188,7 +112217,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2648,
+    "server_nodes": 2649,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
