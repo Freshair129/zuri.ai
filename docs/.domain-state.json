@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T03:04:25.043Z",
+  "generatedAt": "2026-09-11T04:20:08.824Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -7122,7 +7122,7 @@
         "knowledge",
         "project-manager"
       ],
-      "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
+      "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
       "progressPercent": 33.3,
       "ready": false,
       "readiness": "not_ready",
