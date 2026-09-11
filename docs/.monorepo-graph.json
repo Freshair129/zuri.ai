@@ -17787,6 +17787,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-189-edge-published-generation",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
+      "title": "FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)",
+      "hash": "7e8cfa4d",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -32021,7 +32029,7 @@
       "source_path": "src/answer/respond.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "1245f9aa107e",
-      "content_sha256": "56eaea613437d1595f4736ac21b94f73b63c17ea448d566f81114c2665997d63",
+      "content_sha256": "fd097a1ee02ddcb183f8b9899787ef23bd939473afa0465aeda8de0946ce3724",
       "source_id": "code:src/answer/respond.ts"
     },
     {
@@ -32069,7 +32077,7 @@
       "source_path": "src/cli/index.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "570514b888fe",
-      "content_sha256": "ba60db4617ecc7be11f4f3c33b99aa3c2fbf53d9b86d8ef175dcdd4295a1ded7",
+      "content_sha256": "ef2187bde16213d80eea0eb2743f5a9c2986648f536f68846bb5e0a85ab1a986",
       "source_id": "code:src/cli/index.ts"
     },
     {
@@ -32129,7 +32137,7 @@
       "source_path": "src/conversation/executor.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "b00005c7d857",
-      "content_sha256": "95b529554f710c7e63d962a57778522ada3a2a4767e98e2739615b9558e452e4",
+      "content_sha256": "23360300bdad3dc7bda4af5051a7514e5a1ab2fda25a3b8d205ef31afd228bf6",
       "source_id": "code:src/conversation/executor.ts"
     },
     {
@@ -32369,7 +32377,7 @@
       "source_path": "src/rag/genesis-rag.ts",
       "source_commit": "13422dae6280901452a35477dc1bea820cd61fa5",
       "registry_hash": "456acb770d50",
-      "content_sha256": "456acb770d5033665499d91060d3fc73e59aab70b1877ccdf198213b53cfd31f",
+      "content_sha256": "48c0c6a98a7118d5a6bb1122e2cab521672bc970895ce4c3ecdc3c28ae8c6f39",
       "source_id": "code:src/rag/genesis-rag.ts"
     },
     {
@@ -60710,6 +60718,27 @@
     },
     {
       "from": "doc:FR-188-genesisrag17-parser-2",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-187",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-188",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
       "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
       "type": "references",
       "source": "metadata",
@@ -112253,7 +112282,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2650,
+    "server_nodes": 2651,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

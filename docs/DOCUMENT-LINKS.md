@@ -1619,6 +1619,7 @@ Backlinks:
 
 - [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) (references)
 - [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](domains/knowledge/features/FR-188-genesisrag17-parser-2.md) (references)
+- [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](domains/knowledge/features/FR-189-edge-published-generation.md) (references)
 - [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (references)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
 
@@ -2564,6 +2565,14 @@ Source: [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 
 - references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
 - references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 - relates: [req:FR-187](PRD-SDD-v1.0.md)
+
+## FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)
+
+Source: [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](domains/knowledge/features/FR-189-edge-published-generation.md)
+
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+- relates: [req:FR-187](PRD-SDD-v1.0.md)
+- relates: [req:FR-188](PRD-SDD-v1.0.md)
 
 ## Domain — line-oa-studio
 

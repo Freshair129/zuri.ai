@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2650,
-    "total_edges": 10765,
+    "total_nodes": 2651,
+    "total_edges": 10768,
     "dangling_edges": 0,
     "node_types": {
-      "document": 220,
+      "document": 221,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -17841,6 +17841,14 @@
       "path": "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
       "title": "FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)",
       "hash": "5cce1d35",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-189-edge-published-generation",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
+      "title": "FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)",
+      "hash": "7e8cfa4d",
       "status": "current"
     },
     {
@@ -57435,6 +57443,27 @@
     },
     {
       "from": "doc:FR-188-genesisrag17-parser-2",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-187",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-188",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
       "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
       "type": "references",
       "source": "metadata",

@@ -9,6 +9,7 @@ import { requireHeadlessPolicy, type HeadlessOptions } from '../answer/headless.
 import { createModelPort } from '../answer/providers/index.js';
 import { loadCatalog } from '../catalog/store.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
+import { createGenesisRag17Runtime, wrapAnswerRag, type GenesisRag17Runtime } from '../rag/genesisrag17/published-rag.js';
 import { ConversationError, type ConversationAnswer, type ConversationJob, isLoopbackUrl } from './contract.js';
 
 // @spec ADR-061 — the local-computation boundary: a job may not name an executable, URL, query,
@@ -16,6 +17,10 @@ import { ConversationError, type ConversationAnswer, type ConversationJob, isLoo
 // @req FR-150 — a `rules` answer produced against an empty catalogue is a holding message with no
 //   data behind it; the executor refuses to complete the job rather than let it record as a
 //   verified answer (see the post-answer check below).
+
+// @req FR-189 — the answer's RAG door follows ZURI_EDGE_GENESISRAG17_MODE (ADR-075 D7): `off` (the default)
+//   hands the answer the v4 door itself; `shadow`/`primary` refuse to start without their prerequisites.
+// @tested tests/unit/genesisrag17-edge.test.ts
 
 export type { ConversationAnswer };
 
@@ -47,10 +52,15 @@ export function validateExecutionPolicy(job: ConversationJob, config: Partial<Ag
 /** Same local answer tools, server-bound scope, and no durable conversation/session retention. */
 export function createConversationExecutor(config: Partial<AgentConfig>, options: {
   ragUrl?: string; answer?: typeof answerConversation; fetchFn?: typeof fetch;
+  /** FR-189: injected in tests; otherwise read once from the environment, here, at start-up. */
+  genesisRag17?: GenesisRag17Runtime | null;
 } = {}): (job: ConversationJob) => Promise<ConversationAnswer> {
   const ragUrl = options.ragUrl || process.env.GENESIS_RAG_API_URL || 'http://127.0.0.1:8888';
   const headlessBin = config.headlessBin || 'claude';
   const managedHome = headlessProviderHome(config, headlessBin);
+  // FR-189: read once, before the first job. `off` yields null and v4 is used unchanged; any other mode
+  // with a missing prerequisite throws here, so the worker refuses to start instead of degrading.
+  const genesisRag17 = options.genesisRag17 !== undefined ? options.genesisRag17 : createGenesisRag17Runtime();
   // Prevent a local daemon from redirecting a LOCAL_ONLY question to an external origin.
   const noRedirectFetch: typeof fetch = (input, init) => (options.fetchFn || fetch)(input, { ...init, redirect: 'error' });
   return async job => {
@@ -79,7 +89,7 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
       const result = await (options.answer || answerConversation)(job.question, {
         catalog, role: 'sales',
         exchangeRate: config.exchangeRateThbPerRmb || 5,
-        rag: new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }),
+        rag: wrapAnswerRag(new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }), genesisRag17),
         conversationKey: key,
         memory: { root: path.join(scratch, 'memory'), hashKey: '', retentionHours: 0 },
         retainHistory: false,

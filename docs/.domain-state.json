@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T08:08:28.294Z",
+  "generatedAt": "2026-09-11T09:03:42.447Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -42,7 +42,7 @@
     "requirementCount": 189,
     "verifiedRequirementCount": 178,
     "progressPercent": 94.2,
-    "gapCount": 24,
+    "gapCount": 25,
     "gaps": [
       {
         "domain": "agent",
@@ -173,6 +173,14 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-131 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-189",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-189 is planned",
         "evidence": []
       },
       {
@@ -2449,6 +2457,13 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 7
+        },
+        {
+          "id": "FR-189",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -2542,6 +2557,7 @@
         "docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md",
         "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
         "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
+        "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2570,6 +2586,13 @@
           "check": "requirements",
           "summary": "FR-131 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-189",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-189 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -2577,7 +2600,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 13,
-        "featureNotes": 16
+        "featureNotes": 17
       },
       "featureIds": [
         "FEAT-013",

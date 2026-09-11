@@ -1,6 +1,8 @@
 import type { ResultV4, SelectedPrice, SearchResponseV4 } from '../rag/v4/search.js';
 import type { ParsedQuery } from '../rag/v4/query-parser.js';
 
+import type { PublishedGenerationRef, PublishedPassage } from '../rag/genesisrag17/types.js';
+
 export interface SearchEvidenceV4 {
   query: string;
   parsed: SearchResponseV4['parsed'] | null;
@@ -10,6 +12,10 @@ export interface SearchEvidenceV4 {
   unavailable?: true;
   reason?: string;
   priceSource: 'commercial_sku';
+  /** FR-189 primary mode only: the one published GenesisRAG17 generation this evidence was read from. */
+  published?: PublishedGenerationRef;
+  /** FR-189 primary mode only: that generation's cited passages. `matches` is then empty. */
+  passages?: PublishedPassage[];
 }
 
 export interface CardPayload {
