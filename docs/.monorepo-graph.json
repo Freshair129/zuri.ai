@@ -16662,7 +16662,7 @@
       "title": "ERP module map — where each module the owner names lives",
       "version": "1.1.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
-      "hash": "cb596c03",
+      "hash": "8d3b59f5",
       "status": "current"
     },
     {
@@ -16714,7 +16714,7 @@
       "title": "Appendix F — Glossary",
       "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "b4af61a1",
+      "hash": "7f597cf7",
       "status": "current"
     },
     {
@@ -18617,7 +18617,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "ccce76a3",
+      "hash": "9c607792",
       "status": "current"
     },
     {
@@ -18644,7 +18644,7 @@
       "modules": [
         "asset-management"
       ],
-      "hash": "d3595dcb",
+      "hash": "c4e062ca",
       "status": "current"
     },
     {
@@ -18670,7 +18670,7 @@
       "modules": [
         "commerce"
       ],
-      "hash": "ea57d9ec",
+      "hash": "09207ec2",
       "status": "current"
     },
     {
@@ -18696,7 +18696,7 @@
         "crm",
         "line-crm"
       ],
-      "hash": "4fb89c40",
+      "hash": "8ae10aaf",
       "status": "current"
     },
     {
@@ -18740,7 +18740,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "21c806ea",
+      "hash": "bdccd952",
       "status": "current"
     },
     {
@@ -18779,7 +18779,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "9a5863c3",
+      "hash": "5d9a0462",
       "status": "current"
     },
     {
@@ -18817,7 +18817,7 @@
       "modules": [
         "inventory"
       ],
-      "hash": "3f63258d",
+      "hash": "03b5e74f",
       "status": "current"
     },
     {
@@ -18845,7 +18845,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "f546dcc8",
+      "hash": "761388b8",
       "status": "current"
     },
     {
@@ -18872,7 +18872,7 @@
       "modules": [
         "line-oa-studio"
       ],
-      "hash": "885da3b4",
+      "hash": "e533dfef",
       "status": "current"
     },
     {
@@ -18893,7 +18893,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "4c916d04",
+      "hash": "74b04c6e",
       "status": "current"
     },
     {
@@ -18924,7 +18924,7 @@
       "modules": [
         "marketing"
       ],
-      "hash": "0f280c2e",
+      "hash": "d1363007",
       "status": "current"
     },
     {
@@ -18945,7 +18945,7 @@
       "modules": [
         "platform-control"
       ],
-      "hash": "f20604d4",
+      "hash": "af4d2506",
       "status": "current"
     },
     {
@@ -18970,7 +18970,7 @@
       "modules": [
         "procurement"
       ],
-      "hash": "899f6a0c",
+      "hash": "05979101",
       "status": "current"
     },
     {
@@ -19026,7 +19026,7 @@
         "business",
         "people"
       ],
-      "hash": "8cd51610",
+      "hash": "6b25bc0a",
       "status": "current"
     },
     {
@@ -28851,7 +28851,7 @@
       "id": "test:tests/unit/doc-views.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/doc-views.test.js",
-      "hash": "0f721802",
+      "hash": "f46d0646",
       "status": "current"
     },
     {
