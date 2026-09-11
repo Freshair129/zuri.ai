@@ -13,6 +13,7 @@ not a version of, and shares nothing with, the legacy zuri project.
 
 - [CLAUDE.md](CLAUDE.md) — the working guide: layout, toolchain, hard rules
 - [AGENTS.md](AGENTS.md) — the full rules for anyone (human or agent) changing this repo
+- [llms.txt](llms.txt) — the index for LLM readers; [llms-full.txt](llms-full.txt) inlines the orientation docs and every charter into one file (`npm run docs:llms`)
 - [docs/PRODUCT.md](docs/PRODUCT.md) — what the product is
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) — the requirement registry (FR/NFR/BR/SEC/SDD)
 - [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction
@@ -73,6 +74,7 @@ npm run test:e2e       # Playwright on :3100
 npm run docs:graph     # rebuild the doc graph — run after any doc/route/model change
 npm run docs:preflight # doc health checks
 npm run docs:check     # CI guard: fails if the committed graph is stale
+npm run docs:llms      # rebuild llms-full.txt — run after editing README/CLAUDE/AGENTS/PRODUCT or a charter
 ```
 
 A change is not done until tests pass, the build is clean, and

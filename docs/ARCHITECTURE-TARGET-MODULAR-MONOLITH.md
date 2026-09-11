@@ -5,6 +5,11 @@
      contracts) are NOT accepted yet and need their own ADR when implementation
      starts. Status inside the document (Draft v0.1) stands. -->
 
+> For LLM readers: [llms.txt](../llms.txt) is the repository index, and
+> [llms-full.txt](../llms-full.txt) inlines this specification, the working rules
+> and every domain charter into one file. (Added above the imported text, which
+> stays verbatim below.)
+
 # Zuri Modular Monolith + Shared Database Architecture Specification
 
 **Document Type:** Architecture Specification  

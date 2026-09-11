@@ -11,7 +11,7 @@ import { rollupProject } from '../progress/rollup'
 // @req FR-077 — one authorized, read-only Project Inventory DTO across the
 // Project's operational entities, separate from GET /api/projects.
 // @spec SDD-045, ADR-034, ADR-012, ADR-014, ADR-016, ADR-017
-// @tested tests/unit/project-inventory-read-model.test.js, tests/integration/project-inventory.test.js
+// @tested tests/unit/project-inventory-read-model.test.js, tests/integration/project-inventory.test.js, tests/integration/project-inventory-stall.test.js
 
 export const PROJECT_INVENTORY_VERSION = '1.0'
 export const INVENTORY_DEFAULT_LIMIT = 100
@@ -910,5 +910,12 @@ export async function getProjectInventory(projectId, {
     const source = await readInventorySources(tx, project, { ...query, tenantId: scope.tenantId })
     return buildProjectInventoryReadModel({ ...source, project, readScope: scope.readScope, ...query })
   }
-  return typeof db.$transaction === 'function' ? db.$transaction(read) : read(db)
+  // Read directly, never inside an interactive transaction. Prisma expires an interactive
+  // transaction 5 s after it starts in wall time, so any event-loop stall while it was open
+  // (a Next dev compile in e2e, GC or CPU pressure in production) failed the next query with
+  // "Transaction already closed … cannot be executed on an expired transaction", which the
+  // API error mapper reports as HTTP 400. SDD-045 asks for a read-only DTO authorized before
+  // composition, not a single snapshot; the progress route already authorizes and then reads
+  // without a transaction. See .brain/rca/2026-09-11-fr077-inventory-expired-transaction.md.
+  return read(db)
 }

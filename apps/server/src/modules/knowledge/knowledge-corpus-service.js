@@ -14,6 +14,7 @@ import {
 } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { hasKnowledgeRunAuthority, hasKnowledgeScopeAuthority } from './knowledge-execution-authority'
 import { createKnowledgeRepository } from './knowledge-repository'
+import { GENESIS_RAG17_PARSER_VERSION_2 } from './genesisrag17-structured-record'
 import {
   assertKnowledgeBusinessCurrent,
   assertKnowledgeFileCurrent,
@@ -25,7 +26,8 @@ import {
 
 // @req FR-173 — verified per-source receipts are published into immutable
 // corpus generations, and retrieval/citations are current-ACL checked reads.
-// @spec ADR-072, SEC-001, SEC-008
+// @req FR-188 — a parser-2 batch's source hash is its rendered parsed content's.
+// @spec ADR-072, ADR-075, SEC-001, SEC-008
 // @tested tests/integration/knowledge-corpus.test.js
 
 const CORPUS_SCHEMA_VERSION = 'knowledge-corpus.v1'
@@ -274,6 +276,18 @@ function parsePublicationReceipt(value, ingestion, scope, decisionId) {
   return receipt
 }
 
+/**
+ * FR-188: a parser-2 batch carries the rendered parsed content, so its source
+ * hash is that content's hash, not the raw ingestion hash. It is accepted only
+ * when the parsed artifact is a parser-2 child of this exact raw artifact.
+ */
+async function structuredParsedContentHash(repository, ingestion) {
+  if (typeof repository.getParsedArtifact !== 'function') return null
+  const parsed = await repository.getParsedArtifact(ingestion.parsedArtifactId)
+  if (!parsed || parsed.rawArtifactId !== ingestion.rawArtifactId || parsed.parserVersion !== GENESIS_RAG17_PARSER_VERSION_2 || typeof parsed.content !== 'string') return null
+  return hashGenesisRag17Text(parsed.content)
+}
+
 async function verifyPublicationEvidence(repository, ingestion, source, corpus) {
   assertIngestionIdentity(ingestion, source, corpus)
   requireId(ingestion.rawArtifactId, 'ingestion rawArtifactId')
@@ -307,7 +321,9 @@ async function verifyPublicationEvidence(repository, ingestion, source, corpus) 
   const batchSource = request?.source
   const stages = Array.isArray(request?.stages) ? request.stages : []
   const stage9 = stages.find((stage) => stage?.stageNumber === 9)
-  if (request.schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION || request.runId !== ingestion.executionRunId || !sameScope(requestScope, scope) || !sameScope(batchScope, scope) || !stage9 || stage9.runId !== ingestion.executionRunId || stage9.pipelineStageId !== stageIdForNumber(9) || stage9.executionStepId !== batch.stage9StepId || stage9.attemptId !== batch.stage9AttemptId || !batchSource || !sourceIdentityMatches(batchSource.sourceId, source) || !sourceIdentityMatches(batchSource.documentId, source) || batchSource.rawArtifactId !== ingestion.rawArtifactId || batchSource.parsedArtifactId !== ingestion.parsedArtifactId || batchSource.version !== ingestion.sourceVersion || batchSource.contentHash !== ingestion.contentHash) {
+  const batchContentMatches = batchSource && (batchSource.contentHash === ingestion.contentHash
+    || batchSource.contentHash === await structuredParsedContentHash(repository, ingestion))
+  if (request.schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION || request.runId !== ingestion.executionRunId || !sameScope(requestScope, scope) || !sameScope(batchScope, scope) || !stage9 || stage9.runId !== ingestion.executionRunId || stage9.pipelineStageId !== stageIdForNumber(9) || stage9.executionStepId !== batch.stage9StepId || stage9.attemptId !== batch.stage9AttemptId || !batchSource || !sourceIdentityMatches(batchSource.sourceId, source) || !sourceIdentityMatches(batchSource.documentId, source) || batchSource.rawArtifactId !== ingestion.rawArtifactId || batchSource.parsedArtifactId !== ingestion.parsedArtifactId || batchSource.version !== ingestion.sourceVersion || !batchContentMatches) {
     throw publicationPrerequisite('Knowledge batch source lineage does not match the admitted source')
   }
 
