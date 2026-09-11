@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2644,
-    "total_edges": 10727,
+    "total_nodes": 2648,
+    "total_edges": 10758,
     "dangling_edges": 0,
     "node_types": {
-      "document": 218,
+      "document": 219,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -16,8 +16,8 @@
       "route": 337,
       "model": 146,
       "requirement": 359,
-      "test": 620,
-      "code_file": 800
+      "test": 622,
+      "code_file": 801
     },
     "coverage": {
       "requirements": 359,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (177/177)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 800,
+      "annotated_code_files": 801,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -11307,19 +11307,40 @@
       "id": "code:src/modules/knowledge/genesisrag17-source.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/genesisrag17-source.js",
-      "hash": "b151831c",
+      "hash": "3f0ba8b1",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-109"
+          "FR-109",
+          "FR-188"
         ],
         "@spec": [
           "SDD-059",
           "SDD-063",
-          "ADR-050, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md"
+          "ADR-050, ADR-075, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md"
         ],
         "@tested": [
-          "tests/unit/genesisrag17-source.test.js"
+          "tests/unit/genesisrag17-source.test.js",
+          "tests/unit/genesisrag17-parser-2.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/genesisrag17-structured-record.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
+      "hash": "0e762abc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-188"
+        ],
+        "@spec": [
+          "ADR-075, ADR-073, docs/plans/GENESISRAG17-CONTRACT.md, docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-parser-2.test.js",
+          "tests/integration/genesisrag17-parser-2.test.js"
         ]
       }
     },
@@ -11430,11 +11451,12 @@
       "id": "code:src/modules/knowledge/knowledge-corpus-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-      "hash": "22e53f62",
+      "hash": "e9096da2",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-173"
+          "FR-173",
+          "FR-188"
         ],
         "@spec": [
           "SEC-001",
@@ -11487,7 +11509,7 @@
       "id": "code:src/modules/knowledge/knowledge-repository.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/knowledge-repository.js",
-      "hash": "c013a6ee",
+      "hash": "88101fd8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -11745,18 +11767,20 @@
       "id": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
       "type": "code_file",
       "path": "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-      "hash": "f62ee2ce",
+      "hash": "7f81d7bb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-187"
+          "FR-187",
+          "FR-188"
         ],
         "@spec": [
           "BR-002"
         ],
         "@tested": [
           "tests/unit/smartgift-catalog-adapter.test.js",
-          "tests/integration/smartgift-catalog-admission.test.js"
+          "tests/integration/smartgift-catalog-admission.test.js",
+          "tests/unit/genesisrag17-parser-2.test.js"
         ]
       }
     },
@@ -15944,14 +15968,15 @@
       "id": "code:src/platform/integrations/core/genesisrag17-executor.js",
       "type": "code_file",
       "path": "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-      "hash": "9e18ebe6",
+      "hash": "9bf54ca6",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-173",
           "FR-109",
           "FR-110",
-          "FR-187"
+          "FR-187",
+          "FR-188"
         ],
         "@spec": [
           "NFR-020",
@@ -15959,7 +15984,8 @@
         ],
         "@tested": [
           "tests/integration/genesisrag17-tier1.test.js",
-          "tests/integration/smartgift-catalog-admission.test.js"
+          "tests/integration/smartgift-catalog-admission.test.js",
+          "tests/integration/genesisrag17-parser-2.test.js"
         ]
       }
     },
@@ -17810,6 +17836,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-188-genesisrag17-parser-2",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
+      "title": "FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)",
+      "hash": "5cce1d35",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -17832,7 +17866,7 @@
       "type": "document",
       "path": "docs/plans/GENESISRAG17-CONTRACT.md",
       "title": "Approved GenesisRAG17 implementation contract",
-      "hash": "40d19cce",
+      "hash": "05eaea81",
       "status": "current"
     },
     {
@@ -17894,7 +17928,7 @@
       "type": "document",
       "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
       "title": "GenesisRAG17 — execution flow and extension map",
-      "hash": "05bea4e8",
+      "hash": "418f77f9",
       "status": "current"
     },
     {
@@ -27787,6 +27821,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/genesisrag17-parser-2.test.js",
+      "hash": "f85957c1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/genesisrag17-tier1.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/genesisrag17-tier1.test.js",
@@ -27867,7 +27908,7 @@
       "id": "test:tests/integration/knowledge-corpus.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/knowledge-corpus.test.js",
-      "hash": "d34f9a23",
+      "hash": "c53eb0e5",
       "status": "current"
     },
     {
@@ -29485,6 +29526,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
       "hash": "20ba2201",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+      "hash": "c89f99d4",
       "status": "current"
     },
     {
@@ -47796,6 +47844,13 @@
     },
     {
       "from": "code:src/modules/knowledge/genesisrag17-source.js",
+      "to": "req:FR-188",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-source.js",
       "to": "req:SDD-059",
       "type": "follows",
       "status": "current",
@@ -47805,6 +47860,20 @@
       "from": "code:src/modules/knowledge/genesisrag17-source.js",
       "to": "req:SDD-063",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-structured-record.js",
+      "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/genesisrag17-structured-record.js",
+      "to": "req:FR-188",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -47951,6 +48020,13 @@
     {
       "from": "code:src/modules/knowledge/knowledge-corpus-service.js",
       "to": "req:FR-173",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/knowledge-corpus-service.js",
+      "to": "req:FR-188",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48273,6 +48349,13 @@
     {
       "from": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
       "to": "req:FR-187",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "to": "req:FR-188",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -54593,6 +54676,13 @@
     },
     {
       "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "to": "req:FR-188",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/genesisrag17-executor.js",
       "to": "req:NFR-020",
       "type": "follows",
       "status": "current",
@@ -57309,6 +57399,27 @@
     },
     {
       "from": "doc:FR-187-smartgift-catalog-adapter",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-188-genesisrag17-parser-2",
+      "to": "doc:GENESISRAG17-CONTRACT",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-188-genesisrag17-parser-2",
+      "to": "req:FR-187",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-188-genesisrag17-parser-2",
       "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
       "type": "references",
       "source": "metadata",
@@ -79127,6 +79238,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-structured-record.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "code:src/platform/integrations/core/genesisrag17-executor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-parser-2.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/genesisrag17-tier1.test.js",
       "to": "code:src/modules/knowledge/genesisrag17-lineage-repository.js",
       "type": "tests",
@@ -79178,6 +79345,13 @@
     {
       "from": "test:tests/integration/genesisrag17-tier1.test.js",
       "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/genesisrag17-tier1.test.js",
+      "to": "req:FR-188",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -79682,6 +79856,13 @@
     {
       "from": "test:tests/integration/knowledge-corpus.test.js",
       "to": "req:FR-173",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-corpus.test.js",
+      "to": "req:FR-188",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -84207,6 +84388,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-catalog-admission.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/smartgift-catalog-admission.test.js",
@@ -94212,6 +94400,69 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-source.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "code:src/modules/knowledge/genesisrag17-structured-record.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "code:src/modules/knowledge/smartgift-catalog-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:SDD-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-parser-2.test.js",
+      "to": "req:SDD-063",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/genesisrag17-source.test.js",
       "to": "code:src/modules/knowledge/genesisrag17-source.js",
       "type": "tests",
@@ -94224,6 +94475,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/genesisrag17-source.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/genesisrag17-source.test.js",
@@ -105123,6 +105381,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/smartgift-catalog-adapter.test.js",
