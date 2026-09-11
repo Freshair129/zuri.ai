@@ -18,10 +18,12 @@ owns_models:
   - MarketingContentReview
   - MarketingContentDecision
   - MarketingOperationsIntake
+  - MarketingBroadcastIntent
+  - MarketingBroadcastIntentVersion
 technical_owner: TD-MARKETING
-version: "0.4.0b"
+version: "0.5.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
-last_update: "2026-09-07T09:00:00+07:00,RWANG"
+last_update: "2026-09-11T03:44:02+07:00,RWANG"
 status: beta
 superseded_by: null
 ---
@@ -53,6 +55,13 @@ Operations follows [the coordination contract](features/FR-162-operations-coordi
 Marketing owns intake requests and composes approval, PM schedule and validated handoff
 receipts without creating a second work or stock system.
 
+Broadcast planning follows [the FR-185 contract](features/FR-185-broadcast-planning-intent.md):
+Marketing owns a Business-scoped planning identity and append-only version references,
+while LINE OA Studio owns account configuration and any future delivery contract. The
+planning payload stores no message body, recipients or provider credentials. Paid
+provider metrics and CRM audience/consent resolution remain explicit unavailable owner
+states until those domains publish approved read contracts.
+
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
 - Business Strategy keeps BusinessRoadmap and BusinessGoal authority. Their
@@ -83,6 +92,14 @@ Workspace and PM receipt. Scope derives from the server-loaded Business; no tena
 identifier supplied in a plan controls authorization. Repository operations and
 audit participate in the same transaction, with expected-version compare-and-swap.
 
+MarketingBroadcastIntent is a Business-scoped planning identity with a unique
+Business/idempotency key and a current revision. Its child
+MarketingBroadcastIntentVersion is append-only and stores only canonical payload
+references and a hash. Create, revise and archive resolve the same owner gate and
+write one audit event; snapshot export/import preserves parent-before-child order
+and refuses invalid references before deletion. Dispatch is always unavailable in
+this slice.
+
 Local SQLite is the test/runtime baseline. The generated Postgres schema and
 additive SQL migration accompany schema changes; no production migration or live
 PM intake is implied by source delivery. Completion evidence is recorded in the
@@ -96,3 +113,4 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |
 | 0.4.0b | 2026-09-07 | beta | Add Operations intake ownership and the PM/approval/handoff projection boundary | See git history | RWANG |
+| 0.5.0b | 2026-09-11 | beta | Add approved FR-185 broadcast planning identity, append-only revision boundary and unavailable dispatch/read-state contract | See git history | RWANG |

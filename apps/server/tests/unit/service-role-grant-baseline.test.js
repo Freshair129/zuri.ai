@@ -27,7 +27,25 @@ const REVOKE_FN = '20260907130000_revoke_execute_on_public_functions.sql'
 const API_ROLES = ['service_role', 'anon', 'authenticated']
 const read = (name) => readFileSync(resolve(process.cwd(), DIR, name), 'utf8')
 const stripComments = (sql) => sql.replace(/--[^\n]*/g, '')
+const grantsTo = (sql, role, executeOnly = false) => new RegExp(
+  `\\bGRANT\\b${executeOnly ? '[^;]*\\bEXECUTE\\b' : ''}[^;]*\\bTO\\b[^;]*\\b${role}\\b`, 'i',
+).test(stripComments(sql))
 const migrations = () => readdirSync(resolve(process.cwd(), DIR)).filter((f) => f.endsWith('.sql')).sort()
+
+describe('grant recipient scanning', () => {
+  it('does not join a runtime grant to the next API-role revoke', () => {
+    const sql = 'GRANT SELECT ON TABLE "Example" TO zuri_app_runtime; REVOKE ALL ON TABLE "Example" FROM service_role;'
+    expect(grantsTo(sql, 'service_role')).toBe(false)
+    expect(grantsTo('GRANT EXECUTE ON FUNCTION example() TO zuri_app_runtime; REVOKE EXECUTE ON FUNCTION example() FROM anon;', 'anon', true)).toBe(false)
+  })
+
+  it('still catches actual recipients, including long grants and quoted lists', () => {
+    expect(grantsTo('GRANT SELECT ON TABLE "Example" TO service_role;', 'service_role')).toBe(true)
+    expect(grantsTo(`GRANT SELECT ON TABLE ${Array.from({ length: 40 }, (_, i) => `"Table${i}"`).join(', ')} TO zuri_app_runtime, "service_role";`, 'service_role')).toBe(true)
+    expect(grantsTo('GRANT EXECUTE ON FUNCTION example() TO zuri_app_runtime, authenticated;', 'authenticated', true)).toBe(true)
+    expect(grantsTo('GRANT SELECT ON TABLE service_role TO zuri_app_runtime;', 'service_role')).toBe(false)
+  })
+})
 
 describe('the revoke migration says what it must', () => {
   const sql = stripComments(read(REVOKE))
@@ -57,7 +75,7 @@ describe('the revoke migration says what it must', () => {
 describe('no later migration hands the grant back', () => {
   it('contains no GRANT to service_role after the revoke', () => {
     const after = migrations().filter((name) => name > REVOKE)
-    const offenders = after.filter((name) => /GRANT[\s\S]{0,200}?\bservice_role\b/i.test(stripComments(read(name))))
+    const offenders = after.filter((name) => grantsTo(read(name), 'service_role'))
     expect(offenders).toEqual([])
   })
 
@@ -104,7 +122,7 @@ describe('no later migration hands EXECUTE back', () => {
     const after = migrations().filter((name) => name > REVOKE_FN)
     const offenders = after.filter((name) => {
       const sql = stripComments(read(name))
-      return API_ROLES.some((role) => new RegExp(`GRANT[\\s\\S]{0,200}?EXECUTE[\\s\\S]{0,200}?\\b${role}\\b`, 'i').test(sql))
+      return API_ROLES.some((role) => grantsTo(sql, role, true))
     })
     expect(offenders).toEqual([])
   })

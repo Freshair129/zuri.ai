@@ -1,11 +1,12 @@
-# Warehouse P4 console contract proposal — owner review
+# Inventory P4 stocktake contract — owner-approved implementation record
 
 **Date:** 2026-09-11  
-**Branch:** `codex/finish-warehouse-20260911`  
-**Base:** `origin/main` at `f320e888`  
-**Review status:** Proposed; no implementation or requirement-registry change is authorized by this file  
-**Tentative requirement:** The parent session has tentatively reserved FR184. This proposal does not declare, renumber, or write FR184 to the registry or ID ledger.
-**Proposal revision:** 0.7 (consistent Inventory surface ownership)
+**Branch:** `codex/approved-stocktake-20260911`  
+**Base:** `origin/main` at `196e4a9a` (PR319 merged)  
+**Review status:** Owner-approved on 2026-09-11; FR-184 is the reserved requirement and implementation may proceed within this contract.  
+**Owner approval:** “อนุมัติ ทำตามข้อกำหนดนี้ต่อ” (2026-09-11; relayed by the parent integration task)  
+**Requirement:** FR-184 is declared for this bounded Inventory stocktake slice; no new FR, FEAT, ADR, or external integration is implied.  
+**Proposal revision:** 0.8 (approved implementation boundary)
 
 ## Purpose
 
@@ -17,8 +18,12 @@ does not become a second console in this slice. Inventory owns
 ledger writes. It does not introduce a second Warehouse domain, a duplicate
 inventory schema, bins, campaigns, synchronization, or outbound integration.
 
-The decision requested from the owner is whether this contract is acceptable as the
-basis for a subsequent implementation and requirement note.
+The owner approved this contract as the basis for FR-184 implementation. The
+implementation record below keeps the exact product and policy boundary visible:
+the existing Inventory surface, strict NONE/LOT physical counts, durable
+preview/idempotency evidence, a shared ledger fence, and recovery of the two new
+Inventory rows. SERIAL observation, bins, campaigns, and production application
+remain excluded.
 
 ## Published FR-182 dependency and boundary
 
@@ -38,15 +43,14 @@ pages, plus the following thin API handlers:
 | `GET /api/inventory/atp` | `availableToPromiseFor`, `maxBuildableSets` | Reuse for ATP and buildable-set figures; add no duplicate reservation/ATP route. |
 | `/inventory`, `/inventory/locations`, `/inventory/work-orders`, `/inventory/reservations` | Inventory page components and `INVENTORY_TABS` | Extend the existing Inventory console shell/page ownership; add no parallel `/warehouse` console. |
 
-The Warehouse proposal branch remains based on `origin/main` `f320e888`; PR318 is
-an external dependency observed read-only and is not changed here. After its
-integration, its routes/pages and service authorities are the baseline for this
-slice. The only behavior still proposed here is physical stocktake preview and
-commit, which PR318 explicitly leaves deferred: the reviewed NONE/LOT strict
-count input, durable preview/idempotency record, atomic adjustment transaction,
-and shared ledger fence remain pending owner approval. Any stocktake page or
-route added later must live under the existing Inventory surface and must not
-recreate location, transfer, shelf-life, or ATP reads.
+This implementation branch is based on merged PR319 at `origin/main`
+`196e4a9a`; its routes, pages, and Inventory service authorities are the
+baseline for this slice. The owner-approved behavior is physical stocktake
+preview and commit, which PR319 explicitly left deferred: the reviewed NONE/LOT
+strict count input, durable preview/idempotency record, atomic adjustment
+transaction, and shared ledger fence. Any stocktake page or route must live under
+the existing Inventory surface and must not recreate location, transfer,
+shelf-life, or ATP reads.
 
 ## RCA
 
@@ -513,21 +517,22 @@ The implementation lane should add meaningful regression coverage for:
 
 Local test, build, governance, and browser evidence must be reported separately
 from production or clean-device evidence. No deployment or real credential use is
-part of this proposal.
+part of this implementation record.
 
 ## Owner decision
 
-Please approve or reject this contract, including the bounded Inventory stocktake
-aggregate/idempotency record and the explicit serial-count limitation. Upon
-approval, the implementation lane may write the feature note/registry change
-through the governance tooling and then implement the API, console, transaction,
-tests, and browser evidence. Until then this worktree contains documentation and
-read-only analysis only.
+**Approved:** the owner authorized implementation of the bounded Inventory
+stocktake aggregate/idempotency record and explicit serial-count limitation on
+2026-09-11 (“อนุมัติ ทำตามข้อกำหนดนี้ต่อ”). This approval covers the FR-184
+registry note, API/console, transaction, tests, and browser evidence described
+here. It does not authorize production migration, activation, live payments, or
+any out-of-scope Warehouse/Procurement/Commerce surface.
 
 ## Proposal revisions
 
 | Revision | Date | Change |
 |---|---|---|
+| 0.8 | 2026-09-11 | Owner approved the bounded FR-184 Inventory stocktake implementation. Pinned the merged PR319 base, selected NONE/LOT preview and atomic commit as the only supported count modes, and authorized the feature note, registry declaration, schema, recovery, tests, and existing Inventory UI extension within this scope. |
 | 0.7 | 2026-09-11 | Removed stale reserved-Warehouse-page wording from the purpose and prevention sections; all sections now use the PR318 Inventory surface without a duplicate console. |
 | 0.6 | 2026-09-11 | Rebased the proposed console boundary on published PR318/FR-182 routes, services, and pages; explicitly excluded duplicate Warehouse adapters and kept stocktake deferred. |
 | 0.5 | 2026-09-11 | Kept global snapshot format 1.0 and specified the `inventoryStocktakeRecovery` manifest, strict declared-manifest validation, and explicit legacy UNAVAILABLE status. |
@@ -535,5 +540,3 @@ read-only analysis only.
 | 0.3 | 2026-09-11 | Added the FR-045 snapshot table/FK-order, idempotency, and exact `mutationRevision` restore contract for both persisted stocktake models. |
 | 0.2 | 2026-09-11 | Made preview persistence, Business-scoped idempotency, and the lock-only `InventoryLedgerFence` / `mutationRevision` concurrency contract explicit for SQLite and PostgreSQL. |
 | 0.1 | 2026-09-11 | Initial located-stock, alerts/ATP, and physical-count contract and RCA. |
-
-

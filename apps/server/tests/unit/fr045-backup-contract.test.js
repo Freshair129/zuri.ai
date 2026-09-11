@@ -38,6 +38,7 @@ describe('FR-045 portable backup contract', () => {
     })
     expect(previewSnapshot(snapshot, { remounts: [{ businessId: 'business-a', deviceKey: 'new-device', rootPath: 'E:\\zuri' }] }).mountRequiredBusinessIds).toEqual([])
     expect(previewSnapshot(snapshot).warnings).toEqual([
+      expect.stringContaining('KNOWLEDGE_ADMISSION_RECOVERY_UNAVAILABLE'),
       expect.stringContaining('GENESISRAG17_RECOVERY_UNAVAILABLE'),
     ])
   })
@@ -57,6 +58,21 @@ describe('FR-045 portable backup contract', () => {
       errors: [expect.stringContaining('genesisRag17SourceMention')],
       recovery: { status: 'INVALID' },
     })
+  })
+
+  it('keeps an unavailable admission warning beside a complete source recovery manifest', () => {
+    const preview = previewSnapshot({
+      schemaVersion: '1.0',
+      genesisRag17Recovery: {
+        schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
+        requiredTables: ['genesisRag17IngestionIntent', 'genesisRag17SourceMention'],
+      },
+      tables: { genesisRag17IngestionIntent: [], genesisRag17SourceMention: [] },
+    })
+    expect(preview).toMatchObject({ valid: true, recovery: { status: 'AVAILABLE' } })
+    expect(preview.warnings).toEqual([
+      expect.stringContaining('KNOWLEDGE_ADMISSION_RECOVERY_UNAVAILABLE'),
+    ])
   })
 
   it('rejects a declared Commerce recovery manifest with missing tables even on an empty target', async () => {

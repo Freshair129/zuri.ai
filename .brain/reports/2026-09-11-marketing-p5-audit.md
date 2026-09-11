@@ -1,19 +1,22 @@
 ---
-version: "1.0.1b"
-status: candidate
+version: "1.0.3b"
+status: beta
 created_at: "2026-09-11T00:56:37+07:00,RWANG"
-last_update: "2026-09-11T01:05:05+07:00,RWANG"
+last_update: "2026-09-11T04:16:00+07:00,RWANG"
 ---
 
-# Marketing P5 audit and bounded implementation contract proposal
+# Marketing P5 audit and bounded implementation contract
 
-This is a review artifact for the retained `feat/p5-marketing-parallel` work. It does not authorize
-provider credentials, advertising spend, publication, LINE sends, or a new requirement id. No source
-code or schema is changed by this report.
+This is the approved review artifact for the retained `feat/p5-marketing-parallel` work. Approval was
+recorded on 2026-09-11 after PR319 merged at `196e4a9a`; it authorizes only the bounded planning/read
+contract below. It does not authorize provider credentials, advertising spend, publication, LINE sends,
+or any requirement id beyond the separately declared FR-185. Implementation evidence is recorded in
+the FR-185 feature note and phase report.
 
 ## Authority result and phase boundary
 
-The current source of authority does not approve the branch's provider-backed P5 runtime:
+The current source of authority approves the bounded planning/read slice and continues to exclude the
+branch's provider-backed P5 runtime:
 
 - `docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md` is `candidate` and explicitly says
   there is no implementation approval. It describes a C-3/HIGH design with provider credentials,
@@ -29,9 +32,9 @@ The current source of authority does not approve the branch's provider-backed P5
   W4 items (`MKT-W4-PUBLISH`, `MKT-W4-SPEND`). The branch label “Phase 5” is not an approved wave.
 
 The currently approved native phase is the existing Marketing plan, content, campaign/PM handoff
-and Operations projection contract. The retained P5 branch is an audit candidate. The concrete
-proposal below is a bounded candidate for read-only source composition, a durable `PLANNING` intent
-record and a deterministic AskMarketing read surface. Paid provider metrics, audience expansion,
+and Operations projection contract. The retained P5 branch is now approved for the bounded
+read-only source composition, durable `PLANNING` intent record and deterministic AskMarketing read
+surface described below. Paid provider metrics, audience expansion,
 LINE dispatch, delivery workers, provider reconciliation, budget mutation and ad spend remain future
 owner-approved phases. They are listed as future work rather than silently counted as complete.
 
@@ -322,16 +325,16 @@ The owner-approved implementation must prove:
 
 Keep FR-160 unchanged: it remains the Strategy/Campaign/PM receipt contract and does not acquire a
 LINE broadcast entity. Keep FR-162 unchanged: its Operations intake/aggregate remains a projection
-and does not acquire provider or audience writes. The recommended new subject is a reserved
-`FR-185` for “Business-scoped LINE broadcast planning intent with durable version/idempotency and an
-explicit unavailable dispatch state.” Do not declare or add `FR-185` until the owner approves this
-exact statement and the registry confirms the reservation. No new ID is declared in this branch.
+and does not acquire provider or audience writes. The owner-approved new subject is `FR-185`:
+“Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit
+unavailable dispatch state.” The registry has declared FR-185 as the only new requirement for this
+slice.
 
 The following phases remain future and are not counted as local completion: Integration/measurement
 paid-media evidence adapters; CRM audience and consent-snapshot read contract; LINE OA broadcast
 dispatch and provider receipt/reconciliation worker; controlled publish/spend/canary policy; and
-the corresponding UI action affordances. This proposal can be implemented locally only after the
-owner approves the planning/read contract and its requirement mapping.
+the corresponding UI action affordances. Those phases remain outside this local implementation and
+require their owning-domain contracts.
 
 ## Version diff
 
@@ -339,9 +342,13 @@ owner approves the planning/read contract and its requirement mapping.
 with an exact owner-export inventory, truthful unavailable states, a durable planning-intent schema,
 routes, authorization, retention, deterministic AskMarketing response and verification gates. It
 adds no code, schema, provider credential, live action or global requirement id.
+`1.0.2b` records owner approval of that bounded contract on 2026-09-11 after PR319 (`196e4a9a`);
+`1.0.3b` records the approved status in the audit and confirms FR-185 as the only requirement
+declaration authorized by the approval. Implementation may add its local schema, read routes, UI
+and backup evidence.
 
 ## Approval boundary
 
-Please review and approve this bounded P5 contract before implementation. Until approval, the only
-valid status is audit/proposal; the fixture-backed branch remains an evidence-only draft and must not
-be merged as completed Marketing runtime.
+The bounded contract is approved for local implementation. The fixture-backed retained branch remains
+an evidence-only source and must not be merged as completed provider-backed Marketing runtime. Provider
+metrics, audience/consent resolution, sends and workers remain future owner contracts.

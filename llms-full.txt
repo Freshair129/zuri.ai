@@ -386,6 +386,10 @@ npm run docs:ids       # the id ledger's ONLY writer — run by a human, never b
                        # `-- --write` pins newly declared ids (the routine "+" block);
                        # --reword / --supersede / --abandon / --distinct / --declare each
                        # record one named change with a sentence. See ADR-039.
+npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM readers,
+                       # inlined from README/CLAUDE/AGENTS/PRODUCT + every charter.
+                       # CI fails on a stale copy, so run it when you edit one of
+                       # those; docs:llms:check is the same gate, locally.
 ```
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that
@@ -2685,7 +2689,7 @@ Charter: [docs/domains/agent/CHARTER.md](docs/domains/agent/CHARTER.md)
 | Modules | `src/modules/agent` |
 | Models owned | AgentTraceEvent |
 | Routes owned | 4 (4 api · 0 pages) |
-| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144, FR-147, FR-149, FR-150, FR-171, FR-181 |
+| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-052, FR-053, FR-054, FR-055, FR-057, FR-079, FR-080, FR-093, FR-096, FR-097, FR-098, FR-141, FR-144, FR-147, FR-148, FR-149, FR-150, FR-171, FR-181 |
 
 ## asset-management
 
@@ -2705,9 +2709,9 @@ Charter: [docs/domains/commerce/CHARTER.md](docs/domains/commerce/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/commerce` |
-| Models owned | SalesOrder, SalesOrderLine, Payment |
-| Routes owned | 7 (5 api · 2 pages) |
-| FRs implemented in lane | FR-163, FR-166 |
+| Models owned | SalesOrder, SalesOrderLine, Payment, BusinessBillingProfile, CommerceDocument, CommerceDocumentSequence |
+| Routes owned | 15 (11 api · 4 pages) |
+| FRs implemented in lane | FR-163, FR-166, FR-183, FR-186 |
 
 ## crm
 
@@ -2749,9 +2753,9 @@ Charter: [docs/domains/inventory/CHARTER.md](docs/domains/inventory/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/inventory` |
-| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation |
-| Routes owned | 31 (27 api · 4 pages) |
-| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182 |
+| Models owned | InventoryCategory, ProductFamily, Factory, ProductMaster, Product, ProductBundle, ProductBundleItem, ProductRecipe, ProductRecipeLine, ProductLot, SerialUnit, StockMovement, WarehouseLocation, CustomizationWorkOrder, KittingWorkOrder, StockReservation, InventoryStocktake, InventoryLedgerFence |
+| Routes owned | 35 (30 api · 5 pages) |
+| FRs implemented in lane | BR-028, FR-154, FR-155, FR-156, FR-168, FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-182, FR-184 |
 
 ## knowledge
 
@@ -2772,7 +2776,7 @@ Charter: [docs/domains/line-oa-studio/CHARTER.md](docs/domains/line-oa-studio/CH
 |---|---|
 | Modules | `src/modules/line-oa-studio` |
 | Models owned | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineConversationJob |
-| Routes owned | 26 (17 api · 9 pages) |
+| Routes owned | 27 (17 api · 10 pages) |
 | FRs implemented in lane | FR-021, FR-022, FR-061, FR-080, FR-091, FR-093, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-171 |
 
 ## market-intelligence
@@ -2793,9 +2797,9 @@ Charter: [docs/domains/marketing/CHARTER.md](docs/domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake |
-| Routes owned | 25 (12 api · 13 pages) |
-| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162 |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
+| Routes owned | 32 (16 api · 16 pages) |
+| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185 |
 
 ## platform-control
 
@@ -2816,7 +2820,7 @@ Charter: [docs/domains/procurement/CHARTER.md](docs/domains/procurement/CHARTER.
 |---|---|
 | Modules | `src/modules/procurement` |
 | Models owned | Supplier, PurchaseOrder, PurchaseOrderLine, GoodsReceipt, GoodsReceiptLine |
-| Routes owned | 7 (5 api · 2 pages) |
+| Routes owned | 10 (7 api · 3 pages) |
 | FRs implemented in lane | FR-164, FR-165, FR-168 |
 
 ## project-manager
@@ -2828,7 +2832,7 @@ Charter: [docs/domains/project-manager/CHARTER.md](docs/domains/project-manager/
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent, PlanImportReceipt |
 | Routes owned | 166 (121 api · 45 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, SDD-037 |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-095, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-143, FR-144, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, SDD-037 |
 
 
 # Vocabulary
@@ -3166,10 +3170,11 @@ and Finance candidate handoff.
 
 ## Mission
 
-Commerce is the Business-scoped authority for **what the Business sold and how
-the money settled**: the sales order with its lines, the payments and refunds
-against it, and the revenue that only verified money makes. It answers, for
-every Business,
+Commerce is the Business-scoped authority for **what the Business sold, how the
+money settled, and which local document snapshot records that sale**: the sales
+order with its lines, the payments and refunds against it, revenue that only
+verified money makes, and immutable invoice/receipt/tax-document snapshots. It
+answers, for every Business,
 
 1. What did we sell, to whom, from which conversation, for how much?
 2. What has actually been paid — verified, not merely claimed — and what is
@@ -3177,6 +3182,8 @@ every Business,
 3. Where did the revenue come from: chat (attributed to a Conversation), the
    shop floor, online?
 4. Which stock did a sale consume?
+5. Which configured issuer, buyer, tax and payment facts were captured when a
+   document was previewed or issued?
 
 Stable identities:
 
@@ -3200,6 +3207,20 @@ Architecture decision: [ADR-065](docs/decisions/ADR-065-COMMERCE-LANE-ORDERS-AND
 - `Payment` (`payment_id`) — `code` `PAY-YYYYMMDD-NNN`, PAYMENT or REFUND,
   method, amount, PENDING → VERIFIED | REJECTED, `bankReference` unique per
   Tenant as an attribute, the slip as a `FileAsset` (FR-163).
+- `BusinessBillingProfile` — one Business-scoped profile for the configured
+  non-VAT/VAT policy and verified PromptPay recipient. Seller legal identity is
+  read from the existing `LegalEntity`; it is not copied into a Commerce seller
+  master. The owner configuration flow may update `LegalEntity.legalAddress`
+  and the selected `Branch` address/tax code only when the shared-identity
+  guard permits it (FR-186).
+- `CommerceDocument` (`commerce_document_id`) — immutable `INVOICE`,
+  `RECEIPT`, `TAX_INVOICE` or `ABB_TAX_INVOICE` snapshot for one Business,
+  order and active Branch. Issue allocates one per-Business/type/calendar-year
+  sequence, stores the canonical request hash beside the idempotency key, and
+  writes one audit row; preview has no number, timestamp or row (FR-186).
+- `CommerceDocumentSequence` — the transactional per-Business/type/year
+  counter used by `CommerceDocument`; it is an implementation record, never a
+  user-editable numbering input.
 
 **Never stored:** an order's total, paid, balance or payment state. They are
 computed on every read from the lines and the VERIFIED payments — the same
@@ -3214,7 +3235,9 @@ rule progress and stock on-hand follow.
 | `FileAsset` bytes | file management | the slip is a reference; bytes stay where every file lives |
 | Catalogue offers, gift tiers, recipient segments, price tiers, corporate clients (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient` in the owner's ontology) | **this lane, later** — each its own FR | a line's price is given at sale time until an offer catalogue exists |
 | Slip OCR | a later candidate extraction (the Asset evidence rule: a candidate never verifies itself) | a human verifies; `PAYMENT_VERIFIER` or the owner |
-| Invoices, receipts, tax documents, store credit | future Finance / Commerce FRs | not modelled |
+| LegalEntity and Branch identity | Identity / Business master data | Billing reads the verified LegalEntity and selected active Branch; Billing may update address fields only through the owner flow and refuses a shared LegalEntity edit |
+| Statutory e-tax certification, tax filing and provider settlement | external legal/provider boundary | local snapshots and PromptPay payloads carry no statutory or bank-success claim |
+| Store credit | future Finance / Commerce FR | not modelled |
 | Ads, ROAS, attribution to an ad | future Marketing lane | `origin` CHAT and `conversationId` are the hook; no ad id is stored (ADR-054 D5) |
 | Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165) | the buy side; Commerce is the sell side. Both meet only in the Inventory ledger (a receipt adds, a fulfilled order removes) |
 
@@ -3240,8 +3263,23 @@ verifying or rejecting a payment needs Business OWNER or `PAYMENT_VERIFIER`
 - Only VERIFIED payments count — for the order's state and for revenue.
 - Fulfilment issues every counted line or nothing; a SERIAL-tracked line is
   refused (a sale cannot pick serials).
+- A document request carries buyer `ISSUANCE_INPUT` or the explicitly allowed
+  anonymous walk-in receipt policy. Seller identity, tax policy and PromptPay
+  recipient come from current Business configuration; missing or unverified
+  values fail explicitly.
+- A durable `RECEIPT` requires verified payment at least equal to its document
+  gross amount. Preview may show unpaid or pending state without claiming that
+  money was received.
+- Preview is POST and non-persistent. Issue is POST, requires an idempotency
+  key, persists an immutable snapshot and canonical request hash, and retries
+  the exact request to the same document. Reusing the key with a changed
+  order, type, branch, buyer or PromptPay choice fails with 409.
+- POS checkout creates a WALK_IN order, a PENDING payment and tracked stock
+  issues atomically; the existing payment verifier is the only path to
+  VERIFIED money. Cash change is computed from integer satang.
 - Every write is one transaction that bumps `version` and appends one
-  `AuditEvent` (`SALES_ORDER`, `PAYMENT`).
+  `AuditEvent` (`SALES_ORDER`, `PAYMENT`, `BUSINESS_BILLING_PROFILE`,
+  `COMMERCE_DOCUMENT`).
 
 ## Source layout
 
@@ -3252,24 +3290,35 @@ src/modules/commerce/
 ├── application/sales-order-service.js          the only writer of orders and lines (FR-166)
 ├── application/payment-service.js              the only writer of payments (FR-163)
 ├── application/revenue-read-model.js           verified revenue by origin and day (read-only)
+├── domain/billing.js                            billing/POS schemas, VAT and PromptPay calculators (FR-186/183)
+├── application/billing-invoice-service.js      profile, preview, issue and immutable document reads (FR-186)
+├── application/pos-cashier-service.js           atomic POS order/payment/Inventory composition (FR-183)
+├── components/BillingWorkspace.jsx              owner config and preview/issue UI
+├── components/PosWorkspace.jsx                  manual-price POS and pending-payment UI
 └── index.js                                    stable module exports
 ```
 
-Runtime surfaces are `/commerce`, `/commerce/orders` and `/api/commerce/**`.
+Runtime surfaces are `/commerce`, `/commerce/orders`, `/commerce/invoices`,
+`/commerce/pos` and `/api/commerce/**`.
 
 ## Delivery state
 
 FR-166 and FR-163 are implemented locally with both migrations written
 (`20260907000000_commerce_orders_payments`) and the production SQL **not
-applied** (an owner-instructed operator step, ADR-057). Not in this slice: the
-offer catalogue, slip OCR, invoices and receipts, store credit, LINE intake of
-an order from a chat.
+applied** (an owner-instructed operator step, ADR-057). FR-186 and FR-183 are
+implemented locally with migration `20260911010000_commerce_billing_pos` and
+the production SQL **not applied**. Local document snapshots are not statutory
+e-tax certification, and a local PromptPay payload is not evidence of bank
+settlement. Not in this slice: the offer catalogue, slip OCR, store credit,
+terminal registry, price catalogue, provider calls, or LINE intake of an order
+from a chat.
 
 ## References
 
 - [ADR-065](docs/decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
 - [FR-166 sales orders](docs/domains/commerce/features/FR-166-sales-orders.md)
 - [FR-163 payments and revenue](docs/domains/commerce/features/FR-163-payments-and-revenue.md)
+- [Owner-approved Billing/POS contract](docs/change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
 - [Inventory ontology record](docs/domains/inventory/ONTOLOGY.md) — the offer layer this lane still owes
 
 ## CHANGELOG
@@ -3277,6 +3326,8 @@ an order from a chat.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Commerce lane with sales orders, lines and payments; corrections from the legacy Orders & Payments shape recorded in ADR-065 | working-tree | Claude Fable 5.1 |
+| 1.1.0b | 2026-09-11 | owner-approved beta | Added FR-186 durable billing documents and issuer/tax/PromptPay configuration plus FR-183 atomic manual-price POS composition; production migration/provider activation remains pending | working-tree | RWANG |
+| 1.1.1b | 2026-09-11 | owner-approved beta | Published PR #318 claimed FR-182 for SCM, so the already-approved billing subject is recorded as FR-186 through the id-ledger abandonment path; POS remains FR-183 and behavior is unchanged | working-tree | RWANG |
 
 
 <!-- ======================================================================== -->
@@ -3740,7 +3791,7 @@ See [the domain phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZA
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/inventory/CHARTER.md — version: 1.2.0 · status: active-foundation -->
+<!-- source: docs/domains/inventory/CHARTER.md — version: 1.3.0 · status: active-foundation -->
 <!-- ======================================================================== -->
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -3848,6 +3899,10 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
 - `StockReservation` — what is already promised (FR-180): a soft, expiring
   `QUOTE` hold or a committed `ORDER` one. It never writes the ledger, because
   a promise is not a physical fact, and it is never deleted (BR-031).
+- `InventoryStocktake` and `InventoryLedgerFence` — the durable physical-count
+  preview/idempotency record and the Business-scoped lock-only revision that
+  serializes every write-side ledger read (FR-184). A stocktake adjusts through
+  `appendMovement`; it is never a second stock ledger.
 
 ## Explicitly not owned
 
@@ -3906,6 +3961,7 @@ src/modules/inventory/
 ├── application/de-kitting-service.js         controlled disassembly (FR-178)
 ├── application/inventory-shelf-life-service.js  the ageing audit and the maintenance that resets it (FR-179)
 ├── application/inventory-atp-service.js      reservations and Available-to-Promise (FR-180)
+├── application/inventory-stocktake-service.js physical count preview/commit (FR-184)
 └── index.js                                 stable module exports
 ```
 
@@ -3926,23 +3982,25 @@ orders, de-kitting, the shelf-life storage guard, ATP with two-tier
 reservations, and the six agent tools. Migration
 `20260910120000_smartgift_scm_wip` is written and **not applied**.
 
-Surfaces: the API family above and the `/inventory` console dashboard. Not in
-this slice: HTTP routes and console pages for locations, work orders and
-reservations (services and agent tools only), Excel/LINE intake converters for
-stock, FlowAccount catalogue/stock synchronisation, cycle counting and
-stocktake campaigns, and the graph projection of the ontology.
+Surfaces: the API family above and the `/inventory` console dashboard. FR-184
+adds the bounded stocktake preview/commit to that existing surface; it does not
+create a `/warehouse` console. Not in this slice: bins, campaign scheduling,
+numeric SERIAL counts, Excel/LINE intake converters for stock, FlowAccount
+catalogue/stock synchronisation, or the graph projection of the ontology.
 
 ## References
 
 - [ONTOLOGY.md](docs/domains/inventory/ONTOLOGY.md) — the owner's node/edge ontology and how each concept maps here
 - [FR-154 catalogue identity](docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 stock ledger](docs/domains/inventory/features/FR-155-inventory-stock-ledger.md)
+- [FR-184 stocktake](docs/domains/inventory/features/FR-184-inventory-stocktake.md)
 - [ADR-025](docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) — the domain spine this charter lives in
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |
@@ -4669,7 +4727,7 @@ Long-running polling/browser/translation work may execute in a separate worker *
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/marketing/CHARTER.md — version: 0.4.0b · status: beta -->
+<!-- source: docs/domains/marketing/CHARTER.md — version: 0.5.0b · status: beta -->
 <!-- ======================================================================== -->
 
 # Marketing domain charter
@@ -4698,6 +4756,13 @@ adding one scoped association while preserving Strategy evidence and PM executio
 Operations follows [the coordination contract](docs/domains/marketing/features/FR-162-operations-coordination.md):
 Marketing owns intake requests and composes approval, PM schedule and validated handoff
 receipts without creating a second work or stock system.
+
+Broadcast planning follows [the FR-185 contract](docs/domains/marketing/features/FR-185-broadcast-planning-intent.md):
+Marketing owns a Business-scoped planning identity and append-only version references,
+while LINE OA Studio owns account configuration and any future delivery contract. The
+planning payload stores no message body, recipients or provider credentials. Paid
+provider metrics and CRM audience/consent resolution remain explicit unavailable owner
+states until those domains publish approved read contracts.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
@@ -4729,6 +4794,14 @@ Workspace and PM receipt. Scope derives from the server-loaded Business; no tena
 identifier supplied in a plan controls authorization. Repository operations and
 audit participate in the same transaction, with expected-version compare-and-swap.
 
+MarketingBroadcastIntent is a Business-scoped planning identity with a unique
+Business/idempotency key and a current revision. Its child
+MarketingBroadcastIntentVersion is append-only and stores only canonical payload
+references and a hash. Create, revise and archive resolve the same owner gate and
+write one audit event; snapshot export/import preserves parent-before-child order
+and refuses invalid references before deletion. Dispatch is always unavailable in
+this slice.
+
 Local SQLite is the test/runtime baseline. The generated Postgres schema and
 additive SQL migration accompany schema changes; no production migration or live
 PM intake is implied by source delivery. Completion evidence is recorded in the
@@ -4742,6 +4815,7 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | 0.2.0b | 2026-09-06 | beta | Add the approved Campaign initiative association and PM read-model boundary | See git history | RWANG |
 | 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |
 | 0.4.0b | 2026-09-07 | beta | Add Operations intake ownership and the PM/approval/handoff projection boundary | See git history | RWANG |
+| 0.5.0b | 2026-09-11 | beta | Add approved FR-185 broadcast planning identity, append-only revision boundary and unavailable dispatch/read-state contract | See git history | RWANG |
 
 
 <!-- ======================================================================== -->
@@ -5078,6 +5152,7 @@ boundary. Bodies are not inlined — follow the link for the reasoning.
 - [ADR-072 — Knowledge admission and corpus publication](docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 
 # Not inlined
 
@@ -5085,12 +5160,12 @@ These are machine-written and regenerated by `npm run govern`; a frozen copy
 here would be stale within a day, and together they outweigh the prose above by
 an order of magnitude. Read them from the repository:
 
-- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (415KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
-- [docs/FEATURES.md](docs/FEATURES.md) (63KB): the FEAT registry
-- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (178KB): generated — the feature-driven view over the domain spine
-- [docs/TRACE.md](docs/TRACE.md) (397KB): generated — per FR: surface to code to rules to tests
-- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (115KB): generated — the API surface
-- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (56KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (553KB): generated — the traceability appendix
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (176KB): live delivery state (Thai) — read by GoVibe Mission Control
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (428KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
+- [docs/FEATURES.md](docs/FEATURES.md) (67KB): the FEAT registry
+- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (187KB): generated — the feature-driven view over the domain spine
+- [docs/TRACE.md](docs/TRACE.md) (418KB): generated — per FR: surface to code to rules to tests
+- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (122KB): generated — the API surface
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (60KB): the database schema
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (575KB): generated — the traceability appendix
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (183KB): live delivery state (Thai) — read by GoVibe Mission Control
 

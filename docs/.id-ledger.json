@@ -301,6 +301,8 @@
     "FR-181",
     "FR-182",
     "FR-183",
+    "FR-184",
+    "FR-185",
     "FR-186",
     "FR-187",
     "FR-188",
@@ -3347,7 +3349,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "732b331a041e6b14a490dfe558db92a46232f744a25c3bead44036f9189079e7",
+      "statement_digest": "aff278745f649babc2ace4b5f42fe76b77f796ab064271fbdaadc11ddb425edd",
       "history": [
         {
           "anchor": "execution trace replay v0 3",
@@ -3355,8 +3357,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-07",
-      "statement_digest_reason": "Refine process and attempt identities and record native SERVER P1 implementation without claiming external adapters."
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved per-job native SERVER memory opt-in extends the existing execution trace scope while default-off jobs remain excluded and production activation remains gated."
     },
     "FR-172": {
       "family": "FR",
@@ -3527,6 +3529,32 @@
       "history": [
         {
           "anchor": "atomic pos checkout composes existing commerce orders",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-184": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "af9d8716677f2e597fe60d9984feb6dc43f9c72a14cb9199ae966b5d12ac5634",
+      "history": [
+        {
+          "anchor": "inventory physical stocktake reconciles an authorized",
+          "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-185": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "811f9fc717c9d6a0735823d9ac4908329c26a2057e5d5538e999184233e329fd",
+      "history": [
+        {
+          "anchor": "business scoped line broadcast planning intent with durable",
           "since": "2026-09-10",
           "reason": "declared"
         }
@@ -5693,7 +5721,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "8fd15a15d467e393c69709c26b423e040e460adaabda9e393382b875eade3445",
+      "statement_digest": "22a78f2662306450dc14b19b26c7581d145717efcb966823a5b41054ba8b28d0",
       "history": [
         {
           "anchor": "marketing planning and accountable execution",
@@ -5701,8 +5729,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "Reconcile the published CRM Sales Tasks feature with Marketing Operations retained under FR-162."
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved FR-185 adds durable broadcast planning to the existing Marketing capability without changing its pinned subject."
     },
     "FEAT-022": {
       "family": "FEAT",
@@ -5747,14 +5775,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "75703a8c209b96ad17811e41abe49bf07521fa078d0d59effabad34f08594096",
+      "statement_digest": "30a0c54062ffe00434c8a6f958193931c191a660aa3367b05991f8a2bf3116ab",
       "history": [
         {
           "anchor": "smartgift scm",
           "since": "2026-09-10",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-10",
+      "statement_digest_reason": "Owner-approved FR-184 adds physical stocktake to the existing located SCM capability without changing its pinned subject."
     },
     "FEAT-026": {
       "family": "FEAT",
