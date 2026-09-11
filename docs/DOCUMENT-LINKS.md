@@ -1616,6 +1616,7 @@ Source: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17
 Backlinks:
 
 - [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) (references)
+- [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](domains/knowledge/features/FR-188-genesisrag17-parser-2.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2552,6 +2553,14 @@ Source: [FR-187 — SmartGift structured-record source adapter (Phase 1)](domain
 - references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 - relates: [req:FR-173](PRD-SDD-v1.0.md)
 
+## FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)
+
+Source: [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](domains/knowledge/features/FR-188-genesisrag17-parser-2.md)
+
+- references: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTRACT.md)
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+- relates: [req:FR-187](PRD-SDD-v1.0.md)
+
 ## Domain — line-oa-studio
 
 Source: [Domain — line-oa-studio](domains/line-oa-studio/CHARTER.md)
@@ -3198,6 +3207,7 @@ Source: [Approved GenesisRAG17 implementation contract](plans/GENESISRAG17-CONTR
 
 Backlinks:
 
+- [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](domains/knowledge/features/FR-188-genesisrag17-parser-2.md) (references)
 - [GenesisRAG17 — execution flow and extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) (references)
 - [Zuri V2 — Project Manager Module: PRD & SDD](PRD-SDD-v1.0.md) (references)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)

@@ -60,6 +60,7 @@ export function createKnowledgeRepository(db = prisma) {
     createGeneration: (data) => db.knowledgeCorpusGeneration.create({ data }),
     getPipelineRun: (executionRunId) => db.pipelineRun.findUnique({ where: { executionRunId } }),
     getBatchForRun: (executionRunId) => db.genesisRag17Batch.findFirst({ where: { executionRunId } }),
+    getParsedArtifact: (id) => db.knowledgeParsedArtifact.findUnique({ where: { id } }),
     getPublicationForRun: (executionRunId) => db.genesisRag17PublicationReceipt.findFirst({ where: { executionRunId }, orderBy: { createdAt: 'desc' } }),
     async verifyPublication(executionRunId, scope) {
       const { assertGenesisRag17Publication } = await import('@/platform/integrations/core/genesisrag17-publication')

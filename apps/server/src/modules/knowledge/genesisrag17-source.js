@@ -5,17 +5,66 @@ import {
   hashGenesisRag17Json,
   hashGenesisRag17Text,
 } from './genesisrag17-contract'
+import {
+  GENESIS_RAG17_PARSER_VERSION_2,
+  GENESIS_RAG17_STRUCTURED_CHUNK_BOUNDARY,
+  GENESIS_RAG17_STRUCTURED_RECOGNIZER_PROVENANCE,
+  GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
+  genesisRag17StructuredRecognizer,
+  isStructuredCatalogProvider,
+  renderStructuredCatalogDocument,
+} from './genesisrag17-structured-record'
 
 // @req FR-109 — Tier 1 preserves raw content, parsed structure, exact chunk
 // substrings and every source-mention occurrence for the GenesisRAG17 batch.
-// @spec ADR-050, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md
-// @tested tests/unit/genesisrag17-source.test.js
+// @req FR-188 — a SMARTGIFT_CATALOG source selects `genesisrag17-parser-2` and
+// the pinned `genesisrag17-structured-recognizer-1`; every other source keeps
+// `genesisrag17-parser-1` and `rule_v1` exactly as before.
+// @spec ADR-050, ADR-075, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-source.test.js, tests/unit/genesisrag17-parser-2.test.js
 
 export const GENESIS_RAG17_PARSER_VERSION = 'genesisrag17-parser-1'
+export {
+  GENESIS_RAG17_PARSER_VERSION_2,
+  GENESIS_RAG17_STRUCTURED_RECOGNIZER_PROVENANCE,
+  GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
+  genesisRag17StructuredRecognizer,
+}
 export const GENESIS_RAG17_CHUNKER_VERSION = 'genesisrag17-chunker-1'
 export const GENESIS_RAG17_RECOGNIZER_VERSION = 'rule_v1'
 export const GENESIS_RAG17_RECOGNIZER_PROVENANCE = 'genesisrag17-source:default'
 export const GENESIS_RAG17_DEFAULT_MAX_TOKENS = 80
+
+/** Stage 2 profiles. `text` is parser-1 (prose); `structured-record` is parser-2. */
+export const GENESIS_RAG17_PARSER_PROFILES = Object.freeze({
+  TEXT: 'text',
+  STRUCTURED_RECORD: 'structured-record',
+})
+
+/** Parser-2 is selected for SmartGift catalog sources only (FR-188). */
+export function genesisRag17ParserProfileForProvider(provider) {
+  return isStructuredCatalogProvider(provider) ? GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD : GENESIS_RAG17_PARSER_PROFILES.TEXT
+}
+
+/** The Stage 8 recognizer and its recorded identity for one Stage 2 profile. */
+export function genesisRag17RecognizerIdentity(profile = GENESIS_RAG17_PARSER_PROFILES.TEXT) {
+  if (profile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD) {
+    return {
+      recognizer: genesisRag17StructuredRecognizer,
+      recognizerVersion: GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
+      recognizerProvenance: GENESIS_RAG17_STRUCTURED_RECOGNIZER_PROVENANCE,
+    }
+  }
+  if (profile !== GENESIS_RAG17_PARSER_PROFILES.TEXT) throw parserConfigError('GenesisRAG17 parser profile is unknown')
+  return { recognizer: defaultRecognizer, recognizerVersion: GENESIS_RAG17_RECOGNIZER_VERSION, recognizerProvenance: GENESIS_RAG17_RECOGNIZER_PROVENANCE }
+}
+
+function parserConfigError(message) {
+  const error = new Error(message)
+  error.status = 400
+  error.code = 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED'
+  return error
+}
 
 const HEADING = /^(#{1,6})\s+(.*\S)\s*$/
 const RELATION = /\b(?:works\s+for|is\s+employed\s+by|purchased|bought)\b/gi
@@ -70,17 +119,67 @@ function splitRange(content, range, maxTokens) {
   return ranges
 }
 
+/**
+ * `genesisrag17-parser-2`: the parsed content is the rendered record text, one
+ * chunk per rendered section (C-4). No heading detection and no token window.
+ */
+function parseStructuredRecordDocument({ documentId, rawArtifactId, parsedArtifactId, content, parserVersion }) {
+  const rendered = renderStructuredCatalogDocument(content)
+  const text = rendered.text
+  const chunks = rendered.sections.map((section, ordinal) => ({
+    chunkId: `${parsedArtifactId}:chunk:${ordinal}`,
+    parsedArtifactId,
+    ordinal,
+    text: section.text,
+    contentHash: hashGenesisRag17Text(section.text),
+    startOffset: section.startOffset,
+    endOffset: section.endOffset,
+    headingPath: [`${section.entityType} ${section.recordCode}`, section.kind === 'claim' ? `claim ${section.predicate}` : 'descriptive'],
+    tokenCount: section.text.trim().split(/\s+/u).length,
+  }))
+  const claimCount = rendered.sections.filter((section) => section.kind === 'claim').length
+  const parsed = {
+    schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+    documentId,
+    rawArtifactId,
+    parserVersion,
+    content: text,
+    contentHash: hashGenesisRag17Text(text),
+    structure: rendered.sections.map((section) => ({ type: section.kind, text: section.text, startOffset: section.startOffset, endOffset: section.endOffset })),
+    textBlocks: rendered.sections.map((section) => ({ text: section.text, startOffset: section.startOffset, endOffset: section.endOffset })),
+    tables: [],
+    metadata: {
+      extractorVersion: parserVersion,
+      // No token chunker applies to parser-2; recorded as explicit nulls.
+      chunkerVersion: null,
+      maxTokens: null,
+      sourceFormat: rendered.sourceFormat,
+      chunkBoundary: GENESIS_RAG17_STRUCTURED_CHUNK_BOUNDARY,
+      rawContentHash: hashGenesisRag17Text(String(content ?? '')),
+      recordCount: rendered.recordCount,
+      descriptiveCount: rendered.sections.length - claimCount,
+      claimCount,
+      chunkCount: chunks.length,
+      catalogVersionDate: rendered.catalogVersionDate ?? null,
+    },
+  }
+  return { parsed, chunks }
+}
+
 /** Parse while retaining exact source text and JavaScript String offsets. */
-export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArtifactId = rawArtifactId, content, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS, parserVersion }) {
+export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArtifactId = rawArtifactId, content, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS, parserVersion, profile = GENESIS_RAG17_PARSER_PROFILES.TEXT }) {
   if (!documentId || !rawArtifactId) throw new Error('GenesisRAG17 parser requires documentId and rawArtifactId')
   const text = String(content ?? '')
   const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
-  const resolvedParserVersion = parserVersion ?? genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens })
-  const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens })
+  const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens, profile })
+  const resolvedParserVersion = parserVersion ?? expectedParserVersion
   if (resolvedParserVersion !== expectedParserVersion) {
     const error = new Error('GenesisRAG17 parser configuration identity does not match chunking configuration')
     error.code = 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED'
     throw error
+  }
+  if (profile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD) {
+    return parseStructuredRecordDocument({ documentId, rawArtifactId, parsedArtifactId, content: text, parserVersion: resolvedParserVersion })
   }
   const sections = sourceSections(text)
   const structure = []
@@ -139,8 +238,15 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
  * caller that changes chunking receives a distinct parsed-artifact identity so
  * a replay cannot silently reuse chunks made with another configuration.
  */
-export function genesisRag17ParserIdentity({ maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS } = {}) {
+export function genesisRag17ParserIdentity({ maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS, profile = GENESIS_RAG17_PARSER_PROFILES.TEXT } = {}) {
   const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
+  if (profile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD) {
+    // Parser-2 never windows (C-4), so a token budget cannot be honoured and
+    // is refused rather than silently recorded.
+    if (boundedMaxTokens !== GENESIS_RAG17_DEFAULT_MAX_TOKENS) throw parserConfigError('genesisrag17-parser-2 does not window by tokens')
+    return GENESIS_RAG17_PARSER_VERSION_2
+  }
+  if (profile !== GENESIS_RAG17_PARSER_PROFILES.TEXT) throw parserConfigError('GenesisRAG17 parser profile is unknown')
   if (boundedMaxTokens === GENESIS_RAG17_DEFAULT_MAX_TOKENS) return GENESIS_RAG17_PARSER_VERSION
   return `${GENESIS_RAG17_PARSER_VERSION};chunker=${GENESIS_RAG17_CHUNKER_VERSION};maxTokens=${boundedMaxTokens}`
 }
@@ -162,7 +268,7 @@ function subjectBeforeRelation(text, relationOffset) {
   return fallback ? { name: fallback[1], offset: boundary + fallback.index } : null
 }
 
-function addHit(hits, { type, mention, offset, confidence = 0.85 }) {
+function addHit(hits, { type, mention, offset, confidence = 0.85, verbatimKey = false }) {
   const value = String(mention ?? '').trim()
   if (!value || !Number.isInteger(offset) || offset < 0) return
   const startOffset = offset + String(mention).indexOf(value)
@@ -171,7 +277,10 @@ function addHit(hits, { type, mention, offset, confidence = 0.85 }) {
   hits.push({
     semanticType: type,
     name: value,
-    resolutionKey: normalizeOrganizationName(value),
+    // FR-188 / C-6: a structured occurrence's key is the SmartGift code
+    // verbatim. normalizeOrganizationName is a legal-affix stripper; its being
+    // a no-op on today's codes is a coincidence, not a contract.
+    resolutionKey: verbatimKey ? value : normalizeOrganizationName(value),
     startOffset,
     endOffset,
     confidence,
@@ -180,7 +289,10 @@ function addHit(hits, { type, mention, offset, confidence = 0.85 }) {
 
 /** Extract source occurrences from each exact chunk; no canonical identity is decided here. */
 export function extractGenesisRag17Mentions(chunks, { recognizer = defaultRecognizer } = {}) {
-  if (recognizer !== defaultRecognizer) {
+  // The guard stays closed with exactly one pinned exception (C-6): the
+  // versioned structured recognizer. Any other function is still refused.
+  const structured = recognizer === genesisRag17StructuredRecognizer
+  if (!structured && recognizer !== defaultRecognizer) {
     const error = new Error('GenesisRAG17 custom recognizers require a separately versioned durable extension')
     error.code = 'GENESISRAG17_CUSTOM_RECOGNIZER_UNSUPPORTED'
     throw error
@@ -189,6 +301,24 @@ export function extractGenesisRag17Mentions(chunks, { recognizer = defaultRecogn
   for (const chunk of chunks || []) {
     const chunkId = chunk?.chunkId ?? chunk?.chunk_id
     const hits = []
+    if (structured) {
+      for (const hit of recognizer({ text: chunk.text || '' })) {
+        addHit(hits, { type: hit.type, mention: hit.mention, offset: hit.offset, confidence: hit.confidence, verbatimKey: true })
+      }
+      hits.sort((left, right) => left.startOffset - right.startOffset || left.endOffset - right.endOffset)
+      hits.forEach((hit, index) => {
+        mentions.push({
+          sourceMentionId: `${chunkId}:mention:${index}`,
+          resolutionKey: hit.resolutionKey,
+          semanticType: hit.semanticType,
+          name: hit.name,
+          chunkId,
+          startOffset: hit.startOffset,
+          endOffset: hit.endOffset,
+        })
+      })
+      continue
+    }
     for (const hit of recognizer({ text: chunk.text || '' }) || []) {
       addHit(hits, { type: hit.type, mention: hit.mention, offset: hit.offset, confidence: hit.confidence })
     }

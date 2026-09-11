@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.3.1b"
+version: "1.4.0b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-08T19:37:00+07:00,RWANG"
+last_update: "2026-09-11T12:30:00+07:00,Claude Opus 5"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -146,16 +146,16 @@ sequenceDiagram
 | Stage / stable ID | Input → output ที่ทำจริง | เงื่อนไขจบ / หยุด | จุดแก้ implementation |
 |---|---|---|---|
 | 1 `DPS-KI-INGEST` | raw content + authorized run scope/source/version → `RawExternalRecord` และ `KnowledgeRawArtifact` | สำเร็จหลังบันทึกหลักฐานรับเข้าจริง; identity เดิมแต่เนื้อหาต่าง conflict | Z-executor `ensureCanonicalRawRecord` / `ensureRaw` |
-| 2 `DPS-KI-PARSE` | persisted raw → versioned parsed text/structure | เก็บ exact text และ parser version; ไม่มี binary/OCR parser ใน profile นี้ | Z-source `parseGenesisRag17Document`, Z-executor `ensureParsedArtifact` |
+| 2 `DPS-KI-PARSE` | persisted raw → versioned parsed text/structure | เก็บ exact text และ parser version; ไม่มี binary/OCR parser ใน profile นี้. `SMARTGIFT_CATALOG` ใช้ `genesisrag17-parser-2` (FR-188): parsed content คือ record ที่ render เป็น descriptive + claim sections — มีผลเมื่อ GKS `ontology_v2` PR merge แล้ว | Z-source `parseGenesisRag17Document`, Z-structured `renderStructuredCatalogDocument`, Z-executor `ensureParsedArtifact` |
 | 3 `DPS-KI-PROVENANCE` | raw + parsed → checked provenance digest/source references | ต้องมี parent จริง; lineage resolver ตรวจ chain และ hashes หลัง restart | Z-executor Stage 3, Z-lineage, `provenance.js` |
 | 4 `DPS-KI-NORMALIZE` | original text → canonical text hash + retained raw hash | วัด normalization แต่ไม่ได้แทน raw/chunk text ด้วย canonical text | Z-executor Stage 4, `normalization.js` |
 | 5 `DPS-KI-CLASSIFY` | run scope + policy → indexable/publishable evidence | scope exact; flags `allowEmbedding`/`allowPublication` มีผลที่ 15/17; Stage 5 ผ่านได้แม้ flag false | Z-executor Stage 5 + Z-contract; MSP grants |
 | 6 `DPS-KI-DEDUPE` | immutable current raw + same-scope prior versions → relationship evidence | version/content identity conflict ปฏิเสธ; comparison ไม่ลบหรือ rewrite ต้นฉบับ | Z-executor Stage 6 + dedup classifier |
-| 7 `DPS-KI-CHUNK` | parsed text/heading sections → persisted exact-substring chunks | hash/UTF-16 offsets/ordinal ตรง parent; default 80 whitespace tokens ไม่ใช่ model tokenizer | Z-source parser/chunk helper, Z-executor `ensureChunks` |
-| 8 `DPS-KI-ENTITY-EXTRACT` | chunks → typed source occurrences | แยก `sourceMentionId` จาก `resolutionKey`; ส่งทั้งหมดในหนึ่ง Stage 9 batch | Z-source `extractGenesisRag17Mentions`, recognizer option |
+| 7 `DPS-KI-CHUNK` | parsed text/heading sections → persisted exact-substring chunks | hash/UTF-16 offsets/ordinal ตรง parent; default 80 whitespace tokens ไม่ใช่ model tokenizer. parser-2: หนึ่ง section = หนึ่ง chunk ไม่ตัดตาม token | Z-source parser/chunk helper, Z-executor `ensureChunks` |
+| 8 `DPS-KI-ENTITY-EXTRACT` | chunks → typed source occurrences | แยก `sourceMentionId` จาก `resolutionKey`; ส่งทั้งหมดในหนึ่ง Stage 9 batch. parser-2 ใช้ recognizer ที่ pin ไว้ `genesisrag17-structured-recognizer-1` (ข้อยกเว้นเดียวของ guard) → `Product`/`PACKAGE`/`CATEGORY`/`PRICE_TIER`, `resolutionKey` = SmartGift code ตรงตัว | Z-source `extractGenesisRag17Mentions`, recognizer option, Z-structured `genesisRag17StructuredRecognizer` |
 | 9 `DPS-KI-ENTITY-RESOLVE` | validated complete batch → canonical entities + all occurrence references | source/chunk/mention hash+span ตรวจผ่านก่อนใช้; terminal หนึ่งชุดต่อ attempt | G-core / G-service `pipelineSubmit` |
 | 10 `DPS-KI-FACT-EXTRACT` | resolved occurrences + text → raw-predicate fact candidates/HELD | `rule_v1`: explicit .90, structured .85, inferred ≤.70; write floor .80 | G-core extraction rules |
-| 11 `DPS-KI-ONTOLOGY-MAP` | candidates → typed canonical `WORKS_FOR` / `PURCHASED` facts หรือ HELD | `ontology_v1` synonyms และ endpoint types; unknown/invalid มีเหตุผลไม่เป็น verified fact | G-core ontology mapping |
+| 11 `DPS-KI-ONTOLOGY-MAP` | candidates → typed canonical `WORKS_FOR` / `PURCHASED` facts หรือ HELD; `ontology_v2` เพิ่ม `HAS_COMPONENT` / `PRICED_AT` / `IN_CATEGORY` | `ontology_v1` synonyms และ endpoint types; unknown/invalid มีเหตุผลไม่เป็น verified fact. `ontology_v2` (superset ของ v1) มีผลเมื่อ GKS `ontology_v2` PR merge แล้ว; แต่ละ decision ตรวจกับตารางของ version ตัวเอง | G-core ontology mapping |
 | 12 `DPS-KI-TEMPORAL-MAP` | facts + time evidence → temporal metadata | แยก unmapped, open-ended, explicit `not_applicable`; parity กับ MSP source ที่ pin ไว้ | G-temporal + G-core mapping |
 | 13 `DPS-KI-GRAPH-BUILD` | immutable scoped graph decision → committed graph + graph receipt | GKS decided counts แยก worker written counts; terminal หลังตรวจ graph receipt จริงเท่านั้น | G-service decision/receipt + W-worker graph transaction |
 | 14 `DPS-KI-ENRICH` | graph acknowledged + source facts → `enrich_v1` per-entity counts | distinct documents/chunks/facts + source references; derivedHash แยก ไม่แก้ decisionHash | G-core enrichment + G-service graph-receipt response |
@@ -171,6 +171,7 @@ Paths เป็นจุดแก้ที่มีอยู่จริง ไ�
 |---|---|
 | Z-executor | [genesisrag17-executor.js](../apps/server/src/platform/integrations/core/genesisrag17-executor.js); [Tier 1 integration tests](../apps/server/tests/integration/genesisrag17-tier1.test.js) |
 | Z-source | [genesisrag17-source.js](../apps/server/src/modules/knowledge/genesisrag17-source.js); [source tests](../apps/server/tests/unit/genesisrag17-source.test.js) |
+| Z-structured | [genesisrag17-structured-record.js](../apps/server/src/modules/knowledge/genesisrag17-structured-record.js) (parser-2 rendering + structured recognizer, FR-188); [parser-2 unit tests](../apps/server/tests/unit/genesisrag17-parser-2.test.js), [parser-2 Tier 1 tests](../apps/server/tests/integration/genesisrag17-parser-2.test.js) |
 | Z-lineage | [repository](../apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js); [repository tests](../apps/server/tests/unit/genesisrag17-lineage-repository.test.js) |
 | Z-contract | [strict schema/hash](../apps/server/src/modules/knowledge/genesisrag17-contract.js); [contract tests](../apps/server/tests/unit/genesisrag17-contract.test.js) |
 | Z pure helpers | [provenance](../apps/server/src/modules/knowledge/provenance.js), [normalization](../apps/server/src/modules/knowledge/normalization.js), [dedup](../apps/server/src/modules/knowledge/dedup.js); adapter behavior is verified by the Tier 1 integration suite |
@@ -210,7 +211,7 @@ pointer replacement ล้ม ต้องเก็บ pointer เดิมไ�
 | bitemporal | explicit applicability; actual temporal Query IR เมื่อ applicable/API รองรับ | unmapped ไม่กลายเป็น not_applicable; unsupported ต้องเหตุผลจริงที่ gate อนุญาต |
 | provenance | persisted chunk/source references + citation readback | resolve chain/hash หลัง restart และ historical snapshot |
 
-Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/multilingual-e5-small` revision `614241f622f53c4eeff9890bdc4f31cfecc418b3`; pipeline wire `genesisrag17.v1`; parser `genesisrag17-parser-1`; processing profiles `rule_v1`, `ontology_v1`, `enrich_v1`. Temporal parity ตรึง MSP source commit `8b8667dadf01fd7f421260af8b8b260f6cac267f`. Legacy promotion/evidence ports อยู่คนละ protocol ไม่ใช้หลักฐานที่ไม่มี attempt ปิด attempt ใหม่
+Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/multilingual-e5-small` revision `614241f622f53c4eeff9890bdc4f31cfecc418b3`; pipeline wire `genesisrag17.v1`; parser `genesisrag17-parser-1`; processing profiles `rule_v1`, `ontology_v1`, `enrich_v1`. **มีผลเมื่อ GKS `ontology_v2` PR merge แล้ว (rollout step 2, ADR-075 D6 / FR-188):** parser `genesisrag17-parser-1` (prose) และ `genesisrag17-parser-2` (source ที่ provider เป็น `SMARTGIFT_CATALOG` เท่านั้น) พร้อม recognizer `rule_v1` / `genesisrag17-structured-recognizer-1` ตามลำดับ; ontology รับ `{ontology_v1, ontology_v2}` โดย GKS ผลิต `ontology_v2` (superset); `rule_v1` และ `enrich_v1` ไม่เปลี่ยน. Temporal parity ตรึง MSP source commit `8b8667dadf01fd7f421260af8b8b260f6cac267f`. Legacy promotion/evidence ports อยู่คนละ protocol ไม่ใช้หลักฐานที่ไม่มี attempt ปิด attempt ใหม่
 
 ## ขั้นตอนเพิ่มความสามารถและ acceptance
 
@@ -226,6 +227,7 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.0b | 2026-09-11 | beta | ADR-075 D6 / FR-188 rollout-step-2 pins: `genesisrag17-parser-2` + `genesisrag17-structured-recognizer-1` for `SMARTGIFT_CATALOG` sources and `{ontology_v1, ontology_v2}` (v2 superset), all marked effective when the GKS `ontology_v2` PR is merged; parser-1/`rule_v1` prose unchanged | working-tree | Claude Opus 5 |
 | 1.3.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.3.0b | 2026-09-08 | beta | Approved admission, durable queue, corpus read-set and correction/revocation extension map | base dfdbaf11 | RWANG |
 | 1.2.0b | 2026-09-08 | beta | Link audited endpoint/surface inventory and user journeys; clarify unconnected UI and connector boundaries | base dfdbaf11 | RWANG |

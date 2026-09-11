@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.37.0b"
+version: "1.38.0b"
 status: active
 last_update: "2026-09-11T06:21:00+07:00,RWANG"
 relations:
@@ -100,6 +100,8 @@ Version diff 1.33.0b → 1.34.0b (2026-09-10): FEAT-025 gains FR-182 — the con
 Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-025 gains owner-approved FR-184 — the existing Inventory surface's durable NONE/LOT stocktake preview and atomic fenced commit, with strict stale/idempotency outcomes and feature-specific recovery. SERIAL observation, bins, campaigns, and production migration remain outside the slice.
 
 Version diff 1.35.0b → 1.36.0b (2026-09-11): FEAT-021 gains approved FR-185 — Business-scoped LINE broadcast planning identity and append-only revisions with strict owner references, deterministic read projections and unavailable dispatch. The slice does not add provider metrics, audience resolution, consent snapshots, sends or workers.
+
+Version diff 1.37.0b → 1.38.0b (2026-09-11): FEAT-026 readiness note updated — Phase 1 implemented (PR #324), owner answered ADR-075 questions 2–4 and opened the Phase 2 gate (Option A, contract revision 2). The FEAT-026 row itself is unchanged.
 
 Version diff 1.35.0b → 1.36.0b (2026-09-11): ADR-075 approved by the owner on PR #321; FEAT-026 moves to `approved`, Phase 1 (FR-187) authorized, no code yet.
 
@@ -777,7 +779,7 @@ writing one sentence here, or the governance chain stops.
   {
     "id": "FEAT-026",
     "primaryDomain": "knowledge",
-    "useCase": "Approved 2026-09-11 (ADR-075), Phase 1 not started: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from"
+    "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from"
   }
 ]
 ```
