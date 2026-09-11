@@ -112,6 +112,7 @@ npm run test:e2e       # Playwright on :3100
 npm run docs:graph     # rebuild the doc graph — run after any doc/route/model change
 npm run docs:preflight # doc health checks
 npm run docs:check     # CI guard: fails if the committed graph is stale
+npm run docs:llms      # rebuild llms-full.txt — run after editing README/CLAUDE/AGENTS/PRODUCT or a charter
 ```
 
 A change is not done until tests pass, the build is clean, and
