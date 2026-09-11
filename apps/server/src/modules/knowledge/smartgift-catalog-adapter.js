@@ -5,8 +5,10 @@ import { findZeroPiiViolation } from './structured-record-policy'
 // @req FR-187 — one SmartGift catalog projection is split into N immutable
 // structured records before Stage 1: identity, byte-stable hashes and the
 // Zero-PII predicate are computed here, and nothing downstream is synthesized.
-// @spec ADR-075 D2, ADR-075 D3, ADR-075 D4, ADR-075 D5, BR-002
-// @tested tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @req FR-188 — the record shapes are the ones parser-2 renders; an optional
+// catalogVersionDate is the one date a structured claim may carry (C-5).
+// @spec ADR-075 D2, ADR-075 D3, ADR-075 D4, ADR-075 D5, ADR-075 D6, BR-002
+// @tested tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/unit/genesisrag17-parser-2.test.js
 
 /** The only structured format Phase 1 admits. */
 export const SMARTGIFT_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
@@ -48,7 +50,21 @@ const zProvenance = z.object({
   supplementUpstreamFile: zText.nullish(),
 }).strict()
 
-const zProductMaster = z.object({
+/**
+ * FR-188 / ADR-075 D6 (contract rev 2, C-5): the one catalog version date a
+ * SmartGift export may carry. It is a plain `YYYY-MM-DD` calendar date that
+ * the exporter stamps identically on every record of one export (its manifest
+ * date). It travels inside the immutable record bytes, so it is covered by the
+ * record's contentHash and can never make two parses of the same raw differ.
+ * It is optional: an export without one is uniformly undated.
+ */
+export const zSmartGiftCatalogVersionDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}, { message: 'catalogVersionDate is not a real calendar date' })
+
+export const zProductMaster = z.object({
   entityType: z.literal('ProductMaster'),
   externalId: zText,
   code: zText,
@@ -63,15 +79,19 @@ const zProductMaster = z.object({
   unitWeightKg: zMoney.nullish(),
   srpPriceThbQty1: zMoney.nullish(),
   priceTiersThb: z.array(zPriceTier).default([]),
+  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
-const zBundleOffer = z.object({
+export const zBundleOffer = z.object({
   entityType: z.literal('BundleOffer'),
   externalId: zText,
   code: zText,
   nameTh: zText,
   nameEn: zText.nullish(),
+  // FR-188: a bundle MAY name a category; parser-2 then emits IN_CATEGORY.
+  // No fixture bundle carries one today.
+  category: zText.nullish(),
   occasion: zText.nullish(),
   giftTier: zText.nullish(),
   recipientSegment: zText.nullish(),
@@ -83,16 +103,18 @@ const zBundleOffer = z.object({
     srpQty1Thb: zMoney,
   }).strict()).default([]),
   offerPriceTiersThb: z.array(zPriceTier).default([]),
+  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
-const zPriceListEntry = z.object({
+export const zPriceListEntry = z.object({
   entityType: z.literal('PriceListEntry'),
   externalId: zText,
   productExternalId: zText,
   qty: zQty,
   srpUnitPriceThb: zMoney,
   srpSource: zText.nullish(),
+  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
