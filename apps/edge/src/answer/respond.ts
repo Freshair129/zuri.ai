@@ -19,7 +19,7 @@ import {
 import { ConversationOptions, appendTurns, loadConversation } from './memory.js';
 import { Intent, parseMessage } from './parse.js';
 import { loadPersonaPrompt } from './persona.js';
-import type { GenesisLocalRag } from '../rag/genesis-rag.js';
+import type { AnswerRag } from '../rag/genesis-rag.js';
 import { buildCodexEvidence } from './codex-evidence.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
 
@@ -215,7 +215,7 @@ export function answerMessage(text: string, options: AnswerOptions): string {
 
 export interface ConversationOptionsFull extends AnswerOptions {
   /** The LINE agent's only door into the catalog graph — used by the model tool-call path. */
-  rag: GenesisLocalRag;
+  rag: AnswerRag;
   /** Stable per-person key. Already hashed — a raw LINE id never reaches here. */
   conversationKey: string;
   memory: ConversationOptions;

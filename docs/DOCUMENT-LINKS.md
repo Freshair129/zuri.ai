@@ -1616,6 +1616,7 @@ Source: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17
 Backlinks:
 
 - [FR-187 — SmartGift structured-record source adapter (Phase 1)](domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) (references)
+- [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](domains/knowledge/features/FR-189-edge-published-generation.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2551,6 +2552,14 @@ Source: [FR-187 — SmartGift structured-record source adapter (Phase 1)](domain
 
 - references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 - relates: [req:FR-173](PRD-SDD-v1.0.md)
+
+## FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)
+
+Source: [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](domains/knowledge/features/FR-189-edge-published-generation.md)
+
+- references: [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+- relates: [req:FR-187](PRD-SDD-v1.0.md)
+- relates: [req:FR-188](PRD-SDD-v1.0.md)
 
 ## Domain — line-oa-studio
 

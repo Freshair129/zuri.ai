@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2644,
-    "total_edges": 10727,
+    "total_nodes": 2645,
+    "total_edges": 10730,
     "dangling_edges": 0,
     "node_types": {
-      "document": 218,
+      "document": 219,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -17807,6 +17807,14 @@
       "path": "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
       "title": "FR-187 — SmartGift structured-record source adapter (Phase 1)",
       "hash": "eed2e06d",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-189-edge-published-generation",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
+      "title": "FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)",
+      "hash": "7e8cfa4d",
       "status": "current"
     },
     {
@@ -57309,6 +57317,27 @@
     },
     {
       "from": "doc:FR-187-smartgift-catalog-adapter",
+      "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-187",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
+      "to": "req:FR-188",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-189-edge-published-generation",
       "to": "spec:ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER",
       "type": "references",
       "source": "metadata",
