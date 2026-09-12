@@ -1393,13 +1393,14 @@
       "id": "code:src/app/(pm)/platform/users/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/platform/users/page.jsx",
-      "hash": "634807be",
+      "hash": "d55ddddc",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
           "FR-062",
-          "FR-106"
+          "FR-106",
+          "FR-199"
         ],
         "@spec": [
           "SDD-017",
@@ -1407,7 +1408,8 @@
           "FR-038",
           "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md",
           "SDD-035",
-          "SEC-006"
+          "SEC-006",
+          "SEC-001"
         ],
         "@tested": [
           "tests/unit/profile-permission-service.test.js",
@@ -5784,6 +5786,26 @@
       }
     },
     {
+      "id": "code:src/app/api/platform/access-history/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/platform/access-history/route.js",
+      "hash": "57cb903c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-199"
+        ],
+        "@spec": [
+          "BR-036",
+          "SEC-001",
+          "SEC-028"
+        ],
+        "@tested": [
+          "tests/integration/fr198-fr199-audit-access-evidence.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/api-access-keys/[id]/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/platform/api-access-keys/[id]/route.js",
@@ -5820,6 +5842,26 @@
         ],
         "@tested": [
           "tests/unit/api-access-key-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "hash": "77019dd3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-199"
+        ],
+        "@spec": [
+          "BR-036",
+          "SEC-001",
+          "SEC-028"
+        ],
+        "@tested": [
+          "tests/integration/fr198-fr199-audit-access-evidence.test.js"
         ]
       }
     },
@@ -9856,15 +9898,38 @@
       }
     },
     {
+      "id": "code:src/modules/identity/access-history-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/access-history-service.js",
+      "hash": "b3661862",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-199"
+        ],
+        "@spec": [
+          "BR-036",
+          "SDD-095",
+          "SEC-001",
+          "SEC-003",
+          "SEC-028"
+        ],
+        "@tested": [
+          "tests/unit/access-history-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/access-invite-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/access-invite-service.js",
-      "hash": "d07e546e",
+      "hash": "eeca129c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-195",
-          "FR-067"
+          "FR-067",
+          "FR-198"
         ],
         "@spec": [
           "BR-016",
@@ -10253,12 +10318,13 @@
       "id": "code:src/modules/identity/membership-grant-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/membership-grant-service.js",
-      "hash": "e2181a9f",
+      "hash": "4062ce1e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-191",
-          "FR-192"
+          "FR-192",
+          "FR-198"
         ],
         "@spec": [
           "BR-033",
@@ -10274,11 +10340,12 @@
       "id": "code:src/modules/identity/membership-lifecycle-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/membership-lifecycle-service.js",
-      "hash": "788b3d08",
+      "hash": "302f317c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-191"
+          "FR-191",
+          "FR-198"
         ],
         "@spec": [
           "BR-033",
@@ -14652,7 +14719,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "3c1c1051",
+      "hash": "2614d235",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14687,6 +14754,7 @@
           "FR-106",
           "FR-038",
           "FR-191",
+          "FR-199",
           "FR-123",
           "FR-097",
           "FR-094",
@@ -14725,14 +14793,17 @@
       "id": "code:src/modules/project-manager/application/audit.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/audit.js",
-      "hash": "1cb9ddb4",
+      "hash": "c721f1f6",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-014"
+          "FR-014",
+          "FR-198"
         ],
         "@spec": [
-          "SEC-003"
+          "SEC-003",
+          "BR-036",
+          "SDD-095"
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
@@ -16851,9 +16922,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.62.0b",
+      "version": "1.64.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "dee313f4",
+      "hash": "c8777f70",
       "status": "current"
     },
     {
@@ -17287,7 +17358,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "a895110c",
+      "hash": "ff897d43",
       "status": "current"
     },
     {
@@ -18360,6 +18431,26 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-198-audit-scope-and-evidence",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-198-audit-scope-and-evidence.md",
+      "title": "FR-198 — Audit events carry their own scope and the change they made",
+      "version": "1.0.0",
+      "doc_status": "Declared and implemented (2026-09-12) — [ADR-080](../../../decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) D1/D2",
+      "hash": "9e89d7eb",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-199-access-history-read-models",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-199-access-history-read-models.md",
+      "title": "FR-199 — A Business owner can read the access history of their own scope",
+      "version": "1.0.0",
+      "doc_status": "Declared and implemented (2026-09-12) — [ADR-080](../../../decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) D3/D4",
+      "hash": "07637930",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -18992,9 +19083,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.184.0b",
+      "version": "1.190.0b",
       "doc_status": "Draft",
-      "hash": "44848818",
+      "hash": "acba8fd0",
       "status": "current"
     },
     {
@@ -19030,7 +19121,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "a70cc940",
+      "hash": "b5bb56e0",
       "status": "current"
     },
     {
@@ -19906,6 +19997,13 @@
       "type": "feature",
       "label": "Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12)",
       "declared": "implemented locally",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-030",
+      "type": "feature",
+      "label": "Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12)",
+      "declared": "implemented",
       "status": "current"
     },
     {
@@ -21002,6 +21100,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Two people complete a cycle that touches money or stock; one person never does, however senior. A role that both records and confirms the same class of fact (recording a payment and verifying it; writing a purchase order and receiving against it) is a segregation-of-duties conflict, refused at assignment unless a Tenant owner overrides it with a recorded reason, and refused again at the transaction itself when the SAME person would record and confirm the SAME instance — a rule an OWNER does not bypass, because it is about needing a second person, not about holding a permission. An exemption for a genuinely one-person Business must be an explicit, audited attestation, never a silent one. FR-196; ADR-065 D4; ADR-066 D4 as amended by ADR-079 "
+    },
+    {
+      "id": "req:BR-036",
+      "type": "requirement",
+      "family": "BR",
+      "label": "An audit event states its scope as data a query can filter on, never only as a fact buried inside a free-form payload. A mutation that touches a Tenant or a Business records that Tenant or Business id on the row; a mutation with a reason records the reason on the row. Adding this capability may never require rewriting a row that already exists — an old row that predates the capability states its scope as absent, never as an inferred guess standing in for evidence nobody wrote.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "An audit event states its scope as data a query can filter on, never only as a fact buried inside a free-form payload. A mutation that touches a Tenant or a Business records that Tenant or Business id on the row; a mutation with a reason records the reason on the row. Adding this capability may never require rewriting a row that already exists — an old row that predates the capability states its scope as absent, never as an inferred guess standing in for evidence nobody wrote. FR-198, FR-199; ADR-080 D1; SEC-003 "
     },
     {
       "id": "req:FR-001",
@@ -22974,6 +23082,26 @@
       "row_text": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per successful use — a denied attempt records nothing, because the refusal happens before the write. The restore path proves authority first and records the use INSIDE its transaction, after the re-insert: a record written beforehand is deleted by the wipe it is recording — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it. 🟠 implemented locally 2026-09-12 (PR pending) — `operator-bootstrap.js`, `operator-use.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
     },
     {
+      "id": "req:FR-198",
+      "type": "requirement",
+      "family": "FR",
+      "label": "An audit event carries its own scope and the change it made, as columns a query can filter on rather than only fields inside `payloadJson` for whichever writer happened to include them. `AuditEvent` gains `tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId` — all nullable — indexed by `(tenantId, occurredAt)`, `(businessId, occurredAt)` and `(actorId, occurredAt)`. `recordAudit` accepts all seven as optional, so every existing caller across every domain keeps writing the identical row it always wrote; only `grantBusinessMembership` and the FR-191 lifecycle services (`suspendMembership`, `reinstateMembership`, `revokeMembership`, `offboardPerson`) are updated to fill them. Measured on production 2026-09-12: 12 `Membership` rows against 6 `MEMBERSHIP_ADDED` events, and `ROLE_BINDING_ASSIGNED` 2 / `ROLE_BINDING_REVOKED` 1 against exactly 1 surviving `RoleBinding` row — one binding disappeared with no event explaining it, because scope could only be found by scanning and parsing JSON, and only for the writers that happened to include it. `actorId` stays a plain UUID column; resolving it to a display name is a read-time join, not a write-time denormalization.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "An audit event carries its own scope and the change it made, as columns a query can filter on rather than only fields inside `payloadJson` for whichever writer happened to include them. `AuditEvent` gains `tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId` — all nullable — indexed by `(tenantId, occurredAt)`, `(businessId, occurredAt)` and `(actorId, occurredAt)`. `recordAudit` accepts all seven as optional, so every existing caller across every domain keeps writing the identical row it always wrote; only `grantBusinessMembership` and the FR-191 lifecycle services (`suspendMembership`, `reinstateMembership`, `revokeMembership`, `offboardPerson`) are updated to fill them. Measured on production 2026-09-12: 12 `Membership` rows against 6 `MEMBERSHIP_ADDED` events, and `ROLE_BINDING_ASSIGNED` 2 / `ROLE_BINDING_REVOKED` 1 against exactly 1 surviving `RoleBinding` row — one binding disappeared with no event explaining it, because scope could only be found by scanning and parsing JSON, and only for the writers that happened to include it. `actorId` stays a plain UUID column; resolving it to a display name is a read-time join, not a write-time denormalization. ✅ implemented 2026-09-12 — ADR-080 D1/D2; migration `20260912150000_audit_scope_and_evidence.sql`, additive-only, no precondition block "
+    },
+    {
+      "id": "req:FR-199",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A Business owner can read the access history of their own scope. `listAccessHistory({ businessId / tenantId / personId })` returns events in the MEMBERSHIP, ROLE_BINDING, ACCESS_INVITE and access-related PERSON families for exactly one scope, newest first, each with its `before`/`after` snapshot and the actor joined to `{ id, code, displayName }`; authority is `ownsBusiness`, `ownsTenant`, oneself, or the installation operator, refusing 404-shaped identically for a scope the caller does not own and one that does not exist (SEC-001). `listBusinessAccess({ businessId })` returns the current-state roster — every grant in that Business in every status, with `grantedBy`/`grantReason`/`grantSource`/`revokedBy`/`revokeReason` — the \"who has access right now, and who gave it to them\" table no surface produced before this. Exposed as `GET /api/platform/access-history` and `GET /api/platform/businesses/[businessId]/grants`, with a read-only panel on the platform users page.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "A Business owner can read the access history of their own scope. `listAccessHistory({ businessId / tenantId / personId })` returns events in the MEMBERSHIP, ROLE_BINDING, ACCESS_INVITE and access-related PERSON families for exactly one scope, newest first, each with its `before`/`after` snapshot and the actor joined to `{ id, code, displayName }`; authority is `ownsBusiness`, `ownsTenant`, oneself, or the installation operator, refusing 404-shaped identically for a scope the caller does not own and one that does not exist (SEC-001). `listBusinessAccess({ businessId })` returns the current-state roster — every grant in that Business in every status, with `grantedBy`/`grantReason`/`grantSource`/`revokedBy`/`revokeReason` — the \"who has access right now, and who gave it to them\" table no surface produced before this. Exposed as `GET /api/platform/access-history` and `GET /api/platform/businesses/[businessId]/grants`, with a read-only panel on the platform users page. ✅ implemented 2026-09-12 — ADR-080 D3/D4; closes the read-side gap ADR-077's whole lifecycle design assumed was already possible "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -24134,6 +24262,16 @@
       "row_text": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal. FR-192, FR-195, FR-197; ADR-079 "
     },
     {
+      "id": "req:SDD-095",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`AuditEvent.tenantId`, `.businessId`, `.reason`, `.beforeJson`, `.afterJson`, `.requestId`, `.sessionId` are nullable columns indexed by `(tenantId, occurredAt)`, `(businessId, occurredAt)` and `(actorId, occurredAt)`, and every `recordAudit` parameter that fills them is optional. `listAccessHistory` reads a Business/Tenant scope by those columns and a person scope by joining through `Membership`/`RoleBinding` ids instead, because a grant's `entityId` is the grant's own id, not the person's, and a redundant `personId` column would only duplicate what those two tables already answer. `actorId` stays a plain UUID; resolving it to `{ id, code, displayName }` happens at read time, the same choice ADR-077 already made for `grantedByPersonId`/`revokedByPersonId`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`AuditEvent.tenantId`, `.businessId`, `.reason`, `.beforeJson`, `.afterJson`, `.requestId`, `.sessionId` are nullable columns indexed by `(tenantId, occurredAt)`, `(businessId, occurredAt)` and `(actorId, occurredAt)`, and every `recordAudit` parameter that fills them is optional. `listAccessHistory` reads a Business/Tenant scope by those columns and a person scope by joining through `Membership`/`RoleBinding` ids instead, because a grant's `entityId` is the grant's own id, not the person's, and a redundant `personId` column would only duplicate what those two tables already answer. `actorId` stays a plain UUID; resolving it to `{ id, code, displayName }` happens at read time, the same choice ADR-077 already made for `grantedByPersonId`/`revokedByPersonId`. FR-198, FR-199; ADR-080 D1/D2/D3 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -24402,6 +24540,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Installation-operator access is time-boxed and its use is auditable, not only its grant. Every non-bootstrap `PlatformGrant` carries a mandatory `expiresAt` capped at 90 days, honoured by `hasOperatorGrant` even while the row is still nominally ACTIVE; renewal is a fresh row so the history of who held operator access, and when, is never overwritten. Reading the installation-wide audit stream and previewing or restoring a whole-installation backup are support-class reads (ADR-017 D6) and each records one `OPERATOR_ACTION` audit event on use — a denied attempt records nothing. FR-197; ADR-017 D6 as extended by ADR-079 "
+    },
+    {
+      "id": "req:SEC-028",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Access history is authorized exactly like the grant it describes, and refuses the same way: `ownsBusiness` for a Business scope, `ownsTenant` for a Tenant scope, the caller themself for their own history, or the installation operator — with no other path. A scope the caller does not own and a scope that does not exist answer the identical 404, so the read surface cannot be used to enumerate other tenants' or businesses' ids (SEC-001). No new authority is created for this: every check reuses an existing exported predicate.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Access history is authorized exactly like the grant it describes, and refuses the same way: `ownsBusiness` for a Business scope, `ownsTenant` for a Tenant scope, the caller themself for their own history, or the installation operator — with no other path. A scope the caller does not own and a scope that does not exist answer the identical 404, so the read surface cannot be used to enumerate other tenants' or businesses' ids (SEC-001). No new authority is created for this: every check reuses an existing exported predicate. ✅ implemented 2026-09-12 — FR-199 / ADR-080 D3/D4 "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -25884,6 +26032,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/platform/access-history",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/access-history",
+      "path": "apps/server/src/app/api/platform/access-history/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/platform/api-access-keys",
       "type": "route",
       "kind": "api",
@@ -25897,6 +26053,14 @@
       "kind": "api",
       "route": "/api/platform/api-access-keys/[id]",
       "path": "apps/server/src/app/api/platform/api-access-keys/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/businesses/[businessId]/grants",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/businesses/[businessId]/grants",
+      "path": "apps/server/src/app/api/platform/businesses/[businessId]/grants/route.js",
       "status": "current"
     },
     {
@@ -27816,6 +27980,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md",
+      "title": "ADR-080 — Audit events carry their own scope, and an owner can read their own access history",
+      "hash": "35914d0a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
@@ -28719,6 +28891,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "hash": "77425da1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/genesisrag17-parser-2.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -29079,7 +29258,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "3aa8e59e",
+      "hash": "79b946e9",
       "status": "current"
     },
     {
@@ -29283,6 +29462,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/xlsx-intake.test.js",
       "hash": "fa9d5982",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/access-history-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/access-history-service.test.js",
+      "hash": "81fadb57",
       "status": "current"
     },
     {
@@ -37486,6 +37672,13 @@
     },
     {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:FR-199",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -37494,6 +37687,13 @@
     {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "req:SDD-035",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -43869,6 +44069,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/platform/access-history/route.js",
+      "to": "req:BR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/access-history/route.js",
+      "to": "req:FR-199",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/access-history/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/access-history/route.js",
+      "to": "req:SEC-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/api-access-keys/[id]/route.js",
       "to": "req:FR-106",
       "type": "implements",
@@ -43920,6 +44148,34 @@
     {
       "from": "code:src/app/api/platform/api-access-keys/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "to": "req:BR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "to": "req:FR-199",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "to": "req:SEC-028",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -50155,6 +50411,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:BR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:FR-199",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:SDD-095",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-history-service.js",
+      "to": "req:SEC-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/access-invite-service.js",
       "to": "req:BR-016",
       "type": "follows",
@@ -50171,6 +50469,13 @@
     {
       "from": "code:src/modules/identity/access-invite-service.js",
       "to": "req:FR-195",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:FR-198",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50723,6 +51028,13 @@
     },
     {
       "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:FR-198",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
       "to": "req:SDD-092",
       "type": "follows",
       "status": "current",
@@ -50745,6 +51057,13 @@
     {
       "from": "code:src/modules/identity/membership-lifecycle-service.js",
       "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:FR-198",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -56994,6 +57313,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-199",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -57023,8 +57349,29 @@
     },
     {
       "from": "code:src/modules/project-manager/application/audit.js",
+      "to": "req:BR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/audit.js",
       "to": "req:FR-014",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/audit.js",
+      "to": "req:FR-198",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/audit.js",
+      "to": "req:SDD-095",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -62867,6 +63214,20 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-198-audit-scope-and-evidence",
+      "to": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-199-access-history-read-models",
+      "to": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -65954,6 +66315,20 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-030",
+      "to": "req:FR-198",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-030",
+      "to": "req:FR-199",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AccessInvite",
       "to": "domain:identity",
       "type": "owned_by",
@@ -67243,6 +67618,13 @@
     },
     {
       "from": "req:BR-035",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-036",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -68656,6 +69038,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-198",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-199",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -69468,6 +69864,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-095",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -69665,6 +70068,13 @@
     },
     {
       "from": "req:SEC-027",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-028",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -70966,6 +71376,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/platform/access-history",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/api-access-keys/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -70974,6 +71391,13 @@
     },
     {
       "from": "route:api:/api/platform/api-access-keys",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/businesses/[businessId]/grants",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -75097,6 +75521,55 @@
     },
     {
       "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "doc:FR-198-audit-scope-and-evidence",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "doc:FR-199-access-history-read-models",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE",
       "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
       "type": "relates",
       "status": "current",
@@ -85604,6 +86077,13 @@
     },
     {
       "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
       "to": "req:SDD-094",
       "type": "verifies",
       "status": "current",
@@ -85734,6 +86214,69 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "code:src/app/api/platform/access-history/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "code:src/app/api/platform/businesses/[businessId]/grants/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:BR-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:FR-199",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:SDD-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr198-fr199-audit-access-evidence.test.js",
+      "to": "req:SEC-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/genesisrag17-parser-2.test.js",
@@ -89622,6 +90165,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-199",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -89783,6 +90333,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:BR-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:FR-012",
       "type": "verifies",
       "status": "current",
@@ -89846,6 +90403,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -89868,6 +90432,13 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SDD-095",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -90399,6 +90970,13 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:BR-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:FR-001",
       "type": "verifies",
       "status": "current",
@@ -90532,6 +91110,13 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
@@ -90561,6 +91146,13 @@
     {
       "from": "test:tests/integration/project-core.test.js",
       "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-095",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -91940,6 +92532,55 @@
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "code:src/modules/identity/access-history-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:BR-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:FR-199",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:SDD-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/access-history-service.test.js",
+      "to": "req:SEC-028",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -100346,6 +100987,13 @@
     },
     {
       "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:FR-199",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -107045,6 +107693,13 @@
     },
     {
       "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
       "to": "req:SDD-092",
       "type": "verifies",
       "status": "current",
@@ -107077,6 +107732,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:FR-198",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/membership-lifecycle-service.test.js",
@@ -108956,6 +109618,13 @@
     },
     {
       "from": "test:tests/unit/platform-users-view.test.js",
+      "to": "req:FR-199",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-users-view.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -110273,6 +110942,13 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-199",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -116483,7 +117159,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2738,
+    "server_nodes": 2754,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

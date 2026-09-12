@@ -6,8 +6,13 @@
 //   filter over a column nothing writes is not a control
 //   (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
 // @spec ADR-077 D2, ADR-045 D3/D6, BR-033, SEC-003, SEC-026, SDD-092, NFR-019
+// @req FR-198 — every transition event carries tenantId/businessId/reason as
+//   columns, and the status before/after as beforeJson/afterJson, so
+//   `listAccessHistory` (FR-199) can answer "what happened in this Business"
+//   by query instead of by scan (ADR-080).
 // @tested tests/unit/membership-lifecycle-service.test.js,
-//   tests/integration/fr191-access-grant-lifecycle.test.js
+//   tests/integration/fr191-access-grant-lifecycle.test.js,
+//   tests/integration/fr198-fr199-audit-access-evidence.test.js
 import prisma from '@/lib/db'
 import { z } from 'zod'
 import { MEMBERSHIP_STATUSES } from '@/lib/validation/enums'
@@ -133,6 +138,11 @@ async function cascadeBindings(tx, membership, status, { actorId, reason }) {
       action: status === 'REVOKED' ? 'ROLE_BINDING_REVOKED' : 'ROLE_BINDING_SUSPENDED',
       payload: { roleKey: binding.roleKey, businessId: binding.businessId, cascadeOfMembershipId: membership.id, reason },
       actorId,
+      tenantId: membership.tenantId,
+      businessId: binding.businessId,
+      reason,
+      beforeJson: { status: 'ACTIVE' },
+      afterJson: { status, cascadeOfMembershipId: membership.id },
     })
   }
   return affected.map((binding) => binding.id)
@@ -156,7 +166,7 @@ async function revokeSessionsIfStranded(tx, personId, actorId, reason) {
   if (count > 0) {
     await recordAudit(tx, {
       entityType: 'SESSION', entityId: personId, action: 'SESSIONS_REVOKED',
-      payload: { count, reason }, actorId,
+      payload: { count, reason }, actorId, reason,
     })
   }
   return count
@@ -187,6 +197,11 @@ export async function suspendMembership(input, { db = prisma, resolve = resolveV
       entityType: 'MEMBERSHIP', entityId: membership.id, action: 'MEMBERSHIP_SUSPENDED',
       payload: { from: membership.status, to: 'SUSPENDED', reason: data.reason, cascadedBindings: bindings },
       actorId: viewer.principal.id,
+      tenantId: membership.tenantId,
+      businessId: membership.businessId,
+      reason: data.reason,
+      beforeJson: { status: membership.status },
+      afterJson: { status: 'SUSPENDED' },
     })
     await revokeSessionsIfStranded(tx, membership.personId, viewer.principal.id, data.reason)
     return { ...updated, cascadedBindings: bindings }
@@ -214,7 +229,7 @@ export async function reinstateMembership(input, { db = prisma, resolve = resolv
     // Only what this membership's suspension took down.
     const restored = await tx.roleBinding.findMany({
       where: { cascadeOfMembershipId: membership.id, status: 'SUSPENDED' },
-      select: { id: true, roleKey: true },
+      select: { id: true, roleKey: true, businessId: true },
     })
     if (restored.length) {
       await tx.roleBinding.updateMany({
@@ -226,6 +241,11 @@ export async function reinstateMembership(input, { db = prisma, resolve = resolv
           entityType: 'ROLE_BINDING', entityId: binding.id, action: 'ROLE_BINDING_REACTIVATED',
           payload: { roleKey: binding.roleKey, cascadeOfMembershipId: membership.id, reason: data.reason },
           actorId: viewer.principal.id,
+          tenantId: membership.tenantId,
+          businessId: binding.businessId,
+          reason: data.reason,
+          beforeJson: { status: 'SUSPENDED' },
+          afterJson: { status: 'ACTIVE' },
         })
       }
     }
@@ -233,6 +253,11 @@ export async function reinstateMembership(input, { db = prisma, resolve = resolv
       entityType: 'MEMBERSHIP', entityId: membership.id, action: 'MEMBERSHIP_REINSTATED',
       payload: { from: membership.status, to: 'ACTIVE', reason: data.reason, restoredBindings: restored.map((b) => b.id) },
       actorId: viewer.principal.id,
+      tenantId: membership.tenantId,
+      businessId: membership.businessId,
+      reason: data.reason,
+      beforeJson: { status: membership.status },
+      afterJson: { status: 'ACTIVE' },
     })
     return { ...updated, restoredBindings: restored.map((binding) => binding.id) }
   })
@@ -268,6 +293,11 @@ export async function revokeMembership(input, { db = prisma, resolve = resolveVi
         scopeType: membership.scopeType, role: membership.role, cascadedBindings: bindings,
       },
       actorId: viewer.principal.id,
+      tenantId: membership.tenantId,
+      businessId: membership.businessId,
+      reason: data.reason,
+      beforeJson: { status: membership.status },
+      afterJson: { status: 'REVOKED' },
     })
     await revokeSessionsIfStranded(tx, membership.personId, viewer.principal.id, data.reason)
     return { ...updated, cascadedBindings: bindings }
@@ -308,6 +338,11 @@ export async function offboardPerson(input, { db = prisma, resolve = resolveView
         entityType: 'MEMBERSHIP', entityId: grant.id, action: 'MEMBERSHIP_REVOKED',
         payload: { from: grant.status, to: 'REVOKED', reason: data.reason, via: 'OFFBOARD', businessId: grant.businessId, role: grant.role },
         actorId: viewer.principal.id,
+        tenantId: data.tenantId,
+        businessId: grant.businessId,
+        reason: data.reason,
+        beforeJson: { status: grant.status },
+        afterJson: { status: 'REVOKED' },
       })
     }
 
@@ -325,6 +360,11 @@ export async function offboardPerson(input, { db = prisma, resolve = resolveView
           entityType: 'ROLE_BINDING', entityId: binding.id, action: 'ROLE_BINDING_REVOKED',
           payload: { roleKey: binding.roleKey, businessId: binding.businessId, reason: data.reason, via: 'OFFBOARD' },
           actorId: viewer.principal.id,
+          tenantId: data.tenantId,
+          businessId: binding.businessId,
+          reason: data.reason,
+          beforeJson: { status: 'ACTIVE' },
+          afterJson: { status: 'REVOKED' },
         })
       }
     }
@@ -339,6 +379,8 @@ export async function offboardPerson(input, { db = prisma, resolve = resolveView
         revokedBindings: bindings.map((binding) => binding.id),
         revokedSessions: sessions,
       },
+      tenantId: data.tenantId,
+      reason: data.reason,
       actorId: viewer.principal.id,
     })
 
