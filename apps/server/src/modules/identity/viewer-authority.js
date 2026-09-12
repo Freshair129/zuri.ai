@@ -89,6 +89,18 @@ export function isInstallationOperator(viewer) {
 }
 
 /**
+ * @req FR-191 — approved withdrawal capability; it confers no general ownership.
+ * @spec ADR-082 — live Operator may revoke, while other actions stay scoped.
+ * @tested tests/integration/fr193-remove-controls.test.js
+ */
+export function canRevokeMembership(viewer, membership) {
+  if (!membership?.tenantId) return false
+  return isInstallationOperator(viewer) || (membership.scopeType === 'TENANT' || !membership.businessId
+    ? ownsTenant(viewer, membership.tenantId)
+    : ownsBusiness(viewer, membership.businessId))
+}
+
+/**
  * May this viewer READ within this Business?
  *
  * Strictly weaker than `ownsBusiness` and never a substitute for it. Use this to

@@ -9,7 +9,7 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D1/D2/D6/D8 |
 | **Date** | 2026-09-12 |
 | **Relates to** | ADR-077, ADR-045 (D3, D6), ADR-037, ADR-025 (D3), FR-038, FR-074, FR-095, FR-192, BR-016, BR-018, BR-020, BR-033, SEC-003, SEC-026, SDD-092, NFR-019, [RCA 2026-09-12](../../../../.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md) |
@@ -111,6 +111,17 @@ administer (ADR-077 D3).
 that an access review cannot act on, and the cost of typing one is the only
 thing standing between "we removed their access" and "we removed their access
 because they left on 3 September".
+
+### HR Remove authority (owner-approved 2026-09-13)
+
+REVOKE additionally accepts a trusted live installation OPERATOR. This is a
+specific withdrawal capability, not ownership: suspend, reinstate, grant and
+Tenant offboard authority remain unchanged. The HR directory exposes scoped
+grant ids with per-grant canRemove and requires explicit grant selection and a
+reason; Tenant-wide impact is shown before confirmation. Last-owner protection
+still applies and Operator alone cannot use its Tenant-owner override. See
+[FR-193](../../project-manager/features/FR-193-employment-record.md) for the
+separate Employment action and browser acceptance. Version 1.0.0 -> 1.1.0.
 
 ### Refusals
 

@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-12T16:30:00+07:00,Claude Opus 5"
-last_update: "2026-09-12T16:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-13T06:00:00+07:00,RWANG"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -312,3 +312,17 @@ Sequencing, because the order matters and the reasons are not obvious:
 Step 1's migration must re-run its preconditions at apply time — zero duplicate
 live grants and zero ancestry violations, both true on 2026-09-12 — because rows
 can be written between the check and the apply.
+
+## Amendment — HR Remove, approved 2026-09-13
+
+The owner subsequently authorized a live Platform OPERATOR to revoke one explicit
+Membership grant, with reason and the existing last-owner protection. Other
+lifecycle operations keep their existing scoped ownership checks. See
+[ADR-082](ADR-082-EXPLICIT-SUPERADMIN-AUTHORITY.md#scoped-amendment-hr-remove-owner-approved-2026-09-13)
+and [FR-191](../domains/identity/features/FR-191-access-grant-lifecycle.md).
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.1.0 | 2026-09-13 | accepted | Owner-approved limited Operator Remove authority; existing lifecycle retained | pending | RWANG |

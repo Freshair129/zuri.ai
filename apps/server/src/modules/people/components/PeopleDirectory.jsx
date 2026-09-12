@@ -33,6 +33,8 @@ export default function PeopleDirectory({ directoryOnly = false }) {
   )
 
   const [draft, setDraft] = useState(null)
+  const [removal, setRemoval] = useState(null)
+  const [showHistory, setShowHistory] = useState(false)
   const [busy, setBusy] = useState(false)
   // A failed mutation is shown, never swallowed — the defect the preflight
   // `client-mutation` check exists to stop (CLAUDE.md).
@@ -44,6 +46,7 @@ export default function PeopleDirectory({ directoryOnly = false }) {
     try {
       await work()
       setDraft(null)
+      setRemoval(null)
       reload()
     } catch (err) {
       setActionError(err?.message || 'The change did not go through.')
@@ -75,6 +78,18 @@ export default function PeopleDirectory({ directoryOnly = false }) {
       }),
     )
 
+  // @req FR-191, FR-193 — one explicit grant or one Employment, separately.
+  // @spec ADR-082, BR-034 — server-derived capabilities control visibility;
+  // the lifecycle services also enforce them on every request.
+  // @tested tests/e2e/fr193-access-members.spec.js
+  const remove = () => removal.kind === 'membership'
+    ? run(() => api(`/api/platform/users/memberships/${encodeURIComponent(removal.grantId)}/lifecycle`, {
+      method: 'POST', body: { action: 'REVOKE', reason: removal.reason.trim() },
+    }))
+    : transition(removal.employmentId, 'end', removal.reason.trim())
+
+  const employmentRows = data?.people.filter((entry) => showHistory || entry.status !== 'ENDED') ?? []
+
   return (
     <div>
       <PageHeader
@@ -104,7 +119,7 @@ export default function PeopleDirectory({ directoryOnly = false }) {
               {data.accessMembers.length === 0 ? (
                 <EmptyState title="No members with access" hint="Members granted access to this Business or its organization will appear here." />
               ) : <ul className="divide-y divide-[var(--border)]">
-                {data.accessMembers.map(({ person, hasOpenEmployment, employmentStatus }) => (
+                {data.accessMembers.map(({ person, hasOpenEmployment, employmentStatus, grants }) => (
                   <li key={person.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                     <span className="text-xs">
                       <span className="block font-bold">{person.displayName}</span>
@@ -123,6 +138,16 @@ export default function PeopleDirectory({ directoryOnly = false }) {
                           <UserPlus size={12} aria-hidden /> Add Employment
                         </button>
                       )}
+                      {grants.some((grant) => grant.canRemove) && (
+                        <button type="button" disabled={busy} className="btn btn-ghost text-xs"
+                          aria-label={`Remove access for ${person.displayName}`}
+                          onClick={() => {
+                            setActionError(null)
+                            setRemoval({ kind: 'membership', displayName: person.displayName, grants, grantId: grants.find((grant) => grant.canRemove).id, reason: '' })
+                          }}>
+                          Remove
+                        </button>
+                      )}
                     </span>
                   </li>
                 ))}
@@ -132,14 +157,20 @@ export default function PeopleDirectory({ directoryOnly = false }) {
           {actionError && <ErrorState detail={actionError} retry={() => setActionError(null)} />}
 
           <Card>
-            <SectionTitle caption="Current and past employment records. Changes here do not change a member's system access.">
+            <SectionTitle caption="Open employment records. Removed records are retained in history. Changes here do not change a member's system access.">
               Employment
             </SectionTitle>
-            {data.people.length === 0 ? (
+            {data.summary.endedCount > 0 && (
+              <label className="mb-3 flex items-center gap-2 text-xs">
+                <input type="checkbox" checked={showHistory} onChange={(event) => setShowHistory(event.target.checked)} />
+                Show employment history ({data.summary.endedCount})
+              </label>
+            )}
+            {employmentRows.length === 0 ? (
               <EmptyState
-                title="No Employment records in this Business"
+                title={data.people.length ? 'No open Employment records' : 'No Employment records in this Business'}
                 hint={
-                  data.summary.accessWithoutEmploymentCount > 0
+                  data.people.length ? 'Select Show employment history to view ended records.' : data.summary.accessWithoutEmploymentCount > 0
                     ? 'Nobody has an employment record yet. The people with access are listed above — pick one to create their record.'
                     : 'Create an employment record when workforce data is ready.'
                 }
@@ -159,7 +190,7 @@ export default function PeopleDirectory({ directoryOnly = false }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.people.map((entry) => (
+                    {employmentRows.map((entry) => (
                       <tr key={entry.employmentId} className="border-b border-[var(--border)] last:border-0">
                         <td className="px-2 py-3">
                           <div className="flex items-center gap-2">
@@ -184,7 +215,7 @@ export default function PeopleDirectory({ directoryOnly = false }) {
                             <span className="text-muted">ended</span>
                           ) : (
                             <span className="flex gap-1">
-                              {entry.status === 'ACTIVE' ? (
+                              {data.canManageEmployment && (entry.status === 'ACTIVE' ? (
                                 <button type="button" disabled={busy} className="btn btn-ghost text-[11px]" onClick={() => transition(entry.employmentId, 'on_leave')}>
                                   On leave
                                 </button>
@@ -192,21 +223,19 @@ export default function PeopleDirectory({ directoryOnly = false }) {
                                 <button type="button" disabled={busy} className="btn btn-ghost text-[11px]" onClick={() => transition(entry.employmentId, 'reinstate')}>
                                   Reinstate
                                 </button>
-                              )}
-                              <button
+                              ))}
+                              {data.canRemoveEmployment && <button
                                 type="button"
                                 disabled={busy}
                                 className="btn btn-ghost text-[11px]"
+                                aria-label={`Remove Employment for ${entry.person.displayName}`}
                                 onClick={() => {
-                                  // The service requires a reason; asking here
-                                  // keeps the refusal from reaching the user as
-                                  // a bare 400.
-                                  const reason = window.prompt('Why is this employment ending?')
-                                  if (reason && reason.trim()) transition(entry.employmentId, 'end', reason.trim())
+                                  setActionError(null)
+                                  setRemoval({ kind: 'employment', employmentId: entry.employmentId, displayName: entry.person.displayName, reason: '' })
                                 }}
                               >
-                                End
-                              </button>
+                                Remove
+                              </button>}
                             </span>
                           )}
                         </td>
@@ -218,6 +247,39 @@ export default function PeopleDirectory({ directoryOnly = false }) {
             )}
           </Card>
           <p className="mt-3 flex items-center gap-1 text-[10px] text-muted"><Users size={12} aria-hidden /> Project Team is a separate Project-local view.</p>
+
+          <Modal open={Boolean(removal)} title={removal?.kind === 'membership' ? 'Remove member access' : 'Remove Employment'} onClose={() => { if (!busy) setRemoval(null) }}>
+            {removal && <form onSubmit={(event) => { event.preventDefault(); remove() }}>
+              <p className="mb-3 text-sm font-bold">{removal.displayName}</p>
+              {removal.kind === 'membership' ? <>
+                <Field label="Access grant">
+                  <select aria-label="Access grant" className="input" value={removal.grantId} disabled={busy}
+                    onChange={(event) => setRemoval({ ...removal, grantId: event.target.value })}>
+                    {removal.grants.map((grant) => <option key={grant.id} value={grant.id} disabled={!grant.canRemove}>
+                      {grant.scopeType === 'TENANT' ? 'Organization — all businesses' : 'This Business'} · {grant.role}{!grant.canRemove ? ' (organization owner required)' : ''}
+                    </option>)}
+                  </select>
+                </Field>
+                <p className="mb-3 text-xs text-muted">
+                  {removal.grants.find((grant) => grant.id === removal.grantId)?.scopeType === 'TENANT'
+                    ? 'This withdraws the selected organization-wide membership across all businesses in this organization.'
+                    : 'This withdraws the selected membership for this Business.'}
+                  {' '}Dependent access roles are also withdrawn. Other memberships or platform grants may still provide access. Employment stays unchanged.
+                </p>
+              </> : <p className="mb-3 text-xs text-muted">
+                This ends the Employment and moves it to history. Membership and system access stay unchanged. A later re-hire creates a new record.
+              </p>}
+              <Field label="Reason">
+                <textarea className="input" required maxLength={500} disabled={busy} value={removal.reason}
+                  onChange={(event) => setRemoval({ ...removal, reason: event.target.value })} />
+              </Field>
+              {actionError && <ErrorState detail={actionError} retry={() => setActionError(null)} />}
+              <div className="mt-4 flex justify-end gap-2">
+                <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => setRemoval(null)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={busy || !removal.reason.trim()}>{busy ? 'Removing…' : 'Confirm Remove'}</button>
+              </div>
+            </form>}
+          </Modal>
 
           <Modal open={Boolean(draft)} title="New employment record" onClose={() => setDraft(null)}>
             {draft && (
