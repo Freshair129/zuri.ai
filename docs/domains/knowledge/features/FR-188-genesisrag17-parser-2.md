@@ -152,11 +152,14 @@ or batch. Its details name paths and codes, never values.
   object, predicate, subject. GKS parses either.
 - §C's example category key is `cat:drinkware`. The fixture's categories are
   bare slugs (`eco-friendly`), and they are used verbatim, as C-6 requires.
-- C-7 asks for one deliberately HELD record in the fixture. The frozen,
+- C-7 asked for one deliberately HELD record in the fixture. The frozen,
   hash-pinned fixture has none: every relation it emits maps to a v2 predicate
-  with valid endpoints. Adding one would re-pin `manifest.json`. The WARN /
-  no-publish proof belongs to the four-process acceptance run, and this change
-  does not run it.
+  with valid endpoints. The four-process acceptance run (PR #335) then showed
+  why the record could not have produced a Stage 17 warning at all: parser-2
+  mirrors every guard GKS would hold on, so such a record is refused at Stage 2
+  with `GENESISRAG17_STRUCTURED_RECORD_INVALID` — no batch, no decision, no
+  publication, and the previously published generation untouched. The contract
+  records that as C-7 rev 2.1; Stage 17's WARN path still covers prose sources.
 - Descriptive sections are checked for ISO dates only. Temporal language inside
   a data value (a product name) is not refused, because a one-mention
   descriptive chunk produces no fact to hold.
