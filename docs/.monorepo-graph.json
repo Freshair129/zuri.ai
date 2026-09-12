@@ -15521,7 +15521,7 @@
       "id": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/components/ProductReadinessDashboard.jsx",
-      "hash": "4dd820aa",
+      "hash": "7b4ecfb0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -17980,7 +17980,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
       "title": "FR-124 — Product Readiness Dashboard",
-      "hash": "3dbff5bf",
+      "hash": "e88c79ac",
       "status": "current"
     },
     {
@@ -29940,7 +29940,7 @@
       "id": "test:tests/unit/doc-links-cli.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/doc-links-cli.test.js",
-      "hash": "002be42c",
+      "hash": "1cb50378",
       "status": "current"
     },
     {
@@ -29982,7 +29982,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/domain-state.test.js",
-      "hash": "9a8ed6e1",
+      "hash": "512bd441",
       "status": "current"
     },
     {
@@ -30423,14 +30423,14 @@
       "id": "test:tests/unit/fr124-product-readiness-read-model.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr124-product-readiness-read-model.test.js",
-      "hash": "73c9cde8",
+      "hash": "9869fe91",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr124-product-readiness-ui.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
-      "hash": "fc946d92",
+      "hash": "d15db47b",
       "status": "current"
     },
     {

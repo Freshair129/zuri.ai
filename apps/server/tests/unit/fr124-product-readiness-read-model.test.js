@@ -15,7 +15,7 @@ describe('FR-124 product readiness read model', () => {
   it('returns the complete evidence-backed snapshot without duplicate feature ids', () => {
     const snapshot = getProductReadinessSnapshot()
 
-    expect(snapshot.schemaVersion).toBe('1.1')
+    expect(snapshot.schemaVersion).toBe('2.0')
     // Asserted against the generator's own constant, not against a copy of the
     // three numbers. A test that repeats the weighting cannot notice the
     // weighting changing; this one notices the snapshot and the generator

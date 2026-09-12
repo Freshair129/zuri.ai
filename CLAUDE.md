@@ -245,7 +245,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
-npm run verify         # the definition of done in one command: test → build → govern → e2e
+npm run verify         # the definition of done in one command: govern → test → build → e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against its own dev server + its own seeded db.

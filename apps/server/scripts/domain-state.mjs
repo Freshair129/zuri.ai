@@ -629,7 +629,7 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
   return observations
 }
 
-export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = null, generatedAt }) {
+export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = null }) {
   const domains = {}
   const allGaps = []
   const allStatuses = []
@@ -720,9 +720,8 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     : 0
 
   return {
-    schemaVersion: '1.1',
+    schemaVersion: '2.0',
     generatedBy: 'scripts/domain-state.mjs',
-    generatedAt: generatedAt || new Date().toISOString(),
     generatedFrom: SOURCE_FILES,
     statusVocabulary: STATUS_VALUES,
     progressMethodology: PROGRESS_METHODOLOGY,
@@ -742,12 +741,12 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
   }
 }
 
-export function generateDomainState({ root, nodes, edges, generatedAt }) {
+export function generateDomainState({ root, nodes, edges }) {
   const featureRequirements = discoverFeatureRequirements(root)
   const observations = collectDomainObservations({ root, nodes, edges, featureRequirements })
   // Always an array here — `parseFeaturePresentation` throws rather than
   // returning nothing — so the real generation path never takes the `null`
   // "not projecting features" branch that the unit fixtures use.
   const featurePresentation = parseFeaturePresentation(root)
-  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation, generatedAt })
+  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation })
 }

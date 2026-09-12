@@ -705,13 +705,6 @@ const canonical = (text) => {
   return JSON.stringify(g, null, 2) + '\n'
 }
 
-const canonicalDomainState = (text) => {
-  let state
-  try { state = JSON.parse(text) } catch { return text }
-  delete state.generatedAt
-  return JSON.stringify(state, null, 2) + '\n'
-}
-
 if (process.argv.includes('--check')) {
   const current = existsSync(GRAPH_PATH) ? read(GRAPH_PATH) : ''
   if (canonical(current) !== canonical(serialized)) {
@@ -719,7 +712,7 @@ if (process.argv.includes('--check')) {
     process.exit(1)
   }
   const currentDomainState = existsSync(DOMAIN_STATE_PATH) ? read(DOMAIN_STATE_PATH) : ''
-  if (canonicalDomainState(currentDomainState) !== canonicalDomainState(domainStateSerialized)) {
+  if (currentDomainState !== domainStateSerialized) {
     console.error('domain state is stale — run: npm run docs:graph')
     process.exit(1)
   }
