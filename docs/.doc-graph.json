@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2669,
-    "total_edges": 10826,
+    "total_nodes": 2673,
+    "total_edges": 10846,
     "dangling_edges": 0,
     "node_types": {
       "document": 223,
@@ -16,8 +16,8 @@
       "route": 341,
       "model": 146,
       "requirement": 360,
-      "test": 627,
-      "code_file": 807
+      "test": 630,
+      "code_file": 808
     },
     "coverage": {
       "requirements": 360,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (179/179)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 807,
+      "annotated_code_files": 808,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -1978,6 +1978,26 @@
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/_helpers.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/_helpers.js",
+      "hash": "ea53866e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-077",
+          "FR-149",
+          "FR-151"
+        ],
+        "@spec": [
+          "SDD-008"
+        ],
+        "@tested": [
+          "tests/unit/api-error-mapping.test.js"
         ]
       }
     },
@@ -14874,7 +14894,7 @@
       "id": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/project-roadmap-read-model.js",
-      "hash": "0afafca5",
+      "hash": "11b7a446",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14887,7 +14907,8 @@
         ],
         "@tested": [
           "tests/unit/project-roadmap-read-model.test.js",
-          "tests/integration/project-roadmap.test.js"
+          "tests/integration/project-roadmap.test.js",
+          "tests/integration/project-roadmap-stall.test.js"
         ]
       }
     },
@@ -14959,7 +14980,7 @@
       "id": "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/projects-dashboard-read-model.js",
-      "hash": "b3e7e431",
+      "hash": "0e102985",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14972,7 +14993,8 @@
         ],
         "@tested": [
           "tests/unit/projects-dashboard-read-model.test.js",
-          "tests/integration/projects-dashboard.test.js"
+          "tests/integration/projects-dashboard.test.js",
+          "tests/integration/projects-dashboard-stall.test.js"
         ]
       }
     },
@@ -28474,10 +28496,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/project-roadmap-stall.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/project-roadmap-stall.test.js",
+      "hash": "cf504111",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/project-roadmap.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/project-roadmap.test.js",
       "hash": "11ebed37",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/projects-dashboard-stall.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/projects-dashboard-stall.test.js",
+      "hash": "b626d97c",
       "status": "current"
     },
     {
@@ -28618,6 +28654,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/api-access-key-routes.test.js",
       "hash": "c84a90c4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/api-error-mapping.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/api-error-mapping.test.js",
+      "hash": "e035f56b",
       "status": "current"
     },
     {
@@ -33995,6 +34038,34 @@
       "from": "code:src/app/(pm)/workspaces/page.jsx",
       "to": "req:FR-001",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/_helpers.js",
+      "to": "req:FR-077",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/_helpers.js",
+      "to": "req:FR-149",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/_helpers.js",
+      "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/_helpers.js",
+      "to": "req:SDD-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -84595,6 +84666,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/project-roadmap.test.js",
       "to": "code:src/app/api/projects/[id]/roadmap/route.js",
       "type": "tests",
@@ -84628,6 +84734,48 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SDD-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/projects-dashboard.test.js",
@@ -85983,6 +86131,41 @@
     {
       "from": "test:tests/unit/api-access-key-routes.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-error-mapping.test.js",
+      "to": "code:src/app/api/_helpers.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/api-error-mapping.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-error-mapping.test.js",
+      "to": "req:FR-149",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-error-mapping.test.js",
+      "to": "req:FR-151",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-error-mapping.test.js",
+      "to": "req:SDD-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
