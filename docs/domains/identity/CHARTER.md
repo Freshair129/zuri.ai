@@ -31,6 +31,7 @@ owns_models:
   - PluginAuthorizationCode
   - PluginSession
   - EdgeDeviceCredential
+  - MfaFactor
 ---
 
 # Domain charter — identity
