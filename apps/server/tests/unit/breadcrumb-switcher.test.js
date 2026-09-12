@@ -17,16 +17,16 @@ describe('Breadcrumb scope switcher', () => {
     expect(breadcrumb).not.toContain('href="/" aria-label="Home"')
   })
 
-  it('keeps Workspace, Organization, and Business in the context trail', () => {
+  it('keeps Group, Organization, and Business in the context trail', () => {
     expect(breadcrumb).toContain('scope.currentPortfolio')
     expect(breadcrumb).toContain('scope.currentTenant')
     expect(breadcrumb).toContain('scope.currentBusiness')
-    expect(breadcrumb).toContain("eyebrow: 'Workspace'")
+    expect(breadcrumb).toContain("eyebrow: 'Group'")
     expect(breadcrumb).toContain("eyebrow: 'Organization'")
     expect(breadcrumb).toContain("eyebrow: 'Business'")
   })
 
-  it('does not elevate Space or Project to a scope switcher', () => {
+  it('does not elevate Workspace or Project to a scope switcher', () => {
     expect(breadcrumb).not.toContain("href: '/workspaces'")
     expect(breadcrumb).not.toContain("href: '/projects'")
   })

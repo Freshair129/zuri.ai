@@ -634,6 +634,7 @@
     "ADR-073",
     "ADR-074",
     "ADR-075",
+    "ADR-076",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -7942,6 +7943,19 @@
         {
           "anchor": "smartgift catalog enters genesisblockdb only through the 17",
           "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-076": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md",
+      "status": "current",
+      "statement_digest": "198e19216e6d4552bf636075eb3478f7806473927918265d58a6b33e9be5cf66",
+      "history": [
+        {
+          "anchor": "erp canonical organizational hierarchy and scope vocabulary",
+          "since": "2026-09-12",
           "reason": "declared"
         }
       ]
