@@ -595,7 +595,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -850,7 +850,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -1041,7 +1041,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -1158,7 +1158,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-078",
@@ -1428,7 +1428,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-062",
@@ -1705,7 +1705,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-195",
@@ -1766,7 +1766,7 @@
           "details": {
             "routes": 22,
             "inventoried": 22,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2229,7 +2229,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2497,7 +2497,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2942,7 +2942,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-080",
@@ -3045,7 +3045,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3171,7 +3171,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-092",
@@ -3204,7 +3204,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3365,7 +3365,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3526,7 +3526,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3668,7 +3668,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 250,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -4049,8 +4049,8 @@
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 37
+          "codeCount": 5,
+          "testCount": 38
         },
         {
           "id": "FR-062",
@@ -4664,8 +4664,8 @@
           "id": "FR-193",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 16
+          "codeCount": 6,
+          "testCount": 18
         },
         {
           "id": "FR-194",
@@ -4733,9 +4733,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 128,
-            "inventoried": 128,
-            "openApiPaths": 250,
+            "routes": 130,
+            "inventoried": 130,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -4801,8 +4801,8 @@
             }
           ],
           "details": {
-            "mutations": 101,
-            "guardedMutations": 99,
+            "mutations": 103,
+            "guardedMutations": 101,
             "reads": 61,
             "unguardedReads": 2
           }
@@ -4953,8 +4953,8 @@
         }
       ],
       "details": {
-        "routes": 173,
-        "apiRoutes": 128,
+        "routes": 175,
+        "apiRoutes": 130,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -7818,8 +7818,8 @@
           "id": "FR-193",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 16
+          "codeCount": 9,
+          "testCount": 18
         },
         {
           "id": "FR-194",
@@ -7831,6 +7831,8 @@
       ],
       "evidence": [
         "apps/server/prisma/seed.js",
+        "apps/server/src/app/api/people/employment/[employmentId]/route.js",
+        "apps/server/src/app/api/people/employment/route.js",
         "apps/server/src/lib/validation/entities.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/commerce/application/billing-invoice-service.js",
@@ -7855,10 +7857,12 @@
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
+        "apps/server/tests/integration/fr193-employment-write-path.test.js",
         "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/commerce-billing-domain.test.js",
@@ -10545,8 +10549,8 @@
           "id": "FR-061",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 37
+          "codeCount": 12,
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -10560,6 +10564,7 @@
         "apps/server/src/modules/identity/viewer-domains.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/src/modules/market-intelligence/application/market-observation-service.js",
+        "apps/server/src/modules/people/application/employment-service.js",
         "apps/server/src/modules/people/application/people-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -10570,6 +10575,7 @@
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr161-sales-task.test.js",
+        "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",

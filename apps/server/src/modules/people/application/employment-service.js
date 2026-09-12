@@ -1,6 +1,7 @@
 import prisma from '@/lib/db'
 import { zEmploymentInput } from '@/lib/validation/entities'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // @req FR-193 — Employment is an HR record with its own lifecycle, separate
@@ -24,7 +25,16 @@ const EMPLOYMENT_SELECT = {
   startAt: true, endAt: true, createdAt: true, updatedAt: true, version: true,
 }
 
+// @req FR-061 — the `people` domain grant is checked BEFORE ownership, and
+// both refuse with the identical 404, so a caller learns nothing about a
+// Business they cannot see in this domain (FR-072(a)). Ownership alone is not
+// sufficient here: `people` is grantable per-Business (config/domains.js), and
+// `listPeople` has always applied this test on the read side — a write path
+// that skipped it would let an owner mutate a roster the same viewer is not
+// permitted to read. `tests/unit/domain-visibility-server-enforcement.test.js`
+// scans for exactly this omission and caught these routes before they shipped.
 function requireBusinessOwner(viewer, businessId) {
+  assertDomainVisible(viewer, businessId, 'people')
   if (!ownsBusiness(viewer, businessId)) throw failure(404, 'Business not found')
 }
 
