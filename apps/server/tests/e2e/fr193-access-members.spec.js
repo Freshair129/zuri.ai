@@ -84,7 +84,7 @@ test('ordinary member cannot see Remove or bypass it through the API; live Opera
   await page.getByRole('button', { name: `Open Business ${business.name}`, exact: true }).click()
   await page.goto('/people')
   const actor = await signUpBusinessActor(page.request, business.id)
-  await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'MEMBER' } })
+  await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'MEMBER', domainKeysJson: JSON.stringify(['people']) } })
   const record = await prisma.employment.create({ data: { personId: actor.id, tenantId: business.tenantId, businessId: business.id, employmentType: 'OWNER_OPERATOR' } })
   const access = await prisma.membership.findFirstOrThrow({ where: { personId: actor.id, businessId: business.id } })
   await switchBusinessActor(page, actor)
