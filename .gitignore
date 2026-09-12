@@ -52,4 +52,38 @@ apps/server/src/generated/
 # first merge after landing and would have on every one after. Untracked, the
 # diagnostic still gets written and printed; only the merge churn goes away.
 docs/.doc-graph-drift-report.json
+
+# Generated documentation views (ADR-081). Written by `npm run govern`, verified
+# in CI, never committed. The drift report above was the first file to earn this
+# treatment for exactly this reason; these are the rest of the same family.
+#
+# On 2026-09-12 six pull requests merged and the generated files accounted for
+# 11 of 15 conflicts on two of them, 2 of 2 on a three-file CI change, and 5 of 5
+# on a fourth. None was a disagreement about anything a person wrote — two
+# branches ran one generator over different inputs and git was asked to referee.
+#
+# NOT listed, and deliberately still committed: `apps/server/runtime/domain-state.json`
+# (imported by `product-readiness-read-model.js`, and the Docker build context is
+# `apps/server/`, so the repo-root `docs/` it derives from is absent at image
+# build time), `llms-full.txt` and `llms.txt` (their purpose is to be readable
+# without a checkout). See ADR-081 D2 — a file joins that list only with a
+# reason of that kind.
+docs/.doc-graph.json
+docs/.domain-state.json
+docs/.preflight-report.json
+docs/FEATURE-MAP.md
+docs/DOMAIN-MAP.md
+docs/TRACE.md
+docs/DOCUMENT-LINKS.md
+docs/appendices/D-traceability.md
+
+# `llms-full.txt` joins them. It was argued for keeping — its purpose is to be
+# readable without a checkout — and the merge ledger overruled that: it
+# conflicted on four of the five pull requests merged on 2026-09-12, more often
+# than any other single file, because it inlines README, CLAUDE.md, AGENTS.md,
+# PRODUCT.md and every charter, so any edit to any of them rewrites it whole.
+# CI builds it and uploads it as an artefact, which serves a reader without a
+# checkout at least as well as a file that is regularly wrong between merges.
+llms-full.txt
+
 .claude/worktrees/

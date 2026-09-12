@@ -148,30 +148,33 @@ jobs:
       # `postinstall` runs `prisma generate`, so the client is built here.
       - run: npm ci
 
-      # Check the submitted projection before a generator can overwrite it.
-      - name: Committed graph is current
-        run: npm run docs:check
-
-      # docs:graph rebuilds from the filesystem, docs:check fails when the
-      # committed graph disagrees with it, docs:preflight (--strict) fails on
-      # any CRITICAL. The order matters: two preflight checks read the graph,
-      # so a branch that declares a new id must regenerate before preflighting.
+      # docs:graph rebuilds from the filesystem, docs:check re-runs the
+      # generator and fails when a second pass disagrees with the first, and
+      # docs:preflight (--strict) fails on any CRITICAL. The order matters: two
+      # preflight checks read the graph, so it must be built before preflighting.
+      #
+      # The steps that used to sit around this one — "Committed graph is
+      # current", "Relocated graph is committed and current" and the
+      # generated-views diff — are gone with the committed artefacts they
+      # guarded (ADR-081 D3). They answered "has the copy in git drifted from
+      # its source"; with no copy in git there is nothing to drift. What is left
+      # is the stronger question `docs:check` still asks: is the generator
+      # REPRODUCIBLE. That catches a real defect and this one never did more
+      # than report that somebody forgot to run a command.
       - name: Governance chain
         run: npm run govern
 
-      - name: Relocated graph is committed and current
-        run: node scripts/monorepo-graph.mjs --check
-
-      # Human views and bundled readiness state must reproduce committed data.
-      # Graphs retain their dedicated semantic checks above; run diagnostics are
-      # ignored files. In particular, schema 2.0 state carries no run timestamp.
-      - name: Generated views are committed and current
+      # `runtime/domain-state.json` IS still committed — the app imports it and
+      # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
+      # a byte-stability check of its own. #354 removed the run timestamp that
+      # made this impossible before.
+      - name: Bundled runtime state is committed and current
         working-directory: .
         shell: bash
         run: |
-          if ! git diff --quiet -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md docs/DOCUMENT-LINKS.md docs/.domain-state.json apps/server/runtime/domain-state.json; then
-            echo "::error::A generated view is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md docs/DOCUMENT-LINKS.md docs/.domain-state.json apps/server/runtime/domain-state.json
+          if ! git diff --quiet -- apps/server/runtime/domain-state.json; then
+            echo "::error::apps/server/runtime/domain-state.json is out of date. Run 'npm run govern' and commit the result."
+            git --no-pager diff --stat -- apps/server/runtime/domain-state.json
             exit 1
           fi
 
@@ -183,16 +186,22 @@ jobs:
       # `--check`, so a failure names the drift instead of only asserting it.
       # It needs Node and nothing else — no install, no dependency on the
       # `apps/server` tree this job otherwise works in.
-      - name: llms-full.txt is committed and current
+      # Built, not compared. `llms-full.txt` is no longer committed (ADR-081 D1
+      # as amended), so "is it current" has no copy to be current against — what
+      # is left is whether the generator RUNS, which a failure here reports.
+      # The corpus is then uploaded, so an LLM reader without a checkout gets a
+      # build of it rather than a file that was stale between merges.
+      - name: Build the LLM corpus
         working-directory: .
         shell: bash
-        run: |
-          node scripts/build-llms-full.mjs
-          if ! git diff --quiet -- llms-full.txt; then
-            echo "::error::llms-full.txt is out of date. Run 'npm run docs:llms' and commit the result."
-            git --no-pager diff --stat -- llms-full.txt
-            exit 1
-          fi
+        run: node scripts/build-llms-full.mjs
+
+      - name: Keep the LLM corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: llms-full
+          path: llms-full.txt
+          retention-days: 30
 
       - name: Unit and integration tests
         run: npm test
