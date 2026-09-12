@@ -31,3 +31,15 @@ Set `domainKeysJson` to `['people']` when creating this MEMBER fixture. Retain
 all production domain guards, Remove denials and fail-on-flaky checks. The test
 must reach HR, observe no Remove controls, and receive 404 on direct mutation
 requests before testing live Operator authority and expiry in the same session.
+
+## Confirmation select accessibility
+
+After correcting the member grant, the next browser run passed Member denials
+and Operator Employment removal, but timed out at line 117 selecting the Access
+grant field. The screenshot shows the open confirmation and its visible select.
+`Field` wraps both the caption and select options in a label; the select had no
+explicit accessible name, so an exact `getByLabel('Access grant')` could not
+identify it independently of its option text. Unit/service tests did not exercise
+this DOM label. Give this new select the explicit accessible name `Access grant`
+and retain the exact-label browser assertion; do not weaken it to an index or
+extend timeouts. This changes no authorization or lifecycle behavior.

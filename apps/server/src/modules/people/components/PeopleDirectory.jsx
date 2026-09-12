@@ -253,7 +253,7 @@ export default function PeopleDirectory({ directoryOnly = false }) {
               <p className="mb-3 text-sm font-bold">{removal.displayName}</p>
               {removal.kind === 'membership' ? <>
                 <Field label="Access grant">
-                  <select className="input" value={removal.grantId} disabled={busy}
+                  <select aria-label="Access grant" className="input" value={removal.grantId} disabled={busy}
                     onChange={(event) => setRemoval({ ...removal, grantId: event.target.value })}>
                     {removal.grants.map((grant) => <option key={grant.id} value={grant.id} disabled={!grant.canRemove}>
                       {grant.scopeType === 'TENANT' ? 'Organization — all businesses' : 'This Business'} · {grant.role}{!grant.canRemove ? ' (organization owner required)' : ''}
